@@ -32,26 +32,25 @@ func main() {
 
 	//initialize repo, service, handler
 
-	
 	schoolRepo := repository.NewSchoolRepository(db)
 	schoolService := service.NewSchoolService(schoolRepo)
 	schoolHandler := handler.NewSchoolHandler(schoolService)
-	
+
 	academicYearRepo := repository.NewAcademicYearRepository(db)
 	academicYearService := service.NewAcademicYearService(academicYearRepo, schoolService)
 	academicYearHandler := handler.NewAcademicYearHandler(academicYearService, schoolService)
-	
+
 	termRepo := repository.NewTermRepository(db)
 	termService := service.NewTermService(termRepo)
 	termHandler := handler.NewTermHandler(termService)
-	
+
 	userRepo := repository.NewUserRepository(db)
 	userService := service.NewUserService(userRepo)
 	userHandler := handler.NewUserHandler(userService)
-	
+
 	authService := service.NewAuthService(userRepo)
 	authHandler := handler.NewAuthHandler(authService)
-	
+
 	schoolUserRepo := repository.NewSchoolUserRepository(db)
 	schoolUserService := service.NewSchoolUserService(schoolUserRepo, schoolService)
 	schoolUserHandler := handler.NewSchoolUserHandler(schoolUserService, schoolService)
@@ -139,11 +138,11 @@ func main() {
 		//protected routes
 		api.Use(middleware.AuthRequired())
 
-		schoolAPI:=api.Group("/schools")
+		schoolAPI := api.Group("/schools")
 		{
 			schoolAPI.POST("/", middleware.RequireRole(schoolService, "super_admin"), schoolHandler.CreateSchool)
 			schoolAPI.GET("/", middleware.RequireRole(schoolService, "super_admin"), schoolHandler.GetSchools)
-			schoolAPI.GET("/summary", middleware.RequireRole(schoolService, "super_admin"),schoolHandler.GetSchoolSummary)
+			schoolAPI.GET("/summary", middleware.RequireRole(schoolService, "super_admin"), schoolHandler.GetSchoolSummary)
 			schoolAPI.GET("/check-code/:schoolCode", schoolHandler.CheckCodeAvailability)
 			schoolAPI.GET("/:schoolCode", middleware.RequireSchoolMember(schoolService), schoolHandler.GetSchoolByCode)
 			schoolAPI.PATCH("/:schoolCode", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "super_admin"), schoolHandler.UpdateSchool)
@@ -293,21 +292,21 @@ func main() {
 			// Categories
 			assignmentAPI.POST("/categories", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin"), assignmentHandler.CreateCategory)
 			assignmentAPI.GET("/categories/school/:schoolCode", middleware.RequireSchoolMember(schoolService), assignmentHandler.GetCategoriesBySchool)
-			
+
 			// Assignments
 			assignmentAPI.POST("/", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "teacher"), assignmentHandler.CreateAssignment)
 			assignmentAPI.GET("/subject-class/:subjectClassId", assignmentHandler.GetBySubjectClass)
-			assignmentAPI.GET("/:submissionId", assignmentHandler.GetSubmissionsByAssignment)
+			assignmentAPI.GET("/:assignmentId", assignmentHandler.GetSubmissionsByAssignment)
 			assignmentAPI.GET("/status/:id", assignmentHandler.GetAssignmentStatus)
 			assignmentAPI.PATCH("/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "teacher"), assignmentHandler.UpdateAssignment)
 			assignmentAPI.DELETE("/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "teacher", "admin"), assignmentHandler.DeleteAssignment)
-			
+
 			// Submissions
 			assignmentAPI.POST("/submit/:assignmentId", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "student"), assignmentHandler.Submit)
 			assignmentAPI.GET("/submit/:submissionId", assignmentHandler.GetSubmissionByID)
 			assignmentAPI.PATCH("/submit/:submissionId", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "student"), assignmentHandler.UpdateSubmission)
 			assignmentAPI.DELETE("/submit/:submissionId", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "student"), assignmentHandler.DeleteSubmission)
-			
+
 			// Assessments
 			assignmentAPI.POST("/assess/:submissionId", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "teacher"), assignmentHandler.Assess)
 			assignmentAPI.PATCH("/assess/:submissionId", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "teacher"), assignmentHandler.UpdateAssessment)
@@ -316,19 +315,19 @@ func main() {
 
 		gradeAPI := api.Group("/grades")
 		{
-			gradeAPI.POST("/weights",middleware.RequireRole(schoolService, "admin", "teacher"),gradeHandler.ConfigureWeights)
-			gradeAPI.GET("/weights/subject/:subjectId",middleware.RequireSchoolMember(schoolService),gradeHandler.GetWeightsBySubject)
-			gradeAPI.GET("/student/:userId/subject/:subjectId",middleware.RequireSchoolMember(schoolService),gradeHandler.GetStudentGrade)
-			gradeAPI.GET("/class/:classId/subject/:subjectId",middleware.RequireRole(schoolService, "teacher", "admin"),gradeHandler.GetClassGradeReport)
+			gradeAPI.POST("/weights", middleware.RequireRole(schoolService, "admin", "teacher"), gradeHandler.ConfigureWeights)
+			gradeAPI.GET("/weights/subject/:subjectId", middleware.RequireSchoolMember(schoolService), gradeHandler.GetWeightsBySubject)
+			gradeAPI.GET("/student/:userId/subject/:subjectId", middleware.RequireSchoolMember(schoolService), gradeHandler.GetStudentGrade)
+			gradeAPI.GET("/class/:classId/subject/:subjectId", middleware.RequireRole(schoolService, "teacher", "admin"), gradeHandler.GetClassGradeReport)
 		}
 
 		notificationAPI := api.Group("/notifications")
 		{
-			notificationAPI.GET("/",notificationHandler.GetNotifications)
-			notificationAPI.GET("/unread-count",notificationHandler.GetUnreadCount)
-			notificationAPI.PATCH("/read/:id",notificationHandler.MarkAsRead)
-			notificationAPI.PATCH("/read-all",notificationHandler.MarkAllAsRead)
-			notificationAPI.DELETE("/:id",notificationHandler.Delete)
+			notificationAPI.GET("/", notificationHandler.GetNotifications)
+			notificationAPI.GET("/unread-count", notificationHandler.GetUnreadCount)
+			notificationAPI.PATCH("/read/:id", notificationHandler.MarkAsRead)
+			notificationAPI.PATCH("/read-all", notificationHandler.MarkAllAsRead)
+			notificationAPI.DELETE("/:id", notificationHandler.Delete)
 		}
 
 		logAPI := api.Group("/logs")
@@ -342,9 +341,8 @@ func main() {
 			dashboardAPI.GET("/teacher/:schoolUserId", dashboardHandler.GetTeacherDashboard)
 			dashboardAPI.GET("/admin/:schoolId", dashboardHandler.GetAdminDashboard)
 		}
-			}
-		
-			//run server
-			r.Run(":8080")
-		}
-		
+	}
+
+	//run server
+	r.Run(":8080")
+}

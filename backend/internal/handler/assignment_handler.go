@@ -109,7 +109,7 @@ func (h *AssignmentHandler) CreateAssignment(c *gin.Context) {
 }
 
 func (h *AssignmentHandler) UpdateAssignment(c *gin.Context) {
-	id := c.Param("submissionId")
+	id := c.Param("id")
 	var input dto.UpdateAssignmentDTO
 	if err := c.ShouldBindJSON(&input); err != nil {
 		HandleBindingError(c, err)
@@ -149,7 +149,7 @@ func (h *AssignmentHandler) UpdateAssignment(c *gin.Context) {
 }
 
 func (h *AssignmentHandler) DeleteAssignment(c *gin.Context) {
-	id := c.Param("submissionId")
+	id := c.Param("id")
 
 	if err := h.service.DeleteAssignment(id); err != nil {
 		HandleError(c, err)
@@ -207,8 +207,8 @@ func (h *AssignmentHandler) GetBySubjectClass(c *gin.Context) {
 }
 
 func (h *AssignmentHandler) GetSubmissionsByAssignment(c *gin.Context) {
-	submissionId := c.Param("submissionId")
-	asg, err := h.service.GetAssignmentWithSubmissions(submissionId)
+	assignmentID := c.Param("assignmentId")
+	asg, err := h.service.GetAssignmentWithSubmissions(assignmentID)
 	if err != nil {
 		HandleError(c, err)
 		return
@@ -262,7 +262,7 @@ func (h *AssignmentHandler) GetSubmissionsByAssignment(c *gin.Context) {
 
 func (h *AssignmentHandler) GetAssignmentStatus(c *gin.Context) {
 	id := c.Param("id")
-	
+
 	status, err := h.service.GetAssignmentStatus(id)
 	if err != nil {
 		HandleError(c, err)
