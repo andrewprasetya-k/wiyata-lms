@@ -1,3 +1,4 @@
 /schema.md
 tmp/build-errors.log
 .kiro/settings/lsp.json
+backend/AGENT.md
