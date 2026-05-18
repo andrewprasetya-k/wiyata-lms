@@ -66,6 +66,21 @@ func (s *classService) Update(class *domain.Class) error {
 }
 
 func (s *classService) Delete(id string) error {
-	// TODO: Proteksi jika kelas sudah memiliki siswa atau mata pelajaran
+	enrollmentCount, err := s.repo.CountEnrollmentsByClass(id)
+	if err != nil {
+		return err
+	}
+	if enrollmentCount > 0 {
+		return fmt.Errorf("class cannot be deleted because it still has enrollments")
+	}
+
+	subjectClassCount, err := s.repo.CountSubjectClassesByClass(id)
+	if err != nil {
+		return err
+	}
+	if subjectClassCount > 0 {
+		return fmt.Errorf("class cannot be deleted because it still has subject assignments")
+	}
+
 	return s.repo.Delete(id)
 }

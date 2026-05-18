@@ -11,6 +11,8 @@ type ClassRepository interface {
 	GetByID(id string) (*domain.Class, error)
 	Update(class *domain.Class) error
 	Delete(id string) error
+	CountEnrollmentsByClass(classID string) (int64, error)
+	CountSubjectClassesByClass(classID string) (int64, error)
 	CheckDuplicateCode(schoolID string, termID string, code string, excludeID string) (bool, error)
 }
 
@@ -84,6 +86,18 @@ func (r *classRepository) Delete(id string) error {
 		return gorm.ErrRecordNotFound
 	}
 	return nil
+}
+
+func (r *classRepository) CountEnrollmentsByClass(classID string) (int64, error) {
+	var count int64
+	err := r.db.Model(&domain.Enrollment{}).Where("enr_cls_id = ?", classID).Count(&count).Error
+	return count, err
+}
+
+func (r *classRepository) CountSubjectClassesByClass(classID string) (int64, error) {
+	var count int64
+	err := r.db.Model(&domain.SubjectClass{}).Where("scl_cls_id = ?", classID).Count(&count).Error
+	return count, err
 }
 
 func (r *classRepository) CheckDuplicateCode(schoolID string, termID string, code string, excludeID string) (bool, error) {
