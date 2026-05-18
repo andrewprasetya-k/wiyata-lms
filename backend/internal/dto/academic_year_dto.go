@@ -6,7 +6,7 @@ type CreateAcademicYearDTO struct {
 }
 
 type UpdateAcademicYearDTO struct {
-	Name     *string `json:"academicYearName"`
+	Name *string `json:"academicYearName"`
 }
 
 type AcademicYearResponseDTO struct {

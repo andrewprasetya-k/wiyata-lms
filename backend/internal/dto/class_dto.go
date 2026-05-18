@@ -33,7 +33,7 @@ type ClassResponseDTO struct {
 }
 
 type ClassListWithSchoolDTO struct {
-	School SchoolHeaderDTO    `json:"school,omitempty"`
+	School SchoolHeaderDTO   `json:"school,omitempty"`
 	Data   PaginatedResponse `json:"data"`
 }
 

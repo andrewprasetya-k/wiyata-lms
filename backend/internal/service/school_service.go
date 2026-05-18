@@ -88,22 +88,22 @@ func (s *schoolService) sanitizeInput(school *domain.School) {
 }
 
 func (s *schoolService) generateRandomCode() string {
-    word := []rune("ABCDEFGHJKMNPQRSTUVWXYZ23456789")
-    seededRand := rand.New(rand.NewSource(time.Now().UnixNano()))
-    
-    for range 10 { // Coba maksimal 10 kali
-        code := make([]rune, 6)
-        for j := range code {
-            code[j] = word[seededRand.Intn(len(word))]
-        }
-        
-        // Cek keunikan
-        _, err := s.repo.GetSchoolByCode(string(code))
-        if errors.Is(err, gorm.ErrRecordNotFound) {
-            return string(code)
-        }
-    }
-    return "" // Atau handle error jika gagal dapet kode unik
+	word := []rune("ABCDEFGHJKMNPQRSTUVWXYZ23456789")
+	seededRand := rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	for range 10 { // Coba maksimal 10 kali
+		code := make([]rune, 6)
+		for j := range code {
+			code[j] = word[seededRand.Intn(len(word))]
+		}
+
+		// Cek keunikan
+		_, err := s.repo.GetSchoolByCode(string(code))
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return string(code)
+		}
+	}
+	return "" // Atau handle error jika gagal dapet kode unik
 }
 
 func (s *schoolService) GetSchools(search string, status string, page int, limit int, sortBy string, order string) ([]*domain.School, int64, error) {
@@ -119,7 +119,7 @@ func (s *schoolService) GetSchoolByID(schoolID string) (*domain.School, error) {
 }
 
 func (s *schoolService) UpdateSchool(school *domain.School) error {
-    s.sanitizeInput(school)
+	s.sanitizeInput(school)
 
 	// 1. Validasi Duplikasi Email (kecuali milik sekolah ini sendiri)
 	exists, err := s.repo.CheckEmailExists(school.Email, school.ID)
@@ -138,22 +138,22 @@ func (s *schoolService) UpdateSchool(school *domain.School) error {
 	if exists {
 		return fmt.Errorf("nomor telepon sekolah '%s' sudah terdaftar", school.Phone)
 	}
-    
-    existing, err := s.repo.GetSchoolByCode(school.Code)
-    
-    // Kalau kodenya ketemu, cek apakah itu milik sekolah LAIN?
-    if err == nil && existing != nil {
-        // Jika ID yang di DB beda dengan ID yang mau kita update, berarti DUPLIKAT
-        if existing.ID != school.ID {
-            return fmt.Errorf("kode sekolah '%s' sudah dipakai oleh sekolah lain", school.Code)
-        }
-    }
 
-    return s.repo.UpdateSchool(school)
+	existing, err := s.repo.GetSchoolByCode(school.Code)
+
+	// Kalau kodenya ketemu, cek apakah itu milik sekolah LAIN?
+	if err == nil && existing != nil {
+		// Jika ID yang di DB beda dengan ID yang mau kita update, berarti DUPLIKAT
+		if existing.ID != school.ID {
+			return fmt.Errorf("kode sekolah '%s' sudah dipakai oleh sekolah lain", school.Code)
+		}
+	}
+
+	return s.repo.UpdateSchool(school)
 }
 
 func (s *schoolService) RestoreDeletedSchool(schoolCode string) error {
-	schoolID, err:= s.ConvertCodeToID(schoolCode)
+	schoolID, err := s.ConvertCodeToID(schoolCode)
 	if err != nil {
 		return err
 	}
@@ -161,7 +161,7 @@ func (s *schoolService) RestoreDeletedSchool(schoolCode string) error {
 }
 
 func (s *schoolService) DeleteSchool(schoolCode string) error {
-	schoolID, err:= s.ConvertCodeToID(schoolCode)
+	schoolID, err := s.ConvertCodeToID(schoolCode)
 	if err != nil {
 		return err
 	}
@@ -169,7 +169,7 @@ func (s *schoolService) DeleteSchool(schoolCode string) error {
 }
 
 func (s *schoolService) HardDeleteSchool(schoolCode string) error {
-	schoolID, err:= s.ConvertCodeToID(schoolCode)
+	schoolID, err := s.ConvertCodeToID(schoolCode)
 	if err != nil {
 		return err
 	}
@@ -199,7 +199,7 @@ func (s *schoolService) CheckCodeAvailability(schoolCode string) (bool, error) {
 	return false, nil // Sudah ada (tidak tersedia)
 }
 
-//functional methods
+// functional methods
 func (s *schoolService) ConvertCodeToID(schoolCode string) (string, error) {
 	school, err := s.repo.GetSchoolByCode(schoolCode)
 	if err != nil {

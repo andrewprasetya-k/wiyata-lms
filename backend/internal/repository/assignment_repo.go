@@ -132,17 +132,17 @@ func (r *assignmentRepository) UpsertSubmission(sbm *domain.Submission) error {
 	var existing domain.Submission
 	// cek apakah user sudah pernah submit assignment ini sebelumnya
 	err := r.db.Unscoped().Where("sbm_asg_id = ? AND sbm_usr_id = ?", sbm.AssignmentID, sbm.UserID).First(&existing).Error
-	
+
 	if err == nil {
 		sbm.ID = existing.ID
 		sbm.DeletedAt = gorm.DeletedAt{} //reset deleted_at
 		return r.db.Save(sbm).Error
 	}
-	
+
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return r.db.Create(sbm).Error
 	}
-	
+
 	return err
 }
 
@@ -167,18 +167,18 @@ func (r *assignmentRepository) UpdateSubmission(sbm *domain.Submission) error {
 }
 
 func (r *assignmentRepository) DeleteSubmission(id string) error {
-    // Gunakan gorm.Expr agar "now()" dianggap sebagai fungsi SQL, bukan string biasa
-    result := r.db.Model(&domain.Submission{}).
-        Where("sbm_id = ?", id).
-        Update("deleted_at", gorm.Expr("now()"))
-    
-    if result.Error != nil {
-        return result.Error
-    }
-    if result.RowsAffected == 0 {
-        return gorm.ErrRecordNotFound
-    }
-    return nil
+	// Gunakan gorm.Expr agar "now()" dianggap sebagai fungsi SQL, bukan string biasa
+	result := r.db.Model(&domain.Submission{}).
+		Where("sbm_id = ?", id).
+		Update("deleted_at", gorm.Expr("now()"))
+
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return nil
 }
 
 func (r *assignmentRepository) UpsertAssessment(asm *domain.Assessment) error {

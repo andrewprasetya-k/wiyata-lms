@@ -2,11 +2,11 @@ package dto
 
 // Student Dashboard
 type StudentDashboardDTO struct {
-	PendingAssignments int     `json:"pendingAssignments"`
+	PendingAssignments int                     `json:"pendingAssignments"`
 	UpcomingDeadlines  []AssignmentDeadlineDTO `json:"upcomingDeadlines"`
-	AverageScore       float64 `json:"averageScore"`
-	CompletedMaterials int     `json:"completedMaterials"`
-	TotalMaterials     int     `json:"totalMaterials"`
+	AverageScore       float64                 `json:"averageScore"`
+	CompletedMaterials int                     `json:"completedMaterials"`
+	TotalMaterials     int                     `json:"totalMaterials"`
 }
 
 type AssignmentDeadlineDTO struct {
@@ -19,36 +19,36 @@ type AssignmentDeadlineDTO struct {
 
 // Teacher Dashboard
 type TeacherDashboardDTO struct {
-	PendingReviews    int     `json:"pendingReviews"`
-	TotalStudents     int     `json:"totalStudents"`
-	SubmissionRate    float64 `json:"submissionRate"`
-	ClassPerformance  []ClassPerformanceDTO `json:"classPerformance"`
+	PendingReviews   int                   `json:"pendingReviews"`
+	TotalStudents    int                   `json:"totalStudents"`
+	SubmissionRate   float64               `json:"submissionRate"`
+	ClassPerformance []ClassPerformanceDTO `json:"classPerformance"`
 }
 
 type ClassPerformanceDTO struct {
-	ClassID         string  `json:"classId"`
-	ClassName       string  `json:"className"`
-	SubjectName     string  `json:"subjectName"`
-	AverageScore    float64 `json:"averageScore"`
-	SubmissionRate  float64 `json:"submissionRate"`
-	TotalStudents   int     `json:"totalStudents"`
+	ClassID        string  `json:"classId"`
+	ClassName      string  `json:"className"`
+	SubjectName    string  `json:"subjectName"`
+	AverageScore   float64 `json:"averageScore"`
+	SubmissionRate float64 `json:"submissionRate"`
+	TotalStudents  int     `json:"totalStudents"`
 }
 
 // Admin Dashboard
 type AdminDashboardDTO struct {
-	TotalStudents      int                    `json:"totalStudents"`
-	TotalTeachers      int                    `json:"totalTeachers"`
-	TotalClasses       int                    `json:"totalClasses"`
-	ActiveClasses      int                    `json:"activeClasses"`
-	EnrollmentTrends   []EnrollmentTrendDTO   `json:"enrollmentTrends"`
-	RecentActivities   []ActivityLogDTO       `json:"recentActivities"`
+	TotalStudents    int                  `json:"totalStudents"`
+	TotalTeachers    int                  `json:"totalTeachers"`
+	TotalClasses     int                  `json:"totalClasses"`
+	ActiveClasses    int                  `json:"activeClasses"`
+	EnrollmentTrends []EnrollmentTrendDTO `json:"enrollmentTrends"`
+	RecentActivities []ActivityLogDTO     `json:"recentActivities"`
 }
 
 type EnrollmentTrendDTO struct {
-	ClassName      string `json:"className"`
-	TotalEnrolled  int    `json:"totalEnrolled"`
-	Teachers       int    `json:"teachers"`
-	Students       int    `json:"students"`
+	ClassName     string `json:"className"`
+	TotalEnrolled int    `json:"totalEnrolled"`
+	Teachers      int    `json:"teachers"`
+	Students      int    `json:"students"`
 }
 
 type ActivityLogDTO struct {

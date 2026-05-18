@@ -133,7 +133,7 @@ func (s *assignmentService) GetAssignmentStatus(assignmentID string) (map[string
 	// Calculate statistics
 	submitted := len(asg.Submissions)
 	notSubmitted := totalStudents - submitted
-	
+
 	graded := 0
 	lateSubmissions := 0
 	for _, sub := range asg.Submissions {
@@ -152,13 +152,13 @@ func (s *assignmentService) GetAssignmentStatus(assignmentID string) (map[string
 	}
 
 	return map[string]interface{}{
-		"totalStudents":    totalStudents,
-		"submitted":        submitted,
-		"notSubmitted":     notSubmitted,
-		"graded":           graded,
-		"ungraded":         ungraded,
-		"lateSubmissions":  lateSubmissions,
-		"submissionRate":   submissionRate,
+		"totalStudents":   totalStudents,
+		"submitted":       submitted,
+		"notSubmitted":    notSubmitted,
+		"graded":          graded,
+		"ungraded":        ungraded,
+		"lateSubmissions": lateSubmissions,
+		"submissionRate":  submissionRate,
 	}, nil
 }
 
@@ -190,13 +190,13 @@ func (s *assignmentService) DeleteAssignment(id string) error {
 
 func (s *assignmentService) Submit(sbm *domain.Submission, mediaIDs []string) error {
 	sbm.SubmittedAt = time.Now()
-	
+
 	// Check deadline before submitting
 	assignment, err := s.repo.GetAssignmentByID(sbm.AssignmentID)
 	if err != nil {
 		return err
 	}
-	
+
 	if !assignment.AllowLateSubmission && assignment.Deadline != nil && assignment.Deadline.Before(sbm.SubmittedAt) {
 		return fmt.Errorf("submission past due")
 	}

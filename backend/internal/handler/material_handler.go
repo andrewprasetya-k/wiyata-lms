@@ -25,7 +25,7 @@ func NewMaterialHandler(service service.MaterialService, subjectClassService ser
 func (h *MaterialHandler) Create(c *gin.Context) {
 	// Check if it's multipart form (with files) or JSON
 	contentType := c.GetHeader("Content-Type")
-	
+
 	if contentType == "application/json" {
 		// Original JSON flow
 		var input dto.CreateMaterialDTO
@@ -87,7 +87,7 @@ func (h *MaterialHandler) Create(c *gin.Context) {
 
 	for _, file := range files {
 		fileSize := file.Size / (1024 * 1024) // Convert to MB
-		if fileSize > 10 { // Example limit: 10MB
+		if fileSize > 10 {                    // Example limit: 10MB
 			c.JSON(http.StatusBadRequest, gin.H{"error": "File size exceeds 10MB limit"})
 			return
 		}

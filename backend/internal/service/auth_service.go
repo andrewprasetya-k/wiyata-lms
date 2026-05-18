@@ -12,7 +12,7 @@ import (
 )
 
 type AuthService interface {
-	Login(email string, password string) (string, *domain.User, error) // returns JWT token and user
+	Login(email string, password string) (string, *domain.User, error)                     // returns JWT token and user
 	Register(fullName string, email string, password string) (string, *domain.User, error) // returns JWT token and user
 }
 
@@ -53,7 +53,7 @@ func (s *authService) Login(email string, password string) (string, *domain.User
 	if err != nil {
 		return "", nil, err
 	}
-	
+
 	return tokenString, userEmail, nil
 }
 
@@ -65,7 +65,7 @@ func (s *authService) Register(fullName string, email string, password string) (
 	if isEmailExists {
 		return "", nil, errors.New("Email already registered")
 	}
-	
+
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return "", nil, err

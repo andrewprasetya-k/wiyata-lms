@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type SchoolRepository interface{
+type SchoolRepository interface {
 	CreateSchool(school *domain.School) error
 	GetSchools(search string, status string, page int, limit int, sortBy string, order string) ([]*domain.School, int64, error)
 	GetSchoolByCode(schoolCode string) (*domain.School, error)
@@ -28,7 +28,7 @@ type schoolRepository struct {
 	db *gorm.DB
 }
 
-//constructor
+// constructor
 func NewSchoolRepository(db *gorm.DB) SchoolRepository {
 	return &schoolRepository{db: db}
 }
@@ -85,7 +85,7 @@ func (r *schoolRepository) GetSchools(search string, status string, page int, li
 	query = query.Order(fmt.Sprintf("%s %s", column, order))
 
 	//pagiatanion
-	offset := (page - 1)*limit
+	offset := (page - 1) * limit
 	err := query.Limit(limit).Offset(offset).Find(&schools).Error
 	return schools, total, err
 }

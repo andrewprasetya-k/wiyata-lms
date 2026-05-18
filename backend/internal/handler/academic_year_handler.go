@@ -72,7 +72,7 @@ func (h *AcademicYearHandler) FindAll(c *gin.Context) {
 
 func (h *AcademicYearHandler) GetBySchool(c *gin.Context) {
 	schoolCode := c.Param("schoolCode")
-	
+
 	// Get school header
 	school, err := h.schoolService.GetSchoolByCode(schoolCode)
 	if err != nil {

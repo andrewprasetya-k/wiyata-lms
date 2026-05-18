@@ -20,34 +20,34 @@ func NewSchoolHandler(service service.SchoolService) *SchoolHandler {
 
 // Create
 func (h *SchoolHandler) CreateSchool(c *gin.Context) {
-    var input dto.CreateSchoolDTO
-    if err := c.ShouldBindJSON(&input); err != nil {
-        HandleBindingError(c, err)
-        return
-    }
+	var input dto.CreateSchoolDTO
+	if err := c.ShouldBindJSON(&input); err != nil {
+		HandleBindingError(c, err)
+		return
+	}
 
-    school := domain.School{
-        Name:    input.Name,
-        Code:    input.Code,
-        LogoID:  input.LogoID,
-        Address: input.Address,
-        Email:   input.Email,
-        Phone:   input.Phone,
-        Website: input.Website,
-    }
+	school := domain.School{
+		Name:    input.Name,
+		Code:    input.Code,
+		LogoID:  input.LogoID,
+		Address: input.Address,
+		Email:   input.Email,
+		Phone:   input.Phone,
+		Website: input.Website,
+	}
 
-    if err := h.service.CreateSchool(&school); err != nil {
-        HandleError(c, err)
-        return
-    }
+	if err := h.service.CreateSchool(&school); err != nil {
+		HandleError(c, err)
+		return
+	}
 
-    c.JSON(http.StatusCreated, h.mapToResponse(&school))
+	c.JSON(http.StatusCreated, h.mapToResponse(&school))
 }
 
 // Get Schools (with filter)
 func (h *SchoolHandler) GetSchools(c *gin.Context) {
-	page, _ := strconv.Atoi(c.DefaultQuery("page","1"))
-	limit, _ := strconv.Atoi(c.DefaultQuery("limit","10"))
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
 	status := c.Query("status")
 	search := c.Query("search")
 	sortBy := c.Query("sortBy")
@@ -59,18 +59,18 @@ func (h *SchoolHandler) GetSchools(c *gin.Context) {
 		return
 	}
 
-    var response []dto.SchoolResponseDTO
-    for _, s := range schools {
-        response = append(response, h.mapToResponse(s))
-    }
+	var response []dto.SchoolResponseDTO
+	for _, s := range schools {
+		response = append(response, h.mapToResponse(s))
+	}
 
 	totalPages := (total + int64(limit) - 1) / int64(limit)
-	
+
 	paginatedResponse := dto.PaginatedResponse{
-		Data: response,
+		Data:       response,
 		TotalItems: total,
-		Page: page,
-		Limit: limit,
+		Page:       page,
+		Limit:      limit,
 		TotalPages: int(totalPages),
 	}
 	c.JSON(http.StatusOK, paginatedResponse)
@@ -156,7 +156,6 @@ func (h *SchoolHandler) UpdateSchool(c *gin.Context) {
 	c.JSON(http.StatusOK, h.mapToResponse(school))
 }
 
-
 // Helper to map domain to DTO
 func (h *SchoolHandler) mapToResponse(s *domain.School) dto.SchoolResponseDTO {
 	return dto.SchoolResponseDTO{
@@ -174,7 +173,7 @@ func (h *SchoolHandler) mapToResponse(s *domain.School) dto.SchoolResponseDTO {
 	}
 }
 
-//restore deleted school
+// restore deleted school
 func (h *SchoolHandler) RestoreDeletedSchool(c *gin.Context) {
 	schoolCode := c.Param("schoolCode")
 	if err := h.service.RestoreDeletedSchool(schoolCode); err != nil {

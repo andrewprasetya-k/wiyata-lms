@@ -49,28 +49,28 @@ func (r *notificationRepository) GetByUserID(userID string, page, limit int, unr
 }
 
 func (r *notificationRepository) GetUnreadCount(userID string) (int, error) {
-    var count int64
-    err := r.db.Model(&domain.Notification{}).Where("ntf_usr_id = ? AND is_read = ?", userID, false).Count(&count).Error
-    return int(count), err
+	var count int64
+	err := r.db.Model(&domain.Notification{}).Where("ntf_usr_id = ? AND is_read = ?", userID, false).Count(&count).Error
+	return int(count), err
 }
 
 func (r *notificationRepository) MarkAsRead(notificationID string) error {
 	result := r.db.Model(&domain.Notification{}).Where("ntf_id = ?", notificationID).Update("is_read", true)
 
 	if result.RowsAffected == 0 {
-			return gorm.ErrRecordNotFound
+		return gorm.ErrRecordNotFound
 	}
 	return result.Error
 }
 
 func (r *notificationRepository) MarkAllAsRead(userID string) error {
-        return r.db.Model(&domain.Notification{}).Where("ntf_usr_id = ? AND is_read = ?", userID, false).Update("is_read", true).Error
+	return r.db.Model(&domain.Notification{}).Where("ntf_usr_id = ? AND is_read = ?", userID, false).Update("is_read", true).Error
 }
 
 func (r *notificationRepository) Delete(notificationID string) error {
-        result := r.db.Delete(&domain.Notification{}, "ntf_id = ?", notificationID)
-        if result.RowsAffected == 0 {
-			return gorm.ErrRecordNotFound
-        }
-        return result.Error
+	result := r.db.Delete(&domain.Notification{}, "ntf_id = ?", notificationID)
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return result.Error
 }

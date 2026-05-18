@@ -163,32 +163,32 @@ func (r *dashboardRepository) GetClassPerformance(schoolUserID string) ([]map[st
 // Admin Dashboard
 func (r *dashboardRepository) GetSchoolStatistics(schoolID string) (map[string]int, error) {
 	stats := make(map[string]int)
-	
+
 	var totalStudents, totalTeachers, totalClasses, activeClasses int64
-	
+
 	r.db.Table("edv.school_users su").
 		Joins("JOIN edv.enrollments e ON su.scu_id = e.enr_scu_id").
 		Where("su.scu_sch_id = ? AND e.enr_role = 'student'", schoolID).
 		Count(&totalStudents)
-	
+
 	r.db.Table("edv.school_users su").
 		Joins("JOIN edv.subject_classes sc ON su.scu_id = sc.scl_scu_id").
 		Where("su.scu_sch_id = ?", schoolID).
 		Count(&totalTeachers)
-	
+
 	r.db.Table("edv.classes").
 		Where("cls_sch_id = ? AND deleted_at IS NULL", schoolID).
 		Count(&totalClasses)
-	
+
 	r.db.Table("edv.classes").
 		Where("cls_sch_id = ? AND is_active = true AND deleted_at IS NULL", schoolID).
 		Count(&activeClasses)
-	
+
 	stats["totalStudents"] = int(totalStudents)
 	stats["totalTeachers"] = int(totalTeachers)
 	stats["totalClasses"] = int(totalClasses)
 	stats["activeClasses"] = int(activeClasses)
-	
+
 	return stats, nil
 }
 

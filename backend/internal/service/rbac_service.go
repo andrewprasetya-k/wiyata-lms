@@ -113,7 +113,7 @@ func (s *rbacService) CreateSuperAdmin(name, email, password string) error {
 	if err != nil {
 		return fmt.Errorf("failed to get roles: %v", err)
 	}
-	
+
 	var superAdminRoleID string
 	for _, role := range roles {
 		if role.Name == "super_admin" {

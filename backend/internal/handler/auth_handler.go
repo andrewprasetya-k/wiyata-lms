@@ -22,7 +22,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		HandleBindingError(c, err)
 		return
 	}
-	
+
 	token, user, err := h.authService.Login(input.Email, input.Password)
 	if err != nil {
 		// Always return 401 Unauthorized with generic message

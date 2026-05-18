@@ -38,7 +38,7 @@ func (h *MediaHandler) Upload(c *gin.Context) {
 
 	// Auto-detect file info
 	fileSize := file.Size / (1024 * 1024) // Convert to MB
-	if fileSize > 10 { // Example limit: 100MB
+	if fileSize > 10 {                    // Example limit: 100MB
 		c.JSON(http.StatusBadRequest, gin.H{"error": "File size exceeds 10MB limit"})
 		return
 	}
@@ -48,7 +48,7 @@ func (h *MediaHandler) Upload(c *gin.Context) {
 
 	// Generate storage path (you can customize this)
 	storagePath := fmt.Sprintf("materials/%s/%s", schoolID, fileName)
-	
+
 	// TODO: Upload to Supabase Storage here
 	// For now, we'll create a placeholder URL
 	fileURL := fmt.Sprintf("https://placeholder.supabase.co/storage/v1/object/public/%s", storagePath)

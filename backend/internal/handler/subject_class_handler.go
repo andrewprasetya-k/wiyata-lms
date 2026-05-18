@@ -10,7 +10,7 @@ import (
 )
 
 type SubjectClassHandler struct {
-	service service.SubjectClassService
+	service      service.SubjectClassService
 	classService service.ClassService
 }
 
@@ -66,7 +66,7 @@ func (h *SubjectClassHandler) GetByClass(c *gin.Context) {
 
 	response2 := dto.SubjectPerClassDTO{
 		Class: dto.ClassHeaderDTO{
-			ID:  classInfo.ID,
+			ID:    classInfo.ID,
 			Title: classInfo.Title,
 			Code:  classInfo.Code,
 		},

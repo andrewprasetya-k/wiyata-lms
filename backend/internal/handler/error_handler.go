@@ -28,10 +28,10 @@ func HandleError(c *gin.Context, err error) {
 	errStr := err.Error()
 
 	// 2. Business Logic Errors (Custom validation from services)
-	
+
 	// Already exists errors
-	if strings.Contains(errStr, "sudah terdaftar") || strings.Contains(errStr, "already exists") || 
-	   strings.Contains(errStr, "already assigned") {
+	if strings.Contains(errStr, "sudah terdaftar") || strings.Contains(errStr, "already exists") ||
+		strings.Contains(errStr, "already assigned") {
 		c.JSON(http.StatusConflict, gin.H{"error": "This data already exists or is already registered"})
 		return
 	}
@@ -55,7 +55,7 @@ func HandleError(c *gin.Context, err error) {
 	}
 
 	// 3. Database Constraint Errors (PostgreSQL patterns)
-	
+
 	// Foreign Key Violation
 	if strings.Contains(errStr, "violates foreign key constraint") {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid or non-existent data reference"})
@@ -130,10 +130,10 @@ func HandleBindingError(c *gin.Context, err error) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "One or more array elements are invalid"})
 		return
 	}
-	
+
 	// Type mismatch errors (e.g. sending string instead of number)
-	if strings.Contains(errStr, "unmarshal") || strings.Contains(errStr, "type mismatch") || 
-	   strings.Contains(errStr, "cannot unmarshal") {
+	if strings.Contains(errStr, "unmarshal") || strings.Contains(errStr, "type mismatch") ||
+		strings.Contains(errStr, "cannot unmarshal") {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Data type mismatch. Please check your input values"})
 		return
 	}

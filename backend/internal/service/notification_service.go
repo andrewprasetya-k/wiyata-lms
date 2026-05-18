@@ -60,13 +60,13 @@ func (s *notificationService) GetByUserID(userID string, page, limit int, unread
 	notificationDTOs := []dto.NotificationResponseDTO{}
 	for _, notification := range notifications {
 		notificationDTOs = append(notificationDTOs, dto.NotificationResponseDTO{
-				NotificationID: notification.ID,
-				Type:           notification.Type,
-				Title:          notification.Title,
-				Message:        notification.Message,
-				Link:           notification.Link,
-				IsRead:         notification.IsRead,
-				CreatedAt:      notification.CreatedAt.Format("02-01-2006 15:04:05"),
+			NotificationID: notification.ID,
+			Type:           notification.Type,
+			Title:          notification.Title,
+			Message:        notification.Message,
+			Link:           notification.Link,
+			IsRead:         notification.IsRead,
+			CreatedAt:      notification.CreatedAt.Format("02-01-2006 15:04:05"),
 		})
 	}
 

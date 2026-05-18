@@ -21,9 +21,9 @@ type MaterialService interface {
 }
 
 type materialService struct {
-	repo          repository.MaterialRepository
-	attService    AttachmentService
-	mediaRepo     repository.MediaRepository
+	repo       repository.MaterialRepository
+	attService AttachmentService
+	mediaRepo  repository.MediaRepository
 }
 
 func NewMaterialService(repo repository.MaterialRepository, attService AttachmentService, mediaRepo repository.MediaRepository) MaterialService {
