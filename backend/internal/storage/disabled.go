@@ -28,3 +28,8 @@ func (d *DisabledStorage) Delete(ctx context.Context, objectPath string) error {
 func (d *DisabledStorage) HealthCheck(ctx context.Context) error {
 	return ErrUnavailable
 }
+
+// GetPublicURL returns empty string (not implemented)
+func (d *DisabledStorage) GetPublicURL(objectPath string) string {
+	return ""
+}

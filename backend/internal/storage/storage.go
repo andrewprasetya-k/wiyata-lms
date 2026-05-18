@@ -19,4 +19,8 @@ type Provider interface {
 
 	// HealthCheck verifies storage is available
 	HealthCheck(ctx context.Context) error
+
+	// GetPublicURL returns the public URL for a file in storage
+	// Used for files already in storage or for constructing URLs
+	GetPublicURL(objectPath string) string
 }
