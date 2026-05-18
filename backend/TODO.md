@@ -32,13 +32,17 @@
   - Endpoints: `POST /assignments/submit/:submissionId/request-extension`, `PATCH /assignments/submit/:submissionId/review-extension`
   - Database: Add extension fields to submissions table
   
-- [ ] **Notification Triggers Integration**: Auto-create notifications untuk:
-  - New assignment created → notify students in class
-  - Assignment graded → notify student who submitted
-  - New comment added → notify content owner
-  - New material added → notify students in class
-  - New feed posted → notify class members
-  - Files to update: All existing services (assignment, material, comment, feed) to call notificationService.Create()
+- [x] **Notification Triggers Integration**: Auto-create notifications untuk:
+  - New assignment created → notify students in class ✅
+  - Assignment graded → notify student who submitted ✅
+  - New comment added → notify content owner ✅
+  - New material added → notify students in class ✅
+  - New feed posted → notify class members ✅
+  - Best-effort: aksi utama tidak gagal jika notif gagal ✅
+  - Self-notification prevention untuk feed dan comment ✅
+  - Files updated: `assignment_service.go`, `material_service.go`, `feed_service.go`, `comment_service.go`
+  - New repo: `content_owner_repo.go`
+  - New repo methods: `enrollment_repo.go` (GetStudentUserIDsByClass, GetMemberUserIDsByClass)
 
 - [~] **File Upload Integration**: S3/Supabase storage untuk media files
   - [x] Real file upload via `POST /media/upload`
@@ -47,9 +51,9 @@
   - [x] File validation (size limit, safe object path validation)
   - [x] Storage cleanup if metadata save fails
   - [x] Storage cleanup when media is deleted
+  - [x] Multipart material upload wired to storage (no more placeholder URL)
   - [ ] Generate signed URLs untuk download
   - [ ] Thumbnail generation
-  - [ ] Multipart material upload still uses placeholder file URL and should be wired to media storage flow
 
 ## 📊 Analytics & Reporting (Medium Priority)
 
