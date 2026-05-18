@@ -39,13 +39,15 @@ type assignmentService struct {
 	repo         repository.AssignmentRepository
 	attService   AttachmentService
 	notifService NotificationService
+	enrRepo      repository.EnrollmentRepository
 }
 
-func NewAssignmentService(repo repository.AssignmentRepository, attService AttachmentService, notifService NotificationService) AssignmentService {
+func NewAssignmentService(repo repository.AssignmentRepository, attService AttachmentService, notifService NotificationService, enrRepo repository.EnrollmentRepository) AssignmentService {
 	return &assignmentService{
 		repo:         repo,
 		attService:   attService,
 		notifService: notifService,
+		enrRepo:      enrRepo,
 	}
 }
 
@@ -72,6 +74,22 @@ func (s *assignmentService) CreateAssignment(asg *domain.Assignment, mediaIDs []
 		}
 		s.attService.Link(att)
 	}
+
+	// Best-effort: notify students in the class
+	if classID, err := s.repo.GetClassIDBySubjectClass(asg.SubjectClassID); err == nil && classID != "" {
+		if userIDs, err := s.enrRepo.GetStudentUserIDsByClass(classID); err == nil {
+			for _, uid := range userIDs {
+				_ = s.notifService.Create(&dto.CreateNotificationDTO{
+					UserID:    uid,
+					Type:      domain.NotifAssignmentCreated,
+					Title:     "New Assignment",
+					Message:   "A new assignment has been posted: " + asg.Title,
+					RelatedID: asg.ID,
+				})
+			}
+		}
+	}
+
 	return nil
 }
 

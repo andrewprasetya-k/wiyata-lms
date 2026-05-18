@@ -105,7 +105,7 @@ func main() {
 	notificationHandler := handler.NewNotificationHandler(notificationService)
 
 	assignmentRepo := repository.NewAssignmentRepository(db)
-	assignmentService := service.NewAssignmentService(assignmentRepo, attachmentService, notificationService)
+	assignmentService := service.NewAssignmentService(assignmentRepo, attachmentService, notificationService, enrollmentRepo)
 	assignmentHandler := handler.NewAssignmentHandler(assignmentService, schoolService, subjectClassService)
 
 	gradeHandler := handler.NewGradeHandler(service.NewGradeService(

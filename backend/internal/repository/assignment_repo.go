@@ -18,6 +18,7 @@ type AssignmentRepository interface {
 	GetAssignmentByID(id string) (*domain.Assignment, error)
 	GetAssignmentWithSubmissions(id string) (*domain.Assignment, error)
 	CountStudentsInClass(classID string) (int, error)
+	GetClassIDBySubjectClass(subjectClassID string) (string, error)
 	UpdateAssignment(asg *domain.Assignment) error
 	DeleteAssignment(id string) error
 
@@ -110,6 +111,14 @@ func (r *assignmentRepository) CountStudentsInClass(classID string) (int, error)
 		Where("enr_cls_id = ? AND enr_role = ?", classID, "student").
 		Count(&count).Error
 	return int(count), err
+}
+
+func (r *assignmentRepository) GetClassIDBySubjectClass(subjectClassID string) (string, error) {
+	var classID string
+	err := r.db.Model(&domain.SubjectClass{}).
+		Where("scl_id = ?", subjectClassID).
+		Pluck("scl_cls_id", &classID).Error
+	return classID, err
 }
 
 func (r *assignmentRepository) UpdateAssignment(asg *domain.Assignment) error {
