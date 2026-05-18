@@ -4,6 +4,8 @@ import (
 	"backend/internal/domain"
 	"backend/internal/dto"
 	"backend/internal/service"
+	"backend/internal/storage"
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -43,7 +45,7 @@ func (h *MaterialHandler) Create(c *gin.Context) {
 			CreatedBy:      input.CreatedBy,
 		}
 
-		if err := h.service.Create(&mat, input.MediaIDs, input.Medias); err != nil {
+		if err := h.service.Create(c.Request.Context(), &mat, input.MediaIDs, input.Medias, nil); err != nil {
 			HandleError(c, err)
 			return
 		}
@@ -83,23 +85,40 @@ func (h *MaterialHandler) Create(c *gin.Context) {
 
 	// Process uploaded files
 	files := form.File["files"]
-	var medias []dto.CreateMediaInline
+	var uploads []service.UploadFile
 
+	const maxUploadSize = 10 * 1024 * 1024
 	for _, file := range files {
-		fileSize := file.Size / (1024 * 1024) // Convert to MB
-		if fileSize > 10 {                    // Example limit: 10MB
+		if file.Size > maxUploadSize {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "File size exceeds 10MB limit"})
 			return
 		}
-		medias = append(medias, dto.CreateMediaInline{
+		src, err := file.Open()
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read uploaded file"})
+			return
+		}
+		mimeType := file.Header.Get("Content-Type")
+		uploads = append(uploads, service.UploadFile{
 			Name:     file.Filename,
-			FileSize: file.Size,
-			MimeType: file.Header.Get("Content-Type"),
-			FileURL:  "https://placeholder.supabase.co/storage/v1/object/public/materials/" + file.Filename,
+			Size:     file.Size,
+			MimeType: mimeType,
+			Content:  src,
 		})
 	}
+	defer func() {
+		for _, u := range uploads {
+			if c, ok := u.Content.(interface{ Close() error }); ok {
+				c.Close()
+			}
+		}
+	}()
 
-	if err := h.service.Create(&mat, nil, medias); err != nil {
+	if err := h.service.Create(c.Request.Context(), &mat, nil, nil, uploads); err != nil {
+		if errors.Is(err, storage.ErrNotImplemented) || errors.Is(err, storage.ErrUnavailable) {
+			c.JSON(http.StatusNotImplemented, gin.H{"error": "File upload to storage is not configured"})
+			return
+		}
 		HandleError(c, err)
 		return
 	}

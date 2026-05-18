@@ -4,12 +4,27 @@ import (
 	"backend/internal/domain"
 	"backend/internal/dto"
 	"backend/internal/repository"
+	"backend/internal/storage"
+	"context"
+	"fmt"
+	"io"
+	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
 )
 
+// UploadFile carries an open file reader and its metadata for material upload.
+type UploadFile struct {
+	Name     string
+	Size     int64
+	MimeType string
+	Content  io.Reader
+}
+
 type MaterialService interface {
-	Create(mat *domain.Material, mediaIDs []string, medias []dto.CreateMediaInline) error
+	Create(ctx context.Context, mat *domain.Material, mediaIDs []string, medias []dto.CreateMediaInline, uploads []UploadFile) error
 	FindAll(search string, subjectClassID string, page int, limit int) ([]*domain.Material, int64, error)
 	GetByID(id string) (*domain.Material, error)
 	Update(mat *domain.Material, mediaIDs []string) error
@@ -24,25 +39,62 @@ type materialService struct {
 	repo       repository.MaterialRepository
 	attService AttachmentService
 	mediaRepo  repository.MediaRepository
+	storage    storage.Provider
 }
 
-func NewMaterialService(repo repository.MaterialRepository, attService AttachmentService, mediaRepo repository.MediaRepository) MaterialService {
+func NewMaterialService(repo repository.MaterialRepository, attService AttachmentService, mediaRepo repository.MediaRepository, storageProvider storage.Provider) MaterialService {
+	if storageProvider == nil {
+		storageProvider = storage.NewDisabledStorage()
+	}
 	return &materialService{
 		repo:       repo,
 		attService: attService,
 		mediaRepo:  mediaRepo,
+		storage:    storageProvider,
 	}
 }
 
-func (s *materialService) Create(mat *domain.Material, mediaIDs []string, medias []dto.CreateMediaInline) error {
+func (s *materialService) Create(ctx context.Context, mat *domain.Material, mediaIDs []string, medias []dto.CreateMediaInline, uploads []UploadFile) error {
 	mat.Title = strings.TrimSpace(mat.Title)
 
-	err := s.repo.Create(mat)
-	if err != nil {
+	if err := s.repo.Create(mat); err != nil {
 		return err
 	}
 
-	// Create new medias if provided
+	// Upload files to storage and record media
+	for _, u := range uploads {
+		ext := filepath.Ext(u.Name)
+		objectPath := fmt.Sprintf("schools/%s/%s%s", mat.SchoolID, uuid.NewString(), ext)
+		mimeType := u.MimeType
+		if strings.TrimSpace(mimeType) == "" {
+			mimeType = "application/octet-stream"
+		}
+
+		publicURL, err := s.storage.Upload(ctx, objectPath, u.Content, mimeType)
+		if err != nil {
+			return err
+		}
+
+		media := &domain.Media{
+			SchoolID:    mat.SchoolID,
+			Name:        u.Name,
+			FileSize:    u.Size,
+			MimeType:    mimeType,
+			StoragePath: objectPath,
+			FileURL:     publicURL,
+			IsPublic:    true,
+			OwnerType:   domain.OwnerMaterial,
+			OwnerID:     mat.ID,
+		}
+		if err := s.mediaRepo.Create(media); err != nil {
+			// Best-effort cleanup of uploaded object
+			_ = s.storage.Delete(ctx, objectPath)
+			return err
+		}
+		mediaIDs = append(mediaIDs, media.ID)
+	}
+
+	// Create inline medias (pre-recorded, no upload needed)
 	for _, m := range medias {
 		media := &domain.Media{
 			SchoolID:     mat.SchoolID,

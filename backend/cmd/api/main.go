@@ -90,7 +90,7 @@ func main() {
 	attachmentService := service.NewAttachmentService(attachmentRepo)
 
 	materialRepo := repository.NewMaterialRepository(db)
-	materialService := service.NewMaterialService(materialRepo, attachmentService, mediaRepo)
+	materialService := service.NewMaterialService(materialRepo, attachmentService, mediaRepo, storageProvider)
 	materialHandler := handler.NewMaterialHandler(materialService, subjectClassService)
 
 	feedRepo := repository.NewFeedRepository(db)
