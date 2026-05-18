@@ -16,6 +16,14 @@
 12. ✅ Role-based Access Control (RBAC middleware)
 13. ✅ Grade Book Implementation (configure weights, calculate final grades, grade reports)
 14. ✅ Notification System (CRUD endpoints, unread count, mark as read)
+15. ✅ Assignment route param correctness
+16. ✅ Assignment ownership docs/schema sync
+17. ✅ Auth/RBAC middleware hardening
+18. ✅ Class delete protection (blocked when enrollments/subject classes exist)
+19. ✅ Subject delete protection (blocked when subject classes exist)
+20. ✅ Media storage abstraction + Supabase provider
+21. ✅ Media upload endpoint wired to storage
+22. ✅ Media delete storage cleanup
 
 ## 🚀 High Priority (Critical for Production)
 
@@ -32,11 +40,16 @@
   - New feed posted → notify class members
   - Files to update: All existing services (assignment, material, comment, feed) to call notificationService.Create()
 
-- [ ] **File Upload Integration**: S3/Supabase storage untuk media files
-  - Real file upload (bukan hanya metadata)
-  - Generate signed URLs untuk download
-  - File validation (type, size)
-  - Thumbnail generation
+- [~] **File Upload Integration**: S3/Supabase storage untuk media files
+  - [x] Real file upload via `POST /media/upload`
+  - [x] Supabase storage provider wired by `STORAGE_PROVIDER=supabase`
+  - [x] Disabled storage returns 501 when upload is not configured
+  - [x] File validation (size limit, safe object path validation)
+  - [x] Storage cleanup if metadata save fails
+  - [x] Storage cleanup when media is deleted
+  - [ ] Generate signed URLs untuk download
+  - [ ] Thumbnail generation
+  - [ ] Multipart material upload still uses placeholder file URL and should be wired to media storage flow
 
 ## 📊 Analytics & Reporting (Medium Priority)
 
@@ -84,10 +97,6 @@
   - Track completion rates
   - Most viewed materials
   - Student engagement metrics
-
-- [ ] **Assessment Weights Implementation**:
-  - Configure category weights per subject
-  - Auto-calculate final grades
 
 ## 🔧 Enhancement Features (Low Priority)
 
