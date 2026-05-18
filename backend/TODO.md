@@ -109,7 +109,7 @@
 - [ ] **Notification Preferences**:
   - User settings for notification types
   - Email vs in-app preferences
-
+<!-- 
 ## 🔮 Future Enhancements
 
 - [ ] **Attendance System**: Track student attendance per session
@@ -118,4 +118,4 @@
 - [ ] **Parent Portal**: Parent accounts to view child's progress
 - [ ] **Real-time Features**: WebSocket for live updates
 - [ ] **Email Service**: Password reset, notifications via email
-- [ ] **Advanced Search**: Full-text search across materials and assignments
+- [ ] **Advanced Search**: Full-text search across materials and assignments -->
