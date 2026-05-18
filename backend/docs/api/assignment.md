@@ -73,7 +73,7 @@ Base URL: `/api/assignments`
 ```
 
 ### 5. Get Assignment with Submissions
-- **URL:** `/:submissionId`
+- **URL:** `/:assignmentId`
 - **Method:** `GET`
 - **Note:** This endpoint gets assignment details with all submissions
 - **Response:** `AssignmentWithSubmissionsDTO` (includes all submissions and assessments)

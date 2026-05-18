@@ -143,7 +143,7 @@ Authorization: Bearer <your-jwt-token>
 ### Assignments
 - `POST /assignments` - Create assignment
 - `GET /assignments/subject-class/:subjectClassId` - Get by subject class
-- `GET /assignments/:submissionId` - Get assignment with submissions
+- `GET /assignments/:assignmentId` - Get assignment with submissions
 - `GET /assignments/status/:id` - Get assignment status
 - `PATCH /assignments/:id` - Update assignment
 - `DELETE /assignments/:id` - Delete assignment
