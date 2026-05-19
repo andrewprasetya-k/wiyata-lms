@@ -45,6 +45,7 @@ Retrieve a paginated list of all classes.
 ## 3. Create Class
 - **URL:** `/`
 - **Method:** `POST`
+- **Auth Note:** Actor identity is taken from the JWT token. Sending identity fields in the body is ignored or no longer required.
 - **Body:**
 | Field | Type | Required | Note |
 | :--- | :--- | :--- | :--- |
@@ -53,7 +54,6 @@ Retrieve a paginated list of all classes.
 | `classCode` | string | Yes | e.g., "X-IPA-1" |
 | `classTitle`| string | Yes | e.g., "IPA 1" |
 | `classDescription` | string | No | |
-| `createdBy` | uuid | Yes | ID of User creating this class |
 
 ---
 

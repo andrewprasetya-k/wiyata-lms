@@ -23,6 +23,7 @@ Upload a file directly to storage (multipart form). The backend uploads to the c
 - **URL:** `/upload`
 - **Method:** `POST`
 - **Auth:** Required
+- **Auth Note:** Actor identity is taken from the JWT token. Sending identity fields in the body is ignored or no longer required.
 - **Content-Type:** `multipart/form-data`
 - **Max file size:** 10MB
 
@@ -32,7 +33,6 @@ Upload a file directly to storage (multipart form). The backend uploads to the c
 | `file` | file | Yes | The file to upload |
 | `schoolId` | string | Yes | Must be a valid UUID |
 | `ownerType` | string | No | `user`, `school`, `material`, `assignment`, etc. |
-| `ownerId` | string | No | UUID of the owning entity |
 
 **Object path in storage:** `schools/{schoolId}/{uuid}{ext}`
 

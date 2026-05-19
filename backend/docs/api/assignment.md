@@ -21,6 +21,7 @@ Base URL: `/api/assignments`
 ### 3. Create Assignment
 - **URL:** `/`
 - **Method:** `POST`
+- **Auth Note:** Actor identity is taken from the JWT token. Sending identity fields in the body is ignored or no longer required.
 - **Body:**
 ```json
 {
@@ -31,7 +32,6 @@ Base URL: `/api/assignments`
   "assignmentDescription": "string",
   "deadline": "2026-03-01T23:59:59Z",
   "allowLateSubmission": false,
-  "createdBy": "uuid",
   "mediaIds": ["uuid"]
 }
 ```
@@ -110,11 +110,11 @@ Base URL: `/api/assignments`
 ### 9. Submit Assignment
 - **URL:** `/submit/:assignmentId`
 - **Method:** `POST`
+- **Auth Note:** Actor identity is taken from the JWT token. Sending identity fields in the body is ignored or no longer required.
 - **Body:**
 ```json
 {
   "schoolId": "uuid",
-  "userId": "uuid",
   "mediaIds": ["uuid"]
 }
 ```
@@ -128,11 +128,11 @@ Base URL: `/api/assignments`
 ### 11. Update Submission
 - **URL:** `/submit/:submissionId`
 - **Method:** `PATCH`
+- **Auth Note:** Actor identity is taken from the JWT token. Sending identity fields in the body is ignored or no longer required.
 - **Body:**
 ```json
 {
   "schoolId": "uuid",
-  "userId": "uuid",
   "mediaIds": ["uuid"]
 }
 ```
@@ -149,12 +149,12 @@ Base URL: `/api/assignments`
 ### 13. Grade Submission
 - **URL:** `/assess/:submissionId`
 - **Method:** `POST`
+- **Auth Note:** Actor identity is taken from the JWT token. Sending identity fields in the body is ignored or no longer required.
 - **Body:**
 ```json
 {
   "score": 90.5,
-  "feedback": "Good job",
-  "assessedBy": "uuid"
+  "feedback": "Good job"
 }
 ```
 - **Note:** Upsert logic - updates existing assessment if already graded

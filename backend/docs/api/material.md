@@ -10,6 +10,7 @@ Create a new learning material for a class with optional attachments.
 
 ### Option A: JSON (with existing media IDs or inline media data)
 - **Content-Type:** `application/json`
+- **Auth Note:** Actor identity is taken from the JWT token. Sending identity fields in the body is ignored or no longer required.
 - **Body:**
 | Field | Type | Required | Note |
 | :--- | :--- | :--- | :--- |
@@ -18,7 +19,6 @@ Create a new learning material for a class with optional attachments.
 | `materialTitle`| string | Yes | |
 | `materialDesc` | string | No | |
 | `materialType`| string | Yes | `video`, `pdf`, `ppt`, `other` |
-| `createdBy` | uuid | Yes | ID of User (Teacher/Admin) |
 | `mediaIds` | uuid[] | No | List of already recorded Media IDs |
 | `medias` | object[] | No | Inline media data (auto-create in medias table) |
 
@@ -39,6 +39,7 @@ Files are uploaded to the configured storage provider (same as `POST /api/medias
 Each file is uploaded to storage first. If upload succeeds but DB record fails, the storage object is deleted (best-effort cleanup). Max file size per file: **10MB**.
 
 - **Content-Type:** `multipart/form-data`
+- **Auth Note:** Actor identity is taken from the JWT token. Sending identity fields in the body is ignored or no longer required.
 - **Form Fields:**
 | Field | Type | Required | Note |
 | :--- | :--- | :--- | :--- |
@@ -47,7 +48,6 @@ Each file is uploaded to storage first. If upload succeeds but DB record fails, 
 | `materialTitle` | string | Yes | |
 | `materialDesc` | string | No | |
 | `materialType` | string | Yes | `video`, `pdf`, `ppt`, `other` |
-| `createdBy` | string | Yes | UUID |
 | `files` | file[] | No | Multiple files, max 10MB each |
 
 **Object path in storage:** `schools/{schoolId}/{uuid}{ext}` (consistent with media upload)
@@ -99,10 +99,10 @@ Mark a material as completed for a user.
 
 - **URL:** `/progress`
 - **Method:** `POST`
+- **Auth Note:** Actor identity is taken from the JWT token. Sending identity fields in the body is ignored or no longer required.
 - **Body:**
 ```json
 {
-  "userId": "uuid",
   "materialId": "uuid",
   "status": "completed"
 }

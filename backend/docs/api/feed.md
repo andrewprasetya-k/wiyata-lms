@@ -5,13 +5,13 @@ Base URL: `/api/feeds`
 ## 1. Create Feed
 - **URL:** `/`
 - **Method:** `POST`
+- **Auth Note:** Actor identity is taken from the JWT token. Sending identity fields in the body is ignored or no longer required.
 - **Body:**
 ```json
 {
   "schoolId": "uuid",
   "classId": "uuid",
   "content": "Announcement text",
-  "createdBy": "uuid",
   "mediaIds": ["uuid"]
 }
 ```

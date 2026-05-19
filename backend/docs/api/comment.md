@@ -5,13 +5,13 @@ Base URL: `/api/comments`
 ## 1. Create Comment
 - **URL:** `/`
 - **Method:** `POST`
+- **Auth Note:** Actor identity is taken from the JWT token. Sending identity fields in the body is ignored or no longer required.
 - **Body:**
 ```json
 {
   "schoolId": "uuid",
   "sourceType": "feed|material|assignment|submission",
   "sourceId": "uuid",
-  "userId": "uuid",
   "content": "Comment text"
 }
 ```
