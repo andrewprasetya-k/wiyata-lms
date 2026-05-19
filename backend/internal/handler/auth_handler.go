@@ -23,20 +23,11 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	token, user, err := h.authService.Login(input.Email, input.Password)
+	response, err := h.authService.Login(input.Email, input.Password)
 	if err != nil {
 		// Always return 401 Unauthorized with generic message
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid email or password"})
 		return
-	}
-
-	response := dto.LoginResponseDTO{
-		Token: token,
-		User: dto.UserInfo{
-			ID:       user.ID,
-			FullName: user.FullName,
-			Email:    user.Email,
-		},
 	}
 
 	c.JSON(http.StatusOK, response)
@@ -49,7 +40,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	token, user, err := h.authService.Register(input.FullName, input.Email, input.Password)
+	response, err := h.authService.Register(input.FullName, input.Email, input.Password)
 	if err != nil {
 		if err.Error() == "Email already registered" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -57,15 +48,6 @@ func (h *AuthHandler) Register(c *gin.Context) {
 			HandleError(c, err)
 		}
 		return
-	}
-
-	response := dto.LoginResponseDTO{
-		Token: token,
-		User: dto.UserInfo{
-			ID:       user.ID,
-			FullName: user.FullName,
-			Email:    user.Email,
-		},
 	}
 
 	c.JSON(http.StatusCreated, response)

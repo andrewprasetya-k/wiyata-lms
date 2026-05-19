@@ -52,7 +52,10 @@ func (r *schoolUserRepository) GetBySchool(schoolID string, search string, page 
 
 func (r *schoolUserRepository) GetByUser(userID string) ([]*domain.SchoolUser, error) {
 	var schools []*domain.SchoolUser
-	err := r.db.Preload("School").Where("scu_usr_id = ?", userID).Find(&schools).Error
+	err := r.db.Preload("School").
+		Preload("Roles.Role").
+		Where("scu_usr_id = ?", userID).
+		Find(&schools).Error
 	return schools, err
 }
 

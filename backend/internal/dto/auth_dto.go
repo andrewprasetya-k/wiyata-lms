@@ -12,12 +12,34 @@ type RegisterDTO struct {
 }
 
 type LoginResponseDTO struct {
-	Token string   `json:"token"`
-	User  UserInfo `json:"user"`
+	Token          string           `json:"token"`
+	User           UserInfo         `json:"user"`
+	Memberships    []MembershipInfo `json:"memberships"`
+	GlobalRoles    []string         `json:"globalRoles"`
+	DefaultContext *DefaultContext  `json:"defaultContext,omitempty"`
 }
 
 type UserInfo struct {
 	ID       string `json:"id"`
 	FullName string `json:"fullName"`
 	Email    string `json:"email"`
+}
+
+type SchoolInfo struct {
+	ID   string `json:"id"`
+	Code string `json:"code"`
+	Name string `json:"name"`
+}
+
+type MembershipInfo struct {
+	SchoolUserID string     `json:"schoolUserId"`
+	School       SchoolInfo `json:"school"`
+	Roles        []string   `json:"roles"`
+	IsDefault    bool       `json:"isDefault"`
+}
+
+type DefaultContext struct {
+	SchoolID     string   `json:"schoolId"`
+	SchoolUserID string   `json:"schoolUserId"`
+	Roles        []string `json:"roles"`
 }

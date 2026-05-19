@@ -51,12 +51,12 @@ func main() {
 	userService := service.NewUserService(userRepo)
 	userHandler := handler.NewUserHandler(userService)
 
-	authService := service.NewAuthService(userRepo)
-	authHandler := handler.NewAuthHandler(authService)
-
 	schoolUserRepo := repository.NewSchoolUserRepository(db)
 	schoolUserService := service.NewSchoolUserService(schoolUserRepo, schoolService)
 	schoolUserHandler := handler.NewSchoolUserHandler(schoolUserService, schoolService)
+
+	authService := service.NewAuthService(userRepo, schoolUserRepo)
+	authHandler := handler.NewAuthHandler(authService)
 
 	subjectRepo := repository.NewSubjectRepository(db)
 	subjectService := service.NewSubjectService(subjectRepo, schoolService)

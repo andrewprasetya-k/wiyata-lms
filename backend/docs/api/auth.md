@@ -30,9 +30,13 @@ Create a new user account and receive JWT token.
     "id": "uuid",
     "fullName": "John Doe",
     "email": "john@example.com"
-  }
+  },
+  "memberships": [],
+  "globalRoles": []
 }
 ```
+
+Newly registered users may not have school memberships or roles yet, so `memberships` can be empty.
 
 **Error Responses:**
 - `400 Bad Request`: Validation error
@@ -62,9 +66,29 @@ Authenticate user and receive JWT token.
     "id": "uuid",
     "fullName": "John Doe",
     "email": "john@example.com"
+  },
+  "memberships": [
+    {
+      "schoolUserId": "uuid",
+      "school": {
+        "id": "uuid",
+        "code": "SCH001",
+        "name": "Eduverse Academy"
+      },
+      "roles": ["teacher"],
+      "isDefault": true
+    }
+  ],
+  "globalRoles": [],
+  "defaultContext": {
+    "schoolId": "uuid",
+    "schoolUserId": "uuid",
+    "roles": ["teacher"]
   }
 }
 ```
+
+`memberships` is the source for frontend role-based routing after login. A user can belong to multiple schools and can have multiple roles per school. If multiple memberships or roles are returned, the frontend should ask the user to choose the active school/role context.
 
 **Error Responses:**
 - `400 Bad Request`: Validation error
@@ -78,12 +102,15 @@ Authenticate user and receive JWT token.
 ```json
 {
   "user_id": "uuid",
+  "sub": "uuid",
   "email": "john@example.com",
   "exp": 1234567890
 }
 ```
 
 **Expiry:** 24 hours from issue time
+
+Roles are not embedded as the main JWT authority. Backend authorization checks role membership from the database using school context.
 
 ---
 
