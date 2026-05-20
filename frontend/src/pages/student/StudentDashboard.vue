@@ -331,9 +331,9 @@ onMounted(loadDashboard);
 
       <div v-if="isLoading" class="space-y-2 p-4">
         <div
-          v-for="item in 4"
+          v-for="item in 3"
           :key="item"
-          class="h-16 animate-pulse rounded-2xl bg-[#f8f7f4]"
+          class="h-16 animate-pulse rounded-2xl bg-[#bdbdbd]"
         />
       </div>
       <div v-else-if="notifications.length > 0" class="space-y-1 p-4">
