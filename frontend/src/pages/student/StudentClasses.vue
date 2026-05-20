@@ -77,7 +77,7 @@ onMounted(loadClasses)
       />
     </section>
 
-    <section v-else-if="errorMessage" class="soft-card max-w-2xl rounded-[24px] p-6">
+    <section v-else-if="errorMessage" class="soft-card max-w-2xl rounded-3xl p-6">
       <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-[#fff1f0] text-[#f2756a]">
         <PhWarningCircle :size="24" weight="duotone" />
       </div>
@@ -125,7 +125,7 @@ onMounted(loadClasses)
       </article>
     </section>
 
-    <section v-else class="soft-card max-w-2xl rounded-[24px] p-6">
+    <section v-else class="soft-card max-w-2xl rounded-3xl p-6">
       <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-[#eef2ff] text-[#4f46e5]">
         <PhBooks :size="24" weight="duotone" />
       </div>

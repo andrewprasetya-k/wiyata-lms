@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { PhSignOut } from "@phosphor-icons/vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "../../stores/auth";
 import type { NavItem } from "../../types/navigation";
 
@@ -10,11 +10,16 @@ defineProps<{
 }>();
 
 const auth = useAuthStore();
+const route = useRoute();
 const router = useRouter();
 
 function logout() {
   auth.logout();
   router.push("/login");
+}
+
+function isActive(to: string) {
+  return route.path === to || route.path.startsWith(`${to}/`);
 }
 </script>
 
@@ -34,7 +39,7 @@ function logout() {
         :key="item.label"
         :title="item.label"
         class="relative flex h-10 w-10 items-center justify-center rounded-xl text-[#a3a1aa] transition hover:bg-[#f3f1ec] hover:text-[#3f3a4a]"
-        active-class="bg-[#eef2ff] text-[#4f46e5]"
+        :class="isActive(item.to) ? 'bg-[#eef2ff] text-[#4f46e5]' : ''"
         :to="item.to"
       >
         <component :is="item.icon" :size="20" weight="regular" />
