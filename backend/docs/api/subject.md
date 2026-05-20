@@ -5,7 +5,7 @@ Base URL: `/api/subjects`
 ## 1. List All Subjects
 Retrieve a paginated list of all subjects (Super Admin view).
 
-- **URL:** `/`
+- **URL:** `(base URL)`
 - **Method:** `GET`
 - **Query Parameters:**
   - `page` (default: `1`)
@@ -59,7 +59,7 @@ Retrieve subject details by school code and subject code.
 ## 5. Create Subject
 Register a new subject for a school.
 
-- **URL:** `/`
+- **URL:** `(base URL)`
 - **Method:** `POST`
 - **Body:**
 | Field | Type | Required | Note |

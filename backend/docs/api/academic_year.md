@@ -5,7 +5,7 @@ Base URL: `/api/academic-years`
 ## 1. List All Academic Years
 Retrieve a paginated list of all academic years (Super Admin view).
 
-- **URL:** `/`
+- **URL:** `(base URL)`
 - **Method:** `GET`
 - **Query Parameters:**
   - `page` (default: `1`)
@@ -59,7 +59,7 @@ Retrieve detail of a specific academic year by its ID.
 ## 4. Create Academic Year
 Create a new academic year for a school. Status is `false` by default.
 
-- **URL:** `/`
+- **URL:** `(base URL)`
 - **Method:** `POST`
 - **Body:**
 | Field | Type | Required | Note |

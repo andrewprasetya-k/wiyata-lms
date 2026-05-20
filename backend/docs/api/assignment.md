@@ -19,7 +19,7 @@ Base URL: `/api/assignments`
 ## Assignments
 
 ### 3. Create Assignment
-- **URL:** `/`
+- **URL:** `(base URL)`
 - **Method:** `POST`
 - **Auth Note:** Actor identity is taken from the JWT token. Sending identity fields in the body is ignored or no longer required.
 - **Body:**

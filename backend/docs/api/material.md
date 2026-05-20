@@ -5,7 +5,7 @@ Base URL: `/api/materials`
 ## 1. Create Material
 Create a new learning material for a class with optional attachments.
 
-- **URL:** `/`
+- **URL:** `(base URL)`
 - **Method:** `POST`
 
 ### Option A: JSON (with existing media IDs or inline media data)
@@ -60,7 +60,7 @@ Each file is uploaded to storage first. If upload succeeds but DB record fails, 
 ---
 
 ## 2. List Materials
-- **URL:** `/`
+- **URL:** `(base URL)`
 - **Method:** `GET`
 - **Query Params:** `page`, `limit`, `search`, `subjectClassId`.
 - **Note:** If `subjectClassId` is provided, response will be wrapped in `MaterialListWithSubjectDTO`.

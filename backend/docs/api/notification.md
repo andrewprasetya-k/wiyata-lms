@@ -11,7 +11,7 @@ Real-time notification system untuk inform users tentang activities seperti new 
 ## 1. Get User Notifications
 Retrieve notifications untuk authenticated user dengan pagination.
 
-- **URL:** `/`
+- **URL:** `(base URL)`
 - **Method:** `GET`
 - **Auth:** Required
 - **Query Parameters:**

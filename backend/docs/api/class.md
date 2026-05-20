@@ -5,7 +5,7 @@ Base URL: `/api/classes`
 ## 1. List All Classes
 Retrieve a paginated list of all classes.
 
-- **URL:** `/`
+- **URL:** `(base URL)`
 - **Method:** `GET`
 - **Query Parameters:**
   - `page` (default: `1`)
@@ -43,7 +43,7 @@ Retrieve a paginated list of all classes.
 ---
 
 ## 3. Create Class
-- **URL:** `/`
+- **URL:** `(base URL)`
 - **Method:** `POST`
 - **Auth Note:** Actor identity is taken from the JWT token. Sending identity fields in the body is ignored or no longer required.
 - **Body:**

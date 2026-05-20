@@ -5,7 +5,7 @@ Base URL: `/api/schools`
 ## 1. List Schools
 Retrieve a paginated list of schools with filtering, searching, and sorting capabilities.
 
-- **URL:** `/`
+- **URL:** `(base URL)`
 - **Method:** `GET`
 - **Query Parameters:**
   - `page` (default: `1`): Page number.
@@ -85,7 +85,7 @@ Quickly check if a school code is already taken.
 ## 4. Create School
 Register a new school. Input will be automatically trimmed of leading/trailing spaces.
 
-- **URL:** `/`
+- **URL:** `(base URL)`
 - **Method:** `POST`
 - **Body:**
 | Field | Type | Required | Validation |

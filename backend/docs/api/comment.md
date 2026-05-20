@@ -3,7 +3,7 @@
 Base URL: `/api/comments`
 
 ## 1. Create Comment
-- **URL:** `/`
+- **URL:** `(base URL)`
 - **Method:** `POST`
 - **Auth Note:** Actor identity is taken from the JWT token. Sending identity fields in the body is ignored or no longer required.
 - **Body:**
@@ -17,7 +17,7 @@ Base URL: `/api/comments`
 ```
 
 ## 2. Get Comments by Source
-- **URL:** `/`
+- **URL:** `(base URL)`
 - **Method:** `GET`
 - **Query Params:** `?type=feed&id=uuid`
 - **Response:** Array of comments ordered by creation time

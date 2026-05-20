@@ -5,7 +5,7 @@ Base URL: `/api/terms`
 ## 1. List All Terms
 Retrieve a paginated list of all terms (Super Admin view).
 
-- **URL:** `/`
+- **URL:** `(base URL)`
 - **Method:** `GET`
 - **Query Parameters:**
   - `page` (default: `1`)
@@ -48,7 +48,7 @@ Retrieve detail of a specific term by its ID.
 ## 4. Create Term
 Create a new term for an academic year. Status is `false` by default.
 
-- **URL:** `/`
+- **URL:** `(base URL)`
 - **Method:** `POST`
 - **Body:**
 | Field | Type | Required | Note |

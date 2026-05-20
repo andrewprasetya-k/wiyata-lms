@@ -149,8 +149,8 @@ func main() {
 
 		schoolAPI := api.Group("/schools")
 		{
-			schoolAPI.POST("/", middleware.RequireRole(schoolService, "super_admin"), schoolHandler.CreateSchool)
-			schoolAPI.GET("/", middleware.RequireRole(schoolService, "super_admin"), schoolHandler.GetSchools)
+			schoolAPI.POST("", middleware.RequireRole(schoolService, "super_admin"), schoolHandler.CreateSchool)
+			schoolAPI.GET("", middleware.RequireRole(schoolService, "super_admin"), schoolHandler.GetSchools)
 			schoolAPI.GET("/summary", middleware.RequireRole(schoolService, "super_admin"), schoolHandler.GetSchoolSummary)
 			schoolAPI.GET("/check-code/:schoolCode", schoolHandler.CheckCodeAvailability)
 			schoolAPI.GET("/:schoolCode", middleware.RequireSchoolMember(schoolService), schoolHandler.GetSchoolByCode)
@@ -162,8 +162,8 @@ func main() {
 
 		academicYearAPI := api.Group("/academic-years")
 		{
-			academicYearAPI.POST("/", middleware.RequireRole(schoolService, "admin", "super_admin"), academicYearHandler.Create)
-			academicYearAPI.GET("/", academicYearHandler.FindAll)
+			academicYearAPI.POST("", middleware.RequireRole(schoolService, "admin", "super_admin"), academicYearHandler.Create)
+			academicYearAPI.GET("", academicYearHandler.FindAll)
 			academicYearAPI.GET("/:id", academicYearHandler.GetByID)
 			academicYearAPI.GET("/school/:schoolCode", middleware.RequireSchoolMember(schoolService), academicYearHandler.GetBySchool)
 			academicYearAPI.PATCH("/:id", middleware.RequireRole(schoolService, "admin", "super_admin"), academicYearHandler.Update)
@@ -174,8 +174,8 @@ func main() {
 
 		termAPI := api.Group("/terms")
 		{
-			termAPI.POST("/", middleware.RequireRole(schoolService, "admin", "super_admin"), termHandler.Create)
-			termAPI.GET("/", termHandler.FindAll)
+			termAPI.POST("", middleware.RequireRole(schoolService, "admin", "super_admin"), termHandler.Create)
+			termAPI.GET("", termHandler.FindAll)
 			termAPI.GET("/:id", termHandler.GetByID)
 			termAPI.GET("/academic-year/:academicYearId", termHandler.GetByAcademicYear)
 			termAPI.PATCH("/:id", middleware.RequireRole(schoolService, "admin", "super_admin"), termHandler.Update)
@@ -186,8 +186,8 @@ func main() {
 
 		userAPI := api.Group("/users")
 		{
-			userAPI.POST("/", middleware.RequireRole(schoolService, "admin", "super_admin"), userHandler.Create)
-			userAPI.GET("/", middleware.RequireRole(schoolService, "admin", "super_admin"), userHandler.FindAll)
+			userAPI.POST("", middleware.RequireRole(schoolService, "admin", "super_admin"), userHandler.Create)
+			userAPI.GET("", middleware.RequireRole(schoolService, "admin", "super_admin"), userHandler.FindAll)
 			userAPI.GET("/:id", userHandler.GetByID)
 			userAPI.PATCH("/:id", userHandler.Update)
 			userAPI.PATCH("/change-password/:id", userHandler.ChangePassword)
@@ -204,8 +204,8 @@ func main() {
 
 		subjectAPI := api.Group("/subjects")
 		{
-			subjectAPI.POST("/", middleware.RequireRole(schoolService, "admin", "super_admin"), subjectHandler.Create)
-			subjectAPI.GET("/", subjectHandler.FindAll)
+			subjectAPI.POST("", middleware.RequireRole(schoolService, "admin", "super_admin"), subjectHandler.Create)
+			subjectAPI.GET("", subjectHandler.FindAll)
 			subjectAPI.GET("/:id", subjectHandler.GetByID)
 			subjectAPI.GET("/school/:schoolCode", middleware.RequireSchoolMember(schoolService), subjectHandler.GetBySchool)
 			subjectAPI.GET("/school/:schoolCode/:subjectCode", middleware.RequireSchoolMember(schoolService), subjectHandler.GetByCode)
@@ -234,8 +234,8 @@ func main() {
 
 		classAPI := api.Group("/classes")
 		{
-			classAPI.POST("/", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "teacher"), classHandler.Create)
-			classAPI.GET("/", classHandler.FindAll)
+			classAPI.POST("", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "teacher"), classHandler.Create)
+			classAPI.GET("", classHandler.FindAll)
 			classAPI.GET("/:id", classHandler.GetByID)
 			classAPI.PATCH("/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "teacher"), classHandler.Update)
 			classAPI.DELETE("/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin"), classHandler.Delete)
@@ -252,7 +252,7 @@ func main() {
 
 		enrollmentAPI := api.Group("/enrollments")
 		{
-			enrollmentAPI.POST("/", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "teacher"), enrollmentHandler.Enroll)
+			enrollmentAPI.POST("", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "teacher"), enrollmentHandler.Enroll)
 			enrollmentAPI.GET("/class/:classId", enrollmentHandler.GetByClass)
 			enrollmentAPI.GET("/member/:schoolUserId", enrollmentHandler.GetByMember)
 			enrollmentAPI.GET("/:id", enrollmentHandler.GetByID)
@@ -270,8 +270,8 @@ func main() {
 
 		materialAPI := api.Group("/materials")
 		{
-			materialAPI.POST("/", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "teacher"), materialHandler.Create)
-			materialAPI.GET("/", materialHandler.FindAll)
+			materialAPI.POST("", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "teacher"), materialHandler.Create)
+			materialAPI.GET("", materialHandler.FindAll)
 			materialAPI.GET("/:id", materialHandler.GetByID)
 			materialAPI.PATCH("/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "teacher"), materialHandler.Update)
 			materialAPI.DELETE("/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "teacher", "admin"), materialHandler.Delete)
@@ -280,7 +280,7 @@ func main() {
 
 		feedAPI := api.Group("/feeds")
 		{
-			feedAPI.POST("/", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "teacher", "admin"), feedHandler.Create)
+			feedAPI.POST("", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "teacher", "admin"), feedHandler.Create)
 			feedAPI.GET("/class/:classId", feedHandler.GetByClass)
 			feedAPI.GET("/:id", feedHandler.GetByID)
 			feedAPI.PATCH("/:id", feedHandler.Update)
@@ -289,8 +289,8 @@ func main() {
 
 		commentAPI := api.Group("/comments")
 		{
-			commentAPI.POST("/", commentHandler.Create)
-			commentAPI.GET("/", commentHandler.GetBySource)
+			commentAPI.POST("", commentHandler.Create)
+			commentAPI.GET("", commentHandler.GetBySource)
 			commentAPI.GET("/:id", commentHandler.GetByID)
 			commentAPI.PATCH("/:id", commentHandler.Update)
 			commentAPI.DELETE("/:id", commentHandler.Delete)
@@ -303,7 +303,7 @@ func main() {
 			assignmentAPI.GET("/categories/school/:schoolCode", middleware.RequireSchoolMember(schoolService), assignmentHandler.GetCategoriesBySchool)
 
 			// Assignments
-			assignmentAPI.POST("/", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "teacher"), assignmentHandler.CreateAssignment)
+			assignmentAPI.POST("", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "teacher"), assignmentHandler.CreateAssignment)
 			assignmentAPI.GET("/subject-class/:subjectClassId", assignmentHandler.GetBySubjectClass)
 			assignmentAPI.GET("/status/:id", assignmentHandler.GetAssignmentStatus)
 			assignmentAPI.GET("/:assignmentId", assignmentHandler.GetSubmissionsByAssignment)
@@ -332,7 +332,7 @@ func main() {
 
 		notificationAPI := api.Group("/notifications")
 		{
-			notificationAPI.GET("/", notificationHandler.GetNotifications)
+			notificationAPI.GET("", notificationHandler.GetNotifications)
 			notificationAPI.GET("/unread-count", notificationHandler.GetUnreadCount)
 			notificationAPI.PATCH("/read/:id", notificationHandler.MarkAsRead)
 			notificationAPI.PATCH("/read-all", notificationHandler.MarkAllAsRead)
@@ -369,7 +369,7 @@ func corsMiddleware() gin.HandlerFunc {
 			c.Header("Access-Control-Allow-Origin", origin)
 			c.Header("Vary", "Origin")
 			c.Header("Access-Control-Allow-Credentials", "true")
-			c.Header("Access-Control-Allow-Headers", "Authorization, Content-Type, SchoolId")
+			c.Header("Access-Control-Allow-Headers", "Authorization, Content-Type, SchoolId, schoolid")
 			c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
 		}
 
@@ -383,20 +383,25 @@ func corsMiddleware() gin.HandlerFunc {
 }
 
 func parseAllowedOrigins(raw string) []string {
+	defaultOrigins := []string{"http://localhost:5173", "http://127.0.0.1:5173"}
 	if strings.TrimSpace(raw) == "" {
-		return []string{"http://localhost:5173"}
+		return defaultOrigins
+	}
+
+	seen := make(map[string]bool, len(defaultOrigins))
+	origins := make([]string, 0, len(defaultOrigins)+1)
+	for _, origin := range defaultOrigins {
+		seen[origin] = true
+		origins = append(origins, origin)
 	}
 
 	parts := strings.Split(raw, ",")
-	origins := make([]string, 0, len(parts))
 	for _, part := range parts {
 		origin := strings.TrimSpace(part)
-		if origin != "" {
+		if origin != "" && !seen[origin] {
 			origins = append(origins, origin)
+			seen[origin] = true
 		}
-	}
-	if len(origins) == 0 {
-		return []string{"http://localhost:5173"}
 	}
 	return origins
 }

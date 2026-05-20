@@ -5,7 +5,7 @@ Base URL: `/api/users`
 ## 1. List All Users
 Retrieve a paginated list of all global users.
 
-- **URL:** `/`
+- **URL:** `(base URL)`
 - **Method:** `GET`
 - **Query Parameters:**
   - `page` (default: `1`)
@@ -28,7 +28,7 @@ Retrieve a paginated list of all global users.
 ## 2. Create User
 Register a new global user profile. Password will be securely hashed.
 
-- **URL:** `/`
+- **URL:** `(base URL)`
 - **Method:** `POST`
 - **Body:**
 | Field | Type | Required | Note |

@@ -3,7 +3,7 @@
 Base URL: `/api/enrollments`
 
 ## 1. Enroll Members to Class
-- **URL:** `/`
+- **URL:** `(base URL)`
 - **Method:** `POST`
 - **Body:**
 ```json
