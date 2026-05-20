@@ -84,7 +84,8 @@ async function loadMaterials() {
     classInfo.value = data.classInfo;
     subjects.value = data.subjects;
     materials.value = data.materials;
-  } catch {
+  } catch (error) {
+    console.error('[StudentClassDetail] Error loading materials:', error)
     materialsError.value =
       "Materi kelas belum bisa dimuat. Periksa koneksi atau coba lagi nanti.";
   } finally {

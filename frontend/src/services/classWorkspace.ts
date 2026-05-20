@@ -25,7 +25,10 @@ export async function getClassMaterials(classId: string) {
     ),
   )
 
-  const materials: MaterialItem[] = materialResponses.flatMap((response) => response.data.data)
+  const materials: MaterialItem[] = materialResponses.flatMap((response) => 
+    response.data.data || []
+  )
+  
   return {
     classInfo: subjectClasses.class,
     subjects: subjectClasses.subjects,
