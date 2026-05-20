@@ -24,7 +24,7 @@ const activeMembership = computed(() => {
 
 const schoolName = computed(() => activeMembership.value?.school.name ?? 'Sekolah aktif')
 const schoolUserId = computed(
-  () => auth.defaultContext?.schoolUserId ?? activeMembership.value?.schoolUserId ?? '',
+  () => activeMembership.value?.schoolUserId ?? auth.defaultContext?.schoolUserId ?? '',
 )
 
 async function loadClasses() {
@@ -53,7 +53,7 @@ function openClass(item: StudentClassEnrollment) {
 }
 
 function classTitle(item: StudentClassEnrollment) {
-  return item.classTitle || item.classCode || 'Kelas tanpa judul'
+  return item.classTitle || 'Kelas tanpa judul'
 }
 
 onMounted(loadClasses)
@@ -103,7 +103,6 @@ onMounted(loadClasses)
             class="flex h-24 flex-col justify-end px-4 pb-4 text-white"
             :style="{ backgroundColor: palette[index % palette.length] }"
           >
-            <p v-if="item.classCode" class="mb-1 text-xs text-white/80">{{ item.classCode }}</p>
             <h2 class="text-base font-medium">{{ classTitle(item) }}</h2>
           </div>
           <div class="space-y-3 px-4 py-4">

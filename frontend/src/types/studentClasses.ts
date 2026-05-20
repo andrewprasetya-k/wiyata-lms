@@ -4,7 +4,6 @@ export interface StudentClassEnrollment {
   schoolUserId: string
   classId: string
   classTitle?: string
-  classCode?: string
   role: 'student' | 'teacher' | string
   joinedAt: string
 }
