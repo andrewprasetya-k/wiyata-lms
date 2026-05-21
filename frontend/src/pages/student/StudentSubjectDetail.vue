@@ -312,10 +312,10 @@ onMounted(loadSubject);
                       </span>
                     </div>
                     <p
-                      v-if="assignment.assignmentDesc"
+                      v-if="assignment.assignmentDescription"
                       class="mt-2 line-clamp-2 text-sm leading-6 text-[#6b6475]"
                     >
-                      {{ assignment.assignmentDesc }}
+                      {{ assignment.assignmentDescription }}
                     </p>
                     <div
                       class="mt-3 flex flex-wrap items-center gap-3 text-xs text-[#a09aa8]"

@@ -11,7 +11,7 @@ export interface SubjectClassHeader {
 export interface AssignmentItem {
   assignmentId: string
   assignmentTitle: string
-  assignmentDesc?: string
+  assignmentDescription?: string
   deadline: string
   categoryName?: string
   createdAt?: string
