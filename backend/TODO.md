@@ -75,6 +75,18 @@
   - Recent assignments, submissions, grades, comments
   - Per class or per user feed
 
+- [ ] **Auto-create Feed Posts from Teacher Actions**:
+  - Create class feed post when teacher creates a material
+  - Create class feed post when teacher creates an assignment
+  - Feed remains the class-level communication surface; no type badge is required for now
+  - Keep notification triggers best-effort and separate from feed creation behavior
+
+- [ ] **Active Class Context for Frontend/API Flow**:
+  - Frontend needs a clear active class context/store for student workspace navigation
+  - Class is the context selector; subjects are the daily content surface inside that context
+  - API calls should consistently derive subject-class/material/assignment/feed context from the active class flow
+  - Avoid fake class/chat/notes data while context contracts are incomplete
+
 ## 🎓 Academic Features (Medium Priority)
 
 - [ ] **Rich Text Support**: HTML content untuk descriptions (materials, assignments, feeds)
@@ -101,6 +113,8 @@
   - Track completion rates
   - Most viewed materials
   - Student engagement metrics
+  - Do not mark material as completed automatically just because it was opened
+  - If passive tracking is added, use a separate `last_opened_at`-style signal; completion must be explicit or governed by a clear rule
 
 ## 🔧 Enhancement Features (Low Priority)
 

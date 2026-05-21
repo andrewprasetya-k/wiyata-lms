@@ -2,7 +2,7 @@
 
 ## 1. Product Vision
 
-Eduverse LMS is a multi-school learning management system for managing academic classes, learning content, assignments, submissions, grading, school communication, real-time chat, and student notes in one consistent platform.
+Eduverse LMS is a multi-school learning management system for managing academic classes, learning content, assignments, submissions, grading, school communication, future chat, and future student notes in one consistent platform.
 
 The product should help schools run day-to-day digital learning workflows with clear role boundaries, reliable academic records, real-time class communication, and a simple experience for teachers, students, and school administrators.
 
@@ -10,27 +10,27 @@ The product should help schools run day-to-day digital learning workflows with c
 
 - School administrators who manage academic structure, users, classes, and school-level configuration.
 - Teachers who publish learning content, create assignments, assess submissions, and communicate with class members.
-- Students who access materials, submit assignments, track progress, take notes, and receive notifications.
+- Students who access materials, submit assignments, track progress, and receive notifications. Personal notes are a future per-material workflow.
 - System administrators who manage multi-school access, platform setup, and operational health.
 
 ## 3. User Roles
 
 - Super Admin: Manages platform-level access and school setup. Does not automatically perform school academic actions unless assigned a school role.
 - Admin: Manages school-level academic structure, users, classes, enrollments, and operational data.
-- Teacher: Manages assigned classes, materials, assignments, assessments, comments, class communication, and chat channels.
-- Student: Accesses class content, submits work, views grades, comments, takes notes per material, participates in class chat, and receives notifications.
+- Teacher: Manages assigned classes, materials, assignments, assessments, comments, and class communication through feeds.
+- Student: Accesses class content, submits work, views grades, comments, and receives notifications. Chat and notes remain future placeholders until implemented.
 
 ## 4. Core Workflows
 
 - School setup: create school structure, academic years, terms, subjects, classes, and class enrollments.
-- Class learning: teachers publish materials and students consume content by class context.
+- Class learning: class is the active context, while subjects are the daily content surface for materials and assignments.
 - Assignment lifecycle: teachers create assignments, students submit work, teachers assess submissions, and students view outcomes.
 - Grade management: configure assessment weights, calculate grades, and view student/class grade reports.
 - Communication: feeds and comments support class-level discussion and contextual interaction.
-- Real-time chat: class and subject channels for live communication between teachers and students, with DM support for private teacher-student conversation.
-- Student notes: personal note-taking per material, tied to academic context, accessible anytime during learning.
+- Chat: future real-time DM/group/subject communication. Current frontend should show clear placeholders, not fake chat data.
+- Student notes: future personal notes per material. Current frontend should show placeholders, not fake note content.
 - Notifications: users receive activity updates for important academic events.
-- Media management: users upload and attach files to learning objects and chat messages through controlled storage.
+- Media management: users upload and attach files to learning objects through controlled storage.
 
 ## 5. MVP Features
 
@@ -41,9 +41,10 @@ The product should help schools run day-to-day digital learning workflows with c
 - Assignment creation, submission, assessment, status tracking, and attachment support.
 - Grade book with weighted assessment categories and grade reports.
 - Notifications for major learning events.
-- Feed and comment features for learning communication.
+- Feed and comment features for class-level learning communication.
 - Media upload and storage integration for files.
 - Basic dashboards for student, teacher, and admin contexts.
+- Placeholder surfaces for future chat and notes without fake data.
 
 ## 6. Post-MVP Features
 
@@ -54,16 +55,18 @@ The product should help schools run day-to-day digital learning workflows with c
 - Transcript and report card export.
 - Rich text content authoring with sanitization.
 - Nested comments and improved discussion threads.
+- Auto-create class feed posts when teachers create materials or assignments.
 - Unified activity timeline across materials, assignments, feeds, comments, and grades.
 - Class schedule and timetable management.
 - Material progress analytics and engagement reporting.
 - Notification preferences and optional email delivery.
 
 ### Real-time Chat
-- Class channel: one real-time chat room per class, auto-created on class creation, auto-populated from enrollments.
-- Subject channel: one real-time chat room per subject class, auto-created on subject class creation.
-- Direct message: private one-on-one chat between any two users (student ↔ student, teacher ↔ student, teacher ↔ teacher).
-- Free group chat: any user can create a custom group chat with any members within the same school, independent of academic structure.
+- Chat is post-MVP. Class-level communication uses Feed first.
+- Group chat and DM remain possible because the chat room model can support `group` and `dm`.
+- Subject or academic-context chat can be considered later, but frontend should keep chat as a placeholder for now.
+- Direct message: private one-on-one chat between users within allowed school context.
+- Free group chat: custom group chat with members within the same school, independent of academic structure.
 - Thread/reply per message.
 - File sharing in chat via existing media system.
 - Mention (@user) support.
@@ -71,8 +74,7 @@ The product should help schools run day-to-day digital learning workflows with c
 - Typing indicators.
 - Online/offline presence.
 - Message unsend (soft delete).
-- Academic context linking: teachers can share links to materials or assignments directly from chat with rendered preview cards.
-- System messages for academic events (new material added, new assignment created).
+- Academic context linking: users can share links to materials or assignments directly from chat with rendered preview cards.
 - Pin important messages (teacher only for academic channels; creator/admin for free groups).
 
 ### Student Notes
@@ -127,12 +129,10 @@ src/
 ```
 
 ### Chat Architecture
-- WebSocket Hub manages all active connections in memory.
-- Each chat room runs as a goroutine with its own broadcast channel.
-- Participants derived from enrollments and synced to `chat_room_members` on enrollment events.
+- Chat is future work and should not drive MVP navigation.
+- WebSocket Hub manages all active connections in memory when chat is implemented.
+- Participants can be explicit chat room members; academic sync rules should be added only when the selected chat product flow is finalized.
 - Read receipts, typing indicators, and online/offline presence handled via WebSocket events.
-- Chat rooms auto-created when a class or subject class is created.
-- Chat room members auto-populated when a student is enrolled.
 
 ### Database Schema Additions (Chat & Notes)
 - `chat_rooms`: linked to `classes` or `subject_classes` via `room_ref_type` + `room_ref_id`.
@@ -141,8 +141,6 @@ src/
 - `chat_attachments`: references existing `medias` table.
 - `chat_read_receipts`: tracks last read message per user per room.
 - `student_notes`: one note per student per material, rich text content.
-- `classes` table: add `cls_chat_room_id` pointer to chat room.
-- `subject_classes` table: add `scl_chat_room_id` pointer to chat room.
 
 ## 8. Features Intentionally Out of Scope
 
@@ -165,20 +163,22 @@ src/
 - Treat file storage and media lifecycle as first-class product behavior, not placeholder metadata.
 - Fail safely for authentication, authorization, storage, and data integrity errors.
 - Keep WebSocket and REST handlers separated in codebase for clarity and maintainability.
-- Chat room lifecycle (creation, member sync) must follow academic entity lifecycle (class creation, enrollment).
+- Material progress must not be automatically marked completed just because a material was opened. Passive open tracking should use a separate signal such as `last_opened_at`; completion requires explicit action or a clear business rule.
 
 ## 10. Frontend Priorities (Vue 3 + Vite)
 
 - Build role-specific experiences for admin, teacher, and student workflows using Vue Router guards.
 - Prioritize core learning flows before advanced analytics or customization.
 - Make school and class context visible and hard to confuse.
+- Treat class as the active context selector and subjects as the student's daily content surface.
 - Keep assignment submission, grading, material browsing, and notifications easy to test end to end.
 - Use backend permissions as the source of truth; use Pinia stores for frontend role-based gating.
 - Present file upload, validation errors, and storage failures clearly.
 - Keep UI patterns consistent across CRUD, lists, detail pages, and forms.
-- Chat UI: class/subject channels accessible from class detail page; DM accessible from user profile or class member list.
-- Notes UI: note editor embedded in material detail page, auto-save behavior, markdown preview.
-- Use composables (`useAuth`, `useChat`, `useWebSocket`) to encapsulate reusable logic cleanly.
+- Feed UI is the class-level communication surface for now; do not add feed type badges for assignment/material/announcement unless a later product decision requires them.
+- Chat UI remains a placeholder for future DM/group/subject realtime communication.
+- Notes UI remains a placeholder for future per-material personal notes.
+- Use composables and stores to encapsulate reusable logic cleanly, including active class context.
 
 ## 11. Backend Priorities
 
@@ -188,9 +188,10 @@ src/
 - Protect academic data integrity when deleting schools, classes, subjects, materials, assignments, and media.
 - Keep notification triggers best-effort unless a workflow explicitly requires hard failure.
 - Continue documenting API behavior as contracts evolve.
+- Add auto-created feed posts when teachers create materials or assignments.
+- Support active class context flow cleanly for frontend integrations.
 - Add focused regression tests around auth, RBAC, route conflicts, storage lifecycle, and academic delete protections.
-- WebSocket Hub must handle concurrent connections safely using goroutines and channels.
-- Chat room and member sync must be triggered by enrollment and class creation events, not manual API calls from frontend.
+- WebSocket Hub must handle concurrent connections safely using goroutines and channels when chat is implemented.
 
 ## 12. Development Roadmap
 
@@ -202,13 +203,16 @@ src/
 ### Phase 2 — Post-MVP Academic Features
 - [ ] Nested comments
 - [ ] Rich text support with sanitization
+- [ ] Auto-create feed post when teacher creates material or assignment
+- [ ] Active class context/store logic for frontend and API flow
 - [ ] Activity feed / timeline
 - [ ] Grade report and transcript export
 
 ### Phase 3 — Real-time Chat
+- [ ] Keep frontend placeholder until backend and product flow are implemented
 - [ ] WebSocket Hub implementation (Gorilla)
-- [ ] Class and subject channel creation on academic entity creation
-- [ ] Member sync from enrollments
+- [ ] DM and group chat flow
+- [ ] Optional subject or academic-context chat flow
 - [ ] Message send, receive, reply, unsend
 - [ ] Read receipts and typing indicators
 - [ ] File sharing in chat
@@ -216,6 +220,7 @@ src/
 - [ ] Academic context linking (share material/assignment in chat)
 
 ### Phase 4 — Student Notes
+- [ ] Keep frontend placeholder until material detail notes contract is implemented
 - [ ] Note CRUD per material per student
 - [ ] Rich text / markdown support
 - [ ] Auto-save
@@ -225,8 +230,8 @@ src/
 - [ ] Role-based routing and layout per role (admin, teacher, student)
 - [ ] Admin, teacher, student dashboards
 - [ ] All core learning flows (materials, assignments, submissions, grades)
-- [ ] Chat UI integrated with native WebSocket
-- [ ] Notes UI embedded in material detail
+- [ ] Chat placeholder, then native WebSocket UI after backend contract exists
+- [ ] Notes placeholder, then material-detail notes UI after backend contract exists
 
 ## 13. Future Scalability Considerations
 
