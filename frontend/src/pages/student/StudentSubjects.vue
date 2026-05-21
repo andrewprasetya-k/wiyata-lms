@@ -261,7 +261,7 @@ onMounted(loadSubjects);
             <div class="space-y-3 px-4 py-4">
               <div class="flex items-center justify-between gap-3">
                 <div>
-                  <p class="text-xs text-[#9a95a3]">Subject context</p>
+                  <p class="text-xs text-[#9a95a3]">Kode Mapel</p>
                   <p class="mt-1 text-sm font-medium text-[#3f3a4a]">
                     {{ subject.subjectCode || "Kode belum tersedia" }}
                   </p>

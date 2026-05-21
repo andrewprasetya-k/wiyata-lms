@@ -11,6 +11,7 @@ import UnauthorizedPage from '../pages/auth/UnauthorizedPage.vue'
 import StudentDashboard from '../pages/student/StudentDashboard.vue'
 import StudentFeed from '../pages/student/StudentFeed.vue'
 import StudentSubjectDetail from '../pages/student/StudentSubjectDetail.vue'
+import StudentAssignmentDetail from '../pages/student/StudentAssignmentDetail.vue'
 import StudentSubjects from '../pages/student/StudentSubjects.vue'
 import TeacherDashboard from '../pages/teacher/TeacherDashboard.vue'
 import AdminDashboard from '../pages/admin/AdminDashboard.vue'
@@ -74,6 +75,11 @@ const router = createRouter({
           path: 'subjects/:sclId',
           name: 'student-subject-detail',
           component: StudentSubjectDetail,
+        },
+        {
+          path: 'subjects/:sclId/assignments/:asgId',
+          name: 'student-assignment-detail',
+          component: StudentAssignmentDetail,
         },
         {
           path: 'feed',
