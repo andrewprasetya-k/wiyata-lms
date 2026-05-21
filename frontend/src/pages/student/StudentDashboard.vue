@@ -61,7 +61,7 @@ function changeMonth(step: number) {
   viewDate.value = newDate
 }
 
-async function loadDashboard() {
+async function loadDashboard(selectedClassId?: string) {
   if (!auth.user?.id) {
     errorMessage.value = 'Sesi login belum lengkap. Silakan login ulang.'
     isLoading.value = false
@@ -80,7 +80,7 @@ async function loadDashboard() {
   try {
     await activeClassStore.loadClasses(schoolUserId.value)
 
-    const activeClassId = activeClassStore.activeClassId
+    const activeClassId = selectedClassId ?? activeClassStore.activeClassId
     const [notificationData, unreadData] = await Promise.all([
       getRecentNotifications(),
       getUnreadNotificationCount(),
@@ -112,7 +112,7 @@ async function loadDashboard() {
 function handleActiveClassChange(event: Event) {
   const classId = (event.target as HTMLSelectElement).value
   activeClassStore.setActiveClass(classId)
-  loadDashboard()
+  loadDashboard(classId)
 }
 
 function initials(value: string) {
