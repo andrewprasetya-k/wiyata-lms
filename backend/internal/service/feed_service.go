@@ -4,10 +4,11 @@ import (
 	"backend/internal/domain"
 	"backend/internal/dto"
 	"backend/internal/repository"
+	"fmt"
 )
 
 type FeedService interface {
-	Create(feed *domain.Feed, mediaIDs []string) error
+	Create(feed *domain.Feed, mediaIDs []string, userID string, userRole string) error
 	GetByClass(classID string, page int, limit int) ([]*domain.Feed, int64, error)
 	GetByID(id string) (*domain.Feed, error)
 	Update(id string, feed *domain.Feed, mediaIDs []string) error
@@ -15,22 +16,45 @@ type FeedService interface {
 }
 
 type feedService struct {
-	repo         repository.FeedRepository
-	attService   AttachmentService
-	notifService NotificationService
-	enrRepo      repository.EnrollmentRepository
+	repo             repository.FeedRepository
+	attService       AttachmentService
+	notifService     NotificationService
+	enrRepo          repository.EnrollmentRepository
+	classRepo        repository.ClassRepository
+	subjectClassRepo repository.SubjectClassRepository
 }
 
-func NewFeedService(repo repository.FeedRepository, attService AttachmentService, notifService NotificationService, enrRepo repository.EnrollmentRepository) FeedService {
+func NewFeedService(repo repository.FeedRepository, attService AttachmentService, notifService NotificationService, enrRepo repository.EnrollmentRepository, classRepo repository.ClassRepository, subjectClassRepo repository.SubjectClassRepository) FeedService {
 	return &feedService{
-		repo:         repo,
-		attService:   attService,
-		notifService: notifService,
-		enrRepo:      enrRepo,
+		repo:             repo,
+		attService:       attService,
+		notifService:     notifService,
+		enrRepo:          enrRepo,
+		classRepo:        classRepo,
+		subjectClassRepo: subjectClassRepo,
 	}
 }
 
-func (s *feedService) Create(feed *domain.Feed, mediaIDs []string) error {
+func (s *feedService) Create(feed *domain.Feed, mediaIDs []string, userID string, userRole string) error {
+
+	classSchoolID, err := s.classRepo.GetSchoolIDByClass(feed.ClassID)
+	if err != nil {
+		return fmt.Errorf("class not found")
+	}
+	if classSchoolID != feed.SchoolID {
+		return fmt.Errorf("class does not belong to this school")
+	}
+
+	if userRole == "teacher" {
+		canPost, err := s.subjectClassRepo.TeacherTeachesInClass(userID, feed.ClassID)
+		if err != nil {
+			return fmt.Errorf("failed to verify teacher authorization")
+		}
+		if !canPost {
+			return fmt.Errorf("teacher does not teach any subject in this class")
+		}
+	}
+
 	if err := s.repo.Create(feed); err != nil {
 		return err
 	}

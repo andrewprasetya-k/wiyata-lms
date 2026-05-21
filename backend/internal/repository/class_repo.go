@@ -14,6 +14,7 @@ type ClassRepository interface {
 	CountEnrollmentsByClass(classID string) (int64, error)
 	CountSubjectClassesByClass(classID string) (int64, error)
 	CheckDuplicateCode(schoolID string, termID string, code string, excludeID string) (bool, error)
+	GetSchoolIDByClass(classID string) (string, error)
 }
 
 type classRepository struct {
@@ -109,4 +110,12 @@ func (r *classRepository) CheckDuplicateCode(schoolID string, termID string, cod
 	}
 	err := query.Count(&count).Error
 	return count > 0, err
+}
+
+func (r *classRepository) GetSchoolIDByClass(classID string) (string, error) {
+	var schoolID string
+	err := r.db.Model(&domain.Class{}).
+		Where("cls_id = ?", classID).
+		Pluck("cls_sch_id", &schoolID).Error
+	return schoolID, err
 }

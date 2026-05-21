@@ -38,6 +38,14 @@ func (h *FeedHandler) Create(c *gin.Context) {
 		return
 	}
 
+	// Get user roles from middleware context (set by RequireRole middleware)
+	var userRole string
+	if roles, exists := c.Get("user_roles"); exists {
+		if roleList, ok := roles.([]string); ok && len(roleList) > 0 {
+			userRole = roleList[0]
+		}
+	}
+
 	feed := domain.Feed{
 		SchoolID:  input.SchoolID,
 		ClassID:   input.ClassID,
@@ -45,7 +53,13 @@ func (h *FeedHandler) Create(c *gin.Context) {
 		CreatedBy: userID,
 	}
 
-	if err := h.service.Create(&feed, input.MediaIDs); err != nil {
+	if err := h.service.Create(&feed, input.MediaIDs, userID, userRole); err != nil {
+		// Check if it's an authorization error
+		if err.Error() == "teacher does not teach any subject in this class" ||
+			err.Error() == "class does not belong to this school" {
+			c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
+			return
+		}
 		HandleError(c, err)
 		return
 	}

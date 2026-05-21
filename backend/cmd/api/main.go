@@ -98,7 +98,7 @@ func main() {
 	materialHandler := handler.NewMaterialHandler(materialService, subjectClassService)
 
 	feedRepo := repository.NewFeedRepository(db)
-	feedService := service.NewFeedService(feedRepo, attachmentService, notificationService, enrollmentRepo)
+	feedService := service.NewFeedService(feedRepo, attachmentService, notificationService, enrollmentRepo, classRepo, subjectClassRepo)
 	commentRepo := repository.NewCommentRepository(db)
 	contentOwnerRepo := repository.NewContentOwnerRepository(db)
 	commentService := service.NewCommentService(commentRepo, contentOwnerRepo, notificationService)
