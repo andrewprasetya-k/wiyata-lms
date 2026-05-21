@@ -7,6 +7,7 @@ const GLOBAL_ROLES_KEY = 'edv_global_roles'
 const DEFAULT_CONTEXT_KEY = 'edv_default_context'
 const ACTIVE_SCHOOL_KEY = 'edv_active_school_id'
 const ACTIVE_ROLES_KEY = 'edv_active_roles'
+const ACTIVE_CLASS_KEY = 'edv_active_class_id'
 
 export function getStoredToken() {
   return localStorage.getItem(TOKEN_KEY)
@@ -61,6 +62,7 @@ export function clearStoredSession() {
   localStorage.removeItem(DEFAULT_CONTEXT_KEY)
   localStorage.removeItem(ACTIVE_SCHOOL_KEY)
   localStorage.removeItem(ACTIVE_ROLES_KEY)
+  localStorage.removeItem(ACTIVE_CLASS_KEY)
 }
 
 function parseJSON<T>(raw: string | null, fallback: T): T {

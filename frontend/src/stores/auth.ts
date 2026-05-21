@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { api } from '../services/api'
 import { clearStoredSession, persistSession, readStoredSession } from '../services/session'
+import { useActiveClassStore } from './activeClass'
 import type {
   DefaultContext,
   LoginPayload,
@@ -56,6 +57,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   function logout() {
+    const activeClass = useActiveClassStore()
     token.value = null
     user.value = null
     memberships.value = []
@@ -63,6 +65,7 @@ export const useAuthStore = defineStore('auth', () => {
     defaultContext.value = undefined
     activeSchoolId.value = null
     activeRoles.value = []
+    activeClass.reset()
     clearStoredSession()
   }
 

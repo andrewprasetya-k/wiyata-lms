@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { PhMegaphone, PhWarningCircle } from '@phosphor-icons/vue'
-import { getStudentClasses } from '../../services/studentClasses'
+import { useActiveClassStore } from '../../stores/activeClass'
 import { useAuthStore } from '../../stores/auth'
-import type { StudentClassEnrollment } from '../../types/studentClasses'
 
 const auth = useAuthStore()
-const classes = ref<StudentClassEnrollment[]>([])
+const activeClassStore = useActiveClassStore()
 const isLoading = ref(true)
 const errorMessage = ref('')
 
@@ -21,7 +20,7 @@ const activeMembership = computed(() => {
 const schoolUserId = computed(
   () => activeMembership.value?.schoolUserId ?? auth.defaultContext?.schoolUserId ?? '',
 )
-const activeClass = computed(() => classes.value[0] ?? null)
+const activeClass = computed(() => activeClassStore.activeClass)
 
 async function loadContext() {
   if (!schoolUserId.value) {
@@ -35,7 +34,10 @@ async function loadContext() {
   errorMessage.value = ''
 
   try {
-    classes.value = await getStudentClasses(schoolUserId.value)
+    await activeClassStore.loadClasses(schoolUserId.value)
+    if (activeClassStore.errorMessage) {
+      errorMessage.value = activeClassStore.errorMessage
+    }
   } catch {
     errorMessage.value = 'Konteks kelas belum bisa dimuat. Periksa koneksi atau coba lagi nanti.'
   } finally {
@@ -57,7 +59,7 @@ onMounted(loadContext)
       </p>
     </header>
 
-    <section v-if="isLoading" class="soft-card max-w-3xl rounded-3xl p-6">
+    <section v-if="isLoading || activeClassStore.isLoading" class="soft-card max-w-3xl rounded-3xl p-6">
       <div class="h-24 animate-pulse rounded-2xl bg-white" />
     </section>
 
@@ -76,7 +78,7 @@ onMounted(loadContext)
       </button>
     </section>
 
-    <section v-else class="soft-card max-w-3xl rounded-3xl p-6">
+    <section v-else-if="activeClass" class="soft-card max-w-3xl rounded-3xl p-6">
       <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#eef2ff] text-[#4f46e5]">
         <PhMegaphone :size="26" weight="duotone" />
       </div>
@@ -86,6 +88,16 @@ onMounted(loadContext)
       <p class="mt-2 text-sm leading-6 text-[#7a7385]">
         Integrasi feed class belum diaktifkan di frontend tahap ini. Setelah active class context
         final, halaman ini dapat memakai endpoint feed class tanpa membuat data palsu.
+      </p>
+    </section>
+
+    <section v-else class="soft-card max-w-3xl rounded-3xl p-6">
+      <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#eef2ff] text-[#4f46e5]">
+        <PhMegaphone :size="26" weight="duotone" />
+      </div>
+      <p class="text-sm font-medium text-[#171322]">Belum ada kelas aktif</p>
+      <p class="mt-2 text-sm leading-6 text-[#7a7385]">
+        Feed kelas akan tersedia setelah akunmu memiliki enrollment dan active class context.
       </p>
     </section>
   </main>
