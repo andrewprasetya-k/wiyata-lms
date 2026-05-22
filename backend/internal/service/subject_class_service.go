@@ -9,6 +9,7 @@ import (
 type SubjectClassService interface {
 	Assign(scl *domain.SubjectClass) error
 	GetByClass(classID string) ([]*domain.SubjectClass, error)
+	GetTeachingByUserAndSchool(userID string, schoolID string) ([]repository.TeacherSubjectClassRow, error)
 	GetByID(id string) (*domain.SubjectClass, error)
 	Update(scl *domain.SubjectClass) error
 	Unassign(id string) error
@@ -44,6 +45,10 @@ func (s *subjectClassService) Update(scl *domain.SubjectClass) error {
 
 func (s *subjectClassService) GetByClass(classID string) ([]*domain.SubjectClass, error) {
 	return s.repo.GetByClass(classID)
+}
+
+func (s *subjectClassService) GetTeachingByUserAndSchool(userID string, schoolID string) ([]repository.TeacherSubjectClassRow, error) {
+	return s.repo.GetTeachingByUserAndSchool(userID, schoolID)
 }
 
 func (s *subjectClassService) GetByID(id string) (*domain.SubjectClass, error) {

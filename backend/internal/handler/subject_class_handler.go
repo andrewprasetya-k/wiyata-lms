@@ -3,6 +3,7 @@ package handler
 import (
 	"backend/internal/domain"
 	"backend/internal/dto"
+	"backend/internal/middleware"
 	"backend/internal/service"
 	"net/http"
 
@@ -74,6 +75,49 @@ func (h *SubjectClassHandler) GetByClass(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response2)
+}
+
+func (h *SubjectClassHandler) GetMyTeaching(c *gin.Context) {
+	userID := middleware.GetUserID(c)
+	if userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	schoolID, _ := c.Get("school_id")
+	schoolIDString, ok := schoolID.(string)
+	if !ok || schoolIDString == "" {
+		schoolIDString = c.GetHeader("SchoolId")
+	}
+	if schoolIDString == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required (SchoolId header)"})
+		return
+	}
+
+	results, err := h.service.GetTeachingByUserAndSchool(userID, schoolIDString)
+	if err != nil {
+		HandleError(c, err)
+		return
+	}
+
+	response := make([]dto.TeacherSubjectClassDTO, 0, len(results))
+	for _, item := range results {
+		response = append(response, dto.TeacherSubjectClassDTO{
+			SubjectClassID:     item.SubjectClassID,
+			ClassID:            item.ClassID,
+			ClassName:          item.ClassName,
+			ClassCode:          item.ClassCode,
+			SubjectID:          item.SubjectID,
+			SubjectName:        item.SubjectName,
+			SubjectCode:        item.SubjectCode,
+			StudentCount:       item.StudentCount,
+			MaterialCount:      item.MaterialCount,
+			AssignmentCount:    item.AssignmentCount,
+			PendingSubmissions: item.PendingSubmissions,
+		})
+	}
+
+	c.JSON(http.StatusOK, dto.TeacherSubjectClassesResponseDTO{Data: response})
 }
 
 func (h *SubjectClassHandler) GetByID(c *gin.Context) {

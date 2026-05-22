@@ -244,6 +244,7 @@ func main() {
 		subjectClassAPI := api.Group("/subject-classes")
 		{
 			subjectClassAPI.POST("/assign", middleware.RequireRole(schoolService, "admin", "teacher"), subjectClassHandler.Assign)
+			subjectClassAPI.GET("/my-teaching", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "teacher"), subjectClassHandler.GetMyTeaching)
 			subjectClassAPI.GET("/class/:classId", middleware.RequireSchoolMember(schoolService), subjectClassHandler.GetByClass)
 			subjectClassAPI.GET("/:id", middleware.RequireSchoolMember(schoolService), subjectClassHandler.GetByID)
 			subjectClassAPI.PATCH("/:id", middleware.RequireRole(schoolService, "admin", "teacher"), subjectClassHandler.Update)

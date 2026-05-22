@@ -8,6 +8,7 @@ import (
 type SubjectClassRepository interface {
 	Create(scl *domain.SubjectClass) error
 	GetByClass(classID string) ([]*domain.SubjectClass, error)
+	GetTeachingByUserAndSchool(userID string, schoolID string) ([]TeacherSubjectClassRow, error)
 	GetByID(id string) (*domain.SubjectClass, error)
 	Update(scl *domain.SubjectClass) error
 	Delete(id string) error
@@ -18,6 +19,20 @@ type SubjectClassRepository interface {
 
 type subjectClassRepository struct {
 	db *gorm.DB
+}
+
+type TeacherSubjectClassRow struct {
+	SubjectClassID     string `gorm:"column:subject_class_id"`
+	ClassID            string `gorm:"column:class_id"`
+	ClassName          string `gorm:"column:class_name"`
+	ClassCode          string `gorm:"column:class_code"`
+	SubjectID          string `gorm:"column:subject_id"`
+	SubjectName        string `gorm:"column:subject_name"`
+	SubjectCode        string `gorm:"column:subject_code"`
+	StudentCount       int64  `gorm:"column:student_count"`
+	MaterialCount      int64  `gorm:"column:material_count"`
+	AssignmentCount    int64  `gorm:"column:assignment_count"`
+	PendingSubmissions int64  `gorm:"column:pending_submissions"`
 }
 
 func NewSubjectClassRepository(db *gorm.DB) SubjectClassRepository {
@@ -32,6 +47,49 @@ func (r *subjectClassRepository) GetByClass(classID string) ([]*domain.SubjectCl
 	var results []*domain.SubjectClass
 	err := r.db.Preload("Subject").Preload("Teacher.User").
 		Where("scl_cls_id = ?", classID).Find(&results).Error
+	return results, err
+}
+
+func (r *subjectClassRepository) GetTeachingByUserAndSchool(userID string, schoolID string) ([]TeacherSubjectClassRow, error) {
+	var results []TeacherSubjectClassRow
+	err := r.db.Raw(`
+		SELECT
+			sc.scl_id AS subject_class_id,
+			c.cls_id AS class_id,
+			c.cls_title AS class_name,
+			c.cls_code AS class_code,
+			sub.sub_id AS subject_id,
+			sub.sub_name AS subject_name,
+			sub.sub_code AS subject_code,
+			COUNT(DISTINCT enr.enr_scu_id) AS student_count,
+			COUNT(DISTINCT mat.mat_id) AS material_count,
+			COUNT(DISTINCT asg.asg_id) AS assignment_count,
+			COUNT(DISTINCT CASE WHEN asm.asm_id IS NULL THEN sbm.sbm_id END) AS pending_submissions
+		FROM edv.subject_classes sc
+		JOIN edv.school_users teacher_scu ON teacher_scu.scu_id = sc.scl_scu_id
+		JOIN edv.classes c ON c.cls_id = sc.scl_cls_id
+		JOIN edv.subjects sub ON sub.sub_id = sc.scl_sub_id
+		LEFT JOIN edv.enrollments enr
+			ON enr.enr_cls_id = c.cls_id
+			AND enr.enr_role = 'student'
+		LEFT JOIN edv.materials mat
+			ON mat.mat_scl_id = sc.scl_id
+			AND mat.deleted_at IS NULL
+		LEFT JOIN edv.assignments asg
+			ON asg.asg_scl_id = sc.scl_id
+			AND asg.deleted_at IS NULL
+		LEFT JOIN edv.submissions sbm
+			ON sbm.sbm_asg_id = asg.asg_id
+			AND sbm.deleted_at IS NULL
+		LEFT JOIN edv.assessments asm
+			ON asm.asm_sbm_id = sbm.sbm_id
+		WHERE teacher_scu.scu_usr_id = ?
+			AND teacher_scu.scu_sch_id = ?
+			AND c.cls_sch_id = ?
+			AND c.deleted_at IS NULL
+		GROUP BY sc.scl_id, c.cls_id, c.cls_title, c.cls_code, sub.sub_id, sub.sub_name, sub.sub_code
+		ORDER BY c.cls_title ASC, sub.sub_name ASC
+	`, userID, schoolID, schoolID).Scan(&results).Error
 	return results, err
 }
 

@@ -32,3 +32,21 @@ type SubjectPerClassDTO struct {
 	Class    ClassHeaderDTO            `json:"class"`
 	Subjects []SubjectClassResponseDTO `json:"subjects"`
 }
+
+type TeacherSubjectClassDTO struct {
+	SubjectClassID     string `json:"subjectClassId"`
+	ClassID            string `json:"classId"`
+	ClassName          string `json:"className"`
+	ClassCode          string `json:"classCode,omitempty"`
+	SubjectID          string `json:"subjectId"`
+	SubjectName        string `json:"subjectName"`
+	SubjectCode        string `json:"subjectCode,omitempty"`
+	StudentCount       int64  `json:"studentCount"`
+	MaterialCount      int64  `json:"materialCount"`
+	AssignmentCount    int64  `json:"assignmentCount"`
+	PendingSubmissions int64  `json:"pendingSubmissions"`
+}
+
+type TeacherSubjectClassesResponseDTO struct {
+	Data []TeacherSubjectClassDTO `json:"data"`
+}

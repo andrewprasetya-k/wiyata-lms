@@ -94,6 +94,7 @@ Authorization: Bearer <your-jwt-token>
 
 ## 📖 Subject Classes (Teacher Assignment)
 - `POST /subject-classes/assign` - Assign subject & teacher to class
+- `GET /subject-classes/my-teaching` - Get subject classes taught by current teacher
 - `GET /subject-classes/class/:classId` - Get subjects by class
 - `GET /subject-classes/:id` - Get assignment detail
 - `PATCH /subject-classes/:id` - Update assignment

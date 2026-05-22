@@ -25,13 +25,52 @@ Retrieve all subjects and their teachers for a specific class.
 
 ---
 
-## 3. Get Assignment Detail
+## 3. List Current Teacher Subject Classes
+Retrieve subject classes taught by the current logged-in teacher in the active school context.
+
+- **URL:** `/my-teaching`
+- **Method:** `GET`
+- **Auth:** Required
+- **Role:** `teacher`
+- **School Context:** Requires `SchoolId` header
+- **Auth Note:** Teacher identity is taken from the JWT token and current school membership. Do not send `userId` or `schoolUserId` in body/query.
+
+**Response:**
+```json
+{
+  "data": [
+    {
+      "subjectClassId": "uuid",
+      "classId": "uuid",
+      "className": "XII IPA 1",
+      "classCode": "XII-IPA-1",
+      "subjectId": "uuid",
+      "subjectName": "Matematika",
+      "subjectCode": "MTK",
+      "studentCount": 30,
+      "materialCount": 4,
+      "assignmentCount": 3,
+      "pendingSubmissions": 8
+    }
+  ]
+}
+```
+
+**Notes:**
+- `studentCount` is counted from class enrollments with role `student`.
+- `materialCount` and `assignmentCount` are scoped to the subject class.
+- `pendingSubmissions` counts submitted assignment submissions in this subject class that do not have an assessment yet.
+- This endpoint is intended for teacher subject workspace pages such as `/teacher/subjects`.
+
+---
+
+## 4. Get Assignment Detail
 - **URL:** `/:id`
 - **Method:** `GET`
 
 ---
 
-## 4. Update Assignment
+## 5. Update Assignment
 Update teacher or subject for an existing assignment.
 
 - **URL:** `/:id`
@@ -44,6 +83,6 @@ Update teacher or subject for an existing assignment.
 
 ---
 
-## 5. Remove Assignment (Unassign)
+## 6. Remove Assignment (Unassign)
 - **URL:** `/:id`
 - **Method:** `DELETE`
