@@ -12,7 +12,7 @@ import {
 } from '@phosphor-icons/vue'
 import { useAuthStore } from '../../stores/auth'
 import { getSubjectAssignmentDetail, submitAssignment } from '../../services/assignment'
-import { uploadMediaFile } from '../../services/media'
+import { deleteMedia, uploadMediaFile } from '../../services/media'
 import type { AssignmentItem, SubjectClassHeader } from '../../types/assignment'
 
 const route = useRoute()
@@ -98,11 +98,14 @@ async function handleSubmit() {
   isSubmitting.value = true
   submitError.value = ''
   submitSuccess.value = ''
+  const uploadedMediaIds: string[] = []
 
   try {
     const uploaded = []
     for (const file of selectedFiles.value) {
-      uploaded.push(await uploadMediaFile(file, schoolId.value, 'submission'))
+      const media = await uploadMediaFile(file, schoolId.value, 'submission')
+      uploaded.push(media)
+      uploadedMediaIds.push(media.mediaId)
     }
 
     await submitAssignment(assignment.value.assignmentId, {
@@ -113,6 +116,18 @@ async function handleSubmit() {
     selectedFiles.value = []
     submitSuccess.value = 'Tugas berhasil dikumpulkan. Status detail akan tersedia setelah endpoint submission siswa siap.'
   } catch (error) {
+    if (uploadedMediaIds.length > 0) {
+      await Promise.allSettled(
+        uploadedMediaIds.map(async (mediaId) => {
+          try {
+            await deleteMedia(mediaId)
+          } catch (cleanupError) {
+            console.warn('Failed to cleanup uploaded submission media', mediaId, cleanupError)
+          }
+        }),
+      )
+    }
+
     submitError.value =
       getErrorMessage(error) ??
       'Pengumpulan tugas gagal. Pastikan file valid dan coba lagi nanti.'

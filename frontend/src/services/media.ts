@@ -13,3 +13,7 @@ export async function uploadMediaFile(file: File, schoolId: string, ownerType = 
 
   return data
 }
+
+export async function deleteMedia(mediaId: string) {
+  await api.delete(`/medias/${mediaId}`)
+}
