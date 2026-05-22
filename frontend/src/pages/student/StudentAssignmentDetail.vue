@@ -4,6 +4,7 @@ import { RouterLink, useRoute } from 'vue-router'
 import {
   PhArrowLeft,
   PhCalendarBlank,
+  PhCheckCircle,
   PhClipboardText,
   PhFileText,
   PhPaperclip,
@@ -11,9 +12,13 @@ import {
   PhWarningCircle,
 } from '@phosphor-icons/vue'
 import { useAuthStore } from '../../stores/auth'
-import { getSubjectAssignmentDetail, submitAssignment } from '../../services/assignment'
+import {
+  getMySubmissionByAssignment,
+  getSubjectAssignmentDetail,
+  submitAssignment,
+} from '../../services/assignment'
 import { deleteMedia, uploadMediaFile } from '../../services/media'
-import type { AssignmentItem, SubjectClassHeader } from '../../types/assignment'
+import type { AssignmentItem, MySubmissionResponse, SubjectClassHeader } from '../../types/assignment'
 
 const route = useRoute()
 const auth = useAuthStore()
@@ -28,6 +33,9 @@ const selectedFiles = ref<File[]>([])
 const submitError = ref('')
 const submitSuccess = ref('')
 const isSubmitting = ref(false)
+const submissionStatus = ref<MySubmissionResponse | null>(null)
+const isSubmissionLoading = ref(false)
+const submissionError = ref('')
 
 const schoolId = computed(() => auth.activeSchoolId ?? auth.defaultContext?.schoolId ?? '')
 
@@ -47,6 +55,7 @@ async function loadAssignment() {
     subjectClass.value = data.subjectClass
     assignment.value = data.assignment
     didLoad.value = true
+    loadMySubmissionStatus()
   } catch {
     errorMessage.value = 'Detail tugas belum bisa dimuat. Periksa koneksi atau coba lagi nanti.'
   } finally {
@@ -55,6 +64,22 @@ async function loadAssignment() {
 }
 
 onMounted(loadAssignment)
+
+async function loadMySubmissionStatus() {
+  if (!assignmentId.value) return
+
+  isSubmissionLoading.value = true
+  submissionError.value = ''
+
+  try {
+    submissionStatus.value = await getMySubmissionByAssignment(assignmentId.value)
+  } catch {
+    submissionError.value =
+      'Status pengumpulan belum bisa dimuat. Detail tugas tetap bisa dibaca.'
+  } finally {
+    isSubmissionLoading.value = false
+  }
+}
 
 function handleFileChange(event: Event) {
   const input = event.target as HTMLInputElement
@@ -114,7 +139,8 @@ async function handleSubmit() {
     })
 
     selectedFiles.value = []
-    submitSuccess.value = 'Tugas berhasil dikumpulkan. Status detail akan tersedia setelah endpoint submission siswa siap.'
+    submitSuccess.value = 'Tugas berhasil dikumpulkan.'
+    await loadMySubmissionStatus()
   } catch (error) {
     if (uploadedMediaIds.length > 0) {
       await Promise.allSettled(
@@ -256,63 +282,153 @@ async function handleSubmit() {
       <article class="rounded-3xl border border-[#ebe7df] bg-white p-5">
         <p class="text-sm font-medium text-[#171322]">Pengumpulan tugas</p>
         <p class="mt-2 text-sm leading-6 text-[#7a7385]">
-          Upload file tugas, lalu kirim submission. Identitas siswa diambil dari token login.
+          Status pengumpulan diambil dari submission milik akun login saat ini.
         </p>
 
-        <div class="mt-4 rounded-2xl border border-dashed border-[#d8d2c8] bg-[#fbfaf8] p-4">
-          <label
-            class="inline-flex cursor-pointer items-center gap-2 rounded-2xl bg-white px-4 py-2 text-sm font-medium text-[#4f46e5] transition hover:bg-[#eef2ff]"
-          >
-            <PhPaperclip :size="18" />
-            Pilih file
-            <input class="hidden" multiple type="file" @change="handleFileChange" />
-          </label>
+        <div v-if="isSubmissionLoading" class="mt-4 h-24 animate-pulse rounded-2xl bg-[#fbfaf8]" />
 
-          <p class="mt-3 text-xs leading-5 text-[#8b8592]">
-            File akan diupload ke storage backend terlebih dahulu, lalu media ID dikirim ke endpoint submission.
+        <div v-else-if="submissionError" class="mt-4 rounded-2xl bg-[#fff1f0] p-4">
+          <p class="text-sm text-[#b42318]">{{ submissionError }}</p>
+          <button
+            class="mt-3 rounded-xl bg-white px-3 py-1.5 text-sm font-medium text-[#4f46e5]"
+            type="button"
+            @click="loadMySubmissionStatus"
+          >
+            Coba lagi
+          </button>
+        </div>
+
+        <div
+          v-else-if="submissionStatus?.status === 'submitted' || submissionStatus?.status === 'graded'"
+          class="mt-4 space-y-4"
+        >
+          <div class="rounded-2xl bg-[#ecfdf3] p-4">
+            <div class="flex items-start gap-3">
+              <PhCheckCircle :size="22" class="mt-0.5 shrink-0 text-[#027a48]" weight="duotone" />
+              <div>
+                <p class="text-sm font-medium text-[#171322]">
+                  {{
+                    submissionStatus.status === 'graded'
+                      ? 'Tugas sudah dinilai'
+                      : 'Tugas sudah dikumpulkan'
+                  }}
+                </p>
+                <p class="mt-1 text-sm text-[#667085]">
+                  Dikumpulkan: {{ submissionStatus.submission?.submittedAt || 'Waktu tidak tersedia' }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div
+            v-if="submissionStatus.submission?.attachments?.length"
+            class="rounded-2xl bg-[#fbfaf8] p-4"
+          >
+            <p class="text-sm font-medium text-[#171322]">File yang dikumpulkan</p>
+            <div class="mt-3 space-y-2">
+              <a
+                v-for="attachment in submissionStatus.submission.attachments"
+                :key="attachment.mediaId"
+                class="flex items-center gap-3 rounded-2xl bg-white px-4 py-3 text-sm text-[#4a4356]"
+                :href="attachment.fileUrl"
+                rel="noreferrer"
+                target="_blank"
+              >
+                <PhFileText :size="18" class="text-[#4f46e5]" />
+                <span class="min-w-0 flex-1 truncate">{{ attachment.mediaName || 'File submission' }}</span>
+                <span class="shrink-0 text-xs text-[#8b8592]">{{ formatFileSize(attachment.fileSize) }}</span>
+              </a>
+            </div>
+          </div>
+
+          <div
+            v-if="submissionStatus.status === 'graded' && submissionStatus.submission?.assessment"
+            class="rounded-2xl bg-[#eef2ff] p-4"
+          >
+            <p class="text-sm font-medium text-[#171322]">Penilaian</p>
+            <p class="mt-3 text-3xl font-medium text-[#4f46e5]">
+              {{ submissionStatus.submission.assessment.score }}
+            </p>
+            <p
+              v-if="submissionStatus.submission.assessment.feedback"
+              class="mt-3 whitespace-pre-line text-sm leading-6 text-[#4a4356]"
+            >
+              {{ submissionStatus.submission.assessment.feedback }}
+            </p>
+            <p class="mt-3 text-xs text-[#8b8592]">
+              Dinilai oleh {{ submissionStatus.submission.assessment.assessorName || 'Guru' }}
+              · {{ submissionStatus.submission.assessment.assessedAt }}
+            </p>
+          </div>
+
+          <p
+            v-else
+            class="rounded-2xl bg-[#fbfaf8] p-4 text-sm leading-6 text-[#7a7385]"
+          >
+            Menunggu penilaian dari guru.
           </p>
         </div>
 
-        <div v-if="selectedFiles.length > 0" class="mt-4 space-y-2">
-          <div
-            v-for="(file, index) in selectedFiles"
-            :key="`${file.name}-${file.size}-${index}`"
-            class="flex items-center justify-between gap-3 rounded-2xl bg-[#fbfaf8] px-4 py-3"
-          >
-            <div class="min-w-0">
-              <p class="truncate text-sm font-medium text-[#3f3a4a]">{{ file.name }}</p>
-              <p class="mt-1 text-xs text-[#8b8592]">{{ formatFileSize(file.size) }}</p>
-            </div>
-            <button
-              class="shrink-0 rounded-xl p-2 text-[#f2756a] transition hover:bg-[#fff1f0]"
-              type="button"
-              @click="removeFile(index)"
+        <template v-else>
+          <p class="mt-4 text-sm leading-6 text-[#7a7385]">
+            Upload file tugas, lalu kirim submission. Identitas siswa diambil dari token login.
+          </p>
+
+          <div class="mt-4 rounded-2xl border border-dashed border-[#d8d2c8] bg-[#fbfaf8] p-4">
+            <label
+              class="inline-flex cursor-pointer items-center gap-2 rounded-2xl bg-white px-4 py-2 text-sm font-medium text-[#4f46e5] transition hover:bg-[#eef2ff]"
             >
-              <PhTrash :size="17" />
-            </button>
+              <PhPaperclip :size="18" />
+              Pilih file
+              <input class="hidden" multiple type="file" @change="handleFileChange" />
+            </label>
+
+            <p class="mt-3 text-xs leading-5 text-[#8b8592]">
+              File akan diupload ke storage backend terlebih dahulu, lalu media ID dikirim ke endpoint submission.
+            </p>
           </div>
-        </div>
 
-        <p v-if="submitError" class="mt-4 rounded-2xl bg-[#fff1f0] p-3 text-sm text-[#b42318]">
-          {{ submitError }}
-        </p>
-        <p v-if="submitSuccess" class="mt-4 rounded-2xl bg-[#ecfdf3] p-3 text-sm text-[#027a48]">
-          {{ submitSuccess }}
-        </p>
+          <div v-if="selectedFiles.length > 0" class="mt-4 space-y-2">
+            <div
+              v-for="(file, index) in selectedFiles"
+              :key="`${file.name}-${file.size}-${index}`"
+              class="flex items-center justify-between gap-3 rounded-2xl bg-[#fbfaf8] px-4 py-3"
+            >
+              <div class="min-w-0">
+                <p class="truncate text-sm font-medium text-[#3f3a4a]">{{ file.name }}</p>
+                <p class="mt-1 text-xs text-[#8b8592]">{{ formatFileSize(file.size) }}</p>
+              </div>
+              <button
+                class="shrink-0 rounded-xl p-2 text-[#f2756a] transition hover:bg-[#fff1f0]"
+                type="button"
+                @click="removeFile(index)"
+              >
+                <PhTrash :size="17" />
+              </button>
+            </div>
+          </div>
 
-        <button
-          class="mt-4 rounded-2xl px-4 py-2 text-sm font-medium text-white transition"
-          :class="
-            isSubmitting || selectedFiles.length === 0
-              ? 'bg-[#d8d5dd]'
-              : 'bg-[#4f46e5] hover:bg-[#4338ca]'
-          "
-          :disabled="isSubmitting || selectedFiles.length === 0"
-          type="button"
-          @click="handleSubmit"
-        >
-          {{ isSubmitting ? 'Mengumpulkan...' : 'Kumpulkan tugas' }}
-        </button>
+          <p v-if="submitError" class="mt-4 rounded-2xl bg-[#fff1f0] p-3 text-sm text-[#b42318]">
+            {{ submitError }}
+          </p>
+          <p v-if="submitSuccess" class="mt-4 rounded-2xl bg-[#ecfdf3] p-3 text-sm text-[#027a48]">
+            {{ submitSuccess }}
+          </p>
+
+          <button
+            class="mt-4 rounded-2xl px-4 py-2 text-sm font-medium text-white transition"
+            :class="
+              isSubmitting || selectedFiles.length === 0
+                ? 'bg-[#d8d5dd]'
+                : 'bg-[#4f46e5] hover:bg-[#4338ca]'
+            "
+            :disabled="isSubmitting || selectedFiles.length === 0"
+            type="button"
+            @click="handleSubmit"
+          >
+            {{ isSubmitting ? 'Mengumpulkan...' : 'Kumpulkan tugas' }}
+          </button>
+        </template>
       </article>
     </section>
   </main>

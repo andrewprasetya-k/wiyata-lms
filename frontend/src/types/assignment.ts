@@ -32,3 +32,34 @@ export interface SubmitAssignmentPayload {
 export interface SubmitAssignmentResponse {
   message: string
 }
+
+export type MySubmissionStatus = 'not_submitted' | 'submitted' | 'graded'
+
+export interface SubmissionAttachment {
+  mediaId: string
+  mediaName: string
+  fileUrl: string
+  mimeType: string
+  fileSize: number
+}
+
+export interface SubmissionAssessment {
+  assessmentId: string
+  score: number
+  feedback: string
+  assessedAt: string
+  assessorName: string
+}
+
+export interface MySubmission {
+  submissionId: string
+  assignmentId: string
+  submittedAt: string
+  attachments?: SubmissionAttachment[]
+  assessment: SubmissionAssessment | null
+}
+
+export interface MySubmissionResponse {
+  status: MySubmissionStatus
+  submission: MySubmission | null
+}
