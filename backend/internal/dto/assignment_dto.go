@@ -105,6 +105,27 @@ type AssessmentResponseDTO struct {
 	AssessedAt string  `json:"assessedAt"`
 }
 
+type MySubmissionAssessmentDTO struct {
+	ID           string  `json:"assessmentId"`
+	Score        float64 `json:"score"`
+	Feedback     string  `json:"feedback"`
+	AssessedAt   string  `json:"assessedAt"`
+	AssessorName string  `json:"assessorName"`
+}
+
+type MySubmissionDTO struct {
+	ID           string                     `json:"submissionId"`
+	AssignmentID string                     `json:"assignmentId"`
+	SubmittedAt  string                     `json:"submittedAt"`
+	Attachments  []MediaResponseDTO         `json:"attachments,omitempty"`
+	Assessment   *MySubmissionAssessmentDTO `json:"assessment"`
+}
+
+type MySubmissionResponseDTO struct {
+	Status     string           `json:"status"`
+	Submission *MySubmissionDTO `json:"submission"`
+}
+
 // Weight
 type SetAssessmentWeightDTO struct {
 	SubjectID  string  `json:"subjectId" binding:"required,uuid"`

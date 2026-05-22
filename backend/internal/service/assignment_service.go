@@ -4,8 +4,11 @@ import (
 	"backend/internal/domain"
 	"backend/internal/dto"
 	"backend/internal/repository"
+	"errors"
 	"fmt"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type AssignmentService interface {
@@ -26,6 +29,7 @@ type AssignmentService interface {
 	Submit(sbm *domain.Submission, mediaIDs []string) error
 	GetSubmissions(asgID string) ([]*domain.Submission, error)
 	GetSubmissionByID(id string) (*domain.Submission, error)
+	GetMySubmissionByAssignment(assignmentID string, userID string, schoolID string) (*domain.Submission, error)
 	UpdateSubmission(id string, mediaIDs []string) error
 	DeleteSubmission(id string) error
 
@@ -264,6 +268,22 @@ func (s *assignmentService) GetSubmissionByID(id string) (*domain.Submission, er
 	}
 
 	atts, _ := s.attService.GetBySource(string(domain.SourceSubmission), id)
+	for _, a := range atts {
+		sbm.Attachments = append(sbm.Attachments, *a)
+	}
+	return sbm, nil
+}
+
+func (s *assignmentService) GetMySubmissionByAssignment(assignmentID string, userID string, schoolID string) (*domain.Submission, error) {
+	sbm, err := s.repo.GetMySubmissionByAssignment(assignmentID, userID, schoolID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	atts, _ := s.attService.GetBySource(string(domain.SourceSubmission), sbm.ID)
 	for _, a := range atts {
 		sbm.Attachments = append(sbm.Attachments, *a)
 	}

@@ -279,6 +279,49 @@ func (h *AssignmentHandler) GetAssignmentStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, status)
 }
 
+func (h *AssignmentHandler) GetMySubmissionByAssignment(c *gin.Context) {
+	assignmentID := c.Param("assignmentId")
+	userID := middleware.GetUserID(c)
+	if userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	schoolID := ""
+	if sid, exists := c.Get("school_id"); exists {
+		if value, ok := sid.(string); ok {
+			schoolID = value
+		}
+	}
+	if schoolID == "" {
+		schoolID = c.GetHeader("SchoolId")
+	}
+
+	submission, err := h.service.GetMySubmissionByAssignment(assignmentID, userID, schoolID)
+	if err != nil {
+		HandleError(c, err)
+		return
+	}
+
+	if submission == nil {
+		c.JSON(http.StatusOK, dto.MySubmissionResponseDTO{
+			Status:     "not_submitted",
+			Submission: nil,
+		})
+		return
+	}
+
+	status := "submitted"
+	if submission.Assessment != nil {
+		status = "graded"
+	}
+
+	c.JSON(http.StatusOK, dto.MySubmissionResponseDTO{
+		Status:     status,
+		Submission: h.mapMySubmissionToResponse(submission),
+	})
+}
+
 func (h *AssignmentHandler) Submit(c *gin.Context) {
 	var input dto.CreateSubmissionDTO
 	var assignmentId = c.Param("assignmentId")
@@ -473,5 +516,37 @@ func (h *AssignmentHandler) mapAsgToResponse(a *domain.Assignment) dto.Assignmen
 		AllowLateSubmission: a.AllowLateSubmission,
 		CreatedAt:           a.CreatedAt.Format("02-01-2006 15:04:05"),
 		Attachments:         atts,
+	}
+}
+
+func (h *AssignmentHandler) mapMySubmissionToResponse(s *domain.Submission) *dto.MySubmissionDTO {
+	var atts []dto.MediaResponseDTO
+	for _, a := range s.Attachments {
+		atts = append(atts, dto.MediaResponseDTO{
+			ID:       a.Media.ID,
+			Name:     a.Media.Name,
+			FileSize: a.Media.FileSize,
+			FileURL:  a.Media.FileURL,
+			MimeType: a.Media.MimeType,
+		})
+	}
+
+	var assessment *dto.MySubmissionAssessmentDTO
+	if s.Assessment != nil {
+		assessment = &dto.MySubmissionAssessmentDTO{
+			ID:           s.Assessment.ID,
+			Score:        s.Assessment.Score,
+			Feedback:     s.Assessment.Feedback,
+			AssessedAt:   s.Assessment.AssessedAt.Format("02-01-2006 15:04:05"),
+			AssessorName: s.Assessment.Assessor.FullName,
+		}
+	}
+
+	return &dto.MySubmissionDTO{
+		ID:           s.ID,
+		AssignmentID: s.AssignmentID,
+		SubmittedAt:  s.SubmittedAt.Format("02-01-2006 15:04:05"),
+		Attachments:  atts,
+		Assessment:   assessment,
 	}
 }

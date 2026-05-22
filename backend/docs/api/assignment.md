@@ -83,7 +83,73 @@ Base URL: `/api/assignments`
 - **Method:** `GET`
 - **Response:** Assignment with submission statistics (total, submitted, graded, pending)
 
-### 7. Update Assignment
+### 7. Get My Submission Status
+- **URL:** `/my-submission/:assignmentId`
+- **Method:** `GET`
+- **Auth:** Required
+- **School Context:** Requires `SchoolId` header
+- **Auth Note:** Student identity is taken from the JWT token. Do not send `userId` in body or query.
+- **Purpose:** Student-safe endpoint for the current user's submission status for one assignment. It does not expose other students' submissions.
+
+**Not submitted response:**
+```json
+{
+  "status": "not_submitted",
+  "submission": null
+}
+```
+
+**Submitted response:**
+```json
+{
+  "status": "submitted",
+  "submission": {
+    "submissionId": "uuid",
+    "assignmentId": "uuid",
+    "submittedAt": "02-03-2026 10:30:00",
+    "attachments": [
+      {
+        "mediaId": "uuid",
+        "mediaName": "file.pdf",
+        "fileUrl": "https://...",
+        "mimeType": "application/pdf",
+        "fileSize": 12345
+      }
+    ],
+    "assessment": null
+  }
+}
+```
+
+**Graded response:**
+```json
+{
+  "status": "graded",
+  "submission": {
+    "submissionId": "uuid",
+    "assignmentId": "uuid",
+    "submittedAt": "02-03-2026 10:30:00",
+    "attachments": [
+      {
+        "mediaId": "uuid",
+        "mediaName": "file.pdf",
+        "fileUrl": "https://...",
+        "mimeType": "application/pdf",
+        "fileSize": 12345
+      }
+    ],
+    "assessment": {
+      "assessmentId": "uuid",
+      "score": 90,
+      "feedback": "Bagus",
+      "assessedAt": "03-03-2026 09:00:00",
+      "assessorName": "Nama Guru"
+    }
+  }
+}
+```
+
+### 8. Update Assignment
 - **URL:** `/:id`
 - **Method:** `PATCH`
 - **Body:** (all fields optional)
@@ -98,7 +164,7 @@ Base URL: `/api/assignments`
 }
 ```
 
-### 8. Delete Assignment
+### 9. Delete Assignment
 - **URL:** `/:id`
 - **Method:** `DELETE`
 - **Note:** Soft delete
@@ -107,7 +173,7 @@ Base URL: `/api/assignments`
 
 ## Submissions
 
-### 9. Submit Assignment
+### 10. Submit Assignment
 - **URL:** `/submit/:assignmentId`
 - **Method:** `POST`
 - **Auth Note:** Actor identity is taken from the JWT token. Sending identity fields in the body is ignored or no longer required.
@@ -120,12 +186,12 @@ Base URL: `/api/assignments`
 ```
 - **Note:** Upsert logic - updates existing submission if already submitted
 
-### 10. Get Submission by ID
+### 11. Get Submission by ID
 - **URL:** `/submit/:submissionId`
 - **Method:** `GET`
 - **Response:** Includes `isLate` indicator and assessment if graded
 
-### 11. Update Submission
+### 12. Update Submission
 - **URL:** `/submit/:submissionId`
 - **Method:** `PATCH`
 - **Auth Note:** Actor identity is taken from the JWT token. Sending identity fields in the body is ignored or no longer required.
@@ -137,7 +203,7 @@ Base URL: `/api/assignments`
 }
 ```
 
-### 12. Delete Submission
+### 13. Delete Submission
 - **URL:** `/submit/:submissionId`
 - **Method:** `DELETE`
 - **Note:** Soft delete, can be restored by resubmitting
@@ -146,7 +212,7 @@ Base URL: `/api/assignments`
 
 ## Assessments
 
-### 13. Grade Submission
+### 14. Grade Submission
 - **URL:** `/assess/:submissionId`
 - **Method:** `POST`
 - **Auth Note:** Actor identity is taken from the JWT token. Sending identity fields in the body is ignored or no longer required.
@@ -159,7 +225,7 @@ Base URL: `/api/assignments`
 ```
 - **Note:** Upsert logic - updates existing assessment if already graded
 
-### 14. Update Assessment
+### 15. Update Assessment
 - **URL:** `/assess/:submissionId`
 - **Method:** `PATCH`
 - **Body:** (all fields optional)
@@ -170,7 +236,7 @@ Base URL: `/api/assignments`
 }
 ```
 
-### 15. Delete Assessment
+### 16. Delete Assessment
 - **URL:** `/assess/:submissionId`
 - **Method:** `DELETE`
 - **Note:** Removes grading, submission remains

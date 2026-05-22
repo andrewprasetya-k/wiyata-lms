@@ -26,6 +26,7 @@ type AssignmentRepository interface {
 	UpsertSubmission(sbm *domain.Submission) error
 	GetSubmissionsByAssignment(asgID string) ([]*domain.Submission, error)
 	GetSubmissionByID(id string) (*domain.Submission, error)
+	GetMySubmissionByAssignment(assignmentID string, userID string, schoolID string) (*domain.Submission, error)
 	UpdateSubmission(sbm *domain.Submission) error
 	DeleteSubmission(id string) error
 
@@ -164,6 +165,20 @@ func (r *assignmentRepository) GetSubmissionsByAssignment(asgID string) ([]*doma
 func (r *assignmentRepository) GetSubmissionByID(id string) (*domain.Submission, error) {
 	var sbm domain.Submission
 	err := r.db.Preload("User").Preload("Assessment.Assessor").Where("sbm_id = ?", id).First(&sbm).Error
+	return &sbm, err
+}
+
+func (r *assignmentRepository) GetMySubmissionByAssignment(assignmentID string, userID string, schoolID string) (*domain.Submission, error) {
+	var sbm domain.Submission
+	query := r.db.Preload("User").
+		Preload("Assessment.Assessor").
+		Where("sbm_asg_id = ? AND sbm_usr_id = ?", assignmentID, userID)
+
+	if schoolID != "" {
+		query = query.Where("sbm_sch_id = ?", schoolID)
+	}
+
+	err := query.First(&sbm).Error
 	return &sbm, err
 }
 
