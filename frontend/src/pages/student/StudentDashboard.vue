@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { RouterLink } from 'vue-router'
+import { computed, onMounted, ref } from "vue";
+import { RouterLink } from "vue-router";
 import {
   PhBell,
   PhBookOpen,
@@ -9,140 +9,154 @@ import {
   PhChatCircleText,
   PhNotebook,
   PhWarningCircle,
-} from '@phosphor-icons/vue'
-import { useAuthStore } from '../../stores/auth'
-import { useActiveClassStore } from '../../stores/activeClass'
-import { getSubjectClassesByClass } from '../../services/classWorkspace'
-import { getClassFeed } from '../../services/feed'
+} from "@phosphor-icons/vue";
+import { useAuthStore } from "../../stores/auth";
+import { useActiveClassStore } from "../../stores/activeClass";
+import { getSubjectClassesByClass } from "../../services/classWorkspace";
+import { getClassFeed } from "../../services/feed";
 import {
   getRecentNotifications,
   getUnreadNotificationCount,
-} from '../../services/studentDashboard'
-import type { SubjectClassItem } from '../../types/classWorkspace'
-import type { FeedPost } from '../../types/feed'
-import type { NotificationItem } from '../../types/dashboard'
-import { formatDateTime } from '../../utils/date'
+} from "../../services/studentDashboard";
+import type { SubjectClassItem } from "../../types/classWorkspace";
+import type { FeedPost } from "../../types/feed";
+import type { NotificationItem } from "../../types/dashboard";
+import { formatDateTime } from "../../utils/date";
 
-const auth = useAuthStore()
-const activeClassStore = useActiveClassStore()
+const auth = useAuthStore();
+const activeClassStore = useActiveClassStore();
 
-const palette = ['#4f8ef7', '#f2756a', '#c673d8', '#f0a05a', '#4f46e5']
-const subjects = ref<SubjectClassItem[]>([])
-const feedPosts = ref<FeedPost[]>([])
-const notifications = ref<NotificationItem[]>([])
-const unreadCount = ref(0)
-const isLoading = ref(true)
-const errorMessage = ref('')
-const viewDate = ref(new Date())
+const palette = ["#4f8ef7", "#f2756a", "#c673d8", "#f0a05a", "#4f46e5"];
+const subjects = ref<SubjectClassItem[]>([]);
+const feedPosts = ref<FeedPost[]>([]);
+const notifications = ref<NotificationItem[]>([]);
+const unreadCount = ref(0);
+const isLoading = ref(true);
+const errorMessage = ref("");
+const viewDate = ref(new Date());
 
 const activeMembership = computed(() => {
-  const activeSchoolId = auth.activeSchoolId
+  const activeSchoolId = auth.activeSchoolId;
   return (
-    auth.memberships.find((membership) => membership.school.id === activeSchoolId) ??
-    auth.memberships[0]
-  )
-})
+    auth.memberships.find(
+      (membership) => membership.school.id === activeSchoolId,
+    ) ?? auth.memberships[0]
+  );
+});
 
 const schoolUserId = computed(
-  () => activeMembership.value?.schoolUserId ?? auth.defaultContext?.schoolUserId ?? '',
-)
-const schoolName = computed(() => activeMembership.value?.school.name ?? 'Eduverse')
-const firstName = computed(() => auth.user?.fullName?.split(' ')[0] ?? 'Siswa')
+  () =>
+    activeMembership.value?.schoolUserId ??
+    auth.defaultContext?.schoolUserId ??
+    "",
+);
+const schoolName = computed(
+  () => activeMembership.value?.school.name ?? "Eduverse",
+);
+const firstName = computed(() => auth.user?.fullName?.split(" ")[0] ?? "Siswa");
 const activeClassTitle = computed(
-  () => activeClassStore.activeClassTitle || activeClassStore.activeClass?.classTitle || '',
-)
+  () =>
+    activeClassStore.activeClassTitle ||
+    activeClassStore.activeClass?.classTitle ||
+    "",
+);
 const currentMonth = computed(() =>
-  new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric' }).format(viewDate.value),
-)
-const calendarDays = computed(() => buildCalendarDays(viewDate.value))
+  new Intl.DateTimeFormat("id-ID", { month: "long", year: "numeric" }).format(
+    viewDate.value,
+  ),
+);
+const calendarDays = computed(() => buildCalendarDays(viewDate.value));
 
 function changeMonth(step: number) {
-  const newDate = new Date(viewDate.value)
-  newDate.setMonth(newDate.getMonth() + step)
-  viewDate.value = newDate
+  const newDate = new Date(viewDate.value);
+  newDate.setMonth(newDate.getMonth() + step);
+  viewDate.value = newDate;
 }
 
 async function loadDashboard(selectedClassId?: string) {
   if (!auth.user?.id) {
-    errorMessage.value = 'Sesi login belum lengkap. Silakan login ulang.'
-    isLoading.value = false
-    return
+    errorMessage.value = "Sesi login belum lengkap. Silakan login ulang.";
+    isLoading.value = false;
+    return;
   }
 
   if (!schoolUserId.value) {
-    errorMessage.value = 'Konteks sekolah belum tersedia.'
-    isLoading.value = false
-    return
+    errorMessage.value = "Konteks sekolah belum tersedia.";
+    isLoading.value = false;
+    return;
   }
 
-  isLoading.value = true
-  errorMessage.value = ''
+  isLoading.value = true;
+  errorMessage.value = "";
 
   try {
-    await activeClassStore.loadClasses(schoolUserId.value)
+    await activeClassStore.loadClasses(schoolUserId.value);
 
-    const activeClassId = selectedClassId ?? activeClassStore.activeClassId
+    const activeClassId = selectedClassId ?? activeClassStore.activeClassId;
     const [notificationData, unreadData] = await Promise.all([
       getRecentNotifications(),
       getUnreadNotificationCount(),
-    ])
+    ]);
 
-    notifications.value = notificationData.data ?? []
-    unreadCount.value = unreadData.unreadCount ?? notificationData.unreadCount ?? 0
+    notifications.value = notificationData.data ?? [];
+    unreadCount.value =
+      unreadData.unreadCount ?? notificationData.unreadCount ?? 0;
 
     if (!activeClassId) {
-      subjects.value = []
-      feedPosts.value = []
-      return
+      subjects.value = [];
+      feedPosts.value = [];
+      return;
     }
 
     const [subjectData, feedData] = await Promise.all([
       getSubjectClassesByClass(activeClassId),
       getClassFeed(activeClassId),
-    ])
+    ]);
 
-    subjects.value = subjectData.subjects ?? []
-    feedPosts.value = feedData.data.data ?? []
+    subjects.value = subjectData.subjects ?? [];
+    feedPosts.value = feedData.data.data ?? [];
   } catch {
-    errorMessage.value = 'Dashboard belum bisa dimuat. Periksa koneksi atau coba lagi nanti.'
+    errorMessage.value =
+      "Dashboard belum bisa dimuat. Periksa koneksi atau coba lagi nanti.";
   } finally {
-    isLoading.value = false
+    isLoading.value = false;
   }
 }
 
 function handleActiveClassChange(event: Event) {
-  const classId = (event.target as HTMLSelectElement).value
-  activeClassStore.setActiveClass(classId)
-  loadDashboard(classId)
+  const classId = (event.target as HTMLSelectElement).value;
+  activeClassStore.setActiveClass(classId);
+  loadDashboard(classId);
 }
 
 function initials(value: string) {
   return value
-    .split(' ')
+    .split(" ")
     .filter(Boolean)
     .slice(0, 2)
     .map((part) => part[0])
-    .join('')
-    .toUpperCase()
+    .join("")
+    .toUpperCase();
 }
 
 function buildCalendarDays(date: Date) {
-  const year = date.getFullYear()
-  const month = date.getMonth()
-  const firstDay = new Date(year, month, 1)
-  const startOffset = firstDay.getDay()
-  const daysInMonth = new Date(year, month + 1, 0).getDate()
-  const days = []
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const firstDay = new Date(year, month, 1);
+  const startOffset = firstDay.getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const days = [];
 
-  const realToday = new Date()
-  const isCurrentMonth = realToday.getMonth() === month && realToday.getFullYear() === year
+  const realToday = new Date();
+  const isCurrentMonth =
+    realToday.getMonth() === month && realToday.getFullYear() === year;
 
   for (let i = 0; i < startOffset; i += 1) {
     days.push({
       key: `empty-${i}`,
-      label: '',
+      label: "",
       isToday: false,
-    })
+    });
   }
 
   for (let day = 1; day <= daysInMonth; day += 1) {
@@ -150,20 +164,27 @@ function buildCalendarDays(date: Date) {
       key: String(day),
       label: String(day),
       isToday: isCurrentMonth && day === realToday.getDate(),
-    })
+    });
   }
 
-  return days
+  return days;
 }
 
-onMounted(loadDashboard)
+onMounted(loadDashboard);
 </script>
 
 <template>
-  <main class="grid min-h-screen flex-1 grid-cols-1 overflow-hidden lg:grid-cols-[1fr_320px]">
+  <main
+    class="grid min-h-screen flex-1 grid-cols-1 overflow-hidden lg:grid-cols-[1fr_320px]"
+  >
     <section class="flex flex-col gap-6 px-5 py-6 sm:px-8 lg:px-10">
       <header class="flex flex-col gap-2">
-        <p class="text-sm text-[#7a7385]">{{ schoolName }}</p>
+        <p class="text-sm text-[#7a7385]">
+          {{ schoolName }} -
+          {{
+            activeClassTitle ? `Kelas ${activeClassTitle}` : "Tanpa kelas aktif"
+          }}
+        </p>
         <h1 class="text-2xl font-medium tracking-normal text-[#171322]">
           Selamat datang, {{ firstName }}
         </h1>
@@ -179,18 +200,10 @@ onMounted(loadDashboard)
         </div>
       </div>
 
-      <section class="soft-card rounded-[22px] p-5">
-        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <p class="text-sm font-medium text-[#171322]">Kelas aktif</p>
-            <p class="mt-2 text-2xl font-medium tracking-normal text-[#171322]">
-              {{ activeClassTitle || 'Belum ada kelas aktif' }}
-            </p>
-            <p class="mt-2 max-w-xl text-sm leading-6 text-[#7a7385]">
-              Class menjadi konteks akademik. Materi dan tugas harian dibuka dari subject.
-            </p>
-          </div>
-
+      <!-- <section class="soft-card rounded-[22px] p-5">
+        <div
+          class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"
+        >
           <select
             v-if="activeClassStore.classes.length > 1"
             class="rounded-2xl border border-[#ebe7df] bg-white px-4 py-2 text-sm text-[#3f3a4a] outline-none"
@@ -206,9 +219,12 @@ onMounted(loadDashboard)
             </option>
           </select>
         </div>
-      </section>
+      </section> -->
 
-      <section v-if="isLoading" class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      <section
+        v-if="isLoading"
+        class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3"
+      >
         <div
           v-for="item in 3"
           :key="item"
@@ -216,23 +232,30 @@ onMounted(loadDashboard)
         />
       </section>
 
-      <section v-else-if="!activeClassStore.activeClassId" class="soft-card rounded-[22px] p-6">
+      <section
+        v-else-if="!activeClassStore.activeClassId"
+        class="soft-card rounded-[22px] p-6"
+      >
         <p class="text-sm font-medium text-[#171322]">Belum ada kelas aktif</p>
         <p class="mt-2 text-sm text-[#7a7385]">
-          Kelas akan muncul setelah akunmu terdaftar sebagai member kelas di sekolah aktif.
+          Kelas akan muncul setelah akunmu terdaftar sebagai member kelas di
+          sekolah aktif.
         </p>
       </section>
 
       <section v-else class="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
-        <article class="soft-card rounded-[22px] p-5">
+        <article class="soft-card rounded-[22px] p-5 pl-0">
           <div class="mb-5 flex items-center justify-between">
             <div>
-              <p class="text-sm font-medium text-[#171322]">Subject hari ini</p>
+              <p class="text-sm font-medium text-[#171322]">List subject</p>
               <p class="mt-1 text-xs text-[#8b8592]">
                 Buka subject untuk melihat materi dan tugas.
               </p>
             </div>
-            <RouterLink class="text-sm font-medium text-[#4f46e5]" to="/student/subjects">
+            <RouterLink
+              class="text-sm font-medium text-[#4f46e5]"
+              to="/student/subjects"
+            >
               Lihat semua
             </RouterLink>
           </div>
@@ -251,15 +274,15 @@ onMounted(loadDashboard)
                 <PhBookOpen :size="21" weight="duotone" />
               </div>
               <p class="text-sm font-medium text-[#171322]">
-                {{ subject.subjectName || subject.subjectCode || 'Subject' }}
+                {{ subject.subjectName || subject.subjectCode || "Subject" }}
               </p>
               <p class="mt-2 text-xs leading-5 text-[#7a7385]">
-                {{ subject.teacherName || 'Guru belum tersedia' }}
+                {{ subject.teacherName || "Guru belum tersedia" }}
               </p>
             </RouterLink>
           </div>
 
-          <div v-else class="rounded-2xl bg-[#fbfaf8] p-4">
+          <div v-else class="rounded-2xl bg-[#fbfaf8] p-5 pl-0">
             <p class="text-sm font-medium text-[#171322]">Belum ada subject</p>
             <p class="mt-2 text-sm leading-6 text-[#7a7385]">
               Subject akan tampil setelah kelas aktif memiliki subject class.
@@ -267,11 +290,13 @@ onMounted(loadDashboard)
           </div>
         </article>
 
-        <article class="soft-card rounded-[22px] p-5">
+        <article class="soft-card rounded-[22px] p-5 pl-0">
           <p class="text-sm font-medium text-[#171322]">Ringkasan tugas</p>
-          <p class="mt-3 rounded-2xl bg-[#fbfaf8] p-4 text-sm leading-6 text-[#7a7385]">
-            Ringkasan tugas akan tersedia setelah endpoint agregat siap. Untuk sekarang,
-            buka detail subject untuk melihat tugas real.
+          <p
+            class="mt-3 rounded-2xl bg-[#fbfaf8] p-4 text-sm leading-6 text-[#7a7385]"
+          >
+            Ringkasan tugas akan tersedia setelah endpoint agregat siap. Untuk
+            sekarang, buka detail subject untuk melihat tugas real.
           </p>
         </article>
       </section>
@@ -280,7 +305,10 @@ onMounted(loadDashboard)
         <article class="soft-card rounded-[22px] p-5">
           <div class="mb-4 flex items-center justify-between">
             <p class="text-sm font-medium text-[#171322]">Feed kelas</p>
-            <RouterLink class="text-sm font-medium text-[#4f46e5]" to="/student/feed">
+            <RouterLink
+              class="text-sm font-medium text-[#4f46e5]"
+              to="/student/feed"
+            >
               Buka feed
             </RouterLink>
           </div>
@@ -289,33 +317,42 @@ onMounted(loadDashboard)
             <article
               v-for="post in feedPosts.slice(0, 3)"
               :key="post.feedId"
-              class="rounded-2xl bg-[#fbfaf8] p-4"
+              class="rounded-2xl bg-[#fbfaf8] p-5 pl-0"
             >
               <p class="text-sm leading-6 text-[#3f3a4a]">{{ post.content }}</p>
               <p class="mt-2 text-xs text-[#a09aa8]">
-                {{ post.creatorName || 'Creator tidak tersedia' }} · {{ formatDateTime(post.createdAt) }}
+                {{ post.creatorName || "Creator tidak tersedia" }} ·
+                {{ formatDateTime(post.createdAt) }}
               </p>
             </article>
           </div>
 
-          <p v-else class="rounded-2xl bg-[#fbfaf8] p-4 text-sm leading-6 text-[#7a7385]">
+          <p
+            v-else
+            class="rounded-2xl bg-[#fbfaf8] p-5 text-sm leading-6 text-[#7a7385]"
+          >
             Belum ada posting feed untuk kelas aktif.
           </p>
         </article>
 
-        <article class="soft-card rounded-[22px] p-5">
+        <article class="soft-card rounded-[22px] p-5 pl-0">
           <p class="text-sm font-medium text-[#171322]">Chat dan notes</p>
           <div class="mt-4 space-y-3">
             <div class="flex gap-3 rounded-2xl bg-[#eef2ff] p-4">
-              <PhChatCircleText :size="20" class="mt-0.5 shrink-0 text-[#4f46e5]" />
+              <PhChatCircleText
+                :size="20"
+                class="mt-0.5 shrink-0 text-[#4f46e5]"
+              />
               <p class="text-sm leading-6 text-[#6b6475]">
-                Chat realtime masih fitur future. Tidak ada data chat yang ditampilkan sebagai real.
+                Chat realtime masih fitur future. Tidak ada data chat yang
+                ditampilkan sebagai real.
               </p>
             </div>
             <div class="flex gap-3 rounded-2xl bg-[#f3ecff] p-4">
               <PhNotebook :size="20" class="mt-0.5 shrink-0 text-[#7c3aed]" />
               <p class="text-sm leading-6 text-[#6b6475]">
-                Notes akan tersedia per material. Autosave belum diimplementasikan.
+                Notes akan tersedia per material. Autosave belum
+                diimplementasikan.
               </p>
             </div>
           </div>
@@ -362,7 +399,9 @@ onMounted(loadDashboard)
               <p class="truncate text-sm font-medium text-[#171322]">
                 {{ item.title }}
               </p>
-              <span class="shrink-0 text-[10px] text-[#a09aa8]">{{ formatDateTime(item.createdAt) }}</span>
+              <span class="shrink-0 text-[10px] text-[#a09aa8]">{{
+                formatDateTime(item.createdAt)
+              }}</span>
             </div>
             <p class="truncate text-xs text-[#7a7385]">{{ item.message }}</p>
             <span
