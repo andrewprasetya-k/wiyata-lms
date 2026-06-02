@@ -40,3 +40,5 @@ tmp/build-errors.log
 frontend/.env.example
 CODEBASE_ANALYSIS.md
 QUICK_REFERENCE.md
+PRODUCT_SCOPE.md
+ANALYSIS_INDEX.md
