@@ -4,6 +4,28 @@ Eduverse adalah Learning Management System (LMS) multi-sekolah yang dirancang un
 
 [English Version](README_EN.md)
 
+# EduVerse LMS
+
+EduVerse is a multi-school Learning Management System (LMS) designed to support digital learning, academic management, assignments, assessments, and classroom collaboration.
+
+### Key Highlights
+
+- Multi-tenant LMS architecture supporting multiple schools
+- Backend built with Go (Gin), PostgreSQL, and GORM
+- JWT authentication and role-based access control (RBAC)
+- RESTful APIs for academic management workflows
+- Layered architecture (Handler → Service → Repository → Domain)
+- 22 database tables covering academic structure, learning content, communication, and access control
+- Winner of 1st Place in a university-wide UI/UX competition
+
+### Tech Stack
+
+- Go (Gin)
+- PostgreSQL
+- GORM
+- JWT Authentication
+- Vue.js (In Progress)
+
 ## Daftar Isi
 
 - [Gambaran Umum](#gambaran-umum)
