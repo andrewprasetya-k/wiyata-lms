@@ -344,22 +344,6 @@ Follow this order:
 6. **Handler** - Implement HTTP handlers in `internal/handler/`
 7. **Routes** - Register routes in `cmd/api/main.go`
 
-### Testing
-
-Testing structure is ready:
-
-```bash
-# Tests will be placed in:
-internal/service/material_service_test.go
-internal/repository/material_repo_test.go
-internal/handler/material_handler_test.go
-```
-
-Use standard Go testing with `testing` package.
-
-## Code Conventions
-
-### Naming Conventions
 
 #### Domain/Models
 ```go
@@ -528,6 +512,3 @@ When contributing to this project:
 5. Update documentation if changing architecture
 
 ---
-
-Generated: 2026-06-02
-Last Updated: 2026-06-02

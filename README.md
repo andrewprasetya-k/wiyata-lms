@@ -134,19 +134,6 @@ go run ./cmd/api
 
 Server akan berjalan di `http://localhost:8080`
 
-### Testing
-
-```bash
-# Jalankan semua test
-go test ./...
-
-# Jalankan dengan verbose
-go test -v ./...
-
-# Test paket tertentu
-go test ./internal/service/...
-```
-
 ### Build
 
 ```bash
@@ -527,6 +514,3 @@ Ketika berkontribusi pada project ini:
 5. Update dokumentasi jika ada architectural changes
 
 ---
-
-Generated: 2026-06-02
-Last Updated: 2026-06-02
