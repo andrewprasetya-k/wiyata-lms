@@ -1,4 +1,4 @@
-# Eduverse LMS — Product Scope Locked Version
+# Eduverse LMS — Product Scope 
 
 ## 1. Product Vision
 
