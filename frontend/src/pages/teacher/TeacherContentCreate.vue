@@ -29,6 +29,12 @@ const activeTab = ref<'material' | 'assignment'>('material')
 const loading = ref(false)
 const submitting = ref(false)
 const errorMessage = ref('')
+const activeSchoolCode = computed(() => {
+  const activeMembership = auth.memberships.find(
+    (membership) => membership.school.id === auth.activeSchoolId,
+  )
+  return activeMembership?.school.code ?? auth.memberships[0]?.school.code ?? ''
+})
 
 // Form State
 const form = ref({
@@ -47,7 +53,7 @@ async function loadInitialData() {
   try {
     const [subjectData, categoriesData] = await Promise.all([
       getMyTeachingSubjectClassById(subjectClassId.value),
-      getAssignmentCategories(auth.activeSchoolCode || '')
+      getAssignmentCategories(activeSchoolCode.value)
     ])
     subject.value = subjectData
     categories.value = categoriesData.data

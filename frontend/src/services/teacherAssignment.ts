@@ -1,5 +1,6 @@
 import { api } from './api'
 import type { 
+  AssignmentWithSubmissionsResponse,
   CreateAssignmentPayload, 
   SchoolCategoriesResponse 
 } from '../types/teacherAssignment'
@@ -15,7 +16,7 @@ export async function getAssignmentCategories(schoolCode: string) {
 }
 
 export async function getAssignmentDetailWithSubmissions(assignmentId: string) {
-  const { data } = await api.get(`/assignments/${assignmentId}`)
+  const { data } = await api.get<AssignmentWithSubmissionsResponse>(`/assignments/${assignmentId}`)
   return data
 }
 

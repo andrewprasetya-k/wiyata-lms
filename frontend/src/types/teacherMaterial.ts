@@ -9,9 +9,23 @@ export interface CreateMaterialPayload {
 
 export interface MaterialItem {
   materialId: string
+  subjectClassId?: string
+  subjectName?: string
   materialTitle: string
+  materialDesc?: string
   materialType: string
+  creatorName?: string
   createdAt: string
+  attachments?: {
+    mediaId: string
+    mediaName: string
+    fileSize?: number
+    mimeType?: string
+    fileUrl?: string
+    thumbnailUrl?: string
+    ownerType?: string
+    createdAt?: string
+  }[]
 }
 
 export interface MaterialListResponse {
@@ -21,5 +35,9 @@ export interface MaterialListResponse {
   }
   data: {
     data: MaterialItem[]
+    totalItems?: number
+    page?: number
+    limit?: number
+    totalPages?: number
   }
 }

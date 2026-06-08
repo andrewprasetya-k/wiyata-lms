@@ -21,7 +21,7 @@ export async function deleteMaterial(id: string) {
 
 export async function getSubjectMaterials(subjectClassId: string) {
   const { data } = await api.get<MaterialListResponse>(`/materials`, {
-    params: { subjectClassId }
+    params: { subjectClassId, page: 1, limit: 50 },
   })
   return data
 }
