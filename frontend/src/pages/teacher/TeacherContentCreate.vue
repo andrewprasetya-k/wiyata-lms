@@ -92,9 +92,9 @@ async function loadInitialData() {
 
     try {
       const categoriesData = await getAssignmentCategories(activeSchoolCode.value)
-      categories.value = categoriesData.data
+      categories.value = categoriesData.categories
       if (categories.value.length > 0) {
-        form.value.categoryId = categories.value[0].asc_id
+        form.value.categoryId = categories.value[0].categoryId
       }
     } catch {
       categories.value = []
@@ -367,8 +367,8 @@ onMounted(loadInitialData)
                   :disabled="categories.length === 0"
                   class="w-full px-3 py-2.5 bg-[#F9FAFB] border border-[#EBEBEB] rounded-xl outline-none text-sm"
                 >
-                  <option v-for="cat in categories" :key="cat.asc_id" :value="cat.asc_id">
-                    {{ cat.asc_name }}
+                  <option v-for="cat in categories" :key="cat.categoryId" :value="cat.categoryId">
+                    {{ cat.categoryName }}
                   </option>
                 </select>
                 <p

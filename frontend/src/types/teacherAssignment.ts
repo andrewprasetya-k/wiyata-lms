@@ -10,14 +10,20 @@ export interface CreateAssignmentPayload {
 }
 
 export interface AssignmentCategory {
-  asc_id: string
-  asc_name: string
+  categoryId: string
+  schoolId: string
+  categoryName: string
+  createdAt: string
 }
 
 export interface SchoolCategoriesResponse {
-  schoolId: string
-  schoolName: string
-  data: AssignmentCategory[]
+  school: {
+    schoolId: string
+    schoolName: string
+    schoolCode: string
+    schoolLogo?: string
+  }
+  categories: AssignmentCategory[]
 }
 
 export interface TeacherSubmissionAttachment {
