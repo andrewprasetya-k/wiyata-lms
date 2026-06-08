@@ -145,21 +145,21 @@ Authorization: Bearer <your-jwt-token>
 - `POST /assignments` - Create assignment
 - `GET /assignments/subject-class/:subjectClassId` - Get by subject class
 - `GET /assignments/subject-class/submissions/:subjectClassId` - Get submissions grouped by assignment for current teacher subject class
-- `GET /assignments/:assignmentId` - Get assignment with submissions
+- `GET /assignments/:assignmentId` - Get assignment with submissions for current teacher-owned subject class
 - `GET /assignments/status/:id` - Get assignment status
 - `PATCH /assignments/:id` - Update assignment
 - `DELETE /assignments/:id` - Delete assignment
 
 ### Submissions
 - `POST /assignments/submit/:assignmentId` - Submit assignment
-- `GET /assignments/submit/:submissionId` - Get submission by ID
+- `GET /assignments/submit/:submissionId` - Get submission by ID for current teacher-owned subject class
 - `PATCH /assignments/submit/:submissionId` - Update submission
 - `DELETE /assignments/submit/:submissionId` - Delete submission
 
 ### Assessments (Grading)
-- `POST /assignments/assess/:submissionId` - Grade submission
-- `PATCH /assignments/assess/:submissionId` - Update assessment
-- `DELETE /assignments/assess/:submissionId` - Delete assessment
+- `POST /assignments/assess/:submissionId` - Grade submission for current teacher-owned subject class
+- `PATCH /assignments/assess/:submissionId` - Update assessment for current teacher-owned subject class
+- `DELETE /assignments/assess/:submissionId` - Delete assessment for current teacher-owned subject class
 
 ## 📊 Logs
 - `GET /logs/school/:schoolId` - Get logs by school

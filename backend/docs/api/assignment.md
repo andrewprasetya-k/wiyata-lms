@@ -75,6 +75,11 @@ Base URL: `/api/assignments`
 ### 5. Get Assignment with Submissions
 - **URL:** `/:assignmentId`
 - **Method:** `GET`
+- **Auth:** Required
+- **Role:** `teacher`
+- **School Context:** Requires `SchoolId` header
+- **Auth Note:** Teacher identity is taken from the JWT token. Do not send `teacherId`, `schoolUserId`, or `userId` in body/query.
+- **Authorization:** The current teacher must teach the assignment's subject class. Returns `403` if not.
 - **Note:** This endpoint gets assignment details with all submissions
 - **Response:** `AssignmentWithSubmissionsDTO` (includes all submissions and assessments)
 
@@ -260,6 +265,11 @@ Base URL: `/api/assignments`
 ### 12. Get Submission by ID
 - **URL:** `/submit/:submissionId`
 - **Method:** `GET`
+- **Auth:** Required
+- **Role:** `teacher`
+- **School Context:** Requires `SchoolId` header
+- **Auth Note:** Teacher identity is taken from the JWT token. Do not send `teacherId`, `schoolUserId`, or `userId` in body/query.
+- **Authorization:** The current teacher must teach the subject class of the submission's assignment. Returns `403` if not.
 - **Response:** Includes `isLate` indicator and assessment if graded
 
 ### 13. Update Submission
@@ -286,7 +296,11 @@ Base URL: `/api/assignments`
 ### 15. Grade Submission
 - **URL:** `/assess/:submissionId`
 - **Method:** `POST`
-- **Auth Note:** Actor identity is taken from the JWT token. Sending identity fields in the body is ignored or no longer required.
+- **Auth:** Required
+- **Role:** `teacher`
+- **School Context:** Requires `SchoolId` header
+- **Auth Note:** Teacher identity is taken from the JWT token. Sending identity fields in the body is ignored or no longer required.
+- **Authorization:** The current teacher must teach the subject class of the submission's assignment. Returns `403` if not.
 - **Body:**
 ```json
 {
@@ -299,6 +313,11 @@ Base URL: `/api/assignments`
 ### 16. Update Assessment
 - **URL:** `/assess/:submissionId`
 - **Method:** `PATCH`
+- **Auth:** Required
+- **Role:** `teacher`
+- **School Context:** Requires `SchoolId` header
+- **Auth Note:** Teacher identity is taken from the JWT token. Sending identity fields in the body is ignored or no longer required.
+- **Authorization:** The current teacher must teach the subject class of the submission's assignment. Returns `403` if not.
 - **Body:** (all fields optional)
 ```json
 {
@@ -310,6 +329,11 @@ Base URL: `/api/assignments`
 ### 17. Delete Assessment
 - **URL:** `/assess/:submissionId`
 - **Method:** `DELETE`
+- **Auth:** Required
+- **Role:** `teacher`
+- **School Context:** Requires `SchoolId` header
+- **Auth Note:** Teacher identity is taken from the JWT token. Do not send identity fields in body/query.
+- **Authorization:** The current teacher must teach the subject class of the submission's assignment. Returns `403` if not.
 - **Note:** Removes grading, submission remains
 
 ---

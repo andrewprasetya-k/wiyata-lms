@@ -339,6 +339,9 @@ func (h *AssignmentHandler) GetSubmissionsByAssignment(c *gin.Context) {
 		HandleError(c, err)
 		return
 	}
+	if !h.authorizeTeacherForSubjectClass(c, asg.SubjectClassID) {
+		return
+	}
 
 	var submissionsDTO []dto.SubmissionResponseDTO
 	for _, s := range asg.Submissions {
@@ -515,6 +518,9 @@ func (h *AssignmentHandler) GetSubmissionByID(c *gin.Context) {
 		HandleError(c, err)
 		return
 	}
+	if !h.authorizeTeacherForSubjectClass(c, assignment.SubjectClassID) {
+		return
+	}
 
 	var assessmentDTO *dto.AssessmentResponseDTO
 	if submission.Assessment != nil {
@@ -561,6 +567,9 @@ func (h *AssignmentHandler) Assess(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
+	if !h.authorizeTeacherForSubmission(c, submissionId) {
+		return
+	}
 
 	asm := domain.Assessment{
 		SubmissionID: submissionId,
@@ -582,6 +591,9 @@ func (h *AssignmentHandler) UpdateAssessment(c *gin.Context) {
 	var input dto.UpdateAssessmentDTO
 	if err := c.ShouldBindJSON(&input); err != nil {
 		HandleBindingError(c, err)
+		return
+	}
+	if !h.authorizeTeacherForSubmission(c, submissionId) {
 		return
 	}
 
@@ -606,6 +618,9 @@ func (h *AssignmentHandler) UpdateAssessment(c *gin.Context) {
 
 func (h *AssignmentHandler) DeleteAssessment(c *gin.Context) {
 	submissionId := c.Param("submissionId")
+	if !h.authorizeTeacherForSubmission(c, submissionId) {
+		return
+	}
 
 	if err := h.service.DeleteAssessment(submissionId); err != nil {
 		HandleError(c, err)
@@ -636,6 +651,56 @@ func (h *AssignmentHandler) mapAsgToResponse(a *domain.Assignment) dto.Assignmen
 		CreatedAt:           a.CreatedAt.Format("02-01-2006 15:04:05"),
 		Attachments:         atts,
 	}
+}
+
+func (h *AssignmentHandler) getSchoolContext(c *gin.Context) string {
+	if sid, exists := c.Get("school_id"); exists {
+		if value, ok := sid.(string); ok {
+			return value
+		}
+	}
+	return c.GetHeader("SchoolId")
+}
+
+func (h *AssignmentHandler) authorizeTeacherForSubmission(c *gin.Context, submissionID string) bool {
+	submission, err := h.service.GetSubmissionByID(submissionID)
+	if err != nil {
+		HandleError(c, err)
+		return false
+	}
+
+	assignment, err := h.service.GetAssignmentByID(submission.AssignmentID)
+	if err != nil {
+		HandleError(c, err)
+		return false
+	}
+
+	return h.authorizeTeacherForSubjectClass(c, assignment.SubjectClassID)
+}
+
+func (h *AssignmentHandler) authorizeTeacherForSubjectClass(c *gin.Context, subjectClassID string) bool {
+	userID := middleware.GetUserID(c)
+	if userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return false
+	}
+
+	schoolID := h.getSchoolContext(c)
+	if schoolID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required (SchoolId header)"})
+		return false
+	}
+
+	ownsSubjectClass, err := h.subjectClassService.TeacherOwnsSubjectClass(userID, schoolID, subjectClassID)
+	if err != nil {
+		HandleError(c, err)
+		return false
+	}
+	if !ownsSubjectClass {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: teacher does not teach this subject class"})
+		return false
+	}
+	return true
 }
 
 func (h *AssignmentHandler) mapMySubmissionToResponse(s *domain.Submission) *dto.MySubmissionDTO {

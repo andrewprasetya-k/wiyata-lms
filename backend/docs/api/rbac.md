@@ -242,8 +242,12 @@ Content-Type: application/json
 | `/materials` | GET | 📖 | 📖 | 📖 | 📖 |
 | `/materials` | POST | ❌ | ❌ | ✅ | ❌ |
 | `/assignments` | POST | ❌ | ❌ | ✅ | ❌ |
+| `/assignments/:id` | GET | ❌ | ❌ | 📖* | ❌ |
 | `/assignments/submit/:id` | POST | ❌ | ❌ | ❌ | ✅ |
-| `/assignments/assess/:id` | POST | ❌ | ❌ | ✅ | ❌ |
+| `/assignments/submit/:id` | GET | ❌ | ❌ | 📖* | ❌ |
+| `/assignments/assess/:id` | POST/PATCH/DELETE | ❌ | ❌ | ✅* | ❌ |
+
+*Teacher assignment detail, submission detail, and assessment access is limited to assignments in subject classes taught by the current teacher in the active `SchoolId` context.
 
 ### User Management
 | Endpoint | Method | super_admin | admin | teacher | student |
