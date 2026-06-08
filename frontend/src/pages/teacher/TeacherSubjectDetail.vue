@@ -353,7 +353,8 @@ onMounted(loadWorkspace)
             <div v-else class="space-y-3">
               <div class="rounded-[24px] bg-[#faf8f4] p-5 text-sm leading-6 text-[#6b6475]">
                 Pengumpulan siswa dikelompokkan berdasarkan tugas pada subject ini. Halaman ini
-                masih read-only sampai flow penilaian tersedia penuh.
+                masih read-only untuk daftar pengumpulan, dan review tersedia dari tombol di setiap
+                tugas yang sudah memiliki pengumpulan.
               </div>
 
               <div
@@ -418,16 +419,28 @@ onMounted(loadWorkspace)
                       Deadline {{ formatDate(group.assignment.deadline) }}
                     </p>
                   </div>
-                  <div class="flex flex-wrap gap-2 text-xs font-medium">
-                    <span class="rounded-2xl bg-[#faf8f4] px-3 py-2 text-[#6b6475]">
-                      {{ group.submissionCount }} submission
-                    </span>
-                    <span class="rounded-2xl bg-[#eef7f2] px-3 py-2 text-[#2f7d5c]">
-                      {{ group.gradedCount }} dinilai
-                    </span>
-                    <span class="rounded-2xl bg-[#fff7e8] px-3 py-2 text-[#9f6b1d]">
-                      {{ group.pendingCount }} pending
-                    </span>
+                  <div class="flex flex-col items-start gap-2 sm:items-end">
+                    <div class="flex flex-wrap gap-2 text-xs font-medium">
+                      <span class="rounded-2xl bg-[#faf8f4] px-3 py-2 text-[#6b6475]">
+                        {{ group.submissionCount }} submission
+                      </span>
+                      <span class="rounded-2xl bg-[#eef7f2] px-3 py-2 text-[#2f7d5c]">
+                        {{ group.gradedCount }} dinilai
+                      </span>
+                      <span class="rounded-2xl bg-[#fff7e8] px-3 py-2 text-[#9f6b1d]">
+                        {{ group.pendingCount }} pending
+                      </span>
+                    </div>
+                    <RouterLink
+                      v-if="group.submissionCount > 0 || group.submissions.length > 0"
+                      :to="{
+                        name: 'teacher-assignment-review',
+                        params: { assignmentId: group.assignment.assignmentId },
+                      }"
+                      class="inline-flex items-center gap-2 rounded-2xl bg-[#171322] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#2f2b3a]"
+                    >
+                      Review pengumpulan
+                    </RouterLink>
                   </div>
                 </div>
 
