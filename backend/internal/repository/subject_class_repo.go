@@ -15,6 +15,7 @@ type SubjectClassRepository interface {
 	CheckExists(classID, subjectID, schoolUserID string) (bool, error)
 	GetClassIDBySubjectClass(subjectClassID string) (string, error)
 	TeacherTeachesInClass(schoolUserID string, classID string) (bool, error)
+	TeacherOwnsSubjectClass(userID string, schoolID string, subjectClassID string) (bool, error)
 }
 
 type subjectClassRepository struct {
@@ -147,6 +148,20 @@ func (r *subjectClassRepository) TeacherTeachesInClass(schoolUserID string, clas
 	var count int64
 	err := r.db.Model(&domain.SubjectClass{}).
 		Where("scl_scu_id = ? AND scl_cls_id = ?", schoolUserID, classID).
+		Count(&count).Error
+	return count > 0, err
+}
+
+func (r *subjectClassRepository) TeacherOwnsSubjectClass(userID string, schoolID string, subjectClassID string) (bool, error) {
+	var count int64
+	err := r.db.Table("edv.subject_classes sc").
+		Joins("JOIN edv.school_users teacher_scu ON teacher_scu.scu_id = sc.scl_scu_id").
+		Joins("JOIN edv.classes c ON c.cls_id = sc.scl_cls_id").
+		Joins("JOIN edv.subjects sub ON sub.sub_id = sc.scl_sub_id").
+		Where("sc.scl_id = ?", subjectClassID).
+		Where("teacher_scu.scu_usr_id = ? AND teacher_scu.scu_sch_id = ?", userID, schoolID).
+		Where("c.cls_sch_id = ? AND sub.sub_sch_id = ?", schoolID, schoolID).
+		Where("c.deleted_at IS NULL").
 		Count(&count).Error
 	return count > 0, err
 }

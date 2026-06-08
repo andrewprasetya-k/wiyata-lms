@@ -213,6 +213,125 @@ func (h *AssignmentHandler) GetBySubjectClass(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+func (h *AssignmentHandler) GetSubjectClassSubmissions(c *gin.Context) {
+	subjectClassID := c.Param("subjectClassId")
+	userID := middleware.GetUserID(c)
+	if userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	schoolID := ""
+	if sid, exists := c.Get("school_id"); exists {
+		if value, ok := sid.(string); ok {
+			schoolID = value
+		}
+	}
+	if schoolID == "" {
+		schoolID = c.GetHeader("SchoolId")
+	}
+	if schoolID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required (SchoolId header)"})
+		return
+	}
+
+	ownsSubjectClass, err := h.subjectClassService.TeacherOwnsSubjectClass(userID, schoolID, subjectClassID)
+	if err != nil {
+		HandleError(c, err)
+		return
+	}
+	if !ownsSubjectClass {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: teacher does not teach this subject class"})
+		return
+	}
+
+	subjectClassHeader, err := h.subjectClassService.GetByID(subjectClassID)
+	if err != nil {
+		HandleError(c, err)
+		return
+	}
+
+	assignments, err := h.service.GetSubjectClassSubmissions(subjectClassID, schoolID)
+	if err != nil {
+		HandleError(c, err)
+		return
+	}
+
+	response := dto.SubjectClassSubmissionsResponseDTO{
+		SubjectClass: dto.SubjectClassHeaderDTO{
+			ID:          subjectClassHeader.ID,
+			SubjectCode: subjectClassHeader.Subject.Code,
+			SubjectName: subjectClassHeader.Subject.Name,
+			TeacherID:   subjectClassHeader.Teacher.ID,
+			TeacherName: subjectClassHeader.Teacher.User.FullName,
+		},
+		Assignments: make([]dto.AssignmentSubmissionGroupDTO, 0, len(assignments)),
+	}
+
+	for _, asg := range assignments {
+		group := dto.AssignmentSubmissionGroupDTO{
+			Assignment: dto.AssignmentHeaderDTO{
+				ID:           asg.ID,
+				Title:        asg.Title,
+				SubjectName:  asg.SubjectClass.Subject.Name,
+				CategoryName: asg.Category.Name,
+				Deadline:     asg.Deadline,
+			},
+			Submissions: make([]dto.SubmissionResponseDTO, 0, len(asg.Submissions)),
+		}
+
+		response.Summary.AssignmentCount++
+
+		for _, submission := range asg.Submissions {
+			var assessmentDTO *dto.AssessmentResponseDTO
+			if submission.Assessment != nil {
+				assessmentDTO = &dto.AssessmentResponseDTO{
+					Score:      submission.Assessment.Score,
+					Feedback:   submission.Assessment.Feedback,
+					Assessor:   submission.Assessment.Assessor.FullName,
+					AssessedAt: submission.Assessment.AssessedAt.Format("02-01-2006 15:04:05"),
+				}
+				group.GradedCount++
+				response.Summary.GradedCount++
+			} else {
+				group.PendingCount++
+				response.Summary.PendingCount++
+			}
+
+			isLate := asg.Deadline != nil && submission.SubmittedAt.After(*asg.Deadline)
+			if isLate {
+				response.Summary.LateCount++
+			}
+
+			var atts []dto.MediaResponseDTO
+			for _, a := range submission.Attachments {
+				atts = append(atts, dto.MediaResponseDTO{
+					ID:       a.Media.ID,
+					Name:     a.Media.Name,
+					FileSize: a.Media.FileSize,
+					FileURL:  a.Media.FileURL,
+					MimeType: a.Media.MimeType,
+				})
+			}
+
+			group.Submissions = append(group.Submissions, dto.SubmissionResponseDTO{
+				ID:          submission.ID,
+				UserName:    submission.User.FullName,
+				SubmittedAt: submission.SubmittedAt.Format("02-01-2006 15:04:05"),
+				IsLate:      isLate,
+				Attachments: atts,
+				Assessment:  assessmentDTO,
+			})
+		}
+
+		group.SubmissionCount = len(group.Submissions)
+		response.Summary.SubmissionCount += group.SubmissionCount
+		response.Assignments = append(response.Assignments, group)
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
 func (h *AssignmentHandler) GetSubmissionsByAssignment(c *gin.Context) {
 	assignmentID := c.Param("assignmentId")
 	asg, err := h.service.GetAssignmentWithSubmissions(assignmentID)

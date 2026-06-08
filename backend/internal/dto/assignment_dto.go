@@ -72,6 +72,28 @@ type AssignmentWithSubmissionsDTO struct {
 	Submissions []SubmissionResponseDTO `json:"submissions"`
 }
 
+type AssignmentSubmissionGroupDTO struct {
+	Assignment      AssignmentHeaderDTO     `json:"assignment"`
+	SubmissionCount int                     `json:"submissionCount"`
+	GradedCount     int                     `json:"gradedCount"`
+	PendingCount    int                     `json:"pendingCount"`
+	Submissions     []SubmissionResponseDTO `json:"submissions"`
+}
+
+type SubjectClassSubmissionSummaryDTO struct {
+	AssignmentCount int `json:"assignmentCount"`
+	SubmissionCount int `json:"submissionCount"`
+	GradedCount     int `json:"gradedCount"`
+	PendingCount    int `json:"pendingCount"`
+	LateCount       int `json:"lateCount"`
+}
+
+type SubjectClassSubmissionsResponseDTO struct {
+	SubjectClass SubjectClassHeaderDTO            `json:"subjectClass"`
+	Assignments  []AssignmentSubmissionGroupDTO   `json:"assignments"`
+	Summary      SubjectClassSubmissionSummaryDTO `json:"summary"`
+}
+
 // Submission
 type CreateSubmissionDTO struct {
 	SchoolID string   `json:"schoolId" binding:"required,uuid"`

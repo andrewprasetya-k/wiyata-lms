@@ -17,6 +17,7 @@ type AssignmentRepository interface {
 	GetAssignmentsBySubjectClass(subjectClassID string, search string, page int, limit int) ([]*domain.Assignment, int64, error)
 	GetAssignmentByID(id string) (*domain.Assignment, error)
 	GetAssignmentWithSubmissions(id string) (*domain.Assignment, error)
+	GetAssignmentsWithSubmissionsBySubjectClass(subjectClassID string, schoolID string) ([]*domain.Assignment, error)
 	CountStudentsInClass(classID string) (int, error)
 	GetClassIDBySubjectClass(subjectClassID string) (string, error)
 	UpdateAssignment(asg *domain.Assignment) error
@@ -104,6 +105,22 @@ func (r *assignmentRepository) GetAssignmentWithSubmissions(id string) (*domain.
 		Preload("Submissions.Assessment.Assessor").
 		Where("asg_id = ?", id).First(&asg).Error
 	return &asg, err
+}
+
+func (r *assignmentRepository) GetAssignmentsWithSubmissionsBySubjectClass(subjectClassID string, schoolID string) ([]*domain.Assignment, error) {
+	var assignments []*domain.Assignment
+	err := r.db.Preload("Category").
+		Preload("SubjectClass.Subject").
+		Preload("SubjectClass.Teacher.User").
+		Preload("Submissions", func(db *gorm.DB) *gorm.DB {
+			return db.Where("sbm_sch_id = ?", schoolID).Order("submitted_at asc")
+		}).
+		Preload("Submissions.User").
+		Preload("Submissions.Assessment.Assessor").
+		Where("asg_scl_id = ? AND asg_sch_id = ?", subjectClassID, schoolID).
+		Order("created_at desc").
+		Find(&assignments).Error
+	return assignments, err
 }
 
 func (r *assignmentRepository) CountStudentsInClass(classID string) (int, error) {

@@ -21,6 +21,7 @@ type AssignmentService interface {
 	GetAssignmentsBySubjectClass(subjectClassID string, search string, page int, limit int) ([]*domain.Assignment, int64, error)
 	GetAssignmentByID(id string) (*domain.Assignment, error)
 	GetAssignmentWithSubmissions(id string) (*domain.Assignment, error)
+	GetSubjectClassSubmissions(subjectClassID string, schoolID string) ([]*domain.Assignment, error)
 	GetAssignmentStatus(assignmentID string) (map[string]interface{}, error)
 	UpdateAssignment(id string, asg *domain.Assignment, mediaIDs []string) error
 	DeleteAssignment(id string) error
@@ -140,6 +141,24 @@ func (s *assignmentService) GetAssignmentWithSubmissions(id string) (*domain.Ass
 	}
 
 	return asg, nil
+}
+
+func (s *assignmentService) GetSubjectClassSubmissions(subjectClassID string, schoolID string) ([]*domain.Assignment, error) {
+	assignments, err := s.repo.GetAssignmentsWithSubmissionsBySubjectClass(subjectClassID, schoolID)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, asg := range assignments {
+		for i := range asg.Submissions {
+			atts, _ := s.attService.GetBySource(string(domain.SourceSubmission), asg.Submissions[i].ID)
+			for _, a := range atts {
+				asg.Submissions[i].Attachments = append(asg.Submissions[i].Attachments, *a)
+			}
+		}
+	}
+
+	return assignments, nil
 }
 
 func (s *assignmentService) GetAssignmentStatus(assignmentID string) (map[string]interface{}, error) {

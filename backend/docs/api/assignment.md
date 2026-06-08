@@ -78,12 +78,83 @@ Base URL: `/api/assignments`
 - **Note:** This endpoint gets assignment details with all submissions
 - **Response:** `AssignmentWithSubmissionsDTO` (includes all submissions and assessments)
 
-### 6. Get Assignment Status
+### 6. Get Subject Class Submissions
+- **URL:** `/subject-class/submissions/:subjectClassId`
+- **Method:** `GET`
+- **Auth:** Required
+- **Role:** `teacher`
+- **School Context:** Requires `SchoolId` header
+- **Auth Note:** Teacher identity is taken from the JWT token. Do not send `teacherId`, `schoolUserId`, or `userId` in body/query.
+- **Purpose:** Teacher-safe aggregate endpoint for the submissions of assignments in one teacher-owned subject class. This avoids frontend N+1 calls.
+- **Authorization:** The current teacher must teach the requested subject class. Returns `403` if not.
+
+**Response:**
+```json
+{
+  "subjectClass": {
+    "subjectClassId": "uuid",
+    "subjectCode": "MTK",
+    "subjectName": "Matematika",
+    "teacherId": "uuid",
+    "teacherName": "Nama Guru"
+  },
+  "assignments": [
+    {
+      "assignment": {
+        "assignmentId": "uuid",
+        "assignmentTitle": "Quiz Chapter 1",
+        "subjectName": "Matematika",
+        "categoryName": "Kuis",
+        "deadline": "2026-03-01T23:59:59Z"
+      },
+      "submissionCount": 2,
+      "gradedCount": 1,
+      "pendingCount": 1,
+      "submissions": [
+        {
+          "submissionId": "uuid",
+          "studentName": "Nama Siswa",
+          "submittedAt": "02-03-2026 10:30:00",
+          "isLate": false,
+          "attachments": [
+            {
+              "mediaId": "uuid",
+              "mediaName": "jawaban.pdf",
+              "fileUrl": "https://...",
+              "mimeType": "application/pdf",
+              "fileSize": 12345
+            }
+          ],
+          "assessment": {
+            "score": 90,
+            "feedback": "Bagus",
+            "assessorName": "Nama Guru",
+            "assessedAt": "03-03-2026 09:00:00"
+          }
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "assignmentCount": 1,
+    "submissionCount": 2,
+    "gradedCount": 1,
+    "pendingCount": 1,
+    "lateCount": 0
+  }
+}
+```
+
+**Notes:**
+- Returns `assignments: []` if the teacher owns the subject class but there are no assignments.
+- Route must be registered before `/subject-class/:subjectClassId`.
+
+### 7. Get Assignment Status
 - **URL:** `/status/:id`
 - **Method:** `GET`
 - **Response:** Assignment with submission statistics (total, submitted, graded, pending)
 
-### 7. Get My Submission Status
+### 8. Get My Submission Status
 - **URL:** `/my-submission/:assignmentId`
 - **Method:** `GET`
 - **Auth:** Required
@@ -149,7 +220,7 @@ Base URL: `/api/assignments`
 }
 ```
 
-### 8. Update Assignment
+### 9. Update Assignment
 - **URL:** `/:id`
 - **Method:** `PATCH`
 - **Body:** (all fields optional)
@@ -164,7 +235,7 @@ Base URL: `/api/assignments`
 }
 ```
 
-### 9. Delete Assignment
+### 10. Delete Assignment
 - **URL:** `/:id`
 - **Method:** `DELETE`
 - **Note:** Soft delete
@@ -173,7 +244,7 @@ Base URL: `/api/assignments`
 
 ## Submissions
 
-### 10. Submit Assignment
+### 11. Submit Assignment
 - **URL:** `/submit/:assignmentId`
 - **Method:** `POST`
 - **Auth Note:** Actor identity is taken from the JWT token. Sending identity fields in the body is ignored or no longer required.
@@ -186,12 +257,12 @@ Base URL: `/api/assignments`
 ```
 - **Note:** Upsert logic - updates existing submission if already submitted
 
-### 11. Get Submission by ID
+### 12. Get Submission by ID
 - **URL:** `/submit/:submissionId`
 - **Method:** `GET`
 - **Response:** Includes `isLate` indicator and assessment if graded
 
-### 12. Update Submission
+### 13. Update Submission
 - **URL:** `/submit/:submissionId`
 - **Method:** `PATCH`
 - **Auth Note:** Actor identity is taken from the JWT token. Sending identity fields in the body is ignored or no longer required.
@@ -203,7 +274,7 @@ Base URL: `/api/assignments`
 }
 ```
 
-### 13. Delete Submission
+### 14. Delete Submission
 - **URL:** `/submit/:submissionId`
 - **Method:** `DELETE`
 - **Note:** Soft delete, can be restored by resubmitting
@@ -212,7 +283,7 @@ Base URL: `/api/assignments`
 
 ## Assessments
 
-### 14. Grade Submission
+### 15. Grade Submission
 - **URL:** `/assess/:submissionId`
 - **Method:** `POST`
 - **Auth Note:** Actor identity is taken from the JWT token. Sending identity fields in the body is ignored or no longer required.
@@ -225,7 +296,7 @@ Base URL: `/api/assignments`
 ```
 - **Note:** Upsert logic - updates existing assessment if already graded
 
-### 15. Update Assessment
+### 16. Update Assessment
 - **URL:** `/assess/:submissionId`
 - **Method:** `PATCH`
 - **Body:** (all fields optional)
@@ -236,7 +307,7 @@ Base URL: `/api/assignments`
 }
 ```
 
-### 16. Delete Assessment
+### 17. Delete Assessment
 - **URL:** `/assess/:submissionId`
 - **Method:** `DELETE`
 - **Note:** Removes grading, submission remains
