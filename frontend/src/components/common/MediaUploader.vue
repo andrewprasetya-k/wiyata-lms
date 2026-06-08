@@ -8,12 +8,14 @@ interface Props {
   ownerType?: string
   maxSizeMb?: number
   limit?: number
+  cleanupOnRemove?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   ownerType: 'material',
   maxSizeMb: 10,
   limit: 5,
+  cleanupOnRemove: false,
 })
 
 const emit = defineEmits<{
@@ -78,7 +80,9 @@ async function removeFile(index: number) {
   const file = files.value[index]
   if (file.mediaId) {
     try {
-      await deleteMedia(file.mediaId)
+      if (props.cleanupOnRemove) {
+        await deleteMedia(file.mediaId)
+      }
       mediaIds.value = mediaIds.value.filter(id => id !== file.mediaId)
       emit('update:mediaIds', [...mediaIds.value])
     } catch (error) {

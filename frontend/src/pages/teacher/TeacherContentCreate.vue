@@ -302,6 +302,7 @@ onMounted(loadInitialData)
               :key="uploaderKey"
               :school-id="activeSchoolId"
               :owner-type="activeTab"
+              cleanup-on-remove
               @update:media-ids="form.mediaIds = $event"
             />
             <p v-else class="rounded-2xl bg-[#FEF2F2] p-4 text-sm leading-6 text-[#B42318]">
