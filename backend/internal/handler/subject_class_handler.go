@@ -25,6 +25,11 @@ func (h *SubjectClassHandler) Assign(c *gin.Context) {
 		HandleBindingError(c, err)
 		return
 	}
+	schoolID, ok := getSubjectClassActiveSchoolID(c)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
 
 	scl := domain.SubjectClass{
 		ClassID:      input.ClassID,
@@ -32,11 +37,7 @@ func (h *SubjectClassHandler) Assign(c *gin.Context) {
 		SchoolUserID: input.SchoolUserID,
 	}
 
-	if err := h.service.Assign(&scl); err != nil {
-		if err.Error() == "this subject is already assigned to the class with the same teacher" {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
+	if err := h.service.AssignInSchool(&scl, schoolID); err != nil {
 		HandleError(c, err)
 		return
 	}
@@ -46,8 +47,13 @@ func (h *SubjectClassHandler) Assign(c *gin.Context) {
 
 func (h *SubjectClassHandler) GetByClass(c *gin.Context) {
 	classID := c.Param("classId")
+	schoolID, ok := getSubjectClassActiveSchoolID(c)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
 	//get subject classes
-	results, err := h.service.GetByClass(classID)
+	results, err := h.service.GetByClassInSchool(classID, schoolID)
 	if err != nil {
 		HandleError(c, err)
 		return
@@ -122,7 +128,13 @@ func (h *SubjectClassHandler) GetMyTeaching(c *gin.Context) {
 
 func (h *SubjectClassHandler) GetByID(c *gin.Context) {
 	id := c.Param("id")
-	result, err := h.service.GetByID(id)
+	schoolID, ok := getSubjectClassActiveSchoolID(c)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
+
+	result, err := h.service.GetByIDInSchool(id, schoolID)
 	if err != nil {
 		HandleError(c, err)
 		return
@@ -137,8 +149,13 @@ func (h *SubjectClassHandler) Update(c *gin.Context) {
 		HandleBindingError(c, err)
 		return
 	}
+	schoolID, ok := getSubjectClassActiveSchoolID(c)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
 
-	scl, err := h.service.GetByID(id)
+	scl, err := h.service.GetByIDInSchool(id, schoolID)
 	if err != nil {
 		HandleError(c, err)
 		return
@@ -151,7 +168,7 @@ func (h *SubjectClassHandler) Update(c *gin.Context) {
 		scl.SchoolUserID = *input.SchoolUserID
 	}
 
-	if err := h.service.Update(scl); err != nil {
+	if err := h.service.UpdateInSchool(scl, schoolID); err != nil {
 		HandleError(c, err)
 		return
 	}
@@ -161,11 +178,26 @@ func (h *SubjectClassHandler) Update(c *gin.Context) {
 
 func (h *SubjectClassHandler) Unassign(c *gin.Context) {
 	id := c.Param("id")
-	if err := h.service.Unassign(id); err != nil {
+	schoolID, ok := getSubjectClassActiveSchoolID(c)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
+
+	if err := h.service.UnassignInSchool(id, schoolID); err != nil {
 		HandleError(c, err)
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Assignment removed successfully"})
+}
+
+func getSubjectClassActiveSchoolID(c *gin.Context) (string, bool) {
+	value, exists := c.Get("school_id")
+	if !exists {
+		return "", false
+	}
+	schoolID, ok := value.(string)
+	return schoolID, ok && schoolID != ""
 }
 
 func (h *SubjectClassHandler) mapToResponse(scl *domain.SubjectClass) dto.SubjectClassResponseDTO {

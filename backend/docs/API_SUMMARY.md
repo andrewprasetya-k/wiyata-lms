@@ -93,12 +93,12 @@ Authorization: Bearer <your-jwt-token>
 - `DELETE /classes/:id` - Delete class
 
 ## 📖 Subject Classes (Teacher Assignment)
-- `POST /subject-classes/assign` - Assign subject & teacher to class
+- `POST /subject-classes/assign` - Assign active-school subject and eligible teacher school_user to active-school class (admin)
 - `GET /subject-classes/my-teaching` - Get subject classes taught by current teacher
-- `GET /subject-classes/class/:classId` - Get subjects by class
-- `GET /subject-classes/:id` - Get assignment detail
-- `PATCH /subject-classes/:id` - Update assignment
-- `DELETE /subject-classes/:id` - Unassign subject from class
+- `GET /subject-classes/class/:classId` - Get subject classes by active-school class
+- `GET /subject-classes/:id` - Get subject class detail within active school
+- `PATCH /subject-classes/:id` - Update subject class assignment within active school (admin)
+- `DELETE /subject-classes/:id` - Unassign subject class within active school (admin)
 
 ## 👥 Enrollments (Class Members)
 - `POST /enrollments` - Enroll active-school members to an active-school class (admin, bulk)

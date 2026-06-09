@@ -8,12 +8,17 @@ import (
 
 type SubjectClassService interface {
 	Assign(scl *domain.SubjectClass) error
+	AssignInSchool(scl *domain.SubjectClass, schoolID string) error
 	GetByClass(classID string) ([]*domain.SubjectClass, error)
+	GetByClassInSchool(classID string, schoolID string) ([]*domain.SubjectClass, error)
 	GetTeachingByUserAndSchool(userID string, schoolID string) ([]repository.TeacherSubjectClassRow, error)
 	GetByID(id string) (*domain.SubjectClass, error)
+	GetByIDInSchool(id string, schoolID string) (*domain.SubjectClass, error)
 	TeacherOwnsSubjectClass(userID string, schoolID string, subjectClassID string) (bool, error)
 	Update(scl *domain.SubjectClass) error
+	UpdateInSchool(scl *domain.SubjectClass, schoolID string) error
 	Unassign(id string) error
+	UnassignInSchool(id string, schoolID string) error
 }
 
 type subjectClassService struct {
@@ -37,6 +42,18 @@ func (s *subjectClassService) Assign(scl *domain.SubjectClass) error {
 	return s.repo.Create(scl)
 }
 
+func (s *subjectClassService) AssignInSchool(scl *domain.SubjectClass, schoolID string) error {
+	if err := s.validateAssignmentScope(scl.ClassID, scl.SubjectID, scl.SchoolUserID, schoolID); err != nil {
+		return err
+	}
+
+	if err := s.ensureNoClassSubjectDuplicate(scl.ClassID, scl.SubjectID, ""); err != nil {
+		return err
+	}
+
+	return s.repo.Create(scl)
+}
+
 func (s *subjectClassService) Update(scl *domain.SubjectClass) error {
 	// Validasi duplikasi (jika data yang diupdate ternyata sama dengan assignment lain)
 	// butuh method CheckExists yang lebih detail jika ingin validasi update,
@@ -44,7 +61,27 @@ func (s *subjectClassService) Update(scl *domain.SubjectClass) error {
 	return s.repo.Update(scl)
 }
 
+func (s *subjectClassService) UpdateInSchool(scl *domain.SubjectClass, schoolID string) error {
+	if err := s.ensureSubjectClassInSchool(scl.ID, schoolID); err != nil {
+		return err
+	}
+	if err := s.validateAssignmentScope(scl.ClassID, scl.SubjectID, scl.SchoolUserID, schoolID); err != nil {
+		return err
+	}
+	if err := s.ensureNoClassSubjectDuplicate(scl.ClassID, scl.SubjectID, scl.ID); err != nil {
+		return err
+	}
+	return s.repo.Update(scl)
+}
+
 func (s *subjectClassService) GetByClass(classID string) ([]*domain.SubjectClass, error) {
+	return s.repo.GetByClass(classID)
+}
+
+func (s *subjectClassService) GetByClassInSchool(classID string, schoolID string) ([]*domain.SubjectClass, error) {
+	if err := s.ensureClassInSchool(classID, schoolID); err != nil {
+		return nil, err
+	}
 	return s.repo.GetByClass(classID)
 }
 
@@ -56,10 +93,109 @@ func (s *subjectClassService) GetByID(id string) (*domain.SubjectClass, error) {
 	return s.repo.GetByID(id)
 }
 
+func (s *subjectClassService) GetByIDInSchool(id string, schoolID string) (*domain.SubjectClass, error) {
+	if err := s.ensureSubjectClassInSchool(id, schoolID); err != nil {
+		return nil, err
+	}
+	return s.repo.GetByID(id)
+}
+
 func (s *subjectClassService) TeacherOwnsSubjectClass(userID string, schoolID string, subjectClassID string) (bool, error) {
 	return s.repo.TeacherOwnsSubjectClass(userID, schoolID, subjectClassID)
 }
 
 func (s *subjectClassService) Unassign(id string) error {
 	return s.repo.Delete(id)
+}
+
+func (s *subjectClassService) UnassignInSchool(id string, schoolID string) error {
+	if err := s.ensureSubjectClassInSchool(id, schoolID); err != nil {
+		return err
+	}
+	return s.repo.Delete(id)
+}
+
+func (s *subjectClassService) validateAssignmentScope(classID string, subjectID string, teacherSchoolUserID string, schoolID string) error {
+	if err := s.ensureClassInSchool(classID, schoolID); err != nil {
+		return err
+	}
+	if err := s.ensureSubjectInSchool(subjectID, schoolID); err != nil {
+		return err
+	}
+	if err := s.ensureTeacherEligible(teacherSchoolUserID, classID, schoolID); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *subjectClassService) ensureClassInSchool(classID string, schoolID string) error {
+	ok, err := s.repo.ClassBelongsToSchool(classID, schoolID)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return fmt.Errorf("forbidden: class does not belong to active school")
+	}
+	return nil
+}
+
+func (s *subjectClassService) ensureSubjectInSchool(subjectID string, schoolID string) error {
+	ok, err := s.repo.SubjectBelongsToSchool(subjectID, schoolID)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return fmt.Errorf("forbidden: subject does not belong to active school")
+	}
+	return nil
+}
+
+func (s *subjectClassService) ensureSubjectClassInSchool(subjectClassID string, schoolID string) error {
+	ok, err := s.repo.SubjectClassBelongsToSchool(subjectClassID, schoolID)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return fmt.Errorf("forbidden: subject class does not belong to active school")
+	}
+	return nil
+}
+
+func (s *subjectClassService) ensureTeacherEligible(schoolUserID string, classID string, schoolID string) error {
+	inSchool, err := s.repo.SchoolUserBelongsToSchool(schoolUserID, schoolID)
+	if err != nil {
+		return err
+	}
+	if !inSchool {
+		return fmt.Errorf("forbidden: teacher does not belong to active school")
+	}
+
+	hasTeacherRole, err := s.repo.SchoolUserHasRole(schoolUserID, "teacher")
+	if err != nil {
+		return err
+	}
+	if !hasTeacherRole {
+		return fmt.Errorf("forbidden: school user does not have teacher role")
+	}
+
+	enrolledAsTeacher, err := s.repo.SchoolUserEnrolledInClassAsRole(schoolUserID, classID, schoolID, "teacher")
+	if err != nil {
+		return err
+	}
+	if !enrolledAsTeacher {
+		return fmt.Errorf("forbidden: teacher is not enrolled in this class as teacher")
+	}
+
+	return nil
+}
+
+func (s *subjectClassService) ensureNoClassSubjectDuplicate(classID string, subjectID string, excludeID string) error {
+	exists, err := s.repo.CheckClassSubjectExists(classID, subjectID, excludeID)
+	if err != nil {
+		return err
+	}
+	if exists {
+		return fmt.Errorf("subject class already assigned for this class and subject")
+	}
+	return nil
 }

@@ -13,9 +13,16 @@ type SubjectClassRepository interface {
 	Update(scl *domain.SubjectClass) error
 	Delete(id string) error
 	CheckExists(classID, subjectID, schoolUserID string) (bool, error)
+	CheckClassSubjectExists(classID string, subjectID string, excludeID string) (bool, error)
 	GetClassIDBySubjectClass(subjectClassID string) (string, error)
 	TeacherTeachesInClass(schoolUserID string, classID string) (bool, error)
 	TeacherOwnsSubjectClass(userID string, schoolID string, subjectClassID string) (bool, error)
+	ClassBelongsToSchool(classID string, schoolID string) (bool, error)
+	SubjectBelongsToSchool(subjectID string, schoolID string) (bool, error)
+	SubjectClassBelongsToSchool(subjectClassID string, schoolID string) (bool, error)
+	SchoolUserBelongsToSchool(schoolUserID string, schoolID string) (bool, error)
+	SchoolUserHasRole(schoolUserID string, roleName string) (bool, error)
+	SchoolUserEnrolledInClassAsRole(schoolUserID string, classID string, schoolID string, role string) (bool, error)
 }
 
 type subjectClassRepository struct {
@@ -136,6 +143,17 @@ func (r *subjectClassRepository) CheckExists(classID, subjectID, schoolUserID st
 	return count > 0, err
 }
 
+func (r *subjectClassRepository) CheckClassSubjectExists(classID string, subjectID string, excludeID string) (bool, error) {
+	var count int64
+	query := r.db.Model(&domain.SubjectClass{}).
+		Where("scl_cls_id = ? AND scl_sub_id = ?", classID, subjectID)
+	if excludeID != "" {
+		query = query.Where("scl_id != ?", excludeID)
+	}
+	err := query.Count(&count).Error
+	return count > 0, err
+}
+
 func (r *subjectClassRepository) GetClassIDBySubjectClass(subjectClassID string) (string, error) {
 	var classID string
 	err := r.db.Model(&domain.SubjectClass{}).
@@ -148,6 +166,60 @@ func (r *subjectClassRepository) TeacherTeachesInClass(schoolUserID string, clas
 	var count int64
 	err := r.db.Model(&domain.SubjectClass{}).
 		Where("scl_scu_id = ? AND scl_cls_id = ?", schoolUserID, classID).
+		Count(&count).Error
+	return count > 0, err
+}
+
+func (r *subjectClassRepository) ClassBelongsToSchool(classID string, schoolID string) (bool, error) {
+	var count int64
+	err := r.db.Table("edv.classes").
+		Where("cls_id = ? AND cls_sch_id = ? AND deleted_at IS NULL", classID, schoolID).
+		Count(&count).Error
+	return count > 0, err
+}
+
+func (r *subjectClassRepository) SubjectBelongsToSchool(subjectID string, schoolID string) (bool, error) {
+	var count int64
+	err := r.db.Table("edv.subjects").
+		Where("sub_id = ? AND sub_sch_id = ?", subjectID, schoolID).
+		Count(&count).Error
+	return count > 0, err
+}
+
+func (r *subjectClassRepository) SubjectClassBelongsToSchool(subjectClassID string, schoolID string) (bool, error) {
+	var count int64
+	err := r.db.Table("edv.subject_classes sc").
+		Joins("JOIN edv.classes c ON c.cls_id = sc.scl_cls_id").
+		Joins("JOIN edv.subjects sub ON sub.sub_id = sc.scl_sub_id").
+		Joins("JOIN edv.school_users teacher_scu ON teacher_scu.scu_id = sc.scl_scu_id").
+		Where("sc.scl_id = ?", subjectClassID).
+		Where("c.cls_sch_id = ? AND sub.sub_sch_id = ? AND teacher_scu.scu_sch_id = ?", schoolID, schoolID, schoolID).
+		Where("c.deleted_at IS NULL").
+		Count(&count).Error
+	return count > 0, err
+}
+
+func (r *subjectClassRepository) SchoolUserBelongsToSchool(schoolUserID string, schoolID string) (bool, error) {
+	var count int64
+	err := r.db.Table("edv.school_users").
+		Where("scu_id = ? AND scu_sch_id = ?", schoolUserID, schoolID).
+		Count(&count).Error
+	return count > 0, err
+}
+
+func (r *subjectClassRepository) SchoolUserHasRole(schoolUserID string, roleName string) (bool, error) {
+	var count int64
+	err := r.db.Table("edv.user_roles ur").
+		Joins("JOIN edv.roles r ON r.rol_id = ur.urol_rol_id").
+		Where("ur.urol_scu_id = ? AND r.rol_name = ?", schoolUserID, roleName).
+		Count(&count).Error
+	return count > 0, err
+}
+
+func (r *subjectClassRepository) SchoolUserEnrolledInClassAsRole(schoolUserID string, classID string, schoolID string, role string) (bool, error) {
+	var count int64
+	err := r.db.Table("edv.enrollments").
+		Where("enr_scu_id = ? AND enr_cls_id = ? AND enr_sch_id = ? AND enr_role = ?", schoolUserID, classID, schoolID, role).
 		Count(&count).Error
 	return count > 0, err
 }

@@ -249,6 +249,20 @@ Content-Type: application/json
 
 *Teacher material/assignment creation, assignment detail, submission detail, and assessment access is limited to subject classes taught by the current teacher in the active `SchoolId` context.
 
+### Subject Class Assignment
+| Endpoint | Method | super_admin | admin | teacher | student |
+|----------|--------|-------------|-------|---------|---------|
+| `/subject-classes/assign` | POST | ❌ | ✅* | ❌ | ❌ |
+| `/subject-classes/class/:classId` | GET | 📖 | 📖 | 📖 | 📖 |
+| `/subject-classes/:id` | GET | 📖 | 📖 | 📖 | 📖 |
+| `/subject-classes/:id` | PATCH | ❌ | ✅* | ❌ | ❌ |
+| `/subject-classes/:id` | DELETE | ❌ | ✅* | ❌ | ❌ |
+| `/subject-classes/my-teaching` | GET | ❌ | ❌ | 📖** | ❌ |
+
+*Admin subject_class assignment requires active `SchoolId`; class, subject, and teacher school_user must belong to the active school. The teacher school_user must have school role `teacher` and must already be enrolled in the class with `class_role = teacher`.
+
+**Teacher workspace access uses JWT user identity plus active `SchoolId`; teachers only see subject classes they teach.
+
 ### Grade Book
 | Endpoint | Method | super_admin | admin | teacher | student |
 |----------|--------|-------------|-------|---------|---------|
