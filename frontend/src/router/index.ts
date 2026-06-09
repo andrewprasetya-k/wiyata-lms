@@ -22,6 +22,7 @@ import AdminDashboard from "../pages/admin/AdminDashboard.vue";
 import AdminAcademicYears from "../pages/admin/AdminAcademicYears.vue";
 import AdminClasses from "../pages/admin/AdminClasses.vue";
 import AdminEnrollments from "../pages/admin/AdminEnrollments.vue";
+import AdminSubjectClasses from "../pages/admin/AdminSubjectClasses.vue";
 import AdminUsers from "../pages/admin/AdminUsers.vue";
 import SuperAdminDashboard from "../pages/superadmin/SuperAdminDashboard.vue";
 import FeaturePlaceholder from "../components/common/FeaturePlaceholder.vue";
@@ -278,6 +279,11 @@ const router = createRouter({
           path: "enrollments",
           name: "admin-enrollments",
           component: AdminEnrollments,
+        },
+        {
+          path: "subject-classes",
+          name: "admin-subject-classes",
+          component: AdminSubjectClasses,
         },
         {
           path: "academic-years",

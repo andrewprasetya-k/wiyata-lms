@@ -2,6 +2,7 @@
 import {
   PhBookOpen,
   PhCalendarBlank,
+  PhChalkboardTeacher,
   PhHouse,
   PhStudent,
   PhUsers,
@@ -14,6 +15,11 @@ const items = [
   { label: "Classes", icon: PhBookOpen, to: "/admin/classes" },
   { label: "Users", icon: PhUsers, to: "/admin/users" },
   { label: "Enrollments", icon: PhStudent, to: "/admin/enrollments" },
+  {
+    label: "Subject Classes",
+    icon: PhChalkboardTeacher,
+    to: "/admin/subject-classes",
+  },
   {
     label: "Academic Years",
     icon: PhCalendarBlank,
