@@ -101,12 +101,12 @@ Authorization: Bearer <your-jwt-token>
 - `DELETE /subject-classes/:id` - Unassign subject from class
 
 ## 👥 Enrollments (Class Members)
-- `POST /enrollments` - Enroll members to class (bulk)
-- `GET /enrollments/class/:classId` - Get members by class
-- `GET /enrollments/member/:schoolUserId` - Get classes by member
-- `GET /enrollments/:id` - Get enrollment by ID
-- `PATCH /enrollments/:id` - Update enrollment role
-- `DELETE /enrollments/:id` - Unenroll member
+- `POST /enrollments` - Enroll active-school members to an active-school class (admin, bulk)
+- `GET /enrollments/class/:classId` - Get active-school members by class
+- `GET /enrollments/member/:schoolUserId` - Get active-school classes by member
+- `GET /enrollments/:id` - Get enrollment by ID within active school
+- `PATCH /enrollments/:id` - Update enrollment role within active school (admin)
+- `DELETE /enrollments/:id` - Unenroll member within active school (admin)
 
 ## 📁 Media & Files
 - `POST /medias/upload` - Upload file (multipart form)

@@ -117,5 +117,11 @@ func (r *classRepository) GetSchoolIDByClass(classID string) (string, error) {
 	err := r.db.Model(&domain.Class{}).
 		Where("cls_id = ?", classID).
 		Pluck("cls_sch_id", &schoolID).Error
-	return schoolID, err
+	if err != nil {
+		return "", err
+	}
+	if schoolID == "" {
+		return "", gorm.ErrRecordNotFound
+	}
+	return schoolID, nil
 }

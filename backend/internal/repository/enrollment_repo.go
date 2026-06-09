@@ -13,6 +13,7 @@ type EnrollmentRepository interface {
 	Update(id string, role string) error
 	Delete(id string) error
 	CheckExists(classID, schoolUserID string) (bool, error)
+	BelongsToSchool(enrollmentID string, schoolID string) (bool, error)
 	GetStudentUserIDsByClass(classID string) ([]string, error)
 	GetMemberUserIDsByClass(classID string) ([]string, error)
 }
@@ -90,6 +91,14 @@ func (r *enrollmentRepository) CheckExists(classID, schoolUserID string) (bool, 
 	var count int64
 	err := r.db.Model(&domain.Enrollment{}).
 		Where("enr_cls_id = ? AND enr_scu_id = ?", classID, schoolUserID).
+		Count(&count).Error
+	return count > 0, err
+}
+
+func (r *enrollmentRepository) BelongsToSchool(enrollmentID string, schoolID string) (bool, error) {
+	var count int64
+	err := r.db.Model(&domain.Enrollment{}).
+		Where("enr_id = ? AND enr_sch_id = ?", enrollmentID, schoolID).
 		Count(&count).Error
 	return count > 0, err
 }

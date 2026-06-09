@@ -28,6 +28,16 @@ func (h *EnrollmentHandler) Enroll(c *gin.Context) {
 		return
 	}
 
+	schoolID, ok := getActiveSchoolID(c)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
+	if input.SchoolID != schoolID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: schoolId does not match active school"})
+		return
+	}
+
 	if err := h.service.Enroll(input.SchoolID, input.ClassID, input.SchoolUserIDs, input.Role); err != nil {
 		HandleError(c, err)
 		return
@@ -41,6 +51,11 @@ func (h *EnrollmentHandler) GetByClass(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
 	search := c.Query("search")
+	schoolID, ok := getActiveSchoolID(c)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
 
 	// 1. Get Class Header
 	class, err := h.classService.GetByID(classID)
@@ -50,7 +65,7 @@ func (h *EnrollmentHandler) GetByClass(c *gin.Context) {
 	}
 
 	// 2. Get Members
-	results, total, err := h.service.GetByClass(classID, search, page, limit)
+	results, total, err := h.service.GetByClassInSchool(classID, schoolID, search, page, limit)
 	if err != nil {
 		HandleError(c, err)
 		return
@@ -92,7 +107,13 @@ func (h *EnrollmentHandler) GetByClass(c *gin.Context) {
 
 func (h *EnrollmentHandler) GetByMember(c *gin.Context) {
 	schoolUserID := c.Param("schoolUserId")
-	results, err := h.service.GetByMember(schoolUserID)
+	schoolID, ok := getActiveSchoolID(c)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
+
+	results, err := h.service.GetByMemberInSchool(schoolUserID, schoolID)
 	if err != nil {
 		HandleError(c, err)
 		return
@@ -116,7 +137,13 @@ func (h *EnrollmentHandler) GetByMember(c *gin.Context) {
 
 func (h *EnrollmentHandler) GetByID(c *gin.Context) {
 	id := c.Param("id")
-	r, err := h.service.GetByID(id)
+	schoolID, ok := getActiveSchoolID(c)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
+
+	r, err := h.service.GetByIDInSchool(id, schoolID)
 	if err != nil {
 		HandleError(c, err)
 		return
@@ -145,7 +172,13 @@ func (h *EnrollmentHandler) Update(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.Update(id, input.Role); err != nil {
+	schoolID, ok := getActiveSchoolID(c)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
+
+	if err := h.service.Update(id, schoolID, input.Role); err != nil {
 		HandleError(c, err)
 		return
 	}
@@ -155,9 +188,24 @@ func (h *EnrollmentHandler) Update(c *gin.Context) {
 
 func (h *EnrollmentHandler) Unenroll(c *gin.Context) {
 	id := c.Param("id")
-	if err := h.service.Unenroll(id); err != nil {
+	schoolID, ok := getActiveSchoolID(c)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
+
+	if err := h.service.Unenroll(id, schoolID); err != nil {
 		HandleError(c, err)
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Enrollment removed successfully"})
+}
+
+func getActiveSchoolID(c *gin.Context) (string, bool) {
+	value, exists := c.Get("school_id")
+	if !exists {
+		return "", false
+	}
+	schoolID, ok := value.(string)
+	return schoolID, ok && schoolID != ""
 }

@@ -12,6 +12,7 @@ type SchoolUserRepository interface {
 	GetByUser(userID string) ([]*domain.SchoolUser, error)
 	Delete(id string) error
 	IsEnrolled(userID string, schoolID string) (bool, error)
+	BelongsToSchool(schoolUserID string, schoolID string) (bool, error)
 }
 
 type schoolUserRepository struct {
@@ -74,6 +75,14 @@ func (r *schoolUserRepository) IsEnrolled(userID string, schoolID string) (bool,
 	var count int64
 	err := r.db.Model(&domain.SchoolUser{}).
 		Where("scu_usr_id = ? AND scu_sch_id = ?", userID, schoolID).
+		Count(&count).Error
+	return count > 0, err
+}
+
+func (r *schoolUserRepository) BelongsToSchool(schoolUserID string, schoolID string) (bool, error) {
+	var count int64
+	err := r.db.Model(&domain.SchoolUser{}).
+		Where("scu_id = ? AND scu_sch_id = ?", schoolUserID, schoolID).
 		Count(&count).Error
 	return count > 0, err
 }

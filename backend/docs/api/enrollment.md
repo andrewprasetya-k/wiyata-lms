@@ -5,6 +5,7 @@ Base URL: `/api/enrollments`
 ## 1. Enroll Members to Class
 - **URL:** `(base URL)`
 - **Method:** `POST`
+- **Auth:** Required (`admin` in active `SchoolId` context)
 - **Body:**
 ```json
 {
@@ -14,11 +15,17 @@ Base URL: `/api/enrollments`
   "role": "teacher|student"
 }
 ```
-- **Note:** Bulk enrollment supported
+- **Ownership rules:**
+  - `schoolId` must match active `SchoolId` context.
+  - `classId` must belong to the active school.
+  - Every `schoolUserId` must belong to the active school.
+- **Note:** Bulk enrollment supported. Existing duplicate class enrollments are skipped.
 
 ## 2. Get Enrollments by Class
 - **URL:** `/class/:classId`
 - **Method:** `GET`
+- **Auth:** Required school member in active `SchoolId` context.
+- **Ownership rules:** `classId` must belong to the active school.
 - **Query Params:** `?page=1&limit=20&search=john`
   - `page` (optional): Page number, default 1
   - `limit` (optional): Items per page, default 20
@@ -55,16 +62,22 @@ Base URL: `/api/enrollments`
 ## 3. Get Enrollments by Member
 - **URL:** `/member/:schoolUserId`
 - **Method:** `GET`
+- **Auth:** Required school member in active `SchoolId` context.
+- **Ownership rules:** `schoolUserId` must belong to the active school.
 - **Response:** List of classes the member is enrolled in
 
 ## 4. Get Enrollment by ID
 - **URL:** `/:id`
 - **Method:** `GET`
+- **Auth:** Required school member in active `SchoolId` context.
+- **Ownership rules:** Enrollment must belong to the active school.
 - **Response:** Single enrollment with user and class details
 
 ## 5. Update Enrollment Role
 - **URL:** `/:id`
 - **Method:** `PATCH`
+- **Auth:** Required (`admin` in active `SchoolId` context)
+- **Ownership rules:** Enrollment must belong to the active school.
 - **Body:**
 ```json
 {
@@ -76,6 +89,8 @@ Base URL: `/api/enrollments`
 ## 6. Unenroll Member
 - **URL:** `/:id`
 - **Method:** `DELETE`
+- **Auth:** Required (`admin` in active `SchoolId` context)
+- **Ownership rules:** Enrollment must belong to the active school.
 - **Note:** Removes member from class
 
 ---

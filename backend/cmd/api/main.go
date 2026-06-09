@@ -75,7 +75,7 @@ func main() {
 	subjectClassHandler := handler.NewSubjectClassHandler(subjectClassService, classService)
 
 	enrollmentRepo := repository.NewEnrollmentRepository(db)
-	enrollmentService := service.NewEnrollmentService(enrollmentRepo)
+	enrollmentService := service.NewEnrollmentService(enrollmentRepo, classRepo, schoolUserRepo)
 	enrollmentHandler := handler.NewEnrollmentHandler(enrollmentService, classService)
 
 	mediaRepo := repository.NewMediaRepository(db)
@@ -253,12 +253,12 @@ func main() {
 
 		enrollmentAPI := api.Group("/enrollments")
 		{
-			enrollmentAPI.POST("", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "teacher"), enrollmentHandler.Enroll)
-			enrollmentAPI.GET("/class/:classId", enrollmentHandler.GetByClass)
-			enrollmentAPI.GET("/member/:schoolUserId", enrollmentHandler.GetByMember)
-			enrollmentAPI.GET("/:id", enrollmentHandler.GetByID)
-			enrollmentAPI.PATCH("/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "teacher"), enrollmentHandler.Update)
-			enrollmentAPI.DELETE("/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "teacher"), enrollmentHandler.Unenroll)
+			enrollmentAPI.POST("", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin"), enrollmentHandler.Enroll)
+			enrollmentAPI.GET("/class/:classId", middleware.RequireSchoolMember(schoolService), enrollmentHandler.GetByClass)
+			enrollmentAPI.GET("/member/:schoolUserId", middleware.RequireSchoolMember(schoolService), enrollmentHandler.GetByMember)
+			enrollmentAPI.GET("/:id", middleware.RequireSchoolMember(schoolService), enrollmentHandler.GetByID)
+			enrollmentAPI.PATCH("/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin"), enrollmentHandler.Update)
+			enrollmentAPI.DELETE("/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin"), enrollmentHandler.Unenroll)
 		}
 
 		mediaAPI := api.Group("/medias")
