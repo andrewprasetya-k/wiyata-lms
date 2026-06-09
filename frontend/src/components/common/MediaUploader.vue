@@ -127,20 +127,20 @@ function formatSize(bytes: number) {
     </label>
 
     <div v-if="files.length > 0" class="mt-4 space-y-2">
-      <div v-for="(file, index) in files" :key="index" class="flex items-center justify-between p-3 bg-white border border-[#EBEBEB] rounded-xl">
-        <div class="flex items-center gap-3 overflow-hidden">
+      <div v-for="(file, index) in files" :key="index" class="flex max-w-full items-center justify-between gap-3 overflow-hidden p-3 bg-white border border-[#EBEBEB] rounded-xl">
+        <div class="flex min-w-0 flex-1 items-center gap-3 overflow-hidden">
           <div class="shrink-0 w-10 h-10 flex items-center justify-center bg-[#F3F4F6] rounded-lg">
             <PhFile :size="20" class="text-[#6B7280]" />
           </div>
-          <div class="min-w-0">
+          <div class="min-w-0 flex-1 overflow-hidden">
             <p class="text-sm font-medium text-[#111827] truncate">{{ file.name }}</p>
             <p class="text-xs text-[#6B7280]">{{ formatSize(file.size) }}</p>
           </div>
         </div>
 
-        <div class="flex items-center gap-3">
-          <span v-if="file.status === 'uploading'" class="text-xs text-[#4F46E5] animate-pulse">Mengunggah...</span>
-          <span v-else-if="file.status === 'error'" class="text-xs text-[#DC2626]">{{ file.errorMessage }}</span>
+        <div class="flex shrink-0 items-center gap-3">
+          <span v-if="file.status === 'uploading'" class="max-w-28 truncate text-xs text-[#4F46E5] animate-pulse">Mengunggah...</span>
+          <span v-else-if="file.status === 'error'" class="max-w-36 truncate text-xs text-[#DC2626]">{{ file.errorMessage }}</span>
           
           <button 
             type="button" 

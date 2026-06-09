@@ -269,13 +269,13 @@ async function handleSubmit() {
           <a
             v-for="attachment in assignment.attachments"
             :key="attachment.mediaId"
-            class="flex items-center gap-3 rounded-2xl bg-[#fbfaf8] px-4 py-3 text-sm text-[#4a4356]"
+            class="flex max-w-full items-center gap-3 overflow-hidden rounded-2xl bg-[#fbfaf8] px-4 py-3 text-sm text-[#4a4356]"
             :href="attachment.fileUrl"
             rel="noreferrer"
             target="_blank"
           >
-            <PhFileText :size="18" class="text-[#4f46e5]" />
-            <span class="truncate">{{ attachment.mediaName || 'Lampiran tugas' }}</span>
+            <PhFileText :size="18" class="shrink-0 text-[#4f46e5]" />
+            <span class="min-w-0 flex-1 truncate">{{ attachment.mediaName || 'Lampiran tugas' }}</span>
           </a>
         </div>
       </article>
@@ -330,12 +330,12 @@ async function handleSubmit() {
               <a
                 v-for="attachment in submissionStatus.submission.attachments"
                 :key="attachment.mediaId"
-                class="flex items-center gap-3 rounded-2xl bg-white px-4 py-3 text-sm text-[#4a4356]"
+                class="flex max-w-full items-center gap-3 overflow-hidden rounded-2xl bg-white px-4 py-3 text-sm text-[#4a4356]"
                 :href="attachment.fileUrl"
                 rel="noreferrer"
                 target="_blank"
               >
-                <PhFileText :size="18" class="text-[#4f46e5]" />
+                <PhFileText :size="18" class="shrink-0 text-[#4f46e5]" />
                 <span class="min-w-0 flex-1 truncate">{{ attachment.mediaName || 'File submission' }}</span>
                 <span class="shrink-0 text-xs text-[#8b8592]">{{ formatFileSize(attachment.fileSize) }}</span>
               </a>
@@ -393,9 +393,9 @@ async function handleSubmit() {
             <div
               v-for="(file, index) in selectedFiles"
               :key="`${file.name}-${file.size}-${index}`"
-              class="flex items-center justify-between gap-3 rounded-2xl bg-[#fbfaf8] px-4 py-3"
+              class="flex max-w-full items-center justify-between gap-3 overflow-hidden rounded-2xl bg-[#fbfaf8] px-4 py-3"
             >
-              <div class="min-w-0">
+              <div class="min-w-0 flex-1 overflow-hidden">
                 <p class="truncate text-sm font-medium text-[#3f3a4a]">{{ file.name }}</p>
                 <p class="mt-1 text-xs text-[#8b8592]">{{ formatFileSize(file.size) }}</p>
               </div>

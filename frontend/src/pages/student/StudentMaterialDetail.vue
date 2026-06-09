@@ -141,13 +141,13 @@ onMounted(loadMaterial)
           <a
             v-for="attachment in material.attachments"
             :key="attachment.mediaId"
-            class="flex items-center gap-3 rounded-2xl bg-[#fbfaf8] px-4 py-3 text-sm text-[#4a4356]"
+            class="flex max-w-full items-center gap-3 overflow-hidden rounded-2xl bg-[#fbfaf8] px-4 py-3 text-sm text-[#4a4356]"
             :href="attachment.fileUrl"
             rel="noreferrer"
             target="_blank"
           >
-            <PhFileText :size="18" class="text-[#4f46e5]" />
-            <span class="truncate">{{ attachment.mediaName || 'Lampiran materi' }}</span>
+            <PhFileText :size="18" class="shrink-0 text-[#4f46e5]" />
+            <span class="min-w-0 flex-1 truncate">{{ attachment.mediaName || 'Lampiran materi' }}</span>
           </a>
         </div>
       </article>

@@ -269,14 +269,14 @@ onMounted(loadData);
               :key="file.mediaId"
               class="bg-white rounded-xl border border-[#EBEBEB] overflow-hidden group hover:border-[#4F46E5]/30 transition"
             >
-              <div class="p-4 flex items-center justify-between">
-                <div class="flex items-center gap-4 overflow-hidden">
+              <div class="p-4 flex items-center justify-between gap-3">
+                <div class="flex min-w-0 flex-1 items-center gap-4 overflow-hidden">
                   <div
-                    class="w-10 h-10 bg-[#FEF2F2] rounded-lg flex items-center justify-center text-[#DC2626]"
+                    class="w-10 h-10 shrink-0 bg-[#FEF2F2] rounded-lg flex items-center justify-center text-[#DC2626]"
                   >
                     <PhFile :size="20" weight="bold" />
                   </div>
-                  <div class="min-w-0">
+                  <div class="min-w-0 flex-1 overflow-hidden">
                     <p class="text-sm font-semibold text-[#111827] truncate">
                       {{ file.mediaName }}
                     </p>
@@ -288,7 +288,7 @@ onMounted(loadData);
                 <a
                   :href="file.fileUrl"
                   target="_blank"
-                  class="flex items-center gap-1.5 text-xs font-bold text-[#4F46E5] hover:text-[#4338CA] transition"
+                  class="flex shrink-0 items-center gap-1.5 text-xs font-bold text-[#4F46E5] hover:text-[#4338CA] transition"
                 >
                   <PhDownloadSimple :size="16" weight="bold" />
                   Unduh
