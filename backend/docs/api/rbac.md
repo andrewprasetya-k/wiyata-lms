@@ -278,9 +278,13 @@ account, but it does not grant school membership, roles, or enrollment.
 ### Enrollment
 | Endpoint | Method | super_admin | admin | teacher | student |
 |----------|--------|-------------|-------|---------|---------|
-| `/enrollments` | GET | 📖 | 📖 | 📖 | 📖 |
-| `/enrollments` | POST | ❌ | ✅ | ✅ | ❌ |
-| `/enrollments/:id` | DELETE | ❌ | ✅ | ✅ | ❌ |
+| `/enrollments` | GET | 📖* | 📖* | 📖* | 📖* |
+| `/enrollments` | POST | ❌ | ✅* | ❌ | ❌ |
+| `/enrollments/:id` | PATCH | ❌ | ✅* | ❌ | ❌ |
+| `/enrollments/:id` | DELETE | ❌ | ✅* | ❌ | ❌ |
+
+*Enrollment access is scoped to the active `SchoolId`. Classes, school users,
+and enrollment records must belong to the active school.
 
 ---
 

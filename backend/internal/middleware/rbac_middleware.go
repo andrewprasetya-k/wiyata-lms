@@ -3,6 +3,7 @@ package middleware
 import (
 	"backend/internal/repository"
 	"net/http"
+	"slices"
 
 	"github.com/gin-gonic/gin"
 )
@@ -193,14 +194,12 @@ func RequireSystemSuperAdmin(schoolService interface {
 			return
 		}
 
-		for _, role := range roles {
-			if role == "super_admin" {
+		if slices.Contains(roles, "super_admin") {
 				c.Set("school_id", systemSchoolID)
 				c.Set("user_roles", roles)
 				c.Next()
 				return
 			}
-		}
 
 		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: insufficient permissions"})
 		c.Abort()
