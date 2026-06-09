@@ -242,7 +242,7 @@ func (r *assignmentRepository) UpsertAssessment(asm *domain.Assessment) error {
 		keepID := existing[0].ID
 		if err := tx.Model(&domain.Assessment{}).
 			Where("asm_id = ?", keepID).
-			Updates(map[string]interface{}{
+			Updates(map[string]any{
 				"asm_score":    asm.Score,
 				"asm_feedback": asm.Feedback,
 				"assessed_by":  asm.AssessedBy,
