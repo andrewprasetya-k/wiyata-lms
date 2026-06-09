@@ -3,6 +3,7 @@ package repository
 import (
 	"backend/internal/domain"
 	"errors"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -223,7 +224,48 @@ func (r *assignmentRepository) DeleteSubmission(id string) error {
 }
 
 func (r *assignmentRepository) UpsertAssessment(asm *domain.Assessment) error {
-	return r.db.Save(asm).Error
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		var existing []domain.Assessment
+		if err := tx.
+			Where("asm_sbm_id = ?", asm.SubmissionID).
+			Order("assessed_at desc, asm_id desc").
+			Find(&existing).Error; err != nil {
+			return err
+		}
+
+		now := time.Now()
+		if len(existing) == 0 {
+			asm.AssessedAt = now
+			return tx.Create(asm).Error
+		}
+
+		keepID := existing[0].ID
+		if err := tx.Model(&domain.Assessment{}).
+			Where("asm_id = ?", keepID).
+			Updates(map[string]interface{}{
+				"asm_score":    asm.Score,
+				"asm_feedback": asm.Feedback,
+				"assessed_by":  asm.AssessedBy,
+				"assessed_at":  now,
+				"asm_sbm_id":   asm.SubmissionID,
+			}).Error; err != nil {
+			return err
+		}
+
+		if len(existing) > 1 {
+			duplicateIDs := make([]string, 0, len(existing)-1)
+			for _, item := range existing[1:] {
+				duplicateIDs = append(duplicateIDs, item.ID)
+			}
+			if err := tx.Where("asm_id IN ?", duplicateIDs).Delete(&domain.Assessment{}).Error; err != nil {
+				return err
+			}
+		}
+
+		asm.ID = keepID
+		asm.AssessedAt = now
+		return nil
+	})
 }
 
 func (r *assignmentRepository) GetAssessmentBySubmission(sbmID string) (*domain.Assessment, error) {

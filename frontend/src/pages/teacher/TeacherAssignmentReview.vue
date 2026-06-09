@@ -353,7 +353,13 @@ onMounted(loadData);
               class="w-full py-3 bg-[#171322] text-white rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-[#2f2b3a] transition disabled:opacity-50"
             >
               <PhPaperPlaneTilt v-if="!submitting" :size="18" weight="bold" />
-              {{ submitting ? "Menyimpan..." : "Simpan Nilai" }}
+              {{
+                submitting
+                  ? "Menyimpan..."
+                  : currentSubmission?.assessment
+                    ? "Edit Nilai"
+                    : "Beri Nilai"
+              }}
             </button>
           </div>
         </section>

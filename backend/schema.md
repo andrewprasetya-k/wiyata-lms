@@ -299,6 +299,10 @@ asm_score decimal(5,2)
 asm_feedback text
 assessed_by uuid [ref: > users.usr_id]
 assessed_at timestamp [default: `now()`]
+
+indexes {
+(asm_sbm_id) [unique]
+}
 }
 
 Table assessments_weights {

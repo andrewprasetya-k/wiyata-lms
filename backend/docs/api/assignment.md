@@ -329,6 +329,7 @@ Base URL: `/api/assignments`
 - **School Context:** Requires `SchoolId` header
 - **Auth Note:** Teacher identity is taken from the JWT token. Sending identity fields in the body is ignored or no longer required.
 - **Authorization:** The current teacher must teach the subject class of the submission's assignment. Returns `403` if not.
+- **Data Integrity:** One submission can have at most one assessment. `POST` creates the assessment if none exists; if an assessment already exists, it updates the existing assessment for that submission.
 - **Body:**
 ```json
 {
@@ -336,7 +337,7 @@ Base URL: `/api/assignments`
   "feedback": "Good job"
 }
 ```
-- **Note:** Upsert logic - updates existing assessment if already graded
+- **Note:** Idempotent upsert by `submissionId` - updates existing assessment if already graded.
 
 ### 16. Update Assessment
 - **URL:** `/assess/:submissionId`
@@ -370,6 +371,7 @@ Base URL: `/api/assignments`
 
 - **Late Submission Control:** `allowLateSubmission` flag per assignment
 - **Upsert Logic:** Submissions and assessments auto-update if already exist
+- **Assessment Uniqueness:** `assessments.asm_sbm_id` should be unique at database level. Backend also upserts by `submissionId` and removes duplicate assessment rows for the same submission during grading.
 - **Soft Delete:** Assignments and submissions can be restored
 - **IsLate Indicator:** Automatically calculated in submission responses
 - **Attachments:** Support for multiple media files per assignment/submission
