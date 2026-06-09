@@ -26,6 +26,8 @@ Create a new learning material for a class with optional attachments.
 | `mediaIds` | uuid[] | No | List of already recorded Media IDs |
 | `medias` | object[] | No | Inline media data (auto-create in medias table) |
 
+`schoolId` must match the active `SchoolId` header.
+
 **Inline Media Object:**
 ```json
 {
@@ -54,6 +56,8 @@ Each file is uploaded to storage first. If upload succeeds but DB record fails, 
 | `materialType` | string | Yes | `video`, `pdf`, `ppt`, `other` |
 | `files` | file[] | No | Multiple files, max 10MB each |
 
+`schoolId` must match the active `SchoolId` header.
+
 **Object path in storage:** `schools/{schoolId}/{uuid}{ext}` (consistent with media upload)
 
 **Response `501`** (storage not configured):
@@ -66,14 +70,22 @@ Each file is uploaded to storage first. If upload succeeds but DB record fails, 
 ## 2. List Materials
 - **URL:** `(base URL)`
 - **Method:** `GET`
+- **Auth:** Required
+- **Role:** `admin`, `teacher`, or `student`
+- **School Context:** Requires `SchoolId` header
 - **Query Params:** `page`, `limit`, `search`, `subjectClassId`.
-- **Note:** If `subjectClassId` is provided, response will be wrapped in `MaterialListWithSubjectDTO`.
+- **Authorization:** `subjectClassId` is required. Admin can read active-school subject classes. Teacher can read only subject classes they teach. Student can read only subject classes in classes where they are enrolled.
+- **Response:** Wrapped in `MaterialListWithSubjectDTO`.
 
 ---
 
 ## 3. Get Material Detail (with Attachments)
 - **URL:** `/:id`
 - **Method:** `GET`
+- **Auth:** Required
+- **Role:** `admin`, `teacher`, or `student`
+- **School Context:** Requires `SchoolId` header
+- **Authorization:** Same subject_class access rule as list materials.
 
 ---
 
@@ -82,6 +94,10 @@ Update material details and its attachments.
 
 - **URL:** `/:id`
 - **Method:** `PATCH`
+- **Auth:** Required
+- **Role:** `teacher` or `admin`
+- **School Context:** Requires `SchoolId` header
+- **Authorization:** Teacher must teach the material's subject class. Admin can update only active-school materials.
 - **Body:**
 | Field | Type | Note |
 | :--- | :--- | :--- |
@@ -95,6 +111,10 @@ Update material details and its attachments.
 ## 5. Delete Material
 - **URL:** `/:id`
 - **Method:** `DELETE`
+- **Auth:** Required
+- **Role:** `teacher` or `admin`
+- **School Context:** Requires `SchoolId` header
+- **Authorization:** Teacher must teach the material's subject class. Admin can delete only active-school materials.
 
 ---
 

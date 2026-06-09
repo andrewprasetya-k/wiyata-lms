@@ -109,17 +109,17 @@ Authorization: Bearer <your-jwt-token>
 - `DELETE /enrollments/:id` - Unenroll member within active school (admin)
 
 ## 📁 Media & Files
-- `POST /medias/upload` - Upload file (multipart form)
-- `POST /medias/metadata` - Record media metadata
+- `POST /medias/upload` - Upload active-school file (multipart form; owner from JWT)
+- `POST /medias/metadata` - Record active-school media metadata
 - `GET /medias/:id` - Get media by ID
-- `DELETE /medias/:id` - Delete media record
+- `DELETE /medias/:id` - Delete active-school media record (admin or uploader)
 
 ## 📖 Materials (Learning Content)
 - `POST /materials` - Create material for current teacher-owned subject class (JSON or multipart form)
-- `GET /materials` - List materials (with pagination & search)
-- `GET /materials/:id` - Get material by ID
-- `PATCH /materials/:id` - Update material
-- `DELETE /materials/:id` - Delete material
+- `GET /materials` - List materials for accessible `subjectClassId`
+- `GET /materials/:id` - Get accessible material by ID
+- `PATCH /materials/:id` - Update active-school material (admin or owning teacher)
+- `DELETE /materials/:id` - Delete active-school material (admin or owning teacher)
 - `POST /materials/progress` - Update material progress
 
 ## 📰 Feeds (Announcements)
@@ -143,18 +143,18 @@ Authorization: Bearer <your-jwt-token>
 
 ### Assignments
 - `POST /assignments` - Create assignment for current teacher-owned subject class
-- `GET /assignments/subject-class/:subjectClassId` - Get by subject class
+- `GET /assignments/subject-class/:subjectClassId` - Get assignments for accessible subject class
 - `GET /assignments/subject-class/submissions/:subjectClassId` - Get submissions grouped by assignment for current teacher subject class
 - `GET /assignments/:assignmentId` - Get assignment with submissions for current teacher-owned subject class
 - `GET /assignments/status/:id` - Get assignment status
-- `PATCH /assignments/:id` - Update assignment
-- `DELETE /assignments/:id` - Delete assignment
+- `PATCH /assignments/:id` - Update active-school assignment (admin or owning teacher)
+- `DELETE /assignments/:id` - Delete active-school assignment (admin or owning teacher)
 
 ### Submissions
-- `POST /assignments/submit/:assignmentId` - Submit assignment
+- `POST /assignments/submit/:assignmentId` - Submit assignment as current enrolled student
 - `GET /assignments/submit/:submissionId` - Get submission by ID for current teacher-owned subject class
-- `PATCH /assignments/submit/:submissionId` - Update submission
-- `DELETE /assignments/submit/:submissionId` - Delete submission
+- `PATCH /assignments/submit/:submissionId` - Update current student's own submission
+- `DELETE /assignments/submit/:submissionId` - Delete current student's own submission
 
 ### Assessments (Grading)
 - `POST /assignments/assess/:submissionId` - Grade submission for current teacher-owned subject class

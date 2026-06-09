@@ -42,6 +42,9 @@ func (h *MaterialHandler) Create(c *gin.Context) {
 			HandleBindingError(c, err)
 			return
 		}
+		if !h.validateRequestSchool(c, input.SchoolID) {
+			return
+		}
 		if !h.authorizeTeacherForSubjectClass(c, input.SubjectClassID) {
 			return
 		}
@@ -80,6 +83,9 @@ func (h *MaterialHandler) Create(c *gin.Context) {
 
 	if schoolID == "" || subjectClassID == "" || title == "" || materialType == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Required fields: schoolId, subjectClassId, materialTitle, materialType"})
+		return
+	}
+	if !h.validateRequestSchool(c, schoolID) {
 		return
 	}
 	if !h.authorizeTeacherForSubjectClass(c, subjectClassID) {
@@ -147,6 +153,85 @@ func (h *MaterialHandler) getSchoolContext(c *gin.Context) string {
 	return c.GetHeader("SchoolId")
 }
 
+func (h *MaterialHandler) getActiveRoles(c *gin.Context) []string {
+	if raw, exists := c.Get("user_roles"); exists {
+		if roles, ok := raw.([]string); ok {
+			return roles
+		}
+	}
+	return nil
+}
+
+func (h *MaterialHandler) hasActiveRole(c *gin.Context, role string) bool {
+	for _, activeRole := range h.getActiveRoles(c) {
+		if activeRole == role {
+			return true
+		}
+	}
+	return false
+}
+
+func (h *MaterialHandler) validateRequestSchool(c *gin.Context, requestSchoolID string) bool {
+	schoolID := h.getSchoolContext(c)
+	if schoolID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required (SchoolId header)"})
+		return false
+	}
+	if requestSchoolID != "" && requestSchoolID != schoolID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: schoolId does not match active school"})
+		return false
+	}
+	return true
+}
+
+func (h *MaterialHandler) authorizeUserForSubjectClassAccess(c *gin.Context, subjectClassID string) bool {
+	userID := middleware.GetUserID(c)
+	if userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return false
+	}
+
+	schoolID := h.getSchoolContext(c)
+	if schoolID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required (SchoolId header)"})
+		return false
+	}
+
+	allowed, err := h.subjectClassService.UserCanAccessSubjectClass(userID, schoolID, subjectClassID, h.getActiveRoles(c))
+	if err != nil {
+		HandleError(c, err)
+		return false
+	}
+	if !allowed {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: you cannot access this subject class"})
+		return false
+	}
+	return true
+}
+
+func (h *MaterialHandler) authorizeMaterialMutation(c *gin.Context, material *domain.Material) bool {
+	schoolID := h.getSchoolContext(c)
+	if schoolID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required (SchoolId header)"})
+		return false
+	}
+	if material.SchoolID != schoolID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: material does not belong to active school"})
+		return false
+	}
+
+	if h.hasActiveRole(c, "admin") {
+		return true
+	}
+
+	if h.hasActiveRole(c, "teacher") {
+		return h.authorizeTeacherForSubjectClass(c, material.SubjectClassID)
+	}
+
+	c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: insufficient permissions"})
+	return false
+}
+
 func (h *MaterialHandler) authorizeTeacherForSubjectClass(c *gin.Context, subjectClassID string) bool {
 	userID := middleware.GetUserID(c)
 	if userID == "" {
@@ -177,6 +262,13 @@ func (h *MaterialHandler) FindAll(c *gin.Context) {
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
 	search := c.Query("search")
 	subjectClassID := c.Query("subjectClassId")
+	if subjectClassID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "subjectClassId is required"})
+		return
+	}
+	if !h.authorizeUserForSubjectClassAccess(c, subjectClassID) {
+		return
+	}
 
 	materials, total, err := h.service.FindAll(search, subjectClassID, page, limit)
 	if err != nil {
@@ -230,6 +322,9 @@ func (h *MaterialHandler) GetByID(c *gin.Context) {
 		HandleError(c, err)
 		return
 	}
+	if !h.authorizeUserForSubjectClassAccess(c, mat.SubjectClassID) {
+		return
+	}
 	c.JSON(http.StatusOK, h.mapToResponse(mat))
 }
 
@@ -267,6 +362,9 @@ func (h *MaterialHandler) Update(c *gin.Context) {
 		HandleError(c, err)
 		return
 	}
+	if !h.authorizeMaterialMutation(c, mat) {
+		return
+	}
 
 	if input.Title != nil {
 		mat.Title = *input.Title
@@ -288,6 +386,14 @@ func (h *MaterialHandler) Update(c *gin.Context) {
 
 func (h *MaterialHandler) Delete(c *gin.Context) {
 	id := c.Param("id")
+	mat, err := h.service.GetByID(id)
+	if err != nil {
+		HandleError(c, err)
+		return
+	}
+	if !h.authorizeMaterialMutation(c, mat) {
+		return
+	}
 	if err := h.service.Delete(id); err != nil {
 		HandleError(c, err)
 		return

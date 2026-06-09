@@ -35,9 +35,18 @@ func (h *MediaHandler) Upload(c *gin.Context) {
 	schoolID := c.PostForm("schoolId")
 	ownerType := c.PostForm("ownerType")
 	ownerID := middleware.GetUserID(c)
+	activeSchoolID, ok := getMediaActiveSchoolID(c)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
 
 	if schoolID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "schoolId is required"})
+		return
+	}
+	if schoolID != activeSchoolID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: schoolId does not match active school"})
 		return
 	}
 	if _, err := uuid.Parse(schoolID); err != nil {
@@ -106,6 +115,24 @@ func (h *MediaHandler) RecordMetadata(c *gin.Context) {
 		HandleBindingError(c, err)
 		return
 	}
+	userID := middleware.GetUserID(c)
+	if userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+	activeSchoolID, ok := getMediaActiveSchoolID(c)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
+	if input.SchoolID != activeSchoolID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: schoolId does not match active school"})
+		return
+	}
+	if input.OwnerID != userID && !mediaHasActiveRole(c, "admin") {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: ownerId must match current user"})
+		return
+	}
 
 	media := domain.Media{
 		SchoolID:     input.SchoolID,
@@ -140,9 +167,60 @@ func (h *MediaHandler) GetByID(c *gin.Context) {
 
 func (h *MediaHandler) Delete(c *gin.Context) {
 	id := c.Param("id")
+	userID := middleware.GetUserID(c)
+	if userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+	activeSchoolID, ok := getMediaActiveSchoolID(c)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
+
+	media, err := h.service.GetByID(id)
+	if err != nil {
+		HandleError(c, err)
+		return
+	}
+	if media.SchoolID != activeSchoolID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: media does not belong to active school"})
+		return
+	}
+	if media.OwnerID != userID && !mediaHasActiveRole(c, "admin") {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: media can only be deleted by uploader or admin"})
+		return
+	}
+
 	if err := h.service.Delete(c.Request.Context(), id); err != nil {
 		HandleError(c, err)
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Media record deleted"})
+}
+
+func getMediaActiveSchoolID(c *gin.Context) (string, bool) {
+	value, exists := c.Get("school_id")
+	if !exists {
+		return "", false
+	}
+	schoolID, ok := value.(string)
+	return schoolID, ok && schoolID != ""
+}
+
+func mediaHasActiveRole(c *gin.Context, role string) bool {
+	raw, exists := c.Get("user_roles")
+	if !exists {
+		return false
+	}
+	roles, ok := raw.([]string)
+	if !ok {
+		return false
+	}
+	for _, activeRole := range roles {
+		if activeRole == role {
+			return true
+		}
+	}
+	return false
 }

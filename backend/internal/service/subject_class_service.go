@@ -15,6 +15,7 @@ type SubjectClassService interface {
 	GetByID(id string) (*domain.SubjectClass, error)
 	GetByIDInSchool(id string, schoolID string) (*domain.SubjectClass, error)
 	TeacherOwnsSubjectClass(userID string, schoolID string, subjectClassID string) (bool, error)
+	UserCanAccessSubjectClass(userID string, schoolID string, subjectClassID string, roles []string) (bool, error)
 	Update(scl *domain.SubjectClass) error
 	UpdateInSchool(scl *domain.SubjectClass, schoolID string) error
 	Unassign(id string) error
@@ -102,6 +103,26 @@ func (s *subjectClassService) GetByIDInSchool(id string, schoolID string) (*doma
 
 func (s *subjectClassService) TeacherOwnsSubjectClass(userID string, schoolID string, subjectClassID string) (bool, error) {
 	return s.repo.TeacherOwnsSubjectClass(userID, schoolID, subjectClassID)
+}
+
+func (s *subjectClassService) UserCanAccessSubjectClass(userID string, schoolID string, subjectClassID string, roles []string) (bool, error) {
+	for _, role := range roles {
+		switch role {
+		case "admin":
+			return s.repo.SubjectClassBelongsToSchool(subjectClassID, schoolID)
+		case "teacher":
+			ok, err := s.repo.TeacherOwnsSubjectClass(userID, schoolID, subjectClassID)
+			if err != nil || ok {
+				return ok, err
+			}
+		case "student":
+			ok, err := s.repo.UserEnrolledInSubjectClassAsRole(userID, schoolID, subjectClassID, "student")
+			if err != nil || ok {
+				return ok, err
+			}
+		}
+	}
+	return false, nil
 }
 
 func (s *subjectClassService) Unassign(id string) error {

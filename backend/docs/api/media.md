@@ -23,6 +23,8 @@ Upload a file directly to storage (multipart form). The backend uploads to the c
 - **URL:** `/upload`
 - **Method:** `POST`
 - **Auth:** Required
+- **School Context:** Requires `SchoolId` header
+- **Role:** `admin`, `teacher`, or `student`
 - **Auth Note:** Actor identity is taken from the JWT token. Sending identity fields in the body is ignored or no longer required.
 - **Content-Type:** `multipart/form-data`
 - **Max file size:** 10MB
@@ -33,6 +35,8 @@ Upload a file directly to storage (multipart form). The backend uploads to the c
 | `file` | file | Yes | The file to upload |
 | `schoolId` | string | Yes | Must be a valid UUID |
 | `ownerType` | string | No | `user`, `school`, `material`, `assignment`, etc. |
+
+`schoolId` must match the active `SchoolId` header. The backend stores `ownerId` from the JWT user.
 
 **Object path in storage:** `schools/{schoolId}/{uuid}{ext}`
 
@@ -63,6 +67,8 @@ Record metadata of a file already uploaded directly to external storage (e.g., v
 - **URL:** `/metadata`
 - **Method:** `POST`
 - **Auth:** Required
+- **School Context:** Requires `SchoolId` header
+- **Role:** `admin`, `teacher`, or `student`
 - **Content-Type:** `application/json`
 
 **Body:**
@@ -79,6 +85,8 @@ Record metadata of a file already uploaded directly to external storage (e.g., v
 | `ownerType` | string | Yes | `user`, `school`, `material`, `assignment`, etc. |
 | `ownerId` | uuid | Yes | |
 
+`schoolId` must match the active `SchoolId` header. Non-admin users can only record metadata where `ownerId` is their own JWT user ID.
+
 ---
 
 ## 3. Get Media Detail
@@ -94,3 +102,6 @@ Deletes the storage object first, then soft-deletes the metadata record. If the 
 - **URL:** `/:id`
 - **Method:** `DELETE`
 - **Auth:** Required
+- **School Context:** Requires `SchoolId` header
+- **Role:** `admin`, `teacher`, or `student`
+- **Authorization:** Media must belong to the active school. Admin can delete active-school media. Non-admin users can delete only media where `ownerId` is their JWT user ID.

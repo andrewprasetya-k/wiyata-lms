@@ -241,13 +241,23 @@ Content-Type: application/json
 |----------|--------|-------------|-------|---------|---------|
 | `/materials` | GET | 📖 | 📖 | 📖 | 📖 |
 | `/materials` | POST | ❌ | ❌ | ✅* | ❌ |
+| `/materials/:id` | PATCH/DELETE | ❌ | ✅** | ✅* | ❌ |
 | `/assignments` | POST | ❌ | ❌ | ✅* | ❌ |
 | `/assignments/:id` | GET | ❌ | ❌ | 📖* | ❌ |
+| `/assignments/subject-class/:subjectClassId` | GET | ❌ | 📖** | 📖* | 📖*** |
+| `/assignments/:id` | PATCH/DELETE | ❌ | ✅** | ✅* | ❌ |
 | `/assignments/submit/:id` | POST | ❌ | ❌ | ❌ | ✅ |
 | `/assignments/submit/:id` | GET | ❌ | ❌ | 📖* | ❌ |
+| `/assignments/submit/:id` | PATCH/DELETE | ❌ | ❌ | ❌ | ✅**** |
 | `/assignments/assess/:id` | POST/PATCH/DELETE | ❌ | ❌ | ✅* | ❌ |
+| `/medias/upload` | POST | ❌ | ✅** | ✅** | ✅** |
+| `/medias/:id` | DELETE | ❌ | ✅** | ✅***** | ✅***** |
 
-*Teacher material/assignment creation, assignment detail, submission detail, and assessment access is limited to subject classes taught by the current teacher in the active `SchoolId` context.
+*Teacher material/assignment creation, mutation, assignment detail, submission detail, and assessment access is limited to subject classes taught by the current teacher in the active `SchoolId` context.
+**Admin and shared media access is scoped to active `SchoolId`.
+***Student material/assignment read access is limited to subject classes in classes where the student is enrolled.
+****Student submission mutation is limited to the current JWT user's own submission in the active school.
+*****Non-admin media deletion is limited to media owned/uploaded by the current JWT user in the active school.
 
 ### Subject Class Assignment
 | Endpoint | Method | super_admin | admin | teacher | student |

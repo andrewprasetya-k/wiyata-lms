@@ -43,6 +43,10 @@ Base URL: `/api/assignments`
 ### 4. List Assignments by Subject Class
 - **URL:** `/subject-class/:subjectClassId`
 - **Method:** `GET`
+- **Auth:** Required
+- **Role:** `admin`, `teacher`, or `student`
+- **School Context:** Requires `SchoolId` header
+- **Authorization:** Admin can read active-school subject classes. Teacher can read only subject classes they teach. Student can read only subject classes in classes where they are enrolled.
 - **Query Params:** `?page=1&limit=20&search=quiz`
   - `page` (optional): Page number, default 1
   - `limit` (optional): Items per page, default 20
@@ -232,6 +236,10 @@ Base URL: `/api/assignments`
 ### 9. Update Assignment
 - **URL:** `/:id`
 - **Method:** `PATCH`
+- **Auth:** Required
+- **Role:** `teacher` or `admin`
+- **School Context:** Requires `SchoolId` header
+- **Authorization:** Teacher must teach the assignment's subject class. Admin can update only active-school assignments.
 - **Body:** (all fields optional)
 ```json
 {
@@ -247,6 +255,10 @@ Base URL: `/api/assignments`
 ### 10. Delete Assignment
 - **URL:** `/:id`
 - **Method:** `DELETE`
+- **Auth:** Required
+- **Role:** `teacher` or `admin`
+- **School Context:** Requires `SchoolId` header
+- **Authorization:** Teacher must teach the assignment's subject class. Admin can delete only active-school assignments.
 - **Note:** Soft delete
 
 ---
@@ -256,7 +268,11 @@ Base URL: `/api/assignments`
 ### 11. Submit Assignment
 - **URL:** `/submit/:assignmentId`
 - **Method:** `POST`
+- **Auth:** Required
+- **Role:** `student`
+- **School Context:** Requires `SchoolId` header
 - **Auth Note:** Actor identity is taken from the JWT token. Sending identity fields in the body is ignored or no longer required.
+- **Authorization:** Student must be enrolled in the class behind the assignment's subject class. Request `schoolId` must match active `SchoolId`.
 - **Body:**
 ```json
 {
@@ -279,7 +295,11 @@ Base URL: `/api/assignments`
 ### 13. Update Submission
 - **URL:** `/submit/:submissionId`
 - **Method:** `PATCH`
+- **Auth:** Required
+- **Role:** `student`
+- **School Context:** Requires `SchoolId` header
 - **Auth Note:** Actor identity is taken from the JWT token. Sending identity fields in the body is ignored or no longer required.
+- **Authorization:** Submission must belong to the current JWT user and active school. Student must still be enrolled in the assignment class.
 - **Body:**
 ```json
 {
@@ -291,6 +311,10 @@ Base URL: `/api/assignments`
 ### 14. Delete Submission
 - **URL:** `/submit/:submissionId`
 - **Method:** `DELETE`
+- **Auth:** Required
+- **Role:** `student`
+- **School Context:** Requires `SchoolId` header
+- **Authorization:** Submission must belong to the current JWT user and active school. Student must still be enrolled in the assignment class.
 - **Note:** Soft delete, can be restored by resubmitting
 
 ---

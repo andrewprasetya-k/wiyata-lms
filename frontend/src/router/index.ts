@@ -180,12 +180,12 @@ const router = createRouter({
         {
           path: "subjects/:subjectClassId/create",
           name: "teacher-content-create",
-          component: () => TeacherContentCreate,
+          component: TeacherContentCreate,
         },
         {
           path: "assignments/:assignmentId/review",
           name: "teacher-assignment-review",
-          component: () => TeacherAssignmentReview,
+          component: TeacherAssignmentReview,
         },
         {
           path: "assignments",

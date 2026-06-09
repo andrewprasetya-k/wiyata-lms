@@ -95,6 +95,9 @@ func (h *AssignmentHandler) CreateAssignment(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
+	if !h.validateRequestSchool(c, input.SchoolID) {
+		return
+	}
 	if !h.authorizeTeacherForSubjectClass(c, input.SubjectClassID) {
 		return
 	}
@@ -132,6 +135,9 @@ func (h *AssignmentHandler) UpdateAssignment(c *gin.Context) {
 		HandleError(c, err)
 		return
 	}
+	if !h.authorizeAssignmentMutation(c, existing) {
+		return
+	}
 
 	// Update fields if provided
 	if input.CategoryID != nil {
@@ -160,6 +166,14 @@ func (h *AssignmentHandler) UpdateAssignment(c *gin.Context) {
 
 func (h *AssignmentHandler) DeleteAssignment(c *gin.Context) {
 	id := c.Param("id")
+	existing, err := h.service.GetAssignmentByID(id)
+	if err != nil {
+		HandleError(c, err)
+		return
+	}
+	if !h.authorizeAssignmentMutation(c, existing) {
+		return
+	}
 
 	if err := h.service.DeleteAssignment(id); err != nil {
 		HandleError(c, err)
@@ -174,6 +188,9 @@ func (h *AssignmentHandler) GetBySubjectClass(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
 	search := c.Query("search")
+	if !h.authorizeUserForSubjectClassAccess(c, subjectClassID) {
+		return
+	}
 
 	// 1. Get SubjectClass Header
 	subjectClassHeader, err := h.subjectClassService.GetByID(subjectClassID)
@@ -460,9 +477,30 @@ func (h *AssignmentHandler) Submit(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
+	schoolID := h.getSchoolContext(c)
+	if schoolID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required (SchoolId header)"})
+		return
+	}
+	if !h.validateRequestSchool(c, input.SchoolID) {
+		return
+	}
+
+	assignment, err := h.service.GetAssignmentByID(assignmentId)
+	if err != nil {
+		HandleError(c, err)
+		return
+	}
+	if assignment.SchoolID != schoolID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: assignment does not belong to active school"})
+		return
+	}
+	if !h.authorizeStudentForSubjectClass(c, assignment.SubjectClassID) {
+		return
+	}
 
 	sbm := domain.Submission{
-		SchoolID:     input.SchoolID,
+		SchoolID:     schoolID,
 		AssignmentID: assignmentId,
 		UserID:       userID,
 	}
@@ -486,6 +524,12 @@ func (h *AssignmentHandler) UpdateSubmission(c *gin.Context) {
 		HandleBindingError(c, err)
 		return
 	}
+	if !h.validateRequestSchool(c, input.SchoolID) {
+		return
+	}
+	if !h.authorizeStudentForSubmission(c, submissionId) {
+		return
+	}
 
 	if err := h.service.UpdateSubmission(submissionId, input.MediaIDs); err != nil {
 		HandleError(c, err)
@@ -497,6 +541,9 @@ func (h *AssignmentHandler) UpdateSubmission(c *gin.Context) {
 
 func (h *AssignmentHandler) DeleteSubmission(c *gin.Context) {
 	submissionId := c.Param("submissionId")
+	if !h.authorizeStudentForSubmission(c, submissionId) {
+		return
+	}
 
 	if err := h.service.DeleteSubmission(submissionId); err != nil {
 		HandleError(c, err)
@@ -663,6 +710,149 @@ func (h *AssignmentHandler) getSchoolContext(c *gin.Context) string {
 		}
 	}
 	return c.GetHeader("SchoolId")
+}
+
+func (h *AssignmentHandler) getActiveRoles(c *gin.Context) []string {
+	if raw, exists := c.Get("user_roles"); exists {
+		if roles, ok := raw.([]string); ok {
+			return roles
+		}
+	}
+	return nil
+}
+
+func (h *AssignmentHandler) hasActiveRole(c *gin.Context, role string) bool {
+	for _, activeRole := range h.getActiveRoles(c) {
+		if activeRole == role {
+			return true
+		}
+	}
+	return false
+}
+
+func (h *AssignmentHandler) validateRequestSchool(c *gin.Context, requestSchoolID string) bool {
+	schoolID := h.getSchoolContext(c)
+	if schoolID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required (SchoolId header)"})
+		return false
+	}
+	if requestSchoolID != "" && requestSchoolID != schoolID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: schoolId does not match active school"})
+		return false
+	}
+	return true
+}
+
+func (h *AssignmentHandler) authorizeUserForSubjectClassAccess(c *gin.Context, subjectClassID string) bool {
+	userID := middleware.GetUserID(c)
+	if userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return false
+	}
+
+	schoolID := h.getSchoolContext(c)
+	if schoolID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required (SchoolId header)"})
+		return false
+	}
+
+	allowed, err := h.subjectClassService.UserCanAccessSubjectClass(userID, schoolID, subjectClassID, h.getActiveRoles(c))
+	if err != nil {
+		HandleError(c, err)
+		return false
+	}
+	if !allowed {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: you cannot access this subject class"})
+		return false
+	}
+	return true
+}
+
+func (h *AssignmentHandler) authorizeStudentForSubjectClass(c *gin.Context, subjectClassID string) bool {
+	userID := middleware.GetUserID(c)
+	if userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return false
+	}
+
+	schoolID := h.getSchoolContext(c)
+	if schoolID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required (SchoolId header)"})
+		return false
+	}
+
+	allowed, err := h.subjectClassService.UserCanAccessSubjectClass(userID, schoolID, subjectClassID, []string{"student"})
+	if err != nil {
+		HandleError(c, err)
+		return false
+	}
+	if !allowed {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: student is not enrolled in this class"})
+		return false
+	}
+	return true
+}
+
+func (h *AssignmentHandler) authorizeAssignmentMutation(c *gin.Context, assignment *domain.Assignment) bool {
+	schoolID := h.getSchoolContext(c)
+	if schoolID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required (SchoolId header)"})
+		return false
+	}
+	if assignment.SchoolID != schoolID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: assignment does not belong to active school"})
+		return false
+	}
+
+	if h.hasActiveRole(c, "admin") {
+		return true
+	}
+
+	if h.hasActiveRole(c, "teacher") {
+		return h.authorizeTeacherForSubjectClass(c, assignment.SubjectClassID)
+	}
+
+	c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: insufficient permissions"})
+	return false
+}
+
+func (h *AssignmentHandler) authorizeStudentForSubmission(c *gin.Context, submissionID string) bool {
+	userID := middleware.GetUserID(c)
+	if userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return false
+	}
+
+	schoolID := h.getSchoolContext(c)
+	if schoolID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required (SchoolId header)"})
+		return false
+	}
+
+	submission, err := h.service.GetSubmissionByID(submissionID)
+	if err != nil {
+		HandleError(c, err)
+		return false
+	}
+	if submission.SchoolID != schoolID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: submission does not belong to active school"})
+		return false
+	}
+	if submission.UserID != userID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: submission belongs to another user"})
+		return false
+	}
+
+	assignment, err := h.service.GetAssignmentByID(submission.AssignmentID)
+	if err != nil {
+		HandleError(c, err)
+		return false
+	}
+	if assignment.SchoolID != schoolID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: assignment does not belong to active school"})
+		return false
+	}
+	return h.authorizeStudentForSubjectClass(c, assignment.SubjectClassID)
 }
 
 func (h *AssignmentHandler) authorizeTeacherForSubmission(c *gin.Context, submissionID string) bool {

@@ -23,6 +23,7 @@ type SubjectClassRepository interface {
 	SchoolUserBelongsToSchool(schoolUserID string, schoolID string) (bool, error)
 	SchoolUserHasRole(schoolUserID string, roleName string) (bool, error)
 	SchoolUserEnrolledInClassAsRole(schoolUserID string, classID string, schoolID string, role string) (bool, error)
+	UserEnrolledInSubjectClassAsRole(userID string, schoolID string, subjectClassID string, role string) (bool, error)
 }
 
 type subjectClassRepository struct {
@@ -220,6 +221,20 @@ func (r *subjectClassRepository) SchoolUserEnrolledInClassAsRole(schoolUserID st
 	var count int64
 	err := r.db.Table("edv.enrollments").
 		Where("enr_scu_id = ? AND enr_cls_id = ? AND enr_sch_id = ? AND enr_role = ?", schoolUserID, classID, schoolID, role).
+		Count(&count).Error
+	return count > 0, err
+}
+
+func (r *subjectClassRepository) UserEnrolledInSubjectClassAsRole(userID string, schoolID string, subjectClassID string, role string) (bool, error) {
+	var count int64
+	err := r.db.Table("edv.subject_classes sc").
+		Joins("JOIN edv.classes c ON c.cls_id = sc.scl_cls_id").
+		Joins("JOIN edv.enrollments e ON e.enr_cls_id = c.cls_id").
+		Joins("JOIN edv.school_users scu ON scu.scu_id = e.enr_scu_id").
+		Where("sc.scl_id = ?", subjectClassID).
+		Where("c.cls_sch_id = ? AND e.enr_sch_id = ? AND scu.scu_sch_id = ?", schoolID, schoolID, schoolID).
+		Where("scu.scu_usr_id = ? AND e.enr_role = ?", userID, role).
+		Where("c.deleted_at IS NULL").
 		Count(&count).Error
 	return count > 0, err
 }
