@@ -9,14 +9,23 @@ import {
   PhWarningCircle,
 } from "@phosphor-icons/vue";
 import { useAuthStore } from "../../stores/auth";
-import { getAcademicYearsBySchool, getTermsByAcademicYear } from "../../services/adminAcademic";
+import {
+  getAcademicYearsBySchool,
+  getTermsByAcademicYear,
+} from "../../services/adminAcademic";
 import { getAdminClasses } from "../../services/adminClass";
 import { getSchoolMembers } from "../../services/adminUser";
-import { createClassEnrollments, getClassEnrollments } from "../../services/adminEnrollment";
+import {
+  createClassEnrollments,
+  getClassEnrollments,
+} from "../../services/adminEnrollment";
 import type { AcademicYearItem, TermItem } from "../../types/adminAcademic";
 import type { AdminClassItem } from "../../types/adminClass";
 import type { SchoolMemberItem } from "../../types/adminUser";
-import type { ClassEnrollmentRole, EnrollmentMemberItem } from "../../types/adminEnrollment";
+import type {
+  ClassEnrollmentRole,
+  EnrollmentMemberItem,
+} from "../../types/adminEnrollment";
 import { formatDateTime } from "../../utils/date";
 
 const auth = useAuthStore();
@@ -67,16 +76,21 @@ const actionError = ref("");
 
 const selectedAcademicYear = computed(
   () =>
-    academicYears.value.find((year) => year.academicYearId === selectedAcademicYearId.value) ??
-    null,
+    academicYears.value.find(
+      (year) => year.academicYearId === selectedAcademicYearId.value,
+    ) ?? null,
 );
 
 const selectedTerm = computed(
-  () => terms.value.find((term) => term.termId === selectedTermId.value) ?? null,
+  () =>
+    terms.value.find((term) => term.termId === selectedTermId.value) ?? null,
 );
 
 const selectedClass = computed(
-  () => classes.value.find((classItem) => classItem.classId === selectedClassId.value) ?? null,
+  () =>
+    classes.value.find(
+      (classItem) => classItem.classId === selectedClassId.value,
+    ) ?? null,
 );
 
 const enrolledSchoolUserIds = computed(
@@ -84,7 +98,9 @@ const enrolledSchoolUserIds = computed(
 );
 
 const availableMembers = computed(() =>
-  members.value.filter((member) => !enrolledSchoolUserIds.value.has(member.schoolUserId)),
+  members.value.filter(
+    (member) => !enrolledSchoolUserIds.value.has(member.schoolUserId),
+  ),
 );
 
 const selectedMembers = computed(() =>
@@ -94,11 +110,15 @@ const selectedMembers = computed(() =>
 );
 
 const studentEnrollmentCount = computed(
-  () => enrollments.value.filter((enrollment) => enrollment.role === "student").length,
+  () =>
+    enrollments.value.filter((enrollment) => enrollment.role === "student")
+      .length,
 );
 
 const teacherEnrollmentCount = computed(
-  () => enrollments.value.filter((enrollment) => enrollment.role === "teacher").length,
+  () =>
+    enrollments.value.filter((enrollment) => enrollment.role === "teacher")
+      .length,
 );
 
 function classRoleLabel(role: string) {
@@ -108,12 +128,16 @@ function classRoleLabel(role: string) {
 }
 
 function schoolRolesLabel(member: SchoolMemberItem) {
-  return member.roles?.length ? member.roles.join(", ") : "Role sekolah belum tersedia";
+  return member.roles?.length
+    ? member.roles.join(", ")
+    : "Role sekolah belum tersedia";
 }
 
 function toggleMember(schoolUserId: string) {
   if (selectedSchoolUserIds.value.includes(schoolUserId)) {
-    selectedSchoolUserIds.value = selectedSchoolUserIds.value.filter((id) => id !== schoolUserId);
+    selectedSchoolUserIds.value = selectedSchoolUserIds.value.filter(
+      (id) => id !== schoolUserId,
+    );
     return;
   }
 
@@ -121,8 +145,12 @@ function toggleMember(schoolUserId: string) {
 }
 
 function resetSelectedMembers() {
-  const availableIds = new Set(availableMembers.value.map((member) => member.schoolUserId));
-  selectedSchoolUserIds.value = selectedSchoolUserIds.value.filter((id) => availableIds.has(id));
+  const availableIds = new Set(
+    availableMembers.value.map((member) => member.schoolUserId),
+  );
+  selectedSchoolUserIds.value = selectedSchoolUserIds.value.filter((id) =>
+    availableIds.has(id),
+  );
 }
 
 async function loadAcademicYears() {
@@ -134,7 +162,9 @@ async function loadAcademicYears() {
     const data = await getAcademicYearsBySchool(currentSchool.value.schoolCode);
     academicYears.value = data.data ?? [];
     const defaultYear =
-      academicYears.value.find((year) => year.isActive) ?? academicYears.value[0] ?? null;
+      academicYears.value.find((year) => year.isActive) ??
+      academicYears.value[0] ??
+      null;
     selectedAcademicYearId.value = defaultYear?.academicYearId ?? "";
   } catch {
     yearsError.value = "Tahun ajaran belum bisa dimuat.";
@@ -155,9 +185,12 @@ async function loadTerms(selectDefault = false) {
     const data = await getTermsByAcademicYear(selectedAcademicYearId.value);
     terms.value = data ?? [];
 
-    const selectedStillValid = terms.value.some((term) => term.termId === selectedTermId.value);
+    const selectedStillValid = terms.value.some(
+      (term) => term.termId === selectedTermId.value,
+    );
     if (selectDefault || !selectedStillValid) {
-      const defaultTerm = terms.value.find((term) => term.isActive) ?? terms.value[0] ?? null;
+      const defaultTerm =
+        terms.value.find((term) => term.isActive) ?? terms.value[0] ?? null;
       selectedTermId.value = defaultTerm?.termId ?? "";
     }
   } catch {
@@ -286,7 +319,7 @@ async function submitEnrollment() {
       role: classRole.value,
     });
     actionMessage.value =
-      "Enrollment berhasil diproses. Member yang sudah terdaftar akan dilewati oleh backend.";
+      "Enrollment berhasil diproses. Member yang sudah terdaftar akan dilewati.";
     selectedSchoolUserIds.value = [];
     await loadEnrollments();
   } catch {
@@ -309,19 +342,30 @@ onMounted(async () => {
   <main class="min-h-screen flex-1 px-5 py-6 sm:px-8 lg:px-10">
     <section class="mx-auto flex max-w-6xl flex-col gap-6">
       <header class="soft-card rounded-[22px] p-5">
-        <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div
+          class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"
+        >
           <div>
-            <p class="text-[11px] font-medium uppercase text-[#9CA3AF]">School admin</p>
-            <h1 class="mt-2 text-2xl font-medium text-[#111827]">Enrollment kelas</h1>
+            <p class="text-[11px] font-medium uppercase text-[#9CA3AF]">
+              School admin
+            </p>
+            <h1 class="mt-2 text-2xl font-medium text-[#111827]">
+              Enrollment kelas
+            </h1>
             <p class="mt-2 max-w-3xl text-sm leading-6 text-[#6B7280]">
-              Tambahkan member sekolah ke kelas sebagai student atau teacher. Role sekolah tetap dikelola di halaman Users.
+              Tambahkan member sekolah ke kelas sebagai student atau teacher.
+              Role sekolah tetap dikelola di halaman Users.
             </p>
           </div>
           <div class="flex flex-wrap gap-2 text-xs">
-            <span class="rounded-lg bg-[#EEF2FF] px-3 py-1.5 font-medium text-[#4F46E5]">
+            <span
+              class="rounded-lg bg-[#EEF2FF] px-3 py-1.5 font-medium text-[#4F46E5]"
+            >
               {{ currentSchool.schoolName || "Sekolah belum tersedia" }}
             </span>
-            <span class="rounded-lg bg-[#F9FAFB] px-3 py-1.5 font-medium text-[#6B7280]">
+            <span
+              class="rounded-lg bg-[#F9FAFB] px-3 py-1.5 font-medium text-[#6B7280]"
+            >
               {{ currentSchool.schoolCode || "Kode sekolah belum tersedia" }}
             </span>
           </div>
@@ -331,7 +375,8 @@ onMounted(async () => {
           v-if="!currentSchool.hasContext"
           class="mt-4 rounded-[10px] border border-[#FECACA] bg-[#FEF2F2] px-4 py-3 text-sm text-[#DC2626]"
         >
-          Context sekolah aktif belum tersedia. Pastikan akun admin memiliki membership sekolah.
+          Context sekolah aktif belum tersedia. Pastikan akun admin memiliki
+          membership sekolah.
         </div>
 
         <div
@@ -348,14 +393,24 @@ onMounted(async () => {
         </div>
       </header>
 
-      <section class="grid gap-5 xl:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
+      <section
+        class="grid gap-5 xl:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]"
+      >
         <article class="rounded-[18px] border border-[#EBEBEB] bg-white p-5">
           <div class="flex items-start justify-between gap-4">
             <div>
-              <p class="text-[11px] font-medium uppercase text-[#9CA3AF]">Context kelas</p>
-              <h2 class="mt-2 text-base font-medium text-[#111827]">Pilih periode dan kelas</h2>
+              <p class="text-[11px] font-medium uppercase text-[#9CA3AF]">
+                Context kelas
+              </p>
+              <h2 class="mt-2 text-base font-medium text-[#111827]">
+                Pilih periode dan kelas
+              </h2>
             </div>
-            <PhCalendarBlank :size="22" class="text-[#4F46E5]" weight="duotone" />
+            <PhCalendarBlank
+              :size="22"
+              class="text-[#4F46E5]"
+              weight="duotone"
+            />
           </div>
 
           <div class="mt-5 space-y-4">
@@ -373,7 +428,8 @@ onMounted(async () => {
                   :key="year.academicYearId"
                   :value="year.academicYearId"
                 >
-                  {{ year.academicYearName }}{{ year.isActive ? " - Aktif" : "" }}
+                  {{ year.academicYearName
+                  }}{{ year.isActive ? " - Aktif" : "" }}
                 </option>
               </select>
             </label>
@@ -387,7 +443,11 @@ onMounted(async () => {
                 @change="handleTermChange"
               >
                 <option value="" disabled>Pilih semester</option>
-                <option v-for="term in terms" :key="term.termId" :value="term.termId">
+                <option
+                  v-for="term in terms"
+                  :key="term.termId"
+                  :value="term.termId"
+                >
                   {{ term.termName }}{{ term.isActive ? " - Aktif" : "" }}
                 </option>
               </select>
@@ -414,32 +474,50 @@ onMounted(async () => {
           </div>
 
           <div class="mt-4 space-y-2 text-sm">
-            <p v-if="yearsLoading" class="text-[#6B7280]">Memuat tahun ajaran...</p>
-            <p v-else-if="yearsError" class="text-[#DC2626]">{{ yearsError }}</p>
+            <p v-if="yearsLoading" class="text-[#6B7280]">
+              Memuat tahun ajaran...
+            </p>
+            <p v-else-if="yearsError" class="text-[#DC2626]">
+              {{ yearsError }}
+            </p>
             <p v-else-if="academicYears.length === 0" class="text-[#6B7280]">
               Belum ada tahun ajaran. Buat data akademik terlebih dahulu.
             </p>
 
             <p v-if="termsLoading" class="text-[#6B7280]">Memuat semester...</p>
-            <p v-else-if="termsError" class="text-[#DC2626]">{{ termsError }}</p>
-            <p v-else-if="selectedAcademicYearId && terms.length === 0" class="text-[#6B7280]">
+            <p v-else-if="termsError" class="text-[#DC2626]">
+              {{ termsError }}
+            </p>
+            <p
+              v-else-if="selectedAcademicYearId && terms.length === 0"
+              class="text-[#6B7280]"
+            >
               Belum ada semester untuk tahun ajaran ini.
             </p>
 
             <p v-if="classesLoading" class="text-[#6B7280]">Memuat kelas...</p>
-            <p v-else-if="classesError" class="text-[#DC2626]">{{ classesError }}</p>
-            <p v-else-if="selectedTermId && classes.length === 0" class="text-[#6B7280]">
+            <p v-else-if="classesError" class="text-[#DC2626]">
+              {{ classesError }}
+            </p>
+            <p
+              v-else-if="selectedTermId && classes.length === 0"
+              class="text-[#6B7280]"
+            >
               Belum ada kelas untuk semester ini.
             </p>
           </div>
 
           <div class="mt-5 rounded-[18px] bg-[#FBFAF8] p-4">
-            <p class="text-[11px] font-medium uppercase text-[#9CA3AF]">Context aktif</p>
+            <p class="text-[11px] font-medium uppercase text-[#9CA3AF]">
+              Context aktif
+            </p>
             <div class="mt-3 space-y-2 text-sm text-[#374151]">
               <p>
                 Tahun ajaran:
                 <span class="font-medium text-[#111827]">
-                  {{ selectedAcademicYear?.academicYearName || "Belum dipilih" }}
+                  {{
+                    selectedAcademicYear?.academicYearName || "Belum dipilih"
+                  }}
                 </span>
               </p>
               <p>
@@ -459,15 +537,24 @@ onMounted(async () => {
         </article>
 
         <article class="rounded-[18px] border border-[#EBEBEB] bg-white p-5">
-          <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div
+            class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"
+          >
             <div>
-              <p class="text-[11px] font-medium uppercase text-[#9CA3AF]">Tambah member kelas</p>
-              <h2 class="mt-2 text-base font-medium text-[#111827]">Pilih member sekolah</h2>
+              <p class="text-[11px] font-medium uppercase text-[#9CA3AF]">
+                Tambah member kelas
+              </p>
+              <h2 class="mt-2 text-base font-medium text-[#111827]">
+                Pilih member sekolah
+              </h2>
               <p class="mt-1 text-sm leading-6 text-[#6B7280]">
-                Peran di sini adalah class_role. Enroll teacher ke kelas belum berarti guru tersebut mengampu subject.
+                Peran di sini adalah class_role. Enroll teacher ke kelas belum
+                berarti guru tersebut mengampu subject.
               </p>
             </div>
-            <div class="inline-flex items-center gap-2 rounded-lg bg-[#EEF2FF] px-3 py-2 text-xs font-medium text-[#4F46E5]">
+            <div
+              class="inline-flex items-center gap-2 rounded-lg bg-[#EEF2FF] px-3 py-2 text-xs font-medium text-[#4F46E5]"
+            >
               <PhUsers :size="16" weight="duotone" />
               {{ selectedMembers.length }} dipilih
             </div>
@@ -482,7 +569,7 @@ onMounted(async () => {
                   type="search"
                   placeholder="Nama atau email"
                   class="min-w-0 flex-1 rounded-2xl border border-[#EBEBEB] bg-white px-4 py-3 text-sm text-[#111827] outline-none transition placeholder:text-[#9CA3AF] focus:border-[#4F46E5]"
-                >
+                />
                 <button
                   type="button"
                   class="inline-flex items-center justify-center rounded-2xl border border-[#EBEBEB] bg-white px-4 py-3 text-sm font-medium text-[#374151] transition hover:bg-[#F9FAFB]"
@@ -508,7 +595,10 @@ onMounted(async () => {
           </div>
 
           <div class="mt-5">
-            <div v-if="membersLoading" class="rounded-[18px] bg-[#FBFAF8] p-5 text-sm text-[#6B7280]">
+            <div
+              v-if="membersLoading"
+              class="rounded-[18px] bg-[#FBFAF8] p-5 text-sm text-[#6B7280]"
+            >
               Memuat member sekolah...
             </div>
 
@@ -531,10 +621,11 @@ onMounted(async () => {
               v-else-if="availableMembers.length === 0"
               class="rounded-[18px] bg-[#FBFAF8] p-5 text-sm text-[#6B7280]"
             >
-              Tidak ada member sekolah yang bisa ditambahkan. Semua member yang tampil sudah terdaftar di kelas ini atau belum ada member sekolah.
+              Tidak ada member sekolah yang bisa ditambahkan. Semua member yang
+              tampil sudah terdaftar di kelas ini atau belum ada member sekolah.
             </div>
 
-            <div v-else class="max-h-[420px] space-y-2 overflow-y-auto pr-1">
+            <div v-else class="max-h-105 space-y-2 overflow-y-auto pr-1">
               <label
                 v-for="member in availableMembers"
                 :key="member.schoolUserId"
@@ -545,7 +636,7 @@ onMounted(async () => {
                   class="mt-1 h-4 w-4 rounded border-[#D1D5DB] text-[#4F46E5] focus:ring-[#4F46E5]"
                   :checked="selectedSchoolUserIds.includes(member.schoolUserId)"
                   @change="toggleMember(member.schoolUserId)"
-                >
+                />
                 <span class="min-w-0 flex-1">
                   <span class="block text-sm font-medium text-[#111827]">
                     {{ member.fullName || "Nama member tidak tersedia" }}
@@ -553,7 +644,9 @@ onMounted(async () => {
                   <span class="mt-1 block text-xs text-[#6B7280]">
                     {{ member.email || "Email tidak tersedia" }}
                   </span>
-                  <span class="mt-2 inline-flex rounded-lg bg-white px-2 py-1 text-[11px] font-medium text-[#6B7280]">
+                  <span
+                    class="mt-2 inline-flex rounded-lg bg-white px-2 py-1 text-[11px] font-medium text-[#6B7280]"
+                  >
                     Role sekolah: {{ schoolRolesLabel(member) }}
                   </span>
                 </span>
@@ -580,20 +673,31 @@ onMounted(async () => {
       </section>
 
       <section class="rounded-[18px] border border-[#EBEBEB] bg-white p-5">
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div
+          class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
+        >
           <div>
-            <p class="text-[11px] font-medium uppercase text-[#9CA3AF]">Class enrollment</p>
-            <h2 class="mt-2 text-base font-medium text-[#111827]">Member kelas saat ini</h2>
+            <p class="text-[11px] font-medium uppercase text-[#9CA3AF]">
+              Class enrollment
+            </p>
+            <h2 class="mt-2 text-base font-medium text-[#111827]">
+              Member kelas saat ini
+            </h2>
             <p class="mt-1 text-sm text-[#6B7280]">
-              Daftar ini hanya menampilkan membership kelas. Pengampu subject akan diatur pada fase subject_class assignment.
+              Daftar ini hanya menampilkan membership kelas. Pengampu subject
+              akan diatur pada fase subject_class assignment.
             </p>
           </div>
           <div class="flex flex-wrap gap-2 text-xs font-medium">
-            <span class="inline-flex items-center gap-2 rounded-lg bg-[#ECFDF5] px-3 py-2 text-[#059669]">
+            <span
+              class="inline-flex items-center gap-2 rounded-lg bg-[#ECFDF5] px-3 py-2 text-[#059669]"
+            >
               <PhStudent :size="16" weight="duotone" />
               {{ studentEnrollmentCount }} student
             </span>
-            <span class="inline-flex items-center gap-2 rounded-lg bg-[#EEF2FF] px-3 py-2 text-[#4F46E5]">
+            <span
+              class="inline-flex items-center gap-2 rounded-lg bg-[#EEF2FF] px-3 py-2 text-[#4F46E5]"
+            >
               <PhChalkboardTeacher :size="16" weight="duotone" />
               {{ teacherEnrollmentCount }} teacher
             </span>
@@ -639,7 +743,9 @@ onMounted(async () => {
               <div class="flex items-start justify-between gap-3">
                 <div class="min-w-0">
                   <h3 class="truncate text-sm font-medium text-[#111827]">
-                    {{ enrollment.userFullName || "Nama member tidak tersedia" }}
+                    {{
+                      enrollment.userFullName || "Nama member tidak tersedia"
+                    }}
                   </h3>
                   <p class="mt-1 truncate text-xs text-[#6B7280]">
                     {{ enrollment.userEmail || "Email tidak tersedia" }}
