@@ -113,6 +113,7 @@ Authorization: Bearer <your-jwt-token>
 - `POST /medias/metadata` - Record active-school media metadata
 - `GET /medias/:id` - Get media by ID
 - `DELETE /medias/:id` - Delete active-school media record (admin or uploader)
+- Media attached through `mediaIds` must exist, belong to the active school, and be attachable by the current actor
 
 ## 📖 Materials (Learning Content)
 - `POST /materials` - Create material for current teacher-owned subject class (JSON or multipart form)
@@ -138,11 +139,11 @@ Authorization: Bearer <your-jwt-token>
 
 ## 📝 Assignments & Grading
 ### Categories
-- `POST /assignments/categories` - Create category
+- `POST /assignments/categories` - Create active-school category
 - `GET /assignments/categories/school/:schoolCode` - Get categories by school
 
 ### Assignments
-- `POST /assignments` - Create assignment for current teacher-owned subject class
+- `POST /assignments` - Create assignment for current teacher-owned subject class with active-school category
 - `GET /assignments/subject-class/:subjectClassId` - Get assignments for accessible subject class
 - `GET /assignments/subject-class/submissions/:subjectClassId` - Get submissions grouped by assignment for current teacher subject class
 - `GET /assignments/:assignmentId` - Get assignment with submissions for current teacher-owned subject class

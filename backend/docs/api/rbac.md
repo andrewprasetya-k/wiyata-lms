@@ -259,6 +259,8 @@ Content-Type: application/json
 ****Student submission mutation is limited to the current JWT user's own submission in the active school.
 *****Non-admin media deletion is limited to media owned/uploaded by the current JWT user in the active school.
 
+Media IDs attached to materials, assignments, and submissions are validated before linking: media must exist, belong to the active school, and be attachable by the actor. Non-admin users can attach only their own uploaded media; admins can attach active-school media where admin mutation is allowed. Assignment categories used by assignments must belong to the active school.
+
 ### Subject Class Assignment
 | Endpoint | Method | super_admin | admin | teacher | student |
 |----------|--------|-------------|-------|---------|---------|

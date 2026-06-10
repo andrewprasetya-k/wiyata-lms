@@ -48,6 +48,12 @@ func HandleError(c *gin.Context, err error) {
 		return
 	}
 
+	if strings.Contains(errStr, "invalid media attachment") ||
+		strings.Contains(errStr, "invalid assignment category") {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid or non-existent data reference"})
+		return
+	}
+
 	if strings.Contains(errStr, "forbidden:") {
 		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden"})
 		return

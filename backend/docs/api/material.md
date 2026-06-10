@@ -11,6 +11,7 @@ Create a new learning material for a class with optional attachments.
 - **Role:** `teacher`
 - **School Context:** Requires `SchoolId` header
 - **Authorization:** The current teacher must teach the requested `subjectClassId`. Returns `403` if not.
+- **Attachment Rule:** Existing `mediaIds` must exist, belong to the active school, and be owned/uploaded by the current teacher.
 
 ### Option A: JSON (with existing media IDs or inline media data)
 - **Content-Type:** `application/json`
@@ -98,6 +99,7 @@ Update material details and its attachments.
 - **Role:** `teacher` or `admin`
 - **School Context:** Requires `SchoolId` header
 - **Authorization:** Teacher must teach the material's subject class. Admin can update only active-school materials.
+- **Attachment Rule:** If `mediaIds` is provided, every media must exist and belong to the active school. Teachers can attach only their own uploaded media; admins can attach active-school media.
 - **Body:**
 | Field | Type | Note |
 | :--- | :--- | :--- |

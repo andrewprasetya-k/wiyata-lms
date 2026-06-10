@@ -31,6 +31,9 @@ func (h *AssignmentHandler) CreateCategory(c *gin.Context) {
 		HandleBindingError(c, err)
 		return
 	}
+	if !h.validateRequestSchool(c, input.SchoolID) {
+		return
+	}
 
 	cat := domain.AssignmentCategory{
 		SchoolID: input.SchoolID,
@@ -113,7 +116,7 @@ func (h *AssignmentHandler) CreateAssignment(c *gin.Context) {
 		CreatedBy:           userID,
 	}
 
-	if err := h.service.CreateAssignment(&asg, input.MediaIDs); err != nil {
+	if err := h.service.CreateAssignment(&asg, input.MediaIDs, userID, h.hasActiveRole(c, "admin")); err != nil {
 		HandleError(c, err)
 		return
 	}
@@ -156,7 +159,7 @@ func (h *AssignmentHandler) UpdateAssignment(c *gin.Context) {
 		existing.AllowLateSubmission = *input.AllowLateSubmission
 	}
 
-	if err := h.service.UpdateAssignment(id, existing, input.MediaIDs); err != nil {
+	if err := h.service.UpdateAssignment(id, existing, input.MediaIDs, middleware.GetUserID(c), h.hasActiveRole(c, "admin"), input.CategoryID != nil); err != nil {
 		HandleError(c, err)
 		return
 	}
@@ -505,7 +508,7 @@ func (h *AssignmentHandler) Submit(c *gin.Context) {
 		UserID:       userID,
 	}
 
-	if err := h.service.Submit(&sbm, input.MediaIDs); err != nil {
+	if err := h.service.Submit(&sbm, input.MediaIDs, userID, h.hasActiveRole(c, "admin")); err != nil {
 		if err.Error() == "submission past due" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Cannot submit past deadline"})
 			return
@@ -530,8 +533,13 @@ func (h *AssignmentHandler) UpdateSubmission(c *gin.Context) {
 	if !h.authorizeStudentForSubmission(c, submissionId) {
 		return
 	}
+	userID := middleware.GetUserID(c)
+	if userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
 
-	if err := h.service.UpdateSubmission(submissionId, input.MediaIDs); err != nil {
+	if err := h.service.UpdateSubmission(submissionId, input.MediaIDs, userID, h.hasActiveRole(c, "admin")); err != nil {
 		HandleError(c, err)
 		return
 	}

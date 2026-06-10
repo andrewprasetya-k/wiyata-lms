@@ -8,6 +8,7 @@ import (
 type MediaRepository interface {
 	Create(media *domain.Media) error
 	GetByID(id string) (*domain.Media, error)
+	GetByIDs(ids []string) ([]*domain.Media, error)
 	GetByOwner(ownerType domain.OwnerType, ownerID string) ([]*domain.Media, error)
 	Delete(id string) error
 }
@@ -28,6 +29,12 @@ func (r *mediaRepository) GetByID(id string) (*domain.Media, error) {
 	var media domain.Media
 	err := r.db.Where("med_id = ?", id).First(&media).Error
 	return &media, err
+}
+
+func (r *mediaRepository) GetByIDs(ids []string) ([]*domain.Media, error) {
+	var results []*domain.Media
+	err := r.db.Where("med_id IN ?", ids).Find(&results).Error
+	return results, err
 }
 
 func (r *mediaRepository) GetByOwner(ownerType domain.OwnerType, ownerID string) ([]*domain.Media, error) {

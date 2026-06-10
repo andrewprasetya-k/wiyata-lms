@@ -24,10 +24,10 @@ type UploadFile struct {
 }
 
 type MaterialService interface {
-	Create(ctx context.Context, mat *domain.Material, mediaIDs []string, medias []dto.CreateMediaInline, uploads []UploadFile) error
+	Create(ctx context.Context, mat *domain.Material, mediaIDs []string, medias []dto.CreateMediaInline, uploads []UploadFile, actorUserID string, isAdmin bool) error
 	FindAll(search string, subjectClassID string, page int, limit int) ([]*domain.Material, int64, error)
 	GetByID(id string) (*domain.Material, error)
-	Update(mat *domain.Material, mediaIDs []string) error
+	Update(mat *domain.Material, mediaIDs []string, actorUserID string, isAdmin bool) error
 	Delete(id string) error
 
 	// Progress
@@ -60,8 +60,12 @@ func NewMaterialService(repo repository.MaterialRepository, attService Attachmen
 	}
 }
 
-func (s *materialService) Create(ctx context.Context, mat *domain.Material, mediaIDs []string, medias []dto.CreateMediaInline, uploads []UploadFile) error {
+func (s *materialService) Create(ctx context.Context, mat *domain.Material, mediaIDs []string, medias []dto.CreateMediaInline, uploads []UploadFile, actorUserID string, isAdmin bool) error {
 	mat.Title = strings.TrimSpace(mat.Title)
+
+	if err := validateAttachableMedia(s.mediaRepo, mediaIDs, mat.SchoolID, actorUserID, isAdmin); err != nil {
+		return err
+	}
 
 	if err := s.repo.Create(mat); err != nil {
 		return err
@@ -167,8 +171,14 @@ func (s *materialService) GetByID(id string) (*domain.Material, error) {
 	return mat, nil
 }
 
-func (s *materialService) Update(mat *domain.Material, mediaIDs []string) error {
+func (s *materialService) Update(mat *domain.Material, mediaIDs []string, actorUserID string, isAdmin bool) error {
 	mat.Title = strings.TrimSpace(mat.Title)
+	if mediaIDs != nil {
+		if err := validateAttachableMedia(s.mediaRepo, mediaIDs, mat.SchoolID, actorUserID, isAdmin); err != nil {
+			return err
+		}
+	}
+
 	err := s.repo.Update(mat)
 	if err != nil {
 		return err

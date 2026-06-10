@@ -38,6 +38,8 @@ Upload a file directly to storage (multipart form). The backend uploads to the c
 
 `schoolId` must match the active `SchoolId` header. The backend stores `ownerId` from the JWT user.
 
+When a media record is later attached through `mediaIds` on materials, assignments, or submissions, the media must still exist, belong to the active school, and be attachable by the current actor. Non-admin users can attach only media where `ownerId` is their JWT user ID.
+
 **Object path in storage:** `schools/{schoolId}/{uuid}{ext}`
 
 **Response `201`:**

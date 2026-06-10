@@ -12,6 +12,7 @@ type AssignmentRepository interface {
 	// Category
 	CreateCategory(cat *domain.AssignmentCategory) error
 	GetCategoriesBySchool(schoolID string) ([]*domain.AssignmentCategory, error)
+	AssignmentCategoryBelongsToSchool(categoryID string, schoolID string) (bool, error)
 
 	// Assignment
 	CreateAssignment(asg *domain.Assignment) error
@@ -61,6 +62,14 @@ func (r *assignmentRepository) GetCategoriesBySchool(schoolID string) ([]*domain
 	var cats []*domain.AssignmentCategory
 	err := r.db.Where("asc_sch_id = ?", schoolID).Find(&cats).Error
 	return cats, err
+}
+
+func (r *assignmentRepository) AssignmentCategoryBelongsToSchool(categoryID string, schoolID string) (bool, error) {
+	var count int64
+	err := r.db.Model(&domain.AssignmentCategory{}).
+		Where("asc_id = ? AND asc_sch_id = ?", categoryID, schoolID).
+		Count(&count).Error
+	return count > 0, err
 }
 
 func (r *assignmentRepository) CreateAssignment(asg *domain.Assignment) error {

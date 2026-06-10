@@ -17,21 +17,21 @@ type AssignmentService interface {
 	GetCategoriesBySchool(schoolID string) ([]*domain.AssignmentCategory, error)
 
 	// Assignment
-	CreateAssignment(asg *domain.Assignment, mediaIDs []string) error
+	CreateAssignment(asg *domain.Assignment, mediaIDs []string, actorUserID string, isAdmin bool) error
 	GetAssignmentsBySubjectClass(subjectClassID string, search string, page int, limit int) ([]*domain.Assignment, int64, error)
 	GetAssignmentByID(id string) (*domain.Assignment, error)
 	GetAssignmentWithSubmissions(id string) (*domain.Assignment, error)
 	GetSubjectClassSubmissions(subjectClassID string, schoolID string) ([]*domain.Assignment, error)
 	GetAssignmentStatus(assignmentID string) (map[string]interface{}, error)
-	UpdateAssignment(id string, asg *domain.Assignment, mediaIDs []string) error
+	UpdateAssignment(id string, asg *domain.Assignment, mediaIDs []string, actorUserID string, isAdmin bool, validateCategory bool) error
 	DeleteAssignment(id string) error
 
 	// Submission
-	Submit(sbm *domain.Submission, mediaIDs []string) error
+	Submit(sbm *domain.Submission, mediaIDs []string, actorUserID string, isAdmin bool) error
 	GetSubmissions(asgID string) ([]*domain.Submission, error)
 	GetSubmissionByID(id string) (*domain.Submission, error)
 	GetMySubmissionByAssignment(assignmentID string, userID string, schoolID string) (*domain.Submission, error)
-	UpdateSubmission(id string, mediaIDs []string) error
+	UpdateSubmission(id string, mediaIDs []string, actorUserID string, isAdmin bool) error
 	DeleteSubmission(id string) error
 
 	// Assessment
@@ -43,14 +43,16 @@ type AssignmentService interface {
 type assignmentService struct {
 	repo         repository.AssignmentRepository
 	attService   AttachmentService
+	mediaRepo    repository.MediaRepository
 	notifService NotificationService
 	enrRepo      repository.EnrollmentRepository
 }
 
-func NewAssignmentService(repo repository.AssignmentRepository, attService AttachmentService, notifService NotificationService, enrRepo repository.EnrollmentRepository) AssignmentService {
+func NewAssignmentService(repo repository.AssignmentRepository, attService AttachmentService, mediaRepo repository.MediaRepository, notifService NotificationService, enrRepo repository.EnrollmentRepository) AssignmentService {
 	return &assignmentService{
 		repo:         repo,
 		attService:   attService,
+		mediaRepo:    mediaRepo,
 		notifService: notifService,
 		enrRepo:      enrRepo,
 	}
@@ -64,7 +66,14 @@ func (s *assignmentService) GetCategoriesBySchool(schoolID string) ([]*domain.As
 	return s.repo.GetCategoriesBySchool(schoolID)
 }
 
-func (s *assignmentService) CreateAssignment(asg *domain.Assignment, mediaIDs []string) error {
+func (s *assignmentService) CreateAssignment(asg *domain.Assignment, mediaIDs []string, actorUserID string, isAdmin bool) error {
+	if err := s.validateAssignmentCategory(asg.CategoryID, asg.SchoolID); err != nil {
+		return err
+	}
+	if err := validateAttachableMedia(s.mediaRepo, mediaIDs, asg.SchoolID, actorUserID, isAdmin); err != nil {
+		return err
+	}
+
 	err := s.repo.CreateAssignment(asg)
 	if err != nil {
 		return err
@@ -206,23 +215,36 @@ func (s *assignmentService) GetAssignmentStatus(assignmentID string) (map[string
 	}, nil
 }
 
-func (s *assignmentService) UpdateAssignment(id string, asg *domain.Assignment, mediaIDs []string) error {
+func (s *assignmentService) UpdateAssignment(id string, asg *domain.Assignment, mediaIDs []string, actorUserID string, isAdmin bool, validateCategory bool) error {
 	asg.ID = id
+	if validateCategory {
+		if err := s.validateAssignmentCategory(asg.CategoryID, asg.SchoolID); err != nil {
+			return err
+		}
+	}
+	if mediaIDs != nil {
+		if err := validateAttachableMedia(s.mediaRepo, mediaIDs, asg.SchoolID, actorUserID, isAdmin); err != nil {
+			return err
+		}
+	}
+
 	err := s.repo.UpdateAssignment(asg)
 	if err != nil {
 		return err
 	}
 
-	// Update attachments
-	s.attService.UnlinkBySource(string(domain.SourceAssignment), id)
-	for _, mID := range mediaIDs {
-		att := &domain.Attachment{
-			SchoolID:   asg.SchoolID,
-			SourceID:   id,
-			SourceType: domain.SourceAssignment,
-			MediaID:    mID,
+	if mediaIDs != nil {
+		// Update attachments
+		s.attService.UnlinkBySource(string(domain.SourceAssignment), id)
+		for _, mID := range mediaIDs {
+			att := &domain.Attachment{
+				SchoolID:   asg.SchoolID,
+				SourceID:   id,
+				SourceType: domain.SourceAssignment,
+				MediaID:    mID,
+			}
+			s.attService.Link(att)
 		}
-		s.attService.Link(att)
 	}
 	return nil
 }
@@ -232,7 +254,7 @@ func (s *assignmentService) DeleteAssignment(id string) error {
 	return s.repo.DeleteAssignment(id)
 }
 
-func (s *assignmentService) Submit(sbm *domain.Submission, mediaIDs []string) error {
+func (s *assignmentService) Submit(sbm *domain.Submission, mediaIDs []string, actorUserID string, isAdmin bool) error {
 	sbm.SubmittedAt = time.Now()
 
 	// Check deadline before submitting
@@ -243,6 +265,10 @@ func (s *assignmentService) Submit(sbm *domain.Submission, mediaIDs []string) er
 
 	if !assignment.AllowLateSubmission && assignment.Deadline != nil && assignment.Deadline.Before(sbm.SubmittedAt) {
 		return fmt.Errorf("submission past due")
+	}
+
+	if err := validateAttachableMedia(s.mediaRepo, mediaIDs, sbm.SchoolID, actorUserID, isAdmin); err != nil {
+		return err
 	}
 
 	err = s.repo.UpsertSubmission(sbm)
@@ -328,9 +354,12 @@ func (s *assignmentService) Assess(asm *domain.Assessment) error {
 	return nil
 }
 
-func (s *assignmentService) UpdateSubmission(id string, mediaIDs []string) error {
+func (s *assignmentService) UpdateSubmission(id string, mediaIDs []string, actorUserID string, isAdmin bool) error {
 	sbm, err := s.repo.GetSubmissionByID(id)
 	if err != nil {
+		return err
+	}
+	if err := validateAttachableMedia(s.mediaRepo, mediaIDs, sbm.SchoolID, actorUserID, isAdmin); err != nil {
 		return err
 	}
 
@@ -340,15 +369,17 @@ func (s *assignmentService) UpdateSubmission(id string, mediaIDs []string) error
 		return err
 	}
 
-	s.attService.UnlinkBySource(string(domain.SourceSubmission), id)
-	for _, mID := range mediaIDs {
-		att := &domain.Attachment{
-			SchoolID:   sbm.SchoolID,
-			SourceID:   id,
-			SourceType: domain.SourceSubmission,
-			MediaID:    mID,
+	if mediaIDs != nil {
+		s.attService.UnlinkBySource(string(domain.SourceSubmission), id)
+		for _, mID := range mediaIDs {
+			att := &domain.Attachment{
+				SchoolID:   sbm.SchoolID,
+				SourceID:   id,
+				SourceType: domain.SourceSubmission,
+				MediaID:    mID,
+			}
+			s.attService.Link(att)
 		}
-		s.attService.Link(att)
 	}
 	return nil
 }
@@ -365,4 +396,15 @@ func (s *assignmentService) UpdateAssessment(submissionID string, asm *domain.As
 
 func (s *assignmentService) DeleteAssessment(submissionID string) error {
 	return s.repo.DeleteAssessment(submissionID)
+}
+
+func (s *assignmentService) validateAssignmentCategory(categoryID string, schoolID string) error {
+	allowed, err := s.repo.AssignmentCategoryBelongsToSchool(categoryID, schoolID)
+	if err != nil {
+		return err
+	}
+	if !allowed {
+		return fmt.Errorf("invalid assignment category")
+	}
+	return nil
 }

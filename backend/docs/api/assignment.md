@@ -7,6 +7,8 @@ Base URL: `/api/assignments`
 ### 1. Create Category
 - **URL:** `/categories`
 - **Method:** `POST`
+- **School Context:** Requires `SchoolId` header
+- **Authorization:** `schoolId` in the request body must match the active `SchoolId` header.
 - **Body:** `{"schoolId": "uuid", "categoryName": "Kuis"}`
 
 ### 2. Get Categories by School
@@ -26,6 +28,8 @@ Base URL: `/api/assignments`
 - **School Context:** Requires `SchoolId` header
 - **Auth Note:** Teacher identity is taken from the JWT token. Sending identity fields in the body is ignored or no longer required.
 - **Authorization:** The current teacher must teach the requested `subjectClassId`. Returns `403` if not.
+- **Category Rule:** `categoryId` must exist and belong to the active school.
+- **Attachment Rule:** Every `mediaId` must exist, belong to the active school, and be owned/uploaded by the current teacher.
 - **Body:**
 ```json
 {
@@ -240,6 +244,8 @@ Base URL: `/api/assignments`
 - **Role:** `teacher` or `admin`
 - **School Context:** Requires `SchoolId` header
 - **Authorization:** Teacher must teach the assignment's subject class. Admin can update only active-school assignments.
+- **Category Rule:** If `categoryId` is provided, it must exist and belong to the active school.
+- **Attachment Rule:** If `mediaIds` is provided, every media must exist and belong to the active school. Teachers can attach only their own uploaded media; admins can attach active-school media.
 - **Body:** (all fields optional)
 ```json
 {
@@ -273,6 +279,7 @@ Base URL: `/api/assignments`
 - **School Context:** Requires `SchoolId` header
 - **Auth Note:** Actor identity is taken from the JWT token. Sending identity fields in the body is ignored or no longer required.
 - **Authorization:** Student must be enrolled in the class behind the assignment's subject class. Request `schoolId` must match active `SchoolId`.
+- **Attachment Rule:** Every `mediaId` must exist, belong to the active school, and be owned/uploaded by the current student.
 - **Body:**
 ```json
 {
@@ -300,6 +307,7 @@ Base URL: `/api/assignments`
 - **School Context:** Requires `SchoolId` header
 - **Auth Note:** Actor identity is taken from the JWT token. Sending identity fields in the body is ignored or no longer required.
 - **Authorization:** Submission must belong to the current JWT user and active school. Student must still be enrolled in the assignment class.
+- **Attachment Rule:** Every `mediaId` must exist, belong to the active school, and be owned/uploaded by the current student.
 - **Body:**
 ```json
 {
