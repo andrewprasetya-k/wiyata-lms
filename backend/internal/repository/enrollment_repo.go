@@ -14,6 +14,7 @@ type EnrollmentRepository interface {
 	Delete(id string) error
 	CheckExists(classID, schoolUserID string) (bool, error)
 	BelongsToSchool(enrollmentID string, schoolID string) (bool, error)
+	HasTeacherSubjectClassAssignment(classID string, schoolUserID string, schoolID string) (bool, error)
 	GetStudentUserIDsByClass(classID string) ([]string, error)
 	GetMemberUserIDsByClass(classID string) ([]string, error)
 }
@@ -99,6 +100,16 @@ func (r *enrollmentRepository) BelongsToSchool(enrollmentID string, schoolID str
 	var count int64
 	err := r.db.Model(&domain.Enrollment{}).
 		Where("enr_id = ? AND enr_sch_id = ?", enrollmentID, schoolID).
+		Count(&count).Error
+	return count > 0, err
+}
+
+func (r *enrollmentRepository) HasTeacherSubjectClassAssignment(classID string, schoolUserID string, schoolID string) (bool, error) {
+	var count int64
+	err := r.db.Table("edv.subject_classes sc").
+		Joins("JOIN edv.classes c ON c.cls_id = sc.scl_cls_id").
+		Where("sc.scl_cls_id = ? AND sc.scl_scu_id = ?", classID, schoolUserID).
+		Where("c.cls_sch_id = ? AND c.deleted_at IS NULL", schoolID).
 		Count(&count).Error
 	return count > 0, err
 }

@@ -5,6 +5,7 @@ import {
   PhChalkboardTeacher,
   PhMagnifyingGlass,
   PhStudent,
+  PhTrash,
   PhUsers,
   PhWarningCircle,
 } from "@phosphor-icons/vue";
@@ -17,6 +18,7 @@ import { getAdminClasses } from "../../services/adminClass";
 import { getSchoolMembers } from "../../services/adminUser";
 import {
   createClassEnrollments,
+  deleteEnrollment,
   getClassEnrollments,
 } from "../../services/adminEnrollment";
 import type { AcademicYearItem, TermItem } from "../../types/adminAcademic";
@@ -60,6 +62,7 @@ const selectedClassId = ref("");
 const selectedSchoolUserIds = ref<string[]>([]);
 const classRole = ref<ClassEnrollmentRole | "">("student");
 const memberSearch = ref("");
+const pendingUnenroll = ref<EnrollmentMemberItem | null>(null);
 
 const yearsLoading = ref(false);
 const termsLoading = ref(false);
@@ -67,6 +70,7 @@ const classesLoading = ref(false);
 const membersLoading = ref(false);
 const enrollmentsLoading = ref(false);
 const submitting = ref(false);
+const unenrollingId = ref("");
 
 const yearsError = ref("");
 const termsError = ref("");
@@ -131,6 +135,14 @@ function schoolRolesLabel(member: SchoolMemberItem) {
   return member.roles?.length
     ? member.roles.join(", ")
     : "Role sekolah belum tersedia";
+}
+
+function unenrollConfirmationCopy(enrollment: EnrollmentMemberItem) {
+  if (enrollment.role === "teacher") {
+    return "Teacher akan dikeluarkan dari kelas. Jika teacher masih ditugaskan mengajar subject di kelas ini, lepaskan penugasan mengajar terlebih dahulu.";
+  }
+
+  return "Member ini akan dikeluarkan dari kelas. Akses ke materi, tugas, dan nilai kelas ini akan berhenti, tetapi histori submission/nilai tidak dihapus.";
 }
 
 function toggleMember(schoolUserId: string) {
@@ -256,6 +268,7 @@ async function loadEnrollments() {
   enrollments.value = [];
   enrollmentsError.value = "";
   selectedSchoolUserIds.value = [];
+  pendingUnenroll.value = null;
 
   if (!selectedClassId.value) return;
 
@@ -324,6 +337,45 @@ async function submitEnrollment() {
     toast.error("Member belum bisa ditambahkan ke kelas.");
   } finally {
     submitting.value = false;
+  }
+}
+
+function requestUnenroll(enrollment: EnrollmentMemberItem) {
+  pendingUnenroll.value = enrollment;
+}
+
+function cancelUnenroll() {
+  pendingUnenroll.value = null;
+}
+
+function getErrorMessage(error: unknown) {
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "response" in error &&
+    typeof (error as { response?: { data?: { error?: unknown } } }).response
+      ?.data?.error === "string"
+  ) {
+    return (error as { response: { data: { error: string } } }).response.data
+      .error;
+  }
+
+  return "Member belum bisa dikeluarkan dari kelas.";
+}
+
+async function confirmUnenroll(enrollment: EnrollmentMemberItem) {
+  if (!enrollment.enrollmentId || unenrollingId.value) return;
+
+  unenrollingId.value = enrollment.enrollmentId;
+  try {
+    await deleteEnrollment(enrollment.enrollmentId);
+    toast.success("Member berhasil dikeluarkan dari kelas.");
+    pendingUnenroll.value = null;
+    await loadEnrollments();
+  } catch (error) {
+    toast.error(getErrorMessage(error));
+  } finally {
+    unenrollingId.value = "";
   }
 }
 
@@ -748,12 +800,54 @@ onMounted(async () => {
                   {{ classRoleLabel(enrollment.role) }}
                 </span>
               </div>
-              <p class="mt-3 text-xs text-[#6B7280]">
-                Bergabung:
-                <span class="font-medium text-[#374151]">
-                  {{ formatDateTime(enrollment.joinedAt) }}
-                </span>
-              </p>
+              <div class="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <p class="text-xs text-[#6B7280]">
+                  Bergabung:
+                  <span class="font-medium text-[#374151]">
+                    {{ formatDateTime(enrollment.joinedAt) }}
+                  </span>
+                </p>
+                <button
+                  type="button"
+                  class="inline-flex items-center justify-center gap-2 rounded-xl border border-[#FECACA] bg-white px-3 py-2 text-xs font-medium text-[#DC2626] transition hover:bg-[#FEF2F2] disabled:cursor-not-allowed disabled:opacity-60"
+                  :disabled="Boolean(unenrollingId)"
+                  @click="requestUnenroll(enrollment)"
+                >
+                  <PhTrash :size="14" weight="duotone" />
+                  Keluarkan
+                </button>
+              </div>
+
+              <div
+                v-if="pendingUnenroll?.enrollmentId === enrollment.enrollmentId"
+                class="mt-3 rounded-2xl border border-[#FECACA] bg-[#FEF2F2] p-3"
+              >
+                <p class="text-xs leading-5 text-[#991B1B]">
+                  {{ unenrollConfirmationCopy(enrollment) }}
+                </p>
+                <div class="mt-3 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    class="rounded-xl bg-[#DC2626] px-3 py-2 text-xs font-medium text-white transition hover:bg-[#B91C1C] disabled:cursor-not-allowed disabled:opacity-60"
+                    :disabled="unenrollingId === enrollment.enrollmentId"
+                    @click="confirmUnenroll(enrollment)"
+                  >
+                    {{
+                      unenrollingId === enrollment.enrollmentId
+                        ? "Mengeluarkan..."
+                        : "Ya, keluarkan"
+                    }}
+                  </button>
+                  <button
+                    type="button"
+                    class="rounded-xl border border-[#FECACA] bg-white px-3 py-2 text-xs font-medium text-[#991B1B] transition hover:bg-[#FEE2E2]"
+                    :disabled="unenrollingId === enrollment.enrollmentId"
+                    @click="cancelUnenroll"
+                  >
+                    Batal
+                  </button>
+                </div>
+              </div>
             </article>
           </div>
         </div>

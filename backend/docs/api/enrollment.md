@@ -91,7 +91,12 @@ Base URL: `/api/enrollments`
 - **Method:** `DELETE`
 - **Auth:** Required (`admin` in active `SchoolId` context)
 - **Ownership rules:** Enrollment must belong to the active school.
-- **Note:** Removes member from class
+- **Safety rules:**
+  - Student enrollment can be removed without deleting submissions, assessments, grades, materials, assignments, or subject classes.
+  - Teacher enrollment cannot be removed while the teacher is still assigned to any `subject_class` in the same class. Unassign the subject teaching assignment first.
+- **Delete behavior:** Hard deletes the enrollment row. The member can be added to the class again later through enrollment.
+- **Response `409`:** Teacher is still assigned to teach a subject in this class.
+- **Note:** Removes member from class and stops class-derived access.
 
 ---
 
@@ -101,3 +106,4 @@ Base URL: `/api/enrollments`
 - **Role Management:** Support for teacher and student roles
 - **Bidirectional Queries:** Get by class or by member
 - **Class Context:** Enrollment list includes class header
+- **History Preservation:** Unenroll does not delete academic history such as submissions, assessments, or grades.

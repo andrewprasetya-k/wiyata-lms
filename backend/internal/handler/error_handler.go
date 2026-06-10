@@ -60,6 +60,11 @@ func HandleError(c *gin.Context, err error) {
 	}
 
 	// Cannot delete due to dependencies
+	if strings.Contains(errStr, "teacher subject class assignment exists") {
+		c.JSON(http.StatusConflict, gin.H{"error": "Teacher masih ditugaskan mengajar di kelas ini. Lepaskan penugasan mengajar terlebih dahulu."})
+		return
+	}
+
 	if strings.Contains(errStr, "tidak bisa dihapus karena") || strings.Contains(errStr, "cannot be deleted") {
 		c.JSON(http.StatusConflict, gin.H{"error": "Cannot delete this data because it is still being used by other records"})
 		return

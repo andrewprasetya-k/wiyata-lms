@@ -310,7 +310,9 @@ account, but it does not grant school membership, roles, or enrollment.
 | `/enrollments/:id` | DELETE | ❌ | ✅* | ❌ | ❌ |
 
 *Enrollment access is scoped to the active `SchoolId`. Classes, school users,
-and enrollment records must belong to the active school.
+and enrollment records must belong to the active school. Admin unenroll preserves
+academic history and blocks teacher removal while the teacher is still assigned
+to any subject_class in the same class.
 
 ---
 

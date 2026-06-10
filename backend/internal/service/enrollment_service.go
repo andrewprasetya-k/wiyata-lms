@@ -4,6 +4,7 @@ import (
 	"backend/internal/domain"
 	"backend/internal/repository"
 	"errors"
+	"fmt"
 )
 
 type EnrollmentService interface {
@@ -105,6 +106,21 @@ func (s *enrollmentService) Unenroll(id string, schoolID string) error {
 	if err := s.ensureEnrollmentInSchool(id, schoolID); err != nil {
 		return err
 	}
+
+	enrollment, err := s.repo.GetByID(id)
+	if err != nil {
+		return err
+	}
+	if enrollment.Role == "teacher" {
+		hasAssignment, err := s.repo.HasTeacherSubjectClassAssignment(enrollment.ClassID, enrollment.SchoolUserID, schoolID)
+		if err != nil {
+			return err
+		}
+		if hasAssignment {
+			return fmt.Errorf("teacher subject class assignment exists")
+		}
+	}
+
 	return s.repo.Delete(id)
 }
 

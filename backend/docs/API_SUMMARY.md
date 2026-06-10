@@ -106,7 +106,7 @@ Authorization: Bearer <your-jwt-token>
 - `GET /enrollments/member/:schoolUserId` - Get active-school classes by member
 - `GET /enrollments/:id` - Get enrollment by ID within active school
 - `PATCH /enrollments/:id` - Update enrollment role within active school (admin)
-- `DELETE /enrollments/:id` - Unenroll member within active school (admin)
+- `DELETE /enrollments/:id` - Unenroll member within active school (admin; blocks teacher if still assigned to subject_class)
 
 ## 📁 Media & Files
 - `POST /medias/upload` - Upload active-school file (multipart form; owner from JWT)
