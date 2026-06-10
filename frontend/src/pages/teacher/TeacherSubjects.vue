@@ -36,10 +36,10 @@ onMounted(loadSubjects);
 </script>
 
 <template>
-  <main class="min-h-screen flex-1 px-5 py-8 md:px-8 lg:px-10">
-    <section class="mx-auto flex max-w-7xl flex-col gap-6">
+  <main class="min-h-screen flex-1 px-5 py-5 sm:px-6 lg:px-8">
+    <section class="flex w-full max-w-none flex-col gap-5">
       <header
-        class="rounded-4xl bg-[#f0e9dd] px-6 py-7 shadow-sm ring-1 ring-black/5 md:px-8"
+        class="rounded-[22px] bg-[#f0e9dd] px-5 py-5 shadow-sm ring-1 ring-black/5 md:px-6"
       >
         <p class="text-sm font-medium text-[#8a6d3b]">Teaching workspace</p>
         <h1 class="mt-3 text-3xl font-medium text-[#171322] md:text-4xl">
@@ -54,14 +54,14 @@ onMounted(loadSubjects);
 
       <section
         v-if="loading"
-        class="rounded-[28px] bg-white p-6 shadow-sm ring-1 ring-black/5"
+        class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5"
       >
         <p class="text-sm text-[#6b6475]">Memuat subject yang diajar...</p>
       </section>
 
       <section
         v-else-if="errorMessage"
-        class="rounded-[28px] bg-white p-6 shadow-sm ring-1 ring-black/5"
+        class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5"
       >
         <div
           class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
@@ -93,7 +93,7 @@ onMounted(loadSubjects);
 
       <section
         v-else-if="!hasSubjects"
-        class="rounded-[28px] bg-white p-6 shadow-sm ring-1 ring-black/5"
+        class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5"
       >
         <h2 class="text-lg font-medium text-[#171322]">
           Belum ada subject yang diajar
@@ -110,7 +110,7 @@ onMounted(loadSubjects);
           v-for="subject in subjects"
           :key="subject.subjectClassId"
           :to="`/teacher/subjects/${subject.subjectClassId}`"
-          class="group rounded-[30px] bg-white p-5 shadow-sm ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:shadow-md"
+          class="group rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:shadow-md"
         >
           <div class="flex items-start justify-between gap-4">
             <div

@@ -1,155 +1,175 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { 
-  PhArrowLeft, 
-  PhClipboardText, 
-  PhFileText, 
-  PhPaperPlaneTilt, 
+import { computed, onMounted, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import {
+  PhArrowLeft,
+  PhClipboardText,
+  PhFileText,
+  PhPaperPlaneTilt,
   PhInfo,
   PhCalendarBlank,
-  PhClock
-} from '@phosphor-icons/vue'
-import { useAuthStore } from '../../stores/auth'
-import { getMyTeachingSubjectClassById } from '../../services/teacherSubjects'
-import { getAssignmentCategories, createAssignment } from '../../services/teacherAssignment'
-import { createMaterial } from '../../services/teacherMaterial'
-import { deleteMedia } from '../../services/media'
-import MediaUploader from '../../components/common/MediaUploader.vue'
-import type { TeacherSubjectClass } from '../../types/teacherSubjects'
-import type { AssignmentCategory } from '../../types/teacherAssignment'
+  PhClock,
+} from "@phosphor-icons/vue";
+import { useAuthStore } from "../../stores/auth";
+import { getMyTeachingSubjectClassById } from "../../services/teacherSubjects";
+import {
+  getAssignmentCategories,
+  createAssignment,
+} from "../../services/teacherAssignment";
+import { createMaterial } from "../../services/teacherMaterial";
+import { deleteMedia } from "../../services/media";
+import MediaUploader from "../../components/common/MediaUploader.vue";
+import type { TeacherSubjectClass } from "../../types/teacherSubjects";
+import type { AssignmentCategory } from "../../types/teacherAssignment";
 
-const route = useRoute()
-const router = useRouter()
-const auth = useAuthStore()
+const route = useRoute();
+const router = useRouter();
+const auth = useAuthStore();
 
-const subjectClassId = computed(() => String(route.params.subjectClassId ?? ''))
-const subject = ref<TeacherSubjectClass | null>(null)
-const categories = ref<AssignmentCategory[]>([])
-const activeTab = ref<'material' | 'assignment'>('material')
-const loading = ref(false)
-const submitting = ref(false)
-const errorMessage = ref('')
-const categoryErrorMessage = ref('')
-const uploaderKey = ref(0)
-const isUploadingMedia = ref(false)
-const hasMediaUploadError = ref(false)
-const activeSchoolId = computed(() => auth.activeSchoolId ?? auth.defaultContext?.schoolId ?? '')
+const subjectClassId = computed(() =>
+  String(route.params.subjectClassId ?? ""),
+);
+const subject = ref<TeacherSubjectClass | null>(null);
+const categories = ref<AssignmentCategory[]>([]);
+const activeTab = ref<"material" | "assignment">("material");
+const loading = ref(false);
+const submitting = ref(false);
+const errorMessage = ref("");
+const categoryErrorMessage = ref("");
+const uploaderKey = ref(0);
+const isUploadingMedia = ref(false);
+const hasMediaUploadError = ref(false);
+const activeSchoolId = computed(
+  () => auth.activeSchoolId ?? auth.defaultContext?.schoolId ?? "",
+);
 const activeSchoolCode = computed(() => {
   const activeMembership = auth.memberships.find(
     (membership) => membership.school.id === activeSchoolId.value,
-  )
-  return activeMembership?.school.code ?? ''
-})
-const hasRequiredContext = computed(() => Boolean(activeSchoolId.value && subjectClassId.value && subject.value))
+  );
+  return activeMembership?.school.code ?? "";
+});
+const hasRequiredContext = computed(() =>
+  Boolean(activeSchoolId.value && subjectClassId.value && subject.value),
+);
 const isSubmitDisabled = computed(
   () =>
     submitting.value ||
     !hasRequiredContext.value ||
     isUploadingMedia.value ||
     hasMediaUploadError.value ||
-    (activeTab.value === 'assignment' && categories.value.length === 0),
-)
+    (activeTab.value === "assignment" && categories.value.length === 0),
+);
 
 // Form State
 const form = ref({
-  title: '',
-  description: '',
-  materialType: 'pdf' as 'pdf' | 'video' | 'ppt' | 'other',
-  categoryId: '',
-  deadlineDate: '',
-  deadlineTime: '23:59',
+  title: "",
+  description: "",
+  materialType: "pdf" as "pdf" | "video" | "ppt" | "other",
+  categoryId: "",
+  deadlineDate: "",
+  deadlineTime: "23:59",
   allowLate: false,
-  mediaIds: [] as string[]
-})
+  mediaIds: [] as string[],
+});
 
 async function loadInitialData() {
-  loading.value = true
-  errorMessage.value = ''
-  categoryErrorMessage.value = ''
+  loading.value = true;
+  errorMessage.value = "";
+  categoryErrorMessage.value = "";
 
   try {
     if (!subjectClassId.value) {
-      errorMessage.value = 'Konteks subject belum tersedia. Pilih subject terlebih dahulu.'
-      return
+      errorMessage.value =
+        "Konteks subject belum tersedia. Pilih subject terlebih dahulu.";
+      return;
     }
     if (!activeSchoolId.value) {
-      errorMessage.value = 'Konteks sekolah belum tersedia. Silakan login ulang.'
-      return
+      errorMessage.value =
+        "Konteks sekolah belum tersedia. Silakan login ulang.";
+      return;
     }
 
-    const subjectData = await getMyTeachingSubjectClassById(subjectClassId.value)
+    const subjectData = await getMyTeachingSubjectClassById(
+      subjectClassId.value,
+    );
     if (!subjectData) {
-      errorMessage.value = 'Subject ini tidak tersedia untuk akun guru pada school aktif.'
-      return
+      errorMessage.value =
+        "Subject ini tidak tersedia untuk akun guru pada school aktif.";
+      return;
     }
-    subject.value = subjectData
+    subject.value = subjectData;
 
     if (!activeSchoolCode.value) {
-      categoryErrorMessage.value = 'Kode sekolah aktif belum tersedia. Kategori tugas tidak bisa dimuat.'
-      return
+      categoryErrorMessage.value =
+        "Kode sekolah aktif belum tersedia. Kategori tugas tidak bisa dimuat.";
+      return;
     }
 
     try {
-      const categoriesData = await getAssignmentCategories(activeSchoolCode.value)
-      categories.value = categoriesData.categories
+      const categoriesData = await getAssignmentCategories(
+        activeSchoolCode.value,
+      );
+      categories.value = categoriesData.categories;
       if (categories.value.length > 0) {
-        form.value.categoryId = categories.value[0].categoryId
+        form.value.categoryId = categories.value[0].categoryId;
       }
     } catch {
-      categories.value = []
-      categoryErrorMessage.value = 'Kategori tugas belum bisa dimuat.'
+      categories.value = [];
+      categoryErrorMessage.value = "Kategori tugas belum bisa dimuat.";
     }
   } catch (err) {
-    errorMessage.value = 'Gagal memuat data pendukung. Coba refresh halaman.'
+    errorMessage.value = "Gagal memuat data pendukung. Coba refresh halaman.";
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
 
 async function handleSubmit() {
-  errorMessage.value = ''
+  errorMessage.value = "";
 
   if (!activeSchoolId.value) {
-    errorMessage.value = 'Konteks sekolah belum tersedia. Silakan login ulang.'
-    return
+    errorMessage.value = "Konteks sekolah belum tersedia. Silakan login ulang.";
+    return;
   }
   if (!subjectClassId.value || !subject.value) {
-    errorMessage.value = 'Konteks subject belum tersedia. Pilih subject terlebih dahulu.'
-    return
+    errorMessage.value =
+      "Konteks subject belum tersedia. Pilih subject terlebih dahulu.";
+    return;
   }
   if (!form.value.title.trim()) {
-    errorMessage.value = 'Judul wajib diisi.'
-    return
+    errorMessage.value = "Judul wajib diisi.";
+    return;
   }
   if (isUploadingMedia.value) {
-    errorMessage.value = 'Tunggu sampai upload selesai sebelum menerbitkan.'
-    return
+    errorMessage.value = "Tunggu sampai upload selesai sebelum menerbitkan.";
+    return;
   }
   if (hasMediaUploadError.value) {
-    errorMessage.value = 'Ada lampiran yang gagal diunggah. Hapus atau unggah ulang file tersebut.'
-    return
+    errorMessage.value =
+      "Ada lampiran yang gagal diunggah. Hapus atau unggah ulang file tersebut.";
+    return;
   }
-  if (activeTab.value === 'assignment' && !form.value.categoryId) {
-    errorMessage.value = 'Kategori tugas belum tersedia. Tambahkan kategori terlebih dahulu sebelum membuat tugas.'
-    return
+  if (activeTab.value === "assignment" && !form.value.categoryId) {
+    errorMessage.value =
+      "Kategori tugas belum tersedia. Tambahkan kategori terlebih dahulu sebelum membuat tugas.";
+    return;
   }
 
-  submitting.value = true
+  submitting.value = true;
   try {
-    if (activeTab.value === 'material') {
+    if (activeTab.value === "material") {
       await createMaterial({
         schoolId: activeSchoolId.value,
         subjectClassId: subjectClassId.value,
         materialTitle: form.value.title,
         materialDesc: form.value.description,
         materialType: form.value.materialType,
-        mediaIds: form.value.mediaIds
-      })
+        mediaIds: form.value.mediaIds,
+      });
     } else {
-      let deadline = undefined
+      let deadline = undefined;
       if (form.value.deadlineDate) {
-        deadline = `${form.value.deadlineDate}T${form.value.deadlineTime}:00Z`
+        deadline = `${form.value.deadlineDate}T${form.value.deadlineTime}:00Z`;
       }
 
       await createAssignment({
@@ -160,112 +180,129 @@ async function handleSubmit() {
         assignmentDescription: form.value.description,
         deadline,
         allowLateSubmission: form.value.allowLate,
-        mediaIds: form.value.mediaIds
-      })
+        mediaIds: form.value.mediaIds,
+      });
     }
-    
-    router.push(`/teacher/subjects/${subjectClassId.value}`)
+
+    router.push(`/teacher/subjects/${subjectClassId.value}`);
   } catch (err) {
-    const uploadedMediaIds = [...form.value.mediaIds]
+    const uploadedMediaIds = [...form.value.mediaIds];
     if (uploadedMediaIds.length > 0) {
       await Promise.allSettled(
         uploadedMediaIds.map(async (mediaId) => {
           try {
-            await deleteMedia(mediaId)
+            await deleteMedia(mediaId);
           } catch (cleanupError) {
-            console.warn('Failed to cleanup uploaded teacher content media', mediaId, cleanupError)
+            console.warn(
+              "Failed to cleanup uploaded teacher content media",
+              mediaId,
+              cleanupError,
+            );
           }
         }),
-      )
-      form.value.mediaIds = []
-      isUploadingMedia.value = false
-      hasMediaUploadError.value = false
-      uploaderKey.value += 1
+      );
+      form.value.mediaIds = [];
+      isUploadingMedia.value = false;
+      hasMediaUploadError.value = false;
+      uploaderKey.value += 1;
     }
 
     errorMessage.value =
       getErrorMessage(err) ??
-      'Gagal menyimpan konten. Jika lampiran sudah terunggah, lampiran perlu dipilih ulang.'
+      "Gagal menyimpan konten. Jika lampiran sudah terunggah, lampiran perlu dipilih ulang.";
   } finally {
-    submitting.value = false
+    submitting.value = false;
   }
 }
 
 function getErrorMessage(error: unknown) {
-  if (typeof error === 'object' && error !== null && 'response' in error) {
-    const response = (error as { response?: { data?: { error?: string; message?: string } } })
-      .response
-    return response?.data?.error ?? response?.data?.message
+  if (typeof error === "object" && error !== null && "response" in error) {
+    const response = (
+      error as { response?: { data?: { error?: string; message?: string } } }
+    ).response;
+    return response?.data?.error ?? response?.data?.message;
   }
-  return undefined
+  return undefined;
 }
 
-onMounted(loadInitialData)
+onMounted(loadInitialData);
 </script>
 
 <template>
-  <main class="min-h-screen flex-1 px-5 py-8 md:px-8 lg:px-10">
-    <div class="mx-auto max-w-5xl">
+  <main class="min-h-screen flex-1 px-4 py-5 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-6xl">
       <!-- Topbar / Breadcrumb -->
-      <div class="flex items-center justify-between mb-8">
+      <div class="mb-5 flex items-center justify-between">
         <div class="flex items-center gap-4">
-          <button 
-            @click="router.back()" 
+          <button
+            @click="router.back()"
             class="flex items-center gap-2 text-sm font-medium text-[#6B7280] hover:text-[#111827] transition"
           >
             <PhArrowLeft :size="18" />
-            <span class="hidden sm:inline">{{ subject?.subjectName || 'Kembali' }}</span>
+            <span class="hidden sm:inline">{{
+              subject?.subjectName || "Kembali"
+            }}</span>
           </button>
           <span class="text-[#D1D5DB]">/</span>
           <h1 class="text-sm font-semibold text-[#111827]">Buat Konten Baru</h1>
         </div>
-        
+
         <div class="flex items-center gap-3">
-          <button 
+          <button
             @click="router.back()"
             class="px-4 py-2 text-sm font-medium text-[#374151] bg-white border border-[#EBEBEB] rounded-xl hover:bg-[#F9FAFB] transition"
           >
             Batal
           </button>
-          <button 
+          <button
             @click="handleSubmit"
             :disabled="isSubmitDisabled"
             class="flex items-center gap-2 px-5 py-2 text-sm font-medium text-white bg-[#4F46E5] rounded-xl hover:bg-[#4338CA] transition disabled:opacity-50"
           >
             <PhPaperPlaneTilt v-if="!submitting" :size="18" weight="bold" />
-            {{ submitting ? 'Menyimpan...' : 'Terbitkan' }}
+            {{ submitting ? "Menyimpan..." : "Terbitkan" }}
           </button>
         </div>
       </div>
 
       <div
         v-if="errorMessage"
-        class="mb-6 rounded-3xl border border-[#FECACA] bg-[#FEF2F2] p-4 text-sm leading-6 text-[#B42318]"
+        class="mb-5 rounded-[18px] border border-[#FECACA] bg-[#FEF2F2] p-4 text-sm leading-6 text-[#B42318]"
       >
         {{ errorMessage }}
       </div>
 
-      <div v-if="loading" class="rounded-3xl bg-white p-6 text-sm text-[#6B7280] shadow-sm ring-1 ring-black/5">
+      <div
+        v-if="loading"
+        class="rounded-[18px] bg-white p-5 text-sm text-[#6B7280] shadow-sm ring-1 ring-black/5"
+      >
         Memuat data pendukung...
       </div>
 
       <!-- Type Switcher -->
-      <div v-if="!loading" class="flex gap-2 p-1.5 bg-[#F3F4F6] rounded-2xl mb-8 w-fit">
-        <button 
+      <div
+        v-if="!loading"
+        class="mb-5 flex w-fit gap-2 rounded-2xl bg-[#F3F4F6] p-1.5"
+      >
+        <button
           @click="activeTab = 'material'"
           :class="[
             'flex items-center gap-2 px-6 py-2.5 text-sm font-medium rounded-xl transition',
-            activeTab === 'material' ? 'bg-white text-[#4F46E5] shadow-sm' : 'text-[#6B7280] hover:text-[#111827]'
+            activeTab === 'material'
+              ? 'bg-white text-[#4F46E5] shadow-sm'
+              : 'text-[#6B7280] hover:text-[#111827]',
           ]"
         >
           <PhFileText :size="18" weight="duotone" />
           Materi
         </button>
-        <button 
+        <button
           @click="activeTab = 'assignment'"
           :class="[
             'flex items-center gap-2 px-6 py-2.5 text-sm font-medium rounded-xl transition',
-            activeTab === 'assignment' ? 'bg-white text-[#4F46E5] shadow-sm' : 'text-[#6B7280] hover:text-[#111827]'
+            activeTab === 'assignment'
+              ? 'bg-white text-[#4F46E5] shadow-sm'
+              : 'text-[#6B7280] hover:text-[#111827]',
           ]"
         >
           <PhClipboardText :size="18" weight="duotone" />
@@ -273,29 +310,38 @@ onMounted(loadInitialData)
         </button>
       </div>
 
-      <div v-if="!loading" class="grid gap-8 lg:grid-cols-[1fr_320px]">
+      <div v-if="!loading" class="grid gap-5 lg:grid-cols-[1fr_320px]">
         <!-- Main Form -->
-        <div class="space-y-6">
-          <section class="bg-white rounded-3xl p-6 border border-[#EBEBEB] shadow-sm">
-            <h2 class="text-xs font-bold text-[#374151] uppercase tracking-wider mb-6 flex items-center gap-2">
+        <div class="space-y-5">
+          <section
+            class="rounded-[18px] border border-[#EBEBEB] bg-white p-5 shadow-sm"
+          >
+            <h2
+              class="mb-5 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#374151]"
+            >
               <PhInfo :size="16" weight="bold" />
               Informasi Utama
             </h2>
-            
+
             <div class="space-y-5">
               <div>
-                <label class="block text-sm font-medium text-[#6B7280] mb-2">Judul {{ activeTab === 'material' ? 'Materi' : 'Tugas' }}</label>
-                <input 
+                <label class="block text-sm font-medium text-[#6B7280] mb-2"
+                  >Judul
+                  {{ activeTab === "material" ? "Materi" : "Tugas" }}</label
+                >
+                <input
                   v-model="form.title"
-                  type="text" 
+                  type="text"
                   class="w-full px-4 py-3 bg-[#F9FAFB] border border-[#EBEBEB] rounded-2xl outline-none focus:border-[#4F46E5] transition"
                   placeholder="Contoh: Pengenalan Aljabar Linear"
                 />
               </div>
 
               <div>
-                <label class="block text-sm font-medium text-[#6B7280] mb-2">Deskripsi (Opsional)</label>
-                <textarea 
+                <label class="block text-sm font-medium text-[#6B7280] mb-2"
+                  >Deskripsi (Opsional)</label
+                >
+                <textarea
                   v-model="form.description"
                   rows="5"
                   class="w-full px-4 py-3 bg-[#F9FAFB] border border-[#EBEBEB] rounded-2xl outline-none focus:border-[#4F46E5] transition resize-none"
@@ -305,12 +351,16 @@ onMounted(loadInitialData)
             </div>
           </section>
 
-          <section class="bg-white rounded-3xl p-6 border border-[#EBEBEB] shadow-sm">
-            <h2 class="text-xs font-bold text-[#374151] uppercase tracking-wider mb-6 flex items-center gap-2">
+          <section
+            class="rounded-[18px] border border-[#EBEBEB] bg-white p-5 shadow-sm"
+          >
+            <h2
+              class="mb-5 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#374151]"
+            >
               <PhFileText :size="16" weight="bold" />
               Lampiran & Media
             </h2>
-            
+
             <MediaUploader
               v-if="hasRequiredContext"
               :key="uploaderKey"
@@ -321,8 +371,12 @@ onMounted(loadInitialData)
               cleanup-on-remove
               @update:media-ids="form.mediaIds = $event"
             />
-            <p v-else class="rounded-2xl bg-[#FEF2F2] p-4 text-sm leading-6 text-[#B42318]">
-              Lampiran belum bisa diunggah sampai konteks school dan subject tersedia.
+            <p
+              v-else
+              class="rounded-2xl bg-[#FEF2F2] p-4 text-sm leading-6 text-[#B42318]"
+            >
+              Lampiran belum bisa diunggah sampai konteks school dan subject
+              tersedia.
             </p>
             <p
               v-if="isUploadingMedia"
@@ -334,20 +388,29 @@ onMounted(loadInitialData)
               v-if="hasMediaUploadError"
               class="mt-3 rounded-2xl bg-[#FEF2F2] p-4 text-sm leading-6 text-[#B42318]"
             >
-              Ada lampiran yang gagal diunggah. Hapus atau unggah ulang file tersebut.
+              Ada lampiran yang gagal diunggah. Hapus atau unggah ulang file
+              tersebut.
             </p>
           </section>
         </div>
 
         <!-- Sidebar Settings -->
-        <aside class="space-y-6">
-          <section class="bg-white rounded-3xl p-6 border border-[#EBEBEB] shadow-sm">
-            <h2 class="text-xs font-bold text-[#374151] uppercase tracking-wider mb-6">Pengaturan</h2>
-            
+        <aside class="space-y-5">
+          <section
+            class="rounded-[18px] border border-[#EBEBEB] bg-white p-5 shadow-sm"
+          >
+            <h2
+              class="mb-5 text-xs font-bold uppercase tracking-wider text-[#374151]"
+            >
+              Pengaturan
+            </h2>
+
             <div v-if="activeTab === 'material'" class="space-y-4">
               <div>
-                <label class="block text-xs font-medium text-[#6B7280] mb-2">Tipe Materi</label>
-                <select 
+                <label class="block text-xs font-medium text-[#6B7280] mb-2"
+                  >Tipe Materi</label
+                >
+                <select
                   v-model="form.materialType"
                   class="w-full px-3 py-2.5 bg-[#F9FAFB] border border-[#EBEBEB] rounded-xl outline-none text-sm"
                 >
@@ -361,13 +424,19 @@ onMounted(loadInitialData)
 
             <div v-else class="space-y-5">
               <div>
-                <label class="block text-xs font-medium text-[#6B7280] mb-2">Kategori Tugas</label>
-                <select 
+                <label class="block text-xs font-medium text-[#6B7280] mb-2"
+                  >Kategori Tugas</label
+                >
+                <select
                   v-model="form.categoryId"
                   :disabled="categories.length === 0"
                   class="w-full px-3 py-2.5 bg-[#F9FAFB] border border-[#EBEBEB] rounded-xl outline-none text-sm"
                 >
-                  <option v-for="cat in categories" :key="cat.categoryId" :value="cat.categoryId">
+                  <option
+                    v-for="cat in categories"
+                    :key="cat.categoryId"
+                    :value="cat.categoryId"
+                  >
                     {{ cat.categoryName }}
                   </option>
                 </select>
@@ -375,26 +444,34 @@ onMounted(loadInitialData)
                   v-if="categoryErrorMessage || categories.length === 0"
                   class="mt-2 text-xs leading-5 text-[#B42318]"
                 >
-                  {{ categoryErrorMessage || 'Kategori tugas belum tersedia.' }}
+                  {{ categoryErrorMessage || "Kategori tugas belum tersedia." }}
                 </p>
               </div>
 
               <div>
-                <label class="block text-xs font-medium text-[#6B7280] mb-2">Deadline</label>
+                <label class="block text-xs font-medium text-[#6B7280] mb-2"
+                  >Deadline</label
+                >
                 <div class="space-y-2">
                   <div class="relative">
-                    <PhCalendarBlank :size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF]" />
-                    <input 
+                    <PhCalendarBlank
+                      :size="16"
+                      class="absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF]"
+                    />
+                    <input
                       v-model="form.deadlineDate"
-                      type="date" 
+                      type="date"
                       class="w-full pl-10 pr-3 py-2 bg-[#F9FAFB] border border-[#EBEBEB] rounded-xl outline-none text-sm"
                     />
                   </div>
                   <div class="relative">
-                    <PhClock :size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF]" />
-                    <input 
+                    <PhClock
+                      :size="16"
+                      class="absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF]"
+                    />
+                    <input
                       v-model="form.deadlineTime"
-                      type="time" 
+                      type="time"
                       class="w-full pl-10 pr-3 py-2 bg-[#F9FAFB] border border-[#EBEBEB] rounded-xl outline-none text-sm"
                     />
                   </div>
@@ -402,22 +479,28 @@ onMounted(loadInitialData)
               </div>
 
               <div class="pt-2 border-t border-[#F3F4F6]">
-                <label class="flex items-center justify-between cursor-pointer group">
+                <label
+                  class="flex items-center justify-between cursor-pointer group"
+                >
                   <div class="space-y-0.5">
-                    <p class="text-xs font-medium text-[#374151]">Izinkan Terlambat</p>
-                    <p class="text-[10px] text-[#9CA3AF]">Siswa tetap bisa submit</p>
+                    <p class="text-xs font-medium text-[#374151]">
+                      Izinkan Terlambat
+                    </p>
+                    <p class="text-[10px] text-[#9CA3AF]">
+                      Siswa tetap bisa submit
+                    </p>
                   </div>
-                  <div 
+                  <div
                     @click="form.allowLate = !form.allowLate"
                     :class="[
                       'w-10 h-5 rounded-full relative transition duration-200',
-                      form.allowLate ? 'bg-[#4F46E5]' : 'bg-[#E5E7EB]'
+                      form.allowLate ? 'bg-[#4F46E5]' : 'bg-[#E5E7EB]',
                     ]"
                   >
-                    <div 
+                    <div
                       :class="[
                         'absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition transform duration-200',
-                        form.allowLate ? 'translate-x-5' : 'translate-x-0'
+                        form.allowLate ? 'translate-x-5' : 'translate-x-0',
                       ]"
                     ></div>
                   </div>
@@ -427,11 +510,17 @@ onMounted(loadInitialData)
           </section>
 
           <!-- Status Card -->
-          <div class="bg-[#FFF7ED] border border-[#FED7AA] rounded-3xl p-5">
-            <h3 class="text-xs font-bold text-[#EA580C] uppercase tracking-wider mb-3">Status Publikasi</h3>
+          <div class="rounded-[18px] border border-[#FED7AA] bg-[#FFF7ED] p-5">
+            <h3
+              class="mb-3 text-xs font-bold uppercase tracking-wider text-[#EA580C]"
+            >
+              Status Publikasi
+            </h3>
             <p class="text-[11px] leading-relaxed text-[#9A3412]">
-              Konten ini akan langsung tersedia bagi siswa yang terdaftar di kelas 
-              <strong>{{ subject?.className }}</strong> segera setelah diterbitkan.
+              Konten ini akan langsung tersedia bagi siswa yang terdaftar di
+              kelas
+              <strong>{{ subject?.className }}</strong> segera setelah
+              diterbitkan.
             </p>
           </div>
         </aside>

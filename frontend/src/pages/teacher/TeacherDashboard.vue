@@ -92,10 +92,10 @@ onMounted(loadDashboard);
 </script>
 
 <template>
-  <main class="min-h-screen flex-1 px-5 py-8 md:px-8 lg:px-10">
-    <section class="mx-auto flex max-w-7xl flex-col gap-6">
+  <main class="min-h-screen flex-1 px-5 py-5 sm:px-6 lg:px-8">
+    <section class="flex w-full max-w-none flex-col gap-5">
       <div
-        class="rounded-4xl bg-[#f0e9dd] px-6 py-7 shadow-sm ring-1 ring-black/5 md:px-8"
+        class="rounded-[22px] bg-[#f0e9dd] px-5 py-5 shadow-sm ring-1 ring-black/5 md:px-6"
       >
         <div
           class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between"
@@ -125,7 +125,7 @@ onMounted(loadDashboard);
 
       <div
         v-if="!schoolUserId"
-        class="rounded-[28px] bg-white p-6 shadow-sm ring-1 ring-black/5"
+        class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5"
       >
         <div class="flex items-start gap-3">
           <PhWarningCircle
@@ -150,7 +150,7 @@ onMounted(loadDashboard);
           <article
             v-for="item in stats"
             :key="item.label"
-            class="rounded-[28px] bg-white p-5 shadow-sm ring-1 ring-black/5"
+            class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5"
           >
             <div
               class="mb-5 flex h-11 w-11 items-center justify-center rounded-2xl text-white"
@@ -170,14 +170,14 @@ onMounted(loadDashboard);
 
         <div
           v-if="loading"
-          class="rounded-[28px] bg-white p-6 shadow-sm ring-1 ring-black/5"
+          class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5"
         >
           <p class="text-sm text-[#6b6475]">Memuat data dashboard guru...</p>
         </div>
 
         <div
           v-else-if="errorMessage"
-          class="rounded-[28px] bg-white p-6 shadow-sm ring-1 ring-black/5"
+          class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5"
         >
           <div
             class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
@@ -200,9 +200,9 @@ onMounted(loadDashboard);
           </div>
         </div>
 
-        <div class="grid gap-6 xl:grid-cols-[1.35fr_0.75fr]">
+        <div class="grid gap-5 xl:grid-cols-[1.35fr_0.75fr]">
           <section
-            class="rounded-4xl bg-white p-6 shadow-sm ring-1 ring-black/5"
+            class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5"
           >
             <div
               class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between"
@@ -231,7 +231,7 @@ onMounted(loadDashboard);
               <article
                 v-for="item in summary.classPerformance"
                 :key="`${item.classId}-${item.subjectName}`"
-                class="rounded-[28px] bg-[#faf8f4] p-5 ring-1 ring-black/5"
+                class="rounded-[18px] bg-[#faf8f4] p-5 ring-1 ring-black/5"
               >
                 <div
                   class="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl text-white"
@@ -272,7 +272,7 @@ onMounted(loadDashboard);
               </article>
             </div>
 
-            <div v-else class="mt-6 rounded-[28px] bg-[#faf8f4] p-6">
+            <div v-else class="mt-5 rounded-[18px] bg-[#faf8f4] p-5">
               <h3 class="text-lg font-medium text-[#171322]">
                 Belum ada ringkasan subject
               </h3>
@@ -286,7 +286,7 @@ onMounted(loadDashboard);
 
           <aside class="flex flex-col gap-4">
             <article
-              class="rounded-[28px] bg-white p-5 shadow-sm ring-1 ring-black/5"
+              class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5"
             >
               <div class="flex items-center gap-3">
                 <div
@@ -306,7 +306,7 @@ onMounted(loadDashboard);
             </article>
 
             <article
-              class="rounded-[28px] bg-white p-5 shadow-sm ring-1 ring-black/5"
+              class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5"
             >
               <div class="flex items-center gap-3">
                 <div

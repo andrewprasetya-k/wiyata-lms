@@ -118,8 +118,8 @@ onMounted(loadWorkspace)
 </script>
 
 <template>
-  <main class="min-h-screen flex-1 px-5 py-8 md:px-8 lg:px-10">
-    <section class="mx-auto flex max-w-6xl flex-col gap-6">
+  <main class="min-h-screen flex-1 px-5 py-5 sm:px-6 lg:px-8">
+    <section class="flex w-full max-w-none flex-col gap-5">
       <RouterLink
         to="/teacher/subjects"
         class="inline-flex items-center gap-2 self-start text-sm font-medium text-[#6b6475] transition hover:text-[#171322]"
@@ -128,7 +128,7 @@ onMounted(loadWorkspace)
         Kembali ke subjects
       </RouterLink>
 
-      <header class="rounded-[32px] bg-white p-6 shadow-sm ring-1 ring-black/5 md:p-8">
+      <header class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5 md:p-6">
         <div
           class="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl text-white"
           :style="{ backgroundColor: getSubjectColor(subjectClassId) }"
@@ -163,11 +163,11 @@ onMounted(loadWorkspace)
         </div>
       </header>
 
-      <section v-if="loading" class="rounded-[28px] bg-white p-6 shadow-sm ring-1 ring-black/5">
+      <section v-if="loading" class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5">
         <p class="text-sm text-[#6b6475]">Memuat workspace subject...</p>
       </section>
 
-      <section v-else-if="errorMessage" class="rounded-[28px] bg-white p-6 shadow-sm ring-1 ring-black/5">
+      <section v-else-if="errorMessage" class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5">
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div class="flex items-start gap-3">
             <PhWarningCircle :size="24" class="mt-0.5 text-[#e58f86]" weight="duotone" />
@@ -188,7 +188,7 @@ onMounted(loadWorkspace)
 
       <section
         v-else-if="!subject"
-        class="rounded-[28px] bg-white p-6 shadow-sm ring-1 ring-black/5"
+        class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5"
       >
         <h2 class="text-lg font-medium text-[#171322]">Subject tidak ditemukan</h2>
         <p class="mt-2 text-sm leading-6 text-[#6b6475]">
@@ -220,7 +220,7 @@ onMounted(loadWorkspace)
           </article>
         </section>
 
-        <section class="rounded-[32px] bg-white p-5 shadow-sm ring-1 ring-black/5 md:p-6">
+        <section class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5">
           <div class="flex flex-wrap gap-2 border-b border-[#ece8df] pb-4">
             <button
               v-for="tab in tabs"
@@ -243,7 +243,7 @@ onMounted(loadWorkspace)
             <div v-if="activeTab === 'materials'" class="space-y-3">
               <div
                 v-if="materials.length === 0"
-                class="rounded-[24px] bg-[#faf8f4] p-6 text-center"
+                class="rounded-[18px] bg-[#faf8f4] p-5 text-center"
               >
                 <PhFileText :size="30" class="mx-auto text-[#b5afbf]" weight="duotone" />
                 <h2 class="mt-3 text-lg font-medium text-[#171322]">Belum ada materi</h2>
@@ -256,7 +256,7 @@ onMounted(loadWorkspace)
                 v-for="material in materials"
                 v-else
                 :key="material.materialId"
-                class="rounded-[24px] bg-[#faf8f4] p-5 ring-1 ring-black/5"
+                class="rounded-[18px] bg-[#faf8f4] p-5 ring-1 ring-black/5"
               >
                 <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div>
@@ -292,7 +292,7 @@ onMounted(loadWorkspace)
             <div v-else-if="activeTab === 'assignments'" class="space-y-3">
               <div
                 v-if="assignments.length === 0"
-                class="rounded-[24px] bg-[#faf8f4] p-6 text-center"
+                class="rounded-[18px] bg-[#faf8f4] p-5 text-center"
               >
                 <PhClipboardText :size="30" class="mx-auto text-[#b5afbf]" weight="duotone" />
                 <h2 class="mt-3 text-lg font-medium text-[#171322]">Belum ada tugas</h2>
@@ -305,7 +305,7 @@ onMounted(loadWorkspace)
                 v-for="assignment in assignments"
                 v-else
                 :key="assignment.assignmentId"
-                class="rounded-[24px] bg-[#faf8f4] p-5 ring-1 ring-black/5"
+                class="rounded-[18px] bg-[#faf8f4] p-5 ring-1 ring-black/5"
               >
                 <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div>
@@ -351,7 +351,7 @@ onMounted(loadWorkspace)
             </div>
 
             <div v-else class="space-y-3">
-              <div class="rounded-[24px] bg-[#faf8f4] p-5 text-sm leading-6 text-[#6b6475]">
+              <div class="rounded-[18px] bg-[#faf8f4] p-5 text-sm leading-6 text-[#6b6475]">
                 Pengumpulan siswa dikelompokkan berdasarkan tugas pada subject ini. Halaman ini
                 masih read-only untuk daftar pengumpulan, dan review tersedia dari tombol di setiap
                 tugas yang sudah memiliki pengumpulan.
@@ -377,14 +377,14 @@ onMounted(loadWorkspace)
 
               <div
                 v-if="submissionsLoading"
-                class="rounded-[24px] bg-white p-6 text-sm text-[#6b6475] ring-1 ring-black/5"
+                class="rounded-[18px] bg-white p-5 text-sm text-[#6b6475] ring-1 ring-black/5"
               >
                 Memuat pengumpulan...
               </div>
 
               <div
                 v-else-if="submissionsError"
-                class="rounded-[24px] bg-white p-6 ring-1 ring-black/5"
+                class="rounded-[18px] bg-white p-5 ring-1 ring-black/5"
               >
                 <h2 class="text-lg font-medium text-[#171322]">Pengumpulan gagal dimuat</h2>
                 <p class="mt-2 text-sm leading-6 text-[#6b6475]">{{ submissionsError }}</p>
@@ -392,7 +392,7 @@ onMounted(loadWorkspace)
 
               <div
                 v-else-if="submissionCount === 0"
-                class="rounded-[24px] bg-white p-6 text-center ring-1 ring-black/5"
+                class="rounded-[18px] bg-white p-5 text-center ring-1 ring-black/5"
               >
                 <PhCheckCircle :size="30" class="mx-auto text-[#b5afbf]" weight="duotone" />
                 <h2 class="mt-3 text-lg font-medium text-[#171322]">Belum ada pengumpulan</h2>
@@ -405,7 +405,7 @@ onMounted(loadWorkspace)
                 v-for="group in visibleSubmissionGroups"
                 v-else
                 :key="group.assignment.assignmentId"
-                class="rounded-[24px] bg-white p-5 ring-1 ring-black/5"
+                class="rounded-[18px] bg-white p-5 ring-1 ring-black/5"
               >
                 <div class="flex flex-col gap-3 border-b border-[#ece8df] pb-4 sm:flex-row sm:items-start sm:justify-between">
                   <div>
