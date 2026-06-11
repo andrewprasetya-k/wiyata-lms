@@ -400,7 +400,7 @@ onMounted(async () => {
               Admin sekolah
             </p>
             <h1 class="mt-2 text-2xl font-medium text-[#111827]">
-              Penempatan Kelas
+              Student Assignment
             </h1>
             <p class="mt-2 max-w-3xl text-sm leading-6 text-[#6B7280]">
               Tempatkan member sekolah ke kelas sebagai student atau teacher.
@@ -428,7 +428,6 @@ onMounted(async () => {
           Context sekolah aktif belum tersedia. Pastikan akun admin memiliki
           membership sekolah.
         </div>
-
       </header>
 
       <section
@@ -800,7 +799,9 @@ onMounted(async () => {
                   {{ classRoleLabel(enrollment.role) }}
                 </span>
               </div>
-              <div class="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div
+                class="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+              >
                 <p class="text-xs text-[#6B7280]">
                   Bergabung:
                   <span class="font-medium text-[#374151]">
