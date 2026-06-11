@@ -5,6 +5,7 @@ import {
   PhCalendarBlank,
   PhChalkboardTeacher,
   PhLinkSimple,
+  PhTrash,
   PhUsers,
   PhWarningCircle,
 } from "@phosphor-icons/vue";
@@ -19,6 +20,7 @@ import { getClassEnrollments } from "../../services/adminEnrollment";
 import { getSchoolMembers } from "../../services/adminUser";
 import {
   assignSubjectClass,
+  deleteSubjectClass,
   getSubjectClassesByClass,
 } from "../../services/adminSubjectClass";
 import type { AcademicYearItem, SubjectItem, TermItem } from "../../types/adminAcademic";
@@ -60,6 +62,7 @@ const selectedTermId = ref("");
 const selectedClassId = ref("");
 const selectedSubjectId = ref("");
 const selectedTeacherSchoolUserId = ref("");
+const pendingUnassign = ref<SubjectClassItem | null>(null);
 
 const yearsLoading = ref(false);
 const termsLoading = ref(false);
@@ -69,6 +72,7 @@ const membersLoading = ref(false);
 const enrollmentsLoading = ref(false);
 const subjectClassesLoading = ref(false);
 const submitting = ref(false);
+const unassigningId = ref("");
 
 const yearsError = ref("");
 const termsError = ref("");
@@ -131,6 +135,21 @@ const selectedTeacher = computed(
 
 function normalizeRoleName(roleName: string) {
   return roleName.trim().toLowerCase();
+}
+
+function getErrorMessage(error: unknown) {
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "response" in error &&
+    typeof (error as { response?: { data?: { error?: unknown } } }).response
+      ?.data?.error === "string"
+  ) {
+    return (error as { response: { data: { error: string } } }).response.data
+      .error;
+  }
+
+  return "Penugasan mengajar belum bisa dilepas.";
 }
 
 function resetAssignmentForm() {
@@ -265,6 +284,7 @@ async function loadClassContext() {
   subjectClassesError.value = "";
   selectedSubjectId.value = "";
   selectedTeacherSchoolUserId.value = "";
+  pendingUnassign.value = null;
 
   if (!selectedClassId.value) return;
 
@@ -343,6 +363,30 @@ async function submitSubjectClass() {
     );
   } finally {
     submitting.value = false;
+  }
+}
+
+function requestUnassign(subjectClass: SubjectClassItem) {
+  pendingUnassign.value = subjectClass;
+}
+
+function cancelUnassign() {
+  pendingUnassign.value = null;
+}
+
+async function confirmUnassign(subjectClass: SubjectClassItem) {
+  if (!subjectClass.subjectClassId || unassigningId.value) return;
+
+  unassigningId.value = subjectClass.subjectClassId;
+  try {
+    await deleteSubjectClass(subjectClass.subjectClassId);
+    toast.success("Penugasan mengajar berhasil dilepas.");
+    pendingUnassign.value = null;
+    await loadClassContext();
+  } catch (error) {
+    toast.error(getErrorMessage(error));
+  } finally {
+    unassigningId.value = "";
   }
 }
 
@@ -690,11 +734,53 @@ onMounted(async () => {
                     </span>
                   </p>
                 </div>
-                <PhChalkboardTeacher
-                  :size="22"
-                  class="shrink-0 text-[#4F46E5]"
-                  weight="duotone"
-                />
+                <div class="flex shrink-0 flex-col items-end gap-2">
+                  <PhChalkboardTeacher
+                    :size="22"
+                    class="text-[#4F46E5]"
+                    weight="duotone"
+                  />
+                  <button
+                    type="button"
+                    class="inline-flex items-center justify-center gap-2 rounded-xl border border-[#FECACA] bg-white px-3 py-2 text-xs font-medium text-[#DC2626] transition hover:bg-[#FEF2F2] disabled:cursor-not-allowed disabled:opacity-60"
+                    :disabled="Boolean(unassigningId)"
+                    @click="requestUnassign(subjectClass)"
+                  >
+                    <PhTrash :size="14" weight="duotone" />
+                    Lepaskan
+                  </button>
+                </div>
+              </div>
+
+              <div
+                v-if="pendingUnassign?.subjectClassId === subjectClass.subjectClassId"
+                class="mt-3 rounded-2xl border border-[#FECACA] bg-[#FEF2F2] p-3"
+              >
+                <p class="text-xs leading-5 text-[#991B1B]">
+                  Penugasan mengajar ini akan dilepas. Teacher tidak lagi melihat workspace subject ini. Materi, tugas, submission, dan nilai tidak akan dihapus.
+                </p>
+                <div class="mt-3 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    class="rounded-xl bg-[#DC2626] px-3 py-2 text-xs font-medium text-white transition hover:bg-[#B91C1C] disabled:cursor-not-allowed disabled:opacity-60"
+                    :disabled="unassigningId === subjectClass.subjectClassId"
+                    @click="confirmUnassign(subjectClass)"
+                  >
+                    {{
+                      unassigningId === subjectClass.subjectClassId
+                        ? "Melepaskan..."
+                        : "Ya, lepaskan"
+                    }}
+                  </button>
+                  <button
+                    type="button"
+                    class="rounded-xl border border-[#FECACA] bg-white px-3 py-2 text-xs font-medium text-[#991B1B] transition hover:bg-[#FEE2E2]"
+                    :disabled="unassigningId === subjectClass.subjectClassId"
+                    @click="cancelUnassign"
+                  >
+                    Batal
+                  </button>
+                </div>
               </div>
             </article>
           </div>

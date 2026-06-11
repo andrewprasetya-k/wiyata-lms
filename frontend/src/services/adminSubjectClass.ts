@@ -15,3 +15,8 @@ export async function assignSubjectClass(payload: AssignSubjectClassPayload) {
   const { data } = await api.post("/subject-classes/assign", payload);
   return data;
 }
+
+export async function deleteSubjectClass(subjectClassId: string) {
+  const { data } = await api.delete(`/subject-classes/${subjectClassId}`);
+  return data;
+}
