@@ -141,3 +141,10 @@ Update subject or teacher for an existing subject_class.
 - **Method:** `DELETE`
 - **Auth:** Required (`admin` in active `SchoolId` context)
 - **Ownership rules:** Subject class must belong to the active school.
+- **Safety rules:**
+  - Subject class can be removed only when it has no active-school materials or assignments.
+  - If materials or assignments exist, the API returns `409 Conflict`.
+  - Removing an empty subject class is intended for setup mistakes.
+  - Materials, assignments, submissions, assessments, and grades are never deleted by this endpoint.
+- **Delete behavior:** Hard deletes the subject_class row only when it has no content.
+- **Response `409`:** Subject class still has material or assignment content.

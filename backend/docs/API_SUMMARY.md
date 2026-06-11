@@ -98,7 +98,7 @@ Authorization: Bearer <your-jwt-token>
 - `GET /subject-classes/class/:classId` - Get subject classes by active-school class
 - `GET /subject-classes/:id` - Get subject class detail within active school
 - `PATCH /subject-classes/:id` - Update subject class assignment within active school (admin)
-- `DELETE /subject-classes/:id` - Unassign subject class within active school (admin)
+- `DELETE /subject-classes/:id` - Unassign empty subject class within active school (admin; blocked if materials or assignments exist)
 
 ## 👥 Enrollments (Class Members)
 - `POST /enrollments` - Enroll active-school members to an active-school class (admin, bulk)

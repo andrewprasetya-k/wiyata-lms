@@ -65,6 +65,11 @@ func HandleError(c *gin.Context, err error) {
 		return
 	}
 
+	if strings.Contains(errStr, "subject class has content") {
+		c.JSON(http.StatusConflict, gin.H{"error": "Subject class masih memiliki materi atau tugas. Arsip/nonaktifkan subject class belum didukung."})
+		return
+	}
+
 	if strings.Contains(errStr, "tidak bisa dihapus karena") || strings.Contains(errStr, "cannot be deleted") {
 		c.JSON(http.StatusConflict, gin.H{"error": "Cannot delete this data because it is still being used by other records"})
 		return

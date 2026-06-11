@@ -14,6 +14,7 @@ type SubjectClassRepository interface {
 	Delete(id string) error
 	CheckExists(classID, subjectID, schoolUserID string) (bool, error)
 	CheckClassSubjectExists(classID string, subjectID string, excludeID string) (bool, error)
+	HasSubjectClassContent(subjectClassID string, schoolID string) (bool, error)
 	GetClassIDBySubjectClass(subjectClassID string) (string, error)
 	TeacherTeachesInClass(schoolUserID string, classID string) (bool, error)
 	TeacherOwnsSubjectClass(userID string, schoolID string, subjectClassID string) (bool, error)
@@ -153,6 +154,26 @@ func (r *subjectClassRepository) CheckClassSubjectExists(classID string, subject
 	}
 	err := query.Count(&count).Error
 	return count > 0, err
+}
+
+func (r *subjectClassRepository) HasSubjectClassContent(subjectClassID string, schoolID string) (bool, error) {
+	var materialCount int64
+	if err := r.db.Table("edv.materials").
+		Where("mat_scl_id = ? AND mat_sch_id = ? AND deleted_at IS NULL", subjectClassID, schoolID).
+		Count(&materialCount).Error; err != nil {
+		return false, err
+	}
+	if materialCount > 0 {
+		return true, nil
+	}
+
+	var assignmentCount int64
+	if err := r.db.Table("edv.assignments").
+		Where("asg_scl_id = ? AND asg_sch_id = ? AND deleted_at IS NULL", subjectClassID, schoolID).
+		Count(&assignmentCount).Error; err != nil {
+		return false, err
+	}
+	return assignmentCount > 0, nil
 }
 
 func (r *subjectClassRepository) GetClassIDBySubjectClass(subjectClassID string) (string, error) {

@@ -188,7 +188,7 @@ func (h *SubjectClassHandler) Unassign(c *gin.Context) {
 		HandleError(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "Assignment removed successfully"})
+	c.JSON(http.StatusOK, gin.H{"message": "Berhasil unassign teacher"})
 }
 
 func getSubjectClassActiveSchoolID(c *gin.Context) (string, bool) {

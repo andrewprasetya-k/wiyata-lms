@@ -133,6 +133,13 @@ func (s *subjectClassService) UnassignInSchool(id string, schoolID string) error
 	if err := s.ensureSubjectClassInSchool(id, schoolID); err != nil {
 		return err
 	}
+	hasContent, err := s.repo.HasSubjectClassContent(id, schoolID)
+	if err != nil {
+		return err
+	}
+	if hasContent {
+		return fmt.Errorf("subject class has content")
+	}
 	return s.repo.Delete(id)
 }
 
