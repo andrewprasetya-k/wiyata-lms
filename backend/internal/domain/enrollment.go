@@ -14,6 +14,7 @@ type Enrollment struct {
 	Class        Class      `gorm:"foreignKey:ClassID;references:ID" json:"class,omitempty"`
 	Role         string     `gorm:"column:enr_role;type:class_role" json:"role"` // teacher or student
 	JoinedAt     time.Time  `gorm:"column:joined_at;autoCreateTime" json:"joinedAt"`
+	LeftAt       *time.Time `gorm:"column:left_at" json:"leftAt,omitempty"`
 }
 
 func (Enrollment) TableName() string {

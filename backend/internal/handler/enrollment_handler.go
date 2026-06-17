@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"backend/internal/domain"
 	"backend/internal/dto"
 	"backend/internal/service"
 	"net/http"
@@ -73,16 +74,7 @@ func (h *EnrollmentHandler) GetByClass(c *gin.Context) {
 
 	var membersDTO []dto.EnrollmentResponseDTO
 	for _, r := range results {
-		membersDTO = append(membersDTO, dto.EnrollmentResponseDTO{
-			ID:           r.ID,
-			SchoolID:     r.SchoolID,
-			SchoolUserID: r.SchoolUserID,
-			UserFullName: r.SchoolUser.User.FullName,
-			UserEmail:    r.SchoolUser.User.Email,
-			ClassID:      r.ClassID,
-			Role:         r.Role,
-			JoinedAt:     r.JoinedAt.Format("02-01-2006 15:04:05"),
-		})
+		membersDTO = append(membersDTO, h.mapToResponse(r))
 	}
 
 	totalPages := (total + int64(limit) - 1) / int64(limit)
@@ -121,15 +113,7 @@ func (h *EnrollmentHandler) GetByMember(c *gin.Context) {
 
 	var response []dto.EnrollmentResponseDTO
 	for _, r := range results {
-		response = append(response, dto.EnrollmentResponseDTO{
-			ID:           r.ID,
-			SchoolID:     r.SchoolID,
-			SchoolUserID: r.SchoolUserID,
-			ClassID:      r.ClassID,
-			ClassTitle:   r.Class.Title,
-			Role:         r.Role,
-			JoinedAt:     r.JoinedAt.Format("02-01-2006 15:04:05"),
-		})
+		response = append(response, h.mapToResponse(r))
 	}
 
 	c.JSON(http.StatusOK, response)
@@ -149,17 +133,7 @@ func (h *EnrollmentHandler) GetByID(c *gin.Context) {
 		return
 	}
 
-	response := dto.EnrollmentResponseDTO{
-		ID:           r.ID,
-		SchoolID:     r.SchoolID,
-		SchoolUserID: r.SchoolUserID,
-		UserFullName: r.SchoolUser.User.FullName,
-		UserEmail:    r.SchoolUser.User.Email,
-		ClassID:      r.ClassID,
-		ClassTitle:   r.Class.Title,
-		Role:         r.Role,
-		JoinedAt:     r.JoinedAt.Format("02-01-2006 15:04:05"),
-	}
+	response := h.mapToResponse(r)
 
 	c.JSON(http.StatusOK, response)
 }
@@ -208,4 +182,26 @@ func getActiveSchoolID(c *gin.Context) (string, bool) {
 	}
 	schoolID, ok := value.(string)
 	return schoolID, ok && schoolID != ""
+}
+
+func (h *EnrollmentHandler) mapToResponse(r *domain.Enrollment) dto.EnrollmentResponseDTO {
+	response := dto.EnrollmentResponseDTO{
+		ID:           r.ID,
+		SchoolID:     r.SchoolID,
+		SchoolUserID: r.SchoolUserID,
+		ClassID:      r.ClassID,
+		Role:         r.Role,
+		JoinedAt:     r.JoinedAt.Format("02-01-2006 15:04:05"),
+	}
+	if r.SchoolUser.User.ID != "" {
+		response.UserFullName = r.SchoolUser.User.FullName
+		response.UserEmail = r.SchoolUser.User.Email
+	}
+	if r.Class.ID != "" {
+		response.ClassTitle = r.Class.Title
+	}
+	if r.LeftAt != nil {
+		response.LeftAt = r.LeftAt.Format("02-01-2006 15:04:05")
+	}
+	return response
 }

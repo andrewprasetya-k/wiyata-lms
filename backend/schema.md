@@ -198,6 +198,7 @@ enr_scu_id uuid [ref: > school_users.scu_id]
 enr_cls_id uuid [ref: > classes.cls_id]
 enr_role class_role
 joined_at timestamp [default: `now()`]
+left_at timestamp
 
 indexes {
 (enr_scu_id, enr_cls_id) [unique]

@@ -101,12 +101,12 @@ Authorization: Bearer <your-jwt-token>
 - `DELETE /subject-classes/:id` - Unassign empty subject class within active school (admin; blocked if materials or assignments exist)
 
 ## 👥 Enrollments (Class Members)
-- `POST /enrollments` - Enroll active-school members to an active-school class (admin, bulk)
-- `GET /enrollments/class/:classId` - Get active-school members by class
-- `GET /enrollments/member/:schoolUserId` - Get active-school classes by member
+- `POST /enrollments` - Enroll or reactivate active-school members to an active-school class (admin, bulk; reactivation preserves original joined_at)
+- `GET /enrollments/class/:classId` - Get active class members by class
+- `GET /enrollments/member/:schoolUserId` - Get active classes by member
 - `GET /enrollments/:id` - Get enrollment by ID within active school
 - `PATCH /enrollments/:id` - Update enrollment role within active school (admin)
-- `DELETE /enrollments/:id` - Unenroll member within active school (admin; blocks teacher if still assigned to subject_class)
+- `DELETE /enrollments/:id` - Soft-unenroll member within active school by setting `left_at` (admin; blocks teacher if still assigned to subject_class)
 
 ## 📁 Media & Files
 - `POST /medias/upload` - Upload active-school file (multipart form; owner from JWT)

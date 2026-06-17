@@ -5,6 +5,8 @@ import (
 	"backend/internal/repository"
 	"errors"
 	"fmt"
+
+	"gorm.io/gorm"
 )
 
 type EnrollmentService interface {
@@ -39,13 +41,18 @@ func (s *enrollmentService) Enroll(schoolID string, classID string, schoolUserID
 			return err
 		}
 
-		// 1. Validasi: Apakah sudah terdaftar di kelas ini?
-		already, err := s.repo.CheckExists(classID, scuID)
-		if err != nil {
+		existing, err := s.repo.GetByClassAndSchoolUser(classID, scuID)
+		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 			return err
 		}
-		if already {
-			continue // Jika sudah ada, lewati user ini
+		if err == nil {
+			if existing.LeftAt == nil {
+				continue // already actively enrolled
+			}
+			if err := s.repo.Reactivate(existing.ID, role); err != nil {
+				return err
+			}
+			continue
 		}
 
 		enr := domain.Enrollment{
@@ -96,7 +103,7 @@ func (s *enrollmentService) GetByMemberInSchool(schoolUserID string, schoolID st
 }
 
 func (s *enrollmentService) Update(id string, schoolID string, role string) error {
-	if err := s.ensureEnrollmentInSchool(id, schoolID); err != nil {
+	if err := s.ensureActiveEnrollmentInSchool(id, schoolID); err != nil {
 		return err
 	}
 	return s.repo.Update(id, role)
@@ -111,6 +118,9 @@ func (s *enrollmentService) Unenroll(id string, schoolID string) error {
 	if err != nil {
 		return err
 	}
+	if enrollment.LeftAt != nil {
+		return nil
+	}
 	if enrollment.Role == "teacher" {
 		hasAssignment, err := s.repo.HasTeacherSubjectClassAssignment(enrollment.ClassID, enrollment.SchoolUserID, schoolID)
 		if err != nil {
@@ -121,7 +131,7 @@ func (s *enrollmentService) Unenroll(id string, schoolID string) error {
 		}
 	}
 
-	return s.repo.Delete(id)
+	return s.repo.SoftDelete(id)
 }
 
 func (s *enrollmentService) ensureClassInSchool(classID string, schoolID string) error {
@@ -148,6 +158,17 @@ func (s *enrollmentService) ensureSchoolUserInSchool(schoolUserID string, school
 
 func (s *enrollmentService) ensureEnrollmentInSchool(enrollmentID string, schoolID string) error {
 	ok, err := s.repo.BelongsToSchool(enrollmentID, schoolID)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return errors.New("forbidden: enrollment does not belong to active school")
+	}
+	return nil
+}
+
+func (s *enrollmentService) ensureActiveEnrollmentInSchool(enrollmentID string, schoolID string) error {
+	ok, err := s.repo.ActiveBelongsToSchool(enrollmentID, schoolID)
 	if err != nil {
 		return err
 	}

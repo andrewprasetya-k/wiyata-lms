@@ -91,7 +91,7 @@ func (r *classRepository) Delete(id string) error {
 
 func (r *classRepository) CountEnrollmentsByClass(classID string) (int64, error) {
 	var count int64
-	err := r.db.Model(&domain.Enrollment{}).Where("enr_cls_id = ?", classID).Count(&count).Error
+	err := r.db.Model(&domain.Enrollment{}).Where("enr_cls_id = ? AND left_at IS NULL", classID).Count(&count).Error
 	return count, err
 }
 

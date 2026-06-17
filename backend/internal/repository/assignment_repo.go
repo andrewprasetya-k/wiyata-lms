@@ -136,7 +136,7 @@ func (r *assignmentRepository) GetAssignmentsWithSubmissionsBySubjectClass(subje
 func (r *assignmentRepository) CountStudentsInClass(classID string) (int, error) {
 	var count int64
 	err := r.db.Model(&domain.Enrollment{}).
-		Where("enr_cls_id = ? AND enr_role = ?", classID, "student").
+		Where("enr_cls_id = ? AND enr_role = ? AND left_at IS NULL", classID, "student").
 		Count(&count).Error
 	return int(count), err
 }

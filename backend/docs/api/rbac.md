@@ -311,9 +311,11 @@ account, but it does not grant school membership, roles, or enrollment.
 | `/enrollments/:id` | DELETE | ❌ | ✅* | ❌ | ❌ |
 
 *Enrollment access is scoped to the active `SchoolId`. Classes, school users,
-and enrollment records must belong to the active school. Admin unenroll preserves
-academic history and blocks teacher removal while the teacher is still assigned
-to any subject_class in the same class.
+and enrollment records must belong to the active school. Active enrollment means
+`left_at IS NULL`; unenroll sets `left_at = now()` instead of deleting the row.
+Re-enroll clears `left_at` on the same row and preserves the original
+`joined_at`. Admin unenroll preserves academic history and blocks teacher removal
+while the teacher is still assigned to any subject_class in the same class.
 
 ---
 

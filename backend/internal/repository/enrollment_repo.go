@@ -2,18 +2,23 @@ package repository
 
 import (
 	"backend/internal/domain"
+	"time"
+
 	"gorm.io/gorm"
 )
 
 type EnrollmentRepository interface {
 	Create(enr *domain.Enrollment) error
 	GetByID(id string) (*domain.Enrollment, error)
+	GetByClassAndSchoolUser(classID string, schoolUserID string) (*domain.Enrollment, error)
 	GetByClass(classID string, search string, page int, limit int) ([]*domain.Enrollment, int64, error)
 	GetByMember(schoolUserID string) ([]*domain.Enrollment, error)
 	Update(id string, role string) error
-	Delete(id string) error
+	Reactivate(id string, role string) error
+	SoftDelete(id string) error
 	CheckExists(classID, schoolUserID string) (bool, error)
 	BelongsToSchool(enrollmentID string, schoolID string) (bool, error)
+	ActiveBelongsToSchool(enrollmentID string, schoolID string) (bool, error)
 	HasTeacherSubjectClassAssignment(classID string, schoolUserID string, schoolID string) (bool, error)
 	GetStudentUserIDsByClass(classID string) ([]string, error)
 	GetMemberUserIDsByClass(classID string) ([]string, error)
@@ -38,13 +43,21 @@ func (r *enrollmentRepository) GetByID(id string) (*domain.Enrollment, error) {
 	return &enr, err
 }
 
+func (r *enrollmentRepository) GetByClassAndSchoolUser(classID string, schoolUserID string) (*domain.Enrollment, error) {
+	var enr domain.Enrollment
+	err := r.db.
+		Where("enr_cls_id = ? AND enr_scu_id = ?", classID, schoolUserID).
+		First(&enr).Error
+	return &enr, err
+}
+
 func (r *enrollmentRepository) GetByClass(classID string, search string, page int, limit int) ([]*domain.Enrollment, int64, error) {
 	var results []*domain.Enrollment
 	var total int64
 
 	query := r.db.Model(&domain.Enrollment{}).
 		Preload("SchoolUser.User").
-		Where("enr_cls_id = ?", classID)
+		Where("enr_cls_id = ? AND left_at IS NULL", classID)
 
 	// Search by user name or email
 	if search != "" {
@@ -65,20 +78,35 @@ func (r *enrollmentRepository) GetByClass(classID string, search string, page in
 func (r *enrollmentRepository) GetByMember(schoolUserID string) ([]*domain.Enrollment, error) {
 	var results []*domain.Enrollment
 	err := r.db.Preload("Class.School").Preload("Class.Term.AcademicYear").
-		Where("enr_scu_id = ?", schoolUserID).Find(&results).Error
+		Where("enr_scu_id = ? AND left_at IS NULL", schoolUserID).Find(&results).Error
 	return results, err
 }
 
 func (r *enrollmentRepository) Update(id string, role string) error {
-	result := r.db.Model(&domain.Enrollment{}).Where("enr_id = ?", id).Update("enr_role", role)
+	result := r.db.Model(&domain.Enrollment{}).Where("enr_id = ? AND left_at IS NULL", id).Update("enr_role", role)
 	if result.RowsAffected == 0 {
 		return gorm.ErrRecordNotFound
 	}
 	return result.Error
 }
 
-func (r *enrollmentRepository) Delete(id string) error {
-	result := r.db.Delete(&domain.Enrollment{}, "enr_id = ?", id)
+func (r *enrollmentRepository) Reactivate(id string, role string) error {
+	result := r.db.Model(&domain.Enrollment{}).
+		Where("enr_id = ?", id).
+		Updates(map[string]any{
+			"enr_role": role,
+			"left_at":  nil,
+		})
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return result.Error
+}
+
+func (r *enrollmentRepository) SoftDelete(id string) error {
+	result := r.db.Model(&domain.Enrollment{}).
+		Where("enr_id = ? AND left_at IS NULL", id).
+		Update("left_at", time.Now())
 	if result.Error != nil {
 		return result.Error
 	}
@@ -91,7 +119,7 @@ func (r *enrollmentRepository) Delete(id string) error {
 func (r *enrollmentRepository) CheckExists(classID, schoolUserID string) (bool, error) {
 	var count int64
 	err := r.db.Model(&domain.Enrollment{}).
-		Where("enr_cls_id = ? AND enr_scu_id = ?", classID, schoolUserID).
+		Where("enr_cls_id = ? AND enr_scu_id = ? AND left_at IS NULL", classID, schoolUserID).
 		Count(&count).Error
 	return count > 0, err
 }
@@ -100,6 +128,14 @@ func (r *enrollmentRepository) BelongsToSchool(enrollmentID string, schoolID str
 	var count int64
 	err := r.db.Model(&domain.Enrollment{}).
 		Where("enr_id = ? AND enr_sch_id = ?", enrollmentID, schoolID).
+		Count(&count).Error
+	return count > 0, err
+}
+
+func (r *enrollmentRepository) ActiveBelongsToSchool(enrollmentID string, schoolID string) (bool, error) {
+	var count int64
+	err := r.db.Model(&domain.Enrollment{}).
+		Where("enr_id = ? AND enr_sch_id = ? AND left_at IS NULL", enrollmentID, schoolID).
 		Count(&count).Error
 	return count > 0, err
 }
@@ -118,7 +154,7 @@ func (r *enrollmentRepository) GetStudentUserIDsByClass(classID string) ([]strin
 	var userIDs []string
 	err := r.db.Model(&domain.Enrollment{}).
 		Joins("JOIN edv.school_users ON school_users.scu_id = enrollments.enr_scu_id").
-		Where("enrollments.enr_cls_id = ? AND enrollments.enr_role = ?", classID, "student").
+		Where("enrollments.enr_cls_id = ? AND enrollments.enr_role = ? AND enrollments.left_at IS NULL", classID, "student").
 		Pluck("school_users.scu_usr_id", &userIDs).Error
 	return userIDs, err
 }
@@ -127,7 +163,7 @@ func (r *enrollmentRepository) GetMemberUserIDsByClass(classID string) ([]string
 	var userIDs []string
 	err := r.db.Model(&domain.Enrollment{}).
 		Joins("JOIN edv.school_users ON school_users.scu_id = enrollments.enr_scu_id").
-		Where("enrollments.enr_cls_id = ?", classID).
+		Where("enrollments.enr_cls_id = ? AND enrollments.left_at IS NULL", classID).
 		Pluck("school_users.scu_usr_id", &userIDs).Error
 	return userIDs, err
 }

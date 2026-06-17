@@ -83,6 +83,7 @@ func (r *subjectClassRepository) GetTeachingByUserAndSchool(userID string, schoo
 			ON enr.enr_cls_id = c.cls_id
 			AND enr.enr_sch_id = ?
 			AND enr.enr_role = 'student'
+			AND enr.left_at IS NULL
 		LEFT JOIN edv.materials mat
 			ON mat.mat_scl_id = sc.scl_id
 			AND mat.mat_sch_id = ?
@@ -186,8 +187,10 @@ func (r *subjectClassRepository) GetClassIDBySubjectClass(subjectClassID string)
 
 func (r *subjectClassRepository) TeacherTeachesInClass(schoolUserID string, classID string) (bool, error) {
 	var count int64
-	err := r.db.Model(&domain.SubjectClass{}).
-		Where("scl_scu_id = ? AND scl_cls_id = ?", schoolUserID, classID).
+	err := r.db.Table("edv.subject_classes sc").
+		Joins("JOIN edv.enrollments e ON e.enr_cls_id = sc.scl_cls_id AND e.enr_scu_id = sc.scl_scu_id").
+		Where("sc.scl_scu_id = ? AND sc.scl_cls_id = ?", schoolUserID, classID).
+		Where("e.enr_role = ? AND e.left_at IS NULL", "teacher").
 		Count(&count).Error
 	return count > 0, err
 }
@@ -241,7 +244,7 @@ func (r *subjectClassRepository) SchoolUserHasRole(schoolUserID string, roleName
 func (r *subjectClassRepository) SchoolUserEnrolledInClassAsRole(schoolUserID string, classID string, schoolID string, role string) (bool, error) {
 	var count int64
 	err := r.db.Table("edv.enrollments").
-		Where("enr_scu_id = ? AND enr_cls_id = ? AND enr_sch_id = ? AND enr_role = ?", schoolUserID, classID, schoolID, role).
+		Where("enr_scu_id = ? AND enr_cls_id = ? AND enr_sch_id = ? AND enr_role = ? AND left_at IS NULL", schoolUserID, classID, schoolID, role).
 		Count(&count).Error
 	return count > 0, err
 }
@@ -255,6 +258,7 @@ func (r *subjectClassRepository) UserEnrolledInSubjectClassAsRole(userID string,
 		Where("sc.scl_id = ?", subjectClassID).
 		Where("c.cls_sch_id = ? AND e.enr_sch_id = ? AND scu.scu_sch_id = ?", schoolID, schoolID, schoolID).
 		Where("scu.scu_usr_id = ? AND e.enr_role = ?", userID, role).
+		Where("e.left_at IS NULL").
 		Where("c.deleted_at IS NULL").
 		Count(&count).Error
 	return count > 0, err
@@ -264,10 +268,12 @@ func (r *subjectClassRepository) TeacherOwnsSubjectClass(userID string, schoolID
 	var count int64
 	err := r.db.Table("edv.subject_classes sc").
 		Joins("JOIN edv.school_users teacher_scu ON teacher_scu.scu_id = sc.scl_scu_id").
+		Joins("JOIN edv.enrollments e ON e.enr_cls_id = sc.scl_cls_id AND e.enr_scu_id = sc.scl_scu_id").
 		Joins("JOIN edv.classes c ON c.cls_id = sc.scl_cls_id").
 		Joins("JOIN edv.subjects sub ON sub.sub_id = sc.scl_sub_id").
 		Where("sc.scl_id = ?", subjectClassID).
 		Where("teacher_scu.scu_usr_id = ? AND teacher_scu.scu_sch_id = ?", userID, schoolID).
+		Where("e.enr_sch_id = ? AND e.enr_role = ? AND e.left_at IS NULL", schoolID, "teacher").
 		Where("c.cls_sch_id = ? AND sub.sub_sch_id = ?", schoolID, schoolID).
 		Where("c.deleted_at IS NULL").
 		Count(&count).Error

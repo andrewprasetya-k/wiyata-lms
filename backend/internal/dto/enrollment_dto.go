@@ -21,6 +21,7 @@ type EnrollmentResponseDTO struct {
 	ClassTitle   string `json:"classTitle,omitempty"`
 	Role         string `json:"role"`
 	JoinedAt     string `json:"joinedAt"`
+	LeftAt       string `json:"leftAt,omitempty"`
 }
 
 type ClassWithMembersDTO struct {
