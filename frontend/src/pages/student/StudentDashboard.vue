@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from "vue";
 import { RouterLink } from "vue-router";
 import {
+  PhArrowRight,
   PhBell,
   PhBookOpen,
   PhCaretLeft,
@@ -15,6 +16,7 @@ import { useAuthStore } from "../../stores/auth";
 import { useActiveClassStore } from "../../stores/activeClass";
 import { getSubjectClassesByClass } from "../../services/classWorkspace";
 import { getClassFeed } from "../../services/feed";
+import { getStudentAssignmentInbox } from "../../services/assignment";
 import {
   getRecentNotifications,
   getUnreadNotificationCount,
@@ -22,7 +24,8 @@ import {
 import type { SubjectClassItem } from "../../types/classWorkspace";
 import type { FeedPost } from "../../types/feed";
 import type { NotificationItem } from "../../types/dashboard";
-import { formatDateTime } from "../../utils/date";
+import type { StudentAssignmentInboxItem } from "../../types/assignment";
+import { formatDate, formatDateTime } from "../../utils/date";
 import { getSubjectColor } from "../../utils/color";
 
 const auth = useAuthStore();
@@ -30,9 +33,12 @@ const activeClassStore = useActiveClassStore();
 
 const subjects = ref<SubjectClassItem[]>([]);
 const feedPosts = ref<FeedPost[]>([]);
+const assignmentPreviewItems = ref<StudentAssignmentInboxItem[]>([]);
 const notifications = ref<NotificationItem[]>([]);
 const unreadCount = ref(0);
 const isLoading = ref(true);
+const assignmentsLoading = ref(false);
+const assignmentsError = ref("");
 const errorMessage = ref("");
 const viewDate = ref(new Date());
 
@@ -54,6 +60,9 @@ const currentMonth = computed(() =>
   ),
 );
 const calendarDays = computed(() => buildCalendarDays(viewDate.value));
+const assignmentPreview = computed(() =>
+  [...assignmentPreviewItems.value].sort(compareAssignments).slice(0, 4),
+);
 
 function changeMonth(step: number) {
   const newDate = new Date(viewDate.value);
@@ -89,6 +98,7 @@ async function loadDashboard(selectedClassId?: string) {
     notifications.value = notificationData.data ?? [];
     unreadCount.value =
       unreadData.unreadCount ?? notificationData.unreadCount ?? 0;
+    await loadAssignmentPreview();
 
     if (!activeClassId) {
       subjects.value = [];
@@ -108,6 +118,21 @@ async function loadDashboard(selectedClassId?: string) {
       "Dashboard belum bisa dimuat. Periksa koneksi atau coba lagi nanti.";
   } finally {
     isLoading.value = false;
+  }
+}
+
+async function loadAssignmentPreview() {
+  assignmentsLoading.value = true;
+  assignmentsError.value = "";
+
+  try {
+    const response = await getStudentAssignmentInbox();
+    assignmentPreviewItems.value = response.items ?? [];
+  } catch {
+    assignmentPreviewItems.value = [];
+    assignmentsError.value = "Preview tugas belum bisa dimuat.";
+  } finally {
+    assignmentsLoading.value = false;
   }
 }
 
@@ -150,6 +175,44 @@ function buildCalendarDays(date: Date) {
   }
 
   return days;
+}
+
+function compareAssignments(
+  a: StudentAssignmentInboxItem,
+  b: StudentAssignmentInboxItem,
+) {
+  const overdueNotSubmittedDiff =
+    Number(b.isOverdue && !b.isSubmitted) -
+    Number(a.isOverdue && !a.isSubmitted);
+  if (overdueNotSubmittedDiff !== 0) return overdueNotSubmittedDiff;
+
+  const notSubmittedDiff = Number(!b.isSubmitted) - Number(!a.isSubmitted);
+  if (notSubmittedDiff !== 0) return notSubmittedDiff;
+
+  const deadlineDiff = getDeadlineTime(a.deadline) - getDeadlineTime(b.deadline);
+  if (deadlineDiff !== 0) return deadlineDiff;
+
+  return (a.assignmentTitle || "").localeCompare(b.assignmentTitle || "");
+}
+
+function getDeadlineTime(deadline?: string | null) {
+  if (!deadline) return Number.MAX_SAFE_INTEGER;
+  const value = new Date(deadline).getTime();
+  return Number.isNaN(value) ? Number.MAX_SAFE_INTEGER : value;
+}
+
+function assignmentStatusLabel(item: StudentAssignmentInboxItem) {
+  if (item.isGraded) return "Sudah dinilai";
+  if (item.isSubmitted) return "Sudah dikumpulkan";
+  if (item.isOverdue) return "Lewat deadline";
+  return "Belum dikumpulkan";
+}
+
+function assignmentStatusClasses(item: StudentAssignmentInboxItem) {
+  if (item.isGraded) return "bg-[#ecfdf3] text-[#027a48]";
+  if (item.isSubmitted) return "bg-[#eef2ff] text-[#4f46e5]";
+  if (item.isOverdue) return "bg-[#fef2f2] text-[#dc2626]";
+  return "bg-[#fff7ed] text-[#b45309]";
 }
 
 onMounted(loadDashboard);
@@ -279,25 +342,88 @@ onMounted(loadDashboard);
         </article>
 
         <article class="soft-card rounded-[22px] p-5 pl-0">
-          <div class="flex items-start gap-3">
-            <div
-              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#eef2ff] text-[#4f46e5]"
+          <div class="mb-5 flex items-center justify-between gap-3">
+            <div class="flex min-w-0 items-start gap-3">
+              <div
+                class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#eef2ff] text-[#4f46e5]"
+              >
+                <PhClipboardText :size="21" weight="duotone" />
+              </div>
+              <div class="min-w-0">
+                <p class="text-sm font-medium text-[#171322]">Tugas Saya</p>
+                <p class="mt-1 text-xs text-[#8b8592]">
+                  Lihat tugas dari subject yang kamu ikuti.
+                </p>
+              </div>
+            </div>
+            <RouterLink
+              to="/student/assignments"
+              class="shrink-0 text-sm font-medium text-[#4f46e5]"
             >
-              <PhClipboardText :size="21" weight="duotone" />
-            </div>
-            <div class="min-w-0">
-              <p class="text-sm font-medium text-[#171322]">Tugas Saya</p>
-              <p class="mt-2 text-sm leading-6 text-[#7a7385]">
-                Lihat semua tugas dari subject yang kamu ikuti.
-              </p>
-            </div>
+              Lihat semua
+            </RouterLink>
           </div>
-          <RouterLink
-            to="/student/assignments"
-            class="mt-5 inline-flex w-full items-center justify-center rounded-2xl bg-[#4f46e5] px-4 py-3 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+
+          <div v-if="assignmentsLoading" class="space-y-2">
+            <div
+              v-for="item in 3"
+              :key="item"
+              class="h-16 animate-pulse rounded-2xl bg-[#fbfaf8]"
+            />
+          </div>
+
+          <div
+            v-else-if="assignmentsError"
+            class="rounded-2xl bg-[#fbfaf8] p-4 text-sm leading-6 text-[#7a7385]"
           >
-            Buka Tugas Saya
-          </RouterLink>
+            {{ assignmentsError }}
+          </div>
+
+          <div
+            v-else-if="assignmentPreview.length === 0"
+            class="rounded-2xl bg-[#fbfaf8] p-4"
+          >
+            <p class="text-sm font-medium text-[#171322]">Belum ada tugas</p>
+            <p class="mt-2 text-sm leading-6 text-[#7a7385]">
+              Tugas akan muncul setelah guru membuat tugas untuk subject di
+              kelasmu.
+            </p>
+          </div>
+
+          <div v-else class="space-y-2">
+            <RouterLink
+              v-for="assignment in assignmentPreview"
+              :key="`${assignment.subjectClassId}-${assignment.assignmentId}`"
+              :to="`/student/subjects/${assignment.subjectClassId}/assignments/${assignment.assignmentId}`"
+              class="block rounded-2xl bg-[#fbfaf8] p-4 transition hover:bg-white hover:shadow-[0_12px_28px_rgba(66,55,40,0.08)]"
+            >
+              <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0">
+                  <p class="truncate text-sm font-medium text-[#171322]">
+                    {{ assignment.assignmentTitle }}
+                  </p>
+                  <p class="mt-1 truncate text-xs text-[#7a7385]">
+                    {{ assignment.subjectName }}
+                    <span v-if="assignment.subjectCode">
+                      · {{ assignment.subjectCode }}
+                    </span>
+                  </p>
+                </div>
+                <span
+                  class="shrink-0 rounded-full px-2.5 py-1 text-[10px] font-medium"
+                  :class="assignmentStatusClasses(assignment)"
+                >
+                  {{ assignmentStatusLabel(assignment) }}
+                </span>
+              </div>
+              <div
+                class="mt-3 flex items-center justify-between gap-3 text-xs text-[#8b8592]"
+              >
+                <span>Deadline {{ formatDate(assignment.deadline) }}</span>
+                <PhArrowRight :size="14" class="shrink-0 text-[#4f46e5]" />
+              </div>
+            </RouterLink>
+          </div>
         </article>
       </section>
 
