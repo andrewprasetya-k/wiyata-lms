@@ -63,8 +63,9 @@ Get dashboard statistics for a teacher.
 **Metrics:**
 - `pendingReviews`: Number of submissions waiting for grading
 - `totalStudents`: Total unique students across all teacher's classes
-- `submissionRate`: Overall submission rate across all assignments (%)
+- `submissionRate`: Overall submission rate across all assignments (%), calculated as submitted active-student assignment slots divided by total eligible active-student assignment slots. Active students are class enrollments with `left_at IS NULL`.
 - `classPerformance`: Performance breakdown per class/subject
+- `classPerformance[].submissionRate`: Per class/subject submission rate using the same eligible active-student assignment slot denominator.
 
 ---
 

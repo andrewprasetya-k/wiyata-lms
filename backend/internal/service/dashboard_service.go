@@ -3,6 +3,7 @@ package service
 import (
 	"backend/internal/dto"
 	"backend/internal/repository"
+	"math"
 	"time"
 )
 
@@ -18,6 +19,16 @@ type dashboardService struct {
 
 func NewDashboardService(repo repository.DashboardRepository) DashboardService {
 	return &dashboardService{repo: repo}
+}
+
+func safePercentage(value float64) float64 {
+	if math.IsNaN(value) || math.IsInf(value, 0) || value < 0 {
+		return 0
+	}
+	if value > 100 {
+		return 100
+	}
+	return value
 }
 
 func (s *dashboardService) GetStudentDashboard(userID string) (*dto.StudentDashboardDTO, error) {
@@ -90,7 +101,7 @@ func (s *dashboardService) GetTeacherDashboard(schoolUserID string) (*dto.Teache
 			ClassName:      p["class_name"].(string),
 			SubjectName:    p["subject_name"].(string),
 			AverageScore:   p["average_score"].(float64),
-			SubmissionRate: p["submission_rate"].(float64),
+			SubmissionRate: safePercentage(p["submission_rate"].(float64)),
 			TotalStudents:  int(p["total_students"].(int64)),
 		})
 	}
@@ -98,7 +109,7 @@ func (s *dashboardService) GetTeacherDashboard(schoolUserID string) (*dto.Teache
 	return &dto.TeacherDashboardDTO{
 		PendingReviews:   pending,
 		TotalStudents:    totalStudents,
-		SubmissionRate:   submissionRate,
+		SubmissionRate:   safePercentage(submissionRate),
 		ClassPerformance: classPerformance,
 	}, nil
 }

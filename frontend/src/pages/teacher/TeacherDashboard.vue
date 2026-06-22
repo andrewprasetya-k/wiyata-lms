@@ -45,6 +45,13 @@ const activeSchoolName = computed(
 );
 const teacherName = computed(() => auth.user?.fullName ?? "Guru");
 
+function formatPercentage(value: number | null | undefined) {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return "0.0%";
+  }
+  return `${Math.min(100, Math.max(0, value)).toFixed(1)}%`;
+}
+
 const stats = computed(() => [
   {
     label: "Review menunggu",
@@ -59,12 +66,11 @@ const stats = computed(() => [
     tone: "#74bfa5",
   },
   {
-    label: "Submission rate",
-    value:
-      typeof summary.value?.submissionRate === "number"
-        ? `${summary.value.submissionRate.toFixed(1)}%`
-        : undefined,
-    helper: "Rata-rata pengumpulan tugas",
+    label: "Pengumpulan tugas",
+    value: summary.value
+      ? formatPercentage(summary.value.submissionRate)
+      : undefined,
+    helper: "Submission dibagi total siswa aktif per tugas",
     tone: "#7aa7d9",
   },
 ]);
@@ -256,9 +262,9 @@ onMounted(loadDashboard);
                     </dd>
                   </div>
                   <div>
-                    <dt class="text-[#8a8494]">Submit</dt>
+                    <dt class="text-[#8a8494]">Pengumpulan</dt>
                     <dd class="mt-1 font-medium text-[#171322]">
-                      {{ item.submissionRate.toFixed(1) }}%
+                      {{ formatPercentage(item.submissionRate) }}
                     </dd>
                   </div>
                   <div>

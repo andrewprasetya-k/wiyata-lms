@@ -126,15 +126,37 @@ func (r *dashboardRepository) GetSubmissionRateByTeacher(schoolUserID string) (f
 	var rate float64
 	err := r.db.Raw(`
 		SELECT 
-			CASE 
-				WHEN COUNT(DISTINCT a.asg_id) = 0 THEN 0
-				ELSE (COUNT(DISTINCT s.sbm_id)::float / COUNT(DISTINCT a.asg_id)) * 100
-			END as rate
+			COALESCE(
+				(
+					COUNT(DISTINCT CASE
+						WHEN s.sbm_id IS NOT NULL THEN CONCAT(a.asg_id::text, ':', e.enr_scu_id::text)
+					END)::float
+					/
+					NULLIF(COUNT(DISTINCT CONCAT(a.asg_id::text, ':', e.enr_scu_id::text)), 0)
+				) * 100,
+				0
+			) as rate
 		FROM edv.assignments a
 		JOIN edv.subject_classes sc ON a.asg_scl_id = sc.scl_id
+		JOIN edv.classes c ON c.cls_id = sc.scl_cls_id
 		JOIN edv.enrollments teacher_e ON teacher_e.enr_cls_id = sc.scl_cls_id AND teacher_e.enr_scu_id = sc.scl_scu_id
-		LEFT JOIN edv.submissions s ON a.asg_id = s.sbm_asg_id AND s.deleted_at IS NULL
-		WHERE sc.scl_scu_id = ? AND teacher_e.enr_role = 'teacher' AND teacher_e.left_at IS NULL AND a.deleted_at IS NULL
+		JOIN edv.enrollments e ON e.enr_cls_id = sc.scl_cls_id
+			AND e.enr_role = 'student'
+			AND e.left_at IS NULL
+			AND e.enr_sch_id = teacher_e.enr_sch_id
+		JOIN edv.school_users student_scu ON student_scu.scu_id = e.enr_scu_id
+			AND student_scu.scu_sch_id = teacher_e.enr_sch_id
+		LEFT JOIN edv.submissions s ON a.asg_id = s.sbm_asg_id
+			AND s.sbm_usr_id = student_scu.scu_usr_id
+			AND s.sbm_sch_id = teacher_e.enr_sch_id
+			AND s.deleted_at IS NULL
+		WHERE sc.scl_scu_id = ?
+			AND teacher_e.enr_role = 'teacher'
+			AND teacher_e.left_at IS NULL
+			AND c.cls_sch_id = teacher_e.enr_sch_id
+			AND c.deleted_at IS NULL
+			AND a.asg_sch_id = teacher_e.enr_sch_id
+			AND a.deleted_at IS NULL
 	`, schoolUserID).Scan(&rate).Error
 	return rate, err
 }
@@ -148,19 +170,41 @@ func (r *dashboardRepository) GetClassPerformance(schoolUserID string) ([]map[st
 			sub.sub_name as subject_name,
 			COALESCE(AVG(asm.asm_score), 0) as average_score,
 			COUNT(DISTINCT e.enr_scu_id) as total_students,
-			CASE 
-				WHEN COUNT(DISTINCT a.asg_id) = 0 THEN 0
-				ELSE (COUNT(DISTINCT s.sbm_id)::float / COUNT(DISTINCT a.asg_id)) * 100
-			END as submission_rate
+			COALESCE(
+				(
+					COUNT(DISTINCT CASE
+						WHEN s.sbm_id IS NOT NULL THEN CONCAT(a.asg_id::text, ':', e.enr_scu_id::text)
+					END)::float
+					/
+					NULLIF(COUNT(DISTINCT CASE
+						WHEN a.asg_id IS NOT NULL AND e.enr_scu_id IS NOT NULL THEN CONCAT(a.asg_id::text, ':', e.enr_scu_id::text)
+					END), 0)
+				) * 100,
+				0
+			) as submission_rate
 		FROM edv.subject_classes sc
 		JOIN edv.classes c ON sc.scl_cls_id = c.cls_id
 		JOIN edv.subjects sub ON sc.scl_sub_id = sub.sub_id
 		JOIN edv.enrollments teacher_e ON teacher_e.enr_cls_id = sc.scl_cls_id AND teacher_e.enr_scu_id = sc.scl_scu_id
-		LEFT JOIN edv.enrollments e ON c.cls_id = e.enr_cls_id AND e.enr_role = 'student' AND e.left_at IS NULL
-		LEFT JOIN edv.assignments a ON sc.scl_id = a.asg_scl_id AND a.deleted_at IS NULL
-		LEFT JOIN edv.submissions s ON a.asg_id = s.sbm_asg_id AND s.deleted_at IS NULL
+		LEFT JOIN edv.enrollments e ON c.cls_id = e.enr_cls_id
+			AND e.enr_role = 'student'
+			AND e.left_at IS NULL
+			AND e.enr_sch_id = teacher_e.enr_sch_id
+		LEFT JOIN edv.school_users student_scu ON student_scu.scu_id = e.enr_scu_id
+			AND student_scu.scu_sch_id = teacher_e.enr_sch_id
+		LEFT JOIN edv.assignments a ON sc.scl_id = a.asg_scl_id
+			AND a.asg_sch_id = teacher_e.enr_sch_id
+			AND a.deleted_at IS NULL
+		LEFT JOIN edv.submissions s ON a.asg_id = s.sbm_asg_id
+			AND s.sbm_usr_id = student_scu.scu_usr_id
+			AND s.sbm_sch_id = teacher_e.enr_sch_id
+			AND s.deleted_at IS NULL
 		LEFT JOIN edv.assessments asm ON s.sbm_id = asm.asm_sbm_id
-		WHERE sc.scl_scu_id = ? AND teacher_e.enr_role = 'teacher' AND teacher_e.left_at IS NULL AND c.deleted_at IS NULL
+		WHERE sc.scl_scu_id = ?
+			AND teacher_e.enr_role = 'teacher'
+			AND teacher_e.left_at IS NULL
+			AND c.cls_sch_id = teacher_e.enr_sch_id
+			AND c.deleted_at IS NULL
 		GROUP BY c.cls_id, c.cls_title, sub.sub_name
 	`, schoolUserID).Scan(&results).Error
 	return results, err
