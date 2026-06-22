@@ -26,6 +26,7 @@ import AdminSubjectClasses from "../pages/admin/AdminSubjectClasses.vue";
 import AdminUsers from "../pages/admin/AdminUsers.vue";
 import SuperAdminDashboard from "../pages/superadmin/SuperAdminDashboard.vue";
 import FeaturePlaceholder from "../components/common/FeaturePlaceholder.vue";
+import ReadProfile from "../pages/profile/ReadProfile.vue";
 import TeacherCreate from "../pages/teacher/TeacherCreate.vue";
 import TeacherContentCreate from "../pages/teacher/TeacherContentCreate.vue";
 import TeacherAssignmentReview from "../pages/teacher/TeacherAssignmentReview.vue";
@@ -144,12 +145,12 @@ const router = createRouter({
         {
           path: "profile",
           name: "student-profile",
-          component: FeaturePlaceholder,
+          component: ReadProfile,
           props: {
             eyebrow: "Student profile",
-            title: "Profil siswa",
-            description:
-              "Halaman ini nantinya menampilkan informasi akun, konteks sekolah aktif, dan preferensi dasar pengguna.",
+            title: "Profil Student",
+            helper:
+              "Lihat informasi akun, role, dan konteks sekolah aktif. Profil masih read-only untuk MVP.",
           },
         },
       ],
@@ -240,12 +241,12 @@ const router = createRouter({
         {
           path: "profile",
           name: "teacher-profile",
-          component: FeaturePlaceholder,
+          component: ReadProfile,
           props: {
             eyebrow: "Teacher profile",
-            title: "Profil guru",
-            description:
-              "Halaman ini nantinya menampilkan informasi akun guru, role aktif, dan konteks sekolah.",
+            title: "Profil Teacher",
+            helper:
+              "Lihat informasi akun guru, role aktif, dan membership sekolah dari sesi login saat ini.",
           },
         },
       ],
@@ -288,12 +289,12 @@ const router = createRouter({
         {
           path: "profile",
           name: "admin-profile",
-          component: FeaturePlaceholder,
+          component: ReadProfile,
           props: {
             eyebrow: "Admin profile",
-            title: "Profil admin sekolah",
-            description:
-              "Halaman ini nantinya menampilkan informasi akun admin dan konteks sekolah aktif.",
+            title: "Profil Admin",
+            helper:
+              "Lihat informasi akun admin sekolah dan active school context. Perubahan profil belum tersedia.",
           },
         },
       ],
@@ -333,12 +334,12 @@ const router = createRouter({
         {
           path: "profile",
           name: "superadmin-profile",
-          component: FeaturePlaceholder,
+          component: ReadProfile,
           props: {
             eyebrow: "Super admin profile",
-            title: "Profil super admin",
-            description:
-              "Halaman ini nantinya menampilkan informasi akun dan akses platform yang sedang aktif.",
+            title: "Profil Superadmin",
+            helper:
+              "Lihat informasi akun platform dan role superadmin dari sesi login. Halaman ini read-only untuk MVP.",
           },
         },
       ],

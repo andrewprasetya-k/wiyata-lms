@@ -6,7 +6,6 @@ import {
   PhHouse,
   PhStudent,
   PhUsers,
-  PhUserCircle,
 } from "@phosphor-icons/vue";
 import Sidebar from "../components/layout/Sidebar.vue";
 
@@ -25,7 +24,6 @@ const items = [
     icon: PhChalkboardTeacher,
     to: "/admin/subject-classes",
   },
-  { label: "Profil", icon: PhUserCircle, to: "/admin/profile" },
 ];
 </script>
 
@@ -36,6 +34,7 @@ const items = [
         class="sticky top-0 h-screen shrink-0"
         label="Admin navigation"
         :items="items"
+        profile-to="/admin/profile"
       />
       <RouterView />
     </div>
