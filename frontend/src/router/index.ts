@@ -33,6 +33,7 @@ import TeacherContentCreate from "../pages/teacher/TeacherContentCreate.vue";
 import TeacherAssignmentReview from "../pages/teacher/TeacherAssignmentReview.vue";
 import TeacherMaterialDetail from "../pages/teacher/TeacherMaterialDetail.vue";
 import TeacherSubmissions from "../pages/teacher/TeacherSubmissions.vue";
+import TeacherAssignments from "../pages/teacher/TeacherAssignments.vue";
 
 export const dashboardByRole: Record<RoleName, string> = {
   super_admin: "/superadmin/dashboard",
@@ -204,13 +205,7 @@ const router = createRouter({
         {
           path: "assignments",
           name: "teacher-assignments",
-          component: FeaturePlaceholder,
-          props: {
-            eyebrow: "Teacher assignments",
-            title: "Manajemen tugas",
-            description:
-              "Halaman ini nantinya dipakai guru untuk membuat, mengubah, dan memantau tugas kelas.",
-          },
+          component: TeacherAssignments,
         },
         {
           path: "submissions",
