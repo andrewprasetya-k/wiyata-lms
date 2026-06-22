@@ -7,6 +7,7 @@ import {
   PhCaretLeft,
   PhCaretRight,
   PhChatCircleText,
+  PhClipboardText,
   PhNotebook,
   PhWarningCircle,
 } from "@phosphor-icons/vue";
@@ -278,13 +279,25 @@ onMounted(loadDashboard);
         </article>
 
         <article class="soft-card rounded-[22px] p-5 pl-0">
-          <p class="text-sm font-medium text-[#171322]">Ringkasan tugas</p>
-          <p
-            class="mt-3 rounded-2xl bg-[#fbfaf8] p-4 text-sm leading-6 text-[#7a7385]"
+          <div class="flex items-start gap-3">
+            <div
+              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#eef2ff] text-[#4f46e5]"
+            >
+              <PhClipboardText :size="21" weight="duotone" />
+            </div>
+            <div class="min-w-0">
+              <p class="text-sm font-medium text-[#171322]">Tugas Saya</p>
+              <p class="mt-2 text-sm leading-6 text-[#7a7385]">
+                Lihat semua tugas dari subject yang kamu ikuti.
+              </p>
+            </div>
+          </div>
+          <RouterLink
+            to="/student/assignments"
+            class="mt-5 inline-flex w-full items-center justify-center rounded-2xl bg-[#4f46e5] px-4 py-3 text-sm font-medium text-white transition hover:bg-[#4338ca]"
           >
-            Ringkasan tugas akan tersedia setelah endpoint agregat siap. Untuk
-            sekarang, buka detail subject untuk melihat tugas real.
-          </p>
+            Buka Tugas Saya
+          </RouterLink>
         </article>
       </section>
 
@@ -322,8 +335,11 @@ onMounted(loadDashboard);
           </p>
         </article>
 
-        <article class="soft-card rounded-[22px] p-5 pl-0">
-          <p class="text-sm font-medium text-[#171322]">Chat dan notes</p>
+        <article class="soft-card rounded-[22px] p-5 pl-0 opacity-90">
+          <p class="text-sm font-medium text-[#171322]">Fitur berikutnya</p>
+          <p class="mt-1 text-xs text-[#8b8592]">
+            Chat dan notes belum menjadi bagian dari flow utama saat ini.
+          </p>
           <div class="mt-4 space-y-3">
             <div class="flex gap-3 rounded-2xl bg-[#eef2ff] p-4">
               <PhChatCircleText
@@ -331,15 +347,14 @@ onMounted(loadDashboard);
                 class="mt-0.5 shrink-0 text-[#4f46e5]"
               />
               <p class="text-sm leading-6 text-[#6b6475]">
-                Chat realtime masih fitur future. Tidak ada data chat yang
-                ditampilkan sebagai real.
+                Chat realtime masih ditunda dan belum menampilkan data
+                percakapan.
               </p>
             </div>
             <div class="flex gap-3 rounded-2xl bg-[#f3ecff] p-4">
               <PhNotebook :size="20" class="mt-0.5 shrink-0 text-[#7c3aed]" />
               <p class="text-sm leading-6 text-[#6b6475]">
-                Notes akan tersedia per material. Autosave belum
-                diimplementasikan.
+                Notes per materi dan autosave juga belum diimplementasikan.
               </p>
             </div>
           </div>
