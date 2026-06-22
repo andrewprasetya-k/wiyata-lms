@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { RouterLink, useRoute } from 'vue-router'
+import { computed, onMounted, ref } from "vue";
+import { RouterLink, useRoute } from "vue-router";
 import {
   PhArrowLeft,
   PhBookOpen,
@@ -13,132 +13,166 @@ import {
   PhWarningCircle,
   PhPencilSimple,
   PhTrash,
-} from '@phosphor-icons/vue'
-import { getSubjectAssignments } from '../../services/assignment'
-import { getSubjectClassSubmissions, deleteAssignment } from '../../services/teacherAssignment'
-import { getSubjectMaterials } from '../../services/teacherMaterial'
-import { getMyTeachingSubjectClassById } from '../../services/teacherSubjects'
-import type { AssignmentItem } from '../../types/assignment'
-import type { TeacherSubmissionGroup, TeacherSubmissionSummary } from '../../types/teacherAssignment'
-import type { MaterialItem } from '../../types/teacherMaterial'
-import type { TeacherSubjectClass } from '../../types/teacherSubjects'
-import { getSubjectColor } from '../../utils/color'
-import { formatDate, formatDateTime } from '../../utils/date'
-import { useToastStore } from '../../stores/toast'
+} from "@phosphor-icons/vue";
+import { getSubjectAssignments } from "../../services/assignment";
+import {
+  getSubjectClassSubmissions,
+  deleteAssignment,
+} from "../../services/teacherAssignment";
+import { getSubjectMaterials } from "../../services/teacherMaterial";
+import { getMyTeachingSubjectClassById } from "../../services/teacherSubjects";
+import type { AssignmentItem } from "../../types/assignment";
+import type {
+  TeacherSubmissionGroup,
+  TeacherSubmissionSummary,
+} from "../../types/teacherAssignment";
+import type { MaterialItem } from "../../types/teacherMaterial";
+import type { TeacherSubjectClass } from "../../types/teacherSubjects";
+import { getSubjectColor } from "../../utils/color";
+import { formatDate, formatDateTime } from "../../utils/date";
+import { useToastStore } from "../../stores/toast";
 
-type WorkspaceTab = 'materials' | 'assignments' | 'submissions'
+type WorkspaceTab = "materials" | "assignments" | "submissions";
 
-const route = useRoute()
-const toast = useToastStore()
-const subjectClassId = computed(() => String(route.params.subjectClassId ?? ''))
+const route = useRoute();
+const toast = useToastStore();
+const subjectClassId = computed(() =>
+  String(route.params.subjectClassId ?? ""),
+);
 
-const activeTab = ref<WorkspaceTab>('materials')
-const subject = ref<TeacherSubjectClass | null>(null)
-const materials = ref<MaterialItem[]>([])
-const assignments = ref<AssignmentItem[]>([])
-const submissionGroups = ref<TeacherSubmissionGroup[]>([])
-const submissionSummary = ref<TeacherSubmissionSummary | null>(null)
-const loading = ref(false)
-const submissionsLoading = ref(false)
-const errorMessage = ref('')
-const submissionsError = ref('')
-const deletingAssignmentId = ref<string | null>(null)
+const activeTab = ref<WorkspaceTab>("materials");
+const subject = ref<TeacherSubjectClass | null>(null);
+const materials = ref<MaterialItem[]>([]);
+const assignments = ref<AssignmentItem[]>([]);
+const submissionGroups = ref<TeacherSubmissionGroup[]>([]);
+const submissionSummary = ref<TeacherSubmissionSummary | null>(null);
+const loading = ref(false);
+const submissionsLoading = ref(false);
+const errorMessage = ref("");
+const submissionsError = ref("");
+const deletingAssignmentId = ref<string | null>(null);
 
 const submissionCount = computed(
   () =>
     submissionSummary.value?.submissionCount ??
-    submissionGroups.value.reduce((total, group) => total + group.submissionCount, 0),
-)
+    submissionGroups.value.reduce(
+      (total, group) => total + group.submissionCount,
+      0,
+    ),
+);
 
 const visibleSubmissionGroups = computed(() =>
   submissionGroups.value.filter((group) => group.submissions.length > 0),
-)
+);
 
 const tabs = computed(() => [
-  { id: 'materials' as const, label: 'Materi', count: materials.value.length },
-  { id: 'assignments' as const, label: 'Tugas', count: assignments.value.length },
-  { id: 'submissions' as const, label: 'Pengumpulan', count: submissionCount.value },
-])
+  { id: "materials" as const, label: "Materi", count: materials.value.length },
+  {
+    id: "assignments" as const,
+    label: "Tugas",
+    count: assignments.value.length,
+  },
+  {
+    id: "submissions" as const,
+    label: "Pengumpulan",
+    count: submissionCount.value,
+  },
+]);
 
 async function loadWorkspace() {
-  loading.value = true
-  errorMessage.value = ''
-  submissionsError.value = ''
-  subject.value = null
-  materials.value = []
-  assignments.value = []
-  submissionGroups.value = []
-  submissionSummary.value = null
+  loading.value = true;
+  errorMessage.value = "";
+  submissionsError.value = "";
+  subject.value = null;
+  materials.value = [];
+  assignments.value = [];
+  submissionGroups.value = [];
+  submissionSummary.value = null;
 
   try {
-    const subjectData = await getMyTeachingSubjectClassById(subjectClassId.value)
-    subject.value = subjectData
+    const subjectData = await getMyTeachingSubjectClassById(
+      subjectClassId.value,
+    );
+    subject.value = subjectData;
 
-    if (!subjectData) return
+    if (!subjectData) return;
 
     const [materialData, assignmentData] = await Promise.all([
       getSubjectMaterials(subjectClassId.value),
       getSubjectAssignments(subjectClassId.value, 1, 50),
-    ])
+    ]);
 
-    materials.value = materialData.data?.data ?? []
-    assignments.value = assignmentData.data?.data ?? []
+    materials.value = materialData.data?.data ?? [];
+    assignments.value = assignmentData.data?.data ?? [];
 
-    await loadSubmissions()
+    await loadSubmissions();
   } catch {
-    errorMessage.value = 'Workspace subject belum bisa dimuat. Coba lagi beberapa saat.'
+    errorMessage.value =
+      "Workspace subject belum bisa dimuat. Coba lagi beberapa saat.";
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
 
 async function loadSubmissions() {
-  submissionsLoading.value = true
-  submissionsError.value = ''
+  submissionsLoading.value = true;
+  submissionsError.value = "";
   try {
-    const data = await getSubjectClassSubmissions(subjectClassId.value)
-    submissionGroups.value = data.assignments ?? []
-    submissionSummary.value = data.summary
+    const data = await getSubjectClassSubmissions(subjectClassId.value);
+    submissionGroups.value = data.assignments ?? [];
+    submissionSummary.value = data.summary;
   } catch {
     submissionsError.value =
-      'Pengumpulan siswa belum bisa dimuat. Coba lagi beberapa saat.'
+      "Pengumpulan siswa belum bisa dimuat. Coba lagi beberapa saat.";
   } finally {
-    submissionsLoading.value = false
+    submissionsLoading.value = false;
   }
 }
 
 function materialAttachmentLabel(material: MaterialItem) {
-  const count = material.attachments?.length ?? 0
-  if (count === 0) return 'Tidak ada attachment'
-  return `${count} attachment`
+  const count = material.attachments?.length ?? 0;
+  if (count === 0) return "Tidak ada attachment";
+  return `${count} attachment`;
 }
 
 function materialTypeLabel(type?: string) {
-  if (!type) return 'Materi'
-  return type.toUpperCase()
+  if (!type) return "Materi";
+  return type.toUpperCase();
 }
 
 async function handleDeleteAssignment(id: string) {
-  if (!window.confirm('Apakah anda yakin ingin menghapus tugas ini? Tugas dengan pengumpulan siswa tidak bisa dihapus.')) return
-  deletingAssignmentId.value = id
+  if (
+    !window.confirm(
+      "Apakah anda yakin ingin menghapus tugas ini? Tugas dengan pengumpulan siswa tidak bisa dihapus.",
+    )
+  )
+    return;
+  deletingAssignmentId.value = id;
   try {
-    await deleteAssignment(id)
-    toast.success('Tugas berhasil dihapus.')
-    const assignmentData = await getSubjectAssignments(subjectClassId.value, 1, 50)
-    assignments.value = assignmentData.data?.data ?? []
+    await deleteAssignment(id);
+    toast.success("Tugas berhasil dihapus.");
+    const assignmentData = await getSubjectAssignments(
+      subjectClassId.value,
+      1,
+      50,
+    );
+    assignments.value = assignmentData.data?.data ?? [];
   } catch (err: any) {
-    const msg = err.response?.data?.error || err.response?.data?.message || 'Gagal menghapus tugas.'
-    toast.error(msg)
+    const msg =
+      err.response?.data?.error ||
+      err.response?.data?.message ||
+      "Gagal menghapus tugas.";
+    toast.error(msg);
   } finally {
-    deletingAssignmentId.value = null
+    deletingAssignmentId.value = null;
   }
 }
 
-onMounted(loadWorkspace)
+onMounted(loadWorkspace);
 </script>
 
 <template>
-  <main class="min-h-screen flex-1 px-5 py-5 sm:px-6 lg:px-8">
+  <main class="flex-1 px-5 py-5 sm:px-6 lg:px-8">
     <section class="flex w-full max-w-none flex-col gap-5">
       <RouterLink
         to="/teacher/subjects"
@@ -148,26 +182,34 @@ onMounted(loadWorkspace)
         Kembali ke subjects
       </RouterLink>
 
-      <header class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5 md:p-6">
+      <header
+        class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5 md:p-6"
+      >
         <div
           class="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl text-white"
           :style="{ backgroundColor: getSubjectColor(subjectClassId) }"
         >
           <PhBookOpen :size="28" weight="duotone" />
         </div>
-        <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+        <div
+          class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between"
+        >
           <div>
             <p class="text-sm font-medium text-[#7b61a8]">Subject workspace</p>
             <h1 class="mt-3 text-3xl font-medium text-[#171322]">
-              {{ subject?.subjectName ?? (loading ? 'Memuat subject...' : 'Workspace subject') }}
+              {{
+                subject?.subjectName ??
+                (loading ? "Memuat subject..." : "Workspace subject")
+              }}
             </h1>
             <p class="mt-3 max-w-2xl text-sm leading-6 text-[#6b6475]">
               <span v-if="subject">
-                {{ subject.className }} menjadi konteks class untuk subject ini. Material dan tugas
-                berada di level subject class.
+                {{ subject.className }} menjadi konteks class untuk subject ini.
+                Material dan tugas berada di level subject class.
               </span>
               <span v-else>
-                Detail subject class hanya tersedia untuk subject yang terhubung dengan akun guru ini.
+                Detail subject class hanya tersedia untuk subject yang terhubung
+                dengan akun guru ini.
               </span>
             </p>
           </div>
@@ -183,17 +225,33 @@ onMounted(loadWorkspace)
         </div>
       </header>
 
-      <section v-if="loading" class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5">
+      <section
+        v-if="loading"
+        class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5"
+      >
         <p class="text-sm text-[#6b6475]">Memuat workspace subject...</p>
       </section>
 
-      <section v-else-if="errorMessage" class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5">
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <section
+        v-else-if="errorMessage"
+        class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5"
+      >
+        <div
+          class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+        >
           <div class="flex items-start gap-3">
-            <PhWarningCircle :size="24" class="mt-0.5 text-[#e58f86]" weight="duotone" />
+            <PhWarningCircle
+              :size="24"
+              class="mt-0.5 text-[#e58f86]"
+              weight="duotone"
+            />
             <div>
-              <h2 class="text-lg font-medium text-[#171322]">Gagal memuat workspace</h2>
-              <p class="mt-2 text-sm leading-6 text-[#6b6475]">{{ errorMessage }}</p>
+              <h2 class="text-lg font-medium text-[#171322]">
+                Gagal memuat workspace
+              </h2>
+              <p class="mt-2 text-sm leading-6 text-[#6b6475]">
+                {{ errorMessage }}
+              </p>
             </div>
           </div>
           <button
@@ -210,7 +268,9 @@ onMounted(loadWorkspace)
         v-else-if="!subject"
         class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5"
       >
-        <h2 class="text-lg font-medium text-[#171322]">Subject tidak ditemukan</h2>
+        <h2 class="text-lg font-medium text-[#171322]">
+          Subject tidak ditemukan
+        </h2>
         <p class="mt-2 text-sm leading-6 text-[#6b6475]">
           Subject class ini tidak tersedia untuk akun guru pada school aktif.
         </p>
@@ -218,29 +278,55 @@ onMounted(loadWorkspace)
 
       <template v-else>
         <section class="grid gap-4 md:grid-cols-4">
-          <article class="rounded-[24px] bg-white p-5 shadow-sm ring-1 ring-black/5">
+          <article
+            class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5"
+          >
             <PhUsersThree :size="24" class="text-[#74bfa5]" weight="duotone" />
             <p class="mt-4 text-sm text-[#8a8494]">Siswa</p>
-            <p class="mt-1 text-2xl font-medium text-[#171322]">{{ subject.studentCount }}</p>
+            <p class="mt-1 text-2xl font-medium text-[#171322]">
+              {{ subject.studentCount }}
+            </p>
           </article>
-          <article class="rounded-[24px] bg-white p-5 shadow-sm ring-1 ring-black/5">
+          <article
+            class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5"
+          >
             <PhFileText :size="24" class="text-[#7aa7d9]" weight="duotone" />
             <p class="mt-4 text-sm text-[#8a8494]">Materi</p>
-            <p class="mt-1 text-2xl font-medium text-[#171322]">{{ subject.materialCount }}</p>
+            <p class="mt-1 text-2xl font-medium text-[#171322]">
+              {{ subject.materialCount }}
+            </p>
           </article>
-          <article class="rounded-[24px] bg-white p-5 shadow-sm ring-1 ring-black/5">
-            <PhClipboardText :size="24" class="text-[#e58f86]" weight="duotone" />
+          <article
+            class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5"
+          >
+            <PhClipboardText
+              :size="24"
+              class="text-[#e58f86]"
+              weight="duotone"
+            />
             <p class="mt-4 text-sm text-[#8a8494]">Tugas</p>
-            <p class="mt-1 text-2xl font-medium text-[#171322]">{{ subject.assignmentCount }}</p>
+            <p class="mt-1 text-2xl font-medium text-[#171322]">
+              {{ subject.assignmentCount }}
+            </p>
           </article>
-          <article class="rounded-[24px] bg-white p-5 shadow-sm ring-1 ring-black/5">
-            <PhWarningCircle :size="24" class="text-[#b889c9]" weight="duotone" />
+          <article
+            class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-black/5"
+          >
+            <PhWarningCircle
+              :size="24"
+              class="text-[#b889c9]"
+              weight="duotone"
+            />
             <p class="mt-4 text-sm text-[#8a8494]">Perlu review</p>
-            <p class="mt-1 text-2xl font-medium text-[#171322]">{{ subject.pendingSubmissions }}</p>
+            <p class="mt-1 text-2xl font-medium text-[#171322]">
+              {{ subject.pendingSubmissions }}
+            </p>
           </article>
         </section>
 
-        <section class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5">
+        <section
+          class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5"
+        >
           <div class="flex flex-wrap gap-2 border-b border-[#ece8df] pb-4">
             <button
               v-for="tab in tabs"
@@ -265,10 +351,17 @@ onMounted(loadWorkspace)
                 v-if="materials.length === 0"
                 class="rounded-[18px] bg-[#faf8f4] p-5 text-center"
               >
-                <PhFileText :size="30" class="mx-auto text-[#b5afbf]" weight="duotone" />
-                <h2 class="mt-3 text-lg font-medium text-[#171322]">Belum ada materi</h2>
+                <PhFileText
+                  :size="30"
+                  class="mx-auto text-[#b5afbf]"
+                  weight="duotone"
+                />
+                <h2 class="mt-3 text-lg font-medium text-[#171322]">
+                  Belum ada materi
+                </h2>
                 <p class="mt-2 text-sm leading-6 text-[#6b6475]">
-                  Materi yang dibuat untuk subject class ini akan tampil di sini.
+                  Materi yang dibuat untuk subject class ini akan tampil di
+                  sini.
                 </p>
               </div>
 
@@ -278,13 +371,20 @@ onMounted(loadWorkspace)
                 :key="material.materialId"
                 :to="{
                   name: 'teacher-material-detail',
-                  params: { subjectClassId: subjectClassId, matId: material.materialId },
+                  params: {
+                    subjectClassId: subjectClassId,
+                    matId: material.materialId,
+                  },
                 }"
                 class="block rounded-[18px] bg-[#faf8f4] p-5 ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(66,55,40,0.08)]"
               >
-                <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div
+                  class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
+                >
                   <div>
-                    <p class="text-xs font-medium uppercase tracking-wide text-[#7aa7d9]">
+                    <p
+                      class="text-xs font-medium uppercase tracking-wide text-[#7aa7d9]"
+                    >
                       {{ materialTypeLabel(material.materialType) }}
                     </p>
                     <h2 class="mt-2 text-lg font-medium text-[#171322]">
@@ -301,12 +401,19 @@ onMounted(loadWorkspace)
                     {{ formatDateTime(material.createdAt) }}
                   </p>
                 </div>
-                <div class="mt-4 flex flex-wrap items-center gap-3 text-sm text-[#6b6475]">
-                  <span class="inline-flex items-center gap-2 rounded-2xl bg-white px-3 py-2">
+                <div
+                  class="mt-4 flex flex-wrap items-center gap-3 text-sm text-[#6b6475]"
+                >
+                  <span
+                    class="inline-flex items-center gap-2 rounded-2xl bg-white px-3 py-2"
+                  >
                     <PhPaperclip :size="16" weight="duotone" />
                     {{ materialAttachmentLabel(material) }}
                   </span>
-                  <span v-if="material.creatorName" class="rounded-2xl bg-white px-3 py-2">
+                  <span
+                    v-if="material.creatorName"
+                    class="rounded-2xl bg-white px-3 py-2"
+                  >
                     Oleh {{ material.creatorName }}
                   </span>
                 </div>
@@ -318,8 +425,14 @@ onMounted(loadWorkspace)
                 v-if="assignments.length === 0"
                 class="rounded-[18px] bg-[#faf8f4] p-5 text-center"
               >
-                <PhClipboardText :size="30" class="mx-auto text-[#b5afbf]" weight="duotone" />
-                <h2 class="mt-3 text-lg font-medium text-[#171322]">Belum ada tugas</h2>
+                <PhClipboardText
+                  :size="30"
+                  class="mx-auto text-[#b5afbf]"
+                  weight="duotone"
+                />
+                <h2 class="mt-3 text-lg font-medium text-[#171322]">
+                  Belum ada tugas
+                </h2>
                 <p class="mt-2 text-sm leading-6 text-[#6b6475]">
                   Tugas yang dibuat untuk subject class ini akan tampil di sini.
                 </p>
@@ -331,10 +444,14 @@ onMounted(loadWorkspace)
                 :key="assignment.assignmentId"
                 class="rounded-[18px] bg-[#faf8f4] p-5 ring-1 ring-black/5"
               >
-                <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div
+                  class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
+                >
                   <div>
-                    <p class="text-xs font-medium uppercase tracking-wide text-[#e58f86]">
-                      {{ assignment.categoryName || 'Tanpa kategori' }}
+                    <p
+                      class="text-xs font-medium uppercase tracking-wide text-[#e58f86]"
+                    >
+                      {{ assignment.categoryName || "Tanpa kategori" }}
                     </p>
                     <h2 class="mt-2 text-lg font-medium text-[#171322]">
                       {{ assignment.assignmentTitle }}
@@ -356,56 +473,72 @@ onMounted(loadWorkspace)
                   >
                     {{
                       assignment.allowLateSubmission
-                        ? 'Terlambat diizinkan'
-                        : 'Tidak menerima terlambat'
+                        ? "Terlambat diizinkan"
+                        : "Tidak menerima terlambat"
                     }}
                   </span>
                 </div>
-                <div class="mt-4 flex flex-wrap items-center gap-3 text-sm text-[#6b6475]">
-                  <span class="inline-flex items-center gap-2 rounded-2xl bg-white px-3 py-2">
+                <div
+                  class="mt-4 flex flex-wrap items-center gap-3 text-sm text-[#6b6475]"
+                >
+                  <span
+                    class="inline-flex items-center gap-2 rounded-2xl bg-white px-3 py-2"
+                  >
                     <PhCalendarBlank :size="16" weight="duotone" />
                     Deadline {{ formatDate(assignment.deadline) }}
                   </span>
-                  <span class="inline-flex items-center gap-2 rounded-2xl bg-white px-3 py-2">
+                  <span
+                    class="inline-flex items-center gap-2 rounded-2xl bg-white px-3 py-2"
+                  >
                     <PhPaperclip :size="16" weight="duotone" />
                     {{ assignment.attachments?.length ?? 0 }} attachment
                   </span>
-                  <RouterLink
-                    :to="{
-                      name: 'teacher-assignment-edit',
-                      params: { subjectClassId: subjectClassId, asgId: assignment.assignmentId },
-                    }"
-                    class="ml-auto inline-flex items-center gap-1.5 rounded-2xl bg-white px-3 py-2 text-xs font-medium text-[#4f46e5] transition border border-[#eef2ff] hover:bg-[#eef2ff]"
-                  >
-                    <PhPencilSimple :size="16" />
-                    Edit
-                  </RouterLink>
-                  <button
-                    @click="handleDeleteAssignment(assignment.assignmentId)"
-                    :disabled="deletingAssignmentId === assignment.assignmentId"
-                    class="inline-flex items-center gap-1.5 rounded-2xl bg-white px-3 py-2 text-xs font-medium text-[#dc2626] transition border border-[#fef2f2] hover:bg-[#fef2f2] disabled:opacity-50"
-                  >
-                    <PhTrash :size="16" />
-                    {{ deletingAssignmentId === assignment.assignmentId ? 'Menghapus...' : 'Hapus' }}
-                  </button>
-                  <RouterLink
-                    :to="{
-                      name: 'teacher-assignment-review',
-                      params: { assignmentId: assignment.assignmentId },
-                    }"
-                    class="inline-flex items-center gap-1.5 rounded-2xl bg-[#171322] px-3 py-2 text-xs font-medium text-white transition hover:bg-[#2f2b3a]"
-                  >
-                    Review pengumpulan
-                  </RouterLink>
+                  <div class="ml-auto flex items-center gap-2">
+                    <RouterLink
+                      :to="{
+                        name: 'teacher-assignment-edit',
+                        params: {
+                          subjectClassId: subjectClassId,
+                          asgId: assignment.assignmentId,
+                        },
+                      }"
+                      class="inline-flex items-center justify-center rounded-xl bg-white p-2 text-[#6b6475] transition border border-[#ebe7df] hover:border-[#4f46e5] hover:text-[#4f46e5]"
+                      title="Edit Tugas"
+                    >
+                      <PhPencilSimple :size="16" weight="bold" />
+                    </RouterLink>
+                    <button
+                      @click="handleDeleteAssignment(assignment.assignmentId)"
+                      :disabled="
+                        deletingAssignmentId === assignment.assignmentId
+                      "
+                      class="inline-flex items-center justify-center rounded-xl bg-white p-2 text-[#6b6475] transition border border-[#ebe7df] hover:border-[#dc2626] hover:text-[#dc2626] disabled:opacity-50"
+                      title="Hapus Tugas"
+                    >
+                      <PhTrash :size="16" weight="bold" />
+                    </button>
+                    <RouterLink
+                      :to="{
+                        name: 'teacher-assignment-review',
+                        params: { assignmentId: assignment.assignmentId },
+                      }"
+                      class="ml-1 inline-flex items-center gap-1.5 rounded-xl bg-[#171322] px-4 py-2 text-xs font-medium text-white transition hover:bg-[#2f2b3a]"
+                    >
+                      Review pengumpulan
+                    </RouterLink>
+                  </div>
                 </div>
               </article>
             </div>
 
             <div v-else class="space-y-3">
-              <div class="rounded-[18px] bg-[#faf8f4] p-5 text-sm leading-6 text-[#6b6475]">
-                Pengumpulan siswa dikelompokkan berdasarkan tugas pada subject ini. Halaman ini
-                masih read-only untuk daftar pengumpulan, dan review tersedia dari tombol di setiap
-                tugas yang sudah memiliki pengumpulan.
+              <div
+                class="rounded-[18px] bg-[#faf8f4] p-5 text-sm leading-6 text-[#6b6475]"
+              >
+                Pengumpulan siswa dikelompokkan berdasarkan tugas pada subject
+                ini. Halaman ini masih read-only untuk daftar pengumpulan, dan
+                review tersedia dari tombol di setiap tugas yang sudah memiliki
+                pengumpulan.
               </div>
 
               <div
@@ -437,18 +570,29 @@ onMounted(loadWorkspace)
                 v-else-if="submissionsError"
                 class="rounded-[18px] bg-white p-5 ring-1 ring-black/5"
               >
-                <h2 class="text-lg font-medium text-[#171322]">Pengumpulan gagal dimuat</h2>
-                <p class="mt-2 text-sm leading-6 text-[#6b6475]">{{ submissionsError }}</p>
+                <h2 class="text-lg font-medium text-[#171322]">
+                  Pengumpulan gagal dimuat
+                </h2>
+                <p class="mt-2 text-sm leading-6 text-[#6b6475]">
+                  {{ submissionsError }}
+                </p>
               </div>
 
               <div
                 v-else-if="submissionCount === 0"
                 class="rounded-[18px] bg-white p-5 text-center ring-1 ring-black/5"
               >
-                <PhCheckCircle :size="30" class="mx-auto text-[#b5afbf]" weight="duotone" />
-                <h2 class="mt-3 text-lg font-medium text-[#171322]">Belum ada pengumpulan</h2>
+                <PhCheckCircle
+                  :size="30"
+                  class="mx-auto text-[#b5afbf]"
+                  weight="duotone"
+                />
+                <h2 class="mt-3 text-lg font-medium text-[#171322]">
+                  Belum ada pengumpulan
+                </h2>
                 <p class="mt-2 text-sm leading-6 text-[#6b6475]">
-                  Pengumpulan siswa akan tampil setelah ada tugas yang dikumpulkan pada subject ini.
+                  Pengumpulan siswa akan tampil setelah ada tugas yang
+                  dikumpulkan pada subject ini.
                 </p>
               </div>
 
@@ -458,32 +602,48 @@ onMounted(loadWorkspace)
                 :key="group.assignment.assignmentId"
                 class="rounded-[18px] bg-white p-5 ring-1 ring-black/5"
               >
-                <div class="flex flex-col gap-3 border-b border-[#ece8df] pb-4 sm:flex-row sm:items-start sm:justify-between">
+                <div
+                  class="flex flex-col gap-3 border-b border-[#ece8df] pb-4 sm:flex-row sm:items-start sm:justify-between"
+                >
                   <div>
-                    <p class="text-xs font-medium uppercase tracking-wide text-[#7b61a8]">
-                      {{ group.assignment.categoryName || 'Assignment' }}
+                    <p
+                      class="text-xs font-medium uppercase tracking-wide text-[#7b61a8]"
+                    >
+                      {{ group.assignment.categoryName || "Assignment" }}
                     </p>
                     <h2 class="mt-2 text-lg font-medium text-[#171322]">
                       {{ group.assignment.assignmentTitle }}
                     </h2>
-                    <p v-if="group.assignment.deadline" class="mt-2 text-sm text-[#6b6475]">
+                    <p
+                      v-if="group.assignment.deadline"
+                      class="mt-2 text-sm text-[#6b6475]"
+                    >
                       Deadline {{ formatDate(group.assignment.deadline) }}
                     </p>
                   </div>
                   <div class="flex flex-col items-start gap-2 sm:items-end">
                     <div class="flex flex-wrap gap-2 text-xs font-medium">
-                      <span class="rounded-2xl bg-[#faf8f4] px-3 py-2 text-[#6b6475]">
+                      <span
+                        class="rounded-2xl bg-[#faf8f4] px-3 py-2 text-[#6b6475]"
+                      >
                         {{ group.submissionCount }} submission
                       </span>
-                      <span class="rounded-2xl bg-[#eef7f2] px-3 py-2 text-[#2f7d5c]">
+                      <span
+                        class="rounded-2xl bg-[#eef7f2] px-3 py-2 text-[#2f7d5c]"
+                      >
                         {{ group.gradedCount }} dinilai
                       </span>
-                      <span class="rounded-2xl bg-[#fff7e8] px-3 py-2 text-[#9f6b1d]">
+                      <span
+                        class="rounded-2xl bg-[#fff7e8] px-3 py-2 text-[#9f6b1d]"
+                      >
                         {{ group.pendingCount }} pending
                       </span>
                     </div>
                     <RouterLink
-                      v-if="group.submissionCount > 0 || group.submissions.length > 0"
+                      v-if="
+                        group.submissionCount > 0 ||
+                        group.submissions.length > 0
+                      "
                       :to="{
                         name: 'teacher-assignment-review',
                         params: { assignmentId: group.assignment.assignmentId },
@@ -509,7 +669,9 @@ onMounted(loadWorkspace)
                         Dikumpulkan {{ formatDateTime(submission.submittedAt) }}
                       </p>
                     </div>
-                    <div class="flex flex-wrap items-center gap-2 text-xs font-medium text-[#6b6475]">
+                    <div
+                      class="flex flex-wrap items-center gap-2 text-xs font-medium text-[#6b6475]"
+                    >
                       <span class="rounded-2xl bg-white px-3 py-2">
                         {{ submission.attachments?.length ?? 0 }} file
                       </span>
@@ -519,7 +681,10 @@ onMounted(loadWorkspace)
                       >
                         Terlambat
                       </span>
-                      <span v-if="submission.assessment" class="rounded-2xl bg-white px-3 py-2">
+                      <span
+                        v-if="submission.assessment"
+                        class="rounded-2xl bg-white px-3 py-2"
+                      >
                         Nilai {{ submission.assessment.score }}
                       </span>
                       <span
@@ -530,7 +695,11 @@ onMounted(loadWorkspace)
                             : 'bg-[#fff7e8] text-[#9f6b1d]'
                         "
                       >
-                        {{ submission.assessment ? 'Sudah dinilai' : 'Menunggu penilaian' }}
+                        {{
+                          submission.assessment
+                            ? "Sudah dinilai"
+                            : "Menunggu penilaian"
+                        }}
                       </span>
                     </div>
                   </div>

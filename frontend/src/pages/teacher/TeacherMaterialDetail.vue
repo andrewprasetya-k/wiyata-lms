@@ -67,7 +67,7 @@ onMounted(loadMaterial)
 
 <template>
   <main class="min-h-screen flex-1 px-5 py-5 sm:px-6 lg:px-8">
-    <div class="mb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 max-w-4xl">
+    <div class="mb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full max-w-none">
       <RouterLink
         class="inline-flex items-center gap-2 rounded-md bg-white px-4 py-2 text-sm font-medium text-[#6b6475] transition hover:text-[#171322]"
         :to="`/teacher/subjects/${subjectClassId}`"
@@ -95,13 +95,13 @@ onMounted(loadMaterial)
       </div>
     </div>
 
-    <section v-if="isLoading" class="max-w-4xl space-y-3">
+    <section v-if="isLoading" class="w-full max-w-none space-y-3">
       <div class="h-40 animate-pulse rounded-3xl border border-[#ebe7df] bg-white" />
       <div class="h-28 animate-pulse rounded-3xl border border-[#ebe7df] bg-white" />
       <div class="h-24 animate-pulse rounded-3xl border border-[#ebe7df] bg-white" />
     </section>
 
-    <section v-else-if="errorMessage" class="max-w-4xl rounded-[22px] bg-[#faf8f4] p-5">
+    <section v-else-if="errorMessage" class="w-full max-w-none rounded-[22px] bg-[#faf8f4] p-5">
       <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-[#fff1f0] text-[#f2756a]">
         <PhWarningCircle :size="24" weight="duotone" />
       </div>
@@ -116,7 +116,7 @@ onMounted(loadMaterial)
       </button>
     </section>
 
-    <section v-else-if="didLoad && !material" class="max-w-4xl rounded-[22px] bg-[#faf8f4] p-5">
+    <section v-else-if="didLoad && !material" class="w-full max-w-none rounded-[22px] bg-[#faf8f4] p-5">
       <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-[#eef2ff] text-[#4f46e5]">
         <PhBookOpen :size="24" weight="duotone" />
       </div>
@@ -126,7 +126,7 @@ onMounted(loadMaterial)
       </p>
     </section>
 
-    <section v-else-if="material" class="max-w-4xl space-y-4">
+    <section v-else-if="material" class="w-full max-w-none space-y-4">
       <article class="rounded-[22px] bg-[#faf8f4] p-5 ring-1 ring-black/5">
         <div class="mb-5 flex items-start gap-4">
           <div
