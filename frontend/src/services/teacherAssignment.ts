@@ -3,6 +3,7 @@ import type {
   AssignmentWithSubmissionsResponse,
   CreateAssignmentPayload, 
   SchoolCategoriesResponse,
+  TeacherSubmissionInboxResponse,
   TeacherSubjectClassSubmissionsResponse,
 } from '../types/teacherAssignment'
 
@@ -25,6 +26,11 @@ export async function getSubjectClassSubmissions(subjectClassId: string) {
   const { data } = await api.get<TeacherSubjectClassSubmissionsResponse>(
     `/assignments/subject-class/submissions/${subjectClassId}`,
   )
+  return data
+}
+
+export async function getTeacherSubmissionInbox() {
+  const { data } = await api.get<TeacherSubmissionInboxResponse>('/assignments/teacher-submissions')
   return data
 }
 

@@ -166,12 +166,58 @@ Base URL: `/api/assignments`
 - Returns `assignments: []` if the teacher owns the subject class but there are no assignments.
 - Route must be registered before `/subject-class/:subjectClassId`.
 
-### 7. Get Assignment Status
+### 7. Get Teacher Submissions Inbox
+- **URL:** `/teacher-submissions`
+- **Method:** `GET`
+- **Auth:** Required
+- **Role:** `teacher`
+- **School Context:** Requires `SchoolId` header
+- **Auth Note:** Teacher identity is taken from the JWT token. Do not send `teacherId`, `schoolUserId`, or `userId` in body/query.
+- **Purpose:** Teacher-safe aggregate endpoint for the global submissions inbox across all subject classes taught by the current teacher in the active school.
+- **Authorization:** Returns only assignments from active-school subject classes owned by the current teacher. Teacher class enrollment must still be active.
+
+**Response:**
+```json
+{
+  "summary": {
+    "totalSubmissions": 4,
+    "pendingCount": 2,
+    "gradedCount": 2,
+    "lateCount": 1
+  },
+  "items": [
+    {
+      "assignmentId": "uuid",
+      "subjectClassId": "uuid",
+      "assignmentTitle": "Quiz Chapter 1",
+      "subjectName": "Matematika",
+      "subjectCode": "MTK",
+      "className": "Kelas 10 A",
+      "classCode": "10A",
+      "deadline": "2026-03-01T23:59:59Z",
+      "submissionCount": 2,
+      "pendingCount": 1,
+      "gradedCount": 1,
+      "lateCount": 0
+    }
+  ]
+}
+```
+
+**Counting Rules:**
+- `submissionCount`: all active submissions for the assignment.
+- `gradedCount`: submissions that already have an assessment.
+- `pendingCount`: submissions that exist but do not have an assessment yet.
+- `lateCount`: submissions where `submittedAt > deadline`, only when deadline exists.
+- Summary totals are sums across all returned items.
+- Items are assignment-level rows with at least one submission.
+
+### 8. Get Assignment Status
 - **URL:** `/status/:id`
 - **Method:** `GET`
 - **Response:** Assignment with submission statistics (total, submitted, graded, pending)
 
-### 8. Get My Submission Status
+### 9. Get My Submission Status
 - **URL:** `/my-submission/:assignmentId`
 - **Method:** `GET`
 - **Auth:** Required

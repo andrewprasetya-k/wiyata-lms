@@ -22,6 +22,7 @@ type AssignmentService interface {
 	GetAssignmentByID(id string) (*domain.Assignment, error)
 	GetAssignmentWithSubmissions(id string) (*domain.Assignment, error)
 	GetSubjectClassSubmissions(subjectClassID string, schoolID string) ([]*domain.Assignment, error)
+	GetTeacherSubmissionInbox(userID string, schoolID string) (*dto.TeacherSubmissionInboxResponseDTO, error)
 	GetAssignmentStatus(assignmentID string) (map[string]interface{}, error)
 	UpdateAssignment(id string, asg *domain.Assignment, mediaIDs []string, actorUserID string, isAdmin bool, validateCategory bool) error
 	DeleteAssignment(id string) error
@@ -168,6 +169,28 @@ func (s *assignmentService) GetSubjectClassSubmissions(subjectClassID string, sc
 	}
 
 	return assignments, nil
+}
+
+func (s *assignmentService) GetTeacherSubmissionInbox(userID string, schoolID string) (*dto.TeacherSubmissionInboxResponseDTO, error) {
+	items, err := s.repo.GetTeacherSubmissionInbox(userID, schoolID)
+	if err != nil {
+		return nil, err
+	}
+	if items == nil {
+		items = []dto.TeacherSubmissionInboxItemDTO{}
+	}
+
+	response := &dto.TeacherSubmissionInboxResponseDTO{
+		Items: items,
+	}
+	for _, item := range items {
+		response.Summary.TotalSubmissions += item.SubmissionCount
+		response.Summary.PendingCount += item.PendingCount
+		response.Summary.GradedCount += item.GradedCount
+		response.Summary.LateCount += item.LateCount
+	}
+
+	return response, nil
 }
 
 func (s *assignmentService) GetAssignmentStatus(assignmentID string) (map[string]interface{}, error) {

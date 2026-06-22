@@ -146,6 +146,7 @@ Authorization: Bearer <your-jwt-token>
 - `POST /assignments` - Create assignment for current teacher-owned subject class with active-school category
 - `GET /assignments/subject-class/:subjectClassId` - Get assignments for accessible subject class
 - `GET /assignments/subject-class/submissions/:subjectClassId` - Get submissions grouped by assignment for current teacher subject class
+- `GET /assignments/teacher-submissions` - Get teacher global submissions inbox across current teacher-owned subject classes
 - `GET /assignments/:assignmentId` - Get assignment with submissions for current teacher-owned subject class
 - `GET /assignments/status/:id` - Get assignment status
 - `PATCH /assignments/:id` - Update active-school assignment (admin or owning teacher)

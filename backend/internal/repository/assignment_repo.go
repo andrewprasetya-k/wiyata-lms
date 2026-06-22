@@ -2,6 +2,7 @@ package repository
 
 import (
 	"backend/internal/domain"
+	"backend/internal/dto"
 	"errors"
 	"time"
 
@@ -20,6 +21,7 @@ type AssignmentRepository interface {
 	GetAssignmentByID(id string) (*domain.Assignment, error)
 	GetAssignmentWithSubmissions(id string) (*domain.Assignment, error)
 	GetAssignmentsWithSubmissionsBySubjectClass(subjectClassID string, schoolID string) ([]*domain.Assignment, error)
+	GetTeacherSubmissionInbox(userID string, schoolID string) ([]dto.TeacherSubmissionInboxItemDTO, error)
 	CountStudentsInClass(classID string) (int, error)
 	GetClassIDBySubjectClass(subjectClassID string) (string, error)
 	UpdateAssignment(asg *domain.Assignment) error
@@ -131,6 +133,42 @@ func (r *assignmentRepository) GetAssignmentsWithSubmissionsBySubjectClass(subje
 		Order("created_at desc").
 		Find(&assignments).Error
 	return assignments, err
+}
+
+func (r *assignmentRepository) GetTeacherSubmissionInbox(userID string, schoolID string) ([]dto.TeacherSubmissionInboxItemDTO, error) {
+	var rows []dto.TeacherSubmissionInboxItemDTO
+	err := r.db.Table("edv.assignments a").
+		Select(`
+			a.asg_id AS assignment_id,
+			sc.scl_id AS subject_class_id,
+			a.asg_title AS assignment_title,
+			sub.sub_name AS subject_name,
+			sub.sub_code AS subject_code,
+			c.cls_title AS class_name,
+			c.cls_code AS class_code,
+			a.asg_deadline AS deadline,
+			COUNT(s.sbm_id) AS submission_count,
+			COUNT(CASE WHEN asm.asm_sbm_id IS NULL THEN s.sbm_id END) AS pending_count,
+			COUNT(CASE WHEN asm.asm_sbm_id IS NOT NULL THEN s.sbm_id END) AS graded_count,
+			COUNT(CASE WHEN a.asg_deadline IS NOT NULL AND s.submitted_at > a.asg_deadline THEN s.sbm_id END) AS late_count
+		`).
+		Joins("JOIN edv.subject_classes sc ON sc.scl_id = a.asg_scl_id").
+		Joins("JOIN edv.classes c ON c.cls_id = sc.scl_cls_id").
+		Joins("JOIN edv.subjects sub ON sub.sub_id = sc.scl_sub_id").
+		Joins("JOIN edv.school_users teacher_scu ON teacher_scu.scu_id = sc.scl_scu_id").
+		Joins("JOIN edv.enrollments teacher_e ON teacher_e.enr_cls_id = sc.scl_cls_id AND teacher_e.enr_scu_id = sc.scl_scu_id").
+		Joins("LEFT JOIN edv.submissions s ON s.sbm_asg_id = a.asg_id AND s.sbm_sch_id = ? AND s.deleted_at IS NULL", schoolID).
+		Joins("LEFT JOIN (SELECT DISTINCT asm_sbm_id FROM edv.assessments) asm ON asm.asm_sbm_id = s.sbm_id").
+		Where("a.asg_sch_id = ? AND a.deleted_at IS NULL", schoolID).
+		Where("teacher_scu.scu_usr_id = ? AND teacher_scu.scu_sch_id = ?", userID, schoolID).
+		Where("teacher_e.enr_sch_id = ? AND teacher_e.enr_role = ? AND teacher_e.left_at IS NULL", schoolID, "teacher").
+		Where("c.cls_sch_id = ? AND c.deleted_at IS NULL", schoolID).
+		Where("sub.sub_sch_id = ?", schoolID).
+		Group("a.asg_id, sc.scl_id, a.asg_title, sub.sub_name, sub.sub_code, c.cls_title, c.cls_code, a.asg_deadline").
+		Having("COUNT(s.sbm_id) > 0").
+		Order("pending_count DESC, a.asg_deadline ASC NULLS LAST, a.asg_title ASC").
+		Scan(&rows).Error
+	return rows, err
 }
 
 func (r *assignmentRepository) CountStudentsInClass(classID string) (int, error) {

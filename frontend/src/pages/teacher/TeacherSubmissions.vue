@@ -8,47 +8,32 @@ import {
   PhClock,
   PhWarningCircle,
 } from "@phosphor-icons/vue";
-import { getSubjectClassSubmissions } from "../../services/teacherAssignment";
-import { getMyTeachingSubjectClasses } from "../../services/teacherSubjects";
+import { getTeacherSubmissionInbox } from "../../services/teacherAssignment";
 import type {
-  TeacherSubmissionGroup,
-  TeacherSubjectClassSubmissionsResponse,
+  TeacherSubmissionInboxItem,
+  TeacherSubmissionInboxSummary,
 } from "../../types/teacherAssignment";
-import type { TeacherSubjectClass } from "../../types/teacherSubjects";
 import { formatDate } from "../../utils/date";
 
 type InboxFilter = "all" | "pending" | "graded";
 
-interface SubmissionInboxItem {
-  subjectClassId: string;
-  subjectName: string;
-  subjectCode?: string;
-  className: string;
-  classCode?: string;
-  assignment: TeacherSubmissionGroup["assignment"];
-  submissionCount: number;
-  gradedCount: number;
-  pendingCount: number;
-  lateCount: number;
-}
-
 const loading = ref(false);
 const errorMessage = ref("");
-const subjects = ref<TeacherSubjectClass[]>([]);
-const inboxItems = ref<SubmissionInboxItem[]>([]);
+const inboxItems = ref<TeacherSubmissionInboxItem[]>([]);
+const inboxSummary = ref<TeacherSubmissionInboxSummary>({
+  totalSubmissions: 0,
+  pendingCount: 0,
+  gradedCount: 0,
+  lateCount: 0,
+});
 const activeFilter = ref<InboxFilter>("all");
 
-const summary = computed(() =>
-  inboxItems.value.reduce(
-    (total, item) => ({
-      submissions: total.submissions + item.submissionCount,
-      pending: total.pending + item.pendingCount,
-      graded: total.graded + item.gradedCount,
-      late: total.late + item.lateCount,
-    }),
-    { submissions: 0, pending: 0, graded: 0, late: 0 },
-  ),
-);
+const summary = computed(() => ({
+  submissions: inboxSummary.value.totalSubmissions,
+  pending: inboxSummary.value.pendingCount,
+  graded: inboxSummary.value.gradedCount,
+  late: inboxSummary.value.lateCount,
+}));
 
 const filterTabs = computed(() => [
   { id: "all" as const, label: "Semua", count: inboxItems.value.length },
@@ -78,70 +63,41 @@ const filteredItems = computed(() => {
   return [...items].sort(compareInboxItems);
 });
 
-function compareInboxItems(a: SubmissionInboxItem, b: SubmissionInboxItem) {
+function compareInboxItems(
+  a: TeacherSubmissionInboxItem,
+  b: TeacherSubmissionInboxItem,
+) {
   const pendingDiff = Number(b.pendingCount > 0) - Number(a.pendingCount > 0);
   if (pendingDiff !== 0) return pendingDiff;
 
-  const aDeadline = getDeadlineTime(a.assignment.deadline);
-  const bDeadline = getDeadlineTime(b.assignment.deadline);
+  const aDeadline = getDeadlineTime(a.deadline);
+  const bDeadline = getDeadlineTime(b.deadline);
   if (aDeadline !== bDeadline) return aDeadline - bDeadline;
 
-  return (a.assignment.assignmentTitle || "").localeCompare(
-    b.assignment.assignmentTitle || "",
-  );
+  return (a.assignmentTitle || "").localeCompare(b.assignmentTitle || "");
 }
 
-function getDeadlineTime(deadline?: string) {
+function getDeadlineTime(deadline?: string | null) {
   if (!deadline) return Number.MAX_SAFE_INTEGER;
   const value = new Date(deadline).getTime();
   return Number.isNaN(value) ? Number.MAX_SAFE_INTEGER : value;
 }
 
-function buildInboxItem(
-  subject: TeacherSubjectClass,
-  response: TeacherSubjectClassSubmissionsResponse,
-  group: TeacherSubmissionGroup,
-): SubmissionInboxItem {
-  const lateCount = group.submissions.filter((submission) => submission.isLate).length;
-  return {
-    subjectClassId: subject.subjectClassId,
-    subjectName:
-      response.subjectClass.subjectName || subject.subjectName || "Subject",
-    subjectCode: response.subjectClass.subjectCode || subject.subjectCode,
-    className: subject.className,
-    classCode: subject.classCode,
-    assignment: group.assignment,
-    submissionCount: group.submissionCount,
-    gradedCount: group.gradedCount,
-    pendingCount: group.pendingCount,
-    lateCount,
-  };
-}
-
 async function loadInbox() {
   loading.value = true;
   errorMessage.value = "";
-  subjects.value = [];
   inboxItems.value = [];
+  inboxSummary.value = {
+    totalSubmissions: 0,
+    pendingCount: 0,
+    gradedCount: 0,
+    lateCount: 0,
+  };
 
   try {
-    const subjectList = await getMyTeachingSubjectClasses();
-    subjects.value = subjectList;
-
-    if (subjectList.length === 0) return;
-
-    const responses = await Promise.all(
-      subjectList.map(async (subject) => ({
-        subject,
-        data: await getSubjectClassSubmissions(subject.subjectClassId),
-      })),
-    );
-
-    inboxItems.value = responses.flatMap(({ subject, data }) =>
-      (data.assignments ?? [])
-        .filter((group) => group.submissionCount > 0 || group.submissions.length > 0)
-        .map((group) => buildInboxItem(subject, data, group)),
-    );
+    const response = await getTeacherSubmissionInbox();
+    inboxItems.value = response.items ?? [];
+    inboxSummary.value = response.summary ?? inboxSummary.value;
   } catch {
     errorMessage.value =
       "Inbox pengumpulan belum bisa dimuat. Coba lagi beberapa saat.";
@@ -244,7 +200,7 @@ onMounted(loadInbox);
                 Daftar assignment dengan pengumpulan
               </p>
               <p class="mt-1 text-sm text-[#8a8494]">
-                {{ subjects.length }} subject diajar dalam school aktif.
+                {{ inboxItems.length }} assignment memiliki pengumpulan dalam school aktif.
               </p>
             </div>
             <div class="flex flex-wrap gap-2">
@@ -266,18 +222,18 @@ onMounted(loadInbox);
             </div>
           </div>
 
-          <div v-if="subjects.length === 0" class="py-10 text-center">
+          <div v-if="inboxItems.length === 0" class="py-10 text-center">
             <PhClipboardText
               :size="34"
               class="mx-auto text-[#b5afbf]"
               weight="duotone"
             />
             <h2 class="mt-3 text-lg font-medium text-[#171322]">
-              Belum ada subject yang diajar
+              Belum ada pengumpulan
             </h2>
             <p class="mx-auto mt-2 max-w-xl text-sm leading-6 text-[#6b6475]">
-              Pengumpulan akan tampil setelah admin menugaskan teacher ke
-              subject class dan siswa mulai mengumpulkan tugas.
+              Pengumpulan akan tampil setelah siswa mengumpulkan tugas pada
+              subject yang kamu ajar.
             </p>
           </div>
 
@@ -298,7 +254,7 @@ onMounted(loadInbox);
           <div v-else class="space-y-3 pt-5">
             <article
               v-for="item in filteredItems"
-              :key="`${item.subjectClassId}-${item.assignment.assignmentId}`"
+              :key="`${item.subjectClassId}-${item.assignmentId}`"
               class="rounded-[18px] bg-[#faf8f4] p-5 ring-1 ring-black/5"
             >
               <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -319,20 +275,14 @@ onMounted(loadInbox);
                   </div>
 
                   <h2 class="mt-4 text-lg font-medium text-[#171322]">
-                    {{ item.assignment.assignmentTitle }}
+                    {{ item.assignmentTitle }}
                   </h2>
                   <p
-                    v-if="item.assignment.categoryName || item.assignment.deadline"
+                    v-if="item.deadline"
                     class="mt-2 text-sm text-[#6b6475]"
                   >
-                    <span v-if="item.assignment.categoryName">
-                      {{ item.assignment.categoryName }}
-                    </span>
-                    <span v-if="item.assignment.categoryName && item.assignment.deadline">
-                      ·
-                    </span>
-                    <span v-if="item.assignment.deadline">
-                      Deadline {{ formatDate(item.assignment.deadline) }}
+                    <span>
+                      Deadline {{ formatDate(item.deadline) }}
                     </span>
                   </p>
                 </div>
@@ -340,7 +290,7 @@ onMounted(loadInbox);
                 <RouterLink
                   :to="{
                     name: 'teacher-assignment-review',
-                    params: { assignmentId: item.assignment.assignmentId },
+                    params: { assignmentId: item.assignmentId },
                   }"
                   class="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#171322] px-4 py-3 text-sm font-medium text-white transition hover:bg-[#2f2b3a]"
                 >

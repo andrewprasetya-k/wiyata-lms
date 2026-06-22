@@ -99,3 +99,30 @@ export interface TeacherSubjectClassSubmissionsResponse {
   assignments: TeacherSubmissionGroup[]
   summary: TeacherSubmissionSummary
 }
+
+export interface TeacherSubmissionInboxSummary {
+  totalSubmissions: number
+  pendingCount: number
+  gradedCount: number
+  lateCount: number
+}
+
+export interface TeacherSubmissionInboxItem {
+  assignmentId: string
+  subjectClassId: string
+  assignmentTitle: string
+  subjectName: string
+  subjectCode?: string
+  className: string
+  classCode?: string
+  deadline?: string | null
+  submissionCount: number
+  pendingCount: number
+  gradedCount: number
+  lateCount: number
+}
+
+export interface TeacherSubmissionInboxResponse {
+  summary: TeacherSubmissionInboxSummary
+  items: TeacherSubmissionInboxItem[]
+}

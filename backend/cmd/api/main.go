@@ -305,6 +305,7 @@ func main() {
 
 			// Assignments
 			assignmentAPI.POST("", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "teacher"), assignmentHandler.CreateAssignment)
+			assignmentAPI.GET("/teacher-submissions", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "teacher"), assignmentHandler.GetTeacherSubmissionInbox)
 			assignmentAPI.GET("/subject-class/submissions/:subjectClassId", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "teacher"), assignmentHandler.GetSubjectClassSubmissions)
 			assignmentAPI.GET("/subject-class/:subjectClassId", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "teacher", "student"), assignmentHandler.GetBySubjectClass)
 			assignmentAPI.GET("/status/:id", assignmentHandler.GetAssignmentStatus)
