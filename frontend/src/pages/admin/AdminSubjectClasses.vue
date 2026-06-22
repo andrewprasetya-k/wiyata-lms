@@ -729,13 +729,6 @@ onMounted(async () => {
               <p v-else-if="enrollmentsError" class="text-[#DC2626]">
                 {{ enrollmentsError }}
               </p>
-              <p
-                v-else-if="selectedClassId && teacherCandidates.length === 0"
-                class="text-[#6B7280]"
-              >
-                Belum ada teacher eligible. Pastikan teacher punya school role
-                teacher dan class_role teacher di kelas ini.
-              </p>
             </div>
 
             <button

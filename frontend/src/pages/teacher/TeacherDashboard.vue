@@ -108,8 +108,7 @@ onMounted(loadDashboard);
               Selamat mengajar, {{ teacherName }}
             </h1>
             <p class="mt-3 max-w-2xl text-sm leading-6 text-[#6b6475]">
-              Ruang guru berfokus pada subject class yang diampu. Data di bawah
-              memakai aggregate dashboard backend yang tersedia saat ini.
+              Dashboard Guru
             </p>
           </div>
 
