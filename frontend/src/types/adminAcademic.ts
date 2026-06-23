@@ -77,3 +77,28 @@ export interface CreateAssignmentCategoryPayload {
   schoolId: string
   categoryName: string
 }
+
+export interface AssessmentWeightItem {
+  weightId: string
+  categoryId: string
+  categoryName: string
+  weight: number
+}
+
+export interface AssessmentWeightsResponse {
+  subjectId: string
+  subjectName: string
+  subjectCode: string
+  weights: AssessmentWeightItem[]
+  totalWeight: number
+}
+
+export interface SaveAssessmentWeightItem {
+  categoryId: string
+  weight: number
+}
+
+export interface SaveAssessmentWeightsPayload {
+  subjectId: string
+  weights: SaveAssessmentWeightItem[]
+}

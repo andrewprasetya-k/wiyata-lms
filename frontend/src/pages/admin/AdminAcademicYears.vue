@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useAuthStore } from "../../stores/auth";
 import { useToastStore } from "../../stores/toast";
 import {
@@ -13,11 +13,14 @@ import {
   deactivateTerm,
   getAcademicYearsBySchool,
   getAssignmentCategoriesBySchool,
+  getAssessmentWeightsBySubject,
   getSubjectsBySchool,
   getTermsByAcademicYear,
+  saveAssessmentWeights,
 } from "../../services/adminAcademic";
 import type {
   AcademicYearItem,
+  AssessmentWeightItem,
   AssignmentCategoryItem,
   SubjectItem,
   TermItem,
@@ -26,6 +29,7 @@ import { formatDateTime } from "../../utils/date";
 import {
   PhBookOpen,
   PhCalendarBlank,
+  PhChartBar,
   PhChecks,
   PhPlusCircle,
   PhTag,
@@ -56,6 +60,8 @@ const terms = ref<TermItem[]>([]);
 const subjects = ref<SubjectItem[]>([]);
 const categories = ref<AssignmentCategoryItem[]>([]);
 const selectedAcademicYearId = ref("");
+const selectedWeightSubjectId = ref("");
+const weightInputs = ref<Record<string, string>>({});
 
 const academicYearsLoading = ref(false);
 const academicYearsError = ref("");
@@ -65,6 +71,9 @@ const subjectsLoading = ref(false);
 const subjectsError = ref("");
 const categoriesLoading = ref(false);
 const categoriesError = ref("");
+const weightsLoading = ref(false);
+const weightsError = ref("");
+const weightsInfoMessage = ref("");
 const activeAction = ref("");
 
 const academicYearForm = ref({ academicYearName: "" });
@@ -78,6 +87,89 @@ const selectedAcademicYear = computed(
       (year) => year.academicYearId === selectedAcademicYearId.value,
     ) ?? null,
 );
+
+const selectedWeightSubject = computed(
+  () =>
+    subjects.value.find(
+      (subject) => subject.subjectId === selectedWeightSubjectId.value,
+    ) ?? null,
+);
+
+const totalWeight = computed(() =>
+  categories.value.reduce(
+    (total, category) => total + parseWeightValue(weightInputs.value[category.categoryId]),
+    0,
+  ),
+);
+
+const hasInvalidWeight = computed(() =>
+  categories.value.some((category) => {
+    const rawValue = weightInputs.value[category.categoryId];
+    if (rawValue === "" || rawValue === undefined) return false;
+    const value = Number(rawValue);
+    return Number.isNaN(value) || value < 0 || value > 100;
+  }),
+);
+
+const isWeightTotalValid = computed(
+  () => Math.abs(totalWeight.value - 100) <= 0.01,
+);
+
+const canSubmitWeights = computed(
+  () =>
+    currentSchool.value.hasContext &&
+    Boolean(selectedWeightSubjectId.value) &&
+    categories.value.length > 0 &&
+    !hasInvalidWeight.value &&
+    isWeightTotalValid.value &&
+    activeAction.value !== "weights-save",
+);
+
+function parseWeightValue(value?: string) {
+  if (value === undefined || value.trim() === "") return 0;
+  const numericValue = Number(value);
+  if (Number.isNaN(numericValue)) return 0;
+  return numericValue;
+}
+
+function formatWeight(value: number) {
+  return new Intl.NumberFormat("id-ID", {
+    maximumFractionDigits: 2,
+  }).format(value);
+}
+
+function getApiErrorMessage(error: unknown, fallback: string) {
+  if (typeof error === "object" && error !== null && "response" in error) {
+    const response = (error as {
+      response?: { data?: { error?: unknown; message?: unknown } };
+    }).response;
+    if (typeof response?.data?.error === "string") return response.data.error;
+    if (typeof response?.data?.message === "string") return response.data.message;
+  }
+
+  return fallback;
+}
+
+function getApiStatus(error: unknown) {
+  if (typeof error === "object" && error !== null && "response" in error) {
+    return (error as { response?: { status?: number } }).response?.status;
+  }
+
+  return undefined;
+}
+
+function resetWeightInputs(weights: AssessmentWeightItem[] = []) {
+  const nextInputs: Record<string, string> = {};
+  const weightMap = new Map(
+    weights.map((weight) => [weight.categoryId, String(weight.weight)]),
+  );
+
+  for (const category of categories.value) {
+    nextInputs[category.categoryId] = weightMap.get(category.categoryId) ?? "0";
+  }
+
+  weightInputs.value = nextInputs;
+}
 
 async function loadAcademicYears() {
   if (!currentSchool.value.hasContext) return;
@@ -137,6 +229,14 @@ async function loadSubjects() {
   try {
     const data = await getSubjectsBySchool(currentSchool.value.schoolCode);
     subjects.value = data.subjects ?? [];
+    if (
+      !selectedWeightSubjectId.value ||
+      !subjects.value.some(
+        (subject) => subject.subjectId === selectedWeightSubjectId.value,
+      )
+    ) {
+      selectedWeightSubjectId.value = subjects.value[0]?.subjectId ?? "";
+    }
   } catch {
     subjectsError.value = "Mata pelajaran belum bisa dimuat.";
   } finally {
@@ -154,6 +254,7 @@ async function loadCategories() {
       currentSchool.value.schoolCode,
     );
     categories.value = data.categories ?? [];
+    resetWeightInputs();
   } catch {
     categoriesError.value = "Kategori tugas belum bisa dimuat.";
   } finally {
@@ -165,6 +266,7 @@ async function refreshAll() {
   await loadAcademicYears();
   await Promise.all([loadSubjects(), loadCategories()]);
   await loadTerms();
+  await loadAssessmentWeights();
 }
 
 async function submitAcademicYear() {
@@ -313,8 +415,81 @@ async function submitCategory() {
     categoryForm.value.categoryName = "";
     toast.success("Kategori tugas berhasil dibuat.");
     await loadCategories();
+    await loadAssessmentWeights();
   } catch {
     toast.error("Kategori tugas belum bisa dibuat.");
+  } finally {
+    activeAction.value = "";
+  }
+}
+
+async function loadAssessmentWeights() {
+  weightsError.value = "";
+  weightsInfoMessage.value = "";
+
+  if (!selectedWeightSubjectId.value || categories.value.length === 0) {
+    resetWeightInputs();
+    return;
+  }
+
+  weightsLoading.value = true;
+  resetWeightInputs();
+
+  try {
+    const response = await getAssessmentWeightsBySubject(selectedWeightSubjectId.value);
+    resetWeightInputs(response.weights ?? []);
+    weightsInfoMessage.value = response.weights?.length
+      ? "Bobot tersimpan sudah dimuat."
+      : "";
+  } catch (error) {
+    resetWeightInputs();
+    if (getApiStatus(error) === 404) {
+      weightsInfoMessage.value =
+        "Bobot belum dikonfigurasi untuk mata pelajaran ini.";
+    } else {
+      weightsError.value = getApiErrorMessage(
+        error,
+        "Bobot nilai belum bisa dimuat.",
+      );
+    }
+  } finally {
+    weightsLoading.value = false;
+  }
+}
+
+async function submitAssessmentWeights() {
+  if (!selectedWeightSubjectId.value) {
+    toast.error("Pilih mata pelajaran terlebih dahulu.");
+    return;
+  }
+  if (categories.value.length === 0) {
+    toast.error("Tambahkan kategori tugas terlebih dahulu.");
+    return;
+  }
+  if (hasInvalidWeight.value) {
+    toast.error("Bobot harus berada di antara 0 sampai 100.");
+    return;
+  }
+  if (!isWeightTotalValid.value) {
+    toast.error("Total bobot harus 100%.");
+    return;
+  }
+
+  activeAction.value = "weights-save";
+  weightsError.value = "";
+
+  try {
+    await saveAssessmentWeights({
+      subjectId: selectedWeightSubjectId.value,
+      weights: categories.value.map((category) => ({
+        categoryId: category.categoryId,
+        weight: parseWeightValue(weightInputs.value[category.categoryId]),
+      })),
+    });
+    toast.success("Bobot nilai berhasil disimpan.");
+    await loadAssessmentWeights();
+  } catch (error) {
+    toast.error(getApiErrorMessage(error, "Bobot nilai belum bisa disimpan."));
   } finally {
     activeAction.value = "";
   }
@@ -331,6 +506,10 @@ function isTermActionPending(termId: string) {
 onMounted(async () => {
   if (!currentSchool.value.hasContext) return;
   await refreshAll();
+});
+
+watch(selectedWeightSubjectId, () => {
+  loadAssessmentWeights();
 });
 </script>
 
@@ -726,6 +905,181 @@ onMounted(async () => {
             </article>
           </div>
         </article>
+      </section>
+
+      <section class="soft-card rounded-[18px] p-5">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div class="max-w-3xl">
+            <p class="text-sm font-medium text-[#4f46e5]">Grading policy</p>
+            <h2 class="mt-2 text-xl font-medium text-[#171322]">Bobot Nilai</h2>
+            <p class="mt-2 text-sm leading-6 text-[#6b6475]">
+              Bobot berlaku per mata pelajaran dan digunakan untuk menghitung
+              Rata-rata berbobot sementara. Ini bukan nilai rapor final resmi.
+            </p>
+          </div>
+          <div
+            class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#eef2ff] text-[#4f46e5]"
+          >
+            <PhChartBar :size="24" weight="duotone" />
+          </div>
+        </div>
+
+        <div
+          v-if="subjects.length === 0"
+          class="mt-5 rounded-2xl bg-[#fbfaf8] p-4 text-sm leading-6 text-[#6b6475]"
+        >
+          Tambahkan mata pelajaran terlebih dahulu sebelum mengatur bobot nilai.
+        </div>
+
+        <div
+          v-else-if="categories.length === 0"
+          class="mt-5 rounded-2xl bg-[#fbfaf8] p-4 text-sm leading-6 text-[#6b6475]"
+        >
+          Tambahkan kategori tugas terlebih dahulu sebelum mengatur bobot nilai.
+        </div>
+
+        <div
+          v-else
+          class="mt-5 grid gap-5 xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]"
+        >
+          <div class="rounded-2xl border border-[#ece7f2] bg-[#fcfbfd] p-4">
+            <label class="block text-sm font-medium text-[#3f3a4a]">
+              Mata pelajaran
+              <select
+                v-model="selectedWeightSubjectId"
+                class="mt-2 w-full rounded-2xl border border-[#e7e1ec] bg-white px-4 py-3 text-sm text-[#171322] outline-none transition focus:border-[#7b61a8]"
+              >
+                <option value="" disabled>Pilih mata pelajaran</option>
+                <option
+                  v-for="subject in subjects"
+                  :key="subject.subjectId"
+                  :value="subject.subjectId"
+                >
+                  {{ subject.subjectName }} · {{ subject.subjectCode }}
+                </option>
+              </select>
+            </label>
+
+            <div class="mt-4 rounded-2xl bg-white p-4">
+              <p class="text-xs text-[#8b8592]">Total bobot</p>
+              <div class="mt-2 flex flex-wrap items-end justify-between gap-3">
+                <p
+                  class="text-3xl font-medium"
+                  :class="isWeightTotalValid ? 'text-[#027a48]' : 'text-[#b45309]'"
+                >
+                  {{ formatWeight(totalWeight) }}%
+                </p>
+                <span
+                  class="rounded-full px-3 py-1 text-xs font-medium"
+                  :class="
+                    isWeightTotalValid
+                      ? 'bg-[#ecf8f1] text-[#4e8a73]'
+                      : 'bg-[#fff7ed] text-[#b45309]'
+                  "
+                >
+                  {{ isWeightTotalValid ? "Valid" : "Harus 100%" }}
+                </span>
+              </div>
+              <p class="mt-3 text-xs leading-5 text-[#7a7385]">
+                Total bobot harus 100% sebelum disimpan.
+              </p>
+            </div>
+
+            <p
+              v-if="selectedWeightSubject"
+              class="mt-4 rounded-2xl bg-[#eef2ff] px-4 py-3 text-xs leading-5 text-[#4f46e5]"
+            >
+              Bobot yang disimpan akan berlaku untuk semua kelas pada mata
+              pelajaran {{ selectedWeightSubject.subjectName }}.
+            </p>
+          </div>
+
+          <form
+            class="rounded-2xl border border-[#ece7f2] bg-[#fcfbfd] p-4"
+            @submit.prevent="submitAssessmentWeights"
+          >
+            <div
+              class="flex flex-col gap-3 border-b border-[#ece7f2] pb-4 sm:flex-row sm:items-start sm:justify-between"
+            >
+              <div>
+                <p class="text-sm font-medium text-[#171322]">Kategori dan bobot</p>
+                <p class="mt-1 text-xs leading-5 text-[#7a7385]">
+                  Kosong dianggap 0. Setiap kategori hanya muncul satu kali.
+                </p>
+              </div>
+              <button
+                class="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#171322] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#2f2b3a] disabled:cursor-not-allowed disabled:opacity-60"
+                type="submit"
+                :disabled="!canSubmitWeights"
+              >
+                <PhChecks :size="16" weight="duotone" />
+                {{ activeAction === "weights-save" ? "Menyimpan..." : "Simpan bobot" }}
+              </button>
+            </div>
+
+            <div v-if="weightsLoading" class="mt-4 space-y-3">
+              <div
+                v-for="item in 3"
+                :key="item"
+                class="h-14 animate-pulse rounded-2xl bg-white"
+              />
+            </div>
+
+            <div v-else class="mt-4 space-y-3">
+              <p
+                v-if="weightsError"
+                class="rounded-2xl bg-[#fff8f6] px-4 py-3 text-sm leading-6 text-[#a8665d]"
+              >
+                {{ weightsError }}
+              </p>
+              <p
+                v-else-if="weightsInfoMessage"
+                class="rounded-2xl bg-[#eef2ff] px-4 py-3 text-sm leading-6 text-[#4f46e5]"
+              >
+                {{ weightsInfoMessage }}
+              </p>
+
+              <div
+                v-for="category in categories"
+                :key="category.categoryId"
+                class="grid gap-3 rounded-2xl bg-white p-4 sm:grid-cols-[minmax(0,1fr)_140px]"
+              >
+                <div class="min-w-0">
+                  <p class="truncate text-sm font-medium text-[#171322]">
+                    {{ category.categoryName }}
+                  </p>
+                  <p class="mt-1 text-xs text-[#8b8592]">
+                    Kategori tugas sekolah aktif
+                  </p>
+                </div>
+                <label class="text-xs font-medium text-[#6b6475]">
+                  Bobot (%)
+                  <input
+                    v-model="weightInputs[category.categoryId]"
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.01"
+                    class="mt-1 w-full rounded-2xl border border-[#e7e1ec] bg-[#fbfaf8] px-3 py-2 text-right text-sm text-[#171322] outline-none transition focus:border-[#7b61a8]"
+                  />
+                </label>
+              </div>
+
+              <p
+                v-if="hasInvalidWeight"
+                class="rounded-2xl bg-[#fff8f6] px-4 py-3 text-sm leading-6 text-[#a8665d]"
+              >
+                Bobot harus berada di antara 0 sampai 100.
+              </p>
+              <p
+                v-else-if="!isWeightTotalValid"
+                class="rounded-2xl bg-[#fff7ed] px-4 py-3 text-sm leading-6 text-[#b45309]"
+              >
+                Total bobot harus 100%.
+              </p>
+            </div>
+          </form>
+        </div>
       </section>
     </section>
   </main>

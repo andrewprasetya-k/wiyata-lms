@@ -1,10 +1,12 @@
 import { api } from './api'
 import type {
   AcademicYearsBySchoolResponse,
+  AssessmentWeightsResponse,
   CreateAcademicYearPayload,
   CreateAssignmentCategoryPayload,
   CreateSubjectPayload,
   CreateTermPayload,
+  SaveAssessmentWeightsPayload,
   SchoolAssignmentCategoriesResponse,
   SchoolSubjectsResponse,
   TermItem,
@@ -69,5 +71,17 @@ export async function getAssignmentCategoriesBySchool(schoolCode: string) {
 
 export async function createAssignmentCategory(payload: CreateAssignmentCategoryPayload) {
   const { data } = await api.post('/assignments/categories', payload)
+  return data
+}
+
+export async function getAssessmentWeightsBySubject(subjectId: string) {
+  const { data } = await api.get<AssessmentWeightsResponse>(
+    `/grades/weights/subject/${subjectId}`,
+  )
+  return data
+}
+
+export async function saveAssessmentWeights(payload: SaveAssessmentWeightsPayload) {
+  const { data } = await api.post('/grades/weights', payload)
   return data
 }
