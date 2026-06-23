@@ -277,7 +277,7 @@ Media IDs attached to materials, assignments, and submissions are validated befo
 *Admin subject_class assignment requires active `SchoolId`; class, subject, and teacher school_user must belong to the active school. The teacher school_user must have school role `teacher` and must already be enrolled in the class with `class_role = teacher`.
 Subject_class unassign is admin-only and active-school scoped. It is allowed only for empty setup mistakes; the API blocks removal when the subject_class already has materials or assignments.
 
-**Teacher workspace access uses JWT user identity plus active `SchoolId`; teachers only see subject classes they teach.
+**Teacher workspace access uses JWT user identity plus active `SchoolId`; teachers only see subject classes they teach while still actively enrolled in the class as `teacher` (`left_at IS NULL`).
 
 ### Grade Book
 | Endpoint | Method | super_admin | admin | teacher | student |

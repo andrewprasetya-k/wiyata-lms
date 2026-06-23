@@ -94,7 +94,7 @@ Authorization: Bearer <your-jwt-token>
 
 ## 📖 Subject Classes (Teacher Assignment)
 - `POST /subject-classes/assign` - Assign active-school subject and eligible teacher school_user to active-school class (admin)
-- `GET /subject-classes/my-teaching` - Get subject classes taught by current teacher
+- `GET /subject-classes/my-teaching` - Get active subject classes taught by current teacher with active teacher class enrollment
 - `GET /subject-classes/class/:classId` - Get subject classes by active-school class
 - `GET /subject-classes/:id` - Get subject class detail within active school
 - `PATCH /subject-classes/:id` - Update subject class assignment within active school (admin)

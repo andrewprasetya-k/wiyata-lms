@@ -36,7 +36,7 @@ const feedLoading = ref(false);
 const submitting = ref(false);
 const classesError = ref("");
 const feedError = ref("");
-const feedAccessWarning = ref("");
+const feedAccessMessage = ref("");
 
 const activeSchoolId = computed(
   () => auth.activeSchoolId ?? auth.defaultContext?.schoolId ?? "",
@@ -48,7 +48,7 @@ const canSubmit = computed(
   () =>
     Boolean(activeSchoolId.value && selectedClassId.value && content.value.trim()) &&
     !submitting.value &&
-    !feedAccessWarning.value,
+    !feedAccessMessage.value,
 );
 
 function mapTeachingClasses(subjects: TeacherSubjectClass[]) {
@@ -126,12 +126,14 @@ async function loadFeed() {
   if (!selectedClassId.value) {
     posts.value = [];
     classHeader.value = null;
+    feedError.value = "";
+    feedAccessMessage.value = "";
     return;
   }
 
   feedLoading.value = true;
   feedError.value = "";
-  feedAccessWarning.value = "";
+  feedAccessMessage.value = "";
 
   try {
     const response = await getClassFeed(selectedClassId.value);
@@ -141,8 +143,8 @@ async function loadFeed() {
     posts.value = [];
     classHeader.value = null;
     if (isForbiddenError(error)) {
-      feedAccessWarning.value =
-        "Anda belum memiliki akses aktif ke pengumuman kelas ini. Pastikan guru masih terdaftar aktif di Penempatan Kelas.";
+      feedAccessMessage.value =
+        "Feed kelas ini belum bisa dimuat. Pastikan guru masih aktif di Penempatan Kelas.";
     } else {
       feedError.value = getErrorMessage(
         error,
@@ -181,9 +183,8 @@ async function submitFeed() {
     await loadFeed();
   } catch (error) {
     if (isForbiddenError(error)) {
-      feedAccessWarning.value =
-        "Anda belum memiliki akses aktif ke pengumuman kelas ini. Pastikan guru masih terdaftar aktif di Penempatan Kelas.";
-      toast.error("Akses aktif ke kelas ini belum tersedia.");
+      feedAccessMessage.value =
+        "Feed kelas ini belum bisa dimuat. Pastikan guru masih aktif di Penempatan Kelas.";
     } else {
       toast.error(getErrorMessage(error, "Pengumuman belum bisa dikirim."));
     }
@@ -269,8 +270,7 @@ onMounted(async () => {
           Belum ada kelas yang diajar
         </p>
         <p class="mt-2 text-sm leading-6 text-[#6b6475]">
-          Feed dapat dibuat setelah admin menugaskan Anda ke subject class dan
-          enrollment teacher di kelas tersebut masih aktif.
+          Belum ada kelas aktif yang bisa digunakan untuk pengumuman.
         </p>
       </section>
 
@@ -328,8 +328,8 @@ onMounted(async () => {
             />
             <div class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <p class="text-xs text-[#8b8592]">
-                <span v-if="feedAccessWarning">
-                  Pengumuman belum bisa dikirim sampai akses kelas aktif.
+                <span v-if="feedAccessMessage">
+                  Pengumuman belum bisa dikirim untuk kelas ini.
                 </span>
                 <span v-else>
                   Attachment dan komentar belum diaktifkan untuk feed MVP.
@@ -380,13 +380,15 @@ onMounted(async () => {
             </div>
 
             <div
-              v-else-if="feedAccessWarning"
-              class="rounded-2xl border border-[#fed7aa] bg-[#fff7ed] p-4 text-sm leading-6 text-[#9a3412]"
+              v-else-if="feedAccessMessage"
+              class="rounded-2xl bg-[#fbfaf8] p-4"
             >
-              <div class="flex items-start gap-3">
-                <PhWarningCircle :size="20" class="mt-0.5 shrink-0" />
-                <p>{{ feedAccessWarning }}</p>
-              </div>
+              <p class="text-sm font-medium text-[#171322]">
+                Feed belum bisa dimuat
+              </p>
+              <p class="mt-2 text-sm leading-6 text-[#7a7385]">
+                {{ feedAccessMessage }}
+              </p>
             </div>
 
             <div

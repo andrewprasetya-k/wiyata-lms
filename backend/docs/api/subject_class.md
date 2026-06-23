@@ -75,6 +75,7 @@ Retrieve subject classes taught by the current logged-in teacher in the active s
 - **Role:** `teacher`
 - **School Context:** Requires `SchoolId` header
 - **Auth Note:** Teacher identity is taken from the JWT token and current school membership. Do not send `userId` or `schoolUserId` in body/query.
+- **Authorization:** Returns only active-school subject classes assigned to the current teacher where the teacher is still actively enrolled in the class as `teacher` (`left_at IS NULL`).
 
 **Response:**
 ```json
@@ -98,7 +99,7 @@ Retrieve subject classes taught by the current logged-in teacher in the active s
 ```
 
 **Notes:**
-- `studentCount` is counted from class enrollments with role `student`.
+- `studentCount` is counted from active class enrollments with role `student`.
 - `materialCount` and `assignmentCount` are scoped to the subject class.
 - `pendingSubmissions` counts submitted assignment submissions in this subject class that do not have an assessment yet.
 - This endpoint is intended for teacher subject workspace pages such as `/teacher/subjects`.

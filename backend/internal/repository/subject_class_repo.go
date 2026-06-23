@@ -80,6 +80,12 @@ func (r *subjectClassRepository) GetTeachingByUserAndSchool(userID string, schoo
 		JOIN edv.school_users teacher_scu ON teacher_scu.scu_id = sc.scl_scu_id
 		JOIN edv.classes c ON c.cls_id = sc.scl_cls_id
 		JOIN edv.subjects sub ON sub.sub_id = sc.scl_sub_id
+		JOIN edv.enrollments teacher_enr
+			ON teacher_enr.enr_cls_id = c.cls_id
+			AND teacher_enr.enr_scu_id = sc.scl_scu_id
+			AND teacher_enr.enr_sch_id = ?
+			AND teacher_enr.enr_role = 'teacher'
+			AND teacher_enr.left_at IS NULL
 		LEFT JOIN edv.enrollments enr
 			ON enr.enr_cls_id = c.cls_id
 			AND enr.enr_sch_id = ?
@@ -106,7 +112,7 @@ func (r *subjectClassRepository) GetTeachingByUserAndSchool(userID string, schoo
 			AND c.deleted_at IS NULL
 		GROUP BY sc.scl_id, c.cls_id, c.cls_title, c.cls_code, sub.sub_id, sub.sub_name, sub.sub_code
 		ORDER BY c.cls_title ASC, sub.sub_name ASC
-	`, schoolID, schoolID, schoolID, schoolID, userID, schoolID, schoolID, schoolID).Scan(&results).Error
+	`, schoolID, schoolID, schoolID, schoolID, schoolID, userID, schoolID, schoolID, schoolID).Scan(&results).Error
 	return results, err
 }
 
