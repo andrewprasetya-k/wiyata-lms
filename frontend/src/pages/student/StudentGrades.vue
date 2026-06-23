@@ -304,12 +304,21 @@ onMounted(loadGrades);
               </h2>
             </div>
             <div class="rounded-2xl bg-white/15 px-4 py-3 backdrop-blur">
-              <p class="text-xs text-white/80">Nilai akhir</p>
+              <p class="text-xs text-white/80">Rata-rata berbobot</p>
               <p class="mt-1 text-2xl font-medium">
                 {{ formatScore(subject.finalGrade) }}
                 <span v-if="subject.letterGrade" class="text-sm text-white/80">
                   {{ subject.letterGrade }}
                 </span>
+              </p>
+              <p
+                v-if="subject.finalGrade !== null && subject.finalGrade !== undefined"
+                class="mt-2 max-w-xs text-xs leading-5 text-white/75"
+              >
+                Dihitung dari tugas yang sudah dinilai dan bobot kategori yang tersedia.
+              </p>
+              <p v-else class="mt-2 max-w-xs text-xs leading-5 text-white/75">
+                Belum tersedia karena bobot atau nilai belum lengkap.
               </p>
             </div>
           </div>

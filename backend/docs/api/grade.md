@@ -4,7 +4,7 @@ Base URL: `/api/grades`
 
 ## Overview
 
-Grade Book system untuk manage assessment weights dan calculate final grades berdasarkan weighted categories.
+Grade Book system untuk manage assessment weights dan calculate provisional weighted grades berdasarkan kategori penilaian.
 
 ---
 
@@ -100,6 +100,9 @@ SchoolId: uuid-school-id
 - Student hanya bisa melihat gradebook untuk class tempat dia ter-enroll sebagai student.
 - Response dikelompokkan berdasarkan `subjectClassId`.
 - `finalGrade` dan `letterGrade` bernilai `null` jika bobot nilai belum dikonfigurasi atau belum ada nilai yang bisa dihitung.
+- Untuk MVP, field `finalGrade` adalah nilai berbobot sementara/provisional. Nilai ini dihitung dari assignment yang sudah dinilai dan kategori yang memiliki bobot tersedia.
+- Assignment yang belum dikumpulkan atau sudah dikumpulkan tetapi belum dinilai tidak masuk ke kalkulasi `finalGrade` saat ini.
+- `finalGrade` belum berarti nilai rapor/final resmi karena belum ada policy finalisasi term, `max_score`, late penalty, atau rilis nilai resmi.
 
 **Response (200 OK):**
 ```json
@@ -155,7 +158,7 @@ SchoolId: uuid-school-id
 ---
 
 ## 4. Get Class Grade Report
-Retrieve final grades untuk seluruh student di kelas untuk mata pelajaran tertentu.
+Retrieve provisional weighted grades untuk seluruh student di kelas untuk mata pelajaran tertentu.
 
 - **URL:** `/class/:classId/subject/:subjectId`
 - **Method:** `GET`
@@ -229,9 +232,9 @@ Retrieve final grades untuk seluruh student di kelas untuk mata pelajaran terten
 
 1. **Admin/Teacher configure weights** per subject
 2. **Teacher grade assignments** (via assignment endpoints)
-3. **System auto-calculate final grades** based on weights
+3. **System auto-calculate provisional weighted grades** based on weights and graded assignments
 4. **Students view their own gradebook** via `/api/grades/my-grades/:classId`
-5. **Teachers view final grades** with breakdown
+5. **Teachers view grade reports** with breakdown
 
 ---
 
