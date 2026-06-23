@@ -284,9 +284,11 @@ Subject_class unassign is admin-only and active-school scoped. It is allowed onl
 |----------|--------|-------------|-------|---------|---------|
 | `/grades/my-grades/:classId` | GET | ❌ | ❌ | ❌ | 📖* |
 | `/grades/weights/subject/:subjectId` | GET | 📖 | 📖 | 📖 | 📖 |
+| `/grades/weights` | POST | ❌ | ✅ | ❌ | ❌ |
 | `/grades/class/:classId/subject/:subjectId` | GET | ❌ | 📖 | 📖 | ❌ |
 
 *Student gradebook access is current-user only. The student identity comes from JWT, the school context comes from `SchoolId`, and the class must be a class where the current student is enrolled.
+Assessment weight management is admin-only for MVP. Weights are subject-level, school-scoped through subject/category ownership, and are used for provisional weighted grades.
 
 ### Feeds
 | Endpoint | Method | super_admin | admin | teacher | student |

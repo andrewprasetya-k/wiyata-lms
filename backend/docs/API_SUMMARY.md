@@ -170,8 +170,8 @@ Authorization: Bearer <your-jwt-token>
 
 ## 📊 Grade Book
 - `GET /grades/my-grades/:classId` - Get current student's gradebook by active class, including provisional weighted grade when weights and graded assignments exist
-- `POST /grades/weights` - Configure assessment weights
-- `GET /grades/weights/subject/:subjectId` - Get weights by subject
+- `POST /grades/weights` - Admin-only configure active-school subject-level assessment weights
+- `GET /grades/weights/subject/:subjectId` - Get active-school subject weights
 - `GET /grades/class/:classId/subject/:subjectId` - Get class grade report
 
 ## 🔔 Notifications

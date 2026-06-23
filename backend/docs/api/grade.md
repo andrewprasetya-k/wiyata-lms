@@ -13,7 +13,8 @@ Set bobot penilaian per kategori untuk mata pelajaran.
 
 - **URL:** `/weights`
 - **Method:** `POST`
-- **Auth:** Required (admin, teacher)
+- **Auth:** Required (admin only)
+- **Scope:** Active school from `SchoolId` context/header
 - **Body:**
 ```json
 {
@@ -36,9 +37,15 @@ Set bobot penilaian per kategori untuk mata pelajaran.
 ```
 
 **Validation:**
-- Total weight harus = 100.00
+- Subject must belong to the active school.
+- Every category must belong to the active school.
+- Category IDs must be unique in one request.
 - Weight per kategori: 0-100
+- Total weight harus = 100.00 with small decimal tolerance.
 - Minimum 1 kategori
+- The top-level `subjectId` is the source of truth. Item-level `subjectId` is not required and is ignored for MVP compatibility.
+- Assessment weights are subject-level for MVP, not subject_class/class-specific.
+- These weights feed the provisional weighted grade, not an official final report grade.
 
 **Response (200 OK):**
 ```json
@@ -55,6 +62,7 @@ Retrieve konfigurasi bobot untuk mata pelajaran.
 - **URL:** `/weights/subject/:subjectId`
 - **Method:** `GET`
 - **Auth:** Required (school member)
+- **Scope:** The subject must belong to the active school. Cross-school subject IDs are rejected.
 
 **Response (200 OK):**
 ```json
@@ -230,7 +238,7 @@ Retrieve provisional weighted grades untuk seluruh student di kelas untuk mata p
 
 ## Usage Flow
 
-1. **Admin/Teacher configure weights** per subject
+1. **Admin configures weights** per subject
 2. **Teacher grade assignments** (via assignment endpoints)
 3. **System auto-calculate provisional weighted grades** based on weights and graded assignments
 4. **Students view their own gradebook** via `/api/grades/my-grades/:classId`

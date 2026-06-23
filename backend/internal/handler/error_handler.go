@@ -63,8 +63,36 @@ func HandleError(c *gin.Context, err error) {
 		return
 	}
 
+	if strings.Contains(errStr, "assessment weights are required") ||
+		strings.Contains(errStr, "assessment weight is required") {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Assessment weights are required"})
+		return
+	}
+
+	if strings.Contains(errStr, "assessment weight must be between 0 and 100") {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Assessment weight must be between 0 and 100"})
+		return
+	}
+
+	if strings.Contains(errStr, "duplicate assessment category in weights") {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Duplicate assessment category in weights"})
+		return
+	}
+
+	if strings.Contains(errStr, "total weight must be 100") {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Total assessment weight must be 100"})
+		return
+	}
+
+	if strings.Contains(errStr, "no weights configured for this subject") {
+		c.JSON(http.StatusNotFound, gin.H{"error": "No weights configured for this subject"})
+		return
+	}
+
 	if strings.Contains(errStr, "invalid media attachment") ||
-		strings.Contains(errStr, "invalid assignment category") {
+		strings.Contains(errStr, "invalid assignment category") ||
+		strings.Contains(errStr, "invalid assessment weight subject") ||
+		strings.Contains(errStr, "invalid assessment weight category") {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid or non-existent data reference"})
 		return
 	}

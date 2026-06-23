@@ -244,8 +244,8 @@ type SetAssessmentWeightDTO struct {
 }
 
 type WeightItemDTO struct {
-	CategoryID string  `json:"categoryId" binding:"required,uuid"`
-	Weight     float64 `json:"weight" binding:"required,min=0,max=100"`
+	CategoryID string   `json:"categoryId" binding:"required,uuid"`
+	Weight     *float64 `json:"weight" binding:"required"`
 }
 
 type WeightResponseDTO struct {
@@ -274,8 +274,8 @@ type GradeReportDTO struct {
 }
 
 type ConfigureWeightsDTO struct {
-	SubjectID string                   `json:"subjectId" binding:"required,uuid"`
-	Weights   []SetAssessmentWeightDTO `json:"weights" binding:"required,dive"`
+	SubjectID string          `json:"subjectId" binding:"required,uuid"`
+	Weights   []WeightItemDTO `json:"weights" binding:"required,dive"`
 }
 
 type CategoryBreakdownDTO struct {

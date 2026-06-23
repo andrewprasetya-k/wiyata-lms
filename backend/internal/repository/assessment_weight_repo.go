@@ -11,6 +11,8 @@ type AssessmentWeightRepository interface {
 	GetBySubject(subjectID string) ([]*domain.AssessmentWeight, error)
 	DeleteBySubject(subjectID string) error
 	GetTotalWeightBySubject(subjectID string) (float64, error)
+	SubjectBelongsToSchool(subjectID string, schoolID string) (bool, error)
+	CountCategoriesInSchool(categoryIDs []string, schoolID string) (int64, error)
 }
 
 type assessmentWeightRepository struct {
@@ -46,4 +48,24 @@ func (r *assessmentWeightRepository) GetTotalWeightBySubject(subjectID string) (
 		Select("COALESCE(SUM(asw_weight), 0)").
 		Scan(&total).Error
 	return total, err
+}
+
+func (r *assessmentWeightRepository) SubjectBelongsToSchool(subjectID string, schoolID string) (bool, error) {
+	var count int64
+	err := r.db.Model(&domain.Subject{}).
+		Where("sub_id = ? AND sub_sch_id = ?", subjectID, schoolID).
+		Count(&count).Error
+	return count > 0, err
+}
+
+func (r *assessmentWeightRepository) CountCategoriesInSchool(categoryIDs []string, schoolID string) (int64, error) {
+	if len(categoryIDs) == 0 {
+		return 0, nil
+	}
+
+	var count int64
+	err := r.db.Model(&domain.AssignmentCategory{}).
+		Where("asc_id IN ? AND asc_sch_id = ?", categoryIDs, schoolID).
+		Count(&count).Error
+	return count, err
 }

@@ -24,8 +24,13 @@ func (h *GradeHandler) ConfigureWeights(c *gin.Context) {
 		HandleBindingError(c, err)
 		return
 	}
+	schoolID, ok := getGradeActiveSchoolID(c)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required (SchoolId header or schoolCode param)"})
+		return
+	}
 
-	if err := h.service.ConfigureWeights(&req); err != nil {
+	if err := h.service.ConfigureWeights(&req, schoolID); err != nil {
 		HandleError(c, err)
 		return
 	}
@@ -35,14 +40,31 @@ func (h *GradeHandler) ConfigureWeights(c *gin.Context) {
 
 func (h *GradeHandler) GetWeightsBySubject(c *gin.Context) {
 	subjectID := c.Param("subjectId")
+	schoolID, ok := getGradeActiveSchoolID(c)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required (SchoolId header or schoolCode param)"})
+		return
+	}
 
-	weights, err := h.service.GetWeightsBySubject(subjectID)
+	weights, err := h.service.GetWeightsBySubject(subjectID, schoolID)
 	if err != nil {
 		HandleError(c, err)
 		return
 	}
 
 	c.JSON(http.StatusOK, weights)
+}
+
+func getGradeActiveSchoolID(c *gin.Context) (string, bool) {
+	if sid, exists := c.Get("school_id"); exists {
+		if value, ok := sid.(string); ok && value != "" {
+			return value, true
+		}
+	}
+	if value := c.GetHeader("SchoolId"); value != "" {
+		return value, true
+	}
+	return "", false
 }
 
 func (h *GradeHandler) GetClassGradeReport(c *gin.Context) {

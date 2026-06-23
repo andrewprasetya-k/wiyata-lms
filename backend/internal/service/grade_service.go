@@ -6,6 +6,7 @@ import (
 	"backend/internal/repository"
 	"errors"
 	"fmt"
+	"math"
 	"time"
 
 	"gorm.io/gorm"
@@ -14,8 +15,8 @@ import (
 var ErrStudentNotEnrolledInClass = errors.New("student is not enrolled in this class")
 
 type GradeService interface {
-	ConfigureWeights(req *dto.ConfigureWeightsDTO) error
-	GetWeightsBySubject(subjectID string) (*dto.WeightResponseDTO, error)
+	ConfigureWeights(req *dto.ConfigureWeightsDTO, schoolID string) error
+	GetWeightsBySubject(subjectID string, schoolID string) (*dto.WeightResponseDTO, error)
 	CalculateFinalGrade(studentID string, subjectID string) (*dto.GradeReportDTO, error)
 	GetClassGradeReport(classID, subjectID string) (*dto.ClassGradeReportDTO, error)
 	GetMyGradebookByClass(userID string, schoolID string, classID string) (*dto.MyGradebookResponseDTO, error)
@@ -45,14 +46,40 @@ func NewGradeService(
 	}
 }
 
-func (s *gradeService) ConfigureWeights(req *dto.ConfigureWeightsDTO) error {
-	totalWeight := 0.0
-	for _, w := range req.Weights {
-		totalWeight += w.Weight
+func (s *gradeService) ConfigureWeights(req *dto.ConfigureWeightsDTO, schoolID string) error {
+	if len(req.Weights) == 0 {
+		return fmt.Errorf("assessment weights are required")
 	}
 
-	if totalWeight != 100.0 {
+	if err := s.ensureWeightSubjectInSchool(req.SubjectID, schoolID); err != nil {
+		return err
+	}
+
+	totalWeight := 0.0
+	categoryIDs := make([]string, 0, len(req.Weights))
+	seenCategories := make(map[string]struct{}, len(req.Weights))
+	for _, w := range req.Weights {
+		if w.Weight == nil {
+			return fmt.Errorf("assessment weight is required")
+		}
+		weightValue := *w.Weight
+		if weightValue < 0 || weightValue > 100 {
+			return fmt.Errorf("assessment weight must be between 0 and 100")
+		}
+		if _, exists := seenCategories[w.CategoryID]; exists {
+			return fmt.Errorf("duplicate assessment category in weights")
+		}
+		seenCategories[w.CategoryID] = struct{}{}
+		categoryIDs = append(categoryIDs, w.CategoryID)
+		totalWeight += weightValue
+	}
+
+	if math.Abs(totalWeight-100.0) > 0.01 {
 		return fmt.Errorf("total weight must be 100, got %.2f", totalWeight)
+	}
+
+	if err := s.ensureWeightCategoriesInSchool(categoryIDs, schoolID); err != nil {
+		return err
 	}
 
 	if err := s.weightRepo.DeleteBySubject(req.SubjectID); err != nil {
@@ -63,7 +90,7 @@ func (s *gradeService) ConfigureWeights(req *dto.ConfigureWeightsDTO) error {
 		weight := &domain.AssessmentWeight{
 			SubjectID:  req.SubjectID,
 			CategoryID: w.CategoryID,
-			Weight:     w.Weight,
+			Weight:     *w.Weight,
 		}
 		if err := s.weightRepo.Create(weight); err != nil {
 			return err
@@ -73,7 +100,11 @@ func (s *gradeService) ConfigureWeights(req *dto.ConfigureWeightsDTO) error {
 	return nil
 }
 
-func (s *gradeService) GetWeightsBySubject(subjectID string) (*dto.WeightResponseDTO, error) {
+func (s *gradeService) GetWeightsBySubject(subjectID string, schoolID string) (*dto.WeightResponseDTO, error) {
+	if err := s.ensureWeightSubjectInSchool(subjectID, schoolID); err != nil {
+		return nil, err
+	}
+
 	weights, err := s.weightRepo.GetBySubject(subjectID)
 	if err != nil {
 		return nil, err
@@ -105,6 +136,28 @@ func (s *gradeService) GetWeightsBySubject(subjectID string) (*dto.WeightRespons
 		Weights:     weightDetails,
 		TotalWeight: totalWeight,
 	}, nil
+}
+
+func (s *gradeService) ensureWeightSubjectInSchool(subjectID string, schoolID string) error {
+	ok, err := s.weightRepo.SubjectBelongsToSchool(subjectID, schoolID)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return fmt.Errorf("invalid assessment weight subject")
+	}
+	return nil
+}
+
+func (s *gradeService) ensureWeightCategoriesInSchool(categoryIDs []string, schoolID string) error {
+	count, err := s.weightRepo.CountCategoriesInSchool(categoryIDs, schoolID)
+	if err != nil {
+		return err
+	}
+	if count != int64(len(categoryIDs)) {
+		return fmt.Errorf("invalid assessment weight category")
+	}
+	return nil
 }
 
 func (s *gradeService) CalculateFinalGrade(studentID string, subjectID string) (*dto.GradeReportDTO, error) {
