@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
-import { RouterLink } from "vue-router";
+import { RouterLink, useRouter } from "vue-router";
 import {
   PhArrowRight,
   PhBell,
@@ -34,6 +34,7 @@ import { useToastStore } from "../../stores/toast";
 const auth = useAuthStore();
 const activeClassStore = useActiveClassStore();
 const toast = useToastStore();
+const router = useRouter();
 
 const subjects = ref<SubjectClassItem[]>([]);
 const feedPosts = ref<FeedPost[]>([]);
@@ -236,9 +237,38 @@ function notificationErrorMessage(error: unknown) {
   return "Status notifikasi belum bisa diperbarui.";
 }
 
+function notificationTitle(item: NotificationItem) {
+  if (item.type === "feed_posted") return "Pengumuman kelas baru";
+  if (item.type === "assignment_graded") return "Tugas sudah dinilai";
+  return item.title || "Notifikasi";
+}
+
+function notificationBadge(item: NotificationItem) {
+  if (item.type === "feed_posted") return "PG";
+  if (item.type === "assignment_graded") return "AG";
+  return initials(notificationTitle(item));
+}
+
+function notificationMessage(item: NotificationItem) {
+  return item.message || "Buka notifikasi untuk melihat informasi terbaru.";
+}
+
+function notificationAriaLabel(item: NotificationItem) {
+  const action = item.link ? "Buka notifikasi" : "Tandai notifikasi dibaca";
+  return `${action}: ${notificationTitle(item)}`;
+}
+
+function isInternalNotificationLink(link?: string) {
+  return Boolean(link && link.startsWith("/") && !link.startsWith("//"));
+}
+
 async function markNotificationRead(item: NotificationItem) {
-  if (item.isRead || markingNotificationIds.value.has(item.notificationId)) {
-    return;
+  if (markingNotificationIds.value.has(item.notificationId)) {
+    return false;
+  }
+
+  if (item.isRead) {
+    return true;
   }
 
   markingNotificationIds.value = new Set([
@@ -254,12 +284,25 @@ async function markNotificationRead(item: NotificationItem) {
         : notification,
     );
     unreadCount.value = Math.max(0, unreadCount.value - 1);
+    return true;
   } catch (error) {
     toast.error(notificationErrorMessage(error));
+    return false;
   } finally {
     const next = new Set(markingNotificationIds.value);
     next.delete(item.notificationId);
     markingNotificationIds.value = next;
+  }
+}
+
+async function handleNotificationClick(item: NotificationItem) {
+  if (markingNotificationIds.value.has(item.notificationId)) {
+    return;
+  }
+
+  const didMark = await markNotificationRead(item);
+  if (didMark && isInternalNotificationLink(item.link)) {
+    await router.push(item.link as string);
   }
 }
 
@@ -599,25 +642,27 @@ onMounted(loadDashboard);
           :class="!item.isRead ? 'bg-[#f5f7ff]' : ''"
           type="button"
           :disabled="markingNotificationIds.has(item.notificationId)"
-          :aria-label="`${item.isRead ? 'Notifikasi' : 'Tandai notifikasi dibaca'}: ${item.title}`"
-          @click="markNotificationRead(item)"
+          :aria-label="notificationAriaLabel(item)"
+          @click="handleNotificationClick(item)"
         >
           <div
             class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[11px] font-medium text-white"
-            :style="{ backgroundColor: getSubjectColor(item.notificationId || item.title) }"
+            :style="{ backgroundColor: getSubjectColor(item.type || item.notificationId) }"
           >
-            {{ initials(item.title) }}
+            {{ notificationBadge(item) }}
           </div>
           <div class="min-w-0 flex-1">
             <div class="flex items-baseline justify-between gap-2">
-              <p class="truncate text-sm font-medium text-[#171322]">
-                {{ item.title }}
+              <p class="line-clamp-1 text-sm font-medium text-[#171322]">
+                {{ notificationTitle(item) }}
               </p>
               <span class="shrink-0 text-[10px] text-[#a09aa8]">{{
                 formatDateTime(item.createdAt)
               }}</span>
             </div>
-            <p class="truncate text-xs text-[#7a7385]">{{ item.message }}</p>
+            <p class="line-clamp-2 text-xs leading-5 text-[#7a7385]">
+              {{ notificationMessage(item) }}
+            </p>
             <span
               v-if="!item.isRead"
               class="mt-1 inline-flex rounded-full bg-[#4f46e5] px-2 py-0.5 text-[10px] font-medium text-white"

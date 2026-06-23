@@ -73,6 +73,15 @@ func (s *feedService) Create(feed *domain.Feed, userID string, roles []string) e
 
 	// Best-effort: notify all class members except the creator
 	if userIDs, err := s.enrRepo.GetMemberUserIDsByClass(feed.ClassID); err == nil {
+		className := ""
+		if class, classErr := s.classRepo.GetByID(feed.ClassID); classErr == nil {
+			className = strings.TrimSpace(class.Title)
+			if className == "" {
+				className = strings.TrimSpace(class.Code)
+			}
+		}
+
+		message := feedNotificationMessage(className, feed.Content)
 		for _, uid := range userIDs {
 			if uid == feed.CreatedBy {
 				continue
@@ -80,8 +89,9 @@ func (s *feedService) Create(feed *domain.Feed, userID string, roles []string) e
 			_ = s.notifService.Create(&dto.CreateNotificationDTO{
 				UserID:    uid,
 				Type:      domain.NotifFeedPosted,
-				Title:     "New Announcement",
-				Message:   "A new post has been made in your class.",
+				Title:     "Pengumuman kelas baru",
+				Message:   message,
+				Link:      "/student/feed",
 				RelatedID: feed.ID,
 			})
 		}
@@ -214,4 +224,19 @@ func (s *feedService) ensureTeacherCanAccessClass(userID string, schoolID string
 
 func hasFeedRole(roles []string, role string) bool {
 	return slices.Contains(roles, role)
+}
+
+func feedNotificationMessage(className string, content string) string {
+	preview := strings.Join(strings.Fields(content), " ")
+	previewRunes := []rune(preview)
+	if len(previewRunes) > 120 {
+		preview = string(previewRunes[:117]) + "..."
+	}
+	if className == "" {
+		return preview
+	}
+	if preview == "" {
+		return className
+	}
+	return fmt.Sprintf("%s • %s", className, preview)
 }
