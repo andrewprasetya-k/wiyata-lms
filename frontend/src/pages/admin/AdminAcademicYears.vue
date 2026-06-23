@@ -141,8 +141,9 @@ function formatWeight(value: number) {
 function getApiErrorMessage(error: unknown, fallback: string) {
   if (typeof error === "object" && error !== null && "response" in error) {
     const response = (error as {
-      response?: { data?: { error?: unknown; message?: unknown } };
+      response?: { data?: { error?: unknown; message?: unknown } | string };
     }).response;
+    if (typeof response?.data === "string") return response.data;
     if (typeof response?.data?.error === "string") return response.data.error;
     if (typeof response?.data?.message === "string") return response.data.message;
   }
@@ -489,7 +490,12 @@ async function submitAssessmentWeights() {
     toast.success("Bobot nilai berhasil disimpan.");
     await loadAssessmentWeights();
   } catch (error) {
-    toast.error(getApiErrorMessage(error, "Bobot nilai belum bisa disimpan."));
+    toast.error(
+      getApiErrorMessage(
+        error,
+        "Bobot nilai belum bisa disimpan. Pastikan total bobot 100% dan semua kategori valid.",
+      ),
+    );
   } finally {
     activeAction.value = "";
   }
