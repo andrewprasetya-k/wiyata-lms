@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { PhChatCircleText, PhFileText, PhMegaphone, PhWarningCircle } from '@phosphor-icons/vue'
+import { PhMegaphone, PhWarningCircle } from '@phosphor-icons/vue'
 import { getClassFeed } from '../../services/feed'
 import { useActiveClassStore } from '../../stores/activeClass'
 import { useAuthStore } from '../../stores/auth'
@@ -125,22 +125,6 @@ onMounted(loadContext)
             <p class="mt-3 whitespace-pre-line text-sm leading-6 text-[#4a4356]">
               {{ post.content }}
             </p>
-            <div class="mt-4 flex flex-wrap gap-2 text-xs text-[#7a7385]">
-              <span
-                v-if="post.commentCount !== undefined"
-                class="inline-flex items-center gap-1 rounded-full bg-[#fbfaf8] px-3 py-1"
-              >
-                <PhChatCircleText :size="14" />
-                {{ post.commentCount }} komentar
-              </span>
-              <span
-                v-if="post.attachments?.length"
-                class="inline-flex items-center gap-1 rounded-full bg-[#fbfaf8] px-3 py-1"
-              >
-                <PhFileText :size="14" />
-                {{ post.attachments.length }} lampiran
-              </span>
-            </div>
           </div>
         </div>
       </article>

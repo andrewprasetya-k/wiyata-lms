@@ -34,6 +34,7 @@ import TeacherAssignmentReview from "../pages/teacher/TeacherAssignmentReview.vu
 import TeacherMaterialDetail from "../pages/teacher/TeacherMaterialDetail.vue";
 import TeacherSubmissions from "../pages/teacher/TeacherSubmissions.vue";
 import TeacherAssignments from "../pages/teacher/TeacherAssignments.vue";
+import TeacherFeed from "../pages/teacher/TeacherFeed.vue";
 
 export const dashboardByRole: Record<RoleName, string> = {
   super_admin: "/superadmin/dashboard",
@@ -220,13 +221,7 @@ const router = createRouter({
         {
           path: "feed",
           name: "teacher-feed",
-          component: FeaturePlaceholder,
-          props: {
-            eyebrow: "Class feed",
-            title: "Pengumuman kelas",
-            description:
-              "Feed adalah komunikasi level class. UI create dan list feed untuk guru akan dibangun setelah pemilihan class/subject context siap.",
-          },
+          component: TeacherFeed,
         },
         {
           path: "chat",

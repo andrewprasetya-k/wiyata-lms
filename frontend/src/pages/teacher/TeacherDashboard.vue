@@ -343,8 +343,9 @@ onMounted(loadDashboard);
               </span>
             </RouterLink>
 
-            <article
-              class="rounded-[22px] bg-white/70 p-5 shadow-sm ring-1 ring-black/5"
+            <RouterLink
+              class="rounded-[22px] bg-white/70 p-5 shadow-sm ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(66,55,40,0.08)]"
+              to="/teacher/feed"
             >
               <div class="flex items-center gap-3">
                 <div
@@ -355,12 +356,17 @@ onMounted(loadDashboard);
                 <div>
                   <p class="text-sm font-medium text-[#171322]">Feed kelas</p>
                   <p class="text-sm text-[#7b7486]">
-                    Feed dan pengumuman kelas masih ditunda untuk tahap
-                    berikutnya.
+                    Kirim pengumuman untuk kelas yang Anda ajar.
                   </p>
                 </div>
               </div>
-            </article>
+              <span
+                class="mt-4 inline-flex items-center gap-2 text-sm font-medium text-[#4f46e5]"
+              >
+                Buka feed
+                <PhArrowRight :size="16" />
+              </span>
+            </RouterLink>
           </aside>
         </div>
       </template>

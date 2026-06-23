@@ -19,3 +19,9 @@ export interface ClassFeedResponse {
   class: FeedClassHeader
   data: PaginatedResponse<FeedPost>
 }
+
+export interface CreateFeedPayload {
+  schoolId: string
+  classId: string
+  content: string
+}
