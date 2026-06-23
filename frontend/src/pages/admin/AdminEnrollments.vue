@@ -400,11 +400,11 @@ onMounted(async () => {
               Admin sekolah
             </p>
             <h1 class="mt-2 text-2xl font-medium text-[#111827]">
-              Student Assignment
+              Penempatan Kelas
             </h1>
             <p class="mt-2 max-w-3xl text-sm leading-6 text-[#6B7280]">
-              Tempatkan member sekolah ke kelas sebagai student atau teacher.
-              Role sekolah tetap dikelola di halaman Warga Sekolah.
+              Tempatkan student atau teacher ke kelas aktif. Role sekolah tetap
+              dikelola di halaman Warga Sekolah.
             </p>
           </div>
           <div class="flex flex-wrap gap-2 text-xs">

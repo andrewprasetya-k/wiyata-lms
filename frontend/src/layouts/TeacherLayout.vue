@@ -17,7 +17,7 @@ const items = [
   { label: 'Submissions', icon: PhTray, to: '/teacher/submissions' },
   { label: 'Create', icon: PhPlusCircle, to: '/teacher/create' },
   { label: 'Feed', icon: PhMegaphone, to: '/teacher/feed' },
-  { label: 'Chat', icon: PhChatCircle, to: '/teacher/chat', hasDot: true },
+  { label: 'Chat', icon: PhChatCircle, to: '/teacher/chat' },
 ]
 </script>
 

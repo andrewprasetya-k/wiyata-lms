@@ -18,9 +18,9 @@ const items = [
   },
   { label: "Kelas", icon: PhBookOpen, to: "/admin/classes" },
   { label: "Warga Sekolah", icon: PhUsers, to: "/admin/users" },
-  { label: "Student Assignment", icon: PhStudent, to: "/admin/enrollments" },
+  { label: "Penempatan Kelas", icon: PhStudent, to: "/admin/enrollments" },
   {
-    label: "Teacher Assignment",
+    label: "Penugasan Mengajar",
     icon: PhChalkboardTeacher,
     to: "/admin/subject-classes",
   },

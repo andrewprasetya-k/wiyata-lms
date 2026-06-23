@@ -16,7 +16,7 @@ const items = [
   { label: 'Feed', icon: PhMegaphone, to: '/student/feed' },
   { label: 'Assignments', icon: PhCalendarBlank, to: '/student/assignments' },
   { label: 'Grades', icon: PhChartBar, to: '/student/grades' },
-  { label: 'Chat', icon: PhChatCircle, to: '/student/chat', hasDot: true },
+  { label: 'Chat', icon: PhChatCircle, to: '/student/chat' },
   { label: 'Notes', icon: PhNotebook, to: '/student/notes' },
 ]
 </script>

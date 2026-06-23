@@ -435,11 +435,11 @@ onMounted(async () => {
               Admin sekolah
             </p>
             <h1 class="mt-2 text-2xl font-medium text-[#111827]">
-              Teacher Assignment
+              Penugasan Mengajar
             </h1>
             <p class="mt-2 max-w-3xl text-sm leading-6 text-[#6B7280]">
-              Hubungkan guru, kelas, dan mata pelajaran untuk membuat teacher
-              workspace. Akses student mengikuti penempatan kelas.
+              Hubungkan teacher, kelas, dan mata pelajaran untuk membuat
+              workspace mengajar. Akses student mengikuti penempatan kelas.
             </p>
           </div>
           <div class="flex flex-wrap gap-2 text-xs">
