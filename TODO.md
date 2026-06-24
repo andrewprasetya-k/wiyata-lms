@@ -5,7 +5,7 @@ This file tracks visible unfinished work that is intentionally kept in the produ
 ## Post-MVP Features
 
 - Realtime chat for teacher and student workspaces.
-- Student learning notes with per-material context and autosave.
+- Global student notes workspace, assignment/subject notes, and autosave.
 - Student material progress tracking.
 - Feed comments and replies.
 - Feed attachments.
@@ -23,8 +23,8 @@ This file tracks visible unfinished work that is intentionally kept in the produ
 ## Student Features
 
 - Student Chat: keep route and navigation visible as a post-MVP feature marker.
-- Student Notes: keep route and navigation visible as a post-MVP feature marker.
-- Student subject/material notes UI: currently read-only planned copy only.
+- Student Notes: material detail now supports one private plain-text note with manual save.
+- Student global Notes route, subject notes, and assignment notes remain post-MVP.
 - Student material progress tracking: currently planned copy only, no completion state is stored.
 
 ## Teacher Features
