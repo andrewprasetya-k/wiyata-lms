@@ -317,18 +317,60 @@ Base URL: `/api/assignments`
 - `overdueCount`: count of `isOverdue = true`.
 - `isSubmittedLate`: `submittedAt > deadline`, only when both values exist.
 
-### 9. Get Assignment Status
+### 10. Get Student Assignment Detail
+- **URL:** `/student/:assignmentId`
+- **Method:** `GET`
+- **Auth:** Required
+- **Role:** `student`
+- **School Context:** Requires `SchoolId` header
+- **Authorization:** The current student must have an active enrollment (`left_at IS NULL`) in the assignment's subject class and the assignment must belong to the active school.
+- **Purpose:** Returns one student-safe assignment detail without returning any other student's submissions or teacher-only aggregate data.
+
+**Response:**
+```json
+{
+  "assignmentId": "uuid",
+  "subjectClassId": "uuid",
+  "subjectName": "Matematika",
+  "subjectCode": "MTK",
+  "assignmentTitle": "Quiz Chapter 1",
+  "assignmentDescription": "Kerjakan soal yang tersedia.",
+  "categoryName": "Kuis",
+  "deadline": "2026-03-01T23:59:59Z",
+  "allowLateSubmission": false,
+  "createdAt": "01-03-2026 09:00:00",
+  "updatedAt": "01-03-2026 09:00:00",
+  "attachments": [
+    {
+      "mediaId": "uuid",
+      "mediaName": "soal.pdf",
+      "fileSize": 12345,
+      "mimeType": "application/pdf",
+      "fileUrl": "https://...",
+      "thumbnailUrl": "",
+      "ownerType": "user",
+      "createdAt": "01-03-2026 08:55:00"
+    }
+  ]
+}
+```
+
+Attachment entries whose media has been soft-deleted or does not belong to the same school are omitted. Non-HTTP(S) file and thumbnail URLs are returned as empty strings.
+
+### 11. Get Assignment Status
 - **URL:** `/status/:id`
 - **Method:** `GET`
 - **Response:** Assignment with submission statistics (total, submitted, graded, pending)
 
-### 10. Get My Submission Status
+### 12. Get My Submission Status
 - **URL:** `/my-submission/:assignmentId`
 - **Method:** `GET`
 - **Auth:** Required
+- **Role:** `student`
 - **School Context:** Requires `SchoolId` header
 - **Auth Note:** Student identity is taken from the JWT token. Do not send `userId` in body or query.
 - **Purpose:** Student-safe endpoint for the current user's submission status for one assignment. It does not expose other students' submissions.
+- **Authorization:** The assignment must belong to the active school and the current student must still have active enrollment (`left_at IS NULL`) in its subject class.
 
 **Not submitted response:**
 ```json

@@ -149,6 +149,8 @@ Authorization: Bearer <your-jwt-token>
 - `GET /assignments/teacher-assignments` - Get teacher global assignments overview across current teacher-owned subject classes with active teacher enrollment
 - `GET /assignments/teacher-submissions` - Get teacher global submissions inbox across current teacher-owned subject classes
 - `GET /assignments/student-assignments` - Get student global assignments list across active enrolled classes
+- `GET /assignments/student/:assignmentId` - Get one student-safe assignment detail from an active enrolled subject class
+- `GET /assignments/my-submission/:assignmentId` - Get the current active student's own submission status and attachments
 - `GET /assignments/:assignmentId` - Get assignment with submissions for current teacher-owned subject class
 - `GET /assignments/status/:id` - Get assignment status
 - `PATCH /assignments/:id` - Update active-school assignment (admin or owning teacher)

@@ -402,15 +402,11 @@ func (h *MaterialHandler) Delete(c *gin.Context) {
 }
 
 func (h *MaterialHandler) mapToResponse(m *domain.Material) dto.MaterialResponseDTO {
-	var atts []dto.MediaResponseDTO
+	atts := make([]dto.MediaResponseDTO, 0, len(m.Attachments))
 	for _, a := range m.Attachments {
-		atts = append(atts, dto.MediaResponseDTO{
-			ID:       a.Media.ID,
-			Name:     a.Media.Name,
-			FileSize: a.Media.FileSize,
-			MimeType: a.Media.MimeType,
-			FileURL:  a.Media.FileURL,
-		})
+		if attachment, ok := mapAttachmentMedia(a, m.SchoolID); ok {
+			atts = append(atts, attachment)
+		}
 	}
 
 	return dto.MaterialResponseDTO{

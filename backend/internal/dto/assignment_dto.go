@@ -54,6 +54,21 @@ type AssignmentResponseDTO struct {
 	Attachments         []MediaResponseDTO `json:"attachments,omitempty"`
 }
 
+type StudentAssignmentDetailDTO struct {
+	ID                  string             `json:"assignmentId"`
+	SubjectClassID      string             `json:"subjectClassId"`
+	SubjectName         string             `json:"subjectName,omitempty"`
+	SubjectCode         string             `json:"subjectCode,omitempty"`
+	Title               string             `json:"assignmentTitle"`
+	Description         string             `json:"assignmentDescription"`
+	CategoryName        string             `json:"categoryName"`
+	Deadline            *time.Time         `json:"deadline,omitempty"`
+	AllowLateSubmission bool               `json:"allowLateSubmission"`
+	CreatedAt           string             `json:"createdAt"`
+	UpdatedAt           string             `json:"updatedAt"`
+	Attachments         []MediaResponseDTO `json:"attachments,omitempty"`
+}
+
 type AssignmentPerSubjectClassResponseDTO struct {
 	SubjectClass SubjectClassHeaderDTO `json:"subjectClass"`
 	Data         PaginatedResponse     `json:"data"`

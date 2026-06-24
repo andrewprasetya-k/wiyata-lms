@@ -236,6 +236,50 @@ func (h *AssignmentHandler) GetBySubjectClass(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+func (h *AssignmentHandler) GetStudentAssignmentDetail(c *gin.Context) {
+	assignmentID := c.Param("assignmentId")
+	assignment, err := h.service.GetAssignmentByID(assignmentID)
+	if err != nil {
+		HandleError(c, err)
+		return
+	}
+
+	schoolID := h.getSchoolContext(c)
+	if schoolID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required (SchoolId header)"})
+		return
+	}
+	if assignment.SchoolID != schoolID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden"})
+		return
+	}
+	if !h.authorizeStudentForSubjectClass(c, assignment.SubjectClassID) {
+		return
+	}
+
+	attachments := make([]dto.MediaResponseDTO, 0, len(assignment.Attachments))
+	for _, attachment := range assignment.Attachments {
+		if media, ok := mapAttachmentMedia(attachment, assignment.SchoolID); ok {
+			attachments = append(attachments, media)
+		}
+	}
+
+	c.JSON(http.StatusOK, dto.StudentAssignmentDetailDTO{
+		ID:                  assignment.ID,
+		SubjectClassID:      assignment.SubjectClassID,
+		SubjectName:         assignment.SubjectClass.Subject.Name,
+		SubjectCode:         assignment.SubjectClass.Subject.Code,
+		Title:               assignment.Title,
+		Description:         assignment.Description,
+		CategoryName:        assignment.Category.Name,
+		Deadline:            assignment.Deadline,
+		AllowLateSubmission: assignment.AllowLateSubmission,
+		CreatedAt:           assignment.CreatedAt.Format("02-01-2006 15:04:05"),
+		UpdatedAt:           assignment.UpdatedAt.Format("02-01-2006 15:04:05"),
+		Attachments:         attachments,
+	})
+}
+
 func (h *AssignmentHandler) GetSubjectClassSubmissions(c *gin.Context) {
 	subjectClassID := c.Param("subjectClassId")
 	userID := middleware.GetUserID(c)
@@ -326,15 +370,11 @@ func (h *AssignmentHandler) GetSubjectClassSubmissions(c *gin.Context) {
 				response.Summary.LateCount++
 			}
 
-			var atts []dto.MediaResponseDTO
+			atts := make([]dto.MediaResponseDTO, 0, len(submission.Attachments))
 			for _, a := range submission.Attachments {
-				atts = append(atts, dto.MediaResponseDTO{
-					ID:       a.Media.ID,
-					Name:     a.Media.Name,
-					FileSize: a.Media.FileSize,
-					FileURL:  a.Media.FileURL,
-					MimeType: a.Media.MimeType,
-				})
+				if attachment, ok := mapAttachmentMedia(a, submission.SchoolID); ok {
+					atts = append(atts, attachment)
+				}
 			}
 
 			group.Submissions = append(group.Submissions, dto.SubmissionResponseDTO{
@@ -444,14 +484,11 @@ func (h *AssignmentHandler) GetSubmissionsByAssignment(c *gin.Context) {
 			}
 		}
 
-		var atts []dto.MediaResponseDTO
+		atts := make([]dto.MediaResponseDTO, 0, len(s.Attachments))
 		for _, a := range s.Attachments {
-			atts = append(atts, dto.MediaResponseDTO{
-				ID:       a.Media.ID,
-				Name:     a.Media.Name,
-				FileURL:  a.Media.FileURL,
-				MimeType: a.Media.MimeType,
-			})
+			if attachment, ok := mapAttachmentMedia(a, s.SchoolID); ok {
+				atts = append(atts, attachment)
+			}
 		}
 
 		submissionsDTO = append(submissionsDTO, dto.SubmissionResponseDTO{
@@ -506,6 +543,23 @@ func (h *AssignmentHandler) GetMySubmissionByAssignment(c *gin.Context) {
 	}
 	if schoolID == "" {
 		schoolID = c.GetHeader("SchoolId")
+	}
+	if schoolID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required (SchoolId header)"})
+		return
+	}
+
+	assignment, err := h.service.GetAssignmentByID(assignmentID)
+	if err != nil {
+		HandleError(c, err)
+		return
+	}
+	if assignment.SchoolID != schoolID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden"})
+		return
+	}
+	if !h.authorizeStudentForSubjectClass(c, assignment.SubjectClassID) {
+		return
 	}
 
 	submission, err := h.service.GetMySubmissionByAssignment(assignmentID, userID, schoolID)
@@ -656,14 +710,11 @@ func (h *AssignmentHandler) GetSubmissionByID(c *gin.Context) {
 		}
 	}
 
-	var atts []dto.MediaResponseDTO
+	atts := make([]dto.MediaResponseDTO, 0, len(submission.Attachments))
 	for _, a := range submission.Attachments {
-		atts = append(atts, dto.MediaResponseDTO{
-			ID:       a.Media.ID,
-			Name:     a.Media.Name,
-			FileURL:  a.Media.FileURL,
-			MimeType: a.Media.MimeType,
-		})
+		if attachment, ok := mapAttachmentMedia(a, submission.SchoolID); ok {
+			atts = append(atts, attachment)
+		}
 	}
 
 	response := dto.SubmissionResponseDTO{
@@ -755,14 +806,11 @@ func (h *AssignmentHandler) DeleteAssessment(c *gin.Context) {
 }
 
 func (h *AssignmentHandler) mapAsgToResponse(a *domain.Assignment) dto.AssignmentResponseDTO {
-	var atts []dto.MediaResponseDTO
+	atts := make([]dto.MediaResponseDTO, 0, len(a.Attachments))
 	for _, att := range a.Attachments {
-		atts = append(atts, dto.MediaResponseDTO{
-			ID:       att.Media.ID,
-			Name:     att.Media.Name,
-			FileURL:  att.Media.FileURL,
-			MimeType: att.Media.MimeType,
-		})
+		if attachment, ok := mapAttachmentMedia(att, a.SchoolID); ok {
+			atts = append(atts, attachment)
+		}
 	}
 
 	return dto.AssignmentResponseDTO{
@@ -971,15 +1019,11 @@ func (h *AssignmentHandler) authorizeTeacherForSubjectClass(c *gin.Context, subj
 }
 
 func (h *AssignmentHandler) mapMySubmissionToResponse(s *domain.Submission) *dto.MySubmissionDTO {
-	var atts []dto.MediaResponseDTO
+	atts := make([]dto.MediaResponseDTO, 0, len(s.Attachments))
 	for _, a := range s.Attachments {
-		atts = append(atts, dto.MediaResponseDTO{
-			ID:       a.Media.ID,
-			Name:     a.Media.Name,
-			FileSize: a.Media.FileSize,
-			FileURL:  a.Media.FileURL,
-			MimeType: a.Media.MimeType,
-		})
+		if attachment, ok := mapAttachmentMedia(a, s.SchoolID); ok {
+			atts = append(atts, attachment)
+		}
 	}
 
 	var assessment *dto.MySubmissionAssessmentDTO

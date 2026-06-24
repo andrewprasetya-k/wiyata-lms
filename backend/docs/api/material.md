@@ -87,6 +87,8 @@ Each file is uploaded to storage first. If upload succeeds but DB record fails, 
 - **Role:** `admin`, `teacher`, or `student`
 - **School Context:** Requires `SchoolId` header
 - **Authorization:** Same subject_class access rule as list materials.
+- **Attachment Metadata:** Each valid attachment includes `mediaId`, `mediaName`, `fileSize`, `mimeType`, `fileUrl`, optional `thumbnailUrl`, `ownerType`, and `createdAt`.
+- **Attachment Safety:** Media that has been soft-deleted or does not belong to the same active school is omitted. Non-HTTP(S) file and thumbnail URLs are returned as empty strings.
 
 ---
 

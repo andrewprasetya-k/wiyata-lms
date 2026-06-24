@@ -42,6 +42,8 @@ When a media record is later attached through `mediaIds` on materials, assignmen
 
 **Object path in storage:** `schools/{schoolId}/{uuid}{ext}`
 
+**MVP storage note:** Uploaded files currently use public HTTP(S) storage URLs. Parent material, assignment, and submission APIs remain authorization-protected, but a public file URL can still be accessed directly if it is leaked. Private buckets and signed URLs are deferred.
+
 **Response `201`:**
 ```json
 {

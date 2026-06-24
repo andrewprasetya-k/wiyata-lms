@@ -126,7 +126,10 @@ func (s *assignmentService) GetAssignmentByID(id string) (*domain.Assignment, er
 		return nil, err
 	}
 
-	atts, _ := s.attService.GetBySource(string(domain.SourceAssignment), id)
+	atts, err := s.attService.GetBySource(string(domain.SourceAssignment), id)
+	if err != nil {
+		return nil, err
+	}
 	for _, a := range atts {
 		asg.Attachments = append(asg.Attachments, *a)
 	}
