@@ -436,7 +436,7 @@ snt_id uuid [pk, default: `gen_random_uuid()`]
 snt_sch_id uuid [ref: > schools.sch_id]
 snt_usr_id uuid [ref: > users.usr_id]
 snt_mat_id uuid [ref: > materials.mat_id]
-snt_content text
+snt_content text // private plain-text material note, max 10,000 characters at API layer
 created_at timestamp [default: `now()`]
 updated_at timestamp [default: `now()`]
 
@@ -444,3 +444,6 @@ indexes {
 (snt_usr_id, snt_mat_id) [unique]
 }
 }
+
+// Material-only Notes MVP: one private note per student per material.
+// Teacher/admin access, assignment notes, global notes, and soft delete are intentionally unsupported.

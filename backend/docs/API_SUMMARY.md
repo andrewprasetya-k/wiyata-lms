@@ -123,6 +123,13 @@ Authorization: Bearer <your-jwt-token>
 - `DELETE /materials/:id` - Delete active-school material (admin or owning teacher)
 - `POST /materials/progress` - Update material progress
 
+## 🗒️ Student Material Notes
+- `GET /notes/material/:materialId` - Get the current student's private note, or `{ "note": null }`
+- `PUT /notes/material/:materialId` - Create or update one plain-text note for the accessible material
+- `DELETE /notes/material/:materialId` - Hard-delete the current student's note for the accessible material
+
+Notes are material-only for MVP. They are scoped to the JWT user and active `SchoolId`, require active student enrollment in the material's class, and are not accessible to teacher/admin roles.
+
 ## 📰 Feeds (Announcements)
 - `POST /feeds` - Create active-school class feed (admin or teacher who teaches the class)
 - `GET /feeds/class/:classId` - Get active-school class feed (admin, teacher who teaches the class, or active enrolled student)
@@ -207,6 +214,7 @@ Most list endpoints support:
 ### Response Patterns
 - **Header Pattern**: List responses include parent context (School, Class, SubjectClass)
 - **Soft Delete**: Most delete operations are soft deletes (can be restored)
+- **Student Material Notes**: Note deletion is an intentional hard delete for the material-only MVP
 - **Upsert Logic**: Submissions and assessments auto-update if already exist
 
 ### File Handling
@@ -221,5 +229,5 @@ Most list endpoints support:
 
 ---
 
-**Last Updated:** 2026-03-12
-**Version:** 1.2
+**Last Updated:** 2026-06-24
+**Version:** 1.3

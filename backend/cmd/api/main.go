@@ -97,6 +97,10 @@ func main() {
 	materialService := service.NewMaterialService(materialRepo, attachmentService, mediaRepo, storageProvider, notificationService, subjectClassRepo, enrollmentRepo)
 	materialHandler := handler.NewMaterialHandler(materialService, subjectClassService)
 
+	studentNoteRepo := repository.NewStudentNoteRepository(db)
+	studentNoteService := service.NewStudentNoteService(studentNoteRepo, materialRepo, subjectClassRepo)
+	studentNoteHandler := handler.NewStudentNoteHandler(studentNoteService)
+
 	feedRepo := repository.NewFeedRepository(db)
 	feedService := service.NewFeedService(feedRepo, attachmentService, notificationService, enrollmentRepo, classRepo, subjectClassRepo)
 	commentRepo := repository.NewCommentRepository(db)
@@ -277,6 +281,14 @@ func main() {
 			materialAPI.PATCH("/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "teacher", "admin"), materialHandler.Update)
 			materialAPI.DELETE("/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "teacher", "admin"), materialHandler.Delete)
 			materialAPI.POST("/progress", materialHandler.UpdateProgress)
+		}
+
+		studentNoteAPI := api.Group("/notes")
+		studentNoteAPI.Use(middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "student"))
+		{
+			studentNoteAPI.GET("/material/:materialId", studentNoteHandler.GetMaterialNote)
+			studentNoteAPI.PUT("/material/:materialId", studentNoteHandler.SaveMaterialNote)
+			studentNoteAPI.DELETE("/material/:materialId", studentNoteHandler.DeleteMaterialNote)
 		}
 
 		feedAPI := api.Group("/feeds")

@@ -58,6 +58,16 @@ func HandleError(c *gin.Context, err error) {
 		return
 	}
 
+	if strings.Contains(errStr, "student note content is required") {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Isi catatan wajib diisi"})
+		return
+	}
+
+	if strings.Contains(errStr, "student note content exceeds 10000 characters") {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Catatan maksimal 10.000 karakter"})
+		return
+	}
+
 	if strings.Contains(errStr, "unsupported comment source") {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Comments are only supported for feed posts in this MVP"})
 		return
