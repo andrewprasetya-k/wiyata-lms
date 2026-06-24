@@ -97,7 +97,8 @@ const selectedWeightSubject = computed(
 
 const totalWeight = computed(() =>
   categories.value.reduce(
-    (total, category) => total + parseWeightValue(weightInputs.value[category.categoryId]),
+    (total, category) =>
+      total + parseWeightValue(weightInputs.value[category.categoryId]),
     0,
   ),
 );
@@ -140,12 +141,15 @@ function formatWeight(value: number) {
 
 function getApiErrorMessage(error: unknown, fallback: string) {
   if (typeof error === "object" && error !== null && "response" in error) {
-    const response = (error as {
-      response?: { data?: { error?: unknown; message?: unknown } | string };
-    }).response;
+    const response = (
+      error as {
+        response?: { data?: { error?: unknown; message?: unknown } | string };
+      }
+    ).response;
     if (typeof response?.data === "string") return response.data;
     if (typeof response?.data?.error === "string") return response.data.error;
-    if (typeof response?.data?.message === "string") return response.data.message;
+    if (typeof response?.data?.message === "string")
+      return response.data.message;
   }
 
   return fallback;
@@ -437,7 +441,9 @@ async function loadAssessmentWeights() {
   resetWeightInputs();
 
   try {
-    const response = await getAssessmentWeightsBySubject(selectedWeightSubjectId.value);
+    const response = await getAssessmentWeightsBySubject(
+      selectedWeightSubjectId.value,
+    );
     resetWeightInputs(response.weights ?? []);
     weightsInfoMessage.value = response.weights?.length
       ? "Bobot tersimpan sudah dimuat."
@@ -557,14 +563,15 @@ watch(selectedWeightSubjectId, () => {
           Context sekolah aktif belum ditemukan. Pastikan akun admin sudah punya
           membership yang valid.
         </div>
-
       </header>
 
       <section class="grid gap-5 lg:grid-cols-2">
         <article class="soft-card rounded-[18px] p-5">
           <div class="flex items-start justify-between gap-4">
             <div>
-              <p class="text-sm font-medium text-[#4f46e5]">Struktur akademik</p>
+              <p class="text-sm font-medium text-[#4f46e5]">
+                Struktur akademik
+              </p>
               <h2 class="mt-2 text-xl font-medium text-[#171322]">
                 Tahun ajaran
               </h2>
@@ -914,7 +921,9 @@ watch(selectedWeightSubjectId, () => {
       </section>
 
       <section class="soft-card rounded-[18px] p-5">
-        <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div
+          class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"
+        >
           <div class="max-w-3xl">
             <p class="text-sm font-medium text-[#4f46e5]">Grading policy</p>
             <h2 class="mt-2 text-xl font-medium text-[#171322]">Bobot Nilai</h2>
@@ -971,7 +980,9 @@ watch(selectedWeightSubjectId, () => {
               <div class="mt-2 flex flex-wrap items-end justify-between gap-3">
                 <p
                   class="text-3xl font-medium"
-                  :class="isWeightTotalValid ? 'text-[#027a48]' : 'text-[#b45309]'"
+                  :class="
+                    isWeightTotalValid ? 'text-[#027a48]' : 'text-[#b45309]'
+                  "
                 >
                   {{ formatWeight(totalWeight) }}%
                 </p>
@@ -1008,7 +1019,9 @@ watch(selectedWeightSubjectId, () => {
               class="flex flex-col gap-3 border-b border-[#ece7f2] pb-4 sm:flex-row sm:items-start sm:justify-between"
             >
               <div>
-                <p class="text-sm font-medium text-[#171322]">Kategori dan bobot</p>
+                <p class="text-sm font-medium text-[#171322]">
+                  Kategori dan bobot
+                </p>
                 <p class="mt-1 text-xs leading-5 text-[#7a7385]">
                   Kosong dianggap 0. Setiap kategori hanya muncul satu kali.
                 </p>
@@ -1019,7 +1032,11 @@ watch(selectedWeightSubjectId, () => {
                 :disabled="!canSubmitWeights"
               >
                 <PhChecks :size="16" weight="duotone" />
-                {{ activeAction === "weights-save" ? "Menyimpan..." : "Simpan bobot" }}
+                {{
+                  activeAction === "weights-save"
+                    ? "Menyimpan..."
+                    : "Simpan bobot"
+                }}
               </button>
             </div>
 
