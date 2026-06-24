@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { RouterLink, useRoute } from 'vue-router'
+import { computed, onMounted, ref } from "vue";
+import { RouterLink, useRoute } from "vue-router";
 import {
   PhArrowLeft,
   PhCalendarBlank,
@@ -9,154 +9,169 @@ import {
   PhPaperclip,
   PhTrash,
   PhWarningCircle,
-} from '@phosphor-icons/vue'
-import AttachmentPreviewList from '../../components/common/AttachmentPreviewList.vue'
-import { useAuthStore } from '../../stores/auth'
+} from "@phosphor-icons/vue";
+import AttachmentPreviewList from "../../components/common/AttachmentPreviewList.vue";
+import { useAuthStore } from "../../stores/auth";
 import {
   getMySubmissionByAssignment,
   getStudentAssignmentDetail,
   submitAssignment,
-} from '../../services/assignment'
-import { deleteMedia, uploadMediaFile } from '../../services/media'
-import type { AssignmentItem, MySubmissionResponse } from '../../types/assignment'
-import { formatDateTime } from '../../utils/date'
+} from "../../services/assignment";
+import { deleteMedia, uploadMediaFile } from "../../services/media";
+import type {
+  AssignmentItem,
+  MySubmissionResponse,
+} from "../../types/assignment";
+import { formatDateTime } from "../../utils/date";
 
-const route = useRoute()
-const auth = useAuthStore()
-const subjectClassId = computed(() => String(route.params.sclId ?? ''))
-const assignmentId = computed(() => String(route.params.asgId ?? ''))
-const assignment = ref<AssignmentItem | null>(null)
-const isLoading = ref(true)
-const errorMessage = ref('')
-const didLoad = ref(false)
-const selectedFiles = ref<File[]>([])
-const submitError = ref('')
-const submitSuccess = ref('')
-const isSubmitting = ref(false)
-const submissionStatus = ref<MySubmissionResponse | null>(null)
-const isSubmissionLoading = ref(false)
-const submissionError = ref('')
+const route = useRoute();
+const auth = useAuthStore();
+const subjectClassId = computed(() => String(route.params.sclId ?? ""));
+const assignmentId = computed(() => String(route.params.asgId ?? ""));
+const assignment = ref<AssignmentItem | null>(null);
+const isLoading = ref(true);
+const errorMessage = ref("");
+const didLoad = ref(false);
+const selectedFiles = ref<File[]>([]);
+const submitError = ref("");
+const submitSuccess = ref("");
+const isSubmitting = ref(false);
+const submissionStatus = ref<MySubmissionResponse | null>(null);
+const isSubmissionLoading = ref(false);
+const submissionError = ref("");
 
-const schoolId = computed(() => auth.activeSchoolId ?? auth.defaultContext?.schoolId ?? '')
+const schoolId = computed(
+  () => auth.activeSchoolId ?? auth.defaultContext?.schoolId ?? "",
+);
 
 async function loadAssignment() {
   if (!subjectClassId.value || !assignmentId.value) {
-    isLoading.value = false
-    errorMessage.value = 'Konteks tugas tidak lengkap.'
-    return
+    isLoading.value = false;
+    errorMessage.value = "Konteks tugas tidak lengkap.";
+    return;
   }
 
-  isLoading.value = true
-  errorMessage.value = ''
-  didLoad.value = false
+  isLoading.value = true;
+  errorMessage.value = "";
+  didLoad.value = false;
 
   try {
-    assignment.value = await getStudentAssignmentDetail(assignmentId.value)
-    didLoad.value = true
-    await loadMySubmissionStatus()
+    assignment.value = await getStudentAssignmentDetail(assignmentId.value);
+    didLoad.value = true;
+    await loadMySubmissionStatus();
   } catch {
-    errorMessage.value = 'Detail tugas belum bisa dimuat. Periksa koneksi atau coba lagi nanti.'
+    errorMessage.value =
+      "Detail tugas belum bisa dimuat. Periksa koneksi atau coba lagi nanti.";
   } finally {
-    isLoading.value = false
+    isLoading.value = false;
   }
 }
 
-onMounted(loadAssignment)
+onMounted(loadAssignment);
 
 async function loadMySubmissionStatus() {
-  if (!assignmentId.value) return
+  if (!assignmentId.value) return;
 
-  isSubmissionLoading.value = true
-  submissionError.value = ''
+  isSubmissionLoading.value = true;
+  submissionError.value = "";
 
   try {
-    submissionStatus.value = await getMySubmissionByAssignment(assignmentId.value)
+    submissionStatus.value = await getMySubmissionByAssignment(
+      assignmentId.value,
+    );
   } catch {
     submissionError.value =
-      'Status pengumpulan belum bisa dimuat. Detail tugas tetap bisa dibaca.'
+      "Status pengumpulan belum bisa dimuat. Detail tugas tetap bisa dibaca.";
   } finally {
-    isSubmissionLoading.value = false
+    isSubmissionLoading.value = false;
   }
 }
 
 function handleFileChange(event: Event) {
-  const input = event.target as HTMLInputElement
-  const files = Array.from(input.files ?? [])
-  selectedFiles.value = [...selectedFiles.value, ...files]
-  submitError.value = ''
-  submitSuccess.value = ''
-  input.value = ''
+  const input = event.target as HTMLInputElement;
+  const files = Array.from(input.files ?? []);
+  selectedFiles.value = [...selectedFiles.value, ...files];
+  submitError.value = "";
+  submitSuccess.value = "";
+  input.value = "";
 }
 
 function removeFile(index: number) {
-  selectedFiles.value = selectedFiles.value.filter((_, itemIndex) => itemIndex !== index)
+  selectedFiles.value = selectedFiles.value.filter(
+    (_, itemIndex) => itemIndex !== index,
+  );
 }
 
 function formatFileSize(size: number) {
-  if (size < 1024) return `${size} B`
-  if (size < 1024 * 1024) return `${Math.round(size / 1024)} KB`
-  return `${(size / (1024 * 1024)).toFixed(1)} MB`
+  if (size < 1024) return `${size} B`;
+  if (size < 1024 * 1024) return `${Math.round(size / 1024)} KB`;
+  return `${(size / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 function getErrorMessage(error: unknown) {
-  if (typeof error === 'object' && error !== null && 'response' in error) {
-    const response = (error as { response?: { data?: { error?: string; message?: string } } })
-      .response
-    return response?.data?.error ?? response?.data?.message
+  if (typeof error === "object" && error !== null && "response" in error) {
+    const response = (
+      error as { response?: { data?: { error?: string; message?: string } } }
+    ).response;
+    return response?.data?.error ?? response?.data?.message;
   }
-  return undefined
+  return undefined;
 }
 
 async function handleSubmit() {
-  if (!assignment.value) return
+  if (!assignment.value) return;
   if (!schoolId.value) {
-    submitError.value = 'Konteks sekolah belum tersedia. Silakan login ulang.'
-    return
+    submitError.value = "Konteks sekolah belum tersedia. Silakan login ulang.";
+    return;
   }
   if (selectedFiles.value.length === 0) {
-    submitError.value = 'Pilih minimal satu file untuk dikumpulkan.'
-    return
+    submitError.value = "Pilih minimal satu file untuk dikumpulkan.";
+    return;
   }
 
-  isSubmitting.value = true
-  submitError.value = ''
-  submitSuccess.value = ''
-  const uploadedMediaIds: string[] = []
+  isSubmitting.value = true;
+  submitError.value = "";
+  submitSuccess.value = "";
+  const uploadedMediaIds: string[] = [];
 
   try {
-    const uploaded = []
+    const uploaded = [];
     for (const file of selectedFiles.value) {
-      const media = await uploadMediaFile(file, schoolId.value, 'submission')
-      uploaded.push(media)
-      uploadedMediaIds.push(media.mediaId)
+      const media = await uploadMediaFile(file, schoolId.value, "submission");
+      uploaded.push(media);
+      uploadedMediaIds.push(media.mediaId);
     }
 
     await submitAssignment(assignment.value.assignmentId, {
       schoolId: schoolId.value,
       mediaIds: uploaded.map((item) => item.mediaId),
-    })
+    });
 
-    selectedFiles.value = []
-    submitSuccess.value = 'Tugas berhasil dikumpulkan.'
-    await loadMySubmissionStatus()
+    selectedFiles.value = [];
+    submitSuccess.value = "Tugas berhasil dikumpulkan.";
+    await loadMySubmissionStatus();
   } catch (error) {
     if (uploadedMediaIds.length > 0) {
       await Promise.allSettled(
         uploadedMediaIds.map(async (mediaId) => {
           try {
-            await deleteMedia(mediaId)
+            await deleteMedia(mediaId);
           } catch (cleanupError) {
-            console.warn('Failed to cleanup uploaded submission media', mediaId, cleanupError)
+            console.warn(
+              "Failed to cleanup uploaded submission media",
+              mediaId,
+              cleanupError,
+            );
           }
         }),
-      )
+      );
     }
 
     submitError.value =
       getErrorMessage(error) ??
-      'Pengumpulan tugas gagal. Pastikan file valid dan coba lagi nanti.'
+      "Pengumpulan tugas gagal. Pastikan file valid dan coba lagi nanti.";
   } finally {
-    isSubmitting.value = false
+    isSubmitting.value = false;
   }
 }
 </script>
@@ -172,12 +187,21 @@ async function handleSubmit() {
     </RouterLink>
 
     <section v-if="isLoading" class="max-w-4xl space-y-3">
-      <div class="h-40 animate-pulse rounded-3xl border border-[#ebe7df] bg-white" />
-      <div class="h-28 animate-pulse rounded-3xl border border-[#ebe7df] bg-white" />
+      <div
+        class="h-40 animate-pulse rounded-3xl border border-[#ebe7df] bg-white"
+      />
+      <div
+        class="h-28 animate-pulse rounded-3xl border border-[#ebe7df] bg-white"
+      />
     </section>
 
-    <section v-else-if="errorMessage" class="soft-card max-w-4xl rounded-[22px] p-5">
-      <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-[#fff1f0] text-[#f2756a]">
+    <section
+      v-else-if="errorMessage"
+      class="soft-card max-w-4xl rounded-[22px] p-5"
+    >
+      <div
+        class="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-[#fff1f0] text-[#f2756a]"
+      >
         <PhWarningCircle :size="24" weight="duotone" />
       </div>
       <p class="text-sm font-medium text-[#171322]">Tidak bisa memuat tugas</p>
@@ -191,8 +215,13 @@ async function handleSubmit() {
       </button>
     </section>
 
-    <section v-else-if="didLoad && !assignment" class="soft-card max-w-4xl rounded-[22px] p-5">
-      <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-[#eef2ff] text-[#4f46e5]">
+    <section
+      v-else-if="didLoad && !assignment"
+      class="soft-card max-w-4xl rounded-[22px] p-5"
+    >
+      <div
+        class="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-[#eef2ff] text-[#4f46e5]"
+      >
         <PhClipboardText :size="24" weight="duotone" />
       </div>
       <p class="text-sm font-medium text-[#171322]">Tugas tidak ditemukan</p>
@@ -211,12 +240,21 @@ async function handleSubmit() {
           </div>
           <div class="min-w-0">
             <p class="text-sm text-[#7a7385]">
-              {{ assignment.subjectName || assignment.subjectCode || 'Subject assignment' }}
+              {{
+                assignment.subjectName ||
+                assignment.subjectCode ||
+                "Subject assignment"
+              }}
             </p>
-            <h1 class="mt-2 text-3xl font-medium tracking-normal text-[#171322]">
+            <h1
+              class="mt-2 text-3xl font-medium tracking-normal text-[#171322]"
+            >
               {{ assignment.assignmentTitle }}
             </h1>
-            <p v-if="assignment.categoryName" class="mt-2 text-sm text-[#4f46e5]">
+            <p
+              v-if="assignment.categoryName"
+              class="mt-2 text-sm text-[#4f46e5]"
+            >
               {{ assignment.categoryName }}
             </p>
           </div>
@@ -235,7 +273,9 @@ async function handleSubmit() {
           <div class="rounded-2xl bg-[#fbfaf8] p-4">
             <p class="text-xs font-medium text-[#7a7385]">Late submission</p>
             <p class="mt-2 text-sm text-[#3f3a4a]">
-              {{ assignment.allowLateSubmission ? 'Diizinkan' : 'Tidak diizinkan' }}
+              {{
+                assignment.allowLateSubmission ? "Diizinkan" : "Tidak diizinkan"
+              }}
             </p>
           </div>
           <div class="rounded-2xl bg-[#fbfaf8] p-4">
@@ -271,13 +311,17 @@ async function handleSubmit() {
 
       <article class="rounded-[22px] border border-[#ebe7df] bg-white p-5">
         <p class="text-sm font-medium text-[#171322]">Pengumpulan tugas</p>
-        <p class="mt-2 text-sm leading-6 text-[#7a7385]">
-          Status pengumpulan diambil dari submission milik akun login saat ini.
-        </p>
+        <p class="mt-2 text-sm leading-6 text-[#7a7385]">Status pengumpulan.</p>
 
-        <div v-if="isSubmissionLoading" class="mt-4 h-24 animate-pulse rounded-2xl bg-[#fbfaf8]" />
+        <div
+          v-if="isSubmissionLoading"
+          class="mt-4 h-24 animate-pulse rounded-2xl bg-[#fbfaf8]"
+        />
 
-        <div v-else-if="submissionError" class="mt-4 rounded-2xl bg-[#fff1f0] p-4">
+        <div
+          v-else-if="submissionError"
+          class="mt-4 rounded-2xl bg-[#fff1f0] p-4"
+        >
           <p class="text-sm text-[#b42318]">{{ submissionError }}</p>
           <button
             class="mt-3 rounded-xl bg-white px-3 py-1.5 text-sm font-medium text-[#4f46e5]"
@@ -289,40 +333,39 @@ async function handleSubmit() {
         </div>
 
         <div
-          v-else-if="submissionStatus?.status === 'submitted' || submissionStatus?.status === 'graded'"
+          v-else-if="
+            submissionStatus?.status === 'submitted' ||
+            submissionStatus?.status === 'graded'
+          "
           class="mt-4 space-y-4"
         >
           <div class="rounded-2xl bg-[#ecfdf3] p-4">
             <div class="flex items-start gap-3">
-              <PhCheckCircle :size="22" class="mt-0.5 shrink-0 text-[#027a48]" weight="duotone" />
+              <PhCheckCircle
+                :size="22"
+                class="mt-0.5 shrink-0 text-[#027a48]"
+                weight="duotone"
+              />
               <div>
                 <p class="text-sm font-medium text-[#171322]">
                   {{
-                    submissionStatus.status === 'graded'
-                      ? 'Tugas sudah dinilai'
-                      : 'Tugas sudah dikumpulkan'
+                    submissionStatus.status === "graded"
+                      ? "Tugas sudah dinilai"
+                      : "Tugas sudah dikumpulkan"
                   }}
                 </p>
                 <p class="mt-1 text-sm text-[#667085]">
-                  Dikumpulkan: {{ formatDateTime(submissionStatus.submission?.submittedAt) }}
+                  Dikumpulkan:
+                  {{ formatDateTime(submissionStatus.submission?.submittedAt) }}
                 </p>
               </div>
             </div>
           </div>
-
           <div
-            v-if="submissionStatus.submission?.attachments?.length"
-            class="rounded-2xl bg-[#fbfaf8] p-4"
-          >
-            <p class="text-sm font-medium text-[#171322]">File yang dikumpulkan</p>
-            <AttachmentPreviewList
-              class="mt-3"
-              :attachments="submissionStatus.submission.attachments"
-            />
-          </div>
-
-          <div
-            v-if="submissionStatus.status === 'graded' && submissionStatus.submission?.assessment"
+            v-if="
+              submissionStatus.status === 'graded' &&
+              submissionStatus.submission?.assessment
+            "
             class="rounded-2xl bg-[#eef2ff] p-4"
           >
             <p class="text-sm font-medium text-[#171322]">Penilaian</p>
@@ -336,9 +379,29 @@ async function handleSubmit() {
               {{ submissionStatus.submission.assessment.feedback }}
             </p>
             <p class="mt-3 text-xs text-[#8b8592]">
-              Dinilai oleh {{ submissionStatus.submission.assessment.assessorName || 'Guru' }}
-              · {{ formatDateTime(submissionStatus.submission.assessment.assessedAt) }}
+              Dinilai oleh
+              {{
+                submissionStatus.submission.assessment.assessorName || "Guru"
+              }}
+              ·
+              {{
+                formatDateTime(
+                  submissionStatus.submission.assessment.assessedAt,
+                )
+              }}
             </p>
+          </div>
+          <div
+            v-if="submissionStatus.submission?.attachments?.length"
+            class="rounded-2xl bg-[#fbfaf8] p-4"
+          >
+            <p class="text-sm font-medium text-[#171322]">
+              File yang dikumpulkan
+            </p>
+            <AttachmentPreviewList
+              class="mt-3"
+              :attachments="submissionStatus.submission.attachments"
+            />
           </div>
 
           <p
@@ -351,20 +414,29 @@ async function handleSubmit() {
 
         <template v-else>
           <p class="mt-4 text-sm leading-6 text-[#7a7385]">
-            Upload file tugas, lalu kirim submission. Identitas siswa diambil dari token login.
+            Upload file tugas, lalu kirim submission. Identitas siswa diambil
+            dari token login.
           </p>
 
-          <div class="mt-4 rounded-2xl border border-dashed border-[#d8d2c8] bg-[#fbfaf8] p-4">
+          <div
+            class="mt-4 rounded-2xl border border-dashed border-[#d8d2c8] bg-[#fbfaf8] p-4"
+          >
             <label
               class="inline-flex cursor-pointer items-center gap-2 rounded-2xl bg-white px-4 py-2 text-sm font-medium text-[#4f46e5] transition hover:bg-[#eef2ff]"
             >
               <PhPaperclip :size="18" />
               Pilih file
-              <input class="hidden" multiple type="file" @change="handleFileChange" />
+              <input
+                class="hidden"
+                multiple
+                type="file"
+                @change="handleFileChange"
+              />
             </label>
 
             <p class="mt-3 text-xs leading-5 text-[#8b8592]">
-              File akan diupload ke storage backend terlebih dahulu, lalu media ID dikirim ke endpoint submission.
+              File akan diupload ke storage backend terlebih dahulu, lalu media
+              ID dikirim ke endpoint submission.
             </p>
           </div>
 
@@ -375,8 +447,12 @@ async function handleSubmit() {
               class="flex max-w-full items-center justify-between gap-3 overflow-hidden rounded-2xl bg-[#fbfaf8] px-4 py-3"
             >
               <div class="min-w-0 flex-1 overflow-hidden">
-                <p class="truncate text-sm font-medium text-[#3f3a4a]">{{ file.name }}</p>
-                <p class="mt-1 text-xs text-[#8b8592]">{{ formatFileSize(file.size) }}</p>
+                <p class="truncate text-sm font-medium text-[#3f3a4a]">
+                  {{ file.name }}
+                </p>
+                <p class="mt-1 text-xs text-[#8b8592]">
+                  {{ formatFileSize(file.size) }}
+                </p>
               </div>
               <button
                 class="shrink-0 rounded-xl p-2 text-[#f2756a] transition hover:bg-[#fff1f0]"
@@ -388,10 +464,16 @@ async function handleSubmit() {
             </div>
           </div>
 
-          <p v-if="submitError" class="mt-4 rounded-2xl bg-[#fff1f0] p-3 text-sm text-[#b42318]">
+          <p
+            v-if="submitError"
+            class="mt-4 rounded-2xl bg-[#fff1f0] p-3 text-sm text-[#b42318]"
+          >
             {{ submitError }}
           </p>
-          <p v-if="submitSuccess" class="mt-4 rounded-2xl bg-[#ecfdf3] p-3 text-sm text-[#027a48]">
+          <p
+            v-if="submitSuccess"
+            class="mt-4 rounded-2xl bg-[#ecfdf3] p-3 text-sm text-[#027a48]"
+          >
             {{ submitSuccess }}
           </p>
 
@@ -406,7 +488,7 @@ async function handleSubmit() {
             type="button"
             @click="handleSubmit"
           >
-            {{ isSubmitting ? 'Mengumpulkan...' : 'Kumpulkan tugas' }}
+            {{ isSubmitting ? "Mengumpulkan..." : "Kumpulkan tugas" }}
           </button>
         </template>
       </article>
