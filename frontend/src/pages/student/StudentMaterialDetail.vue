@@ -4,10 +4,10 @@ import { RouterLink, useRoute } from 'vue-router'
 import {
   PhArrowLeft,
   PhBookOpen,
-  PhNotebook,
   PhWarningCircle,
 } from '@phosphor-icons/vue'
 import AttachmentPreviewList from '../../components/common/AttachmentPreviewList.vue'
+import StudentNoteCard from '../../components/student/StudentNoteCard.vue'
 import { getMaterialById } from '../../services/classWorkspace'
 import type { MaterialItem } from '../../types/classWorkspace'
 import { formatDateTime } from '../../utils/date'
@@ -144,19 +144,7 @@ onMounted(loadMaterial)
         />
       </article>
 
-      <article class="rounded-[22px] border border-[#ebe7df] bg-white p-5">
-        <div class="flex items-start gap-3">
-          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#f3ecff] text-[#7c3aed]">
-            <PhNotebook :size="20" weight="duotone" />
-          </div>
-          <div>
-            <p class="text-sm font-medium text-[#171322]">Catatan pribadi</p>
-            <p class="mt-2 text-sm leading-6 text-[#7a7385]">
-              Catatan pribadi direncanakan setelah MVP sekolah. Belum ada penyimpanan catatan pada tahap ini.
-            </p>
-          </div>
-        </div>
-      </article>
+      <StudentNoteCard :material-id="material.materialId" />
 
       <article class="rounded-[22px] border border-[#ebe7df] bg-white p-5">
         <p class="text-sm font-medium text-[#171322]">Progress materi</p>
