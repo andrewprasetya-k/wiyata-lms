@@ -4,6 +4,8 @@ import { RouterLink, useRoute } from "vue-router";
 import {
   PhArrowLeft,
   PhBookOpen,
+  PhCheckCircle,
+  PhClock,
   PhFloppyDisk,
   PhNotebook,
   PhTrash,
@@ -16,6 +18,7 @@ import {
   getStudentMaterialNote,
   saveStudentMaterialNote,
 } from "../../services/studentNotes";
+import { useActiveClassStore } from "../../stores/activeClass";
 import { useToastStore } from "../../stores/toast";
 import type { MaterialItem } from "../../types/classWorkspace";
 import type { StudentMaterialNote } from "../../types/studentNotes";
@@ -24,6 +27,7 @@ import { formatDateTime } from "../../utils/date";
 const maxLength = 10000;
 const route = useRoute();
 const toast = useToastStore();
+const activeClassStore = useActiveClassStore();
 const subjectClassId = computed(() => String(route.params.sclId ?? ""));
 const materialId = computed(() => String(route.params.matId ?? ""));
 const material = ref<MaterialItem | null>(null);
@@ -40,6 +44,12 @@ const isTooLong = computed(() => Array.from(content.value).length > maxLength);
 const hasChanges = computed(
   () => normalizedContent.value !== savedContent.value,
 );
+const saveStatus = computed(() => {
+  if (isSaving.value) return "Menyimpan...";
+  if (hasChanges.value) return "Belum disimpan";
+  if (note.value) return "Tersimpan";
+  return "Belum ada catatan";
+});
 const canSave = computed(
   () =>
     normalizedContent.value.length > 0 &&
@@ -151,10 +161,7 @@ async function deleteNote() {
     savedContent.value = "";
     toast.success("Catatan berhasil dihapus.");
   } catch (error) {
-    errorMessage.value = getErrorMessage(
-      error,
-      "Catatan belum bisa dihapus.",
-    );
+    errorMessage.value = getErrorMessage(error, "Catatan belum bisa dihapus.");
   } finally {
     isDeleting.value = false;
   }
@@ -164,24 +171,49 @@ onMounted(loadPage);
 </script>
 
 <template>
-  <main class="min-h-screen flex-1 px-5 py-5 sm:px-6 lg:px-8">
-    <RouterLink
-      class="mb-5 inline-flex items-center gap-2 rounded-md bg-white px-4 py-2 text-sm font-medium text-[#4f46e5] transition hover:bg-[#eef2ff]"
-      :to="{
-        name: 'student-material-detail',
-        params: { sclId: subjectClassId, matId: materialId },
-      }"
+  <main class="min-h-screen flex-1 bg-[#f8f7f4]">
+    <header
+      class="sticky top-0 z-10 border-b border-[#ebe7df] bg-white/95 px-5 py-3 backdrop-blur sm:px-6 lg:px-8"
     >
-      <PhArrowLeft :size="18" />
-      Kembali ke materi
-    </RouterLink>
+      <div
+        class="mx-auto flex w-full max-w-400 items-center justify-between gap-4"
+      >
+        <nav
+          class="flex min-w-0 items-center gap-2 text-xs text-[#7a7385]"
+          aria-label="Breadcrumb"
+        >
+          <RouterLink
+            class="inline-flex shrink-0 items-center gap-1.5 font-medium transition hover:text-[#4f46e5]"
+            :to="{
+              name: 'student-material-detail',
+              params: { sclId: subjectClassId, matId: materialId },
+            }"
+          >
+            <PhArrowLeft :size="16" />
+            Kembali
+          </RouterLink>
+          <span class="text-[#d1ccd5]">/</span>
+          <span class="hidden truncate sm:inline">
+            {{
+              activeClassStore.activeClass?.classTitle ||
+              material?.subjectName ||
+              "Kelas aktif"
+            }}
+          </span>
+          <span class="hidden text-[#d1ccd5] sm:inline">/</span>
+          <span class="truncate font-medium text-[#171322]">
+            {{ material?.materialTitle || "Editor catatan" }}
+          </span>
+        </nav>
+      </div>
+    </header>
 
     <section
       v-if="isLoading"
-      class="grid w-full max-w-7xl gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]"
+      class="mx-auto grid w-full max-w-400 gap-5 px-5 py-5 sm:px-6 lg:grid-cols-[minmax(0,3fr)_minmax(340px,2fr)] lg:px-8"
     >
       <div
-        class="h-80 animate-pulse rounded-[22px] border border-[#ebe7df] bg-white"
+        class="h-150 animate-pulse rounded-[22px] border border-[#ebe7df] bg-white"
       />
       <div
         class="h-150 animate-pulse rounded-[22px] border border-[#ebe7df] bg-white"
@@ -190,7 +222,7 @@ onMounted(loadPage);
 
     <section
       v-else-if="errorMessage && !material"
-      class="soft-card max-w-3xl rounded-[22px] p-5"
+      class="soft-card mx-5 mt-5 max-w-3xl rounded-[22px] p-5 sm:mx-6 lg:mx-8"
     >
       <div
         class="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-[#fff1f0] text-[#f2756a]"
@@ -212,118 +244,164 @@ onMounted(loadPage);
 
     <section
       v-else-if="material"
-      class="grid w-full max-w-7xl items-start gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]"
+      class="mx-auto grid w-full max-w-400 items-start gap-5 px-5 py-5 sm:px-6 lg:grid-cols-[minmax(0,3fr)_minmax(340px,2fr)] lg:px-8"
     >
-      <aside class="min-w-0 space-y-4 lg:sticky lg:top-6">
-        <article class="soft-card rounded-[22px] p-5">
-          <div
-            class="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#eef2ff] text-[#4f46e5]"
-          >
-            <PhBookOpen :size="22" weight="duotone" />
+      <section
+        class="min-w-0 overflow-hidden rounded-[22px] border border-[#ebe7df] bg-white"
+      >
+        <header class="border-b border-[#ebe7df] px-5 py-4 sm:px-6">
+          <div class="flex flex-wrap items-center gap-2">
+            <span
+              class="inline-flex items-center gap-1.5 rounded-lg bg-[#eef2ff] px-2.5 py-1 text-xs font-medium text-[#4f46e5]"
+            >
+              <PhBookOpen :size="14" weight="duotone" />
+              {{ material.subjectName || "Materi kelas" }}
+            </span>
+            <span
+              v-if="material.materialType"
+              class="rounded-lg bg-[#f3f4f6] px-2.5 py-1 text-xs font-medium uppercase text-[#6b7280]"
+            >
+              {{ material.materialType }}
+            </span>
           </div>
-          <p class="mt-4 text-xs font-medium uppercase text-[#4f46e5]">
-            {{ material.subjectName || "Materi kelas" }}
-          </p>
-          <h1 class="mt-2 text-2xl font-medium text-[#171322]">
+
+          <h1 class="mt-3 text-2xl font-medium text-[#171322]">
             {{ material.materialTitle }}
           </h1>
-          <p
-            v-if="material.materialDesc"
-            class="mt-4 line-clamp-6 whitespace-pre-line text-sm leading-6 text-[#6b6475]"
-          >
-            {{ material.materialDesc }}
+          <p class="mt-1 text-xs text-[#8b8592]">
+            <template v-if="material.creatorName">
+              {{ material.creatorName }} ·
+            </template>
+            {{ formatDateTime(material.createdAt) }}
           </p>
-          <p v-else class="mt-4 text-sm leading-6 text-[#7a7385]">
-            Deskripsi materi belum tersedia.
-          </p>
-          <p class="mt-4 text-xs text-[#a09aa8]">
-            Dibuat {{ formatDateTime(material.createdAt) }}
-          </p>
-        </article>
+        </header>
 
-        <article class="rounded-[22px] border border-[#ebe7df] bg-white p-5">
-          <p class="text-sm font-medium text-[#171322]">Lampiran materi</p>
-          <AttachmentPreviewList
-            class="mt-3"
-            :attachments="material.attachments"
-            empty-text="Materi ini tidak memiliki lampiran."
-            :initially-expanded="false"
-          />
-        </article>
-      </aside>
+        <div class="space-y-5 bg-[#f4f3f1] p-4 sm:p-6">
+          <article
+            class="mx-auto w-full max-w-4xl rounded-[18px] border border-[#ebe7df] bg-white p-5 shadow-[0_8px_28px_rgba(53,45,35,0.06)] sm:p-6"
+          >
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <p class="text-sm font-medium text-[#171322]">
+                  Lampiran materi
+                </p>
+                <p class="mt-1 text-xs text-[#8b8592]">
+                  Preview file tetap tersedia saat kamu menulis catatan.
+                </p>
+              </div>
+              <span
+                class="shrink-0 rounded-lg bg-[#f3f4f6] px-2.5 py-1 text-xs text-[#6b7280]"
+              >
+                {{ material.attachments?.length || 0 }} file
+              </span>
+            </div>
+            <AttachmentPreviewList
+              class="mt-4"
+              :attachments="material.attachments"
+              empty-text="Materi ini tidak memiliki lampiran."
+            />
+          </article>
+        </div>
+      </section>
 
       <article
-        class="min-w-0 rounded-[22px] border border-[#ebe7df] bg-[#fbfaf8] p-5 sm:p-6"
+        class="flex min-h-168 min-w-0 flex-col overflow-hidden rounded-[22px] border border-[#ebe7df] bg-[#fbfaf8] lg:sticky lg:top-17 lg:h-[calc(100vh-5.5rem)]"
       >
-        <div class="flex items-start gap-3">
-          <div
-            class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#f3ecff] text-[#7c3aed]"
-          >
-            <PhNotebook :size="22" weight="duotone" />
-          </div>
-          <div>
-            <h2 class="text-xl font-medium text-[#171322]">Catatan Saya</h2>
-            <p class="mt-1 text-sm leading-6 text-[#7a7385]">
-              Tulis ringkasan, poin penting, atau hal yang ingin kamu ingat dari
-              materi ini.
-            </p>
-            <p v-if="note?.updatedAt" class="mt-1 text-xs text-[#a09aa8]">
-              Disimpan {{ formatDateTime(note.updatedAt) }}
-            </p>
-          </div>
-        </div>
-
-        <form class="mt-6" @submit.prevent="saveNote">
-          <textarea
-            v-model="content"
-            class="min-h-128 w-full resize-y rounded-[18px] border border-[#ebe7df] bg-white px-5 py-5 text-sm leading-7 text-[#374151] outline-none transition placeholder:text-[#b3adb9] focus:border-[#c7d2fe] focus:ring-4 focus:ring-[#4f46e5]/10"
-            placeholder="Mulai tulis catatanmu di sini..."
-          />
-
-          <div class="mt-2 flex flex-wrap items-center justify-between gap-2">
-            <p
-              class="text-xs"
-              :class="isTooLong ? 'text-[#b42318]' : 'text-[#a09aa8]'"
+        <header
+          class="flex shrink-0 items-start justify-between gap-3 border-b border-[#ebe7df] bg-white px-5 py-4"
+        >
+          <div class="flex min-w-0 items-start gap-3">
+            <div
+              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
             >
-              {{ Array.from(content).length.toLocaleString("id-ID") }} / 10.000
-              karakter
+              <PhNotebook :size="18" weight="duotone" />
+            </div>
+            <div class="min-w-0">
+              <h2 class="truncate text-sm font-medium text-[#171322]">
+                Catatan — {{ material.materialTitle }}
+              </h2>
+              <p class="mt-1 text-xs leading-5 text-[#8b8592]">
+                Catatan ini hanya dapat dilihat olehmu.
+              </p>
+            </div>
+          </div>
+
+          <div
+            class="inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium"
+            :class="
+              hasChanges
+                ? 'bg-[#fff7ed] text-[#b45309]'
+                : 'bg-[#ecfdf5] text-[#059669]'
+            "
+          >
+            <PhClock v-if="hasChanges" :size="14" />
+            <PhCheckCircle v-else :size="14" />
+            {{ saveStatus }}
+          </div>
+        </header>
+
+        <form class="flex min-h-0 flex-1 flex-col" @submit.prevent="saveNote">
+          <div class="min-h-0 flex-1 overflow-y-auto px-5 py-4">
+            <p class="mb-3 text-xs leading-5 text-[#a09aa8]">
+              Tulis ringkasan, poin penting, atau hal yang ingin kamu ingat.
             </p>
-            <p v-if="hasChanges && !isTooLong" class="text-xs text-[#8b8592]">
-              Perubahan belum disimpan
-            </p>
+            <textarea
+              v-model="content"
+              class="min-h-120 w-full resize-none border-0 bg-transparent p-0 text-sm leading-7 text-[#374151] outline-none placeholder:text-[#b3adb9] focus:ring-0 lg:min-h-full"
+              placeholder="Mulai tulis catatanmu di sini..."
+            />
           </div>
 
           <p
             v-if="errorMessage"
-            class="mt-3 rounded-2xl bg-[#fff1f0] px-4 py-3 text-sm leading-6 text-[#b42318]"
+            class="mx-5 mb-3 rounded-xl bg-[#fff1f0] px-4 py-3 text-sm leading-6 text-[#b42318]"
           >
             {{ errorMessage }}
           </p>
 
-          <div class="mt-5 flex flex-wrap items-center gap-3">
-            <button
-              class="inline-flex items-center gap-2 rounded-2xl px-4 py-2 text-sm font-medium text-white transition disabled:cursor-not-allowed disabled:bg-[#d8d5dd]"
-              :class="
-                canSave ? 'bg-[#4f46e5] hover:bg-[#4338ca]' : 'bg-[#d8d5dd]'
-              "
-              :disabled="!canSave"
-              type="submit"
+          <footer class="shrink-0 border-t border-[#ebe7df] bg-white px-5 py-4">
+            <div
+              class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2"
             >
-              <PhFloppyDisk :size="17" weight="duotone" />
-              {{ isSaving ? "Menyimpan..." : "Simpan catatan" }}
-            </button>
+              <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
+                <p
+                  class="text-xs"
+                  :class="isTooLong ? 'text-[#b42318]' : 'text-[#a09aa8]'"
+                >
+                  {{ Array.from(content).length.toLocaleString("id-ID") }} /
+                  10.000 karakter
+                </p>
+                <p v-if="note?.updatedAt" class="text-xs text-[#a09aa8]">
+                  Disimpan {{ formatDateTime(note.updatedAt) }}
+                </p>
+              </div>
 
-            <button
-              v-if="note"
-              class="inline-flex items-center gap-2 rounded-2xl border border-[#ebe7df] bg-white px-4 py-2 text-sm font-medium text-[#b42318] transition hover:border-[#fda29b] hover:bg-[#fff1f0] disabled:cursor-not-allowed disabled:opacity-60"
-              :disabled="isSaving || isDeleting"
-              type="button"
-              @click="deleteNote"
-            >
-              <PhTrash :size="17" weight="duotone" />
-              {{ isDeleting ? "Menghapus..." : "Hapus" }}
-            </button>
-          </div>
+              <div class="flex flex-wrap items-center gap-2">
+                <button
+                  v-if="note"
+                  class="inline-flex items-center gap-2 rounded-xl border border-[#ebe7df] bg-white px-3 py-2 text-xs font-medium text-[#b42318] transition hover:border-[#fda29b] hover:bg-[#fff1f0] disabled:cursor-not-allowed disabled:opacity-60"
+                  :disabled="isSaving || isDeleting"
+                  type="button"
+                  @click="deleteNote"
+                >
+                  <PhTrash :size="16" weight="duotone" />
+                  {{ isDeleting ? "Menghapus..." : "Hapus" }}
+                </button>
+
+                <button
+                  class="inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium text-white transition disabled:cursor-not-allowed disabled:bg-[#d8d5dd]"
+                  :class="
+                    canSave ? 'bg-[#4f46e5] hover:bg-[#4338ca]' : 'bg-[#d8d5dd]'
+                  "
+                  :disabled="!canSave"
+                  type="submit"
+                >
+                  <PhFloppyDisk :size="16" weight="duotone" />
+                  {{ isSaving ? "Menyimpan..." : "Simpan catatan" }}
+                </button>
+              </div>
+            </div>
+          </footer>
         </form>
       </article>
     </section>
