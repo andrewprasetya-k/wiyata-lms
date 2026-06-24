@@ -176,7 +176,7 @@ onMounted(loadMaterial);
         </article>
       </div>
 
-      <aside class="min-w-0 lg:sticky lg:top-6">
+      <aside class="min-w-0 lg:sticky lg:top-6 lg:h-[calc(100vh-3rem)]">
         <StudentNoteCard
           :material-id="material.materialId"
           :subject-class-id="subjectClassId"

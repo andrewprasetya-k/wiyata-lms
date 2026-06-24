@@ -305,7 +305,7 @@ onMounted(loadPage);
       </section>
 
       <article
-        class="flex min-h-168 min-w-0 flex-col overflow-hidden rounded-[22px] border border-[#ebe7df] bg-[#fbfaf8] lg:sticky lg:top-17 lg:h-[calc(100vh-5.5rem)]"
+        class="flex min-h-168 min-w-0 flex-col overflow-hidden rounded-[22px] border border-[#ebe7df] bg-[#fbfaf8] lg:sticky lg:top-17 lg:h-[calc(100vh-6rem)] lg:min-h-0"
       >
         <header
           class="flex shrink-0 items-start justify-between gap-3 border-b border-[#ebe7df] bg-white px-5 py-4"
@@ -341,13 +341,13 @@ onMounted(loadPage);
         </header>
 
         <form class="flex min-h-0 flex-1 flex-col" @submit.prevent="saveNote">
-          <div class="min-h-0 flex-1 overflow-y-auto px-5 py-4">
+          <div class="flex min-h-0 flex-1 flex-col overflow-y-auto px-5 py-4">
             <p class="mb-3 text-xs leading-5 text-[#a09aa8]">
               Tulis ringkasan, poin penting, atau hal yang ingin kamu ingat.
             </p>
             <textarea
               v-model="content"
-              class="min-h-120 w-full resize-none border-0 bg-transparent p-0 text-sm leading-7 text-[#374151] outline-none placeholder:text-[#b3adb9] focus:ring-0 lg:min-h-full"
+              class="min-h-120 w-full flex-1 resize-none border-0 bg-transparent p-0 text-sm leading-7 text-[#374151] outline-none placeholder:text-[#b3adb9] focus:ring-0 lg:min-h-0"
               placeholder="Mulai tulis catatanmu di sini..."
             />
           </div>

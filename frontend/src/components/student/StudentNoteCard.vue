@@ -75,7 +75,9 @@ watch(
 </script>
 
 <template>
-  <article class="rounded-[22px] border border-[#ebe7df] bg-[#fbfaf8] p-5">
+  <article
+    class="flex rounded-[22px] border border-[#ebe7df] bg-[#fbfaf8] p-5 lg:h-full lg:min-h-0 lg:flex-col"
+  >
     <div class="flex items-start gap-3">
       <div
         class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#f3ecff] text-[#7c3aed]"
@@ -90,13 +92,16 @@ watch(
       </div>
     </div>
 
-    <div v-if="isLoading" class="mt-5 space-y-2">
+    <div v-if="isLoading" class="mt-5 flex-1 space-y-2">
       <div class="h-4 animate-pulse rounded bg-white" />
       <div class="h-4 w-4/5 animate-pulse rounded bg-white" />
       <div class="h-4 w-2/3 animate-pulse rounded bg-white" />
     </div>
 
-    <div v-else-if="!hasLoaded" class="mt-5 rounded-[18px] bg-white p-4">
+    <div
+      v-else-if="!hasLoaded"
+      class="mt-5 flex-1 rounded-[18px] bg-white p-4"
+    >
       <p class="text-sm leading-6 text-[#b42318]">{{ errorMessage }}</p>
       <button
         class="mt-3 inline-flex items-center gap-2 text-sm font-medium text-[#4f46e5]"
@@ -108,10 +113,10 @@ watch(
       </button>
     </div>
 
-    <div v-else class="mt-5">
+    <div v-else class="mt-5 flex min-h-0 flex-1 flex-col">
       <template v-if="note">
         <p
-          class="line-clamp-5 whitespace-pre-line text-sm leading-6 text-[#4f4858]"
+          class="line-clamp-5 whitespace-pre-line text-sm leading-6 text-[#4f4858] lg:overflow-y-auto"
         >
           {{ note.content }}
         </p>
@@ -125,7 +130,7 @@ watch(
       </p>
 
       <RouterLink
-        class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#4f46e5] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+        class="mt-5 inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-2xl bg-[#4f46e5] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#4338ca] lg:mt-auto"
         :to="{
           name: 'student-material-note',
           params: {
