@@ -14,6 +14,7 @@ import StudentSubjectDetail from "../pages/student/StudentSubjectDetail.vue";
 import StudentAssignmentDetail from "../pages/student/StudentAssignmentDetail.vue";
 import StudentAssignments from "../pages/student/StudentAssignments.vue";
 import StudentMaterialDetail from "../pages/student/StudentMaterialDetail.vue";
+import StudentMaterialNoteEditor from "../pages/student/StudentMaterialNoteEditor.vue";
 import StudentSubjects from "../pages/student/StudentSubjects.vue";
 import StudentGrades from "../pages/student/StudentGrades.vue";
 import TeacherDashboard from "../pages/teacher/TeacherDashboard.vue";
@@ -98,6 +99,11 @@ const router = createRouter({
           path: "subjects/:sclId/materials/:matId",
           name: "student-material-detail",
           component: StudentMaterialDetail,
+        },
+        {
+          path: "subjects/:sclId/materials/:matId/note",
+          name: "student-material-note",
+          component: StudentMaterialNoteEditor,
         },
         {
           path: "subjects/:sclId/assignments/:asgId",

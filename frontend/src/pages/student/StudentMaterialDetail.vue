@@ -177,7 +177,10 @@ onMounted(loadMaterial);
       </div>
 
       <aside class="min-w-0 lg:sticky lg:top-6">
-        <StudentNoteCard :material-id="material.materialId" />
+        <StudentNoteCard
+          :material-id="material.materialId"
+          :subject-class-id="subjectClassId"
+        />
       </aside>
     </section>
   </main>
