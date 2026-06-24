@@ -85,73 +85,80 @@ onMounted(loadMaterial)
       </p>
     </section>
 
-    <section v-else-if="material" class="max-w-4xl space-y-4">
-      <article class="soft-card rounded-[22px] p-5">
-        <div class="mb-5 flex items-start gap-4">
-          <div
-            class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#eef2ff] text-[#4f46e5]"
-          >
-            <PhBookOpen :size="24" weight="duotone" />
+    <section
+      v-else-if="material"
+      class="grid w-full max-w-7xl items-start gap-5 lg:grid-cols-[minmax(0,1fr)_360px]"
+    >
+      <div class="min-w-0 space-y-4">
+        <article class="soft-card rounded-[22px] p-5">
+          <div class="mb-5 flex items-start gap-4">
+            <div
+              class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#eef2ff] text-[#4f46e5]"
+            >
+              <PhBookOpen :size="24" weight="duotone" />
+            </div>
+            <div class="min-w-0">
+              <p class="text-sm text-[#7a7385]">
+                {{ material.subjectName || 'Subject material' }}
+              </p>
+              <h1 class="mt-2 text-3xl font-medium tracking-normal text-[#171322]">
+                {{ material.materialTitle }}
+              </h1>
+              <p v-if="material.materialType" class="mt-2 text-sm uppercase text-[#4f46e5]">
+                {{ material.materialType }}
+              </p>
+            </div>
           </div>
-          <div class="min-w-0">
-            <p class="text-sm text-[#7a7385]">
-              {{ material.subjectName || 'Subject material' }}
-            </p>
-            <h1 class="mt-2 text-3xl font-medium tracking-normal text-[#171322]">
-              {{ material.materialTitle }}
-            </h1>
-            <p v-if="material.materialType" class="mt-2 text-sm uppercase text-[#4f46e5]">
-              {{ material.materialType }}
-            </p>
-          </div>
-        </div>
 
-        <div class="grid gap-3 sm:grid-cols-2">
-          <div class="rounded-2xl bg-[#fbfaf8] p-4">
-            <p class="text-xs font-medium text-[#7a7385]">Dibuat oleh</p>
-            <p class="mt-2 text-sm text-[#3f3a4a]">
-              {{ material.creatorName || 'Creator tidak tersedia' }}
-            </p>
+          <div class="grid gap-3 sm:grid-cols-2">
+            <div class="rounded-2xl bg-[#fbfaf8] p-4">
+              <p class="text-xs font-medium text-[#7a7385]">Dibuat oleh</p>
+              <p class="mt-2 text-sm text-[#3f3a4a]">
+                {{ material.creatorName || 'Creator tidak tersedia' }}
+              </p>
+            </div>
+            <div class="rounded-2xl bg-[#fbfaf8] p-4">
+              <p class="text-xs font-medium text-[#7a7385]">Dibuat</p>
+              <p class="mt-2 text-sm text-[#3f3a4a]">
+                {{ formatDateTime(material.createdAt) }}
+              </p>
+            </div>
           </div>
-          <div class="rounded-2xl bg-[#fbfaf8] p-4">
-            <p class="text-xs font-medium text-[#7a7385]">Dibuat</p>
-            <p class="mt-2 text-sm text-[#3f3a4a]">
-              {{ formatDateTime(material.createdAt) }}
-            </p>
-          </div>
-        </div>
 
-        <div class="mt-5 rounded-2xl bg-white p-4">
-          <p class="text-sm font-medium text-[#171322]">Deskripsi</p>
-          <p
-            v-if="material.materialDesc"
-            class="mt-3 whitespace-pre-line text-sm leading-6 text-[#6b6475]"
-          >
-            {{ material.materialDesc }}
+          <div class="mt-5 rounded-2xl bg-white p-4">
+            <p class="text-sm font-medium text-[#171322]">Deskripsi</p>
+            <p
+              v-if="material.materialDesc"
+              class="mt-3 whitespace-pre-line text-sm leading-6 text-[#6b6475]"
+            >
+              {{ material.materialDesc }}
+            </p>
+            <p v-else class="mt-3 text-sm leading-6 text-[#7a7385]">
+              Deskripsi materi belum tersedia.
+            </p>
+          </div>
+        </article>
+
+        <article class="rounded-[22px] border border-[#ebe7df] bg-white p-5">
+          <p class="text-sm font-medium text-[#171322]">Lampiran</p>
+          <AttachmentPreviewList
+            class="mt-3"
+            :attachments="material.attachments"
+            empty-text="Materi ini tidak memiliki lampiran."
+          />
+        </article>
+
+        <article class="rounded-[22px] border border-[#ebe7df] bg-white p-5">
+          <p class="text-sm font-medium text-[#171322]">Progress materi</p>
+          <p class="mt-2 text-sm leading-6 text-[#7a7385]">
+            Progress materi direncanakan setelah MVP sekolah. Membuka materi belum menandai progres selesai.
           </p>
-          <p v-else class="mt-3 text-sm leading-6 text-[#7a7385]">
-            Deskripsi materi belum tersedia.
-          </p>
-        </div>
-      </article>
+        </article>
+      </div>
 
-      <article class="rounded-[22px] border border-[#ebe7df] bg-white p-5">
-        <p class="text-sm font-medium text-[#171322]">Lampiran</p>
-        <AttachmentPreviewList
-          class="mt-3"
-          :attachments="material.attachments"
-          empty-text="Materi ini tidak memiliki lampiran."
-        />
-      </article>
-
-      <StudentNoteCard :material-id="material.materialId" />
-
-      <article class="rounded-[22px] border border-[#ebe7df] bg-white p-5">
-        <p class="text-sm font-medium text-[#171322]">Progress materi</p>
-        <p class="mt-2 text-sm leading-6 text-[#7a7385]">
-          Progress materi direncanakan setelah MVP sekolah. Membuka materi belum menandai progres selesai.
-        </p>
-      </article>
+      <aside class="min-w-0 lg:sticky lg:top-6">
+        <StudentNoteCard :material-id="material.materialId" />
+      </aside>
     </section>
   </main>
 </template>

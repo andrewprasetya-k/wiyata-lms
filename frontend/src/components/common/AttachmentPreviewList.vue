@@ -64,19 +64,6 @@ function isPreviewExpanded(attachment: AttachmentPreviewItem) {
   return expandedPreviews.value[attachment.mediaId] ?? props.initiallyExpanded;
 }
 
-function canPreview(attachment: AttachmentPreviewItem) {
-  return (
-    isSafeURL(attachment.fileUrl) && (isPDF(attachment) || isImage(attachment))
-  );
-}
-
-function togglePreview(attachment: AttachmentPreviewItem) {
-  expandedPreviews.value = {
-    ...expandedPreviews.value,
-    [attachment.mediaId]: !isPreviewExpanded(attachment),
-  };
-}
-
 function formatFileSize(size?: number) {
   if (size === undefined || size === null || size < 0) return "";
   if (size < 1024) return `${size} B`;
