@@ -9,7 +9,6 @@ import {
   PhCaretRight,
   PhChatCircleText,
   PhClipboardText,
-  PhNotebook,
   PhWarningCircle,
 } from "@phosphor-icons/vue";
 import { useAuthStore } from "../../stores/auth";
@@ -591,13 +590,6 @@ onMounted(loadDashboard);
               <p class="text-sm leading-6 text-[#6b6475]">
                 Chat direncanakan untuk komunikasi kelas dan subject. Saat ini
                 Feed kelas menjadi kanal pengumuman.
-              </p>
-            </div>
-            <div class="flex gap-3 rounded-2xl bg-[#f3ecff] p-4">
-              <PhNotebook :size="20" class="mt-0.5 shrink-0 text-[#7c3aed]" />
-              <p class="text-sm leading-6 text-[#6b6475]">
-                Notes per materi direncanakan untuk catatan belajar setelah MVP
-                sekolah.
               </p>
             </div>
           </div>
