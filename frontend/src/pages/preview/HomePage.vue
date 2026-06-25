@@ -26,7 +26,7 @@
         </nav>
 
         <RouterLink
-          to="/login"
+          to="/auth/login"
           class="rounded-2xl bg-[#4f46e5] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#4338ca]"
         >
           Masuk
@@ -53,7 +53,7 @@
 
         <div class="mt-8 flex flex-col gap-3 sm:flex-row">
           <RouterLink
-            to="/login"
+            to="/auth/login"
             class="inline-flex h-12 items-center justify-center rounded-2xl bg-[#4f46e5] px-6 text-sm font-medium text-white transition hover:bg-[#4338ca]"
           >
             Masuk ke Eduverse
@@ -265,7 +265,7 @@
       </p>
 
       <RouterLink
-        to="/login"
+        to="/auth/login"
         class="mt-8 inline-flex h-12 items-center justify-center rounded-2xl bg-[#4f46e5] px-7 text-sm font-medium text-white transition hover:bg-[#4338ca]"
       >
         Masuk ke Eduverse

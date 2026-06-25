@@ -64,7 +64,7 @@ const router = createRouter({
       ],
     },
     {
-      path: "/login",
+      path: "/auth",
       component: AuthLayout,
       children: [
         {
