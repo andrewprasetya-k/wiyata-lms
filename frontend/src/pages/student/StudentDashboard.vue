@@ -691,7 +691,7 @@ onMounted(loadDashboard);
       class="min-w-0 border-t border-[#ebe7df] bg-white lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto lg:border-l lg:border-t-0"
     >
       <div
-        class="flex min-w-0 flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-[#ebe7df]"
+        class="flex min-w-0 flex-wrap items-center justify-between gap-3 px-5 py-4"
       >
         <button
           class="flex items-center gap-2 border-b-2 border-[#4f46e5] px-1 py-4 text-sm font-medium text-[#4f46e5]"
