@@ -195,11 +195,6 @@ onMounted(async () => {
         class="flex min-w-0 flex-col gap-3 px-5 py-5 sm:px-6 lg:flex-row lg:items-end lg:justify-between lg:px-8"
       >
         <div class="min-w-0">
-          <p
-            class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#ea580c]"
-          >
-            Admin sekolah
-          </p>
           <h1 class="mt-1 text-2xl font-semibold text-[#171322] sm:text-3xl">
             Kelas
           </h1>
