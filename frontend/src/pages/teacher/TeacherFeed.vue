@@ -19,7 +19,6 @@ import { formatDateTime } from "../../utils/date";
 interface TeacherFeedClass {
   classId: string;
   className: string;
-  classCode?: string;
   subjectCount: number;
 }
 
@@ -43,11 +42,15 @@ const activeSchoolId = computed(
   () => auth.activeSchoolId ?? auth.defaultContext?.schoolId ?? "",
 );
 const selectedClass = computed(
-  () => classes.value.find((item) => item.classId === selectedClassId.value) ?? null,
+  () =>
+    classes.value.find((item) => item.classId === selectedClassId.value) ??
+    null,
 );
 const canSubmit = computed(
   () =>
-    Boolean(activeSchoolId.value && selectedClassId.value && content.value.trim()) &&
+    Boolean(
+      activeSchoolId.value && selectedClassId.value && content.value.trim(),
+    ) &&
     !submitting.value &&
     !feedAccessMessage.value,
 );
@@ -65,7 +68,6 @@ function mapTeachingClasses(subjects: TeacherSubjectClass[]) {
     classMap.set(subject.classId, {
       classId: subject.classId,
       className: subject.className || "Kelas",
-      classCode: subject.classCode,
       subjectCount: 1,
     });
   }
@@ -97,10 +99,6 @@ function isForbiddenError(error: unknown) {
     "response" in error &&
     (error as { response?: { status?: number } }).response?.status === 403
   );
-}
-
-function classOptionLabel(item: TeacherFeedClass) {
-  return item.classCode ? `${item.className} · ${item.classCode}` : item.className;
 }
 
 async function loadClasses() {
@@ -145,11 +143,11 @@ async function loadFeed() {
     classHeader.value = null;
     if (isForbiddenError(error)) {
       feedAccessMessage.value =
-        "Feed kelas ini belum bisa dimuat. Pastikan guru masih aktif di Penempatan Kelas.";
+        "Pengumuman kelas ini belum bisa dimuat. Pastikan guru masih aktif di Penempatan Kelas.";
     } else {
       feedError.value = getErrorMessage(
         error,
-        "Feed kelas belum bisa dimuat.",
+        "Pengumuman kelas belum bisa dimuat.",
       );
     }
   } finally {
@@ -159,7 +157,7 @@ async function loadFeed() {
 
 async function submitFeed() {
   if (!activeSchoolId.value) {
-    toast.error("Context sekolah aktif belum tersedia.");
+    toast.error("Konteks sekolah aktif belum tersedia.");
     return;
   }
   if (!selectedClassId.value) {
@@ -185,7 +183,7 @@ async function submitFeed() {
   } catch (error) {
     if (isForbiddenError(error)) {
       feedAccessMessage.value =
-        "Feed kelas ini belum bisa dimuat. Pastikan guru masih aktif di Penempatan Kelas.";
+        "Pengumuman kelas ini belum bisa dimuat. Pastikan guru masih aktif di Penempatan Kelas.";
     } else {
       toast.error(getErrorMessage(error, "Pengumuman belum bisa dikirim."));
     }
@@ -211,117 +209,135 @@ function updatePostCommentCount(feedId: string, count: number) {
 </script>
 
 <template>
-  <main class="min-h-screen flex-1 px-5 py-5 sm:px-6 lg:px-8">
-    <section class="flex w-full max-w-none flex-col gap-5">
-      <header
-        class="rounded-[22px] bg-[#f0e9dd] px-5 py-5 shadow-sm ring-1 ring-black/5 md:px-6"
-      >
-        <p class="text-sm font-medium text-[#8a6d3b]">Feed kelas</p>
-        <h1 class="mt-3 text-3xl font-medium text-[#171322] md:text-4xl">
-          Pengumuman kelas
-        </h1>
-        <p class="mt-3 max-w-2xl text-sm leading-6 text-[#6b6475]">
-          Buat pengumuman untuk kelas yang Anda ajar. Komentar ringan tersedia,
-          sedangkan attachment dan realtime feed tetap post-MVP.
+  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
+    <header class="border-b border-[#ebe7df] bg-white">
+      <div class="px-5 py-5 sm:px-6 lg:px-8">
+        <p class="text-xs font-medium uppercase tracking-wide text-[#7b61a8]">
+          Komunikasi kelas
         </p>
-      </header>
+        <div
+          class="mt-2 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
+        >
+          <div class="min-w-0">
+            <h1 class="text-2xl font-semibold text-[#171322] sm:text-3xl">
+              Pengumuman Kelas
+            </h1>
+            <p class="mt-2 max-w-2xl text-sm leading-6 text-[#6b6475]">
+              Sampaikan informasi kepada siswa dan lanjutkan diskusi melalui
+              komentar pada setiap pengumuman.
+            </p>
+          </div>
+          <span
+            v-if="selectedClass"
+            class="inline-flex max-w-full items-center gap-2 self-start rounded-lg bg-[#eef7f2] px-3 py-2 text-xs font-medium text-[#2f7d5c] sm:self-auto"
+          >
+            <PhChalkboardTeacher :size="15" weight="duotone" />
+            <span class="truncate">{{ selectedClass.className }}</span>
+          </span>
+        </div>
+      </div>
+    </header>
 
-      <section
-        v-if="classesLoading"
-        class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5"
-      >
-        <p class="text-sm text-[#6b6475]">Memuat kelas yang diajar...</p>
-      </section>
+    <section class="px-5 py-5 sm:px-6 lg:px-8">
+      <template v-if="classesLoading">
+        <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
+          <div
+            class="h-72 animate-pulse rounded-xl border border-[#ebe7df] bg-white"
+          />
+          <div
+            class="h-72 animate-pulse rounded-xl border border-[#ebe7df] bg-white"
+          />
+        </div>
+      </template>
 
       <section
         v-else-if="classesError"
-        class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5"
+        class="mx-auto max-w-xl rounded-xl border border-[#f0d8d2] bg-white px-5 py-8 text-center"
       >
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div class="flex items-start gap-3">
-            <PhWarningCircle
-              :size="24"
-              class="mt-0.5 text-[#e58f86]"
-              weight="duotone"
-            />
-            <div>
-              <h2 class="text-lg font-medium text-[#171322]">
-                Gagal memuat kelas
-              </h2>
-              <p class="mt-2 text-sm leading-6 text-[#6b6475]">
-                {{ classesError }}
-              </p>
-            </div>
-          </div>
-          <button
-            class="inline-flex items-center gap-2 rounded-2xl border border-[#d8d1c5] px-4 py-2 text-sm font-medium text-[#4f46e5] transition hover:border-[#4f46e5] hover:bg-[#eef2ff]"
-            type="button"
-            @click="loadClasses"
-          >
-            <PhArrowClockwise :size="16" />
-            Coba lagi
-          </button>
-        </div>
+        <PhWarningCircle
+          :size="30"
+          class="mx-auto text-[#d97757]"
+          weight="duotone"
+        />
+        <h2 class="mt-3 text-lg font-semibold text-[#171322]">
+          Kelas belum bisa dimuat
+        </h2>
+        <p class="mt-2 text-sm leading-6 text-[#6b6475]">
+          {{ classesError }}
+        </p>
+        <button
+          class="mt-5 inline-flex items-center gap-2 rounded-lg bg-[#171322] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#2f2b3a]"
+          type="button"
+          @click="loadClasses"
+        >
+          <PhArrowClockwise :size="16" />
+          Coba lagi
+        </button>
       </section>
 
       <section
         v-else-if="classes.length === 0"
-        class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5"
+        class="mx-auto max-w-xl rounded-xl border border-[#ebe7df] bg-white px-5 py-10 text-center"
       >
         <div
-          class="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#eef2ff] text-[#4f46e5]"
+          class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
         >
           <PhChalkboardTeacher :size="24" weight="duotone" />
         </div>
-        <p class="text-sm font-medium text-[#171322]">
-          Belum ada kelas yang diajar
-        </p>
+        <h2 class="mt-3 text-lg font-semibold text-[#171322]">
+          Belum ada kelas aktif
+        </h2>
         <p class="mt-2 text-sm leading-6 text-[#6b6475]">
-          Belum ada kelas aktif yang bisa digunakan untuk pengumuman.
+          Belum ada kelas aktif yang bisa digunakan untuk mengirim pengumuman.
         </p>
       </section>
 
-      <template v-else>
-        <section
-          class="grid gap-5 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]"
-        >
-          <article class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5">
-            <div class="mb-5 flex items-start gap-3">
+      <section
+        v-else
+        class="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_360px]"
+      >
+        <aside class="order-1 min-w-0 lg:order-2">
+          <article
+            class="rounded-xl border border-[#ebe7df] bg-white p-5 lg:sticky lg:top-6"
+          >
+            <div class="flex items-start gap-3">
               <div
-                class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#eef2ff] text-[#4f46e5]"
+                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
               >
-                <PhMegaphone :size="22" weight="duotone" />
+                <PhMegaphone :size="20" weight="duotone" />
               </div>
-              <div>
-                <p class="text-sm font-medium text-[#171322]">
+              <div class="min-w-0">
+                <h2 class="text-base font-semibold text-[#171322]">
                   Buat pengumuman
-                </p>
+                </h2>
                 <p class="mt-1 text-xs leading-5 text-[#7a7385]">
-                  Pilih kelas, lalu tulis pengumuman singkat untuk semua member
-                  aktif di kelas tersebut.
+                  Pilih kelas dan tulis informasi yang perlu diketahui siswa.
                 </p>
               </div>
             </div>
 
-            <label class="text-xs font-medium text-[#6b6475]" for="feed-class">
-              Kelas
+            <label
+              class="mt-5 block text-xs font-medium text-[#6b6475]"
+              for="feed-class"
+            >
+              Kelas tujuan
             </label>
             <select
               id="feed-class"
               v-model="selectedClassId"
-              class="mt-2 w-full rounded-2xl border border-[#ebe7df] bg-white px-4 py-3 text-sm text-[#171322] outline-none transition focus:border-[#4f46e5]"
+              class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-white px-3.5 py-2.5 text-sm text-[#171322] outline-none transition focus:border-[#4f46e5]"
             >
               <option
                 v-for="item in classes"
                 :key="item.classId"
                 :value="item.classId"
               >
-                {{ classOptionLabel(item) }}
+                {{ item.className }}
               </option>
             </select>
 
             <label
-              class="mt-5 block text-xs font-medium text-[#6b6475]"
+              class="mt-4 block text-xs font-medium text-[#6b6475]"
               for="feed-content"
             >
               Isi pengumuman
@@ -329,119 +345,161 @@ function updatePostCommentCount(feedId: string, count: number) {
             <textarea
               id="feed-content"
               v-model="content"
-              class="mt-2 min-h-36 w-full resize-y rounded-2xl border border-[#ebe7df] bg-white px-4 py-3 text-sm leading-6 text-[#171322] outline-none transition placeholder:text-[#a09aa8] focus:border-[#4f46e5]"
+              class="mt-2 min-h-40 w-full resize-y rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-3 text-sm leading-6 text-[#171322] outline-none transition placeholder:text-[#a09aa8] focus:border-[#4f46e5] focus:bg-white"
               placeholder="Tulis pengumuman untuk kelas ini..."
               maxlength="1200"
             />
-            <div class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <p class="text-xs text-[#8b8592]">
-                <span v-if="feedAccessMessage">
-                  Pengumuman belum bisa dikirim untuk kelas ini.
-                </span>
-                <span v-else>
-                  Attachment belum diaktifkan untuk feed MVP.
-                </span>
-              </p>
-              <button
-                class="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#4f46e5] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:opacity-60"
-                type="button"
-                :disabled="!canSubmit"
-                @click="submitFeed"
-              >
-                <PhPaperPlaneTilt :size="16" weight="duotone" />
-                {{ submitting ? "Mengirim..." : "Kirim pengumuman" }}
-              </button>
-            </div>
+            <p class="mt-2 text-xs leading-5 text-[#8b8592]">
+              <span v-if="feedAccessMessage">
+                Pengumuman belum bisa dikirim untuk kelas ini.
+              </span>
+              <span v-else>
+                Pengumuman ini akan terlihat oleh siswa aktif di kelas.
+              </span>
+            </p>
+            <button
+              class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#4f46e5] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:opacity-60"
+              type="button"
+              :disabled="!canSubmit"
+              @click="submitFeed"
+            >
+              <PhPaperPlaneTilt :size="16" weight="duotone" />
+              {{ submitting ? "Mengirim..." : "Kirim pengumuman" }}
+            </button>
           </article>
+        </aside>
 
-          <article class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5">
-            <div class="mb-5 flex items-start justify-between gap-4">
-              <div>
-                <p class="text-sm font-medium text-[#171322]">
-                  {{ classHeader?.classTitle || selectedClass?.className || "Feed kelas" }}
-                </p>
-                <p class="mt-1 text-xs text-[#7a7385]">
-                  <span v-if="classHeader?.classCode || selectedClass?.classCode">
-                    {{ classHeader?.classCode || selectedClass?.classCode }} ·
-                  </span>
-                  {{ selectedClass?.subjectCount || 0 }} subject yang Anda ajar
-                </p>
-              </div>
-              <button
-                class="inline-flex items-center gap-2 rounded-2xl border border-[#ebe7df] px-3 py-2 text-xs font-medium text-[#4f46e5] transition hover:border-[#4f46e5] hover:bg-[#eef2ff]"
-                type="button"
-                :disabled="feedLoading"
-                @click="loadFeed"
-              >
-                <PhArrowClockwise :size="14" />
-                Refresh
-              </button>
-            </div>
-
-            <div v-if="feedLoading" class="space-y-3">
-              <div
-                v-for="item in 3"
-                :key="item"
-                class="h-24 animate-pulse rounded-2xl bg-[#fbfaf8]"
-              />
-            </div>
-
-            <div
-              v-else-if="feedAccessMessage"
-              class="rounded-2xl bg-[#fbfaf8] p-4"
-            >
-              <p class="text-sm font-medium text-[#171322]">
-                Feed belum bisa dimuat
-              </p>
-              <p class="mt-2 text-sm leading-6 text-[#7a7385]">
-                {{ feedAccessMessage }}
+        <section class="order-2 min-w-0 lg:order-1">
+          <div
+            class="flex flex-col gap-3 rounded-xl border border-[#ebe7df] bg-white px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5"
+          >
+            <div class="min-w-0">
+              <h2 class="truncate text-base font-semibold text-[#171322]">
+                {{
+                  classHeader?.classTitle ||
+                  selectedClass?.className ||
+                  "Pengumuman kelas"
+                }}
+              </h2>
+              <p class="mt-1 text-xs text-[#7a7385]">
+                {{ selectedClass?.subjectCount || 0 }} mata pelajaran yang Anda
+                ajar
               </p>
             </div>
-
-            <div
-              v-else-if="feedError"
-              class="rounded-2xl bg-[#fff7ed] p-4 text-sm leading-6 text-[#9a3412]"
+            <button
+              class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-[#ebe7df] px-3 py-2 text-xs font-medium text-[#4f46e5] transition hover:border-[#4f46e5] hover:bg-[#eef2ff] disabled:opacity-50"
+              type="button"
+              :disabled="feedLoading"
+              @click="loadFeed"
             >
+              <PhArrowClockwise :size="14" />
+              Muat ulang
+            </button>
+          </div>
+
+          <div v-if="feedLoading" class="mt-3 space-y-3">
+            <div
+              v-for="item in 3"
+              :key="item"
+              class="h-32 animate-pulse rounded-xl border border-[#ebe7df] bg-white"
+            />
+          </div>
+
+          <div
+            v-else-if="feedAccessMessage"
+            class="mt-3 rounded-xl border border-[#ebe7df] bg-white p-5"
+          >
+            <h3 class="text-sm font-semibold text-[#171322]">
+              Pengumuman belum bisa dimuat
+            </h3>
+            <p class="mt-2 text-sm leading-6 text-[#7a7385]">
+              {{ feedAccessMessage }}
+            </p>
+          </div>
+
+          <div
+            v-else-if="feedError"
+            class="mt-3 rounded-xl border border-[#fed7aa] bg-[#fff7ed] p-5"
+          >
+            <h3 class="text-sm font-semibold text-[#9a3412]">
+              Terjadi kendala
+            </h3>
+            <p class="mt-2 text-sm leading-6 text-[#9a3412]">
               {{ feedError }}
-            </div>
-
-            <div
-              v-else-if="posts.length === 0"
-              class="rounded-2xl bg-[#fbfaf8] p-4"
+            </p>
+            <button
+              type="button"
+              class="mt-4 inline-flex items-center gap-2 rounded-lg border border-[#fdba74] bg-white px-3 py-2 text-xs font-medium text-[#9a3412]"
+              @click="loadFeed"
             >
-              <p class="text-sm font-medium text-[#171322]">Belum ada feed</p>
-              <p class="mt-2 text-sm leading-6 text-[#7a7385]">
-                Pengumuman yang Anda kirim untuk kelas ini akan tampil di sini
-                dan bisa dibaca siswa yang masih aktif di kelas.
-              </p>
-            </div>
+              <PhArrowClockwise :size="14" />
+              Coba lagi
+            </button>
+          </div>
 
-            <div v-else class="space-y-3">
-              <article
-                v-for="post in posts"
-                :key="post.feedId"
-                class="rounded-2xl border border-[#ebe7df] bg-[#fbfaf8] p-4"
-              >
-                <div class="flex items-start justify-between gap-3">
-                  <p class="text-sm font-medium text-[#171322]">
-                    {{ post.creatorName || "Pengirim tidak tersedia" }}
-                  </p>
-                  <span class="shrink-0 text-xs text-[#a09aa8]">
-                    {{ formatDateTime(post.createdAt) }}
+          <div
+            v-else-if="posts.length === 0"
+            class="mt-3 rounded-xl border border-[#ebe7df] bg-white px-5 py-10 text-center"
+          >
+            <div
+              class="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
+            >
+              <PhMegaphone :size="22" weight="duotone" />
+            </div>
+            <h3 class="mt-3 text-base font-semibold text-[#171322]">
+              Belum ada pengumuman
+            </h3>
+            <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#7a7385]">
+              Pengumuman yang Anda kirim untuk kelas ini akan tampil di sini dan
+              dapat dibaca oleh siswa aktif.
+            </p>
+          </div>
+
+          <div v-else class="mt-3 space-y-3">
+            <article
+              v-for="post in posts"
+              :key="post.feedId"
+              class="min-w-0 rounded-xl border border-[#ebe7df] bg-white"
+            >
+              <div class="flex min-w-0 items-start gap-3 px-4 pt-4 sm:px-5">
+                <div
+                  class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#059669] text-xs font-semibold text-white"
+                >
+                  {{ (post.creatorName || "G").charAt(0).toUpperCase() }}
+                </div>
+                <div class="min-w-0 flex-1">
+                  <div
+                    class="flex min-w-0 flex-col gap-1 sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <h3 class="truncate text-sm font-semibold text-[#171322]">
+                      {{ post.creatorName || "Pengirim tidak tersedia" }}
+                    </h3>
+                    <span class="shrink-0 text-xs text-[#a09aa8]">
+                      {{ formatDateTime(post.createdAt) }}
+                    </span>
+                  </div>
+                  <span
+                    class="mt-2 inline-flex rounded-lg bg-[#fff7ed] px-2 py-1 text-[10px] font-medium uppercase tracking-wide text-[#ea580c]"
+                  >
+                    Pengumuman
                   </span>
                 </div>
-                <p class="mt-3 whitespace-pre-line text-sm leading-6 text-[#4a4356]">
-                  {{ post.content }}
-                </p>
+              </div>
+              <p
+                class="whitespace-pre-line wrap-break-word px-4 pb-4 pt-3 text-sm leading-6 text-[#4a4356] sm:px-5"
+              >
+                {{ post.content }}
+              </p>
+              <div class="border-t border-[#f3f1ec] px-4 pb-4 sm:px-5">
                 <FeedComments
                   :post="post"
                   @comment-count-change="updatePostCommentCount"
                 />
-              </article>
-            </div>
-          </article>
+              </div>
+            </article>
+          </div>
         </section>
-      </template>
+      </section>
     </section>
   </main>
 </template>
