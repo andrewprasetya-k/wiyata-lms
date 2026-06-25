@@ -125,7 +125,7 @@ onMounted(loadInbox);
             </h1>
             <p class="mt-2 max-w-2xl text-sm leading-6 text-[#6b6475]">
               Pantau pengumpulan dari semua mata pelajaran yang Anda ajar.
-              Penilaian dan umpan balik tetap dilakukan di halaman tinjau tugas.
+              Penilaian dan umpan balik tetap dilakukan di halaman nilai tugas.
             </p>
           </div>
           <p class="shrink-0 text-sm text-[#8a8494]">
@@ -336,7 +336,7 @@ onMounted(loadInbox);
                   }"
                   class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-[#171322] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#2f2b3a]"
                 >
-                  Tinjau pengumpulan
+                  Nilai pengumpulan
                   <PhArrowRight :size="16" />
                 </RouterLink>
               </div>

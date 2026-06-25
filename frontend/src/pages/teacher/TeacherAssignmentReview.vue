@@ -140,7 +140,7 @@ onMounted(loadData);
         <span class="shrink-0">Tugas</span>
         <span class="text-[#d1d5db]">/</span>
         <span class="min-w-0 truncate font-medium text-[#171322]">
-          Tinjau pengumpulan
+          Nilai pengumpulan
         </span>
       </div>
 
@@ -149,7 +149,7 @@ onMounted(loadData);
       >
         <div class="min-w-0">
           <p class="text-xs font-medium uppercase tracking-wide text-[#7b61a8]">
-            Tinjau pengumpulan
+            Nilai pengumpulan
           </p>
           <h1
             class="mt-1 wrap-break-word text-xl font-semibold text-[#171322] sm:text-2xl"
