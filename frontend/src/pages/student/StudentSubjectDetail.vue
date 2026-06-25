@@ -184,22 +184,6 @@ onMounted(loadSubject);
           >
             <component :is="tab.icon" :size="17" />
             {{ tab.label }}
-            <span
-              v-if="
-                (tab.key === 'materials' && materials.length > 0) ||
-                (tab.key === 'assignments' && assignments.length > 0) ||
-                (tab.key === 'notes' && notesLoaded && notes.length > 0)
-              "
-              class="rounded-full bg-[#eef2ff] px-1.5 py-0.5 text-[10px] font-medium text-[#4f46e5]"
-            >
-              {{
-                tab.key === "materials"
-                  ? materials.length
-                  : tab.key === "assignments"
-                    ? assignments.length
-                    : notes.length
-              }}
-            </span>
           </button>
         </nav>
       </div>
