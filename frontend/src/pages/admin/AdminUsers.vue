@@ -242,7 +242,9 @@ async function addExistingUser(user: AdminUserItem) {
 
     const member = await reloadMembersAndFind(user.userId);
     if (!member) {
-      toast.error("Akses sekolah belum ditemukan setelah pengguna ditambahkan.");
+      toast.error(
+        "Akses sekolah belum ditemukan setelah pengguna ditambahkan.",
+      );
       return;
     }
 
@@ -279,11 +281,6 @@ onMounted(async () => {
         class="flex min-w-0 flex-col gap-3 px-5 py-5 sm:px-6 lg:flex-row lg:items-end lg:justify-between lg:px-8"
       >
         <div class="min-w-0">
-          <p
-            class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#ea580c]"
-          >
-            Admin sekolah
-          </p>
           <h1 class="mt-1 text-2xl font-semibold text-[#171322] sm:text-3xl">
             Warga Sekolah
           </h1>
@@ -434,9 +431,7 @@ onMounted(async () => {
                     <div
                       class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#ea580c] text-xs font-semibold text-white"
                     >
-                      {{
-                        (member.fullName || "W").charAt(0).toUpperCase()
-                      }}
+                      {{ (member.fullName || "W").charAt(0).toUpperCase() }}
                     </div>
                     <div class="min-w-0">
                       <div class="flex min-w-0 flex-wrap items-center gap-2">
@@ -601,7 +596,9 @@ onMounted(async () => {
                 :key="user.userId"
                 class="rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-3"
               >
-                <h3 class="wrap-break-word text-sm font-semibold text-[#171322]">
+                <h3
+                  class="wrap-break-word text-sm font-semibold text-[#171322]"
+                >
                   {{ user.fullName }}
                 </h3>
                 <p class="mt-1 break-all text-xs text-[#6b7280]">

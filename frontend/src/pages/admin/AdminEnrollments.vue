@@ -403,9 +403,6 @@ onMounted(async () => {
         class="flex min-w-0 flex-col gap-3 px-5 py-5 sm:px-6 lg:flex-row lg:items-end lg:justify-between lg:px-8"
       >
         <div class="min-w-0">
-          <p class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#ea580c]">
-            Admin sekolah
-          </p>
           <h1 class="mt-1 text-2xl font-semibold text-[#171322] sm:text-3xl">
             Penempatan Kelas
           </h1>
@@ -415,10 +412,14 @@ onMounted(async () => {
           </p>
         </div>
         <div class="flex min-w-0 flex-wrap gap-2 text-xs">
-          <span class="max-w-full truncate rounded-lg bg-[#fff4ee] px-3 py-2 font-medium text-[#ea580c]">
+          <span
+            class="max-w-full truncate rounded-lg bg-[#fff4ee] px-3 py-2 font-medium text-[#ea580c]"
+          >
             {{ currentSchool.schoolName || "Sekolah belum tersedia" }}
           </span>
-          <span class="rounded-lg bg-[#f3f4f6] px-3 py-2 font-medium text-[#6b7280]">
+          <span
+            class="rounded-lg bg-[#f3f4f6] px-3 py-2 font-medium text-[#6b7280]"
+          >
             {{ currentSchool.schoolCode || "Kode belum tersedia" }}
           </span>
         </div>
@@ -438,10 +439,16 @@ onMounted(async () => {
       </div>
 
       <div class="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
-        <section class="order-2 min-w-0 rounded-xl border border-[#ebe7df] bg-white lg:order-1">
-          <div class="flex flex-col gap-3 border-b border-[#ebe7df] px-4 py-4 sm:flex-row sm:items-start sm:justify-between sm:px-5">
+        <section
+          class="order-2 min-w-0 rounded-xl border border-[#ebe7df] bg-white lg:order-1"
+        >
+          <div
+            class="flex flex-col gap-3 border-b border-[#ebe7df] px-4 py-4 sm:flex-row sm:items-start sm:justify-between sm:px-5"
+          >
             <div class="min-w-0">
-              <p class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#9ca3af]">
+              <p
+                class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#9ca3af]"
+              >
                 Penempatan aktif
               </p>
               <h2 class="mt-1 text-base font-semibold text-[#171322]">
@@ -456,11 +463,15 @@ onMounted(async () => {
               </p>
             </div>
             <div class="flex shrink-0 flex-wrap gap-2 text-xs font-medium">
-              <span class="inline-flex items-center gap-2 rounded-lg bg-[#ecfdf5] px-3 py-2 text-[#059669]">
+              <span
+                class="inline-flex items-center gap-2 rounded-lg bg-[#ecfdf5] px-3 py-2 text-[#059669]"
+              >
                 <PhStudent :size="16" weight="duotone" />
                 {{ studentEnrollmentCount }} siswa
               </span>
-              <span class="inline-flex items-center gap-2 rounded-lg bg-[#eef2ff] px-3 py-2 text-[#4f46e5]">
+              <span
+                class="inline-flex items-center gap-2 rounded-lg bg-[#eef2ff] px-3 py-2 text-[#4f46e5]"
+              >
                 <PhChalkboardTeacher :size="16" weight="duotone" />
                 {{ teacherEnrollmentCount }} guru
               </span>
@@ -469,18 +480,28 @@ onMounted(async () => {
 
           <div class="p-4 sm:p-5">
             <div v-if="enrollmentsLoading" class="space-y-3">
-              <div v-for="item in 3" :key="item" class="h-24 animate-pulse rounded-lg bg-[#fbfaf8]" />
+              <div
+                v-for="item in 3"
+                :key="item"
+                class="h-24 animate-pulse rounded-lg bg-[#fbfaf8]"
+              />
             </div>
 
             <div
               v-else-if="enrollmentsError"
               class="rounded-lg border border-[#fecaca] bg-[#fef2f2] p-5 text-center"
             >
-              <PhWarningCircle :size="26" class="mx-auto text-[#dc2626]" weight="duotone" />
+              <PhWarningCircle
+                :size="26"
+                class="mx-auto text-[#dc2626]"
+                weight="duotone"
+              />
               <h3 class="mt-3 text-sm font-semibold text-[#171322]">
                 Penempatan belum bisa dimuat
               </h3>
-              <p class="mt-2 text-sm leading-6 text-[#6b7280]">{{ enrollmentsError }}</p>
+              <p class="mt-2 text-sm leading-6 text-[#6b7280]">
+                {{ enrollmentsError }}
+              </p>
               <button
                 type="button"
                 class="mt-4 rounded-lg bg-[#171322] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#374151]"
@@ -490,21 +511,39 @@ onMounted(async () => {
               </button>
             </div>
 
-            <div v-else-if="!selectedClassId" class="rounded-lg bg-[#fbfaf8] px-5 py-10 text-center">
-              <PhCalendarBlank :size="28" class="mx-auto text-[#9ca3af]" weight="duotone" />
-              <h3 class="mt-3 text-sm font-semibold text-[#171322]">Belum ada kelas dipilih</h3>
+            <div
+              v-else-if="!selectedClassId"
+              class="rounded-lg bg-[#fbfaf8] px-5 py-10 text-center"
+            >
+              <PhCalendarBlank
+                :size="28"
+                class="mx-auto text-[#9ca3af]"
+                weight="duotone"
+              />
+              <h3 class="mt-3 text-sm font-semibold text-[#171322]">
+                Belum ada kelas dipilih
+              </h3>
               <p class="mt-2 text-sm leading-6 text-[#6b7280]">
-                Pilih tahun ajaran, semester, dan kelas untuk mulai mengelola penempatan.
+                Pilih tahun ajaran, semester, dan kelas untuk mulai mengelola
+                penempatan.
               </p>
             </div>
 
-            <div v-else-if="enrollments.length === 0" class="rounded-lg bg-[#fbfaf8] px-5 py-10 text-center">
-              <PhUsers :size="28" class="mx-auto text-[#9ca3af]" weight="duotone" />
+            <div
+              v-else-if="enrollments.length === 0"
+              class="rounded-lg bg-[#fbfaf8] px-5 py-10 text-center"
+            >
+              <PhUsers
+                :size="28"
+                class="mx-auto text-[#9ca3af]"
+                weight="duotone"
+              />
               <h3 class="mt-3 text-sm font-semibold text-[#171322]">
                 Belum ada warga di kelas ini
               </h3>
               <p class="mt-2 text-sm leading-6 text-[#6b7280]">
-                Pilih warga sekolah melalui panel penempatan untuk menambahkannya.
+                Pilih warga sekolah melalui panel penempatan untuk
+                menambahkannya.
               </p>
             </div>
 
@@ -514,22 +553,36 @@ onMounted(async () => {
                 :key="enrollment.enrollmentId"
                 class="min-w-0 py-4 first:pt-0 last:pb-0"
               >
-                <div class="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div
+                  class="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+                >
                   <div class="flex min-w-0 items-center gap-3">
                     <div
                       class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-xs font-semibold"
-                      :class="enrollment.role === 'teacher' ? 'bg-[#eef2ff] text-[#4f46e5]' : 'bg-[#ecfdf5] text-[#059669]'"
+                      :class="
+                        enrollment.role === 'teacher'
+                          ? 'bg-[#eef2ff] text-[#4f46e5]'
+                          : 'bg-[#ecfdf5] text-[#059669]'
+                      "
                     >
-                      {{ (enrollment.userFullName || "W").charAt(0).toUpperCase() }}
+                      {{
+                        (enrollment.userFullName || "W").charAt(0).toUpperCase()
+                      }}
                     </div>
                     <div class="min-w-0">
                       <div class="flex min-w-0 flex-wrap items-center gap-2">
-                        <h3 class="wrap-break-word text-sm font-semibold text-[#171322]">
+                        <h3
+                          class="wrap-break-word text-sm font-semibold text-[#171322]"
+                        >
                           {{ enrollment.userFullName || "Nama tidak tersedia" }}
                         </h3>
                         <span
                           class="rounded-lg px-2 py-1 text-[11px] font-medium"
-                          :class="enrollment.role === 'teacher' ? 'bg-[#eef2ff] text-[#4f46e5]' : 'bg-[#ecfdf5] text-[#059669]'"
+                          :class="
+                            enrollment.role === 'teacher'
+                              ? 'bg-[#eef2ff] text-[#4f46e5]'
+                              : 'bg-[#ecfdf5] text-[#059669]'
+                          "
                         >
                           {{ classRoleLabel(enrollment.role) }}
                         </span>
@@ -554,7 +607,9 @@ onMounted(async () => {
                 </div>
 
                 <div
-                  v-if="pendingUnenroll?.enrollmentId === enrollment.enrollmentId"
+                  v-if="
+                    pendingUnenroll?.enrollmentId === enrollment.enrollmentId
+                  "
                   class="mt-3 rounded-lg border border-[#fecaca] bg-[#fef2f2] p-3"
                 >
                   <p class="text-xs leading-5 text-[#991b1b]">
@@ -567,7 +622,11 @@ onMounted(async () => {
                       :disabled="unenrollingId === enrollment.enrollmentId"
                       @click="confirmUnenroll(enrollment)"
                     >
-                      {{ unenrollingId === enrollment.enrollmentId ? "Mengeluarkan..." : "Ya, keluarkan" }}
+                      {{
+                        unenrollingId === enrollment.enrollmentId
+                          ? "Mengeluarkan..."
+                          : "Ya, keluarkan"
+                      }}
                     </button>
                     <button
                       type="button"
@@ -589,14 +648,20 @@ onMounted(async () => {
             <section class="rounded-xl border border-[#ebe7df] bg-white p-5">
               <div class="flex items-start justify-between gap-3">
                 <div>
-                  <p class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#9ca3af]">
+                  <p
+                    class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#9ca3af]"
+                  >
                     Konteks kelas
                   </p>
                   <h2 class="mt-1 text-base font-semibold text-[#171322]">
                     Pilih periode dan kelas
                   </h2>
                 </div>
-                <PhCalendarBlank :size="21" class="text-[#ea580c]" weight="duotone" />
+                <PhCalendarBlank
+                  :size="21"
+                  class="text-[#ea580c]"
+                  weight="duotone"
+                />
               </div>
 
               <div class="mt-5 space-y-3">
@@ -609,8 +674,13 @@ onMounted(async () => {
                     @change="handleAcademicYearChange"
                   >
                     <option value="" disabled>Pilih tahun ajaran</option>
-                    <option v-for="year in academicYears" :key="year.academicYearId" :value="year.academicYearId">
-                      {{ year.academicYearName }}{{ year.isActive ? " - Aktif" : "" }}
+                    <option
+                      v-for="year in academicYears"
+                      :key="year.academicYearId"
+                      :value="year.academicYearId"
+                    >
+                      {{ year.academicYearName
+                      }}{{ year.isActive ? " - Aktif" : "" }}
                     </option>
                   </select>
                 </label>
@@ -623,7 +693,11 @@ onMounted(async () => {
                     @change="handleTermChange"
                   >
                     <option value="" disabled>Pilih semester</option>
-                    <option v-for="term in terms" :key="term.termId" :value="term.termId">
+                    <option
+                      v-for="term in terms"
+                      :key="term.termId"
+                      :value="term.termId"
+                    >
                       {{ term.termName }}{{ term.isActive ? " - Aktif" : "" }}
                     </option>
                   </select>
@@ -637,7 +711,11 @@ onMounted(async () => {
                     @change="handleClassChange"
                   >
                     <option value="" disabled>Pilih kelas</option>
-                    <option v-for="classItem in classes" :key="classItem.classId" :value="classItem.classId">
+                    <option
+                      v-for="classItem in classes"
+                      :key="classItem.classId"
+                      :value="classItem.classId"
+                    >
                       {{ classItem.classTitle }} - {{ classItem.classCode }}
                     </option>
                   </select>
@@ -645,7 +723,10 @@ onMounted(async () => {
               </div>
 
               <div class="mt-4 space-y-2 text-xs leading-5">
-                <p v-if="yearsLoading || termsLoading || classesLoading" class="text-[#6b7280]">
+                <p
+                  v-if="yearsLoading || termsLoading || classesLoading"
+                  class="text-[#6b7280]"
+                >
                   Memuat konteks kelas...
                 </p>
                 <div
@@ -667,13 +748,22 @@ onMounted(async () => {
                     Coba lagi
                   </button>
                 </div>
-                <p v-else-if="academicYears.length === 0" class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-[#6b7280]">
+                <p
+                  v-else-if="academicYears.length === 0"
+                  class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-[#6b7280]"
+                >
                   Belum ada tahun ajaran.
                 </p>
-                <p v-else-if="selectedAcademicYearId && terms.length === 0" class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-[#6b7280]">
+                <p
+                  v-else-if="selectedAcademicYearId && terms.length === 0"
+                  class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-[#6b7280]"
+                >
                   Belum ada semester untuk tahun ajaran ini.
                 </p>
-                <p v-else-if="selectedTermId && classes.length === 0" class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-[#6b7280]">
+                <p
+                  v-else-if="selectedTermId && classes.length === 0"
+                  class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-[#6b7280]"
+                >
                   Belum ada kelas untuk semester ini.
                 </p>
               </div>
@@ -682,7 +772,9 @@ onMounted(async () => {
             <section class="rounded-xl border border-[#ebe7df] bg-white p-5">
               <div class="flex items-start justify-between gap-3">
                 <div>
-                  <p class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#9ca3af]">
+                  <p
+                    class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#9ca3af]"
+                  >
                     Tambah penempatan
                   </p>
                   <h2 class="mt-1 text-base font-semibold text-[#171322]">
@@ -692,7 +784,9 @@ onMounted(async () => {
                     Penempatan guru belum otomatis membuat penugasan mengajar.
                   </p>
                 </div>
-                <span class="shrink-0 rounded-lg bg-[#eef2ff] px-2.5 py-1.5 text-xs font-medium text-[#4f46e5]">
+                <span
+                  class="shrink-0 rounded-lg bg-[#eef2ff] px-2.5 py-1.5 text-xs font-medium text-[#4f46e5]"
+                >
                   {{ selectedMembers.length }} dipilih
                 </span>
               </div>
@@ -732,7 +826,11 @@ onMounted(async () => {
 
               <div class="mt-4">
                 <div v-if="membersLoading" class="space-y-2">
-                  <div v-for="item in 2" :key="item" class="h-20 animate-pulse rounded-lg bg-[#fbfaf8]" />
+                  <div
+                    v-for="item in 2"
+                    :key="item"
+                    class="h-20 animate-pulse rounded-lg bg-[#fbfaf8]"
+                  />
                 </div>
                 <div
                   v-else-if="membersError"
@@ -747,10 +845,16 @@ onMounted(async () => {
                     Coba lagi
                   </button>
                 </div>
-                <div v-else-if="!selectedClassId" class="rounded-lg bg-[#fbfaf8] p-3 text-xs leading-5 text-[#6b7280]">
+                <div
+                  v-else-if="!selectedClassId"
+                  class="rounded-lg bg-[#fbfaf8] p-3 text-xs leading-5 text-[#6b7280]"
+                >
                   Pilih kelas sebelum menambahkan warga sekolah.
                 </div>
-                <div v-else-if="availableMembers.length === 0" class="rounded-lg bg-[#fbfaf8] p-3 text-xs leading-5 text-[#6b7280]">
+                <div
+                  v-else-if="availableMembers.length === 0"
+                  class="rounded-lg bg-[#fbfaf8] p-3 text-xs leading-5 text-[#6b7280]"
+                >
                   Tidak ada warga sekolah yang dapat ditambahkan ke kelas ini.
                 </div>
                 <div v-else class="max-h-72 space-y-2 overflow-y-auto pr-1">
@@ -762,17 +866,23 @@ onMounted(async () => {
                     <input
                       type="checkbox"
                       class="mt-1 h-4 w-4 shrink-0 rounded border-[#d1d5db] text-[#4f46e5] focus:ring-[#4f46e5]"
-                      :checked="selectedSchoolUserIds.includes(member.schoolUserId)"
+                      :checked="
+                        selectedSchoolUserIds.includes(member.schoolUserId)
+                      "
                       @change="toggleMember(member.schoolUserId)"
                     />
                     <span class="min-w-0 flex-1">
-                      <span class="block wrap-break-word text-sm font-medium text-[#171322]">
+                      <span
+                        class="block wrap-break-word text-sm font-medium text-[#171322]"
+                      >
                         {{ member.fullName || "Nama tidak tersedia" }}
                       </span>
                       <span class="mt-1 block break-all text-xs text-[#6b7280]">
                         {{ member.email || "Email tidak tersedia" }}
                       </span>
-                      <span class="mt-2 inline-flex rounded-lg bg-white px-2 py-1 text-[11px] font-medium text-[#6b7280]">
+                      <span
+                        class="mt-2 inline-flex rounded-lg bg-white px-2 py-1 text-[11px] font-medium text-[#6b7280]"
+                      >
                         {{ schoolRolesLabel(member) }}
                       </span>
                     </span>
@@ -783,7 +893,13 @@ onMounted(async () => {
               <button
                 type="button"
                 class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#ea580c] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#c2410c] disabled:cursor-not-allowed disabled:opacity-60"
-                :disabled="submitting || !currentSchool.hasContext || !selectedClassId || selectedSchoolUserIds.length === 0 || !classRole"
+                :disabled="
+                  submitting ||
+                  !currentSchool.hasContext ||
+                  !selectedClassId ||
+                  selectedSchoolUserIds.length === 0 ||
+                  !classRole
+                "
                 @click="submitEnrollment"
               >
                 <PhStudent :size="17" weight="duotone" />

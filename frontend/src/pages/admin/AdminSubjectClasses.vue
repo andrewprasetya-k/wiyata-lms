@@ -367,7 +367,9 @@ async function submitSubjectClass() {
     return;
   }
   if (assignedSubjectIds.value.has(selectedSubjectId.value)) {
-    toast.info("Mata pelajaran ini sudah memiliki penugasan di kelas terpilih.");
+    toast.info(
+      "Mata pelajaran ini sudah memiliki penugasan di kelas terpilih.",
+    );
     return;
   }
 
@@ -429,9 +431,6 @@ onMounted(async () => {
         class="flex min-w-0 flex-col gap-3 px-5 py-5 sm:px-6 lg:flex-row lg:items-end lg:justify-between lg:px-8"
       >
         <div class="min-w-0">
-          <p class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#ea580c]">
-            Admin sekolah
-          </p>
           <h1 class="mt-1 text-2xl font-semibold text-[#171322] sm:text-3xl">
             Penugasan Mengajar
           </h1>
@@ -441,10 +440,14 @@ onMounted(async () => {
           </p>
         </div>
         <div class="flex min-w-0 flex-wrap gap-2 text-xs">
-          <span class="max-w-full truncate rounded-lg bg-[#fff4ee] px-3 py-2 font-medium text-[#ea580c]">
+          <span
+            class="max-w-full truncate rounded-lg bg-[#fff4ee] px-3 py-2 font-medium text-[#ea580c]"
+          >
             {{ currentSchool.schoolName || "Sekolah belum tersedia" }}
           </span>
-          <span class="rounded-lg bg-[#f3f4f6] px-3 py-2 font-medium text-[#6b7280]">
+          <span
+            class="rounded-lg bg-[#f3f4f6] px-3 py-2 font-medium text-[#6b7280]"
+          >
             {{ currentSchool.schoolCode || "Kode belum tersedia" }}
           </span>
         </div>
@@ -464,10 +467,16 @@ onMounted(async () => {
       </div>
 
       <div class="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
-        <section class="order-2 min-w-0 rounded-xl border border-[#ebe7df] bg-white lg:order-1">
-          <div class="flex flex-col gap-3 border-b border-[#ebe7df] px-4 py-4 sm:flex-row sm:items-start sm:justify-between sm:px-5">
+        <section
+          class="order-2 min-w-0 rounded-xl border border-[#ebe7df] bg-white lg:order-1"
+        >
+          <div
+            class="flex flex-col gap-3 border-b border-[#ebe7df] px-4 py-4 sm:flex-row sm:items-start sm:justify-between sm:px-5"
+          >
             <div class="min-w-0">
-              <p class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#9ca3af]">
+              <p
+                class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#9ca3af]"
+              >
                 Penugasan aktif
               </p>
               <h2 class="mt-1 text-base font-semibold text-[#171322]">
@@ -482,11 +491,15 @@ onMounted(async () => {
               </p>
             </div>
             <div class="flex shrink-0 flex-wrap gap-2 text-xs font-medium">
-              <span class="inline-flex items-center gap-2 rounded-lg bg-[#eef2ff] px-3 py-2 text-[#4f46e5]">
+              <span
+                class="inline-flex items-center gap-2 rounded-lg bg-[#eef2ff] px-3 py-2 text-[#4f46e5]"
+              >
                 <PhBookOpen :size="16" weight="duotone" />
                 {{ subjectClasses.length }} mata pelajaran
               </span>
-              <span class="inline-flex items-center gap-2 rounded-lg bg-[#ecfdf5] px-3 py-2 text-[#059669]">
+              <span
+                class="inline-flex items-center gap-2 rounded-lg bg-[#ecfdf5] px-3 py-2 text-[#059669]"
+              >
                 <PhChalkboardTeacher :size="16" weight="duotone" />
                 {{ teacherCandidates.length }} guru tersedia
               </span>
@@ -495,18 +508,28 @@ onMounted(async () => {
 
           <div class="p-4 sm:p-5">
             <div v-if="subjectClassesLoading" class="space-y-3">
-              <div v-for="item in 3" :key="item" class="h-24 animate-pulse rounded-lg bg-[#fbfaf8]" />
+              <div
+                v-for="item in 3"
+                :key="item"
+                class="h-24 animate-pulse rounded-lg bg-[#fbfaf8]"
+              />
             </div>
 
             <div
               v-else-if="subjectClassesError"
               class="rounded-lg border border-[#fecaca] bg-[#fef2f2] p-5 text-center"
             >
-              <PhWarningCircle :size="26" class="mx-auto text-[#dc2626]" weight="duotone" />
+              <PhWarningCircle
+                :size="26"
+                class="mx-auto text-[#dc2626]"
+                weight="duotone"
+              />
               <h3 class="mt-3 text-sm font-semibold text-[#171322]">
                 Penugasan belum bisa dimuat
               </h3>
-              <p class="mt-2 text-sm leading-6 text-[#6b7280]">{{ subjectClassesError }}</p>
+              <p class="mt-2 text-sm leading-6 text-[#6b7280]">
+                {{ subjectClassesError }}
+              </p>
               <button
                 type="button"
                 class="mt-4 rounded-lg bg-[#171322] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#374151]"
@@ -516,16 +539,33 @@ onMounted(async () => {
               </button>
             </div>
 
-            <div v-else-if="!selectedClassId" class="rounded-lg bg-[#fbfaf8] px-5 py-10 text-center">
-              <PhCalendarBlank :size="28" class="mx-auto text-[#9ca3af]" weight="duotone" />
-              <h3 class="mt-3 text-sm font-semibold text-[#171322]">Belum ada kelas dipilih</h3>
+            <div
+              v-else-if="!selectedClassId"
+              class="rounded-lg bg-[#fbfaf8] px-5 py-10 text-center"
+            >
+              <PhCalendarBlank
+                :size="28"
+                class="mx-auto text-[#9ca3af]"
+                weight="duotone"
+              />
+              <h3 class="mt-3 text-sm font-semibold text-[#171322]">
+                Belum ada kelas dipilih
+              </h3>
               <p class="mt-2 text-sm leading-6 text-[#6b7280]">
-                Pilih tahun ajaran, semester, dan kelas untuk mengatur guru pengampu.
+                Pilih tahun ajaran, semester, dan kelas untuk mengatur guru
+                pengampu.
               </p>
             </div>
 
-            <div v-else-if="subjectClasses.length === 0" class="rounded-lg bg-[#fbfaf8] px-5 py-10 text-center">
-              <PhBookOpen :size="28" class="mx-auto text-[#9ca3af]" weight="duotone" />
+            <div
+              v-else-if="subjectClasses.length === 0"
+              class="rounded-lg bg-[#fbfaf8] px-5 py-10 text-center"
+            >
+              <PhBookOpen
+                :size="28"
+                class="mx-auto text-[#9ca3af]"
+                weight="duotone"
+              />
               <h3 class="mt-3 text-sm font-semibold text-[#171322]">
                 Belum ada penugasan mengajar
               </h3>
@@ -540,24 +580,39 @@ onMounted(async () => {
                 :key="subjectClass.subjectClassId"
                 class="min-w-0 py-4 first:pt-0 last:pb-0"
               >
-                <div class="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div
+                  class="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+                >
                   <div class="flex min-w-0 items-center gap-3">
-                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#eef2ff] text-[#4f46e5]">
+                    <div
+                      class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#eef2ff] text-[#4f46e5]"
+                    >
                       <PhBookOpen :size="20" weight="duotone" />
                     </div>
                     <div class="min-w-0">
                       <div class="flex min-w-0 flex-wrap items-center gap-2">
-                        <h3 class="wrap-break-word text-sm font-semibold text-[#171322]">
-                          {{ subjectClass.subjectName || "Mata pelajaran tidak tersedia" }}
+                        <h3
+                          class="wrap-break-word text-sm font-semibold text-[#171322]"
+                        >
+                          {{
+                            subjectClass.subjectName ||
+                            "Mata pelajaran tidak tersedia"
+                          }}
                         </h3>
-                        <span class="rounded-lg bg-[#f3f4f6] px-2 py-1 text-[11px] font-medium text-[#6b7280]">
-                          {{ subjectClass.subjectCode || "Kode tidak tersedia" }}
+                        <span
+                          class="rounded-lg bg-[#f3f4f6] px-2 py-1 text-[11px] font-medium text-[#6b7280]"
+                        >
+                          {{
+                            subjectClass.subjectCode || "Kode tidak tersedia"
+                          }}
                         </span>
                       </div>
                       <p class="mt-1 text-xs text-[#6b7280]">
                         Guru:
                         <span class="font-medium text-[#374151]">
-                          {{ subjectClass.teacherName || "Guru tidak tersedia" }}
+                          {{
+                            subjectClass.teacherName || "Guru tidak tersedia"
+                          }}
                         </span>
                       </p>
                     </div>
@@ -574,7 +629,10 @@ onMounted(async () => {
                 </div>
 
                 <div
-                  v-if="pendingUnassign?.subjectClassId === subjectClass.subjectClassId"
+                  v-if="
+                    pendingUnassign?.subjectClassId ===
+                    subjectClass.subjectClassId
+                  "
                   class="mt-3 rounded-lg border border-[#fecaca] bg-[#fef2f2] p-3"
                 >
                   <p class="text-xs leading-5 text-[#991b1b]">
@@ -589,7 +647,11 @@ onMounted(async () => {
                       :disabled="unassigningId === subjectClass.subjectClassId"
                       @click="confirmUnassign(subjectClass)"
                     >
-                      {{ unassigningId === subjectClass.subjectClassId ? "Melepaskan..." : "Ya, lepaskan" }}
+                      {{
+                        unassigningId === subjectClass.subjectClassId
+                          ? "Melepaskan..."
+                          : "Ya, lepaskan"
+                      }}
                     </button>
                     <button
                       type="button"
@@ -611,14 +673,20 @@ onMounted(async () => {
             <section class="rounded-xl border border-[#ebe7df] bg-white p-5">
               <div class="flex items-start justify-between gap-3">
                 <div>
-                  <p class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#9ca3af]">
+                  <p
+                    class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#9ca3af]"
+                  >
                     Konteks kelas
                   </p>
                   <h2 class="mt-1 text-base font-semibold text-[#171322]">
                     Pilih periode dan kelas
                   </h2>
                 </div>
-                <PhCalendarBlank :size="21" class="text-[#ea580c]" weight="duotone" />
+                <PhCalendarBlank
+                  :size="21"
+                  class="text-[#ea580c]"
+                  weight="duotone"
+                />
               </div>
 
               <div class="mt-5 space-y-3">
@@ -631,8 +699,13 @@ onMounted(async () => {
                     @change="handleAcademicYearChange"
                   >
                     <option value="" disabled>Pilih tahun ajaran</option>
-                    <option v-for="year in academicYears" :key="year.academicYearId" :value="year.academicYearId">
-                      {{ year.academicYearName }}{{ year.isActive ? " - Aktif" : "" }}
+                    <option
+                      v-for="year in academicYears"
+                      :key="year.academicYearId"
+                      :value="year.academicYearId"
+                    >
+                      {{ year.academicYearName
+                      }}{{ year.isActive ? " - Aktif" : "" }}
                     </option>
                   </select>
                 </label>
@@ -645,7 +718,11 @@ onMounted(async () => {
                     @change="handleTermChange"
                   >
                     <option value="" disabled>Pilih semester</option>
-                    <option v-for="term in terms" :key="term.termId" :value="term.termId">
+                    <option
+                      v-for="term in terms"
+                      :key="term.termId"
+                      :value="term.termId"
+                    >
                       {{ term.termName }}{{ term.isActive ? " - Aktif" : "" }}
                     </option>
                   </select>
@@ -659,7 +736,11 @@ onMounted(async () => {
                     @change="handleClassChange"
                   >
                     <option value="" disabled>Pilih kelas</option>
-                    <option v-for="classItem in classes" :key="classItem.classId" :value="classItem.classId">
+                    <option
+                      v-for="classItem in classes"
+                      :key="classItem.classId"
+                      :value="classItem.classId"
+                    >
                       {{ classItem.classTitle }} - {{ classItem.classCode }}
                     </option>
                   </select>
@@ -667,7 +748,10 @@ onMounted(async () => {
               </div>
 
               <div class="mt-4 space-y-2 text-xs leading-5">
-                <p v-if="yearsLoading || termsLoading || classesLoading" class="text-[#6b7280]">
+                <p
+                  v-if="yearsLoading || termsLoading || classesLoading"
+                  class="text-[#6b7280]"
+                >
                   Memuat konteks kelas...
                 </p>
                 <div
@@ -689,13 +773,22 @@ onMounted(async () => {
                     Coba lagi
                   </button>
                 </div>
-                <p v-else-if="academicYears.length === 0" class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-[#6b7280]">
+                <p
+                  v-else-if="academicYears.length === 0"
+                  class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-[#6b7280]"
+                >
                   Belum ada tahun ajaran.
                 </p>
-                <p v-else-if="selectedAcademicYearId && terms.length === 0" class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-[#6b7280]">
+                <p
+                  v-else-if="selectedAcademicYearId && terms.length === 0"
+                  class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-[#6b7280]"
+                >
                   Belum ada semester untuk tahun ajaran ini.
                 </p>
-                <p v-else-if="selectedTermId && classes.length === 0" class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-[#6b7280]">
+                <p
+                  v-else-if="selectedTermId && classes.length === 0"
+                  class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-[#6b7280]"
+                >
                   Belum ada kelas untuk semester ini.
                 </p>
               </div>
@@ -704,7 +797,9 @@ onMounted(async () => {
             <section class="rounded-xl border border-[#ebe7df] bg-white p-5">
               <div class="flex items-start justify-between gap-3">
                 <div>
-                  <p class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#9ca3af]">
+                  <p
+                    class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#9ca3af]"
+                  >
                     Tambah penugasan
                   </p>
                   <h2 class="mt-1 text-base font-semibold text-[#171322]">
@@ -714,7 +809,9 @@ onMounted(async () => {
                     Guru harus sudah ditempatkan aktif pada kelas terpilih.
                   </p>
                 </div>
-                <span class="shrink-0 rounded-lg bg-[#eef2ff] px-2.5 py-1.5 text-xs font-medium text-[#4f46e5]">
+                <span
+                  class="shrink-0 rounded-lg bg-[#eef2ff] px-2.5 py-1.5 text-xs font-medium text-[#4f46e5]"
+                >
                   {{ teacherCandidates.length }} guru
                 </span>
               </div>
@@ -725,10 +822,16 @@ onMounted(async () => {
                   <select
                     v-model="selectedSubjectId"
                     class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition focus:border-[#4f46e5] focus:bg-white"
-                    :disabled="subjectsLoading || availableSubjects.length === 0"
+                    :disabled="
+                      subjectsLoading || availableSubjects.length === 0
+                    "
                   >
                     <option value="" disabled>Pilih mata pelajaran</option>
-                    <option v-for="subject in availableSubjects" :key="subject.subjectId" :value="subject.subjectId">
+                    <option
+                      v-for="subject in availableSubjects"
+                      :key="subject.subjectId"
+                      :value="subject.subjectId"
+                    >
                       {{ subject.subjectName }} - {{ subject.subjectCode }}
                     </option>
                   </select>
@@ -739,29 +842,47 @@ onMounted(async () => {
                   <select
                     v-model="selectedTeacherSchoolUserId"
                     class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition focus:border-[#4f46e5] focus:bg-white"
-                    :disabled="enrollmentsLoading || membersLoading || teacherCandidates.length === 0"
+                    :disabled="
+                      enrollmentsLoading ||
+                      membersLoading ||
+                      teacherCandidates.length === 0
+                    "
                   >
                     <option value="" disabled>Pilih guru</option>
-                    <option v-for="teacher in teacherCandidates" :key="teacher.schoolUserId" :value="teacher.schoolUserId">
-                      {{ teacher.fullName || "Nama guru tidak tersedia" }} - {{ teacher.email || "Email tidak tersedia" }}
+                    <option
+                      v-for="teacher in teacherCandidates"
+                      :key="teacher.schoolUserId"
+                      :value="teacher.schoolUserId"
+                    >
+                      {{ teacher.fullName || "Nama guru tidak tersedia" }} -
+                      {{ teacher.email || "Email tidak tersedia" }}
                     </option>
                   </select>
                 </label>
 
-                <div v-if="selectedSubject || selectedTeacher" class="rounded-lg bg-[#fbfaf8] p-3">
-                  <p class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#9ca3af]">
+                <div
+                  v-if="selectedSubject || selectedTeacher"
+                  class="rounded-lg bg-[#fbfaf8] p-3"
+                >
+                  <p
+                    class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#9ca3af]"
+                  >
                     Ringkasan
                   </p>
                   <dl class="mt-2 space-y-2 text-xs">
                     <div class="flex items-start justify-between gap-3">
                       <dt class="text-[#6b7280]">Mata pelajaran</dt>
-                      <dd class="max-w-[65%] text-right font-medium text-[#171322]">
+                      <dd
+                        class="max-w-[65%] text-right font-medium text-[#171322]"
+                      >
                         {{ selectedSubject?.subjectName || "Belum dipilih" }}
                       </dd>
                     </div>
                     <div class="flex items-start justify-between gap-3">
                       <dt class="text-[#6b7280]">Guru</dt>
-                      <dd class="max-w-[65%] text-right font-medium text-[#171322]">
+                      <dd
+                        class="max-w-[65%] text-right font-medium text-[#171322]"
+                      >
                         {{ selectedTeacher?.fullName || "Belum dipilih" }}
                       </dd>
                     </div>
@@ -769,7 +890,9 @@ onMounted(async () => {
                 </div>
 
                 <div class="space-y-2 text-xs leading-5">
-                  <p v-if="subjectsLoading" class="text-[#6b7280]">Memuat mata pelajaran...</p>
+                  <p v-if="subjectsLoading" class="text-[#6b7280]">
+                    Memuat mata pelajaran...
+                  </p>
                   <div
                     v-else-if="subjectsError"
                     class="rounded-lg bg-[#fef2f2] px-3 py-2 text-[#dc2626]"
@@ -783,13 +906,24 @@ onMounted(async () => {
                       Coba lagi
                     </button>
                   </div>
-                  <p v-else-if="subjects.length === 0" class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-[#6b7280]">
+                  <p
+                    v-else-if="subjects.length === 0"
+                    class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-[#6b7280]"
+                  >
                     Belum ada mata pelajaran pada Struktur Akademik.
                   </p>
-                  <p v-else-if="selectedClassId && availableSubjects.length === 0" class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-[#6b7280]">
+                  <p
+                    v-else-if="
+                      selectedClassId && availableSubjects.length === 0
+                    "
+                    class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-[#6b7280]"
+                  >
                     Semua mata pelajaran sudah ditugaskan untuk kelas ini.
                   </p>
-                  <p v-if="membersLoading || enrollmentsLoading" class="text-[#6b7280]">
+                  <p
+                    v-if="membersLoading || enrollmentsLoading"
+                    class="text-[#6b7280]"
+                  >
                     Memuat guru yang tersedia...
                   </p>
                   <div
@@ -805,7 +939,12 @@ onMounted(async () => {
                       Coba lagi
                     </button>
                   </div>
-                  <p v-else-if="selectedClassId && teacherCandidates.length === 0" class="rounded-lg bg-[#fff7ed] px-3 py-2 text-[#92400e]">
+                  <p
+                    v-else-if="
+                      selectedClassId && teacherCandidates.length === 0
+                    "
+                    class="rounded-lg bg-[#fff7ed] px-3 py-2 text-[#92400e]"
+                  >
                     Belum ada guru aktif yang dapat ditugaskan pada kelas ini.
                   </p>
                 </div>
@@ -813,7 +952,13 @@ onMounted(async () => {
                 <button
                   type="submit"
                   class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#ea580c] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#c2410c] disabled:cursor-not-allowed disabled:opacity-60"
-                  :disabled="submitting || !selectedClassId || !selectedSubjectId || !selectedTeacherSchoolUserId || teacherCandidates.length === 0"
+                  :disabled="
+                    submitting ||
+                    !selectedClassId ||
+                    !selectedSubjectId ||
+                    !selectedTeacherSchoolUserId ||
+                    teacherCandidates.length === 0
+                  "
                 >
                   <PhLinkSimple :size="17" weight="duotone" />
                   {{ submitting ? "Menyimpan..." : "Buat penugasan" }}
