@@ -84,6 +84,11 @@ async function loadInitialData() {
   errorMessage.value = "";
   categoryErrorMessage.value = "";
 
+  if (!isEditMode.value) {
+    activeTab.value =
+      route.query.type === "assignment" ? "assignment" : "material";
+  }
+
   try {
     if (!subjectClassId.value) {
       errorMessage.value =

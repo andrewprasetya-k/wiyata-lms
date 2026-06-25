@@ -302,7 +302,7 @@ onMounted(loadAssignments);
               yang diajar.
             </p>
             <RouterLink
-              to="/teacher/create"
+              to="/teacher/create?type=assignment"
               class="mt-5 inline-flex items-center justify-center gap-2 rounded-lg bg-[#4f46e5] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#4338ca]"
             >
               Pilih mata pelajaran

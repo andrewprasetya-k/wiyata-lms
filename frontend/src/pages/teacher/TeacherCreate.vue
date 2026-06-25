@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
-import { RouterLink } from "vue-router";
+import { RouterLink, useRoute } from "vue-router";
 import {
   PhArrowRight,
   PhBookOpen,
@@ -12,11 +12,25 @@ import { getMyTeachingSubjectClasses } from "../../services/teacherSubjects";
 import type { TeacherSubjectClass } from "../../types/teacherSubjects";
 import { getSubjectColor } from "../../utils/color";
 
+const route = useRoute();
 const loading = ref(false);
 const errorMessage = ref("");
 const subjects = ref<TeacherSubjectClass[]>([]);
 
 const hasSubjects = computed(() => subjects.value.length > 0);
+const requestedType = computed(() => {
+  if (route.query.type === "assignment") return "assignment";
+  if (route.query.type === "material") return "material";
+  return "";
+});
+
+function createContentTarget(subjectClassId: string) {
+  return {
+    name: "teacher-content-create",
+    params: { subjectClassId },
+    query: requestedType.value ? { type: requestedType.value } : {},
+  };
+}
 
 async function loadSubjects() {
   loading.value = true;
@@ -157,7 +171,7 @@ onMounted(loadSubjects);
           </p>
 
           <RouterLink
-            :to="`/teacher/subjects/${subject.subjectClassId}/create`"
+            :to="createContentTarget(subject.subjectClassId)"
             class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#171322] px-4 py-3 text-sm font-medium text-white transition hover:bg-[#2f2b3a]"
           >
             <PhPlusCircle :size="18" weight="duotone" />
