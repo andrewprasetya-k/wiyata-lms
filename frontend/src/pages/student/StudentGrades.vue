@@ -173,10 +173,7 @@ onMounted(loadGrades);
     </header>
 
     <section class="mx-auto max-w-screen px-5 py-5 sm:px-6 lg:px-8 lg:py-6">
-      <section
-        v-if="isLoading || activeClassStore.isLoading"
-        class="space-y-5"
-      >
+      <section v-if="isLoading || activeClassStore.isLoading" class="space-y-5">
         <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <div
             v-for="item in 4"
@@ -262,17 +259,15 @@ onMounted(loadGrades);
             Nilai belum tersedia
           </h2>
           <p class="mx-auto mt-1 max-w-md text-sm leading-6 text-[#7a7385]">
-            Belum ada mata pelajaran dengan data pengumpulan atau penilaian
-            pada kelas ini.
+            Belum ada mata pelajaran dengan data pengumpulan atau penilaian pada
+            kelas ini.
           </p>
         </article>
       </section>
 
       <section v-else class="space-y-5">
         <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <article
-            class="rounded-xl border border-[#ebe7df] bg-white px-4 py-3"
-          >
+          <article class="rounded-xl bg-white px-4 py-3">
             <div class="flex items-center justify-between gap-3">
               <p class="text-xs text-[#7a7385]">Mata pelajaran</p>
               <PhBookOpen :size="17" class="text-[#4f46e5]" weight="duotone" />
@@ -281,9 +276,7 @@ onMounted(loadGrades);
               {{ gradebook?.summary.subjectCount ?? subjects.length }}
             </p>
           </article>
-          <article
-            class="rounded-xl border border-[#ebe7df] bg-white px-4 py-3"
-          >
+          <article class="rounded-xl bg-white px-4 py-3">
             <div class="flex items-center justify-between gap-3">
               <p class="text-xs text-[#7a7385]">Sudah dinilai</p>
               <PhSealCheck :size="17" class="text-[#027a48]" weight="duotone" />
@@ -292,9 +285,7 @@ onMounted(loadGrades);
               {{ gradebook?.summary.gradedAssignmentCount ?? 0 }}
             </p>
           </article>
-          <article
-            class="rounded-xl border border-[#ebe7df] bg-white px-4 py-3"
-          >
+          <article class="rounded-xl bg-white px-4 py-3">
             <div class="flex items-center justify-between gap-3">
               <p class="text-xs text-[#7a7385]">Sudah dikumpulkan</p>
               <PhCheckCircle
@@ -398,7 +389,9 @@ onMounted(loadGrades);
                 sudah dinilai
               </span>
               <span class="text-xs text-[#4f46e5]">
-                <strong class="font-medium">{{ subject.submittedCount }}</strong>
+                <strong class="font-medium">{{
+                  subject.submittedCount
+                }}</strong>
                 sudah dikumpulkan
               </span>
               <span class="text-xs text-[#b45309]">
@@ -408,7 +401,7 @@ onMounted(loadGrades);
             </div>
 
             <div
-              class="border-b border-[#f0ede8] bg-white px-4 py-3 text-xs leading-5 text-[#7a7385]"
+              class="border-[#f0ede8] bg-white px-4 py-3 text-xs leading-5 text-[#7a7385]"
             >
               <p
                 v-if="
@@ -426,9 +419,7 @@ onMounted(loadGrades);
             </div>
 
             <div v-if="subject.assignments.length === 0" class="px-4 py-5">
-              <p class="text-sm font-medium text-[#171322]">
-                Belum ada tugas
-              </p>
+              <p class="text-sm font-medium text-[#171322]">Belum ada tugas</p>
               <p class="mt-1 text-sm leading-6 text-[#7a7385]">
                 Nilai akan muncul setelah guru membuat dan menilai tugas pada
                 mata pelajaran ini.
