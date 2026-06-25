@@ -126,23 +126,31 @@ const teacherEnrollmentCount = computed(
 );
 
 function classRoleLabel(role: string) {
-  if (role === "teacher") return "Teacher kelas";
-  if (role === "student") return "Student kelas";
+  if (role === "teacher") return "Guru";
+  if (role === "student") return "Siswa";
   return role;
 }
 
 function schoolRolesLabel(member: SchoolMemberItem) {
   return member.roles?.length
-    ? member.roles.join(", ")
-    : "Role sekolah belum tersedia";
+    ? member.roles
+        .map((role) => {
+          const normalized = role.trim().toLowerCase();
+          if (normalized === "teacher") return "Guru";
+          if (normalized === "student") return "Siswa";
+          if (normalized === "admin") return "Admin sekolah";
+          return role;
+        })
+        .join(", ")
+    : "Peran sekolah belum tersedia";
 }
 
 function unenrollConfirmationCopy(enrollment: EnrollmentMemberItem) {
   if (enrollment.role === "teacher") {
-    return "Teacher akan dikeluarkan dari kelas. Jika teacher masih ditugaskan mengajar subject di kelas ini, lepaskan penugasan mengajar terlebih dahulu.";
+    return "Guru akan dikeluarkan dari kelas. Jika masih memiliki penugasan mengajar di kelas ini, lepaskan penugasan tersebut terlebih dahulu.";
   }
 
-  return "Member ini akan dikeluarkan dari kelas. Akses ke materi, tugas, dan nilai kelas ini akan berhenti, tetapi histori submission/nilai tidak dihapus.";
+  return "Warga sekolah ini akan dikeluarkan dari kelas. Akses ke materi, tugas, dan nilai kelas akan berhenti, tetapi riwayat pengumpulan dan nilai tidak dihapus.";
 }
 
 function toggleMember(schoolUserId: string) {
@@ -258,7 +266,7 @@ async function loadMembers() {
     members.value = data.members?.data ?? [];
     resetSelectedMembers();
   } catch {
-    membersError.value = "Member sekolah belum bisa dimuat.";
+    membersError.value = "Warga sekolah belum bisa dimuat.";
   } finally {
     membersLoading.value = false;
   }
@@ -281,7 +289,7 @@ async function loadEnrollments() {
     enrollments.value = data.members?.data ?? [];
     resetSelectedMembers();
   } catch {
-    enrollmentsError.value = "Enrollment kelas belum bisa dimuat.";
+    enrollmentsError.value = "Penempatan kelas belum bisa dimuat.";
   } finally {
     enrollmentsLoading.value = false;
   }
@@ -304,7 +312,7 @@ async function handleClassChange() {
 
 async function submitEnrollment() {
   if (!currentSchool.value.schoolId || !currentSchool.value.schoolCode) {
-    toast.error("Context sekolah aktif belum tersedia.");
+    toast.error("Konteks sekolah aktif belum tersedia.");
     return;
   }
   if (!selectedClassId.value) {
@@ -312,7 +320,7 @@ async function submitEnrollment() {
     return;
   }
   if (selectedSchoolUserIds.value.length === 0) {
-    toast.error("Pilih minimal satu member sekolah.");
+    toast.error("Pilih minimal satu warga sekolah.");
     return;
   }
   if (!classRole.value) {
@@ -329,12 +337,12 @@ async function submitEnrollment() {
       role: classRole.value,
     });
     toast.success(
-      "Enrollment berhasil diproses. Member yang sudah terdaftar akan dilewati.",
+      "Penempatan berhasil diproses. Warga yang sudah terdaftar akan dilewati.",
     );
     selectedSchoolUserIds.value = [];
     await loadEnrollments();
   } catch {
-    toast.error("Member belum bisa ditambahkan ke kelas.");
+    toast.error("Warga sekolah belum bisa ditambahkan ke kelas.");
   } finally {
     submitting.value = false;
   }
@@ -360,7 +368,7 @@ function getErrorMessage(error: unknown) {
       .error;
   }
 
-  return "Member belum bisa dikeluarkan dari kelas.";
+  return "Warga sekolah belum bisa dikeluarkan dari kelas.";
 }
 
 async function confirmUnenroll(enrollment: EnrollmentMemberItem) {
@@ -369,7 +377,7 @@ async function confirmUnenroll(enrollment: EnrollmentMemberItem) {
   unenrollingId.value = enrollment.enrollmentId;
   try {
     await deleteEnrollment(enrollment.enrollmentId);
-    toast.success("Member berhasil dikeluarkan dari kelas.");
+    toast.success("Warga sekolah berhasil dikeluarkan dari kelas.");
     pendingUnenroll.value = null;
     await loadEnrollments();
   } catch (error) {
@@ -389,470 +397,402 @@ onMounted(async () => {
 </script>
 
 <template>
-  <main class="min-h-screen flex-1 px-5 py-5 sm:px-6 lg:px-8">
-    <section class="flex w-full max-w-none flex-col gap-5">
-      <header class="soft-card rounded-[22px] p-5">
-        <div
-          class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"
-        >
-          <div>
-            <p class="text-[11px] font-medium uppercase text-[#9CA3AF]">
-              Admin sekolah
-            </p>
-            <h1 class="mt-2 text-2xl font-medium text-[#111827]">
-              Penempatan Kelas
-            </h1>
-            <p class="mt-2 max-w-3xl text-sm leading-6 text-[#6B7280]">
-              Tempatkan student atau teacher ke kelas aktif. Role sekolah tetap
-              dikelola di halaman Warga Sekolah.
-            </p>
-          </div>
-          <div class="flex flex-wrap gap-2 text-xs">
-            <span
-              class="rounded-lg bg-[#EEF2FF] px-3 py-1.5 font-medium text-[#4F46E5]"
-            >
-              {{ currentSchool.schoolName || "Sekolah belum tersedia" }}
-            </span>
-            <span
-              class="rounded-lg bg-[#F9FAFB] px-3 py-1.5 font-medium text-[#6B7280]"
-            >
-              {{ currentSchool.schoolCode || "Kode sekolah belum tersedia" }}
-            </span>
-          </div>
-        </div>
-
-        <div
-          v-if="!currentSchool.hasContext"
-          class="mt-4 rounded-[10px] border border-[#FECACA] bg-[#FEF2F2] px-4 py-3 text-sm text-[#DC2626]"
-        >
-          Context sekolah aktif belum tersedia. Pastikan akun admin memiliki
-          membership sekolah.
-        </div>
-      </header>
-
-      <section
-        class="grid gap-5 xl:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]"
+  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
+    <header class="border-b border-[#ebe7df] bg-white">
+      <div
+        class="flex min-w-0 flex-col gap-3 px-5 py-5 sm:px-6 lg:flex-row lg:items-end lg:justify-between lg:px-8"
       >
-        <article class="rounded-[18px] border border-[#EBEBEB] bg-white p-5">
-          <div class="flex items-start justify-between gap-4">
-            <div>
-              <p class="text-[11px] font-medium uppercase text-[#9CA3AF]">
-                Context kelas
-              </p>
-              <h2 class="mt-2 text-base font-medium text-[#111827]">
-                Pilih periode dan kelas
-              </h2>
-            </div>
-            <PhCalendarBlank
-              :size="22"
-              class="text-[#4F46E5]"
-              weight="duotone"
-            />
-          </div>
-
-          <div class="mt-5 space-y-4">
-            <label class="block text-sm font-medium text-[#374151]">
-              Tahun ajaran
-              <select
-                v-model="selectedAcademicYearId"
-                class="mt-2 w-full rounded-2xl border border-[#EBEBEB] bg-white px-4 py-3 text-sm text-[#111827] outline-none transition focus:border-[#4F46E5]"
-                :disabled="yearsLoading || academicYears.length === 0"
-                @change="handleAcademicYearChange"
-              >
-                <option value="" disabled>Pilih tahun ajaran</option>
-                <option
-                  v-for="year in academicYears"
-                  :key="year.academicYearId"
-                  :value="year.academicYearId"
-                >
-                  {{ year.academicYearName
-                  }}{{ year.isActive ? " - Aktif" : "" }}
-                </option>
-              </select>
-            </label>
-
-            <label class="block text-sm font-medium text-[#374151]">
-              Semester
-              <select
-                v-model="selectedTermId"
-                class="mt-2 w-full rounded-2xl border border-[#EBEBEB] bg-white px-4 py-3 text-sm text-[#111827] outline-none transition focus:border-[#4F46E5]"
-                :disabled="termsLoading || terms.length === 0"
-                @change="handleTermChange"
-              >
-                <option value="" disabled>Pilih semester</option>
-                <option
-                  v-for="term in terms"
-                  :key="term.termId"
-                  :value="term.termId"
-                >
-                  {{ term.termName }}{{ term.isActive ? " - Aktif" : "" }}
-                </option>
-              </select>
-            </label>
-
-            <label class="block text-sm font-medium text-[#374151]">
-              Kelas
-              <select
-                v-model="selectedClassId"
-                class="mt-2 w-full rounded-2xl border border-[#EBEBEB] bg-white px-4 py-3 text-sm text-[#111827] outline-none transition focus:border-[#4F46E5]"
-                :disabled="classesLoading || classes.length === 0"
-                @change="handleClassChange"
-              >
-                <option value="" disabled>Pilih kelas</option>
-                <option
-                  v-for="classItem in classes"
-                  :key="classItem.classId"
-                  :value="classItem.classId"
-                >
-                  {{ classItem.classTitle }} - {{ classItem.classCode }}
-                </option>
-              </select>
-            </label>
-          </div>
-
-          <div class="mt-4 space-y-2 text-sm">
-            <p v-if="yearsLoading" class="text-[#6B7280]">
-              Memuat tahun ajaran...
-            </p>
-            <p v-else-if="yearsError" class="text-[#DC2626]">
-              {{ yearsError }}
-            </p>
-            <p v-else-if="academicYears.length === 0" class="text-[#6B7280]">
-              Belum ada tahun ajaran. Buat data akademik terlebih dahulu.
-            </p>
-
-            <p v-if="termsLoading" class="text-[#6B7280]">Memuat semester...</p>
-            <p v-else-if="termsError" class="text-[#DC2626]">
-              {{ termsError }}
-            </p>
-            <p
-              v-else-if="selectedAcademicYearId && terms.length === 0"
-              class="text-[#6B7280]"
-            >
-              Belum ada semester untuk tahun ajaran ini.
-            </p>
-
-            <p v-if="classesLoading" class="text-[#6B7280]">Memuat kelas...</p>
-            <p v-else-if="classesError" class="text-[#DC2626]">
-              {{ classesError }}
-            </p>
-            <p
-              v-else-if="selectedTermId && classes.length === 0"
-              class="text-[#6B7280]"
-            >
-              Belum ada kelas untuk semester ini.
-            </p>
-          </div>
-
-          <div class="mt-5 rounded-[18px] bg-[#FBFAF8] p-4">
-            <p class="text-[11px] font-medium uppercase text-[#9CA3AF]">
-              Context aktif
-            </p>
-            <div class="mt-3 space-y-2 text-sm text-[#374151]">
-              <p>
-                Tahun ajaran:
-                <span class="font-medium text-[#111827]">
-                  {{
-                    selectedAcademicYear?.academicYearName || "Belum dipilih"
-                  }}
-                </span>
-              </p>
-              <p>
-                Semester:
-                <span class="font-medium text-[#111827]">
-                  {{ selectedTerm?.termName || "Belum dipilih" }}
-                </span>
-              </p>
-              <p>
-                Kelas:
-                <span class="font-medium text-[#111827]">
-                  {{ selectedClass?.classTitle || "Belum dipilih" }}
-                </span>
-              </p>
-            </div>
-          </div>
-        </article>
-
-        <article class="rounded-[18px] border border-[#EBEBEB] bg-white p-5">
-          <div
-            class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"
-          >
-            <div>
-              <p class="text-[11px] font-medium uppercase text-[#9CA3AF]">
-                Tambah member kelas
-              </p>
-              <h2 class="mt-2 text-base font-medium text-[#111827]">
-                Pilih member sekolah
-              </h2>
-              <p class="mt-1 text-sm leading-6 text-[#6B7280]">
-                Peran di sini adalah class_role. Enroll teacher ke kelas belum
-                berarti guru tersebut mengampu subject.
-              </p>
-            </div>
-            <div
-              class="inline-flex items-center gap-2 rounded-lg bg-[#EEF2FF] px-3 py-2 text-xs font-medium text-[#4F46E5]"
-            >
-              <PhUsers :size="16" weight="duotone" />
-              {{ selectedMembers.length }} dipilih
-            </div>
-          </div>
-
-          <div class="mt-5 grid gap-3 md:grid-cols-[1fr_auto]">
-            <label class="block text-sm font-medium text-[#374151]">
-              Cari member sekolah
-              <div class="mt-2 flex gap-2">
-                <input
-                  v-model="memberSearch"
-                  type="search"
-                  placeholder="Nama atau email"
-                  class="min-w-0 flex-1 rounded-2xl border border-[#EBEBEB] bg-white px-4 py-3 text-sm text-[#111827] outline-none transition placeholder:text-[#9CA3AF] focus:border-[#4F46E5]"
-                />
-                <button
-                  type="button"
-                  class="inline-flex items-center justify-center rounded-2xl border border-[#EBEBEB] bg-white px-4 py-3 text-sm font-medium text-[#374151] transition hover:bg-[#F9FAFB]"
-                  :disabled="membersLoading"
-                  @click="loadMembers"
-                >
-                  <PhMagnifyingGlass :size="18" weight="duotone" />
-                </button>
-              </div>
-            </label>
-
-            <label class="block text-sm font-medium text-[#374151]">
-              Peran kelas
-              <select
-                v-model="classRole"
-                class="mt-2 w-full rounded-2xl border border-[#EBEBEB] bg-white px-4 py-3 text-sm text-[#111827] outline-none transition focus:border-[#4F46E5] md:w-48"
-              >
-                <option value="" disabled>Pilih role</option>
-                <option value="student">Student kelas</option>
-                <option value="teacher">Teacher kelas</option>
-              </select>
-            </label>
-          </div>
-
-          <div class="mt-5">
-            <div
-              v-if="membersLoading"
-              class="rounded-[18px] bg-[#FBFAF8] p-5 text-sm text-[#6B7280]"
-            >
-              Memuat member sekolah...
-            </div>
-
-            <div
-              v-else-if="membersError"
-              class="flex items-start gap-3 rounded-[18px] border border-[#FECACA] bg-[#FEF2F2] p-5 text-sm text-[#DC2626]"
-            >
-              <PhWarningCircle :size="20" weight="duotone" />
-              <p>{{ membersError }}</p>
-            </div>
-
-            <div
-              v-else-if="!selectedClassId"
-              class="rounded-[18px] bg-[#FBFAF8] p-5 text-sm text-[#6B7280]"
-            >
-              Pilih kelas sebelum menambahkan member.
-            </div>
-
-            <div
-              v-else-if="availableMembers.length === 0"
-              class="rounded-[18px] bg-[#FBFAF8] p-5 text-sm text-[#6B7280]"
-            >
-              Tidak ada member sekolah yang bisa ditambahkan. Semua member yang
-              tampil sudah terdaftar di kelas ini atau belum ada member sekolah.
-            </div>
-
-            <div v-else class="max-h-105 space-y-2 overflow-y-auto pr-1">
-              <label
-                v-for="member in availableMembers"
-                :key="member.schoolUserId"
-                class="flex cursor-pointer items-start gap-3 rounded-[18px] border border-[#EBEBEB] bg-[#FBFAF8] p-4 transition hover:border-[#D1D5DB]"
-              >
-                <input
-                  type="checkbox"
-                  class="mt-1 h-4 w-4 rounded border-[#D1D5DB] text-[#4F46E5] focus:ring-[#4F46E5]"
-                  :checked="selectedSchoolUserIds.includes(member.schoolUserId)"
-                  @change="toggleMember(member.schoolUserId)"
-                />
-                <span class="min-w-0 flex-1">
-                  <span class="block text-sm font-medium text-[#111827]">
-                    {{ member.fullName || "Nama member tidak tersedia" }}
-                  </span>
-                  <span class="mt-1 block text-xs text-[#6B7280]">
-                    {{ member.email || "Email tidak tersedia" }}
-                  </span>
-                  <span
-                    class="mt-2 inline-flex rounded-lg bg-white px-2 py-1 text-[11px] font-medium text-[#6B7280]"
-                  >
-                    Role sekolah: {{ schoolRolesLabel(member) }}
-                  </span>
-                </span>
-              </label>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#111827] px-4 py-3 text-sm font-medium text-white transition hover:bg-[#374151] disabled:cursor-not-allowed disabled:opacity-60"
-            :disabled="
-              submitting ||
-              !currentSchool.hasContext ||
-              !selectedClassId ||
-              selectedSchoolUserIds.length === 0 ||
-              !classRole
-            "
-            @click="submitEnrollment"
-          >
-            <PhStudent :size="18" weight="duotone" />
-            Tambahkan ke kelas
-          </button>
-        </article>
-      </section>
-
-      <section class="rounded-[18px] border border-[#EBEBEB] bg-white p-5">
-        <div
-          class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
-        >
-          <div>
-            <p class="text-[11px] font-medium uppercase text-[#9CA3AF]">
-              Class enrollment
-            </p>
-            <h2 class="mt-2 text-base font-medium text-[#111827]">
-              Member kelas saat ini
-            </h2>
-            <p class="mt-1 text-sm text-[#6B7280]">
-              Daftar ini hanya menampilkan membership kelas. Pengampu subject
-              akan diatur pada fase subject_class assignment.
-            </p>
-          </div>
-          <div class="flex flex-wrap gap-2 text-xs font-medium">
-            <span
-              class="inline-flex items-center gap-2 rounded-lg bg-[#ECFDF5] px-3 py-2 text-[#059669]"
-            >
-              <PhStudent :size="16" weight="duotone" />
-              {{ studentEnrollmentCount }} student
-            </span>
-            <span
-              class="inline-flex items-center gap-2 rounded-lg bg-[#EEF2FF] px-3 py-2 text-[#4F46E5]"
-            >
-              <PhChalkboardTeacher :size="16" weight="duotone" />
-              {{ teacherEnrollmentCount }} teacher
-            </span>
-          </div>
+        <div class="min-w-0">
+          <p class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#ea580c]">
+            Admin sekolah
+          </p>
+          <h1 class="mt-1 text-2xl font-semibold text-[#171322] sm:text-3xl">
+            Penempatan Kelas
+          </h1>
+          <p class="mt-2 max-w-3xl text-sm leading-6 text-[#6b7280]">
+            Tempatkan siswa atau guru ke kelas aktif sebelum kegiatan belajar
+            dan penugasan mengajar dimulai.
+          </p>
         </div>
+        <div class="flex min-w-0 flex-wrap gap-2 text-xs">
+          <span class="max-w-full truncate rounded-lg bg-[#fff4ee] px-3 py-2 font-medium text-[#ea580c]">
+            {{ currentSchool.schoolName || "Sekolah belum tersedia" }}
+          </span>
+          <span class="rounded-lg bg-[#f3f4f6] px-3 py-2 font-medium text-[#6b7280]">
+            {{ currentSchool.schoolCode || "Kode belum tersedia" }}
+          </span>
+        </div>
+      </div>
+    </header>
 
-        <div class="mt-5">
-          <div
-            v-if="enrollmentsLoading"
-            class="rounded-[18px] bg-[#FBFAF8] p-5 text-sm text-[#6B7280]"
-          >
-            Memuat enrollment kelas...
+    <section class="px-5 py-5 sm:px-6 lg:px-8">
+      <div
+        v-if="!currentSchool.hasContext"
+        class="mb-5 flex items-start gap-3 rounded-xl border border-[#fecaca] bg-[#fef2f2] p-4 text-sm leading-6 text-[#dc2626]"
+      >
+        <PhWarningCircle :size="20" class="mt-0.5 shrink-0" weight="duotone" />
+        <p>
+          Konteks sekolah aktif belum tersedia. Pastikan akun admin terhubung
+          dengan sekolah.
+        </p>
+      </div>
+
+      <div class="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
+        <section class="order-2 min-w-0 rounded-xl border border-[#ebe7df] bg-white lg:order-1">
+          <div class="flex flex-col gap-3 border-b border-[#ebe7df] px-4 py-4 sm:flex-row sm:items-start sm:justify-between sm:px-5">
+            <div class="min-w-0">
+              <p class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#9ca3af]">
+                Penempatan aktif
+              </p>
+              <h2 class="mt-1 text-base font-semibold text-[#171322]">
+                {{ selectedClass?.classTitle || "Pilih kelas" }}
+              </h2>
+              <p class="mt-1 text-sm leading-6 text-[#6b7280]">
+                {{
+                  selectedClass
+                    ? `${selectedTerm?.termName || "Semester"} · ${selectedAcademicYear?.academicYearName || "Tahun ajaran"}`
+                    : "Pilih konteks kelas pada panel untuk melihat warga yang ditempatkan."
+                }}
+              </p>
+            </div>
+            <div class="flex shrink-0 flex-wrap gap-2 text-xs font-medium">
+              <span class="inline-flex items-center gap-2 rounded-lg bg-[#ecfdf5] px-3 py-2 text-[#059669]">
+                <PhStudent :size="16" weight="duotone" />
+                {{ studentEnrollmentCount }} siswa
+              </span>
+              <span class="inline-flex items-center gap-2 rounded-lg bg-[#eef2ff] px-3 py-2 text-[#4f46e5]">
+                <PhChalkboardTeacher :size="16" weight="duotone" />
+                {{ teacherEnrollmentCount }} guru
+              </span>
+            </div>
           </div>
 
-          <div
-            v-else-if="enrollmentsError"
-            class="flex items-start gap-3 rounded-[18px] border border-[#FECACA] bg-[#FEF2F2] p-5 text-sm text-[#DC2626]"
-          >
-            <PhWarningCircle :size="20" weight="duotone" />
-            <p>{{ enrollmentsError }}</p>
-          </div>
+          <div class="p-4 sm:p-5">
+            <div v-if="enrollmentsLoading" class="space-y-3">
+              <div v-for="item in 3" :key="item" class="h-24 animate-pulse rounded-lg bg-[#fbfaf8]" />
+            </div>
 
-          <div
-            v-else-if="!selectedClassId"
-            class="rounded-[18px] bg-[#FBFAF8] p-5 text-sm text-[#6B7280]"
-          >
-            Pilih kelas untuk melihat enrollment.
-          </div>
-
-          <div
-            v-else-if="enrollments.length === 0"
-            class="rounded-[18px] bg-[#FBFAF8] p-5 text-sm text-[#6B7280]"
-          >
-            Belum ada member yang terdaftar di kelas ini.
-          </div>
-
-          <div v-else class="grid gap-3 md:grid-cols-2">
-            <article
-              v-for="enrollment in enrollments"
-              :key="enrollment.enrollmentId"
-              class="rounded-[18px] border border-[#EBEBEB] bg-[#FBFAF8] p-4"
+            <div
+              v-else-if="enrollmentsError"
+              class="rounded-lg border border-[#fecaca] bg-[#fef2f2] p-5 text-center"
             >
+              <PhWarningCircle :size="26" class="mx-auto text-[#dc2626]" weight="duotone" />
+              <h3 class="mt-3 text-sm font-semibold text-[#171322]">
+                Penempatan belum bisa dimuat
+              </h3>
+              <p class="mt-2 text-sm leading-6 text-[#6b7280]">{{ enrollmentsError }}</p>
+              <button
+                type="button"
+                class="mt-4 rounded-lg bg-[#171322] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#374151]"
+                @click="loadEnrollments"
+              >
+                Coba lagi
+              </button>
+            </div>
+
+            <div v-else-if="!selectedClassId" class="rounded-lg bg-[#fbfaf8] px-5 py-10 text-center">
+              <PhCalendarBlank :size="28" class="mx-auto text-[#9ca3af]" weight="duotone" />
+              <h3 class="mt-3 text-sm font-semibold text-[#171322]">Belum ada kelas dipilih</h3>
+              <p class="mt-2 text-sm leading-6 text-[#6b7280]">
+                Pilih tahun ajaran, semester, dan kelas untuk mulai mengelola penempatan.
+              </p>
+            </div>
+
+            <div v-else-if="enrollments.length === 0" class="rounded-lg bg-[#fbfaf8] px-5 py-10 text-center">
+              <PhUsers :size="28" class="mx-auto text-[#9ca3af]" weight="duotone" />
+              <h3 class="mt-3 text-sm font-semibold text-[#171322]">
+                Belum ada warga di kelas ini
+              </h3>
+              <p class="mt-2 text-sm leading-6 text-[#6b7280]">
+                Pilih warga sekolah melalui panel penempatan untuk menambahkannya.
+              </p>
+            </div>
+
+            <div v-else class="divide-y divide-[#ebe7df]">
+              <article
+                v-for="enrollment in enrollments"
+                :key="enrollment.enrollmentId"
+                class="min-w-0 py-4 first:pt-0 last:pb-0"
+              >
+                <div class="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div class="flex min-w-0 items-center gap-3">
+                    <div
+                      class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-xs font-semibold"
+                      :class="enrollment.role === 'teacher' ? 'bg-[#eef2ff] text-[#4f46e5]' : 'bg-[#ecfdf5] text-[#059669]'"
+                    >
+                      {{ (enrollment.userFullName || "W").charAt(0).toUpperCase() }}
+                    </div>
+                    <div class="min-w-0">
+                      <div class="flex min-w-0 flex-wrap items-center gap-2">
+                        <h3 class="wrap-break-word text-sm font-semibold text-[#171322]">
+                          {{ enrollment.userFullName || "Nama tidak tersedia" }}
+                        </h3>
+                        <span
+                          class="rounded-lg px-2 py-1 text-[11px] font-medium"
+                          :class="enrollment.role === 'teacher' ? 'bg-[#eef2ff] text-[#4f46e5]' : 'bg-[#ecfdf5] text-[#059669]'"
+                        >
+                          {{ classRoleLabel(enrollment.role) }}
+                        </span>
+                      </div>
+                      <p class="mt-1 break-all text-xs text-[#6b7280]">
+                        {{ enrollment.userEmail || "Email tidak tersedia" }}
+                      </p>
+                      <p class="mt-1 text-[11px] text-[#9ca3af]">
+                        Ditempatkan {{ formatDateTime(enrollment.joinedAt) }}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-[#fecaca] bg-white px-3 py-2 text-xs font-medium text-[#dc2626] transition hover:bg-[#fef2f2] disabled:opacity-60"
+                    :disabled="Boolean(unenrollingId)"
+                    @click="requestUnenroll(enrollment)"
+                  >
+                    <PhTrash :size="14" weight="duotone" />
+                    Keluarkan
+                  </button>
+                </div>
+
+                <div
+                  v-if="pendingUnenroll?.enrollmentId === enrollment.enrollmentId"
+                  class="mt-3 rounded-lg border border-[#fecaca] bg-[#fef2f2] p-3"
+                >
+                  <p class="text-xs leading-5 text-[#991b1b]">
+                    {{ unenrollConfirmationCopy(enrollment) }}
+                  </p>
+                  <div class="mt-3 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      class="rounded-lg bg-[#dc2626] px-3 py-2 text-xs font-medium text-white transition hover:bg-[#b91c1c] disabled:opacity-60"
+                      :disabled="unenrollingId === enrollment.enrollmentId"
+                      @click="confirmUnenroll(enrollment)"
+                    >
+                      {{ unenrollingId === enrollment.enrollmentId ? "Mengeluarkan..." : "Ya, keluarkan" }}
+                    </button>
+                    <button
+                      type="button"
+                      class="rounded-lg border border-[#fecaca] bg-white px-3 py-2 text-xs font-medium text-[#991b1b] transition hover:bg-[#fee2e2]"
+                      :disabled="unenrollingId === enrollment.enrollmentId"
+                      @click="cancelUnenroll"
+                    >
+                      Batal
+                    </button>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <aside class="order-1 min-w-0 lg:order-2">
+          <div class="space-y-5 lg:sticky lg:top-6">
+            <section class="rounded-xl border border-[#ebe7df] bg-white p-5">
               <div class="flex items-start justify-between gap-3">
-                <div class="min-w-0">
-                  <h3 class="truncate text-sm font-medium text-[#111827]">
-                    {{
-                      enrollment.userFullName || "Nama member tidak tersedia"
-                    }}
-                  </h3>
-                  <p class="mt-1 truncate text-xs text-[#6B7280]">
-                    {{ enrollment.userEmail || "Email tidak tersedia" }}
+                <div>
+                  <p class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#9ca3af]">
+                    Konteks kelas
+                  </p>
+                  <h2 class="mt-1 text-base font-semibold text-[#171322]">
+                    Pilih periode dan kelas
+                  </h2>
+                </div>
+                <PhCalendarBlank :size="21" class="text-[#ea580c]" weight="duotone" />
+              </div>
+
+              <div class="mt-5 space-y-3">
+                <label class="block text-xs font-medium text-[#6b7280]">
+                  Tahun ajaran
+                  <select
+                    v-model="selectedAcademicYearId"
+                    class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition focus:border-[#4f46e5] focus:bg-white"
+                    :disabled="yearsLoading || academicYears.length === 0"
+                    @change="handleAcademicYearChange"
+                  >
+                    <option value="" disabled>Pilih tahun ajaran</option>
+                    <option v-for="year in academicYears" :key="year.academicYearId" :value="year.academicYearId">
+                      {{ year.academicYearName }}{{ year.isActive ? " - Aktif" : "" }}
+                    </option>
+                  </select>
+                </label>
+                <label class="block text-xs font-medium text-[#6b7280]">
+                  Semester
+                  <select
+                    v-model="selectedTermId"
+                    class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition focus:border-[#4f46e5] focus:bg-white"
+                    :disabled="termsLoading || terms.length === 0"
+                    @change="handleTermChange"
+                  >
+                    <option value="" disabled>Pilih semester</option>
+                    <option v-for="term in terms" :key="term.termId" :value="term.termId">
+                      {{ term.termName }}{{ term.isActive ? " - Aktif" : "" }}
+                    </option>
+                  </select>
+                </label>
+                <label class="block text-xs font-medium text-[#6b7280]">
+                  Kelas
+                  <select
+                    v-model="selectedClassId"
+                    class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition focus:border-[#4f46e5] focus:bg-white"
+                    :disabled="classesLoading || classes.length === 0"
+                    @change="handleClassChange"
+                  >
+                    <option value="" disabled>Pilih kelas</option>
+                    <option v-for="classItem in classes" :key="classItem.classId" :value="classItem.classId">
+                      {{ classItem.classTitle }} - {{ classItem.classCode }}
+                    </option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="mt-4 space-y-2 text-xs leading-5">
+                <p v-if="yearsLoading || termsLoading || classesLoading" class="text-[#6b7280]">
+                  Memuat konteks kelas...
+                </p>
+                <div
+                  v-else-if="yearsError || termsError || classesError"
+                  class="rounded-lg bg-[#fef2f2] px-3 py-2 text-[#dc2626]"
+                >
+                  <p>{{ yearsError || termsError || classesError }}</p>
+                  <button
+                    type="button"
+                    class="mt-2 font-medium underline underline-offset-2"
+                    @click="
+                      yearsError
+                        ? loadAcademicYears()
+                        : termsError
+                          ? loadTerms(true)
+                          : loadClasses(true)
+                    "
+                  >
+                    Coba lagi
+                  </button>
+                </div>
+                <p v-else-if="academicYears.length === 0" class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-[#6b7280]">
+                  Belum ada tahun ajaran.
+                </p>
+                <p v-else-if="selectedAcademicYearId && terms.length === 0" class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-[#6b7280]">
+                  Belum ada semester untuk tahun ajaran ini.
+                </p>
+                <p v-else-if="selectedTermId && classes.length === 0" class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-[#6b7280]">
+                  Belum ada kelas untuk semester ini.
+                </p>
+              </div>
+            </section>
+
+            <section class="rounded-xl border border-[#ebe7df] bg-white p-5">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <p class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#9ca3af]">
+                    Tambah penempatan
+                  </p>
+                  <h2 class="mt-1 text-base font-semibold text-[#171322]">
+                    Pilih warga sekolah
+                  </h2>
+                  <p class="mt-1 text-xs leading-5 text-[#6b7280]">
+                    Penempatan guru belum otomatis membuat penugasan mengajar.
                   </p>
                 </div>
-                <span
-                  class="shrink-0 rounded-lg px-2 py-1 text-[11px] font-medium"
-                  :class="
-                    enrollment.role === 'teacher'
-                      ? 'bg-[#EEF2FF] text-[#4F46E5]'
-                      : 'bg-[#ECFDF5] text-[#059669]'
-                  "
-                >
-                  {{ classRoleLabel(enrollment.role) }}
+                <span class="shrink-0 rounded-lg bg-[#eef2ff] px-2.5 py-1.5 text-xs font-medium text-[#4f46e5]">
+                  {{ selectedMembers.length }} dipilih
                 </span>
               </div>
-              <div
-                class="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <p class="text-xs text-[#6B7280]">
-                  Bergabung:
-                  <span class="font-medium text-[#374151]">
-                    {{ formatDateTime(enrollment.joinedAt) }}
-                  </span>
-                </p>
-                <button
-                  type="button"
-                  class="inline-flex items-center justify-center gap-2 rounded-xl border border-[#FECACA] bg-white px-3 py-2 text-xs font-medium text-[#DC2626] transition hover:bg-[#FEF2F2] disabled:cursor-not-allowed disabled:opacity-60"
-                  :disabled="Boolean(unenrollingId)"
-                  @click="requestUnenroll(enrollment)"
-                >
-                  <PhTrash :size="14" weight="duotone" />
-                  Keluarkan
-                </button>
+
+              <div class="mt-5 space-y-3">
+                <label class="block text-xs font-medium text-[#6b7280]">
+                  Cari warga sekolah
+                  <div class="mt-2 flex gap-2">
+                    <input
+                      v-model="memberSearch"
+                      type="search"
+                      placeholder="Nama atau email"
+                      class="min-w-0 flex-1 rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#4f46e5] focus:bg-white"
+                    />
+                    <button
+                      type="button"
+                      class="inline-flex shrink-0 items-center justify-center rounded-lg border border-[#ebe7df] bg-white px-3 py-2.5 text-[#374151] transition hover:border-[#ea580c] hover:text-[#ea580c]"
+                      :disabled="membersLoading"
+                      @click="loadMembers"
+                    >
+                      <PhMagnifyingGlass :size="17" weight="duotone" />
+                    </button>
+                  </div>
+                </label>
+                <label class="block text-xs font-medium text-[#6b7280]">
+                  Peran di kelas
+                  <select
+                    v-model="classRole"
+                    class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition focus:border-[#4f46e5] focus:bg-white"
+                  >
+                    <option value="" disabled>Pilih peran</option>
+                    <option value="student">Siswa</option>
+                    <option value="teacher">Guru</option>
+                  </select>
+                </label>
               </div>
 
-              <div
-                v-if="pendingUnenroll?.enrollmentId === enrollment.enrollmentId"
-                class="mt-3 rounded-2xl border border-[#FECACA] bg-[#FEF2F2] p-3"
-              >
-                <p class="text-xs leading-5 text-[#991B1B]">
-                  {{ unenrollConfirmationCopy(enrollment) }}
-                </p>
-                <div class="mt-3 flex flex-wrap gap-2">
+              <div class="mt-4">
+                <div v-if="membersLoading" class="space-y-2">
+                  <div v-for="item in 2" :key="item" class="h-20 animate-pulse rounded-lg bg-[#fbfaf8]" />
+                </div>
+                <div
+                  v-else-if="membersError"
+                  class="rounded-lg bg-[#fef2f2] p-3 text-xs leading-5 text-[#dc2626]"
+                >
+                  <p>{{ membersError }}</p>
                   <button
                     type="button"
-                    class="rounded-xl bg-[#DC2626] px-3 py-2 text-xs font-medium text-white transition hover:bg-[#B91C1C] disabled:cursor-not-allowed disabled:opacity-60"
-                    :disabled="unenrollingId === enrollment.enrollmentId"
-                    @click="confirmUnenroll(enrollment)"
+                    class="mt-2 font-medium underline underline-offset-2"
+                    @click="loadMembers"
                   >
-                    {{
-                      unenrollingId === enrollment.enrollmentId
-                        ? "Mengeluarkan..."
-                        : "Ya, keluarkan"
-                    }}
-                  </button>
-                  <button
-                    type="button"
-                    class="rounded-xl border border-[#FECACA] bg-white px-3 py-2 text-xs font-medium text-[#991B1B] transition hover:bg-[#FEE2E2]"
-                    :disabled="unenrollingId === enrollment.enrollmentId"
-                    @click="cancelUnenroll"
-                  >
-                    Batal
+                    Coba lagi
                   </button>
                 </div>
+                <div v-else-if="!selectedClassId" class="rounded-lg bg-[#fbfaf8] p-3 text-xs leading-5 text-[#6b7280]">
+                  Pilih kelas sebelum menambahkan warga sekolah.
+                </div>
+                <div v-else-if="availableMembers.length === 0" class="rounded-lg bg-[#fbfaf8] p-3 text-xs leading-5 text-[#6b7280]">
+                  Tidak ada warga sekolah yang dapat ditambahkan ke kelas ini.
+                </div>
+                <div v-else class="max-h-72 space-y-2 overflow-y-auto pr-1">
+                  <label
+                    v-for="member in availableMembers"
+                    :key="member.schoolUserId"
+                    class="flex cursor-pointer items-start gap-3 rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-3 transition hover:border-[#d1d5db]"
+                  >
+                    <input
+                      type="checkbox"
+                      class="mt-1 h-4 w-4 shrink-0 rounded border-[#d1d5db] text-[#4f46e5] focus:ring-[#4f46e5]"
+                      :checked="selectedSchoolUserIds.includes(member.schoolUserId)"
+                      @change="toggleMember(member.schoolUserId)"
+                    />
+                    <span class="min-w-0 flex-1">
+                      <span class="block wrap-break-word text-sm font-medium text-[#171322]">
+                        {{ member.fullName || "Nama tidak tersedia" }}
+                      </span>
+                      <span class="mt-1 block break-all text-xs text-[#6b7280]">
+                        {{ member.email || "Email tidak tersedia" }}
+                      </span>
+                      <span class="mt-2 inline-flex rounded-lg bg-white px-2 py-1 text-[11px] font-medium text-[#6b7280]">
+                        {{ schoolRolesLabel(member) }}
+                      </span>
+                    </span>
+                  </label>
+                </div>
               </div>
-            </article>
+
+              <button
+                type="button"
+                class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#ea580c] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#c2410c] disabled:cursor-not-allowed disabled:opacity-60"
+                :disabled="submitting || !currentSchool.hasContext || !selectedClassId || selectedSchoolUserIds.length === 0 || !classRole"
+                @click="submitEnrollment"
+              >
+                <PhStudent :size="17" weight="duotone" />
+                {{ submitting ? "Menempatkan..." : "Tambahkan ke kelas" }}
+              </button>
+            </section>
           </div>
-        </div>
-      </section>
+        </aside>
+      </div>
     </section>
   </main>
 </template>

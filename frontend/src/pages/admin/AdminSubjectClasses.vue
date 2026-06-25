@@ -6,7 +6,6 @@ import {
   PhChalkboardTeacher,
   PhLinkSimple,
   PhTrash,
-  PhUsers,
   PhWarningCircle,
 } from "@phosphor-icons/vue";
 import { useAuthStore } from "../../stores/auth";
@@ -295,7 +294,7 @@ async function loadMembers() {
     members.value = data.members?.data ?? [];
     resetAssignmentForm();
   } catch {
-    membersError.value = "Member sekolah belum bisa dimuat.";
+    membersError.value = "Warga sekolah belum bisa dimuat.";
   } finally {
     membersLoading.value = false;
   }
@@ -325,8 +324,8 @@ async function loadClassContext() {
     subjectClasses.value = subjectClassData.subjects ?? [];
     resetAssignmentForm();
   } catch {
-    enrollmentsError.value = "Enrollment kelas belum bisa dimuat.";
-    subjectClassesError.value = "Subject class belum bisa dimuat.";
+    enrollmentsError.value = "Penempatan kelas belum bisa dimuat.";
+    subjectClassesError.value = "Penugasan mengajar belum bisa dimuat.";
   } finally {
     enrollmentsLoading.value = false;
     subjectClassesLoading.value = false;
@@ -354,21 +353,21 @@ async function submitSubjectClass() {
     return;
   }
   if (!selectedSubjectId.value) {
-    toast.error("Pilih subject yang belum ditugaskan.");
+    toast.error("Pilih mata pelajaran yang belum ditugaskan.");
     return;
   }
   if (teacherCandidates.value.length === 0) {
     toast.error(
-      "Belum ada guru yang eligible. Atur role teacher di Warga Sekolah dan penempatan teacher di Penempatan Kelas.",
+      "Belum ada guru yang memenuhi syarat. Atur peran guru di Warga Sekolah dan tempatkan guru di kelas terlebih dahulu.",
     );
     return;
   }
   if (!selectedTeacherSchoolUserId.value) {
-    toast.error("Pilih teacher yang akan mengampu subject.");
+    toast.error("Pilih guru yang akan mengampu mata pelajaran.");
     return;
   }
   if (assignedSubjectIds.value.has(selectedSubjectId.value)) {
-    toast.info("Subject ini sudah punya assignment di kelas terpilih.");
+    toast.info("Mata pelajaran ini sudah memiliki penugasan di kelas terpilih.");
     return;
   }
 
@@ -379,11 +378,11 @@ async function submitSubjectClass() {
       subjectId: selectedSubjectId.value,
       teacherId: selectedTeacherSchoolUserId.value,
     });
-    toast.success("Subject class berhasil dibuat untuk teacher workspace.");
+    toast.success("Penugasan mengajar berhasil dibuat.");
     await loadClassContext();
   } catch {
     toast.error(
-      "Subject class belum bisa dibuat. Periksa eligibility teacher dan duplikasi subject.",
+      "Penugasan mengajar belum bisa dibuat. Periksa penempatan guru dan mata pelajaran yang dipilih.",
     );
   } finally {
     submitting.value = false;
@@ -424,427 +423,148 @@ onMounted(async () => {
 </script>
 
 <template>
-  <main class="min-h-screen flex-1 px-5 py-5 sm:px-6 lg:px-8">
-    <section class="flex w-full max-w-none flex-col gap-5">
-      <header class="soft-card rounded-[22px] p-5">
-        <div
-          class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"
-        >
-          <div>
-            <p class="text-[11px] font-medium uppercase text-[#9CA3AF]">
-              Admin sekolah
-            </p>
-            <h1 class="mt-2 text-2xl font-medium text-[#111827]">
-              Penugasan Mengajar
-            </h1>
-            <p class="mt-2 max-w-3xl text-sm leading-6 text-[#6B7280]">
-              Hubungkan teacher, kelas, dan mata pelajaran untuk membuat
-              workspace mengajar. Akses student mengikuti penempatan kelas.
-            </p>
-          </div>
-          <div class="flex flex-wrap gap-2 text-xs">
-            <span
-              class="rounded-lg bg-[#EEF2FF] px-3 py-1.5 font-medium text-[#4F46E5]"
-            >
-              {{ currentSchool.schoolName || "Sekolah belum tersedia" }}
-            </span>
-            <span
-              class="rounded-lg bg-[#F9FAFB] px-3 py-1.5 font-medium text-[#6B7280]"
-            >
-              {{ currentSchool.schoolCode || "Kode sekolah belum tersedia" }}
-            </span>
-          </div>
-        </div>
-
-        <div
-          v-if="!currentSchool.hasContext"
-          class="mt-4 rounded-[10px] border border-[#FECACA] bg-[#FEF2F2] px-4 py-3 text-sm text-[#DC2626]"
-        >
-          Context sekolah aktif belum tersedia. Pastikan akun admin memiliki
-          membership sekolah.
-        </div>
-      </header>
-
-      <section
-        class="grid gap-5 xl:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)]"
+  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
+    <header class="border-b border-[#ebe7df] bg-white">
+      <div
+        class="flex min-w-0 flex-col gap-3 px-5 py-5 sm:px-6 lg:flex-row lg:items-end lg:justify-between lg:px-8"
       >
-        <article class="rounded-[18px] border border-[#EBEBEB] bg-white p-5">
-          <div class="flex items-start justify-between gap-4">
-            <div>
-              <p class="text-[11px] font-medium uppercase text-[#9CA3AF]">
-                Context kelas
-              </p>
-              <h2 class="mt-2 text-base font-medium text-[#111827]">
-                Pilih periode dan kelas
-              </h2>
-            </div>
-            <PhCalendarBlank
-              :size="22"
-              class="text-[#4F46E5]"
-              weight="duotone"
-            />
-          </div>
-
-          <div class="mt-5 space-y-4">
-            <label class="block text-sm font-medium text-[#374151]">
-              Tahun ajaran
-              <select
-                v-model="selectedAcademicYearId"
-                class="mt-2 w-full rounded-2xl border border-[#EBEBEB] bg-white px-4 py-3 text-sm text-[#111827] outline-none transition focus:border-[#4F46E5]"
-                :disabled="yearsLoading || academicYears.length === 0"
-                @change="handleAcademicYearChange"
-              >
-                <option value="" disabled>Pilih tahun ajaran</option>
-                <option
-                  v-for="year in academicYears"
-                  :key="year.academicYearId"
-                  :value="year.academicYearId"
-                >
-                  {{ year.academicYearName
-                  }}{{ year.isActive ? " - Aktif" : "" }}
-                </option>
-              </select>
-            </label>
-
-            <label class="block text-sm font-medium text-[#374151]">
-              Semester
-              <select
-                v-model="selectedTermId"
-                class="mt-2 w-full rounded-2xl border border-[#EBEBEB] bg-white px-4 py-3 text-sm text-[#111827] outline-none transition focus:border-[#4F46E5]"
-                :disabled="termsLoading || terms.length === 0"
-                @change="handleTermChange"
-              >
-                <option value="" disabled>Pilih semester</option>
-                <option
-                  v-for="term in terms"
-                  :key="term.termId"
-                  :value="term.termId"
-                >
-                  {{ term.termName }}{{ term.isActive ? " - Aktif" : "" }}
-                </option>
-              </select>
-            </label>
-
-            <label class="block text-sm font-medium text-[#374151]">
-              Kelas
-              <select
-                v-model="selectedClassId"
-                class="mt-2 w-full rounded-2xl border border-[#EBEBEB] bg-white px-4 py-3 text-sm text-[#111827] outline-none transition focus:border-[#4F46E5]"
-                :disabled="classesLoading || classes.length === 0"
-                @change="handleClassChange"
-              >
-                <option value="" disabled>Pilih kelas</option>
-                <option
-                  v-for="classItem in classes"
-                  :key="classItem.classId"
-                  :value="classItem.classId"
-                >
-                  {{ classItem.classTitle }} - {{ classItem.classCode }}
-                </option>
-              </select>
-            </label>
-          </div>
-
-          <div class="mt-4 space-y-2 text-sm">
-            <p v-if="yearsLoading" class="text-[#6B7280]">
-              Memuat tahun ajaran...
-            </p>
-            <p v-else-if="yearsError" class="text-[#DC2626]">
-              {{ yearsError }}
-            </p>
-            <p v-else-if="academicYears.length === 0" class="text-[#6B7280]">
-              Belum ada tahun ajaran. Buat data akademik terlebih dahulu.
-            </p>
-
-            <p v-if="termsLoading" class="text-[#6B7280]">Memuat semester...</p>
-            <p v-else-if="termsError" class="text-[#DC2626]">
-              {{ termsError }}
-            </p>
-            <p
-              v-else-if="selectedAcademicYearId && terms.length === 0"
-              class="text-[#6B7280]"
-            >
-              Belum ada semester untuk tahun ajaran ini.
-            </p>
-
-            <p v-if="classesLoading" class="text-[#6B7280]">Memuat kelas...</p>
-            <p v-else-if="classesError" class="text-[#DC2626]">
-              {{ classesError }}
-            </p>
-            <p
-              v-else-if="selectedTermId && classes.length === 0"
-              class="text-[#6B7280]"
-            >
-              Belum ada kelas untuk semester ini.
-            </p>
-          </div>
-
-          <div class="mt-5 rounded-[18px] bg-[#FBFAF8] p-4">
-            <p class="text-[11px] font-medium uppercase text-[#9CA3AF]">
-              Context aktif
-            </p>
-            <div class="mt-3 space-y-2 text-sm text-[#374151]">
-              <p>
-                Tahun ajaran:
-                <span class="font-medium text-[#111827]">
-                  {{
-                    selectedAcademicYear?.academicYearName || "Belum dipilih"
-                  }}
-                </span>
-              </p>
-              <p>
-                Semester:
-                <span class="font-medium text-[#111827]">
-                  {{ selectedTerm?.termName || "Belum dipilih" }}
-                </span>
-              </p>
-              <p>
-                Kelas:
-                <span class="font-medium text-[#111827]">
-                  {{ selectedClass?.classTitle || "Belum dipilih" }}
-                </span>
-              </p>
-            </div>
-          </div>
-        </article>
-
-        <article class="rounded-[18px] border border-[#EBEBEB] bg-white p-5">
-          <div
-            class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"
-          >
-            <div>
-              <p class="text-[11px] font-medium uppercase text-[#9CA3AF]">
-                Assign teacher
-              </p>
-              <h2 class="mt-2 text-base font-medium text-[#111827]">
-                Buat penugasan mengajar
-              </h2>
-              <p class="mt-1 text-sm leading-6 text-[#6B7280]">
-                Guru harus punya role teacher di Warga Sekolah dan sudah
-                ditempatkan sebagai teacher kelas di Penempatan Kelas.
-              </p>
-            </div>
-            <div
-              class="inline-flex items-center gap-2 rounded-lg bg-[#EEF2FF] px-3 py-2 text-xs font-medium text-[#4F46E5]"
-            >
-              <PhChalkboardTeacher :size="16" weight="duotone" />
-              {{ teacherCandidates.length }} teacher eligible
-            </div>
-          </div>
-
-          <form class="mt-5 grid gap-4" @submit.prevent="submitSubjectClass">
-            <label class="block text-sm font-medium text-[#374151]">
-              Subject
-              <select
-                v-model="selectedSubjectId"
-                class="mt-2 w-full rounded-2xl border border-[#EBEBEB] bg-white px-4 py-3 text-sm text-[#111827] outline-none transition focus:border-[#4F46E5]"
-                :disabled="subjectsLoading || availableSubjects.length === 0"
-              >
-                <option value="" disabled>Pilih subject</option>
-                <option
-                  v-for="subject in availableSubjects"
-                  :key="subject.subjectId"
-                  :value="subject.subjectId"
-                >
-                  {{ subject.subjectName }} - {{ subject.subjectCode }}
-                </option>
-              </select>
-            </label>
-
-            <label class="block text-sm font-medium text-[#374151]">
-              Teacher
-              <select
-                v-model="selectedTeacherSchoolUserId"
-                class="mt-2 w-full rounded-2xl border border-[#EBEBEB] bg-white px-4 py-3 text-sm text-[#111827] outline-none transition focus:border-[#4F46E5]"
-                :disabled="
-                  enrollmentsLoading ||
-                  membersLoading ||
-                  teacherCandidates.length === 0
-                "
-              >
-                <option value="" disabled>Pilih teacher</option>
-                <option
-                  v-for="teacher in teacherCandidates"
-                  :key="teacher.schoolUserId"
-                  :value="teacher.schoolUserId"
-                >
-                  {{ teacher.fullName || "Nama teacher tidak tersedia" }} -
-                  {{ teacher.email || "Email tidak tersedia" }}
-                </option>
-              </select>
-            </label>
-
-            <div
-              v-if="selectedSubject || selectedTeacher"
-              class="rounded-[18px] border border-[#EBEBEB] bg-white p-4"
-            >
-              <p class="text-[11px] font-medium uppercase text-[#9CA3AF]">
-                Preview
-              </p>
-              <div
-                class="mt-3 grid gap-2 text-sm text-[#374151] sm:grid-cols-2"
-              >
-                <p>
-                  Subject:
-                  <span class="font-medium text-[#111827]">
-                    {{ selectedSubject?.subjectName || "Belum dipilih" }}
-                  </span>
-                </p>
-                <p>
-                  Teacher:
-                  <span class="font-medium text-[#111827]">
-                    {{ selectedTeacher?.fullName || "Belum dipilih" }}
-                  </span>
-                </p>
-              </div>
-            </div>
-
-            <div class="space-y-2 text-sm">
-              <p v-if="subjectsLoading" class="text-[#6B7280]">
-                Memuat subject...
-              </p>
-              <p v-else-if="subjectsError" class="text-[#DC2626]">
-                {{ subjectsError }}
-              </p>
-              <p v-else-if="subjects.length === 0" class="text-[#6B7280]">
-                Belum ada subject. Buat subject di Struktur Akademik terlebih
-                dahulu.
-              </p>
-              <p
-                v-else-if="selectedClassId && availableSubjects.length === 0"
-                class="text-[#6B7280]"
-              >
-                Semua subject sudah ditugaskan untuk kelas ini.
-              </p>
-
-              <p
-                v-if="membersLoading || enrollmentsLoading"
-                class="text-[#6B7280]"
-              >
-                Memuat teacher eligible...
-              </p>
-              <p v-else-if="membersError" class="text-[#DC2626]">
-                {{ membersError }}
-              </p>
-              <p v-else-if="enrollmentsError" class="text-[#DC2626]">
-                {{ enrollmentsError }}
-              </p>
-            </div>
-
-            <button
-              type="submit"
-              class="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#111827] px-4 py-3 text-sm font-medium text-white transition hover:bg-[#374151] disabled:cursor-not-allowed disabled:opacity-60"
-              :disabled="
-                submitting ||
-                !selectedClassId ||
-                !selectedSubjectId ||
-                !selectedTeacherSchoolUserId ||
-                teacherCandidates.length === 0
-              "
-            >
-              <PhLinkSimple :size="18" weight="duotone" />
-              Buat subject class
-            </button>
-          </form>
-        </article>
-      </section>
-
-      <section class="rounded-[18px] border border-[#EBEBEB] bg-white p-5">
-        <div
-          class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
-        >
-          <div>
-            <p class="text-[11px] font-medium uppercase text-[#9CA3AF]">
-              Current assignments
-            </p>
-            <h2 class="mt-2 text-base font-medium text-[#111827]">
-              Subject class kelas ini
-            </h2>
-            <p class="mt-1 text-sm text-[#6B7280]">
-              Setiap kelas menjadi workspace teacher untuk materi, tugas, dan
-              penilaian.
-            </p>
-          </div>
-          <div class="flex flex-wrap gap-2 text-xs font-medium">
-            <span
-              class="inline-flex items-center gap-2 rounded-lg bg-[#EEF2FF] px-3 py-2 text-[#4F46E5]"
-            >
-              <PhBookOpen :size="16" weight="duotone" />
-              {{ subjectClasses.length }} subject class
-            </span>
-            <span
-              class="inline-flex items-center gap-2 rounded-lg bg-[#ECFDF5] px-3 py-2 text-[#059669]"
-            >
-              <PhUsers :size="16" weight="duotone" />
-              Student via class enrollment
-            </span>
-          </div>
+        <div class="min-w-0">
+          <p class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#ea580c]">
+            Admin sekolah
+          </p>
+          <h1 class="mt-1 text-2xl font-semibold text-[#171322] sm:text-3xl">
+            Penugasan Mengajar
+          </h1>
+          <p class="mt-2 max-w-3xl text-sm leading-6 text-[#6b7280]">
+            Hubungkan guru, kelas, dan mata pelajaran untuk menyiapkan ruang
+            mengajar yang dapat digunakan.
+          </p>
         </div>
+        <div class="flex min-w-0 flex-wrap gap-2 text-xs">
+          <span class="max-w-full truncate rounded-lg bg-[#fff4ee] px-3 py-2 font-medium text-[#ea580c]">
+            {{ currentSchool.schoolName || "Sekolah belum tersedia" }}
+          </span>
+          <span class="rounded-lg bg-[#f3f4f6] px-3 py-2 font-medium text-[#6b7280]">
+            {{ currentSchool.schoolCode || "Kode belum tersedia" }}
+          </span>
+        </div>
+      </div>
+    </header>
 
-        <div class="mt-5">
-          <div
-            v-if="subjectClassesLoading"
-            class="rounded-[18px] bg-[#FBFAF8] p-5 text-sm text-[#6B7280]"
-          >
-            Memuat subject class...
+    <section class="px-5 py-5 sm:px-6 lg:px-8">
+      <div
+        v-if="!currentSchool.hasContext"
+        class="mb-5 flex items-start gap-3 rounded-xl border border-[#fecaca] bg-[#fef2f2] p-4 text-sm leading-6 text-[#dc2626]"
+      >
+        <PhWarningCircle :size="20" class="mt-0.5 shrink-0" weight="duotone" />
+        <p>
+          Konteks sekolah aktif belum tersedia. Pastikan akun admin terhubung
+          dengan sekolah.
+        </p>
+      </div>
+
+      <div class="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
+        <section class="order-2 min-w-0 rounded-xl border border-[#ebe7df] bg-white lg:order-1">
+          <div class="flex flex-col gap-3 border-b border-[#ebe7df] px-4 py-4 sm:flex-row sm:items-start sm:justify-between sm:px-5">
+            <div class="min-w-0">
+              <p class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#9ca3af]">
+                Penugasan aktif
+              </p>
+              <h2 class="mt-1 text-base font-semibold text-[#171322]">
+                {{ selectedClass?.classTitle || "Pilih kelas" }}
+              </h2>
+              <p class="mt-1 text-sm leading-6 text-[#6b7280]">
+                {{
+                  selectedClass
+                    ? `${selectedTerm?.termName || "Semester"} · ${selectedAcademicYear?.academicYearName || "Tahun ajaran"}`
+                    : "Pilih konteks kelas pada panel untuk melihat penugasan mengajar."
+                }}
+              </p>
+            </div>
+            <div class="flex shrink-0 flex-wrap gap-2 text-xs font-medium">
+              <span class="inline-flex items-center gap-2 rounded-lg bg-[#eef2ff] px-3 py-2 text-[#4f46e5]">
+                <PhBookOpen :size="16" weight="duotone" />
+                {{ subjectClasses.length }} mata pelajaran
+              </span>
+              <span class="inline-flex items-center gap-2 rounded-lg bg-[#ecfdf5] px-3 py-2 text-[#059669]">
+                <PhChalkboardTeacher :size="16" weight="duotone" />
+                {{ teacherCandidates.length }} guru tersedia
+              </span>
+            </div>
           </div>
 
-          <div
-            v-else-if="subjectClassesError"
-            class="flex items-start gap-3 rounded-[18px] border border-[#FECACA] bg-[#FEF2F2] p-5 text-sm text-[#DC2626]"
-          >
-            <PhWarningCircle :size="20" weight="duotone" />
-            <p>{{ subjectClassesError }}</p>
-          </div>
+          <div class="p-4 sm:p-5">
+            <div v-if="subjectClassesLoading" class="space-y-3">
+              <div v-for="item in 3" :key="item" class="h-24 animate-pulse rounded-lg bg-[#fbfaf8]" />
+            </div>
 
-          <div
-            v-else-if="!selectedClassId"
-            class="rounded-[18px] bg-[#FBFAF8] p-5 text-sm text-[#6B7280]"
-          >
-            Pilih kelas untuk melihat subject class.
-          </div>
-
-          <div
-            v-else-if="subjectClasses.length === 0"
-            class="rounded-[18px] bg-[#FBFAF8] p-5 text-sm text-[#6B7280]"
-          >
-            Belum ada subject class untuk kelas ini.
-          </div>
-
-          <div v-else class="grid gap-3 md:grid-cols-2">
-            <article
-              v-for="subjectClass in subjectClasses"
-              :key="subjectClass.subjectClassId"
-              class="rounded-[18px] border border-[#EBEBEB] bg-[#FBFAF8] p-4"
+            <div
+              v-else-if="subjectClassesError"
+              class="rounded-lg border border-[#fecaca] bg-[#fef2f2] p-5 text-center"
             >
-              <div class="flex items-start justify-between gap-3">
-                <div class="min-w-0">
-                  <div class="flex flex-wrap items-center gap-2">
-                    <h3 class="text-sm font-medium text-[#111827]">
-                      {{ subjectClass.subjectName || "Subject tidak tersedia" }}
-                    </h3>
-                    <span
-                      class="rounded-lg bg-white px-2 py-1 text-[11px] font-medium text-[#6B7280]"
-                    >
-                      {{ subjectClass.subjectCode || "Kode tidak tersedia" }}
-                    </span>
+              <PhWarningCircle :size="26" class="mx-auto text-[#dc2626]" weight="duotone" />
+              <h3 class="mt-3 text-sm font-semibold text-[#171322]">
+                Penugasan belum bisa dimuat
+              </h3>
+              <p class="mt-2 text-sm leading-6 text-[#6b7280]">{{ subjectClassesError }}</p>
+              <button
+                type="button"
+                class="mt-4 rounded-lg bg-[#171322] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#374151]"
+                @click="loadClassContext"
+              >
+                Coba lagi
+              </button>
+            </div>
+
+            <div v-else-if="!selectedClassId" class="rounded-lg bg-[#fbfaf8] px-5 py-10 text-center">
+              <PhCalendarBlank :size="28" class="mx-auto text-[#9ca3af]" weight="duotone" />
+              <h3 class="mt-3 text-sm font-semibold text-[#171322]">Belum ada kelas dipilih</h3>
+              <p class="mt-2 text-sm leading-6 text-[#6b7280]">
+                Pilih tahun ajaran, semester, dan kelas untuk mengatur guru pengampu.
+              </p>
+            </div>
+
+            <div v-else-if="subjectClasses.length === 0" class="rounded-lg bg-[#fbfaf8] px-5 py-10 text-center">
+              <PhBookOpen :size="28" class="mx-auto text-[#9ca3af]" weight="duotone" />
+              <h3 class="mt-3 text-sm font-semibold text-[#171322]">
+                Belum ada penugasan mengajar
+              </h3>
+              <p class="mt-2 text-sm leading-6 text-[#6b7280]">
+                Pilih mata pelajaran dan guru melalui panel penugasan.
+              </p>
+            </div>
+
+            <div v-else class="divide-y divide-[#ebe7df]">
+              <article
+                v-for="subjectClass in subjectClasses"
+                :key="subjectClass.subjectClassId"
+                class="min-w-0 py-4 first:pt-0 last:pb-0"
+              >
+                <div class="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div class="flex min-w-0 items-center gap-3">
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#eef2ff] text-[#4f46e5]">
+                      <PhBookOpen :size="20" weight="duotone" />
+                    </div>
+                    <div class="min-w-0">
+                      <div class="flex min-w-0 flex-wrap items-center gap-2">
+                        <h3 class="wrap-break-word text-sm font-semibold text-[#171322]">
+                          {{ subjectClass.subjectName || "Mata pelajaran tidak tersedia" }}
+                        </h3>
+                        <span class="rounded-lg bg-[#f3f4f6] px-2 py-1 text-[11px] font-medium text-[#6b7280]">
+                          {{ subjectClass.subjectCode || "Kode tidak tersedia" }}
+                        </span>
+                      </div>
+                      <p class="mt-1 text-xs text-[#6b7280]">
+                        Guru:
+                        <span class="font-medium text-[#374151]">
+                          {{ subjectClass.teacherName || "Guru tidak tersedia" }}
+                        </span>
+                      </p>
+                    </div>
                   </div>
-                  <p class="mt-2 text-sm text-[#6B7280]">
-                    Teacher:
-                    <span class="font-medium text-[#374151]">
-                      {{ subjectClass.teacherName || "Teacher tidak tersedia" }}
-                    </span>
-                  </p>
-                </div>
-                <div class="flex shrink-0 flex-col items-end gap-2">
-                  <PhChalkboardTeacher
-                    :size="22"
-                    class="text-[#4F46E5]"
-                    weight="duotone"
-                  />
                   <button
                     type="button"
-                    class="inline-flex items-center justify-center gap-2 rounded-xl border border-[#FECACA] bg-white px-3 py-2 text-xs font-medium text-[#DC2626] transition hover:bg-[#FEF2F2] disabled:cursor-not-allowed disabled:opacity-60"
+                    class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-[#fecaca] bg-white px-3 py-2 text-xs font-medium text-[#dc2626] transition hover:bg-[#fef2f2] disabled:opacity-60"
                     :disabled="Boolean(unassigningId)"
                     @click="requestUnassign(subjectClass)"
                   >
@@ -852,47 +572,257 @@ onMounted(async () => {
                     Lepaskan
                   </button>
                 </div>
+
+                <div
+                  v-if="pendingUnassign?.subjectClassId === subjectClass.subjectClassId"
+                  class="mt-3 rounded-lg border border-[#fecaca] bg-[#fef2f2] p-3"
+                >
+                  <p class="text-xs leading-5 text-[#991b1b]">
+                    Penugasan ini akan dilepas. Guru tidak lagi melihat ruang
+                    mata pelajaran ini. Materi, tugas, pengumpulan, dan nilai
+                    tidak akan dihapus.
+                  </p>
+                  <div class="mt-3 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      class="rounded-lg bg-[#dc2626] px-3 py-2 text-xs font-medium text-white transition hover:bg-[#b91c1c] disabled:opacity-60"
+                      :disabled="unassigningId === subjectClass.subjectClassId"
+                      @click="confirmUnassign(subjectClass)"
+                    >
+                      {{ unassigningId === subjectClass.subjectClassId ? "Melepaskan..." : "Ya, lepaskan" }}
+                    </button>
+                    <button
+                      type="button"
+                      class="rounded-lg border border-[#fecaca] bg-white px-3 py-2 text-xs font-medium text-[#991b1b] transition hover:bg-[#fee2e2]"
+                      :disabled="unassigningId === subjectClass.subjectClassId"
+                      @click="cancelUnassign"
+                    >
+                      Batal
+                    </button>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <aside class="order-1 min-w-0 lg:order-2">
+          <div class="space-y-5 lg:sticky lg:top-6">
+            <section class="rounded-xl border border-[#ebe7df] bg-white p-5">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <p class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#9ca3af]">
+                    Konteks kelas
+                  </p>
+                  <h2 class="mt-1 text-base font-semibold text-[#171322]">
+                    Pilih periode dan kelas
+                  </h2>
+                </div>
+                <PhCalendarBlank :size="21" class="text-[#ea580c]" weight="duotone" />
               </div>
 
-              <div
-                v-if="
-                  pendingUnassign?.subjectClassId ===
-                  subjectClass.subjectClassId
-                "
-                class="mt-3 rounded-2xl border border-[#FECACA] bg-[#FEF2F2] p-3"
-              >
-                <p class="text-xs leading-5 text-[#991B1B]">
-                  Penugasan mengajar ini akan dilepas. Teacher tidak lagi
-                  melihat workspace subject ini. Materi, tugas, submission, dan
-                  nilai tidak akan dihapus.
+              <div class="mt-5 space-y-3">
+                <label class="block text-xs font-medium text-[#6b7280]">
+                  Tahun ajaran
+                  <select
+                    v-model="selectedAcademicYearId"
+                    class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition focus:border-[#4f46e5] focus:bg-white"
+                    :disabled="yearsLoading || academicYears.length === 0"
+                    @change="handleAcademicYearChange"
+                  >
+                    <option value="" disabled>Pilih tahun ajaran</option>
+                    <option v-for="year in academicYears" :key="year.academicYearId" :value="year.academicYearId">
+                      {{ year.academicYearName }}{{ year.isActive ? " - Aktif" : "" }}
+                    </option>
+                  </select>
+                </label>
+                <label class="block text-xs font-medium text-[#6b7280]">
+                  Semester
+                  <select
+                    v-model="selectedTermId"
+                    class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition focus:border-[#4f46e5] focus:bg-white"
+                    :disabled="termsLoading || terms.length === 0"
+                    @change="handleTermChange"
+                  >
+                    <option value="" disabled>Pilih semester</option>
+                    <option v-for="term in terms" :key="term.termId" :value="term.termId">
+                      {{ term.termName }}{{ term.isActive ? " - Aktif" : "" }}
+                    </option>
+                  </select>
+                </label>
+                <label class="block text-xs font-medium text-[#6b7280]">
+                  Kelas
+                  <select
+                    v-model="selectedClassId"
+                    class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition focus:border-[#4f46e5] focus:bg-white"
+                    :disabled="classesLoading || classes.length === 0"
+                    @change="handleClassChange"
+                  >
+                    <option value="" disabled>Pilih kelas</option>
+                    <option v-for="classItem in classes" :key="classItem.classId" :value="classItem.classId">
+                      {{ classItem.classTitle }} - {{ classItem.classCode }}
+                    </option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="mt-4 space-y-2 text-xs leading-5">
+                <p v-if="yearsLoading || termsLoading || classesLoading" class="text-[#6b7280]">
+                  Memuat konteks kelas...
                 </p>
-                <div class="mt-3 flex flex-wrap gap-2">
+                <div
+                  v-else-if="yearsError || termsError || classesError"
+                  class="rounded-lg bg-[#fef2f2] px-3 py-2 text-[#dc2626]"
+                >
+                  <p>{{ yearsError || termsError || classesError }}</p>
                   <button
                     type="button"
-                    class="rounded-xl bg-[#DC2626] px-3 py-2 text-xs font-medium text-white transition hover:bg-[#B91C1C] disabled:cursor-not-allowed disabled:opacity-60"
-                    :disabled="unassigningId === subjectClass.subjectClassId"
-                    @click="confirmUnassign(subjectClass)"
+                    class="mt-2 font-medium underline underline-offset-2"
+                    @click="
+                      yearsError
+                        ? loadAcademicYears()
+                        : termsError
+                          ? loadTerms(true)
+                          : loadClasses(true)
+                    "
                   >
-                    {{
-                      unassigningId === subjectClass.subjectClassId
-                        ? "Melepaskan..."
-                        : "Ya, lepaskan"
-                    }}
-                  </button>
-                  <button
-                    type="button"
-                    class="rounded-xl border border-[#FECACA] bg-white px-3 py-2 text-xs font-medium text-[#991B1B] transition hover:bg-[#FEE2E2]"
-                    :disabled="unassigningId === subjectClass.subjectClassId"
-                    @click="cancelUnassign"
-                  >
-                    Batal
+                    Coba lagi
                   </button>
                 </div>
+                <p v-else-if="academicYears.length === 0" class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-[#6b7280]">
+                  Belum ada tahun ajaran.
+                </p>
+                <p v-else-if="selectedAcademicYearId && terms.length === 0" class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-[#6b7280]">
+                  Belum ada semester untuk tahun ajaran ini.
+                </p>
+                <p v-else-if="selectedTermId && classes.length === 0" class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-[#6b7280]">
+                  Belum ada kelas untuk semester ini.
+                </p>
               </div>
-            </article>
+            </section>
+
+            <section class="rounded-xl border border-[#ebe7df] bg-white p-5">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <p class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#9ca3af]">
+                    Tambah penugasan
+                  </p>
+                  <h2 class="mt-1 text-base font-semibold text-[#171322]">
+                    Hubungkan guru dan mata pelajaran
+                  </h2>
+                  <p class="mt-1 text-xs leading-5 text-[#6b7280]">
+                    Guru harus sudah ditempatkan aktif pada kelas terpilih.
+                  </p>
+                </div>
+                <span class="shrink-0 rounded-lg bg-[#eef2ff] px-2.5 py-1.5 text-xs font-medium text-[#4f46e5]">
+                  {{ teacherCandidates.length }} guru
+                </span>
+              </div>
+
+              <form class="mt-5 space-y-3" @submit.prevent="submitSubjectClass">
+                <label class="block text-xs font-medium text-[#6b7280]">
+                  Mata pelajaran
+                  <select
+                    v-model="selectedSubjectId"
+                    class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition focus:border-[#4f46e5] focus:bg-white"
+                    :disabled="subjectsLoading || availableSubjects.length === 0"
+                  >
+                    <option value="" disabled>Pilih mata pelajaran</option>
+                    <option v-for="subject in availableSubjects" :key="subject.subjectId" :value="subject.subjectId">
+                      {{ subject.subjectName }} - {{ subject.subjectCode }}
+                    </option>
+                  </select>
+                </label>
+
+                <label class="block text-xs font-medium text-[#6b7280]">
+                  Guru pengampu
+                  <select
+                    v-model="selectedTeacherSchoolUserId"
+                    class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition focus:border-[#4f46e5] focus:bg-white"
+                    :disabled="enrollmentsLoading || membersLoading || teacherCandidates.length === 0"
+                  >
+                    <option value="" disabled>Pilih guru</option>
+                    <option v-for="teacher in teacherCandidates" :key="teacher.schoolUserId" :value="teacher.schoolUserId">
+                      {{ teacher.fullName || "Nama guru tidak tersedia" }} - {{ teacher.email || "Email tidak tersedia" }}
+                    </option>
+                  </select>
+                </label>
+
+                <div v-if="selectedSubject || selectedTeacher" class="rounded-lg bg-[#fbfaf8] p-3">
+                  <p class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#9ca3af]">
+                    Ringkasan
+                  </p>
+                  <dl class="mt-2 space-y-2 text-xs">
+                    <div class="flex items-start justify-between gap-3">
+                      <dt class="text-[#6b7280]">Mata pelajaran</dt>
+                      <dd class="max-w-[65%] text-right font-medium text-[#171322]">
+                        {{ selectedSubject?.subjectName || "Belum dipilih" }}
+                      </dd>
+                    </div>
+                    <div class="flex items-start justify-between gap-3">
+                      <dt class="text-[#6b7280]">Guru</dt>
+                      <dd class="max-w-[65%] text-right font-medium text-[#171322]">
+                        {{ selectedTeacher?.fullName || "Belum dipilih" }}
+                      </dd>
+                    </div>
+                  </dl>
+                </div>
+
+                <div class="space-y-2 text-xs leading-5">
+                  <p v-if="subjectsLoading" class="text-[#6b7280]">Memuat mata pelajaran...</p>
+                  <div
+                    v-else-if="subjectsError"
+                    class="rounded-lg bg-[#fef2f2] px-3 py-2 text-[#dc2626]"
+                  >
+                    <p>{{ subjectsError }}</p>
+                    <button
+                      type="button"
+                      class="mt-2 font-medium underline underline-offset-2"
+                      @click="loadSubjects"
+                    >
+                      Coba lagi
+                    </button>
+                  </div>
+                  <p v-else-if="subjects.length === 0" class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-[#6b7280]">
+                    Belum ada mata pelajaran pada Struktur Akademik.
+                  </p>
+                  <p v-else-if="selectedClassId && availableSubjects.length === 0" class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-[#6b7280]">
+                    Semua mata pelajaran sudah ditugaskan untuk kelas ini.
+                  </p>
+                  <p v-if="membersLoading || enrollmentsLoading" class="text-[#6b7280]">
+                    Memuat guru yang tersedia...
+                  </p>
+                  <div
+                    v-else-if="membersError || enrollmentsError"
+                    class="rounded-lg bg-[#fef2f2] px-3 py-2 text-[#dc2626]"
+                  >
+                    <p>{{ membersError || enrollmentsError }}</p>
+                    <button
+                      type="button"
+                      class="mt-2 font-medium underline underline-offset-2"
+                      @click="membersError ? loadMembers() : loadClassContext()"
+                    >
+                      Coba lagi
+                    </button>
+                  </div>
+                  <p v-else-if="selectedClassId && teacherCandidates.length === 0" class="rounded-lg bg-[#fff7ed] px-3 py-2 text-[#92400e]">
+                    Belum ada guru aktif yang dapat ditugaskan pada kelas ini.
+                  </p>
+                </div>
+
+                <button
+                  type="submit"
+                  class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#ea580c] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#c2410c] disabled:cursor-not-allowed disabled:opacity-60"
+                  :disabled="submitting || !selectedClassId || !selectedSubjectId || !selectedTeacherSchoolUserId || teacherCandidates.length === 0"
+                >
+                  <PhLinkSimple :size="17" weight="duotone" />
+                  {{ submitting ? "Menyimpan..." : "Buat penugasan" }}
+                </button>
+              </form>
+            </section>
           </div>
-        </div>
-      </section>
+        </aside>
+      </div>
     </section>
   </main>
 </template>
