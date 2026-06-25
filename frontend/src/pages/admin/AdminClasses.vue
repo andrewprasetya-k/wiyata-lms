@@ -9,7 +9,10 @@ import {
 } from "@phosphor-icons/vue";
 import { useAuthStore } from "../../stores/auth";
 import { useToastStore } from "../../stores/toast";
-import { getAcademicYearsBySchool, getTermsByAcademicYear } from "../../services/adminAcademic";
+import {
+  getAcademicYearsBySchool,
+  getTermsByAcademicYear,
+} from "../../services/adminAcademic";
 import { createAdminClass, getAdminClasses } from "../../services/adminClass";
 import type { AcademicYearItem, TermItem } from "../../types/adminAcademic";
 import type { AdminClassItem } from "../../types/adminClass";
@@ -56,12 +59,14 @@ const classForm = ref({
 
 const selectedAcademicYear = computed(
   () =>
-    academicYears.value.find((year) => year.academicYearId === selectedAcademicYearId.value) ??
-    null,
+    academicYears.value.find(
+      (year) => year.academicYearId === selectedAcademicYearId.value,
+    ) ?? null,
 );
 
 const selectedTerm = computed(
-  () => terms.value.find((term) => term.termId === selectedTermId.value) ?? null,
+  () =>
+    terms.value.find((term) => term.termId === selectedTermId.value) ?? null,
 );
 
 async function loadAcademicYears() {
@@ -73,7 +78,9 @@ async function loadAcademicYears() {
     const data = await getAcademicYearsBySchool(currentSchool.value.schoolCode);
     academicYears.value = data.data ?? [];
     const defaultYear =
-      academicYears.value.find((year) => year.isActive) ?? academicYears.value[0] ?? null;
+      academicYears.value.find((year) => year.isActive) ??
+      academicYears.value[0] ??
+      null;
     selectedAcademicYearId.value = defaultYear?.academicYearId ?? "";
   } catch {
     yearsError.value = "Tahun ajaran belum bisa dimuat.";
@@ -94,9 +101,12 @@ async function loadTerms(selectDefault = false) {
     const data = await getTermsByAcademicYear(selectedAcademicYearId.value);
     terms.value = data ?? [];
 
-    const selectedStillValid = terms.value.some((term) => term.termId === selectedTermId.value);
+    const selectedStillValid = terms.value.some(
+      (term) => term.termId === selectedTermId.value,
+    );
     if (selectDefault || !selectedStillValid) {
-      const defaultTerm = terms.value.find((term) => term.isActive) ?? terms.value[0] ?? null;
+      const defaultTerm =
+        terms.value.find((term) => term.isActive) ?? terms.value[0] ?? null;
       selectedTermId.value = defaultTerm?.termId ?? "";
     }
   } catch {
@@ -139,7 +149,7 @@ async function handleTermChange() {
 
 async function submitClass() {
   if (!currentSchool.value.schoolId || !currentSchool.value.schoolCode) {
-    toast.error("Context sekolah aktif belum tersedia.");
+    toast.error("Konteks sekolah aktif belum tersedia.");
     return;
   }
   if (!selectedTermId.value) {
@@ -179,247 +189,406 @@ onMounted(async () => {
 </script>
 
 <template>
-  <main class="min-h-screen flex-1 px-5 py-5 sm:px-6 lg:px-8">
-    <section class="flex w-full max-w-none flex-col gap-5">
-      <header class="soft-card rounded-[22px] p-5">
-        <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-          <div>
-            <p class="text-[11px] font-medium uppercase text-[#9CA3AF]">Admin sekolah</p>
-            <h1 class="mt-2 text-2xl font-medium text-[#111827]">Kelas</h1>
-            <p class="mt-2 max-w-3xl text-sm leading-6 text-[#6B7280]">
-              Buat dan lihat kelas berdasarkan tahun ajaran serta semester yang dipilih sebelum penempatan kelas dan penugasan mengajar.
-            </p>
-          </div>
-          <div class="flex flex-wrap gap-2 text-xs">
-            <span class="rounded-lg bg-[#EEF2FF] px-3 py-1.5 font-medium text-[#4F46E5]">
-              {{ currentSchool.schoolName || "Sekolah belum tersedia" }}
-            </span>
-            <span class="rounded-lg bg-[#F9FAFB] px-3 py-1.5 font-medium text-[#6B7280]">
-              {{ currentSchool.schoolCode || "Kode sekolah belum tersedia" }}
-            </span>
-          </div>
+  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
+    <header class="border-b border-[#ebe7df] bg-white">
+      <div
+        class="flex min-w-0 flex-col gap-3 px-5 py-5 sm:px-6 lg:flex-row lg:items-end lg:justify-between lg:px-8"
+      >
+        <div class="min-w-0">
+          <p
+            class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#ea580c]"
+          >
+            Admin sekolah
+          </p>
+          <h1 class="mt-1 text-2xl font-semibold text-[#171322] sm:text-3xl">
+            Kelas
+          </h1>
+          <p class="mt-2 max-w-3xl text-sm leading-6 text-[#6b7280]">
+            Buat dan kelola kelas berdasarkan tahun ajaran serta semester
+            sebelum melakukan penempatan kelas dan penugasan mengajar.
+          </p>
         </div>
+        <div class="flex min-w-0 flex-wrap gap-2 text-xs">
+          <span
+            class="max-w-full truncate rounded-lg bg-[#fff4ee] px-3 py-2 font-medium text-[#ea580c]"
+          >
+            {{ currentSchool.schoolName || "Sekolah belum tersedia" }}
+          </span>
+          <span
+            class="rounded-lg bg-[#f3f4f6] px-3 py-2 font-medium text-[#6b7280]"
+          >
+            {{ currentSchool.schoolCode || "Kode belum tersedia" }}
+          </span>
+        </div>
+      </div>
+    </header>
 
-        <div
-          v-if="!currentSchool.hasContext"
-          class="mt-4 rounded-[10px] border border-[#FECACA] bg-[#FEF2F2] px-4 py-3 text-sm text-[#DC2626]"
+    <section class="px-5 py-5 sm:px-6 lg:px-8">
+      <div
+        v-if="!currentSchool.hasContext"
+        class="mb-5 flex items-start gap-3 rounded-xl border border-[#fecaca] bg-[#fef2f2] p-4 text-sm leading-6 text-[#dc2626]"
+      >
+        <PhWarningCircle :size="20" class="mt-0.5 shrink-0" weight="duotone" />
+        <p>
+          Konteks sekolah aktif belum tersedia. Pastikan akun admin terhubung
+          dengan sekolah.
+        </p>
+      </div>
+
+      <div class="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
+        <section
+          class="order-2 min-w-0 rounded-xl border border-[#ebe7df] bg-white lg:order-1"
         >
-          Context sekolah aktif belum tersedia. Pastikan akun admin memiliki membership sekolah.
-        </div>
-
-      </header>
-
-      <section class="grid gap-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-        <article class="bg-white border border-[#EBEBEB] rounded-[18px] p-5">
-          <div class="flex items-start justify-between gap-4">
+          <div
+            class="flex flex-col gap-3 border-b border-[#ebe7df] px-4 py-4 sm:flex-row sm:items-start sm:justify-between sm:px-5"
+          >
             <div>
-              <p class="text-[11px] font-medium uppercase text-[#9CA3AF]">Periode akademik</p>
-              <h2 class="mt-2 text-base font-medium text-[#111827]">Pilih tahun ajaran dan semester</h2>
+              <p
+                class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#9ca3af]"
+              >
+                Daftar kelas
+              </p>
+              <h2 class="mt-1 text-base font-semibold text-[#171322]">
+                Kelas pada semester terpilih
+              </h2>
+              <p class="mt-1 text-sm text-[#6b7280]">
+                {{
+                  selectedTerm
+                    ? `${selectedTerm.termName} · ${selectedAcademicYear?.academicYearName || "Tahun ajaran"}`
+                    : "Pilih periode akademik untuk menampilkan kelas."
+                }}
+              </p>
             </div>
-            <PhCalendarBlank :size="22" class="text-[#4F46E5]" weight="duotone" />
+            <span
+              class="inline-flex shrink-0 items-center gap-2 self-start rounded-lg bg-[#eef2ff] px-3 py-2 text-xs font-medium text-[#4f46e5]"
+            >
+              <PhBookOpen :size="16" weight="duotone" />
+              {{ classes.length }} kelas
+            </span>
           </div>
 
-          <div class="mt-5 space-y-4">
-            <label class="block text-sm font-medium text-[#374151]">
-              Tahun ajaran
-              <select
-                v-model="selectedAcademicYearId"
-                class="mt-2 w-full rounded-2xl border border-[#EBEBEB] bg-white px-4 py-3 text-sm text-[#111827] outline-none transition focus:border-[#4F46E5]"
-                :disabled="yearsLoading || academicYears.length === 0"
-                @change="handleAcademicYearChange"
+          <div class="p-4 sm:p-5">
+            <div v-if="classesLoading" class="space-y-3">
+              <div
+                v-for="item in 3"
+                :key="item"
+                class="h-28 animate-pulse rounded-lg bg-[#fbfaf8]"
+              />
+            </div>
+
+            <div
+              v-else-if="classesError"
+              class="rounded-lg border border-[#fecaca] bg-[#fef2f2] p-5 text-center"
+            >
+              <PhWarningCircle
+                :size="26"
+                class="mx-auto text-[#dc2626]"
+                weight="duotone"
+              />
+              <h3 class="mt-3 text-sm font-semibold text-[#171322]">
+                Daftar kelas belum bisa dimuat
+              </h3>
+              <p class="mt-2 text-sm leading-6 text-[#6b7280]">
+                {{ classesError }}
+              </p>
+              <button
+                type="button"
+                class="mt-4 rounded-lg bg-[#171322] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#374151]"
+                @click="loadClasses"
               >
-                <option value="" disabled>Pilih tahun ajaran</option>
-                <option
-                  v-for="year in academicYears"
-                  :key="year.academicYearId"
-                  :value="year.academicYearId"
+                Coba lagi
+              </button>
+            </div>
+
+            <div
+              v-else-if="!selectedTermId"
+              class="rounded-lg bg-[#fbfaf8] px-5 py-10 text-center"
+            >
+              <PhCalendarBlank
+                :size="28"
+                class="mx-auto text-[#9ca3af]"
+                weight="duotone"
+              />
+              <h3 class="mt-3 text-sm font-semibold text-[#171322]">
+                Semester belum dipilih
+              </h3>
+              <p class="mt-2 text-sm leading-6 text-[#6b7280]">
+                Pilih tahun ajaran dan semester untuk melihat daftar kelas.
+              </p>
+            </div>
+
+            <div
+              v-else-if="classes.length === 0"
+              class="rounded-lg bg-[#fbfaf8] px-5 py-10 text-center"
+            >
+              <PhBookOpen
+                :size="28"
+                class="mx-auto text-[#9ca3af]"
+                weight="duotone"
+              />
+              <h3 class="mt-3 text-sm font-semibold text-[#171322]">
+                Belum ada kelas
+              </h3>
+              <p class="mt-2 text-sm leading-6 text-[#6b7280]">
+                Tambahkan kelas baru untuk semester yang sedang dipilih.
+              </p>
+            </div>
+
+            <div v-else class="divide-y divide-[#ebe7df]">
+              <article
+                v-for="classItem in classes"
+                :key="classItem.classId"
+                class="min-w-0 py-4 first:pt-0 last:pb-0"
+              >
+                <div
+                  class="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
                 >
-                  {{ year.academicYearName }}{{ year.isActive ? " - Aktif" : "" }}
-                </option>
-              </select>
-            </label>
+                  <div class="min-w-0">
+                    <div class="flex min-w-0 flex-wrap items-center gap-2">
+                      <h3
+                        class="min-w-0 wrap-break-word text-sm font-semibold text-[#171322]"
+                      >
+                        {{ classItem.classTitle }}
+                      </h3>
+                      <span
+                        class="rounded-lg bg-[#f3f4f6] px-2 py-1 text-[11px] font-medium text-[#6b7280]"
+                      >
+                        {{ classItem.classCode }}
+                      </span>
+                    </div>
+                    <p
+                      class="mt-1 wrap-break-word text-sm leading-6 text-[#6b7280]"
+                    >
+                      {{
+                        classItem.classDesc || "Deskripsi belum ditambahkan."
+                      }}
+                    </p>
+                  </div>
+                  <span
+                    class="shrink-0 self-start rounded-lg px-2.5 py-1 text-[11px] font-medium"
+                    :class="
+                      classItem.isActive
+                        ? 'bg-[#ecfdf5] text-[#059669]'
+                        : 'bg-[#f3f4f6] text-[#6b7280]'
+                    "
+                  >
+                    {{ classItem.isActive ? "Aktif" : "Nonaktif" }}
+                  </span>
+                </div>
 
-            <label class="block text-sm font-medium text-[#374151]">
-              Semester
-              <select
-                v-model="selectedTermId"
-                class="mt-2 w-full rounded-2xl border border-[#EBEBEB] bg-white px-4 py-3 text-sm text-[#111827] outline-none transition focus:border-[#4F46E5]"
-                :disabled="termsLoading || terms.length === 0"
-                @change="handleTermChange"
-              >
-                <option value="" disabled>Pilih semester</option>
-                <option v-for="term in terms" :key="term.termId" :value="term.termId">
-                  {{ term.termName }}{{ term.isActive ? " - Aktif" : "" }}
-                </option>
-              </select>
-            </label>
-          </div>
-
-          <div class="mt-5 space-y-2 text-sm">
-            <p v-if="yearsLoading" class="text-[#6B7280]">Memuat tahun ajaran...</p>
-            <p v-else-if="yearsError" class="text-[#DC2626]">{{ yearsError }}</p>
-            <p v-else-if="academicYears.length === 0" class="text-[#6B7280]">
-              Belum ada tahun ajaran. Buat tahun ajaran di Struktur Akademik terlebih dahulu.
-            </p>
-
-            <p v-if="termsLoading" class="text-[#6B7280]">Memuat semester...</p>
-            <p v-else-if="termsError" class="text-[#DC2626]">{{ termsError }}</p>
-            <p v-else-if="selectedAcademicYearId && terms.length === 0" class="text-[#6B7280]">
-              Belum ada semester untuk tahun ajaran ini.
-            </p>
-          </div>
-
-          <div class="mt-5 rounded-[18px] bg-[#FBFAF8] p-4">
-            <p class="text-[11px] font-medium uppercase text-[#9CA3AF]">Context aktif</p>
-            <div class="mt-3 space-y-2 text-sm text-[#374151]">
-              <p>
-                Tahun ajaran:
-                <span class="font-medium text-[#111827]">
-                  {{ selectedAcademicYear?.academicYearName || "Belum dipilih" }}
-                </span>
-              </p>
-              <p>
-                Semester:
-                <span class="font-medium text-[#111827]">
-                  {{ selectedTerm?.termName || "Belum dipilih" }}
-                </span>
-              </p>
+                <dl
+                  class="mt-3 grid min-w-0 gap-x-5 gap-y-2 rounded-lg bg-[#fbfaf8] p-3 text-xs sm:grid-cols-2"
+                >
+                  <div class="min-w-0">
+                    <dt class="text-[#9ca3af]">Semester</dt>
+                    <dd
+                      class="mt-0.5 wrap-break-word font-medium text-[#374151]"
+                    >
+                      {{ classItem.termName || selectedTerm?.termName || "-" }}
+                    </dd>
+                  </div>
+                  <div class="min-w-0">
+                    <dt class="text-[#9ca3af]">Tahun ajaran</dt>
+                    <dd
+                      class="mt-0.5 wrap-break-word font-medium text-[#374151]"
+                    >
+                      {{
+                        classItem.academicYearName ||
+                        selectedAcademicYear?.academicYearName ||
+                        "-"
+                      }}
+                    </dd>
+                  </div>
+                  <div class="min-w-0">
+                    <dt class="text-[#9ca3af]">Dibuat</dt>
+                    <dd
+                      class="mt-0.5 wrap-break-word font-medium text-[#374151]"
+                    >
+                      {{ formatDateTime(classItem.createdAt) }}
+                    </dd>
+                  </div>
+                  <div class="min-w-0">
+                    <dt class="text-[#9ca3af]">Dibuat oleh</dt>
+                    <dd
+                      class="mt-0.5 wrap-break-word font-medium text-[#374151]"
+                    >
+                      {{ classItem.creatorName || "Tidak tersedia" }}
+                    </dd>
+                  </div>
+                </dl>
+              </article>
             </div>
           </div>
-        </article>
+        </section>
 
-        <article class="bg-white border border-[#EBEBEB] rounded-[18px] p-5">
-          <div class="flex items-start justify-between gap-4">
-            <div>
-              <p class="text-[11px] font-medium uppercase text-[#9CA3AF]">Create class</p>
-              <h2 class="mt-2 text-base font-medium text-[#111827]">Tambah kelas</h2>
-            </div>
-            <PhPlusCircle :size="22" class="text-[#059669]" weight="duotone" />
-          </div>
-
-          <form class="mt-5 grid gap-3 sm:grid-cols-2" @submit.prevent="submitClass">
-            <input
-              v-model="classForm.classCode"
-              type="text"
-              placeholder="Kode kelas, contoh: X-IPA-1"
-              class="rounded-2xl border border-[#EBEBEB] bg-white px-4 py-3 text-sm text-[#111827] outline-none transition placeholder:text-[#9CA3AF] focus:border-[#4F46E5]"
-            >
-            <input
-              v-model="classForm.classTitle"
-              type="text"
-              placeholder="Nama kelas"
-              class="rounded-2xl border border-[#EBEBEB] bg-white px-4 py-3 text-sm text-[#111827] outline-none transition placeholder:text-[#9CA3AF] focus:border-[#4F46E5]"
-            >
-            <textarea
-              v-model="classForm.classDesc"
-              rows="3"
-              placeholder="Deskripsi singkat, opsional"
-              class="sm:col-span-2 rounded-2xl border border-[#EBEBEB] bg-white px-4 py-3 text-sm text-[#111827] outline-none transition placeholder:text-[#9CA3AF] focus:border-[#4F46E5]"
-            />
-            <button
-              type="submit"
-              class="sm:col-span-2 inline-flex items-center justify-center gap-2 rounded-2xl bg-[#111827] px-4 py-3 text-sm font-medium text-white transition hover:bg-[#374151] disabled:cursor-not-allowed disabled:opacity-60"
-              :disabled="isCreating || !currentSchool.hasContext || !selectedTermId"
-            >
-              <PhChalkboardTeacher :size="18" weight="duotone" />
-              Buat kelas
-            </button>
-          </form>
-        </article>
-      </section>
-
-      <section class="bg-white border border-[#EBEBEB] rounded-[18px] p-5">
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <p class="text-[11px] font-medium uppercase text-[#9CA3AF]">Kelas</p>
-            <h2 class="mt-2 text-base font-medium text-[#111827]">Daftar kelas</h2>
-            <p class="mt-1 text-sm text-[#6B7280]">
-              Ditampilkan berdasarkan sekolah dan semester yang sedang dipilih.
-            </p>
-          </div>
-          <div class="inline-flex items-center gap-2 rounded-lg bg-[#EEF2FF] px-3 py-2 text-xs font-medium text-[#4F46E5]">
-            <PhBookOpen :size="16" weight="duotone" />
-            {{ classes.length }} kelas
-          </div>
-        </div>
-
-        <div class="mt-5">
-          <div v-if="classesLoading" class="rounded-[18px] bg-[#FBFAF8] p-5 text-sm text-[#6B7280]">
-            Memuat daftar kelas...
-          </div>
-
-          <div
-            v-else-if="classesError"
-            class="flex items-start gap-3 rounded-[18px] border border-[#FECACA] bg-[#FEF2F2] p-5 text-sm text-[#DC2626]"
-          >
-            <PhWarningCircle :size="20" weight="duotone" />
-            <p>{{ classesError }}</p>
-          </div>
-
-          <div
-            v-else-if="!selectedTermId"
-            class="rounded-[18px] bg-[#FBFAF8] p-5 text-sm text-[#6B7280]"
-          >
-            Pilih semester untuk melihat daftar kelas.
-          </div>
-
-          <div
-            v-else-if="classes.length === 0"
-            class="rounded-[18px] bg-[#FBFAF8] p-5 text-sm text-[#6B7280]"
-          >
-            Belum ada kelas untuk semester ini.
-          </div>
-
-          <div v-else class="grid gap-3 md:grid-cols-2">
-            <article
-              v-for="classItem in classes"
-              :key="classItem.classId"
-              class="rounded-[18px] border border-[#EBEBEB] bg-[#FBFAF8] p-4"
-            >
+        <aside class="order-1 min-w-0 lg:order-2">
+          <div class="space-y-4 lg:sticky lg:top-6">
+            <section class="rounded-xl border border-[#ebe7df] bg-white p-5">
               <div class="flex items-start justify-between gap-3">
                 <div>
-                  <div class="flex flex-wrap items-center gap-2">
-                    <h3 class="text-sm font-medium text-[#111827]">{{ classItem.classTitle }}</h3>
-                    <span class="rounded-lg bg-white px-2 py-1 text-[11px] font-medium text-[#6B7280]">
-                      {{ classItem.classCode }}
-                    </span>
-                  </div>
-                  <p class="mt-1 text-sm leading-6 text-[#6B7280]">
-                    {{ classItem.classDesc || "Deskripsi belum ditambahkan" }}
+                  <p
+                    class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#9ca3af]"
+                  >
+                    Periode akademik
                   </p>
+                  <h2 class="mt-1 text-base font-semibold text-[#171322]">
+                    Pilih periode
+                  </h2>
                 </div>
-                <span
-                  class="shrink-0 rounded-lg px-2 py-1 text-[11px] font-medium"
-                  :class="classItem.isActive ? 'bg-[#ECFDF5] text-[#059669]' : 'bg-[#F9FAFB] text-[#6B7280]'"
-                >
-                  {{ classItem.isActive ? "Aktif" : "Nonaktif" }}
-                </span>
+                <PhCalendarBlank
+                  :size="21"
+                  class="text-[#4f46e5]"
+                  weight="duotone"
+                />
               </div>
 
-              <div class="mt-4 grid gap-2 text-xs text-[#6B7280] sm:grid-cols-2">
-                <p>
-                  Semester:
-                  <span class="font-medium text-[#374151]">{{ classItem.termName || selectedTerm?.termName }}</span>
+              <div class="mt-5 space-y-4">
+                <label class="block text-xs font-medium text-[#6b7280]">
+                  Tahun ajaran
+                  <select
+                    v-model="selectedAcademicYearId"
+                    class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition focus:border-[#4f46e5] focus:bg-white"
+                    :disabled="yearsLoading || academicYears.length === 0"
+                    @change="handleAcademicYearChange"
+                  >
+                    <option value="" disabled>Pilih tahun ajaran</option>
+                    <option
+                      v-for="year in academicYears"
+                      :key="year.academicYearId"
+                      :value="year.academicYearId"
+                    >
+                      {{ year.academicYearName
+                      }}{{ year.isActive ? " - Aktif" : "" }}
+                    </option>
+                  </select>
+                </label>
+
+                <label class="block text-xs font-medium text-[#6b7280]">
+                  Semester
+                  <select
+                    v-model="selectedTermId"
+                    class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition focus:border-[#4f46e5] focus:bg-white"
+                    :disabled="termsLoading || terms.length === 0"
+                    @change="handleTermChange"
+                  >
+                    <option value="" disabled>Pilih semester</option>
+                    <option
+                      v-for="term in terms"
+                      :key="term.termId"
+                      :value="term.termId"
+                    >
+                      {{ term.termName }}{{ term.isActive ? " - Aktif" : "" }}
+                    </option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="mt-4 space-y-2 text-xs leading-5">
+                <p v-if="yearsLoading" class="text-[#6b7280]">
+                  Memuat tahun ajaran...
                 </p>
-                <p>
-                  Tahun:
-                  <span class="font-medium text-[#374151]">
-                    {{ classItem.academicYearName || selectedAcademicYear?.academicYearName }}
-                  </span>
+                <p v-else-if="yearsError" class="text-[#dc2626]">
+                  {{ yearsError }}
                 </p>
-                <p>
-                  Dibuat:
-                  <span class="font-medium text-[#374151]">{{ formatDateTime(classItem.createdAt) }}</span>
+                <p
+                  v-else-if="academicYears.length === 0"
+                  class="text-[#6b7280]"
+                >
+                  Belum ada tahun ajaran. Buat melalui Struktur Akademik.
                 </p>
-                <p>
-                  Oleh:
-                  <span class="font-medium text-[#374151]">{{ classItem.creatorName || "Pembuat tidak tersedia" }}</span>
+                <p v-if="termsLoading" class="text-[#6b7280]">
+                  Memuat semester...
+                </p>
+                <p v-else-if="termsError" class="text-[#dc2626]">
+                  {{ termsError }}
+                </p>
+                <p
+                  v-else-if="selectedAcademicYearId && terms.length === 0"
+                  class="text-[#6b7280]"
+                >
+                  Belum ada semester untuk tahun ajaran ini.
                 </p>
               </div>
-            </article>
+
+              <div class="mt-4 rounded-lg bg-[#fbfaf8] p-3">
+                <p
+                  class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#9ca3af]"
+                >
+                  Konteks aktif
+                </p>
+                <p class="mt-2 text-xs leading-5 text-[#6b7280]">
+                  {{
+                    selectedAcademicYear?.academicYearName ||
+                    "Tahun belum dipilih"
+                  }}
+                  ·
+                  {{ selectedTerm?.termName || "Semester belum dipilih" }}
+                </p>
+              </div>
+            </section>
+
+            <section class="rounded-xl border border-[#ebe7df] bg-white p-5">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <p
+                    class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#9ca3af]"
+                  >
+                    Tambah kelas
+                  </p>
+                  <h2 class="mt-1 text-base font-semibold text-[#171322]">
+                    Kelas baru
+                  </h2>
+                </div>
+                <PhPlusCircle
+                  :size="21"
+                  class="text-[#059669]"
+                  weight="duotone"
+                />
+              </div>
+
+              <form class="mt-5 space-y-3" @submit.prevent="submitClass">
+                <label class="block text-xs font-medium text-[#6b7280]">
+                  Kode kelas
+                  <input
+                    v-model="classForm.classCode"
+                    type="text"
+                    placeholder="Contoh: X-IPA-1"
+                    class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#4f46e5] focus:bg-white"
+                  />
+                </label>
+                <label class="block text-xs font-medium text-[#6b7280]">
+                  Nama kelas
+                  <input
+                    v-model="classForm.classTitle"
+                    type="text"
+                    placeholder="Nama kelas"
+                    class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#4f46e5] focus:bg-white"
+                  />
+                </label>
+                <label class="block text-xs font-medium text-[#6b7280]">
+                  Deskripsi
+                  <textarea
+                    v-model="classForm.classDesc"
+                    rows="3"
+                    placeholder="Deskripsi singkat, opsional"
+                    class="mt-2 w-full resize-none rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm leading-6 text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#4f46e5] focus:bg-white"
+                  />
+                </label>
+                <button
+                  type="submit"
+                  class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#ea580c] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#c2410c] disabled:cursor-not-allowed disabled:opacity-60"
+                  :disabled="
+                    isCreating || !currentSchool.hasContext || !selectedTermId
+                  "
+                >
+                  <PhChalkboardTeacher :size="17" weight="duotone" />
+                  {{ isCreating ? "Membuat..." : "Buat kelas" }}
+                </button>
+              </form>
+            </section>
           </div>
-        </div>
-      </section>
+        </aside>
+      </div>
     </section>
   </main>
 </template>
