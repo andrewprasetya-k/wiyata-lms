@@ -361,7 +361,7 @@ async function handleSubmit() {
             </h2>
           </div>
           <p class="mt-1 text-xs leading-5 text-[#7a7385]">
-            Buka atau pratinjau file pendukung yang disertakan pada tugas ini.
+            Buka file pendukung yang disertakan pada tugas ini.
           </p>
           <AttachmentPreviewList
             class="mt-4"

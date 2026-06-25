@@ -26,7 +26,7 @@ async function loadSubjects() {
     subjects.value = await getMyTeachingSubjectClasses();
   } catch {
     errorMessage.value =
-      "Subject yang diajar belum bisa dimuat. Coba lagi beberapa saat.";
+      "Mata pelajaran yang diajar belum bisa dimuat. Coba lagi beberapa saat.";
   } finally {
     loading.value = false;
   }
@@ -36,151 +36,195 @@ onMounted(loadSubjects);
 </script>
 
 <template>
-  <main class="min-h-screen flex-1 px-5 py-5 sm:px-6 lg:px-8">
-    <section class="flex w-full max-w-none flex-col gap-5">
-      <header
-        class="rounded-[22px] bg-[#f0e9dd] px-5 py-5 shadow-sm ring-1 ring-black/5 md:px-6"
-      >
-        <p class="text-sm font-medium text-[#8a6d3b]">Teaching workspace</p>
-        <h1 class="mt-3 text-3xl font-medium text-[#171322] md:text-4xl">
-          Subject yang diajar
+  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
+    <header class="border-b border-[#ebe7df] bg-white">
+      <div class="px-5 py-4 sm:px-6 lg:px-8">
+        <h1 class="text-xl font-medium text-[#171322] sm:text-2xl">
+          Mata Pelajaran yang Diajar
         </h1>
-        <p class="mt-3 max-w-2xl text-sm leading-6 text-[#6b6475]">
-          Pilih subject class untuk mengelola materi, tugas, dan melihat status
-          submission siswa. Data di halaman ini berasal dari subject class yang
-          terhubung dengan akun guru saat ini.
+        <p class="mt-1 max-w-2xl text-xs leading-5 text-[#6b7280] sm:text-sm">
+          Pilih mata pelajaran untuk mengelola materi, tugas, dan pengumpulan
+          siswa.
         </p>
-      </header>
+      </div>
+    </header>
 
+    <section
+      class="mx-auto max-w-screen min-w-0 px-5 py-5 sm:px-6 lg:px-8 lg:py-6"
+    >
       <section
         v-if="loading"
-        class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5"
+        class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3"
       >
-        <p class="text-sm text-[#6b6475]">Memuat subject yang diajar...</p>
+        <div
+          v-for="item in 6"
+          :key="item"
+          class="h-56 animate-pulse rounded-xl border border-[#ebe7df] bg-white"
+        />
       </section>
 
       <section
         v-else-if="errorMessage"
-        class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5"
+        class="flex min-h-[55vh] items-center justify-center"
       >
-        <div
-          class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+        <article
+          class="w-full max-w-xl rounded-xl border border-[#f1d6d3] bg-white p-6"
         >
           <div class="flex items-start gap-3">
-            <PhWarningCircle
-              :size="24"
-              class="mt-0.5 text-[#e58f86]"
-              weight="duotone"
-            />
-            <div>
-              <h2 class="text-lg font-medium text-[#171322]">
-                Gagal memuat subject
+            <div
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fff1f0] text-[#dc2626]"
+            >
+              <PhWarningCircle :size="22" weight="duotone" />
+            </div>
+            <div class="min-w-0">
+              <h2 class="text-base font-medium text-[#171322]">
+                Mata pelajaran tidak dapat dimuat
               </h2>
-              <p class="mt-2 text-sm leading-6 text-[#6b6475]">
+              <p class="mt-1 text-sm leading-6 text-[#7a7385]">
                 {{ errorMessage }}
               </p>
+              <button
+                class="mt-4 rounded-lg bg-[#4f46e5] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+                type="button"
+                @click="loadSubjects"
+              >
+                Coba lagi
+              </button>
             </div>
           </div>
-          <button
-            class="rounded-2xl bg-[#171322] px-4 py-3 text-sm font-medium text-white"
-            type="button"
-            @click="loadSubjects"
-          >
-            Coba lagi
-          </button>
-        </div>
+        </article>
       </section>
 
       <section
         v-else-if="!hasSubjects"
-        class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5"
+        class="flex min-h-[55vh] items-center justify-center"
       >
-        <h2 class="text-lg font-medium text-[#171322]">
-          Belum ada subject yang diajar
-        </h2>
-        <p class="mt-2 max-w-2xl text-sm leading-6 text-[#6b6475]">
-          Akun guru ini belum terhubung ke subject class pada school aktif.
-          Admin sekolah perlu menambahkan subject class dan mengassign guru
-          terlebih dahulu.
-        </p>
+        <article
+          class="w-full max-w-xl rounded-xl border border-[#ebe7df] bg-white p-8 text-center"
+        >
+          <div
+            class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
+          >
+            <PhBookOpen :size="25" weight="duotone" />
+          </div>
+          <h2 class="mt-3 text-lg font-medium text-[#171322]">
+            Belum ada mata pelajaran yang diajar
+          </h2>
+          <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#7a7385]">
+            Admin sekolah perlu menugaskan guru ke mata pelajaran dan kelas
+            aktif terlebih dahulu.
+          </p>
+        </article>
       </section>
 
-      <section v-else class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <section v-else>
+        <div class="mb-4 min-w-0">
+          <h2 class="text-sm font-medium text-[#171322]">
+            Daftar mata pelajaran
+          </h2>
+          <p class="mt-1 text-xs text-[#7a7385] sm:text-sm">
+            {{ subjects.length }} mata pelajaran tersedia.
+          </p>
+        </div>
+
+        <div class="grid min-w-0 gap-3 md:grid-cols-2 xl:grid-cols-3">
         <RouterLink
           v-for="subject in subjects"
           :key="subject.subjectClassId"
           :to="`/teacher/subjects/${subject.subjectClassId}`"
-          class="group rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:shadow-md"
+          class="group min-w-0 overflow-hidden rounded-xl border border-[#ebe7df] bg-white transition hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(66,55,40,0.08)]"
         >
-          <div class="flex items-start justify-between gap-4">
-            <div
-              class="flex h-13 w-13 items-center justify-center rounded-2xl text-white"
-              :style="{
-                backgroundColor: getSubjectColor(subject.subjectClassId),
-              }"
-            >
-              <PhBookOpen :size="26" weight="duotone" />
+          <div
+            class="h-1.5 w-full"
+            :style="{
+              backgroundColor: getSubjectColor(
+                subject.subjectClassId ||
+                  subject.subjectName ||
+                  subject.subjectCode,
+              ),
+            }"
+          />
+          <div class="p-4 sm:p-5">
+            <div class="flex min-w-0 items-start gap-3">
+              <div
+                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-white"
+                :style="{
+                  backgroundColor: getSubjectColor(
+                    subject.subjectClassId ||
+                      subject.subjectName ||
+                      subject.subjectCode,
+                  ),
+                }"
+              >
+                <PhBookOpen :size="20" weight="duotone" />
+              </div>
+              <div class="min-w-0 flex-1">
+                <p class="truncate text-xs text-[#7a7385]">
+                  {{ subject.className || subject.classCode || "Kelas" }}
+                </p>
+                <h2
+                  class="mt-1 line-clamp-2 wrap-break-word text-base font-medium text-[#171322]"
+                >
+                  {{ subject.subjectName || "Mata pelajaran" }}
+                </h2>
+                <p
+                  v-if="subject.subjectCode || subject.classCode"
+                  class="mt-1 truncate text-xs text-[#8a8494]"
+                >
+                  {{
+                    [subject.subjectCode, subject.classCode]
+                      .filter(Boolean)
+                      .join(" · ")
+                  }}
+                </p>
+              </div>
+              <PhArrowRight
+                :size="17"
+                class="mt-1 shrink-0 text-[#a09aa8] transition group-hover:translate-x-0.5 group-hover:text-[#4f46e5]"
+              />
             </div>
-            <PhArrowRight
-              :size="20"
-              class="text-[#b5afbf] transition group-hover:translate-x-1 group-hover:text-[#4f46e5]"
-            />
-          </div>
 
-          <p class="mt-5 text-sm text-[#8a8494]">{{ subject.className }}</p>
-          <h2 class="mt-1 text-2xl font-medium text-[#171322]">
-            {{ subject.subjectName }}
-          </h2>
-          <p
-            v-if="subject.subjectCode || subject.classCode"
-            class="mt-2 text-sm text-[#6b6475]"
-          >
-            {{
-              [subject.subjectCode, subject.classCode]
-                .filter(Boolean)
-                .join(" / ")
-            }}
-          </p>
-
-          <div class="mt-6 grid grid-cols-2 gap-3 text-sm">
-            <div class="rounded-2xl bg-[#faf8f4] p-3">
-              <div class="flex items-center gap-2 text-[#8a8494]">
-                <PhUsersThree :size="16" weight="duotone" />
-                Siswa
+            <dl class="mt-4 grid grid-cols-2 gap-2 text-xs">
+              <div class="rounded-lg bg-[#fbfaf8] p-3">
+                <dt class="flex items-center gap-1.5 text-[#8a8494]">
+                  <PhUsersThree :size="15" weight="duotone" />
+                  Siswa
+                </dt>
+                <dd class="mt-1 text-base font-medium text-[#171322]">
+                  {{ subject.studentCount }}
+                </dd>
               </div>
-              <p class="mt-1 font-medium text-[#171322]">
-                {{ subject.studentCount }}
-              </p>
-            </div>
-            <div class="rounded-2xl bg-[#faf8f4] p-3">
-              <div class="flex items-center gap-2 text-[#8a8494]">
-                <PhFileText :size="16" weight="duotone" />
-                Materi
+              <div class="rounded-lg bg-[#fbfaf8] p-3">
+                <dt class="flex items-center gap-1.5 text-[#8a8494]">
+                  <PhFileText :size="15" weight="duotone" />
+                  Materi
+                </dt>
+                <dd class="mt-1 text-base font-medium text-[#171322]">
+                  {{ subject.materialCount }}
+                </dd>
               </div>
-              <p class="mt-1 font-medium text-[#171322]">
-                {{ subject.materialCount }}
-              </p>
-            </div>
-            <div class="rounded-2xl bg-[#faf8f4] p-3">
-              <div class="flex items-center gap-2 text-[#8a8494]">
-                <PhClipboardText :size="16" weight="duotone" />
-                Tugas
+              <div class="rounded-lg bg-[#fbfaf8] p-3">
+                <dt class="flex items-center gap-1.5 text-[#8a8494]">
+                  <PhClipboardText :size="15" weight="duotone" />
+                  Tugas
+                </dt>
+                <dd class="mt-1 text-base font-medium text-[#171322]">
+                  {{ subject.assignmentCount }}
+                </dd>
               </div>
-              <p class="mt-1 font-medium text-[#171322]">
-                {{ subject.assignmentCount }}
-              </p>
-            </div>
-            <div class="rounded-2xl bg-[#faf8f4] p-3">
-              <div class="flex items-center gap-2 text-[#8a8494]">
-                <PhWarningCircle :size="16" weight="duotone" />
-                Review
+              <div class="rounded-lg bg-[#fff7ed] p-3">
+                <dt class="flex items-center gap-1.5 text-[#b45309]">
+                  <PhWarningCircle :size="15" weight="duotone" />
+                  Perlu dinilai
+                </dt>
+                <dd class="mt-1 text-base font-medium text-[#b45309]">
+                  {{ subject.pendingSubmissions }}
+                </dd>
               </div>
-              <p class="mt-1 font-medium text-[#171322]">
-                {{ subject.pendingSubmissions }}
-              </p>
-            </div>
+            </dl>
           </div>
         </RouterLink>
+        </div>
       </section>
     </section>
   </main>

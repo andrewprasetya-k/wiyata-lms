@@ -55,7 +55,7 @@ const filterTabs = computed(() => [
   },
   {
     id: "pending" as const,
-    label: "Perlu review",
+    label: "Perlu dinilai",
     count: assignments.value.filter((item) => item.pendingCount > 0).length,
   },
 ]);
@@ -95,7 +95,9 @@ async function loadAssignments() {
   }
 }
 
-function mapAssignmentRow(item: TeacherAssignmentInboxItem): TeacherAssignmentRow {
+function mapAssignmentRow(
+  item: TeacherAssignmentInboxItem,
+): TeacherAssignmentRow {
   return {
     item,
     submissionCount: item.submissionCount,
@@ -132,8 +134,8 @@ function isPastDeadline(deadline?: string | null) {
 }
 
 function statusLabel(item: TeacherAssignmentRow) {
-  if (item.pendingCount > 0) return "Perlu review";
-  if (item.submissionCount > 0) return "Sudah direview";
+  if (item.pendingCount > 0) return "Perlu dinilai";
+  if (item.submissionCount > 0) return "Sudah dinilai";
   if (item.isOverdue) return "Lewat deadline";
   return "Aktif";
 }
@@ -149,110 +151,105 @@ onMounted(loadAssignments);
 </script>
 
 <template>
-  <main class="min-h-screen flex-1 px-5 py-5 sm:px-6 lg:px-8">
-    <section class="flex w-full max-w-none flex-col gap-5">
-      <header
-        class="rounded-[22px] bg-[#f0e9dd] px-5 py-5 shadow-sm ring-1 ring-black/5 md:px-6"
-      >
-        <p class="text-sm font-medium text-[#8a6d3b]">Manajemen tugas</p>
-        <h1 class="mt-3 text-3xl font-medium text-[#171322] md:text-4xl">
+  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
+    <header class="border-b border-[#ebe7df] bg-white">
+      <div class="px-5 py-4 sm:px-6 lg:px-8">
+        <h1 class="text-xl font-medium text-[#171322] sm:text-2xl">
           Tugas Saya
         </h1>
-        <p class="mt-3 max-w-2xl text-sm leading-6 text-[#6b6475]">
-          Kelola semua tugas dari subject yang Anda ajar. Review pengumpulan
-          tetap dilakukan dari halaman review tugas.
+        <p class="mt-1 max-w-2xl text-xs leading-5 text-[#6b7280] sm:text-sm">
+          Kelola tugas dari semua mata pelajaran. Penilaian tetap dilakukan
+          melalui halaman peninjauan pengumpulan.
         </p>
-      </header>
+      </div>
+    </header>
 
-      <section
-        v-if="loading"
-        class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5"
-      >
-        <p class="text-sm text-[#6b6475]">Memuat daftar tugas...</p>
+    <section
+      class="mx-auto max-w-screen min-w-0 px-5 py-5 sm:px-6 lg:px-8 lg:py-6"
+    >
+      <section v-if="loading" class="space-y-5">
+        <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <div
+            v-for="item in 4"
+            :key="item"
+            class="h-24 animate-pulse rounded-xl border border-[#ebe7df] bg-white"
+          />
+        </div>
+        <div
+          class="h-72 animate-pulse rounded-xl border border-[#ebe7df] bg-white"
+        />
       </section>
 
       <section
         v-else-if="errorMessage"
-        class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5"
+        class="flex min-h-[55vh] items-center justify-center"
       >
-        <div
-          class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+        <article
+          class="w-full max-w-xl rounded-xl border border-[#f1d6d3] bg-white p-6"
         >
           <div class="flex items-start gap-3">
-            <PhWarningCircle
-              :size="24"
-              class="mt-0.5 text-[#e58f86]"
-              weight="duotone"
-            />
-            <div>
-              <h2 class="text-lg font-medium text-[#171322]">
-                Gagal memuat tugas
+            <div
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fff1f0] text-[#dc2626]"
+            >
+              <PhWarningCircle :size="22" weight="duotone" />
+            </div>
+            <div class="min-w-0">
+              <h2 class="text-base font-medium text-[#171322]">
+                Tugas tidak dapat dimuat
               </h2>
-              <p class="mt-2 text-sm leading-6 text-[#6b6475]">
+              <p class="mt-1 text-sm leading-6 text-[#7a7385]">
                 {{ errorMessage }}
               </p>
+              <button
+                type="button"
+                class="mt-4 rounded-lg bg-[#4f46e5] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+                @click="loadAssignments"
+              >
+                Coba lagi
+              </button>
             </div>
           </div>
-          <button
-            type="button"
-            class="rounded-2xl bg-[#171322] px-4 py-3 text-sm font-medium text-white"
-            @click="loadAssignments"
-          >
-            Coba lagi
-          </button>
-        </div>
+        </article>
       </section>
 
       <template v-else>
-        <section class="grid gap-4 md:grid-cols-4">
-          <article
-            class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5"
-          >
+        <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <article class="rounded-xl border border-[#ebe7df] bg-white p-4">
             <PhClipboardText
-              :size="24"
-              class="text-[#7aa7d9]"
+              :size="21"
+              class="text-[#4f46e5]"
               weight="duotone"
             />
-            <p class="mt-4 text-sm text-[#8a8494]">Total tugas</p>
+            <p class="mt-3 text-xs text-[#7a7385]">Total tugas</p>
             <p class="mt-1 text-2xl font-medium text-[#171322]">
               {{ summary.totalAssignments }}
             </p>
           </article>
-          <article
-            class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5"
-          >
+          <article class="rounded-xl border border-[#ebe7df] bg-white p-4">
             <PhCalendarBlank
-              :size="24"
-              class="text-[#4f46e5]"
+              :size="21"
+              class="text-[#059669]"
               weight="duotone"
             />
-            <p class="mt-4 text-sm text-[#8a8494]">Aktif</p>
+            <p class="mt-3 text-xs text-[#7a7385]">Tugas aktif</p>
             <p class="mt-1 text-2xl font-medium text-[#171322]">
               {{ summary.activeAssignments }}
             </p>
           </article>
-          <article
-            class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5"
-          >
+          <article class="rounded-xl border border-[#ebe7df] bg-white p-4">
             <PhWarningCircle
-              :size="24"
-              class="text-[#e58f86]"
+              :size="21"
+              class="text-[#ea580c]"
               weight="duotone"
             />
-            <p class="mt-4 text-sm text-[#8a8494]">Perlu review</p>
+            <p class="mt-3 text-xs text-[#7a7385]">Perlu dinilai</p>
             <p class="mt-1 text-2xl font-medium text-[#171322]">
               {{ summary.pendingReviewCount }}
             </p>
           </article>
-          <article
-            class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5"
-          >
-            <PhCheckCircle
-              :size="24"
-              class="text-[#74bfa5]"
-              weight="duotone"
-            />
-            <p class="mt-4 text-sm text-[#8a8494]">Submission</p>
+          <article class="rounded-xl border border-[#ebe7df] bg-white p-4">
+            <PhCheckCircle :size="21" class="text-[#4f8ef7]" weight="duotone" />
+            <p class="mt-3 text-xs text-[#7a7385]">Total pengumpulan</p>
             <p class="mt-1 text-2xl font-medium text-[#171322]">
               {{ summary.totalSubmissions }}
             </p>
@@ -260,112 +257,89 @@ onMounted(loadAssignments);
         </section>
 
         <section
-          class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5"
+          class="mt-5 min-w-0 rounded-xl border border-[#ebe7df] bg-white p-4 sm:p-5"
         >
           <div
-            class="flex flex-col gap-4 border-b border-[#ece8df] pb-4 lg:flex-row lg:items-end lg:justify-between"
+            class="flex flex-col gap-4 border-b border-[#ebe7df] pb-4 lg:flex-row lg:items-end lg:justify-between"
           >
-            <div>
-              <p class="text-sm font-medium text-[#171322]">Daftar tugas</p>
-              <p class="mt-1 text-sm text-[#8a8494]">
-                {{ assignments.length }} tugas dari subject yang Anda ajar.
+            <div class="min-w-0">
+              <h2 class="text-sm font-medium text-[#171322]">Daftar tugas</h2>
+              <p class="mt-1 text-xs text-[#7a7385] sm:text-sm">
+                {{ assignments.length }} tugas dari mata pelajaran yang Anda
+                ajar.
               </p>
             </div>
-            <div class="flex flex-wrap gap-2">
+            <div class="flex min-w-0 flex-wrap gap-2">
               <button
                 v-for="tab in filterTabs"
                 :key="tab.id"
                 type="button"
-                class="rounded-2xl px-4 py-2.5 text-sm font-medium transition"
+                class="rounded-lg px-3 py-2 text-xs font-medium transition sm:px-4 sm:text-sm"
                 :class="
                   activeFilter === tab.id
-                    ? 'bg-[#171322] text-white'
-                    : 'bg-[#faf8f4] text-[#6b6475] hover:bg-[#f0e9dd] hover:text-[#171322]'
+                    ? 'bg-[#4f46e5] text-white'
+                    : 'bg-[#f9fafb] text-[#6b7280] hover:bg-[#eef2ff] hover:text-[#4f46e5]'
                 "
                 @click="activeFilter = tab.id"
               >
                 {{ tab.label }}
-                <span class="ml-2 opacity-70">{{ tab.count }}</span>
+                <span class="ml-2 opacity-75">{{ tab.count }}</span>
               </button>
             </div>
           </div>
 
-          <div v-if="assignments.length === 0" class="py-10 text-center">
-            <PhClipboardText
-              :size="34"
-              class="mx-auto text-[#b5afbf]"
-              weight="duotone"
-            />
+          <div v-if="assignments.length === 0" class="py-12 text-center">
+            <div
+              class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
+            >
+              <PhClipboardText :size="25" weight="duotone" />
+            </div>
             <h2 class="mt-3 text-lg font-medium text-[#171322]">
               Belum ada tugas
             </h2>
-            <p class="mx-auto mt-2 max-w-xl text-sm leading-6 text-[#6b6475]">
-              Belum ada tugas yang bisa ditampilkan. Pastikan Anda masih aktif
-              di Penempatan Kelas untuk kelas yang diajar.
+            <p class="mx-auto mt-2 max-w-xl text-sm leading-6 text-[#7a7385]">
+              Pastikan Anda masih aktif di Penempatan Kelas untuk mata pelajaran
+              yang diajar.
             </p>
             <RouterLink
               to="/teacher/create"
-              class="mt-5 inline-flex items-center justify-center gap-2 rounded-2xl bg-[#171322] px-4 py-3 text-sm font-medium text-white transition hover:bg-[#2f2b3a]"
+              class="mt-5 inline-flex items-center justify-center gap-2 rounded-lg bg-[#4f46e5] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#4338ca]"
             >
-              Pilih subject untuk membuat konten
+              Pilih mata pelajaran
               <PhArrowRight :size="16" />
             </RouterLink>
           </div>
 
           <div
             v-else-if="filteredAssignments.length === 0"
-            class="py-10 text-center"
+            class="py-12 text-center"
           >
-            <PhCheckCircle
-              :size="34"
-              class="mx-auto text-[#b5afbf]"
-              weight="duotone"
-            />
+            <div
+              class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
+            >
+              <PhCheckCircle :size="25" weight="duotone" />
+            </div>
             <h2 class="mt-3 text-lg font-medium text-[#171322]">
               Tidak ada tugas pada filter ini
             </h2>
-            <p class="mx-auto mt-2 max-w-xl text-sm leading-6 text-[#6b6475]">
-              Ganti filter untuk melihat tugas lain dari subject yang Anda
-              ajar.
+            <p class="mx-auto mt-2 max-w-xl text-sm leading-6 text-[#7a7385]">
+              Pilih filter lain untuk melihat tugas yang tersedia.
             </p>
           </div>
 
-          <div v-else class="space-y-3 pt-5">
+          <div v-else class="divide-y divide-[#ebe7df] pt-1">
             <article
               v-for="item in filteredAssignments"
               :key="`${item.item.subjectClassId}-${item.item.assignmentId}`"
-              class="rounded-[18px] bg-[#faf8f4] p-5 ring-1 ring-black/5"
+              class="min-w-0 py-5 first:pt-4 last:pb-0"
             >
               <div
-                class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"
+                class="flex min-w-0 flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"
               >
-                <div class="min-w-0">
-                  <div class="flex flex-wrap gap-2 text-xs font-medium">
-                    <span
-                      class="rounded-2xl bg-white px-3 py-1.5 text-[#4f46e5]"
-                    >
-                      {{ item.item.subjectName }}
-                    </span>
-                    <span
-                      v-if="item.item.subjectCode"
-                      class="rounded-2xl bg-white px-3 py-1.5 text-[#6b6475]"
-                    >
-                      {{ item.item.subjectCode }}
-                    </span>
-                    <span
-                      class="rounded-2xl bg-white px-3 py-1.5 text-[#6b6475]"
-                    >
-                      {{
-                        item.item.className ||
-                        item.item.classCode ||
-                        "Kelas"
-                      }}
-                    </span>
-                  </div>
-
-                  <div class="mt-4 flex items-start gap-3">
+                <div class="min-w-0 flex-1">
+                  <div class="flex min-w-0 items-start gap-3">
                     <div
-                      class="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-white"
+                      class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-white"
                       :style="{
                         backgroundColor: getSubjectColor(
                           item.item.subjectClassId ||
@@ -374,57 +348,80 @@ onMounted(loadAssignments);
                         ),
                       }"
                     >
-                      <PhBookOpen :size="22" weight="duotone" />
+                      <PhBookOpen :size="20" weight="duotone" />
                     </div>
                     <div class="min-w-0">
-                      <p
-                        class="text-xs font-medium uppercase tracking-wide text-[#e58f86]"
+                      <div class="flex flex-wrap gap-2 text-[11px]">
+                        <span class="font-medium text-[#4f46e5]">
+                          {{ item.item.subjectName }}
+                        </span>
+                        <span
+                          v-if="item.item.subjectCode"
+                          class="text-[#8a8494]"
+                        >
+                          {{ item.item.subjectCode }}
+                        </span>
+                        <span class="text-[#8a8494]">
+                          {{
+                            item.item.className ||
+                            item.item.classCode ||
+                            "Kelas"
+                          }}
+                        </span>
+                      </div>
+                      <h3
+                        class="mt-1 line-clamp-2 wrap-break-word text-base font-medium text-[#171322]"
                       >
-                        {{ item.item.categoryName || "Tanpa kategori" }}
-                      </p>
-                      <h2 class="mt-1 text-lg font-medium text-[#171322]">
                         {{ item.item.assignmentTitle }}
-                      </h2>
+                      </h3>
+                      <p class="mt-1 text-xs text-[#7a7385]">
+                        {{ item.item.categoryName || "Tanpa kategori" }} ·
+                        Tenggat {{ formatDate(item.item.deadline) }}
+                      </p>
                     </div>
                   </div>
                 </div>
 
                 <span
-                  class="self-start rounded-2xl px-3 py-2 text-xs font-medium"
+                  class="self-start rounded-full px-3 py-1.5 text-xs font-medium"
                   :class="statusClasses(item)"
                 >
                   {{ statusLabel(item) }}
                 </span>
               </div>
 
-              <div class="mt-5 grid gap-3 sm:grid-cols-4">
-                <div class="rounded-2xl bg-white p-4">
-                  <p class="text-xs text-[#8a8494]">Deadline</p>
-                  <p class="mt-1 text-sm font-medium text-[#171322]">
-                    {{ formatDate(item.item.deadline) }}
-                  </p>
-                </div>
-                <div class="rounded-2xl bg-white p-4">
-                  <p class="text-xs text-[#8a8494]">Submission</p>
-                  <p class="mt-1 text-xl font-medium text-[#171322]">
+              <dl class="mt-4 grid grid-cols-3 gap-2 text-xs sm:max-w-lg">
+                <div class="rounded-lg bg-[#fbfaf8] p-3">
+                  <dt class="text-[#8a8494]">Pengumpulan</dt>
+                  <dd class="mt-1 text-base font-medium text-[#171322]">
                     {{ item.submissionCount }}
-                  </p>
+                  </dd>
                 </div>
-                <div class="rounded-2xl bg-white p-4">
-                  <p class="text-xs text-[#8a8494]">Perlu review</p>
-                  <p class="mt-1 text-xl font-medium text-[#171322]">
+                <div class="rounded-lg bg-[#fff7ed] p-3">
+                  <dt class="text-[#b45309]">Perlu dinilai</dt>
+                  <dd class="mt-1 text-base font-medium text-[#b45309]">
                     {{ item.pendingCount }}
-                  </p>
+                  </dd>
                 </div>
-                <div class="rounded-2xl bg-white p-4">
-                  <p class="text-xs text-[#8a8494]">Sudah dinilai</p>
-                  <p class="mt-1 text-xl font-medium text-[#171322]">
+                <div class="rounded-lg bg-[#ecfdf5] p-3">
+                  <dt class="text-[#027a48]">Sudah dinilai</dt>
+                  <dd class="mt-1 text-base font-medium text-[#027a48]">
                     {{ item.gradedCount }}
-                  </p>
+                  </dd>
                 </div>
-              </div>
+              </dl>
 
-              <div class="mt-5 flex flex-wrap gap-2">
+              <div class="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+                <RouterLink
+                  :to="{
+                    name: 'teacher-assignment-review',
+                    params: { assignmentId: item.item.assignmentId },
+                  }"
+                  class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#4f46e5] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+                >
+                  nilai pengumpulan
+                  <PhArrowRight :size="16" />
+                </RouterLink>
                 <RouterLink
                   :to="{
                     name: 'teacher-assignment-edit',
@@ -433,29 +430,19 @@ onMounted(loadAssignments);
                       asgId: item.item.assignmentId,
                     },
                   }"
-                  class="inline-flex items-center justify-center gap-2 rounded-2xl border border-[#ebe7df] bg-white px-4 py-3 text-sm font-medium text-[#171322] transition hover:border-[#4f46e5] hover:text-[#4f46e5]"
+                  class="inline-flex items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5]"
                 >
-                  <PhPencilSimple :size="16" weight="bold" />
+                  <PhPencilSimple :size="16" />
                   Edit
-                </RouterLink>
-                <RouterLink
-                  :to="{
-                    name: 'teacher-assignment-review',
-                    params: { assignmentId: item.item.assignmentId },
-                  }"
-                  class="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#171322] px-4 py-3 text-sm font-medium text-white transition hover:bg-[#2f2b3a]"
-                >
-                  Review pengumpulan
-                  <PhArrowRight :size="16" />
                 </RouterLink>
                 <RouterLink
                   :to="{
                     name: 'teacher-subject-detail',
                     params: { subjectClassId: item.item.subjectClassId },
                   }"
-                  class="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-4 py-3 text-sm font-medium text-[#6b6475] transition hover:text-[#171322]"
+                  class="inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-sm font-medium text-[#6b7280] transition hover:bg-[#f9fafb] hover:text-[#171322]"
                 >
-                  Lihat di workspace
+                  Lihat di ruang kerja
                 </RouterLink>
               </div>
             </article>

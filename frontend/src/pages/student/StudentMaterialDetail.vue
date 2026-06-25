@@ -220,7 +220,7 @@ onMounted(loadMaterial);
             </span>
           </div>
           <p class="mt-1 text-xs leading-5 text-[#7a7385]">
-            Buka atau pratinjau file pembelajaran yang dibagikan guru.
+            Buka atau pelajari file pembelajaran yang dibagikan guru.
           </p>
           <AttachmentPreviewList
             class="mt-4"

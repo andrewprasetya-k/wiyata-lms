@@ -46,8 +46,7 @@ const helperLabels: Record<string, string> = {
     "Lihat informasi akun guru, peran aktif, dan akses sekolah.",
   "Admin profile":
     "Lihat informasi akun admin dan sekolah yang sedang dikelola.",
-  "Super admin profile":
-    "Lihat informasi akun dan peran pengelola platform.",
+  "Super admin profile": "Lihat informasi akun dan peran pengelola platform.",
 };
 
 const pageTitle = computed(() => titleLabels[props.title] ?? props.title);
@@ -66,8 +65,9 @@ const currentRoles = computed(() => {
   return roles.map((role) => roleLabels[role] ?? role).join(", ") || "-";
 });
 
-const globalRoles = computed(() =>
-  auth.globalRoles.map((role) => roleLabels[role] ?? role).join(", ") || "-",
+const globalRoles = computed(
+  () =>
+    auth.globalRoles.map((role) => roleLabels[role] ?? role).join(", ") || "-",
 );
 
 const initials = computed(() => {
@@ -151,7 +151,7 @@ const schoolRows = computed(() => [
             {{ initials }}
           </div>
           <p class="mt-4 text-xs text-[#8a8494]">Akun EduVerse</p>
-          <h2 class="mt-1 break-words text-xl font-medium text-[#171322]">
+          <h2 class="mt-1 wrap-break-word text-xl font-medium text-[#171322]">
             {{ auth.user.fullName || "Nama tidak tersedia" }}
           </h2>
           <p class="mt-1 break-all text-sm leading-6 text-[#6b6475]">
@@ -176,7 +176,9 @@ const schoolRows = computed(() => [
 
       <div class="min-w-0 space-y-5">
         <section class="grid min-w-0 gap-5 xl:grid-cols-2">
-          <article class="min-w-0 rounded-xl border border-[#ebe7df] bg-white p-5">
+          <article
+            class="min-w-0 rounded-xl border border-[#ebe7df] bg-white p-5"
+          >
             <div class="mb-4 flex min-w-0 items-center gap-3">
               <div
                 class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#eef2ff] text-[#4f46e5]"
@@ -201,7 +203,7 @@ const schoolRows = computed(() => [
               >
                 <dt class="text-xs text-[#8a8494]">{{ row.label }}</dt>
                 <dd
-                  class="break-words text-sm font-medium text-[#171322] sm:text-right"
+                  class="wrap-break-word text-sm font-medium text-[#171322] sm:text-right"
                 >
                   {{ row.value }}
                 </dd>
@@ -209,7 +211,9 @@ const schoolRows = computed(() => [
             </dl>
           </article>
 
-          <article class="min-w-0 rounded-xl border border-[#ebe7df] bg-white p-5">
+          <article
+            class="min-w-0 rounded-xl border border-[#ebe7df] bg-white p-5"
+          >
             <div class="mb-4 flex min-w-0 items-center gap-3">
               <div
                 class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#ecfdf5] text-[#059669]"
@@ -234,7 +238,7 @@ const schoolRows = computed(() => [
               >
                 <dt class="text-xs text-[#8a8494]">{{ row.label }}</dt>
                 <dd
-                  class="break-words text-sm font-medium text-[#171322] sm:text-right"
+                  class="wrap-break-word text-sm font-medium text-[#171322] sm:text-right"
                 >
                   {{ row.value }}
                 </dd>

@@ -305,15 +305,6 @@ function getInitials(name?: string) {
                 {{ classTitle }}
               </dd>
             </div>
-            <div
-              v-if="classCode"
-              class="flex items-start justify-between gap-4 py-3"
-            >
-              <dt class="text-xs text-[#7a7385]">Kode kelas</dt>
-              <dd class="text-right text-xs font-medium text-[#171322]">
-                {{ classCode }}
-              </dd>
-            </div>
             <div class="flex items-start justify-between gap-4 py-3">
               <dt class="text-xs text-[#7a7385]">Pengumuman</dt>
               <dd class="text-right text-xs font-medium text-[#171322]">
