@@ -15,3 +15,12 @@ type StudentNote struct {
 func (StudentNote) TableName() string {
 	return "edv.student_notes"
 }
+
+type StudentNoteWithMaterial struct {
+	ID            string    `gorm:"column:snt_id"`
+	MaterialID    string    `gorm:"column:snt_mat_id"`
+	MaterialTitle string    `gorm:"column:material_title"`
+	Content       string    `gorm:"column:snt_content"`
+	CreatedAt     time.Time `gorm:"column:created_at"`
+	UpdatedAt     time.Time `gorm:"column:updated_at"`
+}

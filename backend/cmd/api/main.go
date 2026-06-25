@@ -286,6 +286,7 @@ func main() {
 		studentNoteAPI := api.Group("/notes")
 		studentNoteAPI.Use(middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "student"))
 		{
+			studentNoteAPI.GET("/subject-class/:subjectClassId", studentNoteHandler.GetSubjectClassNotes)
 			studentNoteAPI.GET("/material/:materialId", studentNoteHandler.GetMaterialNote)
 			studentNoteAPI.PUT("/material/:materialId", studentNoteHandler.SaveMaterialNote)
 			studentNoteAPI.DELETE("/material/:materialId", studentNoteHandler.DeleteMaterialNote)

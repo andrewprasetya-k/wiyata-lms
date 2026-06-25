@@ -81,6 +81,32 @@ The operation hard-deletes only the current JWT user's note for the material in 
 }
 ```
 
+## 4. List Notes by Subject Class
+
+- **Method:** `GET`
+- **URL:** `/subject-class/:subjectClassId`
+
+Returns the current student's private material notes for one accessible subject class. The student must have an active enrollment (`left_at IS NULL`) in the subject class's class.
+
+The collection is loaded with one joined query over `student_notes` and active materials, scoped by the JWT user and active school. Notes for soft-deleted materials are excluded and results are sorted by `updatedAt` descending.
+
+```json
+{
+  "notes": [
+    {
+      "noteId": "uuid",
+      "materialId": "uuid",
+      "materialTitle": "Pengenalan Ekosistem",
+      "content": "Ringkasan pribadi student.",
+      "createdAt": "2026-06-24T10:00:00Z",
+      "updatedAt": "2026-06-24T10:10:00Z"
+    }
+  ]
+}
+```
+
+When no notes exist, the endpoint returns `{ "notes": [] }`.
+
 ## Out of Scope
 
 - Assignment notes.

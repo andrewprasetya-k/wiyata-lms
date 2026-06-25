@@ -127,6 +127,7 @@ Authorization: Bearer <your-jwt-token>
 - `GET /notes/material/:materialId` - Get the current student's private note, or `{ "note": null }`
 - `PUT /notes/material/:materialId` - Create or update one plain-text note for the accessible material
 - `DELETE /notes/material/:materialId` - Hard-delete the current student's note for the accessible material
+- `GET /notes/subject-class/:subjectClassId` - List the current student's material notes for an actively enrolled subject class
 
 Notes are material-only for MVP. They are scoped to the JWT user and active `SchoolId`, require active student enrollment in the material's class, and are not accessible to teacher/admin roles.
 

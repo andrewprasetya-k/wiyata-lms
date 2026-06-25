@@ -8,13 +8,21 @@ import (
 )
 
 type studentNoteRepositoryStub struct {
-	note      *domain.StudentNote
-	savedNote *domain.StudentNote
-	deleted   bool
+	note              *domain.StudentNote
+	subjectClassNotes []domain.StudentNoteWithMaterial
+	savedNote         *domain.StudentNote
+	deleted           bool
 }
 
 func (r *studentNoteRepositoryStub) GetByUserMaterialInSchool(string, string, string) (*domain.StudentNote, error) {
 	return r.note, nil
+}
+
+func (r *studentNoteRepositoryStub) GetByUserSubjectClassInSchool(string, string, string) ([]domain.StudentNoteWithMaterial, error) {
+	if r.subjectClassNotes == nil {
+		return make([]domain.StudentNoteWithMaterial, 0), nil
+	}
+	return r.subjectClassNotes, nil
 }
 
 func (r *studentNoteRepositoryStub) Upsert(note *domain.StudentNote) (*domain.StudentNote, error) {
@@ -68,6 +76,49 @@ func TestStudentNoteGetReturnsNilWhenNoteDoesNotExist(t *testing.T) {
 	}
 	if note != nil {
 		t.Fatalf("expected nil note, got %#v", note)
+	}
+}
+
+func TestStudentNoteGetSubjectClassNotesReturnsCollection(t *testing.T) {
+	repo := &studentNoteRepositoryStub{
+		subjectClassNotes: []domain.StudentNoteWithMaterial{
+			{
+				ID:            "note-1",
+				MaterialID:    "material-1",
+				MaterialTitle: "Materi pertama",
+				Content:       "Ringkasan",
+			},
+		},
+	}
+	service := newStudentNoteTestService(repo, true)
+
+	notes, err := service.GetSubjectClassNotes("subject-class-1", "school-1", "user-1")
+	if err != nil {
+		t.Fatalf("GetSubjectClassNotes returned error: %v", err)
+	}
+	if len(notes) != 1 || notes[0].MaterialTitle != "Materi pertama" {
+		t.Fatalf("expected subject class notes, got %#v", notes)
+	}
+}
+
+func TestStudentNoteGetSubjectClassNotesReturnsEmptyCollection(t *testing.T) {
+	service := newStudentNoteTestService(&studentNoteRepositoryStub{}, true)
+
+	notes, err := service.GetSubjectClassNotes("subject-class-1", "school-1", "user-1")
+	if err != nil {
+		t.Fatalf("GetSubjectClassNotes returned error: %v", err)
+	}
+	if notes == nil || len(notes) != 0 {
+		t.Fatalf("expected non-nil empty notes, got %#v", notes)
+	}
+}
+
+func TestStudentNoteGetSubjectClassNotesRequiresActiveEnrollment(t *testing.T) {
+	service := newStudentNoteTestService(&studentNoteRepositoryStub{}, false)
+
+	_, err := service.GetSubjectClassNotes("subject-class-1", "school-1", "user-1")
+	if err == nil || !strings.Contains(err.Error(), "forbidden:") {
+		t.Fatalf("expected forbidden error, got %v", err)
 	}
 }
 

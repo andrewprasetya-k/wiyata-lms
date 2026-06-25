@@ -256,13 +256,14 @@ Content-Type: application/json
 | `/medias/upload` | POST | ❌ | ✅** | ✅** | ✅** |
 | `/medias/:id` | DELETE | ❌ | ✅** | ✅***** | ✅***** |
 | `/notes/material/:materialId` | GET/PUT/DELETE | ❌ | ❌ | ❌ | ✅****** |
+| `/notes/subject-class/:subjectClassId` | GET | ❌ | ❌ | ❌ | ✅****** |
 
 *Teacher material/assignment creation, mutation, assignment detail, submission detail, and assessment access is limited to subject classes taught by the current teacher in the active `SchoolId` context.
 **Admin and shared media access is scoped to active `SchoolId`.
 ***Student material/assignment read access is limited to subject classes in classes where the student is enrolled.
 ****Student submission mutation is limited to the current JWT user's own submission in the active school.
 *****Non-admin media deletion is limited to media owned/uploaded by the current JWT user in the active school.
-******Student material notes are private to the current JWT user. Access requires active `SchoolId`, an accessible non-deleted material, and active student enrollment (`left_at IS NULL`) in the material's class. Notes are not exposed to teacher/admin roles and deletion is a hard delete.
+******Student material notes are private to the current JWT user. Access requires active `SchoolId` and active student enrollment (`left_at IS NULL`) in the material or requested subject class's class. Material note access excludes deleted materials, collection responses include only the current user's notes, notes are not exposed to teacher/admin roles, and deletion is a hard delete.
 
 Media IDs attached to materials, assignments, and submissions are validated before linking: media must exist, belong to the active school, and be attachable by the actor. Non-admin users can attach only their own uploaded media; admins can attach active-school media where admin mutation is allowed. Assignment categories used by assignments must belong to the active school.
 

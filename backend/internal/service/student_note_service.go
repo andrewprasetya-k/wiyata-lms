@@ -17,6 +17,7 @@ var (
 
 type StudentNoteService interface {
 	GetMaterialNote(materialID string, schoolID string, userID string) (*domain.StudentNote, error)
+	GetSubjectClassNotes(subjectClassID string, schoolID string, userID string) ([]domain.StudentNoteWithMaterial, error)
 	SaveMaterialNote(materialID string, schoolID string, userID string, content string) (*domain.StudentNote, error)
 	DeleteMaterialNote(materialID string, schoolID string, userID string) error
 }
@@ -48,6 +49,18 @@ func (s *studentNoteService) GetMaterialNote(materialID string, schoolID string,
 		return nil, err
 	}
 	return s.repo.GetByUserMaterialInSchool(schoolID, userID, materialID)
+}
+
+func (s *studentNoteService) GetSubjectClassNotes(subjectClassID string, schoolID string, userID string) ([]domain.StudentNoteWithMaterial, error) {
+	allowed, err := s.subjectClassRepo.UserEnrolledInSubjectClassAsRole(userID, schoolID, subjectClassID, "student")
+	if err != nil {
+		return nil, err
+	}
+	if !allowed {
+		return nil, fmt.Errorf("forbidden: student cannot access subject class notes")
+	}
+
+	return s.repo.GetByUserSubjectClassInSchool(schoolID, userID, subjectClassID)
 }
 
 func (s *studentNoteService) SaveMaterialNote(materialID string, schoolID string, userID string, content string) (*domain.StudentNote, error) {
