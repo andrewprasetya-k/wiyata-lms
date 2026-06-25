@@ -287,7 +287,7 @@ async function handleSubmit() {
 
     <section
       v-else-if="assignment"
-      class="mx-auto grid max-w-7xl min-w-0 gap-5 px-5 py-5 sm:px-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:px-8 lg:py-6"
+      class="mx-auto grid max-w-screen min-w-0 gap-5 px-5 py-5 sm:px-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:px-8 lg:py-6"
     >
       <div class="min-w-0 space-y-4">
         <article class="rounded-xl border border-[#ebe7df] bg-white p-5 sm:p-6">
