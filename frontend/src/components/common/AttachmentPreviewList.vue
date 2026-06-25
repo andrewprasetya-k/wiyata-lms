@@ -135,7 +135,7 @@ function markImageFailed(mediaId: string) {
           class="border-b border-[#ebe7df] bg-white p-2 sm:p-3"
         >
           <iframe
-            class="h-105 w-full rounded-xl border border-[#ebe7df] bg-white sm:h-130"
+            class="h-105 w-full rounded-xl bg-white sm:h-130"
             :src="attachment.fileUrl"
             :title="`Preview ${attachment.mediaName || 'PDF'}`"
             loading="lazy"
