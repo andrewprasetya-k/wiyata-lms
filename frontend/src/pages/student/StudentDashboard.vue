@@ -579,7 +579,8 @@ onMounted(loadDashboard);
         <article class="soft-card rounded-[22px] p-5 pl-0 opacity-90">
           <p class="text-sm font-medium text-[#171322]">Fitur berikutnya</p>
           <p class="mt-1 text-xs text-[#8b8592]">
-            Chat dan notes tetap terlihat sebagai rencana setelah MVP sekolah.
+            Chat tetap terlihat sebagai rencana setelah MVP sekolah. Catatan
+            materi sudah tersedia dari halaman subject dan materi.
           </p>
           <div class="mt-4 space-y-3">
             <div class="flex gap-3 rounded-2xl bg-[#eef2ff] p-4">
