@@ -62,7 +62,7 @@ func (r *enrollmentRepository) GetByClass(classID string, search string, page in
 
 	// Search by user name or email
 	if search != "" {
-		query = query.Joins("JOIN edv.school_users ON school_users.scu_id = enrollments.enr_scu_id").
+		query = query.Joins("JOIN edv.school_users ON school_users.scu_id = enrollments.enr_scu_id AND school_users.deleted_at IS NULL").
 			Joins("JOIN edv.users ON users.usr_id = school_users.scu_usr_id").
 			Where("users.usr_nama_lengkap ILIKE ? OR users.usr_email ILIKE ?", "%"+search+"%", "%"+search+"%")
 	}
@@ -154,7 +154,7 @@ func (r *enrollmentRepository) HasTeacherSubjectClassAssignment(classID string, 
 func (r *enrollmentRepository) GetStudentUserIDsByClass(classID string) ([]string, error) {
 	var userIDs []string
 	err := r.db.Model(&domain.Enrollment{}).
-		Joins("JOIN edv.school_users ON school_users.scu_id = enrollments.enr_scu_id").
+		Joins("JOIN edv.school_users ON school_users.scu_id = enrollments.enr_scu_id AND school_users.deleted_at IS NULL").
 		Where("enrollments.enr_cls_id = ? AND enrollments.enr_role = ? AND enrollments.left_at IS NULL", classID, "student").
 		Pluck("school_users.scu_usr_id", &userIDs).Error
 	return userIDs, err
@@ -163,7 +163,7 @@ func (r *enrollmentRepository) GetStudentUserIDsByClass(classID string) ([]strin
 func (r *enrollmentRepository) GetMemberUserIDsByClass(classID string) ([]string, error) {
 	var userIDs []string
 	err := r.db.Model(&domain.Enrollment{}).
-		Joins("JOIN edv.school_users ON school_users.scu_id = enrollments.enr_scu_id").
+		Joins("JOIN edv.school_users ON school_users.scu_id = enrollments.enr_scu_id AND school_users.deleted_at IS NULL").
 		Where("enrollments.enr_cls_id = ? AND enrollments.left_at IS NULL", classID).
 		Pluck("school_users.scu_usr_id", &userIDs).Error
 	return userIDs, err
@@ -172,8 +172,8 @@ func (r *enrollmentRepository) GetMemberUserIDsByClass(classID string) ([]string
 func (r *enrollmentRepository) UserEnrolledInClassAsRole(userID string, schoolID string, classID string, role string) (bool, error) {
 	var count int64
 	err := r.db.Model(&domain.Enrollment{}).
-		Joins("JOIN edv.school_users ON school_users.scu_id = enrollments.enr_scu_id").
-		Where("school_users.scu_usr_id = ? AND school_users.scu_sch_id = ?", userID, schoolID).
+		Joins("JOIN edv.school_users ON school_users.scu_id = enrollments.enr_scu_id AND school_users.deleted_at IS NULL").
+		Where("school_users.scu_usr_id = ? AND school_users.scu_sch_id = ? AND school_users.deleted_at IS NULL", userID, schoolID).
 		Where("enrollments.enr_sch_id = ? AND enrollments.enr_cls_id = ?", schoolID, classID).
 		Where("enrollments.enr_role = ? AND enrollments.left_at IS NULL", role).
 		Count(&count).Error

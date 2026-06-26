@@ -217,6 +217,15 @@ func main() {
 			adminSchoolMemberImportAPI.POST("/commit", adminSchoolMemberImportHandler.Commit)
 		}
 
+		adminSchoolMemberAPI := api.Group("/admin/school-members")
+		adminSchoolMemberAPI.Use(middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin"))
+		{
+			adminSchoolMemberAPI.GET("", adminSchoolMemberImportHandler.ListMembers)
+			adminSchoolMemberAPI.POST("", adminSchoolMemberImportHandler.AddMember)
+			adminSchoolMemberAPI.DELETE("/:schoolUserId", adminSchoolMemberImportHandler.RemoveMember)
+			adminSchoolMemberAPI.PATCH("/:schoolUserId/restore", adminSchoolMemberImportHandler.RestoreMember)
+		}
+
 		subjectAPI := api.Group("/subjects")
 		{
 			subjectAPI.POST("", middleware.RequireRole(schoolService, "admin", "super_admin"), subjectHandler.Create)

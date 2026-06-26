@@ -37,3 +37,30 @@ type AdminSchoolMemberImportCommitResponseDTO struct {
 	FailedCount   int                                `json:"failedCount"`
 	Results       []AdminSchoolMemberImportResultDTO `json:"results"`
 }
+
+type AdminSchoolMemberCreateDTO struct {
+	FullName  string `json:"fullName" binding:"required"`
+	Email     string `json:"email" binding:"required,email"`
+	Password  string `json:"password" binding:"required,min=6"`
+	Role      string `json:"role" binding:"required"`
+	ClassCode string `json:"classCode,omitempty"`
+}
+
+type AdminSchoolMemberResponseDTO struct {
+	SchoolUserID string   `json:"schoolUserId"`
+	UserID       string   `json:"userId"`
+	FullName     string   `json:"fullName"`
+	Email        string   `json:"email"`
+	Roles        []string `json:"roles"`
+	ClassCodes   []string `json:"classCodes,omitempty"`
+	CreatedAt    string   `json:"createdAt"`
+	DeletedAt    *string  `json:"deletedAt,omitempty"`
+}
+
+type AdminSchoolMemberListResponseDTO struct {
+	Data       []AdminSchoolMemberResponseDTO `json:"data"`
+	TotalItems int64                          `json:"totalItems"`
+	Page       int                            `json:"page"`
+	Limit      int                            `json:"limit"`
+	TotalPages int                            `json:"totalPages"`
+}

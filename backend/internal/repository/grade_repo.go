@@ -43,7 +43,7 @@ func (r *gradeRepository) GetStudentsBySubjectClass(subjectClassID string) ([]*d
 	var users []*domain.User
 
 	err := r.db.
-		Joins("JOIN edv.school_users ON school_users.scu_usr_id = users.usr_id").
+		Joins("JOIN edv.school_users ON school_users.scu_usr_id = users.usr_id AND school_users.deleted_at IS NULL").
 		Joins("JOIN edv.enrollments ON enrollments.enr_scu_id = school_users.scu_id").
 		Joins("JOIN edv.subject_classes ON subject_classes.scl_cls_id = enrollments.enr_cls_id").
 		Where("subject_classes.scl_id = ?", subjectClassID).
@@ -60,9 +60,9 @@ func (r *gradeRepository) GetStudentGradebookClass(userID string, schoolID strin
 	result := r.db.Table("edv.classes c").
 		Select("c.cls_id AS class_id, c.cls_title AS class_name, c.cls_code AS class_code").
 		Joins("JOIN edv.enrollments e ON e.enr_cls_id = c.cls_id").
-		Joins("JOIN edv.school_users scu ON scu.scu_id = e.enr_scu_id").
+		Joins("JOIN edv.school_users scu ON scu.scu_id = e.enr_scu_id AND scu.deleted_at IS NULL").
 		Where("c.cls_id = ? AND c.cls_sch_id = ?", classID, schoolID).
-		Where("scu.scu_usr_id = ? AND scu.scu_sch_id = ?", userID, schoolID).
+		Where("scu.scu_usr_id = ? AND scu.scu_sch_id = ? AND scu.deleted_at IS NULL", userID, schoolID).
 		Where("e.enr_sch_id = ?", schoolID).
 		Where("e.enr_role = ?", "student").
 		Where("e.left_at IS NULL").

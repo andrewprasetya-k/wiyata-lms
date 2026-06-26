@@ -39,7 +39,7 @@ func (r *dashboardRepository) GetPendingAssignmentsCount(userID string) (int, er
 	err := r.db.Table("edv.assignments a").
 		Joins("JOIN edv.subject_classes sc ON a.asg_scl_id = sc.scl_id").
 		Joins("JOIN edv.enrollments e ON sc.scl_cls_id = e.enr_cls_id").
-		Joins("JOIN edv.school_users su ON e.enr_scu_id = su.scu_id").
+		Joins("JOIN edv.school_users su ON e.enr_scu_id = su.scu_id AND su.deleted_at IS NULL").
 		Where("su.scu_usr_id = ? AND e.left_at IS NULL AND a.asg_deadline > ? AND a.deleted_at IS NULL", userID, time.Now()).
 		Where("NOT EXISTS (SELECT 1 FROM edv.submissions s WHERE s.sbm_asg_id = a.asg_id AND s.sbm_usr_id = ? AND s.deleted_at IS NULL)", userID).
 		Count(&count).Error
@@ -59,7 +59,7 @@ func (r *dashboardRepository) GetUpcomingDeadlines(userID string, limit int) ([]
 		JOIN edv.subject_classes sc ON a.asg_scl_id = sc.scl_id
 		JOIN edv.subjects sub ON sc.scl_sub_id = sub.sub_id
 		JOIN edv.enrollments e ON sc.scl_cls_id = e.enr_cls_id
-		JOIN edv.school_users su ON e.enr_scu_id = su.scu_id
+		JOIN edv.school_users su ON e.enr_scu_id = su.scu_id AND su.deleted_at IS NULL
 		WHERE su.scu_usr_id = ? 
 			AND e.left_at IS NULL
 			AND a.asg_deadline > ?
@@ -89,7 +89,7 @@ func (r *dashboardRepository) GetMaterialProgress(userID string) (completed int,
 		FROM edv.materials m
 		JOIN edv.subject_classes sc ON m.mat_scl_id = sc.scl_id
 		JOIN edv.enrollments e ON sc.scl_cls_id = e.enr_cls_id
-		JOIN edv.school_users su ON e.enr_scu_id = su.scu_id
+		JOIN edv.school_users su ON e.enr_scu_id = su.scu_id AND su.deleted_at IS NULL
 		LEFT JOIN edv.material_progress mp ON m.mat_id = mp.map_mat_id AND mp.map_usr_id = ?
 		WHERE su.scu_usr_id = ? AND e.left_at IS NULL AND m.deleted_at IS NULL
 	`, userID, userID).Row().Scan(&completed, &total)
@@ -146,6 +146,7 @@ func (r *dashboardRepository) GetSubmissionRateByTeacher(schoolUserID string) (f
 			AND e.enr_sch_id = teacher_e.enr_sch_id
 		JOIN edv.school_users student_scu ON student_scu.scu_id = e.enr_scu_id
 			AND student_scu.scu_sch_id = teacher_e.enr_sch_id
+			AND student_scu.deleted_at IS NULL
 		LEFT JOIN edv.submissions s ON a.asg_id = s.sbm_asg_id
 			AND s.sbm_usr_id = student_scu.scu_usr_id
 			AND s.sbm_sch_id = teacher_e.enr_sch_id
@@ -192,6 +193,7 @@ func (r *dashboardRepository) GetClassPerformance(schoolUserID string) ([]map[st
 			AND e.enr_sch_id = teacher_e.enr_sch_id
 		LEFT JOIN edv.school_users student_scu ON student_scu.scu_id = e.enr_scu_id
 			AND student_scu.scu_sch_id = teacher_e.enr_sch_id
+			AND student_scu.deleted_at IS NULL
 		LEFT JOIN edv.assignments a ON sc.scl_id = a.asg_scl_id
 			AND a.asg_sch_id = teacher_e.enr_sch_id
 			AND a.deleted_at IS NULL
@@ -218,13 +220,13 @@ func (r *dashboardRepository) GetSchoolStatistics(schoolID string) (map[string]i
 
 	r.db.Table("edv.school_users su").
 		Joins("JOIN edv.enrollments e ON su.scu_id = e.enr_scu_id").
-		Where("su.scu_sch_id = ? AND e.enr_role = 'student' AND e.left_at IS NULL", schoolID).
+		Where("su.scu_sch_id = ? AND su.deleted_at IS NULL AND e.enr_role = 'student' AND e.left_at IS NULL", schoolID).
 		Count(&totalStudents)
 
 	r.db.Table("edv.school_users su").
 		Joins("JOIN edv.subject_classes sc ON su.scu_id = sc.scl_scu_id").
 		Joins("JOIN edv.enrollments e ON e.enr_cls_id = sc.scl_cls_id AND e.enr_scu_id = sc.scl_scu_id").
-		Where("su.scu_sch_id = ? AND e.enr_role = 'teacher' AND e.left_at IS NULL", schoolID).
+		Where("su.scu_sch_id = ? AND su.deleted_at IS NULL AND e.enr_role = 'teacher' AND e.left_at IS NULL", schoolID).
 		Count(&totalTeachers)
 
 	r.db.Table("edv.classes").

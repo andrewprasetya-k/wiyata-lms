@@ -1,11 +1,95 @@
-# School Member Import API
+# School Member API
 
-MVP import warga sekolah digunakan oleh Admin Sekolah untuk menambahkan siswa,
-guru, atau admin sekolah ke sekolah aktif melalui file CSV.
+MVP warga sekolah digunakan oleh Admin Sekolah untuk mengelola membership siswa,
+guru, atau admin sekolah pada sekolah aktif. Admin Sekolah tidak membuka daftar
+akun global lintas platform.
 
-Import ini tidak membuka daftar akun global lintas platform untuk Admin Sekolah.
+`users.deleted_at` menandakan akun global tidak aktif/dihapus dari platform.
+`school_users.deleted_at` menandakan akun tersebut dikeluarkan dari sekolah
+tertentu. Membership aktif selalu berarti `school_users.deleted_at IS NULL`.
+
 Jika email sudah ada sebagai akun global aktif, akun tersebut dipakai ulang dan
-ditautkan ke sekolah aktif.
+ditautkan ke sekolah aktif tanpa membuka membership sekolah lain.
+
+## List Warga Sekolah
+
+- **URL:** `/admin/school-members`
+- **Method:** `GET`
+- **Auth:** Admin sekolah pada sekolah aktif
+- **Query optional:**
+  - `search`: cari nama atau email
+  - `role`: `student`, `teacher`, atau `admin`
+  - `includeDeleted`: default `false`
+
+Default response hanya berisi membership aktif di sekolah aktif.
+
+```json
+{
+  "data": [
+    {
+      "schoolUserId": "...",
+      "userId": "...",
+      "fullName": "Budi Santoso",
+      "email": "budi@siswa.sch.id",
+      "roles": ["student"],
+      "classCodes": ["X-IPA-1"],
+      "createdAt": "2026-06-26T10:00:00Z"
+    }
+  ],
+  "totalItems": 1,
+  "page": 1,
+  "limit": 50,
+  "totalPages": 1
+}
+```
+
+## Tambah Warga Sekolah Manual
+
+- **URL:** `/admin/school-members`
+- **Method:** `POST`
+- **Auth:** Admin sekolah pada sekolah aktif
+
+Request:
+
+```json
+{
+  "fullName": "Budi Santoso",
+  "email": "budi@siswa.sch.id",
+  "password": "InitialPassword123!",
+  "role": "student",
+  "classCode": "X-IPA-1"
+}
+```
+
+Behavior:
+
+- `role` hanya boleh `student`, `teacher`, atau `admin`.
+- `super_admin` selalu ditolak.
+- Jika email belum ada, akun global dibuat memakai password awal.
+- Jika email sudah ada sebagai akun global aktif, akun dipakai ulang.
+- Jika membership sekolah pernah dihapus, membership dipulihkan dengan
+  `school_users.deleted_at = NULL`.
+- `classCode` opsional dan hanya berlaku untuk role `student`.
+
+## Hapus dari Sekolah Aktif
+
+- **URL:** `/admin/school-members/:schoolUserId`
+- **Method:** `DELETE`
+- **Auth:** Admin sekolah pada sekolah aktif
+
+Endpoint ini hanya melakukan soft delete membership sekolah:
+`school_users.deleted_at = now()`. Akun global di `users` tidak dihapus,
+`user_roles` tidak dihapus, dan membership sekolah lain tidak disentuh.
+
+## Pulihkan Membership
+
+- **URL:** `/admin/school-members/:schoolUserId/restore`
+- **Method:** `PATCH`
+- **Auth:** Admin sekolah pada sekolah aktif
+
+Endpoint ini mengaktifkan kembali membership sekolah aktif dengan
+`school_users.deleted_at = NULL`. Import/manual add dengan email yang sama juga
+dapat memulihkan membership yang pernah dihapus.
 
 ## Preview Import
 
@@ -71,6 +155,7 @@ Behavior:
 - `defaultPassword` wajib diisi dan hanya dipakai untuk akun baru.
 - Jika email sudah ada sebagai akun global aktif, user dipakai ulang.
 - Membership `school_users` dibuat untuk sekolah aktif jika belum ada.
+- Membership `school_users` yang soft-deleted dipulihkan jika email cocok.
 - Role dimasukkan ke `user_roles` tanpa menghapus role lain.
 - Jika `classCode` diisi dan role adalah `student`, student dienroll ke kelas
   aktif tersebut.

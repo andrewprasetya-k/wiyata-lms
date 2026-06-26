@@ -299,15 +299,22 @@ Content-Type: application/json
 
 *Super admin harus enroll sebagai admin di sekolah tersebut
 
-### School Member Import
+### School Members
 | Endpoint | Method | super_admin | admin | teacher | student |
 |----------|--------|-------------|-------|---------|---------|
+| `/admin/school-members` | GET | ❌ | ✅ | ❌ | ❌ |
+| `/admin/school-members` | POST | ❌ | ✅ | ❌ | ❌ |
+| `/admin/school-members/:schoolUserId` | DELETE | ❌ | ✅ | ❌ | ❌ |
+| `/admin/school-members/:schoolUserId/restore` | PATCH | ❌ | ✅ | ❌ | ❌ |
 | `/admin/school-members/import/preview` | POST | ❌ | ✅ | ❌ | ❌ |
 | `/admin/school-members/import/commit` | POST | ❌ | ✅ | ❌ | ❌ |
 
-Import warga sekolah hanya bekerja pada sekolah aktif milik Admin Sekolah.
-Role yang diterima hanya `student`, `teacher`, dan `admin`; `super_admin`
-ditolak.
+Warga sekolah hanya dikelola pada sekolah aktif milik Admin Sekolah. Role yang
+diterima hanya `student`, `teacher`, dan `admin`; `super_admin` ditolak.
+Membership aktif berarti `school_users.deleted_at IS NULL`. Menghapus warga
+dari sekolah hanya mengisi `school_users.deleted_at`; akun global di `users`
+tidak dihapus. Import/manual add dapat memulihkan membership yang pernah
+soft-deleted pada sekolah aktif.
 
 ### Academic Structure
 | Endpoint | Method | super_admin | admin | teacher | student |
@@ -419,6 +426,10 @@ School admins manage existing global users as school memberships and assign role
 their active school context.
 Public `/register` remains available for users creating their own plain global
 account, but it does not grant school membership, roles, or enrollment.
+
+`users.deleted_at` applies to the global login account. `school_users.deleted_at`
+applies only to one school membership and must be filtered out for active school
+contexts, role checks, and tenant-scoped member lists.
 
 ### Enrollment
 | Endpoint | Method | super_admin | admin | teacher | student |

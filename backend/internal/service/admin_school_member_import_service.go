@@ -19,6 +19,10 @@ import (
 type AdminSchoolMemberImportService interface {
 	PreviewCSV(schoolID string, reader io.Reader) (*dto.AdminSchoolMemberImportPreviewResponseDTO, error)
 	Commit(schoolID string, defaultPassword string, rows []dto.AdminSchoolMemberImportRowDTO) (*dto.AdminSchoolMemberImportCommitResponseDTO, error)
+	ListMembers(schoolID string, search string, role string, includeDeleted bool, page int, limit int) (*dto.AdminSchoolMemberListResponseDTO, error)
+	AddMember(schoolID string, input dto.AdminSchoolMemberCreateDTO) (*dto.AdminSchoolMemberResponseDTO, error)
+	RemoveMember(schoolID string, schoolUserID string) error
+	RestoreMember(schoolID string, schoolUserID string) error
 }
 
 type adminSchoolMemberImportService struct {
@@ -120,7 +124,7 @@ func (s *adminSchoolMemberImportService) Commit(schoolID string, defaultPassword
 			if err != nil {
 				return fmt.Errorf("baris %d: %w", row.RowNumber, err)
 			}
-			schoolUser, createdMembership, err := s.findOrCreateSchoolUser(tx, schoolID, user.ID)
+			schoolUser, membershipAction, err := s.findOrCreateSchoolUser(tx, schoolID, user.ID)
 			if err != nil {
 				return fmt.Errorf("baris %d: %w", row.RowNumber, err)
 			}
@@ -144,7 +148,10 @@ func (s *adminSchoolMemberImportService) Commit(schoolID string, defaultPassword
 				}
 			}
 
-			if !createdUser && !createdMembership && !roleAssigned && !classTouched {
+			if membershipAction == "restored" {
+				result.Reason = "Membership sekolah dipulihkan."
+			}
+			if !createdUser && membershipAction == "existing" && !roleAssigned && !classTouched {
 				result.Status = "skipped"
 				result.Reason = "Akun sudah menjadi warga sekolah dengan data yang sama."
 			}
@@ -168,6 +175,151 @@ func (s *adminSchoolMemberImportService) Commit(schoolID string, defaultPassword
 		}
 	}
 	return &response, nil
+}
+
+func (s *adminSchoolMemberImportService) ListMembers(schoolID string, search string, role string, includeDeleted bool, page int, limit int) (*dto.AdminSchoolMemberListResponseDTO, error) {
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 {
+		limit = 20
+	}
+	if limit > 100 {
+		limit = 100
+	}
+	role = strings.ToLower(strings.TrimSpace(role))
+	if role != "" && !allowedSchoolMemberImportRoles[role] {
+		return nil, errors.New("role filter tidak valid")
+	}
+
+	query := s.db.Model(&domain.SchoolUser{}).
+		Preload("User").
+		Preload("Roles.Role").
+		Where("scu_sch_id = ?", schoolID)
+	if includeDeleted {
+		query = query.Unscoped()
+	}
+	if search = strings.TrimSpace(search); search != "" {
+		searchTerm := "%" + search + "%"
+		query = query.Joins("JOIN edv.users ON users.usr_id = school_users.scu_usr_id AND users.deleted_at IS NULL").
+			Where("users.usr_nama_lengkap ILIKE ? OR users.usr_email ILIKE ?", searchTerm, searchTerm)
+	}
+	if role != "" {
+		query = query.
+			Joins("JOIN edv.user_roles ur ON ur.urol_scu_id = school_users.scu_id").
+			Joins("JOIN edv.roles r ON r.rol_id = ur.urol_rol_id").
+			Where("r.rol_name = ?", role)
+	}
+
+	var total int64
+	if err := query.Count(&total).Error; err != nil {
+		return nil, err
+	}
+
+	var members []*domain.SchoolUser
+	offset := (page - 1) * limit
+	if err := query.Limit(limit).Offset(offset).Order("created_at desc").Find(&members).Error; err != nil {
+		return nil, err
+	}
+
+	classCodes, err := s.classCodesBySchoolUser(schoolID, members)
+	if err != nil {
+		return nil, err
+	}
+
+	data := make([]dto.AdminSchoolMemberResponseDTO, 0, len(members))
+	for _, member := range members {
+		data = append(data, s.mapSchoolMember(member, classCodes[member.ID]))
+	}
+
+	totalPages := (total + int64(limit) - 1) / int64(limit)
+	return &dto.AdminSchoolMemberListResponseDTO{
+		Data:       data,
+		TotalItems: total,
+		Page:       page,
+		Limit:      limit,
+		TotalPages: int(totalPages),
+	}, nil
+}
+
+func (s *adminSchoolMemberImportService) AddMember(schoolID string, input dto.AdminSchoolMemberCreateDTO) (*dto.AdminSchoolMemberResponseDTO, error) {
+	row := normalizedImportRow{
+		RowNumber: 1,
+		FullName:  strings.TrimSpace(input.FullName),
+		Email:     strings.ToLower(strings.TrimSpace(input.Email)),
+		Role:      strings.ToLower(strings.TrimSpace(input.Role)),
+		ClassCode: strings.TrimSpace(input.ClassCode),
+	}
+	preview, err := s.validateRows(schoolID, []normalizedImportRow{row})
+	if err != nil {
+		return nil, err
+	}
+	if preview.InvalidCount > 0 {
+		return nil, errors.New(strings.Join(preview.Rows[0].Errors, "; "))
+	}
+
+	var response *dto.AdminSchoolMemberResponseDTO
+	err = s.db.Transaction(func(tx *gorm.DB) error {
+		user, _, err := s.findOrCreateUser(tx, row.FullName, row.Email, input.Password)
+		if err != nil {
+			return err
+		}
+		schoolUser, _, err := s.findOrCreateSchoolUser(tx, schoolID, user.ID)
+		if err != nil {
+			return err
+		}
+		roleID, err := s.findRoleID(tx, row.Role)
+		if err != nil {
+			return err
+		}
+		if _, err := s.ensureRole(tx, schoolUser.ID, roleID); err != nil {
+			return err
+		}
+		if row.ClassCode != "" && row.Role == "student" {
+			classID, err := s.findClassIDByCode(tx, schoolID, row.ClassCode)
+			if err != nil {
+				return err
+			}
+			if _, err := s.ensureActiveStudentEnrollment(tx, schoolID, schoolUser.ID, classID); err != nil {
+				return err
+			}
+		}
+		if err := tx.Preload("User").Preload("Roles.Role").Where("scu_id = ?", schoolUser.ID).First(schoolUser).Error; err != nil {
+			return err
+		}
+		classCodes, err := s.classCodesBySchoolUserTx(tx, schoolID, []string{schoolUser.ID})
+		if err != nil {
+			return err
+		}
+		mapped := s.mapSchoolMember(schoolUser, classCodes[schoolUser.ID])
+		response = &mapped
+		return nil
+	})
+	return response, err
+}
+
+func (s *adminSchoolMemberImportService) RemoveMember(schoolID string, schoolUserID string) error {
+	result := s.db.Where("scu_id = ? AND scu_sch_id = ?", schoolUserID, schoolID).Delete(&domain.SchoolUser{})
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return nil
+}
+
+func (s *adminSchoolMemberImportService) RestoreMember(schoolID string, schoolUserID string) error {
+	result := s.db.Unscoped().Model(&domain.SchoolUser{}).
+		Where("scu_id = ? AND scu_sch_id = ?", schoolUserID, schoolID).
+		Update("deleted_at", nil)
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return nil
 }
 
 func (s *adminSchoolMemberImportService) parseCSV(content []byte) ([]normalizedImportRow, error) {
@@ -343,23 +495,32 @@ func (s *adminSchoolMemberImportService) findOrCreateUser(tx *gorm.DB, fullName 
 	return &user, true, nil
 }
 
-func (s *adminSchoolMemberImportService) findOrCreateSchoolUser(tx *gorm.DB, schoolID string, userID string) (*domain.SchoolUser, bool, error) {
+func (s *adminSchoolMemberImportService) findOrCreateSchoolUser(tx *gorm.DB, schoolID string, userID string) (*domain.SchoolUser, string, error) {
 	var schoolUser domain.SchoolUser
-	err := tx.Where("scu_sch_id = ? AND scu_usr_id = ?", schoolID, userID).First(&schoolUser).Error
+	err := tx.Unscoped().Where("scu_sch_id = ? AND scu_usr_id = ?", schoolID, userID).First(&schoolUser).Error
 	if err == nil {
-		return &schoolUser, false, nil
+		if schoolUser.DeletedAt.Valid {
+			if err := tx.Unscoped().Model(&domain.SchoolUser{}).
+				Where("scu_id = ?", schoolUser.ID).
+				Update("deleted_at", nil).Error; err != nil {
+				return nil, "", err
+			}
+			schoolUser.DeletedAt = gorm.DeletedAt{}
+			return &schoolUser, "restored", nil
+		}
+		return &schoolUser, "existing", nil
 	}
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, false, err
+		return nil, "", err
 	}
 	schoolUser = domain.SchoolUser{
 		SchoolID: schoolID,
 		UserID:   userID,
 	}
 	if err := tx.Create(&schoolUser).Error; err != nil {
-		return nil, false, err
+		return nil, "", err
 	}
-	return &schoolUser, true, nil
+	return &schoolUser, "created", nil
 }
 
 func (s *adminSchoolMemberImportService) findRoleID(tx *gorm.DB, roleName string) (string, error) {
@@ -420,6 +581,66 @@ func (s *adminSchoolMemberImportService) ensureActiveStudentEnrollment(tx *gorm.
 		return false, err
 	}
 	return true, nil
+}
+
+func (s *adminSchoolMemberImportService) classCodesBySchoolUser(schoolID string, members []*domain.SchoolUser) (map[string][]string, error) {
+	ids := make([]string, 0, len(members))
+	for _, member := range members {
+		ids = append(ids, member.ID)
+	}
+	return s.classCodesBySchoolUserTx(s.db, schoolID, ids)
+}
+
+func (s *adminSchoolMemberImportService) classCodesBySchoolUserTx(tx *gorm.DB, schoolID string, schoolUserIDs []string) (map[string][]string, error) {
+	result := map[string][]string{}
+	if len(schoolUserIDs) == 0 {
+		return result, nil
+	}
+
+	type classCodeRow struct {
+		SchoolUserID string
+		ClassCode    string
+	}
+	var rows []classCodeRow
+	err := tx.Table("edv.enrollments e").
+		Select("e.enr_scu_id AS school_user_id, c.cls_code AS class_code").
+		Joins("JOIN edv.classes c ON c.cls_id = e.enr_cls_id").
+		Where("e.enr_sch_id = ? AND e.enr_scu_id IN ? AND e.left_at IS NULL", schoolID, schoolUserIDs).
+		Where("c.cls_sch_id = ? AND c.deleted_at IS NULL", schoolID).
+		Order("c.cls_code ASC").
+		Scan(&rows).Error
+	if err != nil {
+		return nil, err
+	}
+	for _, row := range rows {
+		result[row.SchoolUserID] = append(result[row.SchoolUserID], row.ClassCode)
+	}
+	return result, nil
+}
+
+func (s *adminSchoolMemberImportService) mapSchoolMember(member *domain.SchoolUser, classCodes []string) dto.AdminSchoolMemberResponseDTO {
+	roles := make([]string, 0, len(member.Roles))
+	for _, role := range member.Roles {
+		if role.Role.Name == "" || role.Role.Name == "super_admin" {
+			continue
+		}
+		roles = append(roles, role.Role.Name)
+	}
+	var deletedAt *string
+	if member.DeletedAt.Valid {
+		formatted := member.DeletedAt.Time.Format("02-01-2006 15:04:05")
+		deletedAt = &formatted
+	}
+	return dto.AdminSchoolMemberResponseDTO{
+		SchoolUserID: member.ID,
+		UserID:       member.UserID,
+		FullName:     member.User.FullName,
+		Email:        member.User.Email,
+		Roles:        roles,
+		ClassCodes:   classCodes,
+		CreatedAt:    member.CreatedAt.Format("02-01-2006 15:04:05"),
+		DeletedAt:    deletedAt,
+	}
 }
 
 func csvValue(record []string, index int) string {

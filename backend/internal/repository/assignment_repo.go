@@ -157,12 +157,12 @@ func (r *assignmentRepository) GetTeacherSubmissionInbox(userID string, schoolID
 		Joins("JOIN edv.subject_classes sc ON sc.scl_id = a.asg_scl_id").
 		Joins("JOIN edv.classes c ON c.cls_id = sc.scl_cls_id").
 		Joins("JOIN edv.subjects sub ON sub.sub_id = sc.scl_sub_id").
-		Joins("JOIN edv.school_users teacher_scu ON teacher_scu.scu_id = sc.scl_scu_id").
+		Joins("JOIN edv.school_users teacher_scu ON teacher_scu.scu_id = sc.scl_scu_id AND teacher_scu.deleted_at IS NULL").
 		Joins("JOIN edv.enrollments teacher_e ON teacher_e.enr_cls_id = sc.scl_cls_id AND teacher_e.enr_scu_id = sc.scl_scu_id").
 		Joins("LEFT JOIN edv.submissions s ON s.sbm_asg_id = a.asg_id AND s.sbm_sch_id = ? AND s.deleted_at IS NULL", schoolID).
 		Joins("LEFT JOIN (SELECT DISTINCT asm_sbm_id FROM edv.assessments) asm ON asm.asm_sbm_id = s.sbm_id").
 		Where("a.asg_sch_id = ? AND a.deleted_at IS NULL", schoolID).
-		Where("teacher_scu.scu_usr_id = ? AND teacher_scu.scu_sch_id = ?", userID, schoolID).
+		Where("teacher_scu.scu_usr_id = ? AND teacher_scu.scu_sch_id = ? AND teacher_scu.deleted_at IS NULL", userID, schoolID).
 		Where("teacher_e.enr_sch_id = ? AND teacher_e.enr_role = ? AND teacher_e.left_at IS NULL", schoolID, "teacher").
 		Where("c.cls_sch_id = ? AND c.deleted_at IS NULL", schoolID).
 		Where("sub.sub_sch_id = ?", schoolID).
@@ -194,13 +194,13 @@ func (r *assignmentRepository) GetTeacherAssignmentInbox(userID string, schoolID
 		Joins("JOIN edv.subject_classes sc ON sc.scl_id = a.asg_scl_id").
 		Joins("JOIN edv.classes c ON c.cls_id = sc.scl_cls_id").
 		Joins("JOIN edv.subjects sub ON sub.sub_id = sc.scl_sub_id").
-		Joins("JOIN edv.school_users teacher_scu ON teacher_scu.scu_id = sc.scl_scu_id").
+		Joins("JOIN edv.school_users teacher_scu ON teacher_scu.scu_id = sc.scl_scu_id AND teacher_scu.deleted_at IS NULL").
 		Joins("JOIN edv.enrollments teacher_e ON teacher_e.enr_cls_id = sc.scl_cls_id AND teacher_e.enr_scu_id = sc.scl_scu_id").
 		Joins("LEFT JOIN edv.assignment_categories ac ON ac.asc_id = a.asg_asc_id").
 		Joins("LEFT JOIN edv.submissions s ON s.sbm_asg_id = a.asg_id AND s.sbm_sch_id = ? AND s.deleted_at IS NULL", schoolID).
 		Joins("LEFT JOIN (SELECT DISTINCT asm_sbm_id FROM edv.assessments) asm ON asm.asm_sbm_id = s.sbm_id").
 		Where("a.asg_sch_id = ? AND a.deleted_at IS NULL", schoolID).
-		Where("teacher_scu.scu_usr_id = ? AND teacher_scu.scu_sch_id = ?", userID, schoolID).
+		Where("teacher_scu.scu_usr_id = ? AND teacher_scu.scu_sch_id = ? AND teacher_scu.deleted_at IS NULL", userID, schoolID).
 		Where("teacher_e.enr_sch_id = ? AND teacher_e.enr_role = ? AND teacher_e.left_at IS NULL", schoolID, "teacher").
 		Where("c.cls_sch_id = ? AND c.deleted_at IS NULL", schoolID).
 		Where("sub.sub_sch_id = ?", schoolID).
@@ -236,7 +236,7 @@ func (r *assignmentRepository) GetStudentAssignmentInbox(userID string, schoolID
 		Joins("JOIN edv.classes c ON c.cls_id = sc.scl_cls_id").
 		Joins("JOIN edv.subjects sub ON sub.sub_id = sc.scl_sub_id").
 		Joins("JOIN edv.enrollments e ON e.enr_cls_id = c.cls_id").
-		Joins("JOIN edv.school_users scu ON scu.scu_id = e.enr_scu_id").
+		Joins("JOIN edv.school_users scu ON scu.scu_id = e.enr_scu_id AND scu.deleted_at IS NULL").
 		Joins("LEFT JOIN edv.assignment_categories ac ON ac.asc_id = a.asg_asc_id").
 		Joins(`LEFT JOIN LATERAL (
 			SELECT *
@@ -259,7 +259,7 @@ func (r *assignmentRepository) GetStudentAssignmentInbox(userID string, schoolID
 		Where("c.cls_sch_id = ? AND c.deleted_at IS NULL", schoolID).
 		Where("sub.sub_sch_id = ?", schoolID).
 		Where("e.enr_sch_id = ? AND e.enr_role = ? AND e.left_at IS NULL", schoolID, "student").
-		Where("scu.scu_usr_id = ? AND scu.scu_sch_id = ?", userID, schoolID).
+		Where("scu.scu_usr_id = ? AND scu.scu_sch_id = ? AND scu.deleted_at IS NULL", userID, schoolID).
 		Order("is_overdue DESC, is_submitted ASC, a.asg_deadline ASC NULLS LAST, a.asg_title ASC").
 		Scan(&rows).Error
 	return rows, err

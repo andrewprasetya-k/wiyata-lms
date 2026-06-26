@@ -135,7 +135,7 @@ func (r *rbacRepository) GetUserRoleNamesInSchool(userID, schoolID string) ([]st
 		Select("roles.rol_name").
 		Joins("JOIN edv.school_users ON edv.school_users.scu_id = edv.user_roles.urol_scu_id").
 		Joins("JOIN edv.roles ON edv.roles.rol_id = edv.user_roles.urol_rol_id").
-		Where("edv.school_users.scu_usr_id = ? AND edv.school_users.scu_sch_id = ?", userID, schoolID).
+		Where("edv.school_users.scu_usr_id = ? AND edv.school_users.scu_sch_id = ? AND edv.school_users.deleted_at IS NULL", userID, schoolID).
 		Pluck("edv.roles.rol_name", &roleNames).Error
 	return roleNames, err
 }
@@ -144,7 +144,7 @@ func (r *rbacRepository) GetUserRoleNamesInSchool(userID, schoolID string) ([]st
 func (r *rbacRepository) IsUserInSchool(userID, schoolID string) (bool, error) {
 	var count int64
 	err := r.db.Table("edv.school_users").
-		Where("scu_usr_id = ? AND scu_sch_id = ?", userID, schoolID).
+		Where("scu_usr_id = ? AND scu_sch_id = ? AND deleted_at IS NULL", userID, schoolID).
 		Count(&count).Error
 	return count > 0, err
 }
@@ -154,7 +154,7 @@ func (r *rbacRepository) GetSchoolUserID(userID, schoolID string) (string, error
 	var scuID string
 	err := r.db.Table("edv.school_users").
 		Select("scu_id").
-		Where("scu_usr_id = ? AND scu_sch_id = ?", userID, schoolID).
+		Where("scu_usr_id = ? AND scu_sch_id = ? AND deleted_at IS NULL", userID, schoolID).
 		Pluck("scu_id", &scuID).Error
 	if err != nil {
 		return "", err
@@ -171,7 +171,7 @@ func (r *rbacRepository) IsSuperAdmin(userID string) (bool, error) {
 	err := r.db.Table("edv.user_roles").
 		Joins("JOIN edv.roles ON edv.roles.rol_id = edv.user_roles.urol_rol_id").
 		Joins("JOIN edv.school_users ON edv.school_users.scu_id = edv.user_roles.urol_scu_id").
-		Where("edv.school_users.scu_usr_id = ? AND edv.roles.rol_name = ?", userID, "super_admin").
+		Where("edv.school_users.scu_usr_id = ? AND edv.school_users.deleted_at IS NULL AND edv.roles.rol_name = ?", userID, "super_admin").
 		Count(&count).Error
 	return count > 0, err
 }

@@ -57,7 +57,11 @@ Authorization: Bearer <your-jwt-token>
 - `PATCH /users/change-password/:id` - Change password by ID (system super_admin only; future `/me/change-password` recommended)
 - `DELETE /users/:id` - Delete user (system super_admin only)
 
-## 👥 Admin School Member Import
+## 👥 Admin School Members
+- `GET /admin/school-members` - List active-school members only (admin only)
+- `POST /admin/school-members` - Add/reuse/restore one active-school member (admin only)
+- `DELETE /admin/school-members/:schoolUserId` - Soft-delete membership from active school (admin only)
+- `PATCH /admin/school-members/:schoolUserId/restore` - Restore soft-deleted active-school membership (admin only)
 - `POST /admin/school-members/import/preview` - Validate CSV import rows for active-school members (admin only)
 - `POST /admin/school-members/import/commit` - Import active-school members from validated rows (admin only)
 

@@ -77,7 +77,7 @@ func (r *subjectClassRepository) GetTeachingByUserAndSchool(userID string, schoo
 			COUNT(DISTINCT asg.asg_id) AS assignment_count,
 			COUNT(DISTINCT CASE WHEN asm.asm_id IS NULL THEN sbm.sbm_id END) AS pending_submissions
 		FROM edv.subject_classes sc
-		JOIN edv.school_users teacher_scu ON teacher_scu.scu_id = sc.scl_scu_id
+		JOIN edv.school_users teacher_scu ON teacher_scu.scu_id = sc.scl_scu_id AND teacher_scu.deleted_at IS NULL
 		JOIN edv.classes c ON c.cls_id = sc.scl_cls_id
 		JOIN edv.subjects sub ON sub.sub_id = sc.scl_sub_id
 		JOIN edv.enrollments teacher_enr
@@ -205,10 +205,10 @@ func (r *subjectClassRepository) TeacherTeachesInClass(schoolUserID string, clas
 func (r *subjectClassRepository) UserTeachesClass(userID string, schoolID string, classID string) (bool, error) {
 	var count int64
 	err := r.db.Table("edv.subject_classes sc").
-		Joins("JOIN edv.school_users teacher_scu ON teacher_scu.scu_id = sc.scl_scu_id").
+		Joins("JOIN edv.school_users teacher_scu ON teacher_scu.scu_id = sc.scl_scu_id AND teacher_scu.deleted_at IS NULL").
 		Joins("JOIN edv.enrollments e ON e.enr_cls_id = sc.scl_cls_id AND e.enr_scu_id = sc.scl_scu_id").
 		Joins("JOIN edv.classes c ON c.cls_id = sc.scl_cls_id").
-		Where("teacher_scu.scu_usr_id = ? AND teacher_scu.scu_sch_id = ?", userID, schoolID).
+		Where("teacher_scu.scu_usr_id = ? AND teacher_scu.scu_sch_id = ? AND teacher_scu.deleted_at IS NULL", userID, schoolID).
 		Where("sc.scl_cls_id = ?", classID).
 		Where("e.enr_sch_id = ? AND e.enr_role = ? AND e.left_at IS NULL", schoolID, "teacher").
 		Where("c.cls_sch_id = ? AND c.deleted_at IS NULL", schoolID).
@@ -237,7 +237,7 @@ func (r *subjectClassRepository) SubjectClassBelongsToSchool(subjectClassID stri
 	err := r.db.Table("edv.subject_classes sc").
 		Joins("JOIN edv.classes c ON c.cls_id = sc.scl_cls_id").
 		Joins("JOIN edv.subjects sub ON sub.sub_id = sc.scl_sub_id").
-		Joins("JOIN edv.school_users teacher_scu ON teacher_scu.scu_id = sc.scl_scu_id").
+		Joins("JOIN edv.school_users teacher_scu ON teacher_scu.scu_id = sc.scl_scu_id AND teacher_scu.deleted_at IS NULL").
 		Where("sc.scl_id = ?", subjectClassID).
 		Where("c.cls_sch_id = ? AND sub.sub_sch_id = ? AND teacher_scu.scu_sch_id = ?", schoolID, schoolID, schoolID).
 		Where("c.deleted_at IS NULL").
@@ -248,7 +248,7 @@ func (r *subjectClassRepository) SubjectClassBelongsToSchool(subjectClassID stri
 func (r *subjectClassRepository) SchoolUserBelongsToSchool(schoolUserID string, schoolID string) (bool, error) {
 	var count int64
 	err := r.db.Table("edv.school_users").
-		Where("scu_id = ? AND scu_sch_id = ?", schoolUserID, schoolID).
+		Where("scu_id = ? AND scu_sch_id = ? AND deleted_at IS NULL", schoolUserID, schoolID).
 		Count(&count).Error
 	return count > 0, err
 }
@@ -275,9 +275,9 @@ func (r *subjectClassRepository) UserEnrolledInSubjectClassAsRole(userID string,
 	err := r.db.Table("edv.subject_classes sc").
 		Joins("JOIN edv.classes c ON c.cls_id = sc.scl_cls_id").
 		Joins("JOIN edv.enrollments e ON e.enr_cls_id = c.cls_id").
-		Joins("JOIN edv.school_users scu ON scu.scu_id = e.enr_scu_id").
+		Joins("JOIN edv.school_users scu ON scu.scu_id = e.enr_scu_id AND scu.deleted_at IS NULL").
 		Where("sc.scl_id = ?", subjectClassID).
-		Where("c.cls_sch_id = ? AND e.enr_sch_id = ? AND scu.scu_sch_id = ?", schoolID, schoolID, schoolID).
+		Where("c.cls_sch_id = ? AND e.enr_sch_id = ? AND scu.scu_sch_id = ? AND scu.deleted_at IS NULL", schoolID, schoolID, schoolID).
 		Where("scu.scu_usr_id = ? AND e.enr_role = ?", userID, role).
 		Where("e.left_at IS NULL").
 		Where("c.deleted_at IS NULL").
@@ -288,12 +288,12 @@ func (r *subjectClassRepository) UserEnrolledInSubjectClassAsRole(userID string,
 func (r *subjectClassRepository) TeacherOwnsSubjectClass(userID string, schoolID string, subjectClassID string) (bool, error) {
 	var count int64
 	err := r.db.Table("edv.subject_classes sc").
-		Joins("JOIN edv.school_users teacher_scu ON teacher_scu.scu_id = sc.scl_scu_id").
+		Joins("JOIN edv.school_users teacher_scu ON teacher_scu.scu_id = sc.scl_scu_id AND teacher_scu.deleted_at IS NULL").
 		Joins("JOIN edv.enrollments e ON e.enr_cls_id = sc.scl_cls_id AND e.enr_scu_id = sc.scl_scu_id").
 		Joins("JOIN edv.classes c ON c.cls_id = sc.scl_cls_id").
 		Joins("JOIN edv.subjects sub ON sub.sub_id = sc.scl_sub_id").
 		Where("sc.scl_id = ?", subjectClassID).
-		Where("teacher_scu.scu_usr_id = ? AND teacher_scu.scu_sch_id = ?", userID, schoolID).
+		Where("teacher_scu.scu_usr_id = ? AND teacher_scu.scu_sch_id = ? AND teacher_scu.deleted_at IS NULL", userID, schoolID).
 		Where("e.enr_sch_id = ? AND e.enr_role = ? AND e.left_at IS NULL", schoolID, "teacher").
 		Where("c.cls_sch_id = ? AND sub.sub_sch_id = ?", schoolID, schoolID).
 		Where("c.deleted_at IS NULL").

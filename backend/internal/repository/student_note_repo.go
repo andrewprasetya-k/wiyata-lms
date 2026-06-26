@@ -81,13 +81,13 @@ func (r *studentNoteRepository) GetAccessibleByUserInSchool(schoolID string, use
 		Joins("JOIN edv.subjects sub ON sub.sub_id = sc.scl_sub_id").
 		Joins("JOIN edv.classes c ON c.cls_id = sc.scl_cls_id").
 		Joins("JOIN edv.enrollments e ON e.enr_cls_id = c.cls_id").
-		Joins("JOIN edv.school_users scu ON scu.scu_id = e.enr_scu_id").
+		Joins("JOIN edv.school_users scu ON scu.scu_id = e.enr_scu_id AND scu.deleted_at IS NULL").
 		Where("sn.snt_sch_id = ? AND sn.snt_usr_id = ?", schoolID, userID).
 		Where("m.mat_sch_id = ? AND m.deleted_at IS NULL", schoolID).
 		Where("sub.sub_sch_id = ?", schoolID).
 		Where("c.cls_sch_id = ? AND c.deleted_at IS NULL", schoolID).
 		Where("e.enr_sch_id = ? AND e.enr_role = ? AND e.left_at IS NULL", schoolID, "student").
-		Where("scu.scu_usr_id = ? AND scu.scu_sch_id = ?", userID, schoolID).
+		Where("scu.scu_usr_id = ? AND scu.scu_sch_id = ? AND scu.deleted_at IS NULL", userID, schoolID).
 		Order("sn.updated_at DESC").
 		Scan(&notes).Error
 	return notes, err
