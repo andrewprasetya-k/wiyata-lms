@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref } from "vue";
 import {
-  PhArrowClockwise,
   PhChatCircleText,
   PhPaperPlaneTilt,
   PhWarningCircle,
@@ -288,293 +287,263 @@ function formatDateTime(value?: string | null) {
 </script>
 
 <template>
-  <main class="min-w-0 flex-1 px-5 py-6 sm:px-6 lg:px-8">
-    <section
-      class="mx-auto flex h-full min-h-[calc(100vh-3rem)] max-w-7xl flex-col gap-5"
-    >
-      <header
-        class="rounded-xl border border-[#ebe7df] bg-white px-5 py-4 shadow-sm sm:px-6"
+  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
+    <section class="px-0 py-0 sm:px-0 lg:px-0">
+      <div
+        class="mx-auto flex max-h-screen min-h-[calc(100vh-3rem)] max-w-screen flex-col gap-5"
       >
-        <p
-          class="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b7f74]"
-        >
-          Ruang komunikasi
-        </p>
         <div
-          class="mt-2 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
+          v-if="isBooting"
+          class="grid min-h-140 gap-4 overflow-hidden rounded-xl bg-white p-4 lg:grid-cols-[300px_minmax(0,1fr)]"
         >
-          <div class="min-w-0">
-            <h1 class="text-2xl font-semibold text-[#2f2b3a]">Chat Sekolah</h1>
-            <p class="mt-1 max-w-2xl text-sm text-[#7a7280]">
-              Komunikasi warga sekolah aktif dalam satu ruang bersama.
-            </p>
+          <div class="space-y-3 border-[#ebe7df] lg:border-r lg:pr-4">
+            <div class="h-16 animate-pulse rounded-xl bg-[#f1eee8]" />
+            <div class="h-20 animate-pulse rounded-xl bg-[#f8f7f4]" />
+            <div class="h-20 animate-pulse rounded-xl bg-[#f8f7f4]" />
           </div>
+          <div class="flex flex-col gap-3">
+            <div class="h-16 animate-pulse rounded-xl bg-[#f1eee8]" />
+            <div class="flex-1 animate-pulse rounded-xl bg-[#f8f7f4]" />
+            <div class="h-16 animate-pulse rounded-xl bg-[#f1eee8]" />
+          </div>
+        </div>
+
+        <div
+          v-else-if="accessError"
+          class="flex min-h-105 flex-col items-center justify-center rounded-xl bg-white px-6 py-12 text-center"
+        >
+          <div
+            class="flex h-12 w-12 items-center justify-center rounded-lg bg-[#fef2f2] text-[#dc2626]"
+          >
+            <PhWarningCircle :size="24" weight="duotone" />
+          </div>
+          <h2 class="mt-4 text-base font-semibold text-[#171322]">
+            Chat belum bisa dibuka
+          </h2>
+          <p class="mt-2 max-w-md text-sm leading-6 text-[#6b7280]">
+            {{ accessError }}
+          </p>
           <button
             type="button"
-            class="inline-flex items-center justify-center gap-2 rounded-xl border border-[#d8d2c8] bg-white px-4 py-2 text-sm font-semibold text-[#4f46e5] transition hover:border-[#4f46e5] hover:bg-[#f5f4ff] focus:outline-none focus:ring-2 focus:ring-[#4f46e5]/30 disabled:cursor-not-allowed disabled:opacity-60"
-            :disabled="isBooting || isRefreshing || !selectedRoom"
-            @click="refreshMessages()"
+            class="mt-5 rounded-lg bg-[#171322] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#374151]"
+            @click="bootstrapChat"
           >
-            <PhArrowClockwise
-              :class="['h-4 w-4', isRefreshing ? 'animate-spin' : '']"
-            />
-            Refresh
+            Coba lagi
           </button>
         </div>
-      </header>
 
-      <div
-        v-if="isBooting"
-        class="grid min-h-[560px] gap-4 overflow-hidden rounded-xl border border-[#ebe7df] bg-white p-4 lg:grid-cols-[300px_minmax(0,1fr)]"
-      >
-        <div class="space-y-3 border-[#ebe7df] lg:border-r lg:pr-4">
-          <div class="h-16 animate-pulse rounded-xl bg-[#f1eee8]" />
-          <div class="h-20 animate-pulse rounded-xl bg-[#f8f7f4]" />
-          <div class="h-20 animate-pulse rounded-xl bg-[#f8f7f4]" />
-        </div>
-        <div class="flex flex-col gap-3">
-          <div class="h-16 animate-pulse rounded-xl bg-[#f1eee8]" />
-          <div class="flex-1 animate-pulse rounded-xl bg-[#f8f7f4]" />
-          <div class="h-16 animate-pulse rounded-xl bg-[#f1eee8]" />
-        </div>
-      </div>
-
-      <div
-        v-else-if="accessError"
-        class="flex min-h-[420px] flex-col items-center justify-center rounded-xl border border-[#ebe7df] bg-white px-6 py-12 text-center shadow-sm"
-      >
         <div
-          class="flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-500"
+          v-else
+          class="grid min-h-155 flex-1 overflow-hidden rounded-xl bg-white lg:grid-cols-[300px_minmax(0,1fr)]"
         >
-          <PhWarningCircle class="h-6 w-6" />
-        </div>
-        <h2 class="mt-4 text-lg font-semibold text-[#2f2b3a]">
-          Chat belum bisa dibuka
-        </h2>
-        <p class="mt-2 max-w-md text-sm text-[#7a7280]">{{ accessError }}</p>
-        <button
-          type="button"
-          class="mt-5 rounded-xl bg-[#4f46e5] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#4338ca]"
-          @click="bootstrapChat"
-        >
-          Coba lagi
-        </button>
-      </div>
+          <aside class="min-w-0 border-[#ebe7df] bg-[#fbfaf8] lg:border-r">
+            <div class="bg-white px-4 py-6 border-b border-[#ebe7df] sm:px-5">
+              <p class="text-sm font-semibold text-[#171322]">Room Chat</p>
+            </div>
 
-      <div
-        v-else
-        class="grid min-h-[620px] flex-1 overflow-hidden rounded-xl border border-[#ebe7df] bg-white shadow-sm lg:grid-cols-[300px_minmax(0,1fr)]"
-      >
-        <aside class="min-w-0 border-[#ebe7df] bg-[#fbfaf8] lg:border-r">
-          <div class="border-b border-[#ebe7df] bg-white px-4 py-4">
-            <p class="text-sm font-semibold text-[#2f2b3a]">Daftar ruang</p>
-            <p class="mt-1 text-xs text-[#8b7f74]">
-              Satu ruang utama untuk sekolah aktif.
-            </p>
-          </div>
+            <div class="space-y-2 p-4">
+              <button
+                v-for="room in rooms"
+                :key="room.roomId"
+                type="button"
+                class="flex w-full min-w-0 items-center gap-3 rounded-lg border px-3 py-3 text-left transition hover:bg-white"
+                :class="
+                  selectedRoom?.roomId === room.roomId
+                    ? 'border-[#d7d1ff] bg-white shadow-sm'
+                    : 'border-[#ebe7df] bg-[#fbfaf8]'
+                "
+                @click="
+                  selectedRoom = room;
+                  loadLatestMessages();
+                "
+              >
+                <span
+                  class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-[#4f46e5] text-sm font-semibold text-white"
+                >
+                  {{ getInitials(room.schoolName || room.roomName) }}
+                </span>
+                <span class="min-w-0 flex-1">
+                  <span
+                    class="block truncate text-sm font-semibold text-[#171322]"
+                  >
+                    Ruang Sekolah
+                  </span>
+                  <span class="mt-0.5 block truncate text-xs text-[#6b7280]">
+                    {{
+                      room.lastMessage?.content ||
+                      room.schoolName ||
+                      "Belum ada pesan."
+                    }}
+                  </span>
+                </span>
+                <span class="flex shrink-0 flex-col items-end gap-1">
+                  <span class="text-[11px] text-[#9ca3af]">{{
+                    formatTime(room.lastMessageAt)
+                  }}</span>
+                  <span
+                    v-if="room.unreadCount > 0"
+                    class="rounded-full bg-[#4f46e5] px-2 py-0.5 text-[11px] font-semibold text-white"
+                  >
+                    {{ room.unreadCount }}
+                  </span>
+                </span>
+              </button>
 
-          <div class="space-y-2 p-3">
-            <button
-              v-for="room in rooms"
-              :key="room.roomId"
-              type="button"
-              class="flex w-full min-w-0 items-center gap-3 rounded-lg border px-3 py-3 text-left transition hover:bg-white"
-              :class="
-                selectedRoom?.roomId === room.roomId
-                  ? 'border-[#d7d1ff] bg-white shadow-sm'
-                  : 'border-[#ebe7df] bg-[#fbfaf8]'
-              "
-              @click="
-                selectedRoom = room;
-                loadLatestMessages();
-              "
+              <div
+                v-if="rooms.length === 0"
+                class="rounded-lg border border-dashed border-[#d8d2c8] bg-white px-4 py-8 text-center"
+              >
+                <PhChatCircleText class="mx-auto h-8 w-8 text-[#b5aa9c]" />
+                <p class="mt-3 text-sm font-semibold text-[#171322]">
+                  Ruang belum tersedia
+                </p>
+                <p class="mt-1 text-xs text-[#6b7280]">
+                  Buka ulang halaman untuk membuat ruang sekolah.
+                </p>
+              </div>
+            </div>
+          </aside>
+
+          <section class="flex min-w-0 flex-col bg-[#f8f7f4]">
+            <div
+              class="flex items-center gap-3 border-b border-[#ebe7df] bg-white px-4 py-3 sm:px-5"
             >
-              <span
+              <div
                 class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-[#4f46e5] text-sm font-semibold text-white"
               >
-                {{ getInitials(room.schoolName || room.roomName) }}
-              </span>
-              <span class="min-w-0 flex-1">
-                <span
-                  class="block truncate text-sm font-semibold text-[#2f2b3a]"
-                >
+                {{ roomInitial }}
+              </div>
+              <div class="min-w-0 flex-1">
+                <h2 class="truncate text-sm font-semibold text-[#171322]">
                   Ruang Sekolah
-                </span>
-                <span class="mt-0.5 block truncate text-xs text-[#7a7280]">
-                  {{
-                    room.lastMessage?.content ||
-                    room.schoolName ||
-                    "Belum ada pesan."
-                  }}
-                </span>
-              </span>
-              <span class="flex shrink-0 flex-col items-end gap-1">
-                <span class="text-[11px] text-[#9b948c]">{{
-                  formatTime(room.lastMessageAt)
-                }}</span>
-                <span
-                  v-if="room.unreadCount > 0"
-                  class="rounded-full bg-[#4f46e5] px-2 py-0.5 text-[11px] font-semibold text-white"
-                >
-                  {{ room.unreadCount }}
-                </span>
-              </span>
-            </button>
-
-            <div
-              v-if="rooms.length === 0"
-              class="rounded-lg border border-dashed border-[#d8d2c8] bg-white px-4 py-8 text-center"
-            >
-              <PhChatCircleText class="mx-auto h-8 w-8 text-[#b5aa9c]" />
-              <p class="mt-3 text-sm font-semibold text-[#2f2b3a]">
-                Ruang belum tersedia
-              </p>
-              <p class="mt-1 text-xs text-[#7a7280]">
-                Buka ulang halaman untuk membuat ruang sekolah.
-              </p>
-            </div>
-          </div>
-        </aside>
-
-        <section class="flex min-w-0 flex-col bg-[#f8f7f4]">
-          <div
-            class="flex items-center gap-3 border-b border-[#ebe7df] bg-white px-4 py-3 sm:px-5"
-          >
-            <div
-              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-[#4f46e5] text-sm font-semibold text-white"
-            >
-              {{ roomInitial }}
-            </div>
-            <div class="min-w-0 flex-1">
-              <h2 class="truncate text-sm font-semibold text-[#2f2b3a]">
-                Ruang Sekolah
-              </h2>
-              <p class="truncate text-xs text-[#7a7280]">
-                {{ selectedSchoolName }} · Ruang sekolah
-              </p>
-            </div>
-          </div>
-
-          <div
-            ref="messagesEl"
-            class="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-5"
-          >
-            <div class="mx-auto flex max-w-3xl flex-col gap-3">
-              <button
-                v-if="hasMore"
-                type="button"
-                class="mx-auto rounded-full border border-[#d8d2c8] bg-white px-4 py-2 text-xs font-semibold text-[#4f46e5] transition hover:border-[#4f46e5] disabled:opacity-60"
-                :disabled="isLoadingOlder"
-                @click="loadOlderMessages"
-              >
-                {{ isLoadingOlder ? "Memuat..." : "Muat pesan sebelumnya" }}
-              </button>
-
-              <div v-if="isLoadingMessages" class="space-y-3">
-                <div class="h-12 w-2/3 animate-pulse rounded-2xl bg-white" />
-                <div
-                  class="ml-auto h-12 w-1/2 animate-pulse rounded-2xl bg-[#dfe3ff]"
-                />
-                <div class="h-16 w-3/4 animate-pulse rounded-2xl bg-white" />
-              </div>
-
-              <div
-                v-else-if="threadError"
-                class="rounded-2xl border border-red-100 bg-white px-4 py-6 text-center"
-              >
-                <p class="text-sm font-semibold text-red-600">
-                  {{ threadError }}
+                </h2>
+                <p class="truncate text-xs text-[#6b7280]">
+                  {{ selectedSchoolName }} · Ruang sekolah
                 </p>
+              </div>
+            </div>
+
+            <div
+              ref="messagesEl"
+              class="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-5"
+            >
+              <div class="ml-auto mr-auto flex max-w-screen flex-col gap-3">
                 <button
+                  v-if="hasMore"
                   type="button"
-                  class="mt-3 rounded-xl bg-[#4f46e5] px-4 py-2 text-sm font-semibold text-white"
-                  @click="loadLatestMessages"
+                  class="mx-auto rounded-full border border-[#d8d2c8] bg-white px-4 py-2 text-xs font-semibold text-[#4f46e5] transition hover:border-[#4f46e5] disabled:opacity-60"
+                  :disabled="isLoadingOlder"
+                  @click="loadOlderMessages"
                 >
-                  Coba lagi
+                  {{ isLoadingOlder ? "Memuat..." : "Muat pesan sebelumnya" }}
                 </button>
-              </div>
 
-              <div
-                v-else-if="messages.length === 0"
-                class="flex min-h-80 flex-col items-center justify-center rounded-2xl border border-dashed border-[#d8d2c8] bg-white px-6 text-center"
-              >
-                <PhChatCircleText class="h-10 w-10 text-[#b5aa9c]" />
-                <h3 class="mt-4 text-base font-semibold text-[#2f2b3a]">
-                  Belum ada pesan.
-                </h3>
-                <p class="mt-2 max-w-sm text-sm text-[#7a7280]">
-                  Mulai percakapan pertama di ruang sekolah.
-                </p>
-              </div>
-
-              <template v-else>
-                <article
-                  v-for="message in messages"
-                  :key="message.messageId"
-                  class="flex gap-2"
-                  :class="message.isMine ? 'justify-end' : 'justify-start'"
-                >
+                <div v-if="isLoadingMessages" class="space-y-3">
+                  <div class="h-12 w-2/3 animate-pulse rounded-2xl bg-white" />
                   <div
-                    class="flex max-w-[88%] flex-col gap-1 sm:max-w-[72%]"
-                    :class="message.isMine ? 'items-end' : 'items-start'"
+                    class="ml-auto h-12 w-1/2 animate-pulse rounded-2xl bg-[#dfe3ff]"
+                  />
+                  <div class="h-16 w-3/4 animate-pulse rounded-2xl bg-white" />
+                </div>
+
+                <div
+                  v-else-if="threadError"
+                  class="rounded-2xl border border-red-100 bg-white px-4 py-6 text-center"
+                >
+                  <p class="text-sm font-semibold text-red-600">
+                    {{ threadError }}
+                  </p>
+                  <button
+                    type="button"
+                    class="mt-3 rounded-xl bg-[#4f46e5] px-4 py-2 text-sm font-semibold text-white"
+                    @click="loadLatestMessages"
                   >
-                    <p
-                      v-if="!message.isMine"
-                      class="px-2 text-xs font-medium text-[#7a7280]"
-                    >
-                      {{ message.senderName }}
-                    </p>
+                    Coba lagi
+                  </button>
+                </div>
+
+                <div
+                  v-else-if="messages.length === 0"
+                  class="flex min-h-80 flex-col items-center justify-center rounded-2xl border border-dashed border-[#d8d2c8] bg-white px-6 text-center"
+                >
+                  <PhChatCircleText class="h-10 w-10 text-[#b5aa9c]" />
+                  <h3 class="mt-4 text-base font-semibold text-[#171322]">
+                    Belum ada pesan.
+                  </h3>
+                  <p class="mt-2 max-w-sm text-sm text-[#6b7280]">
+                    Mulai percakapan pertama di ruang sekolah.
+                  </p>
+                </div>
+
+                <template v-else>
+                  <article
+                    v-for="message in messages"
+                    :key="message.messageId"
+                    class="flex gap-2"
+                    :class="message.isMine ? 'justify-end' : 'justify-start'"
+                  >
                     <div
-                      class="rounded-2xl px-4 py-2 text-sm leading-relaxed shadow-sm"
-                      :class="
-                        message.isMine
-                          ? 'rounded-br-md bg-[#4f46e5] text-white'
-                          : 'rounded-bl-md border border-[#ebe7df] bg-white text-[#2f2b3a]'
-                      "
+                      class="flex max-w-[88%] flex-col gap-1 sm:max-w-[72%]"
+                      :class="message.isMine ? 'items-end' : 'items-start'"
                     >
-                      <p class="whitespace-pre-wrap wrap-break-word">
-                        {{ message.content }}
+                      <p
+                        v-if="!message.isMine"
+                        class="px-2 text-xs font-medium text-[#6b7280]"
+                      >
+                        {{ message.senderName }}
+                      </p>
+                      <div
+                        class="rounded-2xl px-4 py-2 text-sm leading-relaxed shadow-sm"
+                        :class="
+                          message.isMine
+                            ? 'rounded-br-md bg-[#4f46e5] text-white'
+                            : 'rounded-bl-md border border-[#ebe7df] bg-white text-[#171322]'
+                        "
+                      >
+                        <p class="whitespace-pre-wrap wrap-break-word">
+                          {{ message.content }}
+                        </p>
+                      </div>
+                      <p class="px-2 text-[11px] text-[#9ca3af]">
+                        {{ formatDateTime(message.createdAt) }}
                       </p>
                     </div>
-                    <p class="px-2 text-[11px] text-[#9b948c]">
-                      {{ formatDateTime(message.createdAt) }}
-                    </p>
-                  </div>
-                </article>
-              </template>
+                  </article>
+                </template>
+              </div>
             </div>
-          </div>
 
-          <form
-            class="border-t border-[#ebe7df] bg-white px-4 py-3 sm:px-5"
-            @submit.prevent="submitMessage"
-          >
-            <p v-if="composerError" class="mb-2 text-sm text-red-600">
-              {{ composerError }}
-            </p>
-            <div class="flex items-end gap-2">
-              <textarea
-                v-model="draft"
-                rows="1"
-                class="max-h-32 min-h-11 flex-1 resize-none rounded-xl border border-transparent bg-[#f3f4f6] px-4 py-3 text-sm text-[#2f2b3a] outline-none transition placeholder:text-[#aaa29a] focus:border-[#c7d2fe] focus:bg-white focus:ring-2 focus:ring-[#4f46e5]/15"
-                placeholder="Tulis pesan..."
-                :disabled="!selectedRoom?.canSend || isSending"
-                @keydown="handleComposerKeydown"
-              />
-              <button
-                type="submit"
-                class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#4f46e5] text-white transition hover:bg-[#4338ca] focus:outline-none focus:ring-2 focus:ring-[#4f46e5]/30 disabled:cursor-not-allowed disabled:bg-[#c7c3d7]"
-                :disabled="!canSend"
-                aria-label="Kirim pesan"
-              >
-                <PhPaperPlaneTilt class="h-5 w-5" weight="fill" />
-              </button>
-            </div>
-            <p class="mt-2 text-xs text-[#9b948c]">
-              Enter untuk kirim, Shift+Enter untuk baris baru.
-            </p>
-          </form>
-        </section>
+            <form
+              class="border-t border-[#ebe7df] bg-white px-4 py-3 sm:px-5"
+              @submit.prevent="submitMessage"
+            >
+              <p v-if="composerError" class="mb-2 text-sm text-red-600">
+                {{ composerError }}
+              </p>
+              <div class="flex items-end gap-2">
+                <textarea
+                  v-model="draft"
+                  rows="1"
+                  class="max-h-32 min-h-11 flex-1 resize-none rounded-xl border border-transparent bg-[#f3f4f6] px-4 py-3 text-sm text-[#171322] outline-none transition placeholder:text-[#aaa29a] focus:border-[#c7d2fe] focus:bg-white focus:ring-2 focus:ring-[#4f46e5]/15"
+                  placeholder="Tulis pesan..."
+                  :disabled="!selectedRoom?.canSend || isSending"
+                  @keydown="handleComposerKeydown"
+                />
+                <button
+                  type="submit"
+                  class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#4f46e5] text-white transition hover:bg-[#4338ca] focus:outline-none focus:ring-2 focus:ring-[#4f46e5]/30 disabled:cursor-not-allowed disabled:bg-[#c7c3d7]"
+                  :disabled="!canSend"
+                  aria-label="Kirim pesan"
+                >
+                  <PhPaperPlaneTilt class="h-5 w-5" weight="fill" />
+                </button>
+              </div>
+              <p class="mt-2 text-xs text-[#9ca3af]">
+                Enter untuk kirim, Shift+Enter untuk baris baru.
+              </p>
+            </form>
+          </section>
+        </div>
       </div>
     </section>
   </main>
