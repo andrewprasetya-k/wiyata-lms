@@ -51,3 +51,10 @@ Admin assessment weight UI
 - Fix input parsing for number/string values.
 - Ensure total validation blocks invalid submit.
 - Revisit UX after backend weights endpoint is stable.
+
+# Set-up super admin e2e process
+
+- user registration
+- user school registration
+- school authentication through email
+- user confirmation on school member invitation
