@@ -11,41 +11,6 @@ import {
   PhUsers,
 } from "@phosphor-icons/vue";
 
-const summaryCards = [
-  {
-    label: "Struktur Akademik",
-    value: "Fondasi",
-    helper: "Tahun ajaran, semester, mata pelajaran, dan kategori tugas.",
-    icon: PhCalendarBlank,
-    tone: "bg-[#fff4ee] text-[#ea580c]",
-    to: "/admin/academic-years",
-  },
-  {
-    label: "Kelas",
-    value: "Ruang belajar",
-    helper: "Kelas dibuat sesuai periode akademik yang dipilih.",
-    icon: PhBookOpen,
-    tone: "bg-[#eef2ff] text-[#4f46e5]",
-    to: "/admin/classes",
-  },
-  {
-    label: "Warga Sekolah",
-    value: "Akun & peran",
-    helper: "Kelola warga sekolah dan peran dalam konteks sekolah aktif.",
-    icon: PhUsers,
-    tone: "bg-[#ecfdf5] text-[#059669]",
-    to: "/admin/users",
-  },
-  {
-    label: "Penempatan Kelas",
-    value: "Akses kelas",
-    helper: "Tempatkan siswa atau guru ke kelas aktif.",
-    icon: PhStudent,
-    tone: "bg-[#fff7ed] text-[#ea580c]",
-    to: "/admin/enrollments",
-  },
-];
-
 const quickActions = [
   {
     title: "Atur Struktur Akademik",
@@ -139,11 +104,6 @@ const managementLinks = [
         class="flex min-w-0 flex-col gap-3 px-5 py-5 sm:px-6 lg:flex-row lg:items-end lg:justify-between lg:px-8"
       >
         <div class="min-w-0">
-          <p
-            class="text-xs font-semibold uppercase tracking-[0.18em] text-[#ea580c]"
-          >
-            Admin sekolah
-          </p>
           <h1 class="mt-2 text-2xl font-semibold text-[#171322] sm:text-3xl">
             Dashboard admin sekolah
           </h1>
@@ -152,13 +112,6 @@ const managementLinks = [
             sekolah, penempatan kelas, dan penugasan mengajar.
           </p>
         </div>
-        <RouterLink
-          to="/admin/academic-years"
-          class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#ea580c] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#c2410c] sm:w-auto"
-        >
-          Mulai pengaturan
-          <PhArrowRight :size="16" weight="bold" />
-        </RouterLink>
       </div>
     </header>
 
@@ -169,7 +122,9 @@ const managementLinks = [
         <section
           class="rounded-xl border border-[#ebe7df] bg-white p-5 shadow-sm"
         >
-          <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div
+            class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between"
+          >
             <div class="min-w-0">
               <p
                 class="text-xs font-semibold uppercase tracking-[0.16em] text-[#ea580c]"
@@ -193,37 +148,7 @@ const managementLinks = [
           </div>
         </section>
 
-        <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <RouterLink
-            v-for="item in summaryCards"
-            :key="item.to"
-            :to="item.to"
-            class="rounded-xl border border-[#ebe7df] bg-white p-4 shadow-sm transition hover:border-[#ea580c] hover:shadow-md"
-          >
-            <div
-              class="flex h-10 w-10 items-center justify-center rounded-xl"
-              :class="item.tone"
-            >
-              <component :is="item.icon" :size="20" weight="duotone" />
-            </div>
-            <p class="mt-4 text-xs font-medium text-[#6b7280]">
-              {{ item.label }}
-            </p>
-            <p class="mt-1 text-lg font-semibold text-[#171322]">
-              {{ item.value }}
-            </p>
-            <p class="mt-2 text-xs leading-5 text-[#6b7280]">
-              {{ item.helper }}
-            </p>
-          </RouterLink>
-        </section>
-
         <section>
-          <p
-            class="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-[#ea580c]"
-          >
-            Aksi cepat
-          </p>
           <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <RouterLink
               v-for="item in quickActions"
@@ -263,7 +188,11 @@ const managementLinks = [
                   Urutan kerja yang disarankan untuk admin sekolah.
                 </p>
               </div>
-              <PhLinkSimple :size="20" class="text-[#ea580c]" weight="duotone" />
+              <PhLinkSimple
+                :size="20"
+                class="text-[#ea580c]"
+                weight="duotone"
+              />
             </div>
 
             <div class="mt-4 divide-y divide-[#f3f4f6]">
@@ -337,9 +266,7 @@ const managementLinks = [
         <section
           class="rounded-xl border border-[#ebe7df] bg-white p-5 shadow-sm"
         >
-          <p class="text-sm font-semibold text-[#171322]">
-            Manajemen sekolah
-          </p>
+          <p class="text-sm font-semibold text-[#171322]">Manajemen sekolah</p>
           <p class="mt-1 text-xs leading-5 text-[#6b7280]">
             Modul utama mengikuti alur pengaturan MVP dan mengarah ke halaman
             admin yang sudah tersedia.
@@ -362,7 +289,7 @@ const managementLinks = [
           </div>
         </section>
 
-        <section
+        <!-- <section
           class="rounded-xl border border-[#ebe7df] bg-white p-5 shadow-sm"
         >
           <p class="text-sm font-semibold text-[#171322]">Catatan MVP</p>
@@ -389,7 +316,7 @@ const managementLinks = [
               </p>
             </div>
           </div>
-        </section>
+        </section> -->
       </aside>
     </section>
   </main>
