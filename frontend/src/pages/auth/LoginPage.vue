@@ -26,7 +26,7 @@ async function submit() {
   try {
     await auth.login({ email: email.value, password: password.value });
     const role = auth.primaryRole();
-    const fallback = role ? dashboardByRole[role] : "/unauthorized";
+    const fallback = role ? dashboardByRole[role] : "/auth/unauthorized";
     await router.push((route.query.redirect as string | undefined) ?? fallback);
   } catch {
     errorMessage.value = "Email atau password tidak valid.";

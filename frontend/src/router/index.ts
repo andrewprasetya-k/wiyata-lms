@@ -351,7 +351,7 @@ router.beforeEach((to) => {
 
   if (to.name === "login" && auth.isAuthenticated) {
     const role = auth.primaryRole();
-    return role ? dashboardByRole[role] : "/unauthorized";
+    return role ? dashboardByRole[role] : "/auth/unauthorized";
   }
 
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
