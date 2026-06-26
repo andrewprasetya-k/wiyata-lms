@@ -29,6 +29,7 @@ import AdminSubjectClasses from "../pages/admin/AdminSubjectClasses.vue";
 import AdminUsers from "../pages/admin/AdminUsers.vue";
 import SuperAdminDashboard from "../pages/superadmin/SuperAdminDashboard.vue";
 import SuperAdminSchools from "../pages/superadmin/SuperAdminSchools.vue";
+import SuperAdminUsers from "../pages/superadmin/SuperAdminUsers.vue";
 import FeaturePlaceholder from "../components/common/FeaturePlaceholder.vue";
 import ReadProfile from "../pages/profile/ReadProfile.vue";
 import TeacherCreate from "../pages/teacher/TeacherCreate.vue";
@@ -326,13 +327,7 @@ const router = createRouter({
         {
           path: "users",
           name: "superadmin-users",
-          component: FeaturePlaceholder,
-          props: {
-            eyebrow: "Platform users",
-            title: "User platform",
-            description:
-              "Pengelolaan user lintas sekolah direncanakan setelah MVP sekolah. Identitas global tetap dikelola sesuai batas akses superadmin.",
-          },
+          component: SuperAdminUsers,
         },
         {
           path: "profile",
