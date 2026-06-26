@@ -9,13 +9,11 @@ import (
 )
 
 type ChatRepository interface {
-	ListStudentRooms(userID string, schoolID string) ([]ChatRoomRow, error)
-	ListTeacherRooms(userID string, schoolID string) ([]ChatRoomRow, error)
-	SubjectClassContext(subjectClassID string, schoolID string) (*ChatRoomRow, error)
+	ListSchoolRooms(userID string, schoolID string) ([]ChatRoomRow, error)
+	GetSchoolRoom(schoolID string) (*domain.ChatRoom, error)
+	CreateSchoolRoom(room *domain.ChatRoom) error
 	GetRoomContext(roomID string, schoolID string) (*ChatRoomRow, error)
-	GetRoomBySubjectClass(schoolID string, subjectClassID string) (*domain.ChatRoom, error)
-	CreateSubjectClassRoom(room *domain.ChatRoom) error
-	UpdateSubjectClassRoomID(subjectClassID string, roomID string) error
+	UserIsActiveSchoolMember(userID string, schoolID string) (bool, error)
 	ListMessages(roomID string, limit int, before *time.Time) ([]ChatMessageRow, error)
 	CreateMessage(message *domain.ChatMessage) error
 	GetMessageByID(messageID string, roomID string) (*ChatMessageRow, error)
@@ -29,14 +27,12 @@ type chatRepository struct {
 
 type ChatRoomRow struct {
 	RoomID         string     `gorm:"column:room_id"`
-	SubjectClassID string     `gorm:"column:subject_class_id"`
-	SubjectID      string     `gorm:"column:subject_id"`
-	SubjectName    string     `gorm:"column:subject_name"`
-	SubjectCode    string     `gorm:"column:subject_code"`
-	ClassID        string     `gorm:"column:class_id"`
-	ClassName      string     `gorm:"column:class_name"`
-	ClassCode      string     `gorm:"column:class_code"`
 	RoomName       string     `gorm:"column:room_name"`
+	RoomType       string     `gorm:"column:room_type"`
+	RoomRefType    string     `gorm:"column:room_ref_type"`
+	RoomRefID      string     `gorm:"column:room_ref_id"`
+	SchoolID       string     `gorm:"column:school_id"`
+	SchoolName     string     `gorm:"column:school_name"`
 	LastMessageID  *string    `gorm:"column:last_message_id"`
 	LastSenderID   *string    `gorm:"column:last_sender_id"`
 	LastSenderName *string    `gorm:"column:last_sender_name"`
@@ -59,87 +55,35 @@ func NewChatRepository(db *gorm.DB) ChatRepository {
 	return &chatRepository{db: db}
 }
 
-func (r *chatRepository) ListStudentRooms(userID string, schoolID string) ([]ChatRoomRow, error) {
+func (r *chatRepository) ListSchoolRooms(userID string, schoolID string) ([]ChatRoomRow, error) {
 	var rows []ChatRoomRow
 	err := r.db.Raw(chatRoomListSelect()+`
-		JOIN edv.enrollments e
-			ON e.enr_cls_id = c.cls_id
-			AND e.enr_sch_id = ?
-			AND e.enr_role = 'student'
-			AND e.left_at IS NULL
 		JOIN edv.school_users scu
-			ON scu.scu_id = e.enr_scu_id
-			AND scu.scu_usr_id = ?
-			AND scu.scu_sch_id = ?
+			ON scu.scu_usr_id = ?
+			AND scu.scu_sch_id = cr.room_sch_id
 			AND scu.deleted_at IS NULL
 		WHERE cr.room_sch_id = ?
-			AND cr.room_type = 'subject'
-			AND cr.room_ref_type = 'subject'
+			AND cr.room_type = 'group'
+			AND cr.room_ref_type = 'school'
+			AND cr.room_ref_id = ?
 			AND cr.deleted_at IS NULL
-			AND c.deleted_at IS NULL
-		ORDER BY COALESCE(lm.created_at, cr.created_at) DESC, sub.sub_name ASC
-	`, schoolID, userID, schoolID, schoolID).Scan(&rows).Error
+			AND s.deleted_at IS NULL
+		ORDER BY COALESCE(lm.created_at, cr.created_at) DESC
+	`, userID, schoolID, schoolID).Scan(&rows).Error
 	return rows, err
 }
 
-func (r *chatRepository) ListTeacherRooms(userID string, schoolID string) ([]ChatRoomRow, error) {
-	var rows []ChatRoomRow
-	err := r.db.Raw(chatRoomListSelect()+`
-		JOIN edv.school_users teacher_scu
-			ON teacher_scu.scu_id = sc.scl_scu_id
-			AND teacher_scu.scu_usr_id = ?
-			AND teacher_scu.scu_sch_id = ?
-			AND teacher_scu.deleted_at IS NULL
-		JOIN edv.enrollments teacher_enr
-			ON teacher_enr.enr_cls_id = c.cls_id
-			AND teacher_enr.enr_scu_id = sc.scl_scu_id
-			AND teacher_enr.enr_sch_id = ?
-			AND teacher_enr.enr_role = 'teacher'
-			AND teacher_enr.left_at IS NULL
-		WHERE cr.room_sch_id = ?
-			AND cr.room_type = 'subject'
-			AND cr.room_ref_type = 'subject'
-			AND cr.deleted_at IS NULL
-			AND c.deleted_at IS NULL
-		ORDER BY COALESCE(lm.created_at, cr.created_at) DESC, sub.sub_name ASC
-	`, userID, schoolID, schoolID, schoolID).Scan(&rows).Error
-	return rows, err
+func (r *chatRepository) GetSchoolRoom(schoolID string) (*domain.ChatRoom, error) {
+	var room domain.ChatRoom
+	err := r.db.Where("room_sch_id = ? AND room_type = ? AND room_ref_type = ? AND room_ref_id = ? AND deleted_at IS NULL", schoolID, "group", "school", schoolID).First(&room).Error
+	return &room, err
 }
 
-func (r *chatRepository) SubjectClassContext(subjectClassID string, schoolID string) (*ChatRoomRow, error) {
-	var row ChatRoomRow
-	err := r.db.Raw(`
-		SELECT
-			COALESCE(cr.room_id::text, '') AS room_id,
-			sc.scl_id AS subject_class_id,
-			sub.sub_id AS subject_id,
-			sub.sub_name AS subject_name,
-			sub.sub_code AS subject_code,
-			c.cls_id AS class_id,
-			c.cls_title AS class_name,
-			c.cls_code AS class_code,
-			TRIM(CONCAT(sub.sub_name, ' - ', c.cls_title)) AS room_name
-		FROM edv.subject_classes sc
-		JOIN edv.classes c ON c.cls_id = sc.scl_cls_id
-		JOIN edv.subjects sub ON sub.sub_id = sc.scl_sub_id
-		LEFT JOIN edv.chat_rooms cr
-			ON cr.room_sch_id = ?
-			AND cr.room_ref_type = 'subject'
-			AND cr.room_ref_id = sc.scl_id
-			AND cr.deleted_at IS NULL
-		WHERE sc.scl_id = ?
-			AND c.cls_sch_id = ?
-			AND sub.sub_sch_id = ?
-			AND c.deleted_at IS NULL
-		LIMIT 1
-	`, schoolID, subjectClassID, schoolID, schoolID).Scan(&row).Error
-	if err != nil {
-		return nil, err
-	}
-	if row.SubjectClassID == "" {
-		return nil, gorm.ErrRecordNotFound
-	}
-	return &row, nil
+func (r *chatRepository) CreateSchoolRoom(room *domain.ChatRoom) error {
+	return r.db.Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "room_sch_id"}, {Name: "room_ref_type"}, {Name: "room_ref_id"}},
+		DoNothing: true,
+	}).Create(room).Error
 }
 
 func (r *chatRepository) GetRoomContext(roomID string, schoolID string) (*ChatRoomRow, error) {
@@ -147,12 +91,13 @@ func (r *chatRepository) GetRoomContext(roomID string, schoolID string) (*ChatRo
 	err := r.db.Raw(chatRoomListSelect()+`
 		WHERE cr.room_id = ?
 			AND cr.room_sch_id = ?
-			AND cr.room_type = 'subject'
-			AND cr.room_ref_type = 'subject'
+			AND cr.room_type = 'group'
+			AND cr.room_ref_type = 'school'
+			AND cr.room_ref_id = ?
 			AND cr.deleted_at IS NULL
-			AND c.deleted_at IS NULL
+			AND s.deleted_at IS NULL
 		LIMIT 1
-	`, roomID, schoolID).Scan(&row).Error
+	`, roomID, schoolID, schoolID).Scan(&row).Error
 	if err != nil {
 		return nil, err
 	}
@@ -162,23 +107,12 @@ func (r *chatRepository) GetRoomContext(roomID string, schoolID string) (*ChatRo
 	return &row, nil
 }
 
-func (r *chatRepository) GetRoomBySubjectClass(schoolID string, subjectClassID string) (*domain.ChatRoom, error) {
-	var room domain.ChatRoom
-	err := r.db.Where("room_sch_id = ? AND room_ref_type = ? AND room_ref_id = ? AND deleted_at IS NULL", schoolID, "subject", subjectClassID).First(&room).Error
-	return &room, err
-}
-
-func (r *chatRepository) CreateSubjectClassRoom(room *domain.ChatRoom) error {
-	return r.db.Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "room_sch_id"}, {Name: "room_ref_type"}, {Name: "room_ref_id"}},
-		DoNothing: true,
-	}).Create(room).Error
-}
-
-func (r *chatRepository) UpdateSubjectClassRoomID(subjectClassID string, roomID string) error {
-	return r.db.Table("edv.subject_classes").
-		Where("scl_id = ?", subjectClassID).
-		Update("scl_chat_room_id", roomID).Error
+func (r *chatRepository) UserIsActiveSchoolMember(userID string, schoolID string) (bool, error) {
+	var count int64
+	err := r.db.Table("edv.school_users").
+		Where("scu_usr_id = ? AND scu_sch_id = ? AND deleted_at IS NULL", userID, schoolID).
+		Count(&count).Error
+	return count > 0, err
 }
 
 func (r *chatRepository) ListMessages(roomID string, limit int, before *time.Time) ([]ChatMessageRow, error) {
@@ -206,8 +140,8 @@ func (r *chatRepository) ListMessages(roomID string, limit int, before *time.Tim
 				WHERE scu.scu_usr_id = msg.msg_usr_id
 					AND scu.scu_sch_id = cr_role.room_sch_id
 					AND scu.deleted_at IS NULL
-					AND r.rol_name IN ('teacher', 'student')
-				ORDER BY CASE r.rol_name WHEN 'teacher' THEN 1 WHEN 'student' THEN 2 ELSE 3 END
+					AND r.rol_name IN ('admin', 'teacher', 'student')
+				ORDER BY CASE r.rol_name WHEN 'admin' THEN 1 WHEN 'teacher' THEN 2 WHEN 'student' THEN 3 ELSE 4 END
 				LIMIT 1
 			) sender_role ON true
 			WHERE msg.msg_room_id = ?
@@ -254,8 +188,8 @@ func (r *chatRepository) GetMessageByID(messageID string, roomID string) (*ChatM
 			WHERE scu.scu_usr_id = msg.msg_usr_id
 				AND scu.scu_sch_id = cr_role.room_sch_id
 				AND scu.deleted_at IS NULL
-				AND r.rol_name IN ('teacher', 'student')
-			ORDER BY CASE r.rol_name WHEN 'teacher' THEN 1 WHEN 'student' THEN 2 ELSE 3 END
+				AND r.rol_name IN ('admin', 'teacher', 'student')
+			ORDER BY CASE r.rol_name WHEN 'admin' THEN 1 WHEN 'teacher' THEN 2 WHEN 'student' THEN 3 ELSE 4 END
 			LIMIT 1
 		) sender_role ON true
 		WHERE msg.msg_id = ?
@@ -326,22 +260,18 @@ func chatRoomContextSelect() string {
 	return `
 		SELECT
 			cr.room_id AS room_id,
-			sc.scl_id AS subject_class_id,
-			sub.sub_id AS subject_id,
-			sub.sub_name AS subject_name,
-			sub.sub_code AS subject_code,
-			c.cls_id AS class_id,
-			c.cls_title AS class_name,
-			c.cls_code AS class_code,
 			cr.room_name AS room_name,
+			cr.room_type AS room_type,
+			cr.room_ref_type AS room_ref_type,
+			cr.room_ref_id AS room_ref_id,
+			s.sch_id AS school_id,
+			s.sch_name AS school_name,
 			lm.msg_id AS last_message_id,
 			lm.msg_usr_id AS last_sender_id,
 			last_sender.usr_nama_lengkap AS last_sender_name,
 			lm.msg_content AS last_content,
 			lm.created_at AS last_message_at
 		FROM edv.chat_rooms cr
-		JOIN edv.subject_classes sc ON sc.scl_id = cr.room_ref_id
-		JOIN edv.classes c ON c.cls_id = sc.scl_cls_id
-		JOIN edv.subjects sub ON sub.sub_id = sc.scl_sub_id
+		JOIN edv.schools s ON s.sch_id = cr.room_sch_id
 	`
 }

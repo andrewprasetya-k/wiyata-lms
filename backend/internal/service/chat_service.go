@@ -13,53 +13,44 @@ import (
 )
 
 const (
-	chatRoomTypeSubject = "subject"
-	chatRefTypeSubject  = "subject"
+	chatRoomTypeSchool  = "group"
+	chatRefTypeSchool   = "school"
 	chatMessageTypeText = "text"
 	maxChatMessageLimit = 50
 	maxChatContentLen   = 5000
+	defaultSchoolRoom   = "Ruang sekolah"
 )
 
 type ChatService interface {
 	ListMyRooms(userID string, schoolID string) ([]dto.ChatRoomDTO, error)
-	OpenSubjectClassRoom(userID string, schoolID string, subjectClassID string) (*dto.ChatRoomDTO, error)
+	OpenSchoolRoom(userID string, schoolID string) (*dto.ChatRoomDTO, error)
 	ListMessages(userID string, schoolID string, roomID string, limit int, before *time.Time) (*dto.ChatMessagesResponseDTO, error)
 	CreateMessage(userID string, schoolID string, roomID string, content string) (*dto.ChatMessageDTO, error)
 	MarkRead(userID string, schoolID string, roomID string, lastReadMessageID *string) error
-	CanAccessSubjectClassChat(userID string, schoolID string, subjectClassID string) (bool, error)
+	CanAccessSchoolChat(userID string, schoolID string) (bool, error)
 	CanAccessRoom(userID string, schoolID string, roomID string) (bool, *repository.ChatRoomRow, error)
 }
 
 type chatService struct {
-	repo             repository.ChatRepository
-	subjectClassRepo repository.SubjectClassRepository
+	repo repository.ChatRepository
 }
 
-func NewChatService(repo repository.ChatRepository, subjectClassRepo repository.SubjectClassRepository) ChatService {
-	return &chatService{
-		repo:             repo,
-		subjectClassRepo: subjectClassRepo,
-	}
+func NewChatService(repo repository.ChatRepository) ChatService {
+	return &chatService{repo: repo}
 }
 
 func (s *chatService) ListMyRooms(userID string, schoolID string) ([]dto.ChatRoomDTO, error) {
-	studentRows, err := s.repo.ListStudentRooms(userID, schoolID)
+	allowed, err := s.CanAccessSchoolChat(userID, schoolID)
 	if err != nil {
 		return nil, err
 	}
-	teacherRows, err := s.repo.ListTeacherRooms(userID, schoolID)
-	if err != nil {
-		return nil, err
+	if !allowed {
+		return nil, fmt.Errorf("forbidden: chat school access denied")
 	}
 
-	seen := make(map[string]bool, len(studentRows)+len(teacherRows))
-	rows := make([]repository.ChatRoomRow, 0, len(studentRows)+len(teacherRows))
-	for _, row := range append(studentRows, teacherRows...) {
-		if row.RoomID == "" || seen[row.RoomID] {
-			continue
-		}
-		seen[row.RoomID] = true
-		rows = append(rows, row)
+	rows, err := s.repo.ListSchoolRooms(userID, schoolID)
+	if err != nil {
+		return nil, err
 	}
 
 	rooms := make([]dto.ChatRoomDTO, 0, len(rows))
@@ -73,45 +64,41 @@ func (s *chatService) ListMyRooms(userID string, schoolID string) ([]dto.ChatRoo
 	return rooms, nil
 }
 
-func (s *chatService) OpenSubjectClassRoom(userID string, schoolID string, subjectClassID string) (*dto.ChatRoomDTO, error) {
-	allowed, err := s.CanAccessSubjectClassChat(userID, schoolID, subjectClassID)
+func (s *chatService) OpenSchoolRoom(userID string, schoolID string) (*dto.ChatRoomDTO, error) {
+	allowed, err := s.CanAccessSchoolChat(userID, schoolID)
 	if err != nil {
 		return nil, err
 	}
 	if !allowed {
-		return nil, fmt.Errorf("forbidden: chat subject class access denied")
+		return nil, fmt.Errorf("forbidden: chat school access denied")
 	}
 
-	context, err := s.repo.SubjectClassContext(subjectClassID, schoolID)
-	if err != nil {
-		return nil, err
-	}
-
-	room, err := s.repo.GetRoomBySubjectClass(schoolID, subjectClassID)
+	room, err := s.repo.GetSchoolRoom(schoolID)
 	if err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, err
 		}
 		room = &domain.ChatRoom{
 			SchoolID:  schoolID,
-			Name:      context.RoomName,
-			Type:      chatRoomTypeSubject,
-			RefType:   chatRefTypeSubject,
-			RefID:     subjectClassID,
+			Name:      defaultSchoolRoom,
+			Type:      chatRoomTypeSchool,
+			RefType:   chatRefTypeSchool,
+			RefID:     schoolID,
 			CreatedBy: userID,
 		}
-		if err := s.repo.CreateSubjectClassRoom(room); err != nil {
+		if err := s.repo.CreateSchoolRoom(room); err != nil {
 			return nil, err
 		}
-		room, err = s.repo.GetRoomBySubjectClass(schoolID, subjectClassID)
+		room, err = s.repo.GetSchoolRoom(schoolID)
 		if err != nil {
 			return nil, err
 		}
-		_ = s.repo.UpdateSubjectClassRoomID(subjectClassID, room.ID)
 	}
 
-	context.RoomID = room.ID
-	context.RoomName = room.Name
+	context, err := s.repo.GetRoomContext(room.ID, schoolID)
+	if err != nil {
+		return nil, err
+	}
 	unread, err := s.repo.UnreadCount(room.ID, userID)
 	if err != nil {
 		return nil, err
@@ -212,24 +199,11 @@ func (s *chatService) MarkRead(userID string, schoolID string, roomID string, la
 	return s.repo.UpsertReadReceipt(roomID, userID, lastReadMessageID)
 }
 
-func (s *chatService) CanAccessSubjectClassChat(userID string, schoolID string, subjectClassID string) (bool, error) {
-	if userID == "" || schoolID == "" || subjectClassID == "" {
+func (s *chatService) CanAccessSchoolChat(userID string, schoolID string) (bool, error) {
+	if userID == "" || schoolID == "" {
 		return false, nil
 	}
-
-	studentOK, err := s.subjectClassRepo.UserEnrolledInSubjectClassAsRole(userID, schoolID, subjectClassID, "student")
-	if err != nil {
-		return false, err
-	}
-	if studentOK {
-		return true, nil
-	}
-
-	teacherOK, err := s.subjectClassRepo.TeacherOwnsSubjectClass(userID, schoolID, subjectClassID)
-	if err != nil {
-		return false, err
-	}
-	return teacherOK, nil
+	return s.repo.UserIsActiveSchoolMember(userID, schoolID)
 }
 
 func (s *chatService) CanAccessRoom(userID string, schoolID string, roomID string) (bool, *repository.ChatRoomRow, error) {
@@ -237,7 +211,10 @@ func (s *chatService) CanAccessRoom(userID string, schoolID string, roomID strin
 	if err != nil {
 		return false, nil, err
 	}
-	allowed, err := s.CanAccessSubjectClassChat(userID, schoolID, room.SubjectClassID)
+	if room.RoomType != chatRoomTypeSchool || room.RoomRefType != chatRefTypeSchool || room.RoomRefID != schoolID || room.SchoolID != schoolID {
+		return false, room, nil
+	}
+	allowed, err := s.CanAccessSchoolChat(userID, schoolID)
 	if err != nil {
 		return false, nil, err
 	}
@@ -264,19 +241,17 @@ func mapChatRoomRow(row repository.ChatRoomRow, unread int64) dto.ChatRoomDTO {
 	}
 
 	return dto.ChatRoomDTO{
-		RoomID:         row.RoomID,
-		SubjectClassID: row.SubjectClassID,
-		SubjectID:      row.SubjectID,
-		SubjectName:    row.SubjectName,
-		SubjectCode:    row.SubjectCode,
-		ClassID:        row.ClassID,
-		ClassName:      row.ClassName,
-		ClassCode:      row.ClassCode,
-		RoomName:       row.RoomName,
-		LastMessage:    lastMessage,
-		LastMessageAt:  lastMessageAt,
-		UnreadCount:    unread,
-		CanSend:        true,
+		RoomID:        row.RoomID,
+		RoomName:      row.RoomName,
+		RoomType:      row.RoomType,
+		RoomRefType:   row.RoomRefType,
+		RoomRefID:     row.RoomRefID,
+		SchoolID:      row.SchoolID,
+		SchoolName:    row.SchoolName,
+		LastMessage:   lastMessage,
+		LastMessageAt: lastMessageAt,
+		UnreadCount:   unread,
+		CanSend:       true,
 	}
 }
 

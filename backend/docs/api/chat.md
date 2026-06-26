@@ -2,17 +2,22 @@
 
 Base URL: `/api/chat`
 
-REST Chat MVP hanya mendukung chat per `subject_class`.
+REST Chat MVP mendukung satu chat room utama per sekolah aktif.
 
 ## Scope MVP
 
-- Subject-class chat only.
+- School-wide chat only.
+- One main room per active school.
 - Text-only messages.
 - REST API only.
-- Student dan teacher only.
+- Admin Sekolah, teacher, dan student boleh berpartisipasi jika masih menjadi
+  member aktif sekolah tersebut.
 - Tidak ada WebSocket/realtime.
-- Tidak ada DM, free group chat, attachment, typing indicator, online/offline,
-  delete/unsend, reply UI, admin moderation, atau notification integration.
+- Tidak ada subject/class room, DM, free group chat, attachment, typing
+  indicator, online/offline, delete/unsend, moderation UI, atau notification
+  integration.
+
+Subject/class chat adalah ekspansi masa depan.
 
 ## Access Rules
 
@@ -21,18 +26,17 @@ Semua endpoint memerlukan:
 - JWT authentication.
 - Active `SchoolId` context.
 - Active school membership (`school_users.deleted_at IS NULL`).
-- Role `student` atau `teacher`.
 
 Room permission tidak memakai `chat_room_members` sebagai source of truth untuk
-MVP. Akses diturunkan dari aturan akademik:
+MVP. Akses hanya berbasis sekolah aktif:
 
-- Student boleh mengakses room subject-class jika aktif terdaftar di class
-  subject-class tersebut (`enrollments.left_at IS NULL`).
-- Teacher boleh mengakses room subject-class jika aktif mengajar subject-class
-  tersebut.
 - `chat_rooms.room_sch_id` harus sama dengan active school.
+- `chat_rooms.room_type = "group"`.
+- `chat_rooms.room_ref_type = "school"`.
+- `chat_rooms.room_ref_id = activeSchoolID`.
 - `chat_rooms.deleted_at IS NULL`.
-- Admin dan super admin tidak otomatis ikut chat akademik MVP.
+- Super admin tidak ikut chat akademik sekolah kecuali juga memiliki membership
+  aktif di sekolah tersebut.
 
 ## Endpoints
 
@@ -40,27 +44,25 @@ MVP. Akses diturunkan dari aturan akademik:
 
 `GET /rooms`
 
-Mengembalikan room subject-class yang sudah dibuka dan dapat diakses oleh user
-saat ini.
+Mengembalikan room sekolah yang sudah dibuka dan dapat diakses oleh user saat
+ini. Untuk MVP, hasilnya maksimal satu room.
 
 ```json
 {
   "rooms": [
     {
       "roomId": "uuid",
-      "subjectClassId": "uuid",
-      "subjectId": "uuid",
-      "subjectName": "Matematika",
-      "subjectCode": "MTK",
-      "classId": "uuid",
-      "className": "Kelas 10 IPA",
-      "classCode": "10-IPA",
-      "roomName": "Matematika - Kelas 10 IPA",
+      "roomName": "Ruang sekolah",
+      "roomType": "group",
+      "roomRefType": "school",
+      "roomRefId": "school-uuid",
+      "schoolId": "school-uuid",
+      "schoolName": "SMA EduVerse",
       "lastMessage": {
         "messageId": "uuid",
         "senderId": "uuid",
         "senderName": "Budi",
-        "content": "Baik, Bu.",
+        "content": "Selamat pagi.",
         "createdAt": "2026-06-26T03:00:00Z"
       },
       "lastMessageAt": "2026-06-26T03:00:00Z",
@@ -71,21 +73,22 @@ saat ini.
 }
 ```
 
-### Open Subject-Class Room
+### Open School Room
 
-`POST /subject-classes/:subjectClassId/open`
+`POST /school/open`
 
-Membuka atau membuat room subject-class. Satu subject-class hanya memiliki satu
-room per school.
+Membuka atau membuat room utama untuk active school.
 
 ```json
 {
   "room": {
     "roomId": "uuid",
-    "subjectClassId": "uuid",
-    "subjectName": "Matematika",
-    "className": "Kelas 10 IPA",
-    "roomName": "Matematika - Kelas 10 IPA",
+    "roomName": "Ruang sekolah",
+    "roomType": "group",
+    "roomRefType": "school",
+    "roomRefId": "school-uuid",
+    "schoolId": "school-uuid",
+    "schoolName": "SMA EduVerse",
     "unreadCount": 0,
     "canSend": true
   }
@@ -109,7 +112,7 @@ lebih lama.
       "senderId": "uuid",
       "senderName": "Budi",
       "senderRole": "student",
-      "content": "Baik, Bu.",
+      "content": "Selamat pagi.",
       "messageType": "text",
       "createdAt": "2026-06-26T03:00:00Z",
       "isMine": true
@@ -126,7 +129,7 @@ lebih lama.
 
 ```json
 {
-  "content": "Halo kelas."
+  "content": "Halo semua."
 }
 ```
 
@@ -152,4 +155,3 @@ payload WebSocket `new_message`.
 
 `lastReadMessageId` opsional. Endpoint ini idempotent dan hanya berlaku jika
 current user memiliki akses ke room.
-

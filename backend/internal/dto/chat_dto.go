@@ -9,19 +9,17 @@ type ChatLastMessageDTO struct {
 }
 
 type ChatRoomDTO struct {
-	RoomID         string              `json:"roomId"`
-	SubjectClassID string              `json:"subjectClassId"`
-	SubjectID      string              `json:"subjectId"`
-	SubjectName    string              `json:"subjectName"`
-	SubjectCode    string              `json:"subjectCode"`
-	ClassID        string              `json:"classId"`
-	ClassName      string              `json:"className"`
-	ClassCode      string              `json:"classCode"`
-	RoomName       string              `json:"roomName"`
-	LastMessage    *ChatLastMessageDTO `json:"lastMessage"`
-	LastMessageAt  *string             `json:"lastMessageAt"`
-	UnreadCount    int64               `json:"unreadCount"`
-	CanSend        bool                `json:"canSend"`
+	RoomID        string              `json:"roomId"`
+	RoomName      string              `json:"roomName"`
+	RoomType      string              `json:"roomType"`
+	RoomRefType   string              `json:"roomRefType"`
+	RoomRefID     string              `json:"roomRefId"`
+	SchoolID      string              `json:"schoolId"`
+	SchoolName    string              `json:"schoolName"`
+	LastMessage   *ChatLastMessageDTO `json:"lastMessage"`
+	LastMessageAt *string             `json:"lastMessageAt"`
+	UnreadCount   int64               `json:"unreadCount"`
+	CanSend       bool                `json:"canSend"`
 }
 
 type ChatMessageDTO struct {

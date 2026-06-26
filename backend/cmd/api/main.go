@@ -114,7 +114,7 @@ func main() {
 	commentHandler := handler.NewCommentHandler(commentService)
 
 	chatRepo := repository.NewChatRepository(db)
-	chatService := service.NewChatService(chatRepo, subjectClassRepo)
+	chatService := service.NewChatService(chatRepo)
 	chatHandler := handler.NewChatHandler(chatService)
 
 	assignmentRepo := repository.NewAssignmentRepository(db)
@@ -342,11 +342,11 @@ func main() {
 
 		chatAPI := api.Group("/chat")
 		{
-			chatAPI.GET("/rooms", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "student", "teacher"), chatHandler.ListRooms)
-			chatAPI.POST("/subject-classes/:subjectClassId/open", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "student", "teacher"), chatHandler.OpenSubjectClassRoom)
-			chatAPI.GET("/rooms/:roomId/messages", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "student", "teacher"), chatHandler.ListMessages)
-			chatAPI.POST("/rooms/:roomId/messages", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "student", "teacher"), chatHandler.CreateMessage)
-			chatAPI.PATCH("/rooms/:roomId/read", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "student", "teacher"), chatHandler.MarkRead)
+			chatAPI.GET("/rooms", middleware.RequireSchoolMember(schoolService), chatHandler.ListRooms)
+			chatAPI.POST("/school/open", middleware.RequireSchoolMember(schoolService), chatHandler.OpenSchoolRoom)
+			chatAPI.GET("/rooms/:roomId/messages", middleware.RequireSchoolMember(schoolService), chatHandler.ListMessages)
+			chatAPI.POST("/rooms/:roomId/messages", middleware.RequireSchoolMember(schoolService), chatHandler.CreateMessage)
+			chatAPI.PATCH("/rooms/:roomId/read", middleware.RequireSchoolMember(schoolService), chatHandler.MarkRead)
 		}
 
 		assignmentAPI := api.Group("/assignments")

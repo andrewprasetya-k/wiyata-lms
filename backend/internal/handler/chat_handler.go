@@ -42,7 +42,7 @@ func (h *ChatHandler) ListRooms(c *gin.Context) {
 	c.JSON(http.StatusOK, dto.ChatRoomsResponseDTO{Rooms: rooms})
 }
 
-func (h *ChatHandler) OpenSubjectClassRoom(c *gin.Context) {
+func (h *ChatHandler) OpenSchoolRoom(c *gin.Context) {
 	userID := middleware.GetUserID(c)
 	schoolID, ok := getChatActiveSchoolID(c)
 	if userID == "" {
@@ -54,7 +54,7 @@ func (h *ChatHandler) OpenSubjectClassRoom(c *gin.Context) {
 		return
 	}
 
-	room, err := h.service.OpenSubjectClassRoom(userID, schoolID, c.Param("subjectClassId"))
+	room, err := h.service.OpenSchoolRoom(userID, schoolID)
 	if err != nil {
 		HandleError(c, err)
 		return

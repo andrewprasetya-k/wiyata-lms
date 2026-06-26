@@ -22,8 +22,9 @@ Role-Based Access Control (RBAC) mengamankan API endpoints berdasarkan role user
 - `super_admin` bisa VIEW data semua sekolah (monitoring/troubleshooting)
 - `super_admin` TIDAK bisa CREATE/UPDATE/DELETE konten akademik tanpa role sekolah
 - Untuk operasi akademik, super_admin harus di-enroll sebagai `admin` atau `teacher` di sekolah tersebut
-- Chat akademik MVP hanya mengizinkan `student` dan `teacher` aktif. Admin dan
-  super admin tidak otomatis ikut room chat subject-class.
+- Chat akademik MVP adalah school-wide chat. Semua member aktif sekolah dapat
+  ikut. Super admin tidak ikut kecuali juga memiliki membership aktif di sekolah
+  tersebut.
 
 ---
 
@@ -356,6 +357,10 @@ soft-deleted pada sekolah aktif.
 | `/notes` | GET | ❌ | ❌ | ❌ | ✅****** |
 | `/notes/material/:materialId` | GET/PUT/DELETE | ❌ | ❌ | ❌ | ✅****** |
 | `/notes/subject-class/:subjectClassId` | GET | ❌ | ❌ | ❌ | ✅****** |
+| `/chat/rooms` | GET | ❌******* | 📖******* | 📖******* | 📖******* |
+| `/chat/school/open` | POST | ❌******* | ✅******* | ✅******* | ✅******* |
+| `/chat/rooms/:roomId/messages` | GET/POST | ❌******* | 📖/✅******* | 📖/✅******* | 📖/✅******* |
+| `/chat/rooms/:roomId/read` | PATCH | ❌******* | ✅******* | ✅******* | ✅******* |
 
 *Teacher material/assignment creation, mutation, assignment detail, submission detail, and assessment access is limited to subject classes taught by the current teacher in the active `SchoolId` context.
 **Admin and shared media access is scoped to active `SchoolId`.
@@ -363,6 +368,7 @@ soft-deleted pada sekolah aktif.
 ****Student submission mutation is limited to the current JWT user's own submission in the active school.
 *****Non-admin media deletion is limited to media owned/uploaded by the current JWT user in the active school.
 ******Student material notes are private to the current JWT user. Access requires active `SchoolId` and active student enrollment (`left_at IS NULL`) in the material or requested subject class's class. Material note access excludes deleted materials, collection responses include only the current user's notes, notes are not exposed to teacher/admin roles, and deletion is a hard delete.
+*******Chat MVP is school-wide and scoped to active `SchoolId`. Access requires active school membership (`school_users.deleted_at IS NULL`). Super admin does not participate unless also an active member of the active school.
 
 Media IDs attached to materials, assignments, and submissions are validated before linking: media must exist, belong to the active school, and be attachable by the actor. Non-admin users can attach only their own uploaded media; admins can attach active-school media where admin mutation is allowed. Assignment categories used by assignments must belong to the active school.
 
