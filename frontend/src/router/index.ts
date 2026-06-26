@@ -28,6 +28,7 @@ import AdminClasses from "../pages/admin/AdminClasses.vue";
 import AdminEnrollments from "../pages/admin/AdminEnrollments.vue";
 import AdminSubjectClasses from "../pages/admin/AdminSubjectClasses.vue";
 import AdminUsers from "../pages/admin/AdminUsers.vue";
+import AdminChat from "../pages/admin/AdminChat.vue";
 import SuperAdminDashboard from "../pages/superadmin/SuperAdminDashboard.vue";
 import SuperAdminSchools from "../pages/superadmin/SuperAdminSchools.vue";
 import SuperAdminUsers from "../pages/superadmin/SuperAdminUsers.vue";
@@ -287,6 +288,12 @@ const router = createRouter({
           path: "academic-years",
           name: "admin-academic-years",
           component: AdminAcademicYears,
+        },
+        {
+          path: "chat",
+          name: "admin-chat",
+          component: AdminChat,
+          meta: { title: "Chat Sekolah" },
         },
         {
           path: "profile",

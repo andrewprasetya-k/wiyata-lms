@@ -3,6 +3,7 @@ import {
   PhBookOpen,
   PhCalendarBlank,
   PhChalkboardTeacher,
+  PhChatCircle,
   PhHouse,
   PhStudent,
   PhUsers,
@@ -24,6 +25,7 @@ const items = [
     icon: PhChalkboardTeacher,
     to: "/admin/subject-classes",
   },
+  { label: "Chat", icon: PhChatCircle, to: "/admin/chat" },
 ];
 </script>
 
