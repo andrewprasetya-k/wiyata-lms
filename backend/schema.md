@@ -95,6 +95,7 @@ scu_id uuid [pk, default: `gen_random_uuid()`]
 scu_usr_id uuid [ref: > users.usr_id]
 scu_sch_id uuid [ref: > schools.sch_id]
 created_at timestamp [default: `now()`]
+deleted_at timestamp
 
 indexes {
 (scu_usr_id, scu_sch_id) [unique]
