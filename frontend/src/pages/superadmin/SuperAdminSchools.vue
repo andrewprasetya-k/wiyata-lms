@@ -194,7 +194,7 @@ onMounted(() => {
             Sekolah
           </h1>
           <p class="mt-2 max-w-3xl text-sm leading-6 text-[#6b7280]">
-            Kelola tenant sekolah EduVerse dari level platform. Operasional
+            Kelola tenant sekolah EduVerse dari tingkat platform. Operasional
             akademik tetap berada di area Admin Sekolah.
           </p>
         </div>
@@ -258,8 +258,8 @@ onMounted(() => {
                 Sekolah platform
               </h2>
               <p class="mt-2 text-sm leading-6 text-[#6b7280]">
-                Daftar ini hanya mengelola identitas tenant sekolah, bukan
-                tahun ajaran, kelas, materi, atau nilai.
+                Daftar ini hanya mengelola identitas tenant sekolah.
+                Operasional akademik tetap dikelola oleh Admin Sekolah.
               </p>
             </div>
             <label class="relative block w-full lg:max-w-xs">

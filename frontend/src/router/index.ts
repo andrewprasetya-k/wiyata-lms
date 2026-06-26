@@ -334,10 +334,10 @@ const router = createRouter({
           name: "superadmin-profile",
           component: ReadProfile,
           props: {
-            eyebrow: "Super admin profile",
-            title: "Profil Superadmin",
+            eyebrow: "Profil Super Admin",
+            title: "Profil Super Admin",
             helper:
-              "Lihat informasi akun platform dan role superadmin dari sesi login. Halaman ini read-only untuk MVP.",
+              "Lihat informasi akun platform dan peran Super Admin dari sesi login.",
           },
         },
       ],

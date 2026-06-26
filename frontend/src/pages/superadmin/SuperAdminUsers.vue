@@ -257,8 +257,7 @@ onMounted(() => {
                 Identitas global saja
               </h2>
               <p class="mt-2 text-sm leading-6 text-[#6b7280]">
-                Halaman ini bersifat read-only dan hanya menampilkan akun login
-                EduVerse.
+                Halaman ini hanya menampilkan akun login EduVerse.
               </p>
             </div>
             <span
@@ -308,8 +307,8 @@ onMounted(() => {
 
             <article class="rounded-lg border border-[#fed7aa] bg-[#fff7ed] p-4">
               <p class="text-xs leading-5 text-[#9a3412]">
-                Operasional akademik seperti kelas, materi, tugas, dan nilai
-                tetap dikelola oleh Admin Sekolah.
+                Operasional akademik setiap sekolah tetap dikelola oleh Admin
+                Sekolah.
               </p>
             </article>
           </div>

@@ -12,7 +12,7 @@ const overviewCards = [
   {
     title: "Sekolah",
     description:
-      "Kelola tenant sekolah EduVerse dari level platform tanpa mengambil alih operasional akademik harian.",
+      "Kelola tenant sekolah EduVerse dari tingkat platform tanpa mengambil alih operasional akademik harian.",
     icon: PhBuildings,
     tone: "bg-[#fff4ee] text-[#ea580c]",
   },
@@ -33,7 +33,7 @@ const overviewCards = [
   {
     title: "Peran Platform",
     description:
-      "Super Admin menjaga akses platform. Operasional kelas, konten, dan nilai tetap milik Admin Sekolah.",
+      "Super Admin menjaga akses platform. Operasional akademik tetap berada di area Admin Sekolah.",
     icon: PhShieldCheck,
     tone: "bg-[#f3f4f6] text-[#6b7280]",
   },
@@ -113,11 +113,11 @@ const quickActions = [
             Pusat platform
           </p>
           <h2 class="mt-2 text-xl font-semibold text-[#171322]">
-            Ruang kerja level platform
+            Ruang kerja tingkat platform
           </h2>
           <p class="mt-2 max-w-3xl text-sm leading-6 text-[#6b7280]">
             Halaman ini adalah ringkasan statis untuk orientasi Super Admin.
-            Tidak ada statistik palsu atau data operasional yang ditampilkan.
+            Tidak ada statistik tanpa sumber data operasional yang ditampilkan.
           </p>
         </section>
 
@@ -185,9 +185,8 @@ const quickActions = [
             </p>
             <p class="mt-2 text-sm leading-6 text-[#6b7280]">
               Super Admin mengatur platform, tenant sekolah, dan akun global.
-              Admin Sekolah tetap menjadi pemilik pengaturan akademik seperti
-              tahun ajaran, kelas, penempatan kelas, penugasan mengajar,
-              materi, tugas, dan penilaian.
+              Pengaturan dan operasional akademik setiap sekolah tetap berada
+              di area Admin Sekolah.
             </p>
             <div class="mt-4 rounded-lg border border-[#fed7aa] bg-[#fff7ed] px-4 py-3">
               <p class="text-xs leading-5 text-[#9a3412]">
