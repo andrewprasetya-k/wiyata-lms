@@ -69,7 +69,7 @@ const router = createRouter({
           path: "login",
           name: "login",
           component: LoginPage,
-          meta: { title: "Masuk ke akunmu sekarang" },
+          meta: { title: "Login" },
         },
         {
           path: "unauthorized",
@@ -102,13 +102,13 @@ const router = createRouter({
           path: "subjects",
           name: "student-subjects",
           component: StudentSubjects,
-          meta: { title: "Pilih subjects untuk dipelajari" },
+          meta: { title: "Daftar subjects" },
         },
         {
           path: "subjects/:sclId",
           name: "student-subject-detail",
           component: StudentSubjectDetail,
-          meta: { title: "Lihat materi untuk dipelajari" },
+          meta: { title: "Isi materi subjects" },
         },
         {
           path: "subjects/:sclId/materials/:matId",
