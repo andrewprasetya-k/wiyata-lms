@@ -294,7 +294,7 @@ function formatDateTime(value?: string | null) {
       >
         <div
           v-if="isBooting"
-          class="grid min-h-140 gap-4 overflow-hidden rounded-xl bg-white p-4 lg:grid-cols-[300px_minmax(0,1fr)]"
+          class="grid min-h-screen gap-4 overflow-hidden rounded-xl bg-white p-4 lg:grid-cols-[300px_minmax(0,1fr)]"
         >
           <div class="space-y-3 border-[#ebe7df] lg:border-r lg:pr-4">
             <div class="h-16 animate-pulse rounded-xl bg-[#f1eee8]" />
