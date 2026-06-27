@@ -47,8 +47,34 @@ export interface ChatMember {
   roles: string[]
 }
 
+export interface ChatGroupMember {
+  userId: string
+  fullName: string
+  email: string
+  role: 'admin' | 'member' | string
+  joinedAt: string
+  leftAt?: string | null
+}
+
+export interface ChatGroupInfo {
+  roomId: string
+  roomName: string
+  roomType: string
+  schoolId: string
+  schoolName: string
+  creator?: ChatMember | null
+  admins: ChatGroupMember[]
+  members: ChatGroupMember[]
+  createdAt: string
+  memberCount: number
+}
+
 export interface ChatMembersResponse {
   members: ChatMember[]
+}
+
+export interface ChatGroupInfoResponse {
+  group: ChatGroupInfo
 }
 
 export interface ChatMessagesResponse {
@@ -63,6 +89,14 @@ export interface ChatMessagePayload {
 
 export interface CreateChatGroupPayload {
   roomName: string
+  memberUserIds: string[]
+}
+
+export interface UpdateChatGroupPayload {
+  roomName: string
+}
+
+export interface AddChatGroupMembersPayload {
   memberUserIds: string[]
 }
 

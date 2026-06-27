@@ -7,15 +7,27 @@ import {
   PhWarningCircle,
 } from "@phosphor-icons/vue";
 import {
+  addChatGroupMembers,
   createChatGroup,
   getChatRooms,
+  getChatGroupInfo,
   getMessages,
+  leaveChatGroup,
   markRoomRead,
   openSchoolChatRoom,
+  removeChatGroupMember,
+  renameChatGroup,
   searchChatMembers,
   sendMessage,
 } from "../../services/chat";
-import type { ChatMember, ChatMessage, ChatRoom } from "../../types/chat";
+import { useAuthStore } from "../../stores/auth";
+import type {
+  ChatGroupInfo,
+  ChatGroupMember,
+  ChatMember,
+  ChatMessage,
+  ChatRoom,
+} from "../../types/chat";
 
 defineProps<{
   audience: "student" | "teacher" | "admin";
@@ -44,7 +56,23 @@ const selectedMemberIds = ref<string[]>([]);
 const isLoadingMembers = ref(false);
 const isCreatingGroup = ref(false);
 const createGroupError = ref("");
+const roomSearch = ref("");
+const isGroupInfoOpen = ref(false);
+const groupInfo = ref<ChatGroupInfo | null>(null);
+const isLoadingGroupInfo = ref(false);
+const groupInfoError = ref("");
+const groupActionError = ref("");
+const renameRoomName = ref("");
+const isRenamingGroup = ref(false);
+const addMemberSearch = ref("");
+const addMemberResults = ref<ChatMember[]>([]);
+const selectedAddMemberIds = ref<string[]>([]);
+const isLoadingAddMembers = ref(false);
+const isAddingMembers = ref(false);
+const isLeavingGroup = ref(false);
+const removingMemberId = ref<string | null>(null);
 let poller: number | undefined;
+const authStore = useAuthStore();
 
 const selectedRoomName = computed(
   () => selectedRoom.value?.roomName || "Ruang sekolah",
@@ -62,11 +90,27 @@ const roomInitial = computed(() => {
   const source = selectedRoomName.value || selectedSchoolName.value;
   return getInitials(source);
 });
+const currentUserId = computed(() => authStore.user?.id || "");
 const schoolRooms = computed(() =>
-  rooms.value.filter((room) => isSchoolRoom(room)),
+  rooms.value.filter((room) => isSchoolRoom(room) && roomMatchesSearch(room)),
 );
 const groupRooms = computed(() =>
-  rooms.value.filter((room) => !isSchoolRoom(room)),
+  rooms.value.filter((room) => !isSchoolRoom(room) && roomMatchesSearch(room)),
+);
+const selectedRoomIsGroup = computed(
+  () => (selectedRoom.value ? !isSchoolRoom(selectedRoom.value) : false),
+);
+const currentUserIsGroupAdmin = computed(() =>
+  Boolean(
+    groupInfo.value?.admins.some(
+      (member) => member.userId === currentUserId.value,
+    ),
+  ),
+);
+const selectedAddMembers = computed(() =>
+  addMemberResults.value.filter((member) =>
+    selectedAddMemberIds.value.includes(member.userId),
+  ),
 );
 
 onMounted(async () => {
@@ -90,7 +134,7 @@ async function bootstrapChat() {
   threadError.value = "";
   try {
     const room = await openSchoolChatRoom();
-    rooms.value = await getChatRooms();
+    rooms.value = await getChatRooms(roomSearch.value.trim());
     selectedRoom.value =
       rooms.value.find((item) => item.roomId === room.roomId) ?? room;
     await loadLatestMessages();
@@ -155,7 +199,7 @@ async function refreshMessages(options: { silent?: boolean } = {}) {
 
 async function refreshRooms() {
   try {
-    const latestRooms = await getChatRooms();
+    const latestRooms = await getChatRooms(roomSearch.value.trim());
     rooms.value = latestRooms;
     if (selectedRoom.value) {
       selectedRoom.value =
@@ -166,6 +210,10 @@ async function refreshRooms() {
   } catch {
     // Room summary refresh is non-critical for the thread.
   }
+}
+
+async function searchRooms() {
+  await refreshRooms();
 }
 
 async function openCreateGroupModal() {
@@ -227,6 +275,151 @@ async function submitCreateGroup() {
     createGroupError.value = resolveChatError(error);
   } finally {
     isCreatingGroup.value = false;
+  }
+}
+
+async function openGroupInfo() {
+  if (!selectedRoom.value || isSchoolRoom(selectedRoom.value)) return;
+  isGroupInfoOpen.value = true;
+  await loadGroupInfo();
+}
+
+async function loadGroupInfo() {
+  if (!selectedRoom.value || isSchoolRoom(selectedRoom.value)) return;
+  isLoadingGroupInfo.value = true;
+  groupInfoError.value = "";
+  groupActionError.value = "";
+  try {
+    groupInfo.value = await getChatGroupInfo(selectedRoom.value.roomId);
+    renameRoomName.value = groupInfo.value.roomName;
+    if (
+      groupInfo.value.admins.some(
+        (member) => member.userId === currentUserId.value,
+      )
+    ) {
+      await loadEligibleMembers();
+    }
+  } catch (error) {
+    groupInfoError.value = resolveChatError(error);
+  } finally {
+    isLoadingGroupInfo.value = false;
+  }
+}
+
+async function submitRenameGroup() {
+  if (!selectedRoom.value || !groupInfo.value) return;
+  const roomName = renameRoomName.value.trim();
+  if (roomName.length < 3) {
+    groupActionError.value = "Nama ruang minimal 3 karakter.";
+    return;
+  }
+  isRenamingGroup.value = true;
+  groupActionError.value = "";
+  try {
+    const room = await renameChatGroup(selectedRoom.value.roomId, { roomName });
+    selectedRoom.value = room;
+    groupInfo.value = { ...groupInfo.value, roomName: room.roomName };
+    await refreshRooms();
+  } catch (error) {
+    groupActionError.value = resolveChatError(error);
+  } finally {
+    isRenamingGroup.value = false;
+  }
+}
+
+async function loadEligibleMembers() {
+  if (!selectedRoom.value || isSchoolRoom(selectedRoom.value)) return;
+  isLoadingAddMembers.value = true;
+  groupActionError.value = "";
+  try {
+    addMemberResults.value = await searchChatMembers(
+      addMemberSearch.value.trim(),
+      selectedRoom.value.roomId,
+    );
+  } catch (error) {
+    groupActionError.value = resolveChatError(error);
+  } finally {
+    isLoadingAddMembers.value = false;
+  }
+}
+
+function toggleAddMember(userId: string) {
+  if (selectedAddMemberIds.value.includes(userId)) {
+    selectedAddMemberIds.value = selectedAddMemberIds.value.filter(
+      (id) => id !== userId,
+    );
+    return;
+  }
+  selectedAddMemberIds.value = [...selectedAddMemberIds.value, userId];
+}
+
+async function submitAddMembers() {
+  if (!selectedRoom.value || selectedAddMemberIds.value.length === 0) {
+    groupActionError.value = "Pilih minimal satu anggota.";
+    return;
+  }
+  isAddingMembers.value = true;
+  groupActionError.value = "";
+  try {
+    await addChatGroupMembers(selectedRoom.value.roomId, {
+      memberUserIds: selectedAddMemberIds.value,
+    });
+    selectedAddMemberIds.value = [];
+    addMemberSearch.value = "";
+    await loadGroupInfo();
+    await refreshRooms();
+  } catch (error) {
+    groupActionError.value = resolveChatError(error);
+  } finally {
+    isAddingMembers.value = false;
+  }
+}
+
+async function leaveSelectedGroup() {
+  if (!selectedRoom.value || isSchoolRoom(selectedRoom.value)) return;
+  const confirmed = window.confirm(
+    `Keluar dari ${roomDisplayName(selectedRoom.value)}? Kamu tidak akan bisa mengakses pesan grup ini lagi.`,
+  );
+  if (!confirmed) return;
+
+  const previousRoomID = selectedRoom.value.roomId;
+  isLeavingGroup.value = true;
+  groupActionError.value = "";
+  try {
+    await leaveChatGroup(previousRoomID);
+    isGroupInfoOpen.value = false;
+    groupInfo.value = null;
+    await refreshRooms();
+    selectedRoom.value =
+      rooms.value.find((room) => isSchoolRoom(room)) ?? rooms.value[0] ?? null;
+    messages.value = [];
+    if (selectedRoom.value) {
+      await loadLatestMessages();
+    }
+  } catch (error) {
+    groupActionError.value = resolveChatError(error);
+  } finally {
+    isLeavingGroup.value = false;
+  }
+}
+
+async function removeMember(member: ChatGroupMember) {
+  if (!selectedRoom.value) return;
+  const confirmed = window.confirm(
+    `Keluarkan ${member.fullName || member.email} dari grup ini?`,
+  );
+  if (!confirmed) return;
+
+  removingMemberId.value = member.userId;
+  groupActionError.value = "";
+  try {
+    await removeChatGroupMember(selectedRoom.value.roomId, member.userId);
+    await loadGroupInfo();
+    await refreshRooms();
+  } catch (error) {
+    groupActionError.value = resolveChatError(error);
+  } finally {
+    removingMemberId.value = null;
   }
 }
 
@@ -338,6 +531,21 @@ function roomDisplayName(room?: ChatRoom | null) {
   return isSchoolRoom(room) ? "Ruang Sekolah" : room.roomName || "Ruang Grup";
 }
 
+function roomMatchesSearch(room: ChatRoom) {
+  const query = roomSearch.value.trim().toLowerCase();
+  if (!query) return true;
+  const haystack = [
+    roomDisplayName(room),
+    room.roomName,
+    room.schoolName,
+    room.lastMessage?.content,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+  return haystack.includes(query);
+}
+
 function resolveChatError(error: unknown) {
   const maybeError = error as {
     response?: { status?: number; data?: { error?: string } };
@@ -438,10 +646,21 @@ function formatDateTime(value?: string | null) {
                   Buat ruang
                 </button>
               </div>
-              <div
-                class="mt-3 rounded-lg bg-[#f3f4f6] px-3 py-2 text-xs text-[#9ca3af]"
-              >
-                Cari pesan...
+              <div class="mt-3 flex gap-2">
+                <input
+                  v-model="roomSearch"
+                  type="search"
+                  class="min-w-0 flex-1 rounded-lg border border-transparent bg-[#f3f4f6] px-3 py-2 text-xs text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#c7d2fe] focus:bg-white focus:ring-2 focus:ring-[#4f46e5]/15"
+                  placeholder="Cari ruang..."
+                  @keydown.enter.prevent="searchRooms"
+                />
+                <button
+                  type="button"
+                  class="rounded-lg border border-[#d8d2c8] px-3 py-2 text-xs font-semibold text-[#4f46e5] transition hover:border-[#4f46e5]"
+                  @click="searchRooms"
+                >
+                  Cari
+                </button>
               </div>
             </div>
 
@@ -578,7 +797,18 @@ function formatDateTime(value?: string | null) {
                 {{ roomInitial }}
               </div>
               <div class="min-w-0 flex-1">
-                <h2 class="truncate text-sm font-semibold text-[#171322]">
+                <button
+                  v-if="selectedRoomIsGroup"
+                  type="button"
+                  class="block max-w-full truncate text-left text-sm font-semibold text-[#171322] transition hover:text-[#4f46e5]"
+                  @click="openGroupInfo"
+                >
+                  {{ roomDisplayName(selectedRoom) }}
+                </button>
+                <h2
+                  v-else
+                  class="truncate text-sm font-semibold text-[#171322]"
+                >
                   {{ roomDisplayName(selectedRoom) }}
                 </h2>
                 <p class="truncate text-xs text-[#6b7280]">
@@ -680,7 +910,7 @@ function formatDateTime(value?: string | null) {
                             : 'rounded-bl-md border border-[#ebe7df] bg-white text-[#171322]'
                         "
                       >
-                        <p class="whitespace-pre-wrap wrap-break-word">
+                        <p class="whitespace-pre-wrap break-words">
                           {{ message.content }}
                         </p>
                       </div>
@@ -867,6 +1097,267 @@ function formatDateTime(value?: string | null) {
             </button>
           </div>
         </form>
+      </div>
+    </div>
+
+    <div
+      v-if="isGroupInfoOpen"
+      class="fixed inset-0 z-50 flex justify-end bg-black/30"
+    >
+      <div
+        class="flex h-full w-full max-w-lg flex-col overflow-hidden bg-white shadow-xl"
+      >
+        <div class="border-b border-[#ebe7df] px-5 py-4">
+          <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <p class="text-xs font-semibold uppercase tracking-[0.06em] text-[#9ca3af]">
+                Info grup
+              </p>
+              <h2 class="mt-1 truncate text-lg font-semibold text-[#171322]">
+                {{ groupInfo?.roomName || roomDisplayName(selectedRoom) }}
+              </h2>
+              <p class="mt-1 text-sm text-[#6b7280]">
+                {{ groupInfo?.memberCount || 0 }} anggota ·
+                {{ groupInfo?.schoolName || selectedSchoolName }}
+              </p>
+            </div>
+            <button
+              type="button"
+              class="rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm font-medium text-[#6b7280] transition hover:bg-[#fbfaf8]"
+              @click="isGroupInfoOpen = false"
+            >
+              Tutup
+            </button>
+          </div>
+        </div>
+
+        <div class="min-h-0 flex-1 overflow-y-auto px-5 py-4">
+          <div v-if="isLoadingGroupInfo" class="space-y-3">
+            <div class="h-16 animate-pulse rounded-xl bg-[#f3f4f6]" />
+            <div class="h-32 animate-pulse rounded-xl bg-[#f3f4f6]" />
+            <div class="h-40 animate-pulse rounded-xl bg-[#f3f4f6]" />
+          </div>
+
+          <div
+            v-else-if="groupInfoError"
+            class="rounded-xl border border-red-100 bg-red-50 px-4 py-5 text-sm text-red-600"
+          >
+            <p>{{ groupInfoError }}</p>
+            <button
+              type="button"
+              class="mt-3 rounded-lg bg-[#4f46e5] px-3 py-2 text-xs font-semibold text-white"
+              @click="loadGroupInfo"
+            >
+              Coba lagi
+            </button>
+          </div>
+
+          <template v-else>
+            <p
+              v-if="groupActionError"
+              class="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600"
+            >
+              {{ groupActionError }}
+            </p>
+
+            <section class="rounded-xl border border-[#ebe7df] bg-[#fbfaf8] p-4">
+              <p class="text-sm font-semibold text-[#171322]">Dibuat oleh</p>
+              <div class="mt-3 flex items-center gap-3">
+                <span
+                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#4f46e5] text-xs font-semibold text-white"
+                >
+                  {{
+                    getInitials(
+                      groupInfo?.creator?.fullName || groupInfo?.creator?.email,
+                    )
+                  }}
+                </span>
+                <span class="min-w-0">
+                  <span class="block truncate text-sm font-medium text-[#171322]">
+                    {{
+                      groupInfo?.creator?.fullName ||
+                      groupInfo?.creator?.email ||
+                      "Tidak tersedia"
+                    }}
+                  </span>
+                  <span class="block truncate text-xs text-[#6b7280]">
+                    {{ groupInfo?.creator?.email }}
+                  </span>
+                </span>
+              </div>
+              <p class="mt-3 text-xs text-[#9ca3af]">
+                Dibuat {{ formatDateTime(groupInfo?.createdAt) }}
+              </p>
+            </section>
+
+            <section
+              v-if="currentUserIsGroupAdmin"
+              class="mt-4 rounded-xl border border-[#ebe7df] bg-white p-4"
+            >
+              <p class="text-sm font-semibold text-[#171322]">Ubah nama grup</p>
+              <form class="mt-3 flex gap-2" @submit.prevent="submitRenameGroup">
+                <input
+                  v-model="renameRoomName"
+                  type="text"
+                  class="min-w-0 flex-1 rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm text-[#171322] outline-none transition focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/15"
+                  placeholder="Nama ruang grup"
+                />
+                <button
+                  type="submit"
+                  class="rounded-lg bg-[#4f46e5] px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:bg-[#c7c3d7]"
+                  :disabled="isRenamingGroup"
+                >
+                  {{ isRenamingGroup ? "Menyimpan..." : "Simpan" }}
+                </button>
+              </form>
+            </section>
+
+            <section
+              v-if="currentUserIsGroupAdmin"
+              class="mt-4 rounded-xl border border-[#ebe7df] bg-white p-4"
+            >
+              <p class="text-sm font-semibold text-[#171322]">Tambah anggota</p>
+              <p class="mt-1 text-xs text-[#6b7280]">
+                Hanya warga aktif sekolah yang belum ada di grup ini.
+              </p>
+              <div class="mt-3 flex gap-2">
+                <input
+                  v-model="addMemberSearch"
+                  type="search"
+                  class="min-w-0 flex-1 rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm text-[#171322] outline-none transition focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/15"
+                  placeholder="Cari nama atau email..."
+                  @keydown.enter.prevent="loadEligibleMembers"
+                />
+                <button
+                  type="button"
+                  class="rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm font-medium text-[#4f46e5] transition hover:border-[#4f46e5] disabled:opacity-60"
+                  :disabled="isLoadingAddMembers"
+                  @click="loadEligibleMembers"
+                >
+                  Cari
+                </button>
+              </div>
+
+              <div class="mt-3 rounded-lg border border-[#ebe7df]">
+                <div v-if="isLoadingAddMembers" class="space-y-2 p-3">
+                  <div class="h-10 animate-pulse rounded-lg bg-[#f3f4f6]" />
+                  <div class="h-10 animate-pulse rounded-lg bg-[#f3f4f6]" />
+                </div>
+                <div
+                  v-else-if="addMemberResults.length === 0"
+                  class="px-3 py-6 text-center text-sm text-[#6b7280]"
+                >
+                  Tidak ada warga yang bisa ditambahkan.
+                </div>
+                <div v-else class="max-h-52 overflow-y-auto p-2">
+                  <label
+                    v-for="member in addMemberResults"
+                    :key="member.userId"
+                    class="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 hover:bg-[#fbfaf8]"
+                  >
+                    <input
+                      type="checkbox"
+                      class="h-4 w-4 rounded border-[#d8d2c8] text-[#4f46e5]"
+                      :checked="selectedAddMemberIds.includes(member.userId)"
+                      @change="toggleAddMember(member.userId)"
+                    />
+                    <span
+                      class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#4f46e5] text-xs font-semibold text-white"
+                    >
+                      {{ getInitials(member.fullName || member.email) }}
+                    </span>
+                    <span class="min-w-0 flex-1">
+                      <span class="block truncate text-sm font-medium text-[#171322]">
+                        {{ member.fullName || member.email }}
+                      </span>
+                      <span class="block truncate text-xs text-[#6b7280]">
+                        {{ member.email }}
+                      </span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="mt-3 flex items-center justify-between gap-3">
+                <p class="text-xs text-[#6b7280]">
+                  {{ selectedAddMembers.length }} anggota dipilih
+                </p>
+                <button
+                  type="button"
+                  class="rounded-lg bg-[#4f46e5] px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:bg-[#c7c3d7]"
+                  :disabled="isAddingMembers || selectedAddMemberIds.length === 0"
+                  @click="submitAddMembers"
+                >
+                  {{ isAddingMembers ? "Menambahkan..." : "Tambah anggota" }}
+                </button>
+              </div>
+            </section>
+
+            <section class="mt-4 rounded-xl border border-[#ebe7df] bg-white">
+              <div class="border-b border-[#ebe7df] px-4 py-3">
+                <p class="text-sm font-semibold text-[#171322]">Anggota</p>
+              </div>
+              <div class="divide-y divide-[#ebe7df]">
+                <div
+                  v-for="member in groupInfo?.members || []"
+                  :key="member.userId"
+                  class="flex items-center gap-3 px-4 py-3"
+                >
+                  <span
+                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#4f46e5] text-xs font-semibold text-white"
+                  >
+                    {{ getInitials(member.fullName || member.email) }}
+                  </span>
+                  <span class="min-w-0 flex-1">
+                    <span class="block truncate text-sm font-medium text-[#171322]">
+                      {{ member.fullName || member.email }}
+                    </span>
+                    <span class="block truncate text-xs text-[#6b7280]">
+                      {{ member.email }}
+                    </span>
+                  </span>
+                  <span
+                    class="rounded-full px-2 py-1 text-[11px] font-semibold"
+                    :class="
+                      member.role === 'admin'
+                        ? 'bg-[#eef2ff] text-[#4f46e5]'
+                        : 'bg-[#f3f4f6] text-[#6b7280]'
+                    "
+                  >
+                    {{ member.role === "admin" ? "Admin" : "Anggota" }}
+                  </span>
+                  <button
+                    v-if="
+                      currentUserIsGroupAdmin &&
+                      member.userId !== currentUserId
+                    "
+                    type="button"
+                    class="rounded-lg border border-red-100 px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-60"
+                    :disabled="removingMemberId === member.userId"
+                    @click="removeMember(member)"
+                  >
+                    {{
+                      removingMemberId === member.userId
+                        ? "Menghapus..."
+                        : "Keluarkan"
+                    }}
+                  </button>
+                </div>
+              </div>
+            </section>
+          </template>
+        </div>
+
+        <div class="border-t border-[#ebe7df] px-5 py-4">
+          <button
+            type="button"
+            class="w-full rounded-lg border border-red-100 px-4 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-60"
+            :disabled="isLeavingGroup"
+            @click="leaveSelectedGroup"
+          >
+            {{ isLeavingGroup ? "Keluar..." : "Keluar grup" }}
+          </button>
+        </div>
       </div>
     </div>
   </main>
