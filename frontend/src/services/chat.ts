@@ -1,10 +1,12 @@
 import { api } from './api'
 import type {
+  ChatMembersResponse,
   ChatMessage,
   ChatMessagePayload,
   ChatMessagesResponse,
   ChatRoomResponse,
   ChatRoomsResponse,
+  CreateChatGroupPayload,
   MarkRoomReadPayload,
 } from '../types/chat'
 
@@ -16,6 +18,20 @@ export async function openSchoolChatRoom() {
 export async function getChatRooms() {
   const { data } = await api.get<ChatRoomsResponse>('/chat/rooms')
   return data.rooms ?? []
+}
+
+export async function searchChatMembers(search = '') {
+  const { data } = await api.get<ChatMembersResponse>('/chat/members', {
+    params: {
+      search: search || undefined,
+    },
+  })
+  return data.members ?? []
+}
+
+export async function createChatGroup(payload: CreateChatGroupPayload) {
+  const { data } = await api.post<ChatRoomResponse>('/chat/groups', payload)
+  return data.room
 }
 
 export async function getMessages(

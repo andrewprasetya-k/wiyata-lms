@@ -10,8 +10,8 @@ export interface ChatRoom {
   roomId: string
   roomName: string
   roomType: string
-  roomRefType: string
-  roomRefId: string
+  roomRefType?: string | null
+  roomRefId?: string | null
   schoolId: string
   schoolName?: string
   lastMessage?: ChatLastMessage | null
@@ -40,6 +40,17 @@ export interface ChatRoomResponse {
   room: ChatRoom
 }
 
+export interface ChatMember {
+  userId: string
+  fullName: string
+  email: string
+  roles: string[]
+}
+
+export interface ChatMembersResponse {
+  members: ChatMember[]
+}
+
 export interface ChatMessagesResponse {
   messages: ChatMessage[]
   nextBefore?: string | null
@@ -50,7 +61,11 @@ export interface ChatMessagePayload {
   content: string
 }
 
+export interface CreateChatGroupPayload {
+  roomName: string
+  memberUserIds: string[]
+}
+
 export interface MarkRoomReadPayload {
   lastReadMessageId?: string
 }
-
