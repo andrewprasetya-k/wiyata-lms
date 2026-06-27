@@ -5,6 +5,7 @@ import {
   PhChatCircleText,
   PhPaperPlaneTilt,
   PhWarningCircle,
+  PhPlus,
 } from "@phosphor-icons/vue";
 import {
   addChatGroupMembers,
@@ -97,8 +98,8 @@ const schoolRooms = computed(() =>
 const groupRooms = computed(() =>
   rooms.value.filter((room) => !isSchoolRoom(room) && roomMatchesSearch(room)),
 );
-const selectedRoomIsGroup = computed(
-  () => (selectedRoom.value ? !isSchoolRoom(selectedRoom.value) : false),
+const selectedRoomIsGroup = computed(() =>
+  selectedRoom.value ? !isSchoolRoom(selectedRoom.value) : false,
 );
 const currentUserIsGroupAdmin = computed(() =>
   Boolean(
@@ -640,28 +641,28 @@ function formatDateTime(value?: string | null) {
                 </p>
                 <button
                   type="button"
-                  class="rounded-lg bg-[#4f46e5] px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-[#4338ca]"
+                  class="rounded-lg bg-[#4f46e5] px-1 py-1 font-bold text-white transition hover:bg-[#4338ca]"
                   @click="openCreateGroupModal"
                 >
-                  Buat ruang
+                  <PhPlus :size="18" />
                 </button>
               </div>
-              <div class="mt-3 flex gap-2">
-                <input
-                  v-model="roomSearch"
-                  type="search"
-                  class="min-w-0 flex-1 rounded-lg border border-transparent bg-[#f3f4f6] px-3 py-2 text-xs text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#c7d2fe] focus:bg-white focus:ring-2 focus:ring-[#4f46e5]/15"
-                  placeholder="Cari ruang..."
-                  @keydown.enter.prevent="searchRooms"
-                />
-                <button
-                  type="button"
-                  class="rounded-lg border border-[#d8d2c8] px-3 py-2 text-xs font-semibold text-[#4f46e5] transition hover:border-[#4f46e5]"
-                  @click="searchRooms"
-                >
-                  Cari
-                </button>
-              </div>
+            </div>
+            <div class="flex gap-2 p-4">
+              <input
+                v-model="roomSearch"
+                type="search"
+                class="min-w-0 flex-1 rounded-lg border border-transparent bg-[#f3f4f6] px-3 py-2 text-xs text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#c7d2fe] focus:bg-white focus:ring-2 focus:ring-[#4f46e5]/15"
+                placeholder="Cari ruang..."
+                @keydown.enter.prevent="searchRooms"
+              />
+              <button
+                type="button"
+                class="rounded-lg border border-[#d8d2c8] px-3 py-2 text-xs font-semibold text-[#4f46e5] transition hover:border-[#4f46e5]"
+                @click="searchRooms"
+              >
+                Cari
+              </button>
             </div>
 
             <div class="space-y-2 p-4">
@@ -910,7 +911,7 @@ function formatDateTime(value?: string | null) {
                             : 'rounded-bl-md border border-[#ebe7df] bg-white text-[#171322]'
                         "
                       >
-                        <p class="whitespace-pre-wrap break-words">
+                        <p class="whitespace-pre-wrap wrap-break-word">
                           {{ message.content }}
                         </p>
                       </div>
@@ -1110,7 +1111,9 @@ function formatDateTime(value?: string | null) {
         <div class="border-b border-[#ebe7df] px-5 py-4">
           <div class="flex items-start justify-between gap-4">
             <div class="min-w-0">
-              <p class="text-xs font-semibold uppercase tracking-[0.06em] text-[#9ca3af]">
+              <p
+                class="text-xs font-semibold uppercase tracking-[0.06em] text-[#9ca3af]"
+              >
                 Info grup
               </p>
               <h2 class="mt-1 truncate text-lg font-semibold text-[#171322]">
@@ -1160,7 +1163,9 @@ function formatDateTime(value?: string | null) {
               {{ groupActionError }}
             </p>
 
-            <section class="rounded-xl border border-[#ebe7df] bg-[#fbfaf8] p-4">
+            <section
+              class="rounded-xl border border-[#ebe7df] bg-[#fbfaf8] p-4"
+            >
               <p class="text-sm font-semibold text-[#171322]">Dibuat oleh</p>
               <div class="mt-3 flex items-center gap-3">
                 <span
@@ -1173,7 +1178,9 @@ function formatDateTime(value?: string | null) {
                   }}
                 </span>
                 <span class="min-w-0">
-                  <span class="block truncate text-sm font-medium text-[#171322]">
+                  <span
+                    class="block truncate text-sm font-medium text-[#171322]"
+                  >
                     {{
                       groupInfo?.creator?.fullName ||
                       groupInfo?.creator?.email ||
@@ -1267,7 +1274,9 @@ function formatDateTime(value?: string | null) {
                       {{ getInitials(member.fullName || member.email) }}
                     </span>
                     <span class="min-w-0 flex-1">
-                      <span class="block truncate text-sm font-medium text-[#171322]">
+                      <span
+                        class="block truncate text-sm font-medium text-[#171322]"
+                      >
                         {{ member.fullName || member.email }}
                       </span>
                       <span class="block truncate text-xs text-[#6b7280]">
@@ -1285,7 +1294,9 @@ function formatDateTime(value?: string | null) {
                 <button
                   type="button"
                   class="rounded-lg bg-[#4f46e5] px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:bg-[#c7c3d7]"
-                  :disabled="isAddingMembers || selectedAddMemberIds.length === 0"
+                  :disabled="
+                    isAddingMembers || selectedAddMemberIds.length === 0
+                  "
                   @click="submitAddMembers"
                 >
                   {{ isAddingMembers ? "Menambahkan..." : "Tambah anggota" }}
@@ -1309,7 +1320,9 @@ function formatDateTime(value?: string | null) {
                     {{ getInitials(member.fullName || member.email) }}
                   </span>
                   <span class="min-w-0 flex-1">
-                    <span class="block truncate text-sm font-medium text-[#171322]">
+                    <span
+                      class="block truncate text-sm font-medium text-[#171322]"
+                    >
                       {{ member.fullName || member.email }}
                     </span>
                     <span class="block truncate text-xs text-[#6b7280]">
@@ -1328,8 +1341,7 @@ function formatDateTime(value?: string | null) {
                   </span>
                   <button
                     v-if="
-                      currentUserIsGroupAdmin &&
-                      member.userId !== currentUserId
+                      currentUserIsGroupAdmin && member.userId !== currentUserId
                     "
                     type="button"
                     class="rounded-lg border border-red-100 px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-60"
