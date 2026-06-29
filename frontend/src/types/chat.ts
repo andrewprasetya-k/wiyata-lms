@@ -125,3 +125,14 @@ export interface AddChatGroupMembersPayload {
 export interface MarkRoomReadPayload {
   lastReadMessageId?: string
 }
+
+export interface ChatSocketEvent<TPayload = unknown> {
+  type: string
+  roomId: string
+  schoolId: string
+  payload: TPayload
+}
+
+export type NewMessageEvent = ChatSocketEvent<ChatMessage> & {
+  type: 'new_message'
+}
