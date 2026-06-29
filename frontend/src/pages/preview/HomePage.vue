@@ -287,7 +287,7 @@
         class="mx-auto flex max-w-7xl flex-col gap-3 px-5 py-6 text-sm text-[#7a7385] sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8"
       >
         <p>© 2026 Wiyata. All rights reserved.</p>
-        <p>Learning Management System untuk sekolah modern.</p>
+        <p>Learning Management System by Loka Wiyata</p>
       </div>
     </footer>
   </main>
