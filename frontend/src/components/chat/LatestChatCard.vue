@@ -158,7 +158,7 @@ function formatTime(value?: string | null) {
         v-for="room in visibleRooms"
         :key="room.roomId"
         :to="to"
-        class="flex min-w-0 max-w-full overflow-hidden items-center gap-3 rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-3 transition hover:border-[#c7d2fe] hover:bg-white"
+        class="flex h-16 min-w-0 max-w-full overflow-hidden items-center gap-3 rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-3 transition hover:border-[#c7d2fe] hover:bg-white"
       >
         <span
           class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#eef2ff] text-[#4f46e5]"
@@ -167,13 +167,13 @@ function formatTime(value?: string | null) {
         </span>
         <span class="min-w-0 flex-1 overflow-hidden">
           <span
-            class="block max-w-full truncate text-sm text-[#171322]"
+            class="block w-full overflow-hidden text-ellipsis whitespace-nowrap text-sm text-[#171322]"
             :class="room.unreadCount > 0 ? 'font-bold' : 'font-semibold'"
           >
             {{ roomDisplayName(room) }}
           </span>
           <span
-            class="mt-0.5 block max-w-full overflow-hidden text-xs break-all line-clamp-2"
+            class="mt-0.5 block w-full overflow-hidden text-ellipsis whitespace-nowrap text-xs"
             :class="
               room.unreadCount > 0
                 ? 'font-semibold text-[#3f3a4a]'
@@ -183,13 +183,13 @@ function formatTime(value?: string | null) {
             {{ roomPreview(room) }}
           </span>
         </span>
-        <span class="flex w-10 shrink-0 flex-col items-end gap-1">
-          <span class="text-[11px] text-[#9ca3af]">
+        <span class="flex w-12 shrink-0 flex-col items-end gap-1 overflow-hidden">
+          <span class="w-full truncate text-right text-[11px] text-[#9ca3af]">
             {{ formatTime(room.lastMessageAt) }}
           </span>
           <span
             v-if="room.unreadCount > 0"
-            class="rounded-full bg-[#4f46e5] px-2 py-0.5 text-[10px] font-semibold text-white"
+            class="max-w-full rounded-full bg-[#4f46e5] px-2 py-0.5 text-[10px] font-semibold text-white"
           >
             {{ room.unreadCount }}
           </span>
