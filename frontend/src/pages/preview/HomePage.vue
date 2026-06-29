@@ -702,7 +702,7 @@ const screenshotSlots = [
         <div
           class="mt-8 flex flex-col gap-1 border-[#e7e2da] pt-6 text-xs text-[#c4bfcc] sm:flex-row sm:justify-between"
         >
-          <p>© 2026 Wiyata. All rights reserved.</p>
+          <p>© 2026 Wiyata Academic Workspace. All rights reserved.</p>
           <p>Learning Management System by Loka Wiyata</p>
         </div>
       </div>
