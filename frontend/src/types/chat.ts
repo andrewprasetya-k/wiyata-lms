@@ -3,6 +3,9 @@ export interface ChatLastMessage {
   senderId: string
   senderName: string
   content: string
+  messageType?: string
+  attachmentCount?: number
+  attachmentMimeType?: string
   createdAt: string
 }
 
@@ -31,9 +34,21 @@ export interface ChatMessage {
   senderRole: string
   content: string
   messageType: 'text' | string
+  attachments: ChatAttachment[]
   createdAt: string
   isMine: boolean
   deliveryStatus?: 'pending' | 'sent' | 'failed'
+  pendingFiles?: File[]
+}
+
+export interface ChatAttachment {
+  attachmentId: string
+  mediaId: string
+  fileName: string
+  mimeType: string
+  sizeBytes: number
+  url: string
+  localUrl?: string
 }
 
 export interface ChatRoomsResponse {
@@ -103,7 +118,8 @@ export interface ChatMessagesResponse {
 }
 
 export interface ChatMessagePayload {
-  content: string
+  content?: string
+  mediaIds?: string[]
 }
 
 export interface CreateChatGroupPayload {

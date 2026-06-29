@@ -98,8 +98,11 @@ export async function getMessages(
   }
 }
 
-export async function sendMessage(roomId: string, content: string) {
-  const payload: ChatMessagePayload = { content }
+export async function sendMessage(roomId: string, payloadOrContent: ChatMessagePayload | string) {
+  const payload: ChatMessagePayload =
+    typeof payloadOrContent === 'string'
+      ? { content: payloadOrContent }
+      : payloadOrContent
   const { data } = await api.post<ChatMessage>(`/chat/rooms/${roomId}/messages`, payload)
   return data
 }

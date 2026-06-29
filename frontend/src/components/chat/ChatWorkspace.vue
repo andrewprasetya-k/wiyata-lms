@@ -5,8 +5,12 @@ import {
   PhChatCircleText,
   PhCheck,
   PhChecks,
+  PhFile,
+  PhImage,
+  PhPaperclip,
   PhPaperPlaneTilt,
   PhWarningCircle,
+  PhX,
   PhPlus,
 } from "@phosphor-icons/vue";
 import {
@@ -26,6 +30,7 @@ import {
   sendMessage,
 } from "../../services/chat";
 import { connectChatSocket } from "../../services/chatSocket";
+import { uploadMediaFile } from "../../services/media";
 import type { ChatSocketStatus } from "../../services/chatSocket";
 import { useAuthStore } from "../../stores/auth";
 import type {
@@ -52,6 +57,7 @@ const readSummary = ref<ChatReadSummary | null>(null);
 const nextBefore = ref<string | null>(null);
 const hasMore = ref(false);
 const draft = ref("");
+const selectedFiles = ref<File[]>([]);
 const isBooting = ref(true);
 const isLoadingMessages = ref(false);
 const isLoadingOlder = ref(false);
@@ -61,6 +67,7 @@ const accessError = ref("");
 const threadError = ref("");
 const composerError = ref("");
 const messagesEl = ref<HTMLElement | null>(null);
+const fileInputEl = ref<HTMLInputElement | null>(null);
 const isCreateGroupOpen = ref(false);
 const groupRoomName = ref("");
 const memberSearch = ref("");
@@ -96,6 +103,8 @@ let roomRefreshTimer: number | undefined;
 let readSummaryRefreshTimer: number | undefined;
 let socketConnection: { close: () => void } | null = null;
 let isDestroyed = false;
+const maxChatAttachments = 5;
+const maxChatAttachmentSizeMb = 10;
 const authStore = useAuthStore();
 const socketStatus = ref<ChatSocketStatus>("disconnected");
 
@@ -104,7 +113,9 @@ const selectedSchoolName = computed(
   () => selectedRoom.value?.schoolName || "Sekolah aktif",
 );
 const canSend = computed(
-  () => Boolean(selectedRoom.value?.canSend) && draft.value.trim().length > 0,
+  () =>
+    Boolean(selectedRoom.value?.canSend) &&
+    (draft.value.trim().length > 0 || selectedFiles.value.length > 0),
 );
 const roomInitial = computed(() => {
   const source = selectedRoomName.value || selectedSchoolName.value;
@@ -171,6 +182,7 @@ onUnmounted(() => {
     window.clearTimeout(readSummaryRefreshTimer);
   }
   socketConnection?.close();
+  revokeSelectedFilePreviews();
   document.removeEventListener("visibilitychange", handleVisibilityChange);
 });
 
@@ -574,22 +586,66 @@ async function loadOlderMessages() {
   }
 }
 
+function openFilePicker() {
+  fileInputEl.value?.click();
+}
+
+function handleFileSelection(event: Event) {
+  const input = event.target as HTMLInputElement;
+  const files = Array.from(input.files ?? []);
+  if (files.length === 0) return;
+  const availableSlots = maxChatAttachments - selectedFiles.value.length;
+  if (availableSlots <= 0) {
+    composerError.value = `Maksimal ${maxChatAttachments} file per pesan.`;
+    input.value = "";
+    return;
+  }
+  if (files.length > availableSlots) {
+    composerError.value = `Maksimal ${maxChatAttachments} file per pesan.`;
+  } else {
+    composerError.value = "";
+  }
+  const validFiles = files.filter((file) => {
+    if (file.size > maxChatAttachmentSizeMb * 1024 * 1024) {
+      composerError.value = `File ${file.name} melebihi batas ${maxChatAttachmentSizeMb}MB.`;
+      return false;
+    }
+    return true;
+  });
+  selectedFiles.value = [
+    ...selectedFiles.value,
+    ...validFiles.slice(0, availableSlots),
+  ];
+  input.value = "";
+}
+
+function removeSelectedFile(index: number) {
+  selectedFiles.value = selectedFiles.value.filter((_, itemIndex) => itemIndex !== index);
+}
+
 async function submitMessage() {
   if (!selectedRoom.value) return;
   const content = draft.value.trim();
-  if (!content) return;
+  const filesToSend = [...selectedFiles.value];
+  if (!content && filesToSend.length === 0) return;
   const roomID = selectedRoom.value.roomId;
-  const optimistic = createOptimisticMessage(roomID, content);
+  const optimistic = createOptimisticMessage(roomID, content, filesToSend);
   messages.value = dedupeMessages([...messages.value, optimistic]);
   draft.value = "";
+  selectedFiles.value = [];
   pendingSendCount.value += 1;
   composerError.value = "";
   await nextTick();
   scrollToBottom();
   try {
-    const created = await sendMessage(roomID, content);
+    const mediaIds = await uploadChatFiles(filesToSend);
+    const created = await sendMessage(roomID, {
+      content,
+      mediaIds,
+    });
     replaceOptimisticMessage(optimistic.messageId, {
       ...created,
+      attachments: created.attachments ?? [],
       deliveryStatus: "sent",
     });
     await markSelectedRoomRead(created.messageId);
@@ -603,6 +659,19 @@ async function submitMessage() {
   } finally {
     pendingSendCount.value = Math.max(0, pendingSendCount.value - 1);
   }
+}
+
+async function uploadChatFiles(files: File[]) {
+  if (!selectedRoom.value || files.length === 0) return [];
+  if (files.length > maxChatAttachments) {
+    throw new Error(`Maksimal ${maxChatAttachments} file per pesan.`);
+  }
+  const mediaIds: string[] = [];
+  for (const file of files) {
+    const uploaded = await uploadMediaFile(file, selectedRoom.value.schoolId, "user");
+    mediaIds.push(uploaded.mediaId);
+  }
+  return mediaIds;
 }
 
 async function markSelectedRoomRead(lastReadMessageId?: string) {
@@ -687,7 +756,11 @@ function handleRoomUpdatedEvent(event: RoomUpdatedEvent) {
   }
 }
 
-function createOptimisticMessage(roomId: string, content: string): ChatMessage {
+function createOptimisticMessage(
+  roomId: string,
+  content: string,
+  files: File[] = [],
+): ChatMessage {
   return {
     messageId: `temp-${Date.now()}-${Math.random().toString(36).slice(2)}`,
     roomId,
@@ -695,14 +768,27 @@ function createOptimisticMessage(roomId: string, content: string): ChatMessage {
     senderName: authStore.user?.fullName || "Anda",
     senderRole: authStore.activeRoles[0] || "member",
     content,
-    messageType: "text",
+    messageType: files.length > 0 ? "file" : "text",
+    attachments: files.map((file, index) => ({
+      attachmentId: `temp-${index}-${file.name}`,
+      mediaId: "",
+      fileName: file.name,
+      mimeType: file.type || "application/octet-stream",
+      sizeBytes: file.size,
+      url: isSafeImageType(file.type) ? URL.createObjectURL(file) : "",
+    })),
     createdAt: new Date().toISOString(),
     isMine: true,
     deliveryStatus: "pending",
+    pendingFiles: files,
   };
 }
 
 function replaceOptimisticMessage(tempId: string, canonical: ChatMessage) {
+  const existing = messages.value.find((message) => message.messageId === tempId);
+  if (existing) {
+    revokeAttachmentObjectUrls(existing);
+  }
   messages.value = dedupeMessages(
     messages.value.map((message) =>
       message.messageId === tempId ? canonical : message,
@@ -725,10 +811,37 @@ function retryFailedMessage(message: ChatMessage) {
   messages.value = messages.value.filter(
     (item) => item.messageId !== message.messageId,
   );
-  draft.value = message.content;
-  nextTick(() => {
-    void submitMessage();
-  });
+  void sendRetriedMessage(message);
+}
+
+async function sendRetriedMessage(message: ChatMessage) {
+  const files = message.pendingFiles ?? [];
+  const optimistic = createOptimisticMessage(message.roomId, message.content, files);
+  messages.value = dedupeMessages([...messages.value, optimistic]);
+  pendingSendCount.value += 1;
+  composerError.value = "";
+  await nextTick();
+  scrollToBottom();
+  try {
+    const mediaIds = await uploadChatFiles(files);
+    const created = await sendMessage(message.roomId, {
+      content: message.content,
+      mediaIds,
+    });
+    replaceOptimisticMessage(optimistic.messageId, {
+      ...created,
+      attachments: created.attachments ?? [],
+      deliveryStatus: "sent",
+    });
+    await markSelectedRoomRead(created.messageId);
+    await refreshReadSummary();
+    await refreshRooms();
+  } catch (error) {
+    markOptimisticFailed(optimistic.messageId);
+    composerError.value = resolveChatError(error);
+  } finally {
+    pendingSendCount.value = Math.max(0, pendingSendCount.value - 1);
+  }
 }
 
 function scheduleRoomRefresh() {
@@ -780,7 +893,10 @@ function dedupeMessages(items: ChatMessage[]) {
 }
 
 function messageContentKey(message: ChatMessage) {
-  return `${message.roomId}:${message.senderId}:${message.content}`;
+  const attachmentKey = (message.attachments ?? [])
+    .map((attachment) => attachment.mediaId || `${attachment.fileName}:${attachment.sizeBytes}`)
+    .join(",");
+  return `${message.roomId}:${message.senderId}:${message.content}:${attachmentKey}`;
 }
 
 function scrollToBottom() {
@@ -895,12 +1011,17 @@ function roomMatchesSearch(room: ChatRoom) {
 }
 
 function roomPreview(room: ChatRoom) {
-  if (!room.lastMessage?.content) {
+  if (!room.lastMessage) {
     return isDirectMessageRoom(room)
       ? room.dmTargetEmail || "Belum ada pesan."
       : room.schoolName || "Belum ada pesan.";
   }
-  const content = room.lastMessage.content;
+  const content =
+    room.lastMessage.content ||
+    attachmentPreviewText(
+      room.lastMessage.attachmentCount ?? 0,
+      room.lastMessage.attachmentMimeType,
+    );
   const senderName =
     room.lastMessage.senderId === currentUserId.value
       ? "Anda"
@@ -908,7 +1029,56 @@ function roomPreview(room: ChatRoom) {
   return `${senderName}: ${content}`;
 }
 
+function attachmentPreviewText(count: number, mimeType?: string) {
+  if (count <= 0) return "Mengirim file";
+  if (count === 1) {
+    return isSafeImageType(mimeType) ? "Mengirim gambar" : "Mengirim file";
+  }
+  return `Mengirim ${count} file`;
+}
+
+function isSafeImageType(mimeType?: string) {
+  return ["image/png", "image/jpeg", "image/webp", "image/gif"].includes(
+    (mimeType || "").toLowerCase(),
+  );
+}
+
+function fileTypeLabel(mimeType?: string) {
+  const value = (mimeType || "").toLowerCase();
+  if (isSafeImageType(value)) return "Gambar";
+  if (value === "application/pdf") return "PDF";
+  if (value.includes("spreadsheet") || value.includes("excel")) return "Spreadsheet";
+  if (value.includes("presentation") || value.includes("powerpoint")) return "Presentasi";
+  if (value.includes("word") || value.includes("document")) return "Dokumen";
+  if (value.includes("zip") || value.includes("compressed")) return "Arsip";
+  return value || "File";
+}
+
+function formatFileSize(size?: number) {
+  if (!size || size < 0) return "";
+  if (size < 1024) return `${size} B`;
+  if (size < 1024 * 1024) return `${Math.round(size / 1024)} KB`;
+  return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function revokeAttachmentObjectUrls(message: ChatMessage) {
+  for (const attachment of message.attachments ?? []) {
+    if (attachment.url?.startsWith("blob:")) {
+      URL.revokeObjectURL(attachment.url);
+    }
+  }
+}
+
+function revokeSelectedFilePreviews() {
+  for (const message of messages.value) {
+    revokeAttachmentObjectUrls(message);
+  }
+}
+
 function resolveChatError(error: unknown) {
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
   const maybeError = error as {
     response?: { status?: number; data?: { error?: string } };
   };
@@ -1369,9 +1539,69 @@ function formatDateTime(value?: string | null) {
                             : 'rounded-bl-md border border-[#ebe7df] bg-white text-[#171322]'
                         "
                       >
-                        <p class="whitespace-pre-wrap wrap-break-word">
+                        <p v-if="message.content" class="whitespace-pre-wrap break-words">
                           {{ message.content }}
                         </p>
+                        <div
+                          v-if="message.attachments?.length"
+                          class="mt-2 grid gap-2"
+                          :class="message.attachments.length > 1 ? 'sm:grid-cols-2' : ''"
+                        >
+                          <a
+                            v-for="attachment in message.attachments"
+                            :key="attachment.attachmentId || attachment.mediaId || attachment.fileName"
+                            class="group overflow-hidden rounded-xl"
+                            :class="
+                              message.isMine
+                                ? 'bg-white/10 text-white ring-1 ring-white/20'
+                                : 'border border-[#ebe7df] bg-[#fbfaf8] text-[#171322]'
+                            "
+                            :href="attachment.url || undefined"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <img
+                              v-if="isSafeImageType(attachment.mimeType) && attachment.url"
+                              :src="attachment.url"
+                              :alt="attachment.fileName || 'Lampiran gambar'"
+                              class="max-h-52 w-full object-cover"
+                            />
+                            <div class="flex min-w-0 items-center gap-3 p-3">
+                              <span
+                                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+                                :class="message.isMine ? 'bg-white/15' : 'bg-white text-[#4f46e5]'"
+                              >
+                                <PhImage
+                                  v-if="isSafeImageType(attachment.mimeType)"
+                                  class="h-5 w-5"
+                                  weight="duotone"
+                                />
+                                <PhFile
+                                  v-else
+                                  class="h-5 w-5"
+                                  weight="duotone"
+                                />
+                              </span>
+                              <span class="min-w-0 flex-1">
+                                <span class="block truncate text-xs font-semibold">
+                                  {{ attachment.fileName || "Lampiran" }}
+                                </span>
+                                <span
+                                  class="mt-0.5 block truncate text-[11px]"
+                                  :class="message.isMine ? 'text-white/70' : 'text-[#8b8592]'"
+                                >
+                                  {{ fileTypeLabel(attachment.mimeType) }}
+                                  <template v-if="formatFileSize(attachment.sizeBytes)">
+                                    · {{ formatFileSize(attachment.sizeBytes) }}
+                                  </template>
+                                </span>
+                              </span>
+                              <span class="text-[11px] font-semibold">
+                                Buka
+                              </span>
+                            </div>
+                          </a>
+                        </div>
                       </div>
                       <p
                         class="flex items-center gap-2 px-2 text-[11px] text-[#9ca3af]"
@@ -1430,7 +1660,62 @@ function formatDateTime(value?: string | null) {
               <p v-if="composerError" class="mb-2 text-sm text-red-600">
                 {{ composerError }}
               </p>
+              <div
+                v-if="selectedFiles.length"
+                class="mb-3 grid gap-2 sm:grid-cols-2"
+              >
+                <div
+                  v-for="(file, index) in selectedFiles"
+                  :key="`${file.name}-${file.size}-${index}`"
+                  class="flex min-w-0 items-center gap-3 rounded-xl border border-[#ebe7df] bg-[#fbfaf8] p-3"
+                >
+                  <span
+                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white text-[#4f46e5]"
+                  >
+                    <PhImage
+                      v-if="isSafeImageType(file.type)"
+                      class="h-5 w-5"
+                      weight="duotone"
+                    />
+                    <PhFile v-else class="h-5 w-5" weight="duotone" />
+                  </span>
+                  <span class="min-w-0 flex-1">
+                    <span class="block truncate text-xs font-semibold text-[#171322]">
+                      {{ file.name }}
+                    </span>
+                    <span class="mt-0.5 block truncate text-[11px] text-[#8b8592]">
+                      {{ fileTypeLabel(file.type) }} · {{ formatFileSize(file.size) }}
+                    </span>
+                  </span>
+                  <button
+                    type="button"
+                    class="rounded-lg p-1.5 text-[#9ca3af] transition hover:bg-white hover:text-[#dc2626]"
+                    title="Hapus lampiran"
+                    aria-label="Hapus lampiran"
+                    @click="removeSelectedFile(index)"
+                  >
+                    <PhX class="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
               <div class="flex items-end gap-2">
+                <input
+                  ref="fileInputEl"
+                  type="file"
+                  class="hidden"
+                  multiple
+                  @change="handleFileSelection"
+                />
+                <button
+                  type="button"
+                  class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#ebe7df] bg-white text-[#6b7280] transition hover:border-[#c7d2fe] hover:text-[#4f46e5] focus:outline-none focus:ring-2 focus:ring-[#4f46e5]/15 disabled:cursor-not-allowed disabled:opacity-60"
+                  :disabled="!selectedRoom?.canSend || selectedFiles.length >= maxChatAttachments"
+                  title="Tambah lampiran"
+                  aria-label="Tambah lampiran"
+                  @click="openFilePicker"
+                >
+                  <PhPaperclip class="h-5 w-5" />
+                </button>
                 <textarea
                   v-model="draft"
                   rows="1"
