@@ -31,7 +31,7 @@ function isActive(to: string) {
     <div class="mb-3 flex h-9 w-9 items-center justify-center rounded-xl">
       <img
         src="/logo_fix.svg"
-        alt="EduVerse"
+        alt="Wiyata"
         class="h-9 w-9 rounded-xl object-contain"
       />
     </div>

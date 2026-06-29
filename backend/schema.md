@@ -364,7 +364,7 @@ room_sch_id uuid [ref: > schools.sch_id]
 room_name varchar(150)
 room_type chat_room_type
 
-// pointer ke konteks akademik Eduverse
+// pointer ke konteks akademik Wiyata
 room_ref_type varchar(20) // 'class' | 'subject' | null
 room_ref_id uuid // cls_id atau scl_id, null untuk DM
 
@@ -414,7 +414,7 @@ Table chat_attachments {
 cat_id uuid [pk, default: `gen_random_uuid()`]
 cat_msg_id uuid [ref: > chat_messages.msg_id]
 
-// pakai medias yang sudah ada di Eduverse
+// pakai medias yang sudah ada di Wiyata
 cat_med_id uuid [ref: > medias.med_id]
 
 created_at timestamp [default: `now()`]

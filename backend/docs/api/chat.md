@@ -66,7 +66,7 @@ nama room atau nama sekolah. Ordering tetap berdasarkan aktivitas terakhir.
       "roomRefType": "school",
       "roomRefId": "school-uuid",
       "schoolId": "school-uuid",
-      "schoolName": "SMA EduVerse",
+      "schoolName": "SMA Wiyata",
       "lastMessage": {
         "messageId": "uuid",
         "senderId": "uuid",

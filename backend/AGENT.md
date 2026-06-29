@@ -1,7 +1,7 @@
 Engineering Context Report
 
 1. What This App Does
-   Eduverse LMS is a backend API for a multi-school learning management system. It supports schools, users, school memberships, RBAC roles, academic years, terms, subjects, classes,
+   Wiyata LMS is a backend API for a multi-school learning management system. It supports schools, users, school memberships, RBAC roles, academic years, terms, subjects, classes,
    enrollments, learning materials, feeds, comments, assignments, submissions, grading, notifications, logs, and dashboards. See backend/PROJECT_CONTEXT.md:3 and backend/docs/
    API_SUMMARY.md:1.
 2. Main Tech Stack And Runtime

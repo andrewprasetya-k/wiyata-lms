@@ -1,4 +1,4 @@
-# EduVerse MVP TODO
+# Wiyata MVP TODO
 
 This file tracks visible unfinished work that is intentionally kept in the product navigation for planning and follow-up. These items are not part of the current school MVP unless explicitly promoted.
 

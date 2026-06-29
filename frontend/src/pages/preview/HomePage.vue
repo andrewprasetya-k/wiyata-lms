@@ -8,11 +8,11 @@
         <RouterLink to="/home" class="flex min-w-0 items-center gap-3">
           <img
             src="/logo_fix.svg"
-            alt="Eduverse"
+            alt="Wiyata"
             class="h-11 w-11 rounded-2xl object-contain"
           />
           <div class="min-w-0">
-            <p class="text-sm font-medium text-[#4f46e5]">EduVerse</p>
+            <p class="text-sm font-medium text-[#4f46e5]">Wiyata</p>
             <p class="truncate text-xs text-[#6b7280]">
               Workspace akademik sekolah
             </p>
@@ -41,7 +41,7 @@
     >
       <div class="flex flex-col justify-center">
         <p class="text-sm font-medium text-[#4f46e5]">
-          EduVerse Academic Workspace
+          Wiyata Academic Workspace
         </p>
         <h1
           class="mt-4 max-w-3xl text-4xl font-medium leading-tight tracking-tight text-[#171322] sm:text-5xl lg:text-6xl"
@@ -51,7 +51,7 @@
         </h1>
 
         <p class="mt-6 max-w-2xl text-base leading-8 text-[#6b6475] sm:text-lg">
-          EduVerse dirancang untuk sekolah yang membutuhkan alur kerja akademik
+          Wiyata dirancang untuk sekolah yang membutuhkan alur kerja akademik
           yang rapi: dari setup tahun ajaran, pengelolaan warga sekolah, materi
           dan tugas, sampai chat sekolah dan grup diskusi.
         </p>
@@ -61,7 +61,7 @@
             to="/login"
             class="inline-flex h-12 items-center justify-center rounded-2xl bg-[#4f46e5] px-6 text-sm font-medium text-white transition hover:bg-[#4338ca]"
           >
-            Masuk ke EduVerse
+            Masuk ke Wiyata
           </RouterLink>
 
           <a
@@ -160,14 +160,14 @@
         class="grid gap-8 rounded-4xl border border-[#e7e2da] bg-white p-6 lg:grid-cols-[0.9fr_1.1fr] lg:p-8"
       >
         <div class="max-w-xl">
-          <p class="text-sm font-medium text-[#4f46e5]">Cara kerja EduVerse</p>
+          <p class="text-sm font-medium text-[#4f46e5]">Cara kerja Wiyata</p>
           <h2
             class="mt-3 text-3xl font-medium tracking-tight text-[#171322] sm:text-4xl"
           >
             Aktivitas sekolah bergerak dalam satu alur yang sama.
           </h2>
           <p class="mt-4 text-base leading-8 text-[#6b6475]">
-            EduVerse dimulai dari struktur sekolah yang rapi, lalu mengalir ke
+            Wiyata dimulai dari struktur sekolah yang rapi, lalu mengalir ke
             kelas, materi, tugas, pengumpulan, nilai, dan percakapan harian.
             Hasilnya bukan halaman yang berdiri sendiri, tetapi satu workspace
             yang terasa nyambung.
@@ -261,7 +261,7 @@
     <!-- CTA -->
     <section class="mx-auto max-w-4xl px-5 py-20 text-center sm:px-6 lg:px-8">
       <p class="text-sm font-medium text-[#4f46e5]">
-        EduVerse Academic Workspace
+        Wiyata Academic Workspace
       </p>
       <h2
         class="mt-4 text-3xl font-medium tracking-tight text-[#171322] sm:text-4xl"
@@ -269,7 +269,7 @@
         Masuk ke workspace sekolah yang sudah siap dipakai.
       </h2>
       <p class="mx-auto mt-4 max-w-2xl text-base leading-8 text-[#6b6475]">
-        Gunakan akun EduVerse yang sudah terdaftar untuk melanjutkan pekerjaan
+        Gunakan akun Wiyata yang sudah terdaftar untuk melanjutkan pekerjaan
         belajar, mengajar, atau operasional sekolah dari tempat yang sama.
       </p>
 
@@ -277,7 +277,7 @@
         to="/login"
         class="mt-8 inline-flex h-12 items-center justify-center rounded-2xl bg-[#4f46e5] px-7 text-sm font-medium text-white transition hover:bg-[#4338ca]"
       >
-        Masuk ke EduVerse
+        Masuk ke Wiyata
       </RouterLink>
     </section>
 
@@ -286,7 +286,7 @@
       <div
         class="mx-auto flex max-w-7xl flex-col gap-3 px-5 py-6 text-sm text-[#7a7385] sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8"
       >
-        <p>© 2026 EduVerse. All rights reserved.</p>
+        <p>© 2026 Wiyata. All rights reserved.</p>
         <p>Learning Management System untuk sekolah modern.</p>
       </div>
     </footer>

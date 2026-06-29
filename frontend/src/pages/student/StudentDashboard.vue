@@ -51,7 +51,7 @@ const viewDate = ref(new Date());
 const activeMembership = computed(() => auth.activeMembership);
 const schoolUserId = computed(() => auth.activeSchoolUserId);
 const schoolName = computed(
-  () => activeMembership.value?.school.name ?? "Eduverse",
+  () => activeMembership.value?.school.name ?? "Wiyata",
 );
 const firstName = computed(() => auth.user?.fullName?.split(" ")[0] ?? "Siswa");
 const activeClassTitle = computed(

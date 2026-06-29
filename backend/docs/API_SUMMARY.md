@@ -1,4 +1,4 @@
-# 📚 Eduverse LMS - API Endpoints Summary
+# 📚 Wiyata LMS - API Endpoints Summary
 
 Base URL: `http://localhost:8080/api`
 

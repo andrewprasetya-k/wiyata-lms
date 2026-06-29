@@ -150,7 +150,7 @@ const schoolRows = computed(() => [
           >
             {{ initials }}
           </div>
-          <p class="mt-4 text-xs text-[#8a8494]">Akun EduVerse</p>
+          <p class="mt-4 text-xs text-[#8a8494]">Akun Wiyata</p>
           <h2 class="mt-1 wrap-break-word text-xl font-medium text-[#171322]">
             {{ auth.user.fullName || "Nama tidak tersedia" }}
           </h2>

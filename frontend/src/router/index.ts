@@ -391,7 +391,7 @@ declare module "vue-router" {
   }
 }
 
-const APP_NAME = "EduVerse";
+const APP_NAME = "Wiyata";
 
 router.beforeEach((to) => {
   const auth = useAuthStore();

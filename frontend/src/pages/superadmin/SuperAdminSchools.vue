@@ -267,7 +267,7 @@ onMounted(() => {
             Sekolah
           </h1>
           <p class="mt-2 max-w-3xl text-sm leading-6 text-[#6b7280]">
-            Kelola tenant sekolah EduVerse dari tingkat platform. Operasional
+            Kelola tenant sekolah Wiyata dari tingkat platform. Operasional
             akademik tetap berada di area Admin Sekolah.
           </p>
         </div>
@@ -532,7 +532,7 @@ onMounted(() => {
                   v-model="schoolForm.schoolName"
                   type="text"
                   class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
-                  placeholder="Contoh: SMA EduVerse"
+                  placeholder="Contoh: SMA Wiyata"
                 />
               </label>
 
