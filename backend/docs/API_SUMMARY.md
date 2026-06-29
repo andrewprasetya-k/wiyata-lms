@@ -161,6 +161,12 @@ Subject payloads support optional `color` for visual identity. Accepted values a
 
 Notes are material-only for MVP. They are scoped to the JWT user and active `SchoolId`, require active student enrollment in the material's class, and are not accessible to teacher/admin roles.
 
+## 🗓️ Academic Activity
+
+- `GET /academic-activity?from=YYYY-MM-DD&to=YYYY-MM-DD` - Get normalized, actionable academic activity for the current active-school student or teacher. Defaults to today through today + 7 days and supports a maximum 60-day range.
+
+Academic Activity is not notification/feed/calendar storage. It merges academic sources into one response for future My Day, Activity, and calendar marker UI. Student activity currently includes assignment deadlines, new materials, class feed posts, and graded assignments. Teacher activity currently includes received submissions, pending review submissions, assignment deadlines, and feed comments. Access follows active school membership plus active enrollment/teaching rules.
+
 ## 📰 Feeds (Announcements)
 
 - `POST /feeds` - Create active-school class feed (admin or teacher who teaches the class)

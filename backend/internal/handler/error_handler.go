@@ -154,6 +154,16 @@ func HandleError(c *gin.Context, err error) {
 		return
 	}
 
+	if strings.Contains(errStr, "activity date range is invalid") {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Rentang tanggal aktivitas tidak valid"})
+		return
+	}
+
+	if strings.Contains(errStr, "activity date range exceeds 60 days") {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Rentang aktivitas maksimal 60 hari"})
+		return
+	}
+
 	if strings.Contains(errStr, "unsupported comment source") {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Comments are only supported for feed posts in this MVP"})
 		return

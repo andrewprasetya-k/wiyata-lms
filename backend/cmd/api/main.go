@@ -141,6 +141,10 @@ func main() {
 	dashboardService := service.NewDashboardService(dashboardRepo)
 	dashboardHandler := handler.NewDashboardHandler(dashboardService)
 
+	activityRepo := repository.NewActivityRepository(db)
+	activityService := service.NewActivityService(activityRepo)
+	activityHandler := handler.NewActivityHandler(activityService)
+
 	// Initialize RBAC middleware
 	middleware.InitRBAC(rbacRepo)
 
@@ -424,6 +428,12 @@ func main() {
 			dashboardAPI.GET("/student/:userId", dashboardHandler.GetStudentDashboard)
 			dashboardAPI.GET("/teacher/:schoolUserId", dashboardHandler.GetTeacherDashboard)
 			dashboardAPI.GET("/admin/:schoolId", dashboardHandler.GetAdminDashboard)
+		}
+
+		activityAPI := api.Group("/academic-activity")
+		activityAPI.Use(middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "student", "teacher"))
+		{
+			activityAPI.GET("", activityHandler.GetAcademicActivity)
 		}
 	}
 
