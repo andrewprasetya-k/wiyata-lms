@@ -31,7 +31,9 @@ import type {
   ChatMember,
   ChatMessage,
   ChatSocketEvent,
+  MessageReadEvent,
   NewMessageEvent,
+  RoomUpdatedEvent,
   ChatReadSummary,
   ChatRoom,
 } from "../../types/chat";
@@ -87,6 +89,8 @@ const isAddingMembers = ref(false);
 const isLeavingGroup = ref(false);
 const removingMemberId = ref<string | null>(null);
 let poller: number | undefined;
+let roomRefreshTimer: number | undefined;
+let readSummaryRefreshTimer: number | undefined;
 let socketConnection: { close: () => void } | null = null;
 const authStore = useAuthStore();
 
@@ -152,12 +156,18 @@ onMounted(async () => {
     if (selectedRoom.value && !isRefreshing.value && !isLoadingMessages.value) {
       refreshMessages({ silent: true });
     }
-  }, 8000);
+  }, 20000);
 });
 
 onUnmounted(() => {
   if (poller) {
     window.clearInterval(poller);
+  }
+  if (roomRefreshTimer) {
+    window.clearTimeout(roomRefreshTimer);
+  }
+  if (readSummaryRefreshTimer) {
+    window.clearTimeout(readSummaryRefreshTimer);
   }
   socketConnection?.close();
 });
@@ -215,7 +225,12 @@ async function refreshMessages(options: { silent?: boolean } = {}) {
     nextBefore.value = response.nextBefore ?? null;
     hasMore.value = response.hasMore;
     await refreshRooms();
-    await markSelectedRoomRead();
+    if (
+      lastMessage(messages.value)?.messageId !== previousLastId ||
+      (selectedRoom.value?.unreadCount ?? 0) > 0
+    ) {
+      await markSelectedRoomRead();
+    }
     await refreshReadSummary();
     await nextTick();
     if (
@@ -593,6 +608,14 @@ function connectRealtimeChat() {
 function handleRealtimeEvent(event: ChatSocketEvent) {
   if (event.type === "new_message") {
     void handleNewMessageEvent(event as NewMessageEvent);
+    return;
+  }
+  if (event.type === "message_read") {
+    void handleMessageReadEvent(event as MessageReadEvent);
+    return;
+  }
+  if (event.type === "room_updated") {
+    handleRoomUpdatedEvent(event as RoomUpdatedEvent);
   }
 }
 
@@ -602,14 +625,46 @@ async function handleNewMessageEvent(event: NewMessageEvent) {
 
   if (selectedRoom.value?.roomId === event.roomId) {
     messages.value = dedupeMessages([...messages.value, message]);
-    if (document.visibilityState === "visible") {
+    if (!message.isMine && document.visibilityState === "visible") {
       await markSelectedRoomRead(message.messageId);
     }
     await refreshReadSummary();
     await nextTick();
     scrollToBottom();
   }
-  await refreshRooms();
+  scheduleRoomRefresh();
+}
+
+async function handleMessageReadEvent(event: MessageReadEvent) {
+  if (selectedRoom.value?.roomId === event.roomId) {
+    scheduleReadSummaryRefresh();
+  }
+  scheduleRoomRefresh();
+}
+
+function handleRoomUpdatedEvent(event: RoomUpdatedEvent) {
+  scheduleRoomRefresh();
+  if (selectedRoom.value?.roomId === event.roomId) {
+    scheduleReadSummaryRefresh();
+  }
+}
+
+function scheduleRoomRefresh() {
+  if (roomRefreshTimer) {
+    window.clearTimeout(roomRefreshTimer);
+  }
+  roomRefreshTimer = window.setTimeout(() => {
+    void refreshRooms();
+  }, 150);
+}
+
+function scheduleReadSummaryRefresh() {
+  if (readSummaryRefreshTimer) {
+    window.clearTimeout(readSummaryRefreshTimer);
+  }
+  readSummaryRefreshTimer = window.setTimeout(() => {
+    void refreshReadSummary();
+  }, 150);
 }
 
 function handleComposerKeydown(event: KeyboardEvent) {

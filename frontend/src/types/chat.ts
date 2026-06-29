@@ -126,13 +126,34 @@ export interface MarkRoomReadPayload {
   lastReadMessageId?: string
 }
 
-export interface ChatSocketEvent<TPayload = unknown> {
-  type: string
+export interface ChatReadEventPayload {
+  roomId: string
+  userId: string
+  lastReadMessageId?: string | null
+  lastReadAt: string
+}
+
+export interface RoomUpdatedEventPayload {
+  reason: 'new_message' | 'message_read' | string
+}
+
+export interface BaseChatSocketEvent<TType extends string, TPayload> {
+  type: TType
   roomId: string
   schoolId: string
   payload: TPayload
 }
 
-export type NewMessageEvent = ChatSocketEvent<ChatMessage> & {
-  type: 'new_message'
-}
+export type NewMessageEvent = BaseChatSocketEvent<'new_message', ChatMessage>
+
+export type MessageReadEvent = BaseChatSocketEvent<'message_read', ChatReadEventPayload>
+
+export type RoomUpdatedEvent = BaseChatSocketEvent<'room_updated', RoomUpdatedEventPayload>
+
+export type UnknownChatSocketEvent = BaseChatSocketEvent<string, unknown>
+
+export type ChatSocketEvent =
+  | NewMessageEvent
+  | MessageReadEvent
+  | RoomUpdatedEvent
+  | UnknownChatSocketEvent
