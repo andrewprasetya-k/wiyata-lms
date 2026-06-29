@@ -23,6 +23,16 @@ const mobileOpen = ref(false);
 let lenis: Lenis | null = null;
 let rafId: number | null = null;
 
+const handleAnchorClick = (e: MouseEvent, selector: string) => {
+  if (lenis) {
+    e.preventDefault();
+    lenis.scrollTo(selector, {
+      offset: -80, // Navbar height offset compensation
+      duration: 1.1,
+    });
+  }
+};
+
 onMounted(() => {
   // Respect prefers-reduced-motion
   const prefersReduced = window.matchMedia(
@@ -186,13 +196,22 @@ const screenshotSlots = [
 
         <!-- Desktop nav links -->
         <nav class="hidden items-center gap-8 text-sm text-[#6b7280] md:flex">
-          <a href="#fitur" class="transition-colors hover:text-[#171322]"
+          <a
+            href="#fitur"
+            @click="handleAnchorClick($event, '#fitur')"
+            class="transition-colors hover:text-[#171322]"
             >Fitur</a
           >
-          <a href="#peran" class="transition-colors hover:text-[#171322]"
+          <a
+            href="#peran"
+            @click="handleAnchorClick($event, '#peran')"
+            class="transition-colors hover:text-[#171322]"
             >Untuk Siapa</a
           >
-          <a href="#preview" class="transition-colors hover:text-[#171322]"
+          <a
+            href="#preview"
+            @click="handleAnchorClick($event, '#preview')"
+            class="transition-colors hover:text-[#171322]"
             >Preview</a
           >
         </nav>
@@ -233,19 +252,28 @@ const screenshotSlots = [
           <div class="flex flex-col gap-1 px-6 py-4">
             <a
               href="#fitur"
-              @click="mobileOpen = false"
+              @click="
+                mobileOpen = false;
+                handleAnchorClick($event, '#fitur');
+              "
               class="rounded-md px-3 py-2.5 text-sm text-[#6b7280] hover:bg-[#f8f7f4] hover:text-[#171322]"
               >Fitur</a
             >
             <a
               href="#peran"
-              @click="mobileOpen = false"
+              @click="
+                mobileOpen = false;
+                handleAnchorClick($event, '#peran');
+              "
               class="rounded-md px-3 py-2.5 text-sm text-[#6b7280] hover:bg-[#f8f7f4] hover:text-[#171322]"
               >Untuk Siapa</a
             >
             <a
               href="#preview"
-              @click="mobileOpen = false"
+              @click="
+                mobileOpen = false;
+                handleAnchorClick($event, '#preview');
+              "
               class="rounded-md px-3 py-2.5 text-sm text-[#6b7280] hover:bg-[#f8f7f4] hover:text-[#171322]"
               >Preview</a
             >
@@ -287,6 +315,7 @@ const screenshotSlots = [
         <a
           href="#preview"
           id="hero-cta-preview"
+          @click="handleAnchorClick($event, '#preview')"
           class="inline-flex h-11 items-center justify-center gap-1.5 rounded-lg border border-[#e7e2da] bg-white px-6 text-sm font-medium text-[#171322] transition-colors hover:bg-[#f8f7f4]"
         >
           Lihat preview
@@ -346,7 +375,10 @@ const screenshotSlots = [
     </section>
 
     <!-- ───────────── FEATURE STORY ───────────── -->
-    <section id="fitur" class="mx-auto max-w-7xl px-6 py-32 lg:px-8">
+    <section
+      id="fitur"
+      class="mx-auto max-w-7xl px-6 py-32 lg:px-8 scroll-mt-24"
+    >
       <!-- Section label -->
       <div class="max-w-2xl">
         <p class="text-sm font-medium text-[#4f46e5]">Fitur utama</p>
@@ -405,7 +437,7 @@ const screenshotSlots = [
     </section>
 
     <!-- ───────────── ROLE SECTION ───────────── -->
-    <section id="peran" class="border-t border-[#e7e2da] bg-white">
+    <section id="peran" class="border-t border-[#e7e2da] bg-white scroll-mt-24">
       <div class="mx-auto max-w-7xl px-6 py-32 lg:px-8">
         <div class="max-w-2xl">
           <p class="text-sm font-medium text-[#4f46e5]">Untuk setiap peran</p>
@@ -458,7 +490,10 @@ const screenshotSlots = [
 
     <!-- ───────────── PRODUCT VIDEO / MEDIA PLACEHOLDER ───────────── -->
     <!-- TODO: Replace with product video or feature screenshot carousel later. -->
-    <section id="preview" class="border-t border-[#e7e2da] bg-[#fbfaf8]">
+    <section
+      id="preview"
+      class="border-t border-[#e7e2da] bg-[#fbfaf8] scroll-mt-24"
+    >
       <div class="mx-auto max-w-7xl px-6 py-32 lg:px-8">
         <div class="mx-auto max-w-2xl text-center">
           <p class="text-sm font-medium text-[#4f46e5]">Demo produk</p>
@@ -576,6 +611,7 @@ const screenshotSlots = [
             </RouterLink>
             <a
               href="#fitur"
+              @click="handleAnchorClick($event, '#fitur')"
               class="inline-flex h-12 items-center justify-center rounded-lg border border-[#e7e2da] bg-transparent px-7 text-sm font-medium text-[#6b7280] transition-colors hover:border-[#d1cde5] hover:text-[#171322]"
             >
               Pelajari fitur
@@ -603,9 +639,24 @@ const screenshotSlots = [
 
           <!-- Footer links -->
           <nav class="flex flex-wrap gap-x-7 gap-y-2 text-sm text-[#9ca3af]">
-            <a href="#fitur" class="hover:text-[#6b7280]">Fitur</a>
-            <a href="#peran" class="hover:text-[#6b7280]">Untuk Siapa</a>
-            <a href="#preview" class="hover:text-[#6b7280]">Preview</a>
+            <a
+              href="#fitur"
+              @click="handleAnchorClick($event, '#fitur')"
+              class="hover:text-[#6b7280]"
+              >Fitur</a
+            >
+            <a
+              href="#peran"
+              @click="handleAnchorClick($event, '#peran')"
+              class="hover:text-[#6b7280]"
+              >Untuk Siapa</a
+            >
+            <a
+              href="#preview"
+              @click="handleAnchorClick($event, '#preview')"
+              class="hover:text-[#6b7280]"
+              >Preview</a
+            >
             <RouterLink to="/login" class="hover:text-[#6b7280]"
               >Masuk</RouterLink
             >
