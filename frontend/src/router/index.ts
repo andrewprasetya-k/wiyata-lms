@@ -62,7 +62,7 @@ const router = createRouter({
       path: "/home",
       name: "home",
       component: HomePage,
-      meta: { title: "Beranda" },
+      meta: { title: "Satu ruang kerja untuk aktivitas akademik sekolah." },
     },
     {
       path: "/",
