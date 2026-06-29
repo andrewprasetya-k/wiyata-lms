@@ -349,8 +349,7 @@ onMounted(loadDashboard);
             <p
               class="mt-1 max-w-2xl text-xs leading-5 text-[#6b7280] sm:text-sm"
             >
-              Ruang belajar hari ini mengikuti kelas aktif dan mata pelajaran di
-              dalamnya.
+              Mau belajar apa hari ini?
             </p>
           </div>
           <div
@@ -492,7 +491,7 @@ onMounted(loadDashboard);
                   </div>
                   <div class="min-w-0 flex-1">
                     <p
-                      class="line-clamp-2 break-words text-sm font-medium text-[#171322]"
+                      class="line-clamp-2 wrap-break-word text-sm font-medium text-[#171322]"
                     >
                       {{
                         subject.subjectName ||
@@ -644,7 +643,7 @@ onMounted(loadDashboard);
                 class="min-w-0 py-3 first:pt-0 last:pb-0"
               >
                 <p
-                  class="line-clamp-3 break-words text-sm leading-6 text-[#3f3a4a]"
+                  class="line-clamp-3 wrap-break-word text-sm leading-6 text-[#3f3a4a]"
                 >
                   {{ post.content }}
                 </p>
