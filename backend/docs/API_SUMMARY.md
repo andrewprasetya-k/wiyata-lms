@@ -162,6 +162,8 @@ Notes are material-only for MVP. They are scoped to the JWT user and active `Sch
 ## 📰 Feeds (Announcements)
 
 - `POST /feeds` - Create active-school class feed (admin or teacher who teaches the class)
+- `GET /feeds/unread-count` - Get current user's active-school unread feed notification count (`feed_posted` and `comment_added`)
+- `PATCH /feeds/read` - Mark current user's active-school feed-related notifications as read
 - `GET /feeds/class/:classId` - Get active-school class feed (admin, teacher who teaches the class, or active enrolled student)
 - `GET /feeds/:id` - Get accessible active-school feed by ID
 - `PATCH /feeds/:id` - Update active-school feed (admin or owning teacher who teaches the class)

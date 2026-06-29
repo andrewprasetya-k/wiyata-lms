@@ -111,7 +111,7 @@ func main() {
 	commentRepo := repository.NewCommentRepository(db)
 	contentOwnerRepo := repository.NewContentOwnerRepository(db)
 	commentService := service.NewCommentService(commentRepo, contentOwnerRepo, notificationService, feedRepo, enrollmentRepo, subjectClassRepo)
-	feedHandler := handler.NewFeedHandler(feedService, commentService, classService)
+	feedHandler := handler.NewFeedHandler(feedService, commentService, classService, notificationService)
 	commentHandler := handler.NewCommentHandler(commentService)
 
 	chatRepo := repository.NewChatRepository(db)
@@ -330,6 +330,8 @@ func main() {
 		feedAPI := api.Group("/feeds")
 		{
 			feedAPI.POST("", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "teacher", "admin"), feedHandler.Create)
+			feedAPI.GET("/unread-count", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "teacher", "student"), feedHandler.GetUnreadCount)
+			feedAPI.PATCH("/read", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "teacher", "student"), feedHandler.MarkRead)
 			feedAPI.GET("/class/:classId", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "teacher", "student"), feedHandler.GetByClass)
 			feedAPI.GET("/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "teacher", "student"), feedHandler.GetByID)
 			feedAPI.PATCH("/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "teacher", "admin"), feedHandler.Update)

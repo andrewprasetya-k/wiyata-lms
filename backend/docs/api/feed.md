@@ -2,6 +2,33 @@
 
 Base URL: `/api/feeds`
 
+## 0. Feed Unread Badge
+
+- **GET** `/unread-count`
+- **Auth:** Required. Active-school scoped. Available for `student`, `teacher`, and `admin`.
+- **Behavior:** Counts unread feed-related notifications for the current user and active school using existing notification types:
+  - `feed_posted`
+  - `comment_added`
+- **Scope:** Uses the existing per-user notification rows as read state. The notification `relatedId` points to the feed row, and the endpoint joins that feed to the active school. It does not create a separate feed read receipt table.
+- **Response:**
+
+```json
+{
+  "unreadCount": 3
+}
+```
+
+- **PATCH** `/read`
+- **Auth:** Required. Active-school scoped. Available for `student`, `teacher`, and `admin`.
+- **Behavior:** Marks unread feed-related notifications for the current user and active school as read. It does not mark assignment/material/general notifications.
+- **Response:**
+
+```json
+{
+  "message": "Feed notifications marked as read"
+}
+```
+
 ## 1. Create Feed
 - **URL:** `(base URL)`
 - **Method:** `POST`

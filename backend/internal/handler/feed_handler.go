@@ -15,14 +15,21 @@ type FeedHandler struct {
 	service        service.FeedService
 	commentService service.CommentService
 	classService   service.ClassService
+	notifService   service.NotificationService
 }
 
-func NewFeedHandler(service service.FeedService, commentService service.CommentService, classService service.ClassService) *FeedHandler {
+func NewFeedHandler(service service.FeedService, commentService service.CommentService, classService service.ClassService, notifService service.NotificationService) *FeedHandler {
 	return &FeedHandler{
 		service:        service,
 		commentService: commentService,
 		classService:   classService,
+		notifService:   notifService,
 	}
+}
+
+var feedNotificationTypes = []string{
+	domain.NotifFeedPosted,
+	domain.NotifCommentAdded,
 }
 
 func (h *FeedHandler) Create(c *gin.Context) {
@@ -171,6 +178,47 @@ func (h *FeedHandler) GetByClass(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response)
+}
+
+func (h *FeedHandler) GetUnreadCount(c *gin.Context) {
+	userID := middleware.GetUserID(c)
+	if userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+	schoolID, ok := getFeedActiveSchoolID(c)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
+
+	count, err := h.notifService.GetFeedUnreadCount(userID, schoolID, feedNotificationTypes)
+	if err != nil {
+		HandleError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, count)
+}
+
+func (h *FeedHandler) MarkRead(c *gin.Context) {
+	userID := middleware.GetUserID(c)
+	if userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+	schoolID, ok := getFeedActiveSchoolID(c)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
+
+	if err := h.notifService.MarkFeedNotificationsRead(userID, schoolID, feedNotificationTypes); err != nil {
+		HandleError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Feed notifications marked as read"})
 }
 
 func (h *FeedHandler) mapToResponse(f *domain.Feed, commentCount int) dto.FeedResponseDTO {
