@@ -89,6 +89,32 @@ func (h *ChatHandler) OpenSchoolRoom(c *gin.Context) {
 	c.JSON(http.StatusOK, dto.ChatRoomResponseDTO{Room: *room})
 }
 
+func (h *ChatHandler) OpenDirectMessage(c *gin.Context) {
+	userID := middleware.GetUserID(c)
+	schoolID, ok := getChatActiveSchoolID(c)
+	if userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
+
+	var input dto.OpenDirectMessageDTO
+	if err := c.ShouldBindJSON(&input); err != nil {
+		HandleBindingError(c, err)
+		return
+	}
+
+	room, err := h.service.OpenDirectMessage(userID, schoolID, input.TargetUserID)
+	if err != nil {
+		HandleError(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, dto.ChatRoomResponseDTO{Room: *room})
+}
+
 func (h *ChatHandler) CreateGroupRoom(c *gin.Context) {
 	userID := middleware.GetUserID(c)
 	schoolID, ok := getChatActiveSchoolID(c)

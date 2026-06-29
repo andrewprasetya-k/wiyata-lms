@@ -109,6 +109,21 @@ func HandleError(c *gin.Context, err error) {
 		return
 	}
 
+	if strings.Contains(errStr, "chat dm target is required") {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Target pesan langsung wajib dipilih"})
+		return
+	}
+
+	if strings.Contains(errStr, "chat dm cannot target self") {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Kamu tidak bisa mengirim pesan langsung ke diri sendiri"})
+		return
+	}
+
+	if strings.Contains(errStr, "invalid chat dm target") {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Target pesan langsung harus warga aktif di sekolah ini"})
+		return
+	}
+
 	if strings.Contains(errStr, "student note content is required") {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Isi catatan wajib diisi"})
 		return

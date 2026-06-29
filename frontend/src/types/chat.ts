@@ -14,6 +14,9 @@ export interface ChatRoom {
   roomRefId?: string | null
   schoolId: string
   schoolName?: string
+  dmTargetUserId?: string | null
+  dmTargetName?: string | null
+  dmTargetEmail?: string | null
   lastMessage?: ChatLastMessage | null
   lastMessageAt?: string | null
   unreadCount: number
@@ -90,6 +93,10 @@ export interface ChatMessagePayload {
 export interface CreateChatGroupPayload {
   roomName: string
   memberUserIds: string[]
+}
+
+export interface OpenDirectMessagePayload {
+  targetUserId: string
 }
 
 export interface UpdateChatGroupPayload {

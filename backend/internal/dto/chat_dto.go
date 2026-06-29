@@ -9,17 +9,20 @@ type ChatLastMessageDTO struct {
 }
 
 type ChatRoomDTO struct {
-	RoomID        string              `json:"roomId"`
-	RoomName      string              `json:"roomName"`
-	RoomType      string              `json:"roomType"`
-	RoomRefType   *string             `json:"roomRefType"`
-	RoomRefID     *string             `json:"roomRefId"`
-	SchoolID      string              `json:"schoolId"`
-	SchoolName    string              `json:"schoolName"`
-	LastMessage   *ChatLastMessageDTO `json:"lastMessage"`
-	LastMessageAt *string             `json:"lastMessageAt"`
-	UnreadCount   int64               `json:"unreadCount"`
-	CanSend       bool                `json:"canSend"`
+	RoomID         string              `json:"roomId"`
+	RoomName       string              `json:"roomName"`
+	RoomType       string              `json:"roomType"`
+	RoomRefType    *string             `json:"roomRefType"`
+	RoomRefID      *string             `json:"roomRefId"`
+	SchoolID       string              `json:"schoolId"`
+	SchoolName     string              `json:"schoolName"`
+	DMTargetUserID *string             `json:"dmTargetUserId,omitempty"`
+	DMTargetName   *string             `json:"dmTargetName,omitempty"`
+	DMTargetEmail  *string             `json:"dmTargetEmail,omitempty"`
+	LastMessage    *ChatLastMessageDTO `json:"lastMessage"`
+	LastMessageAt  *string             `json:"lastMessageAt"`
+	UnreadCount    int64               `json:"unreadCount"`
+	CanSend        bool                `json:"canSend"`
 }
 
 type ChatMessageDTO struct {
@@ -92,6 +95,10 @@ type CreateChatMessageDTO struct {
 type CreateChatGroupDTO struct {
 	RoomName      string   `json:"roomName" binding:"required"`
 	MemberUserIDs []string `json:"memberUserIds" binding:"required,dive,uuid"`
+}
+
+type OpenDirectMessageDTO struct {
+	TargetUserID string `json:"targetUserId" binding:"required,uuid"`
 }
 
 type UpdateChatGroupDTO struct {

@@ -14,7 +14,9 @@ type ChatRepository interface {
 	ListChatMembers(schoolID string, search string, excludeRoomID *string) ([]ChatMemberRow, error)
 	GetSchoolRoom(schoolID string) (*domain.ChatRoom, error)
 	CreateSchoolRoom(room *domain.ChatRoom) error
-	GetRoomContext(roomID string, schoolID string) (*ChatRoomRow, error)
+	GetRoomContext(roomID string, schoolID string, userID string) (*ChatRoomRow, error)
+	FindDirectMessageRoom(schoolID string, userID string, targetUserID string) (*ChatRoomRow, error)
+	CreateDirectMessageRoom(schoolID string, creatorID string, targetUserID string) (*ChatRoomRow, error)
 	GetGroupInfo(roomID string, schoolID string) (*ChatGroupInfoRow, []ChatGroupMemberRow, error)
 	UserIsActiveSchoolMember(userID string, schoolID string) (bool, error)
 	UsersAreActiveSchoolMembers(userIDs []string, schoolID string) (map[string]bool, error)
@@ -49,6 +51,9 @@ type ChatRoomRow struct {
 	LastSenderName *string    `gorm:"column:last_sender_name"`
 	LastContent    *string    `gorm:"column:last_content"`
 	LastMessageAt  *time.Time `gorm:"column:last_message_at"`
+	DMTargetUserID *string    `gorm:"column:dm_target_user_id"`
+	DMTargetName   *string    `gorm:"column:dm_target_name"`
+	DMTargetEmail  *string    `gorm:"column:dm_target_email"`
 }
 
 type ChatMemberRow struct {
@@ -108,18 +113,33 @@ func (r *chatRepository) ListSchoolRooms(userID string, schoolID string, search 
 			ON active_user.usr_id = scu.scu_usr_id
 			AND active_user.deleted_at IS NULL
 		WHERE cr.room_sch_id = ?
-			AND cr.room_type = 'group'
+			AND cr.room_type IN ('group', 'dm')
 			AND cr.deleted_at IS NULL
 			AND s.deleted_at IS NULL
 			AND (
 				? = ''
 				OR cr.room_name ILIKE ?
 				OR s.sch_name ILIKE ?
+				OR COALESCE(dm_target.usr_nama_lengkap, '') ILIKE ?
+				OR COALESCE(dm_target.usr_email, '') ILIKE ?
 			)
 			AND (
 				(cr.room_ref_type = 'school' AND cr.room_ref_id = ?)
 				OR (
-					cr.room_ref_type IS NULL
+					cr.room_type = 'group'
+					AND cr.room_ref_type IS NULL
+					AND cr.room_ref_id IS NULL
+					AND EXISTS (
+						SELECT 1
+						FROM edv.chat_room_members crm
+						WHERE crm.crm_room_id = cr.room_id
+							AND crm.crm_usr_id = ?
+							AND crm.left_at IS NULL
+					)
+				)
+				OR (
+					cr.room_type = 'dm'
+					AND cr.room_ref_type IS NULL
 					AND cr.room_ref_id IS NULL
 					AND EXISTS (
 						SELECT 1
@@ -131,7 +151,7 @@ func (r *chatRepository) ListSchoolRooms(userID string, schoolID string, search 
 				)
 			)
 		ORDER BY COALESCE(lm.created_at, cr.created_at) DESC
-	`, userID, schoolID, search, searchPattern, searchPattern, schoolID, userID).Scan(&rows).Error
+	`, userID, userID, schoolID, search, searchPattern, searchPattern, searchPattern, searchPattern, schoolID, userID, userID).Scan(&rows).Error
 	return rows, err
 }
 
@@ -187,16 +207,16 @@ func (r *chatRepository) CreateSchoolRoom(room *domain.ChatRoom) error {
 	}).Create(room).Error
 }
 
-func (r *chatRepository) GetRoomContext(roomID string, schoolID string) (*ChatRoomRow, error) {
+func (r *chatRepository) GetRoomContext(roomID string, schoolID string, userID string) (*ChatRoomRow, error) {
 	var row ChatRoomRow
 	err := r.db.Raw(chatRoomListSelect()+`
 		WHERE cr.room_id = ?
 			AND cr.room_sch_id = ?
-			AND cr.room_type = 'group'
+			AND cr.room_type IN ('group', 'dm')
 			AND cr.deleted_at IS NULL
 			AND s.deleted_at IS NULL
 		LIMIT 1
-	`, roomID, schoolID).Scan(&row).Error
+	`, userID, roomID, schoolID).Scan(&row).Error
 	if err != nil {
 		return nil, err
 	}
@@ -204,6 +224,112 @@ func (r *chatRepository) GetRoomContext(roomID string, schoolID string) (*ChatRo
 		return nil, gorm.ErrRecordNotFound
 	}
 	return &row, nil
+}
+
+func (r *chatRepository) FindDirectMessageRoom(schoolID string, userID string, targetUserID string) (*ChatRoomRow, error) {
+	var row ChatRoomRow
+	err := r.db.Raw(chatRoomListSelect()+`
+		WHERE cr.room_sch_id = ?
+			AND cr.room_type = 'dm'
+			AND cr.room_ref_type IS NULL
+			AND cr.room_ref_id IS NULL
+			AND cr.deleted_at IS NULL
+			AND s.deleted_at IS NULL
+			AND EXISTS (
+				SELECT 1
+				FROM edv.chat_room_members me
+				WHERE me.crm_room_id = cr.room_id
+					AND me.crm_usr_id = ?
+					AND me.left_at IS NULL
+			)
+			AND EXISTS (
+				SELECT 1
+				FROM edv.chat_room_members target
+				WHERE target.crm_room_id = cr.room_id
+					AND target.crm_usr_id = ?
+					AND target.left_at IS NULL
+			)
+			AND (
+				SELECT COUNT(*)
+				FROM edv.chat_room_members active_members
+				WHERE active_members.crm_room_id = cr.room_id
+					AND active_members.left_at IS NULL
+			) = 2
+		ORDER BY COALESCE(lm.created_at, cr.created_at) DESC, cr.created_at ASC
+		LIMIT 1
+	`, userID, schoolID, userID, targetUserID).Scan(&row).Error
+	if err != nil {
+		return nil, err
+	}
+	if row.RoomID == "" {
+		return nil, gorm.ErrRecordNotFound
+	}
+	return &row, nil
+}
+
+func (r *chatRepository) CreateDirectMessageRoom(schoolID string, creatorID string, targetUserID string) (*ChatRoomRow, error) {
+	var created domain.ChatRoom
+	err := r.db.Transaction(func(tx *gorm.DB) error {
+		var existing ChatRoomRow
+		if err := tx.Raw(chatRoomListSelect()+`
+			WHERE cr.room_sch_id = ?
+				AND cr.room_type = 'dm'
+				AND cr.room_ref_type IS NULL
+				AND cr.room_ref_id IS NULL
+				AND cr.deleted_at IS NULL
+				AND s.deleted_at IS NULL
+				AND EXISTS (
+					SELECT 1
+					FROM edv.chat_room_members me
+					WHERE me.crm_room_id = cr.room_id
+						AND me.crm_usr_id = ?
+						AND me.left_at IS NULL
+				)
+				AND EXISTS (
+					SELECT 1
+					FROM edv.chat_room_members target
+					WHERE target.crm_room_id = cr.room_id
+						AND target.crm_usr_id = ?
+						AND target.left_at IS NULL
+				)
+				AND (
+					SELECT COUNT(*)
+					FROM edv.chat_room_members active_members
+					WHERE active_members.crm_room_id = cr.room_id
+						AND active_members.left_at IS NULL
+				) = 2
+			ORDER BY COALESCE(lm.created_at, cr.created_at) DESC, cr.created_at ASC
+			LIMIT 1
+		`, creatorID, schoolID, creatorID, targetUserID).Scan(&existing).Error; err != nil {
+			return err
+		}
+		if existing.RoomID != "" {
+			created.ID = existing.RoomID
+			return nil
+		}
+
+		if err := tx.Raw(`
+			INSERT INTO edv.chat_rooms (room_sch_id, room_name, room_type, room_ref_type, room_ref_id, created_by)
+			VALUES (?, '', 'dm', NULL, NULL, ?)
+			RETURNING room_id, room_sch_id, room_name, room_type, created_by, created_at
+		`, schoolID, creatorID).Scan(&created).Error; err != nil {
+			return err
+		}
+
+		members := []domain.ChatRoomMember{
+			{RoomID: created.ID, UserID: creatorID, Role: "member"},
+			{RoomID: created.ID, UserID: targetUserID, Role: "member"},
+		}
+		return tx.Clauses(clause.OnConflict{
+			Columns:   []clause.Column{{Name: "crm_room_id"}, {Name: "crm_usr_id"}},
+			DoNothing: true,
+		}).Create(&members).Error
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return r.FindDirectMessageRoom(schoolID, creatorID, targetUserID)
 }
 
 func (r *chatRepository) GetGroupInfo(roomID string, schoolID string) (*ChatGroupInfoRow, []ChatGroupMemberRow, error) {
@@ -808,8 +934,23 @@ func chatRoomContextSelect() string {
 			lm.msg_usr_id AS last_sender_id,
 			last_sender.usr_nama_lengkap AS last_sender_name,
 			lm.msg_content AS last_content,
-			lm.created_at AS last_message_at
+			lm.created_at AS last_message_at,
+			dm_target.usr_id AS dm_target_user_id,
+			dm_target.usr_nama_lengkap AS dm_target_name,
+			dm_target.usr_email AS dm_target_email
 		FROM edv.chat_rooms cr
 		JOIN edv.schools s ON s.sch_id = cr.room_sch_id
+		LEFT JOIN LATERAL (
+			SELECT u.usr_id, u.usr_nama_lengkap, u.usr_email
+			FROM edv.chat_room_members crm
+			JOIN edv.users u
+				ON u.usr_id = crm.crm_usr_id
+				AND u.deleted_at IS NULL
+			WHERE crm.crm_room_id = cr.room_id
+				AND crm.left_at IS NULL
+				AND crm.crm_usr_id <> ?
+			ORDER BY crm.joined_at ASC
+			LIMIT 1
+		) dm_target ON cr.room_type = 'dm'
 	`
 }

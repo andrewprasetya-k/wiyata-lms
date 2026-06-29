@@ -10,6 +10,7 @@ import type {
   CreateChatGroupPayload,
   ChatGroupInfoResponse,
   MarkRoomReadPayload,
+  OpenDirectMessagePayload,
   UpdateChatGroupPayload,
 } from '../types/chat'
 
@@ -39,6 +40,11 @@ export async function searchChatMembers(search = '', excludeRoomId?: string | nu
 
 export async function createChatGroup(payload: CreateChatGroupPayload) {
   const { data } = await api.post<ChatRoomResponse>('/chat/groups', payload)
+  return data.room
+}
+
+export async function openDirectMessage(payload: OpenDirectMessagePayload) {
+  const { data } = await api.post<ChatRoomResponse>('/chat/dm/open', payload)
   return data.room
 }
 

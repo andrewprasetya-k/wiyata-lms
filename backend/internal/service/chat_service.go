@@ -13,7 +13,8 @@ import (
 )
 
 const (
-	chatRoomTypeSchool  = "group"
+	chatRoomTypeGroup   = "group"
+	chatRoomTypeDM      = "dm"
 	chatRefTypeSchool   = "school"
 	chatMessageTypeText = "text"
 	maxChatMessageLimit = 50
@@ -26,6 +27,7 @@ type ChatService interface {
 	ListMyRooms(userID string, schoolID string, search string) ([]dto.ChatRoomDTO, error)
 	ListMembers(userID string, schoolID string, search string, excludeRoomID *string) ([]dto.ChatMemberDTO, error)
 	OpenSchoolRoom(userID string, schoolID string) (*dto.ChatRoomDTO, error)
+	OpenDirectMessage(userID string, schoolID string, targetUserID string) (*dto.ChatRoomDTO, error)
 	CreateGroupRoom(userID string, schoolID string, roomName string, memberUserIDs []string) (*dto.ChatRoomDTO, error)
 	GetGroupInfo(userID string, schoolID string, roomID string) (*dto.ChatGroupInfoDTO, error)
 	RenameGroupRoom(userID string, schoolID string, roomID string, roomName string) (*dto.ChatRoomDTO, error)
@@ -141,7 +143,7 @@ func (s *chatService) OpenSchoolRoom(userID string, schoolID string) (*dto.ChatR
 		room = &domain.ChatRoom{
 			SchoolID:  schoolID,
 			Name:      defaultSchoolRoom,
-			Type:      chatRoomTypeSchool,
+			Type:      chatRoomTypeGroup,
 			RefType:   chatRefTypeSchool,
 			RefID:     schoolID,
 			CreatedBy: userID,
@@ -155,7 +157,7 @@ func (s *chatService) OpenSchoolRoom(userID string, schoolID string) (*dto.ChatR
 		}
 	}
 
-	context, err := s.repo.GetRoomContext(room.ID, schoolID)
+	context, err := s.repo.GetRoomContext(room.ID, schoolID, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -165,6 +167,50 @@ func (s *chatService) OpenSchoolRoom(userID string, schoolID string) (*dto.ChatR
 	}
 	roomDTO := mapChatRoomRow(*context, unread)
 	return &roomDTO, nil
+}
+
+func (s *chatService) OpenDirectMessage(userID string, schoolID string, targetUserID string) (*dto.ChatRoomDTO, error) {
+	allowed, err := s.CanAccessSchoolChat(userID, schoolID)
+	if err != nil {
+		return nil, err
+	}
+	if !allowed {
+		return nil, fmt.Errorf("forbidden: chat school access denied")
+	}
+
+	targetUserID = strings.TrimSpace(targetUserID)
+	if targetUserID == "" {
+		return nil, fmt.Errorf("chat dm target is required")
+	}
+	if targetUserID == userID {
+		return nil, fmt.Errorf("chat dm cannot target self")
+	}
+
+	activeMembers, err := s.repo.UsersAreActiveSchoolMembers([]string{targetUserID}, schoolID)
+	if err != nil {
+		return nil, err
+	}
+	if !activeMembers[targetUserID] {
+		return nil, fmt.Errorf("invalid chat dm target")
+	}
+
+	room, err := s.repo.FindDirectMessageRoom(schoolID, userID, targetUserID)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, err
+	}
+	if errors.Is(err, gorm.ErrRecordNotFound) || room == nil {
+		room, err = s.repo.CreateDirectMessageRoom(schoolID, userID, targetUserID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	unread, err := s.repo.UnreadCount(room.RoomID, userID)
+	if err != nil {
+		return nil, err
+	}
+	mapped := mapChatRoomRow(*room, unread)
+	return &mapped, nil
 }
 
 func (s *chatService) CreateGroupRoom(userID string, schoolID string, roomName string, memberUserIDs []string) (*dto.ChatRoomDTO, error) {
@@ -224,7 +270,7 @@ func (s *chatService) CreateGroupRoom(userID string, schoolID string, roomName s
 	if err != nil {
 		return nil, err
 	}
-	context, err := s.repo.GetRoomContext(room.ID, schoolID)
+	context, err := s.repo.GetRoomContext(room.ID, schoolID, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -263,7 +309,7 @@ func (s *chatService) RenameGroupRoom(userID string, schoolID string, roomID str
 	if err := s.repo.UpdateGroupRoomName(roomID, schoolID, roomName); err != nil {
 		return nil, err
 	}
-	context, err := s.repo.GetRoomContext(roomID, schoolID)
+	context, err := s.repo.GetRoomContext(roomID, schoolID, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -417,11 +463,11 @@ func (s *chatService) CanAccessSchoolChat(userID string, schoolID string) (bool,
 }
 
 func (s *chatService) CanAccessRoom(userID string, schoolID string, roomID string) (bool, *repository.ChatRoomRow, error) {
-	room, err := s.repo.GetRoomContext(roomID, schoolID)
+	room, err := s.repo.GetRoomContext(roomID, schoolID, userID)
 	if err != nil {
 		return false, nil, err
 	}
-	if room.RoomType != chatRoomTypeSchool || room.SchoolID != schoolID {
+	if room.SchoolID != schoolID {
 		return false, room, nil
 	}
 
@@ -437,7 +483,7 @@ func (s *chatService) CanAccessRoom(userID string, schoolID string, roomID strin
 		return true, room, nil
 	}
 
-	if isCustomGroupRoom(room) {
+	if isCustomGroupRoom(room) || isDirectMessageRoom(room) {
 		activeRoomMember, err := s.repo.UserIsActiveRoomMember(userID, roomID)
 		if err != nil {
 			return false, nil, err
@@ -516,17 +562,20 @@ func mapChatRoomRow(row repository.ChatRoomRow, unread int64) dto.ChatRoomDTO {
 	}
 
 	return dto.ChatRoomDTO{
-		RoomID:        row.RoomID,
-		RoomName:      row.RoomName,
-		RoomType:      row.RoomType,
-		RoomRefType:   row.RoomRefType,
-		RoomRefID:     row.RoomRefID,
-		SchoolID:      row.SchoolID,
-		SchoolName:    row.SchoolName,
-		LastMessage:   lastMessage,
-		LastMessageAt: lastMessageAt,
-		UnreadCount:   unread,
-		CanSend:       true,
+		RoomID:         row.RoomID,
+		RoomName:       resolveRoomName(row),
+		RoomType:       row.RoomType,
+		RoomRefType:    row.RoomRefType,
+		RoomRefID:      row.RoomRefID,
+		SchoolID:       row.SchoolID,
+		SchoolName:     row.SchoolName,
+		DMTargetUserID: row.DMTargetUserID,
+		DMTargetName:   row.DMTargetName,
+		DMTargetEmail:  row.DMTargetEmail,
+		LastMessage:    lastMessage,
+		LastMessageAt:  lastMessageAt,
+		UnreadCount:    unread,
+		CanSend:        true,
 	}
 }
 
@@ -613,7 +662,30 @@ func isSchoolChatRoom(room *repository.ChatRoomRow, schoolID string) bool {
 }
 
 func isCustomGroupRoom(room *repository.ChatRoomRow) bool {
-	return room != nil && room.RoomRefType == nil && room.RoomRefID == nil
+	return room != nil &&
+		room.RoomType == chatRoomTypeGroup &&
+		room.RoomRefType == nil &&
+		room.RoomRefID == nil
+}
+
+func isDirectMessageRoom(room *repository.ChatRoomRow) bool {
+	return room != nil &&
+		room.RoomType == chatRoomTypeDM &&
+		room.RoomRefType == nil &&
+		room.RoomRefID == nil
+}
+
+func resolveRoomName(row repository.ChatRoomRow) string {
+	if row.RoomType == chatRoomTypeDM {
+		if row.DMTargetName != nil && strings.TrimSpace(*row.DMTargetName) != "" {
+			return strings.TrimSpace(*row.DMTargetName)
+		}
+		if row.DMTargetEmail != nil && strings.TrimSpace(*row.DMTargetEmail) != "" {
+			return strings.TrimSpace(*row.DMTargetEmail)
+		}
+		return "Pesan Langsung"
+	}
+	return row.RoomName
 }
 
 func valueOrEmpty(value *string) string {

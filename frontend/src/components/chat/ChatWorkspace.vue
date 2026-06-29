@@ -15,6 +15,7 @@ import {
   getMessages,
   leaveChatGroup,
   markRoomRead,
+  openDirectMessage,
   openSchoolChatRoom,
   removeChatGroupMember,
   renameChatGroup,
@@ -57,6 +58,13 @@ const selectedMemberIds = ref<string[]>([]);
 const isLoadingMembers = ref(false);
 const isCreatingGroup = ref(false);
 const createGroupError = ref("");
+const isDirectMessageOpen = ref(false);
+const dmSearch = ref("");
+const dmResults = ref<ChatMember[]>([]);
+const selectedDMTargetId = ref("");
+const isLoadingDMTargets = ref(false);
+const isOpeningDM = ref(false);
+const directMessageError = ref("");
 const roomSearch = ref("");
 const isGroupInfoOpen = ref(false);
 const groupInfo = ref<ChatGroupInfo | null>(null);
@@ -75,9 +83,7 @@ const removingMemberId = ref<string | null>(null);
 let poller: number | undefined;
 const authStore = useAuthStore();
 
-const selectedRoomName = computed(
-  () => selectedRoom.value?.roomName || "Ruang sekolah",
-);
+const selectedRoomName = computed(() => roomDisplayName(selectedRoom.value));
 const selectedSchoolName = computed(
   () => selectedRoom.value?.schoolName || "Sekolah aktif",
 );
@@ -96,10 +102,20 @@ const schoolRooms = computed(() =>
   rooms.value.filter((room) => isSchoolRoom(room) && roomMatchesSearch(room)),
 );
 const groupRooms = computed(() =>
-  rooms.value.filter((room) => !isSchoolRoom(room) && roomMatchesSearch(room)),
+  rooms.value.filter(
+    (room) => isCustomGroupRoom(room) && roomMatchesSearch(room),
+  ),
+);
+const directMessageRooms = computed(() =>
+  rooms.value.filter(
+    (room) => isDirectMessageRoom(room) && roomMatchesSearch(room),
+  ),
 );
 const selectedRoomIsGroup = computed(() =>
-  selectedRoom.value ? !isSchoolRoom(selectedRoom.value) : false,
+  selectedRoom.value ? isCustomGroupRoom(selectedRoom.value) : false,
+);
+const selectedRoomIsDM = computed(() =>
+  selectedRoom.value ? isDirectMessageRoom(selectedRoom.value) : false,
 );
 const currentUserIsGroupAdmin = computed(() =>
   Boolean(
@@ -225,6 +241,15 @@ async function openCreateGroupModal() {
   }
 }
 
+async function openDirectMessageModal() {
+  isDirectMessageOpen.value = true;
+  directMessageError.value = "";
+  selectedDMTargetId.value = "";
+  if (dmResults.value.length === 0) {
+    await loadDMTargets();
+  }
+}
+
 async function loadChatMembers() {
   isLoadingMembers.value = true;
   createGroupError.value = "";
@@ -234,6 +259,21 @@ async function loadChatMembers() {
     createGroupError.value = resolveChatError(error);
   } finally {
     isLoadingMembers.value = false;
+  }
+}
+
+async function loadDMTargets() {
+  isLoadingDMTargets.value = true;
+  directMessageError.value = "";
+  try {
+    const members = await searchChatMembers(dmSearch.value.trim());
+    dmResults.value = members.filter(
+      (member) => member.userId !== currentUserId.value,
+    );
+  } catch (error) {
+    directMessageError.value = resolveChatError(error);
+  } finally {
+    isLoadingDMTargets.value = false;
   }
 }
 
@@ -279,14 +319,40 @@ async function submitCreateGroup() {
   }
 }
 
+async function submitDirectMessage() {
+  if (!selectedDMTargetId.value) {
+    directMessageError.value = "Pilih satu warga sekolah untuk memulai percakapan.";
+    return;
+  }
+
+  isOpeningDM.value = true;
+  directMessageError.value = "";
+  try {
+    const room = await openDirectMessage({
+      targetUserId: selectedDMTargetId.value,
+    });
+    await refreshRooms();
+    selectedRoom.value =
+      rooms.value.find((item) => item.roomId === room.roomId) ?? room;
+    isDirectMessageOpen.value = false;
+    dmSearch.value = "";
+    selectedDMTargetId.value = "";
+    await loadLatestMessages();
+  } catch (error) {
+    directMessageError.value = resolveChatError(error);
+  } finally {
+    isOpeningDM.value = false;
+  }
+}
+
 async function openGroupInfo() {
-  if (!selectedRoom.value || isSchoolRoom(selectedRoom.value)) return;
+  if (!selectedRoom.value || !isCustomGroupRoom(selectedRoom.value)) return;
   isGroupInfoOpen.value = true;
   await loadGroupInfo();
 }
 
 async function loadGroupInfo() {
-  if (!selectedRoom.value || isSchoolRoom(selectedRoom.value)) return;
+  if (!selectedRoom.value || !isCustomGroupRoom(selectedRoom.value)) return;
   isLoadingGroupInfo.value = true;
   groupInfoError.value = "";
   groupActionError.value = "";
@@ -329,7 +395,7 @@ async function submitRenameGroup() {
 }
 
 async function loadEligibleMembers() {
-  if (!selectedRoom.value || isSchoolRoom(selectedRoom.value)) return;
+  if (!selectedRoom.value || !isCustomGroupRoom(selectedRoom.value)) return;
   isLoadingAddMembers.value = true;
   groupActionError.value = "";
   try {
@@ -377,7 +443,7 @@ async function submitAddMembers() {
 }
 
 async function leaveSelectedGroup() {
-  if (!selectedRoom.value || isSchoolRoom(selectedRoom.value)) return;
+  if (!selectedRoom.value || !isCustomGroupRoom(selectedRoom.value)) return;
   const confirmed = window.confirm(
     `Keluar dari ${roomDisplayName(selectedRoom.value)}? Kamu tidak akan bisa mengakses pesan grup ini lagi.`,
   );
@@ -527,9 +593,30 @@ function isSchoolRoom(room: ChatRoom) {
   return room.roomRefType === "school";
 }
 
+function isDirectMessageRoom(room: ChatRoom) {
+  return room.roomType === "dm";
+}
+
+function isCustomGroupRoom(room: ChatRoom) {
+  return room.roomType === "group" && room.roomRefType == null;
+}
+
 function roomDisplayName(room?: ChatRoom | null) {
   if (!room) return "Ruang Sekolah";
-  return isSchoolRoom(room) ? "Ruang Sekolah" : room.roomName || "Ruang Grup";
+  if (isSchoolRoom(room)) return "Ruang Sekolah";
+  if (isDirectMessageRoom(room)) {
+    return room.dmTargetName || room.dmTargetEmail || "Pesan Langsung";
+  }
+  return room.roomName || "Ruang Grup";
+}
+
+function roomSubtitle(room?: ChatRoom | null) {
+  if (!room) return "Ruang sekolah";
+  if (isSchoolRoom(room)) return "Ruang sekolah";
+  if (isDirectMessageRoom(room)) {
+    return room.dmTargetEmail || "Pesan langsung";
+  }
+  return "Grup";
 }
 
 function roomMatchesSearch(room: ChatRoom) {
@@ -539,6 +626,8 @@ function roomMatchesSearch(room: ChatRoom) {
     roomDisplayName(room),
     room.roomName,
     room.schoolName,
+    room.dmTargetName,
+    room.dmTargetEmail,
     room.lastMessage?.content,
   ]
     .filter(Boolean)
@@ -634,20 +723,29 @@ function formatDateTime(value?: string | null) {
           class="grid min-h-155 flex-1 overflow-hidden rounded-xl bg-white lg:grid-cols-[300px_minmax(0,1fr)]"
         >
           <aside class="min-w-0 border-[#ebe7df] bg-[#fbfaf8] lg:border-r">
-            <div class="border-b border-[#ebe7df] bg-white px-4 py-4 sm:px-5">
-              <div class="flex items-center justify-between gap-3">
-                <p class="text-sm font-semibold text-[#171322]">
-                  Ruang Diskusi
-                </p>
-                <button
-                  type="button"
-                  class="rounded-lg bg-[#4f46e5] px-1 py-1 font-bold text-white transition hover:bg-[#4338ca]"
-                  @click="openCreateGroupModal"
-                >
-                  <PhPlus :size="18" />
-                </button>
-              </div>
-            </div>
+	            <div class="border-b border-[#ebe7df] bg-white px-4 py-4 sm:px-5">
+	              <div class="flex items-center justify-between gap-3">
+	                <p class="text-sm font-semibold text-[#171322]">
+	                  Ruang Diskusi
+	                </p>
+	                <div class="flex items-center gap-2">
+	                  <button
+	                    type="button"
+	                    class="rounded-lg border border-[#d8d2c8] px-2.5 py-1.5 text-xs font-semibold text-[#4f46e5] transition hover:border-[#4f46e5]"
+	                    @click="openDirectMessageModal"
+	                  >
+	                    DM
+	                  </button>
+	                  <button
+	                    type="button"
+	                    class="rounded-lg bg-[#4f46e5] px-1 py-1 font-bold text-white transition hover:bg-[#4338ca]"
+	                    @click="openCreateGroupModal"
+	                  >
+	                    <PhPlus :size="18" />
+	                  </button>
+	                </div>
+	              </div>
+	            </div>
             <div class="flex gap-2 p-4">
               <input
                 v-model="roomSearch"
@@ -766,12 +864,71 @@ function formatDateTime(value?: string | null) {
                 </span>
               </button>
 
-              <div
-                v-if="groupRooms.length === 0"
-                class="rounded-lg border border-dashed border-[#d8d2c8] bg-white px-3 py-4 text-center text-xs text-[#6b7280]"
-              >
-                Belum ada grup khusus.
-              </div>
+	              <div
+	                v-if="groupRooms.length === 0"
+	                class="rounded-lg border border-dashed border-[#d8d2c8] bg-white px-3 py-4 text-center text-xs text-[#6b7280]"
+	              >
+	                Belum ada grup khusus.
+	              </div>
+
+	              <p
+	                class="pt-3 text-[10px] font-semibold uppercase tracking-[0.06em] text-[#9ca3af]"
+	              >
+	                Pesan Langsung
+	              </p>
+	              <button
+	                v-for="room in directMessageRooms"
+	                :key="room.roomId"
+	                type="button"
+	                class="flex w-full min-w-0 items-center gap-3 rounded-lg border px-3 py-3 text-left transition hover:bg-white"
+	                :class="
+	                  selectedRoom?.roomId === room.roomId
+	                    ? 'border-[#d7d1ff] bg-white shadow-sm'
+	                    : 'border-[#ebe7df] bg-[#fbfaf8]'
+	                "
+	                @click="
+	                  selectedRoom = room;
+	                  loadLatestMessages();
+	                "
+	              >
+	                <span
+	                  class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-[#4f46e5] text-sm font-semibold text-white"
+	                >
+	                  {{ getInitials(room.dmTargetName || room.dmTargetEmail) }}
+	                </span>
+	                <span class="min-w-0 flex-1">
+	                  <span
+	                    class="block truncate text-sm font-semibold text-[#171322]"
+	                  >
+	                    {{ roomDisplayName(room) }}
+	                  </span>
+	                  <span class="mt-0.5 block truncate text-xs text-[#6b7280]">
+	                    {{
+	                      room.lastMessage?.content ||
+	                      room.dmTargetEmail ||
+	                      "Belum ada pesan."
+	                    }}
+	                  </span>
+	                </span>
+	                <span class="flex shrink-0 flex-col items-end gap-1">
+	                  <span class="text-[11px] text-[#9ca3af]">{{
+	                    formatTime(room.lastMessageAt)
+	                  }}</span>
+	                  <span
+	                    v-if="room.unreadCount > 0"
+	                    class="rounded-full bg-[#4f46e5] px-2 py-0.5 text-[11px] font-semibold text-white"
+	                  >
+	                    {{ room.unreadCount }}
+	                  </span>
+	                </span>
+	              </button>
+
+	              <div
+	                v-if="directMessageRooms.length === 0"
+	                class="rounded-lg border border-dashed border-[#d8d2c8] bg-white px-3 py-4 text-center text-xs text-[#6b7280]"
+	              >
+	                Belum ada pesan langsung.
+	              </div>
 
               <div
                 v-if="rooms.length === 0"
@@ -812,14 +969,9 @@ function formatDateTime(value?: string | null) {
                 >
                   {{ roomDisplayName(selectedRoom) }}
                 </h2>
-                <p class="truncate text-xs text-[#6b7280]">
-                  {{ selectedSchoolName }} ·
-                  {{
-                    selectedRoom && isSchoolRoom(selectedRoom)
-                      ? "Ruang sekolah"
-                      : "Grup"
-                  }}
-                </p>
+	                <p class="truncate text-xs text-[#6b7280]">
+	                  {{ selectedSchoolName }} · {{ roomSubtitle(selectedRoom) }}
+	                </p>
               </div>
               <button
                 type="button"
@@ -878,13 +1030,17 @@ function formatDateTime(value?: string | null) {
                   class="flex min-h-80 flex-col items-center justify-center rounded-2xl px-6 text-center"
                 >
                   <PhChatCircleText class="h-10 w-10 text-[#b5aa9c]" />
-                  <h3 class="mt-4 text-base font-semibold text-[#171322]">
-                    Belum ada pesan.
-                  </h3>
-                  <p class="mt-2 max-w-sm text-sm text-[#6b7280]">
-                    Mulai percakapan pertama di ruang sekolah.
-                  </p>
-                </div>
+	                  <h3 class="mt-4 text-base font-semibold text-[#171322]">
+	                    Belum ada pesan.
+	                  </h3>
+	                  <p class="mt-2 max-w-sm text-sm text-[#6b7280]">
+	                    {{
+	                      selectedRoomIsDM
+	                        ? "Mulai percakapan pertama di pesan langsung ini."
+	                        : "Mulai percakapan pertama di ruang ini."
+	                    }}
+	                  </p>
+	                </div>
 
                 <template v-else>
                   <article
@@ -911,9 +1067,9 @@ function formatDateTime(value?: string | null) {
                             : 'rounded-bl-md border border-[#ebe7df] bg-white text-[#171322]'
                         "
                       >
-                        <p class="whitespace-pre-wrap wrap-break-word">
-                          {{ message.content }}
-                        </p>
+	                        <p class="whitespace-pre-wrap break-words">
+	                          {{ message.content }}
+	                        </p>
                       </div>
                       <p class="px-2 text-[11px] text-[#9ca3af]">
                         {{ formatDateTime(message.createdAt) }}
@@ -956,11 +1112,138 @@ function formatDateTime(value?: string | null) {
           </section>
         </div>
       </div>
-    </section>
+	    </section>
 
-    <div
-      v-if="isCreateGroupOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4 py-6"
+	    <div
+	      v-if="isDirectMessageOpen"
+	      class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4 py-6"
+	    >
+	      <div
+	        class="max-h-[90vh] w-full max-w-xl overflow-hidden rounded-xl bg-white shadow-xl"
+	      >
+	        <div class="border-b border-[#ebe7df] px-5 py-4">
+	          <h2 class="text-base font-semibold text-[#171322]">
+	            Mulai pesan langsung
+	          </h2>
+	          <p class="mt-1 text-sm text-[#6b7280]">
+	            Pilih warga sekolah untuk memulai percakapan.
+	          </p>
+	        </div>
+
+	        <form
+	          class="flex max-h-[calc(90vh-5rem)] flex-col"
+	          @submit.prevent="submitDirectMessage"
+	        >
+	          <div class="space-y-4 overflow-y-auto px-5 py-4">
+	            <div>
+	              <label
+	                class="text-sm font-medium text-[#171322]"
+	                for="chat-dm-search"
+	              >
+	                Cari warga sekolah
+	              </label>
+	              <div class="mt-1 flex gap-2">
+	                <input
+	                  id="chat-dm-search"
+	                  v-model="dmSearch"
+	                  type="text"
+	                  class="min-w-0 flex-1 rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm text-[#171322] outline-none transition focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/15"
+	                  placeholder="Cari warga sekolah..."
+	                  @keydown.enter.prevent="loadDMTargets"
+	                />
+	                <button
+	                  type="button"
+	                  class="rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm font-medium text-[#4f46e5] transition hover:border-[#4f46e5] disabled:opacity-60"
+	                  :disabled="isLoadingDMTargets"
+	                  @click="loadDMTargets"
+	                >
+	                  Cari
+	                </button>
+	              </div>
+	            </div>
+
+	            <p
+	              v-if="directMessageError"
+	              class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600"
+	            >
+	              {{ directMessageError }}
+	            </p>
+
+	            <div class="rounded-lg border border-[#ebe7df]">
+	              <div
+	                class="border-b border-[#ebe7df] bg-[#fbfaf8] px-3 py-2 text-xs font-semibold uppercase tracking-[0.06em] text-[#9ca3af]"
+	              >
+	                Warga sekolah
+	              </div>
+	              <div v-if="isLoadingDMTargets" class="space-y-2 p-3">
+	                <div class="h-10 animate-pulse rounded-lg bg-[#f3f4f6]" />
+	                <div class="h-10 animate-pulse rounded-lg bg-[#f3f4f6]" />
+	              </div>
+	              <div
+	                v-else-if="dmResults.length === 0"
+	                class="px-3 py-8 text-center text-sm text-[#6b7280]"
+	              >
+	                Tidak ada warga sekolah yang cocok.
+	              </div>
+	              <div v-else class="max-h-64 overflow-y-auto p-2">
+	                <label
+	                  v-for="member in dmResults"
+	                  :key="member.userId"
+	                  class="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 hover:bg-[#fbfaf8]"
+	                >
+	                  <input
+	                    v-model="selectedDMTargetId"
+	                    type="radio"
+	                    name="dm-target"
+	                    class="h-4 w-4 border-[#d8d2c8] text-[#4f46e5]"
+	                    :value="member.userId"
+	                  />
+	                  <span
+	                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#4f46e5] text-xs font-semibold text-white"
+	                  >
+	                    {{ getInitials(member.fullName || member.email) }}
+	                  </span>
+	                  <span class="min-w-0 flex-1">
+	                    <span
+	                      class="block truncate text-sm font-medium text-[#171322]"
+	                    >
+	                      {{ member.fullName || member.email }}
+	                    </span>
+	                    <span class="block truncate text-xs text-[#6b7280]">
+	                      {{ member.email }}
+	                    </span>
+	                  </span>
+	                </label>
+	              </div>
+	            </div>
+	          </div>
+
+	          <div
+	            class="flex flex-col gap-2 border-t border-[#ebe7df] px-5 py-4 sm:flex-row sm:justify-end"
+	          >
+	            <button
+	              type="button"
+	              class="rounded-lg border border-[#d8d2c8] px-4 py-2 text-sm font-medium text-[#6b7280] transition hover:bg-[#fbfaf8]"
+	              :disabled="isOpeningDM"
+	              @click="isDirectMessageOpen = false"
+	            >
+	              Batal
+	            </button>
+	            <button
+	              type="submit"
+	              class="rounded-lg bg-[#4f46e5] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:bg-[#c7c3d7]"
+	              :disabled="isOpeningDM"
+	            >
+	              {{ isOpeningDM ? "Membuka..." : "Buka percakapan" }}
+	            </button>
+	          </div>
+	        </form>
+	      </div>
+	    </div>
+
+	    <div
+	      v-if="isCreateGroupOpen"
+	      class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4 py-6"
     >
       <div
         class="max-h-[90vh] w-full max-w-xl overflow-hidden rounded-xl bg-white shadow-xl"

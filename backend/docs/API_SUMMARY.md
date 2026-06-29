@@ -156,9 +156,11 @@ Notes are material-only for MVP. They are scoped to the JWT user and active `Sch
 - `DELETE /comments/:id` - Delete own feed comment, or admin-delete active-school comment
 
 ## 💬 Chat
-- `GET /chat/rooms?search=` - List school-wide room and accessible custom group rooms, optionally filtered by room name
-- `GET /chat/members?search=&excludeRoomId=` - Search active school members for chat group member picker, optionally excluding active members of a room
+
+- `GET /chat/rooms?search=` - List room sekolah, grup kustom yang bisa diakses, dan direct message aktif; `search` juga mencocokkan nama/email target DM
+- `GET /chat/members?search=&excludeRoomId=` - Search active school members for chat picker grup/DM, optionally excluding active members of a room
 - `POST /chat/school/open` - Open or create the active school's main chat room
+- `POST /chat/dm/open` - Open or reuse a direct message room with one active member in the same school
 - `POST /chat/groups` - Create custom group room with active school members
 - `GET /chat/groups/:roomId` - Get group room info, creator, admins, and active members
 - `PATCH /chat/groups/:roomId` - Rename custom group room as a group admin

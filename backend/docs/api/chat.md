@@ -2,19 +2,20 @@
 
 Base URL: `/api/chat`
 
-REST Chat MVP mendukung satu chat room utama per sekolah aktif dan custom group
-room untuk warga aktif di sekolah yang sama.
+REST chat mendukung satu room sekolah aktif, custom group room, dan direct
+message untuk warga aktif di sekolah yang sama.
 
 ## Scope MVP
 
 - School-wide chat selalu tersedia sebagai room utama sekolah.
 - Custom group room dapat dibuat oleh warga aktif sekolah.
+- Direct message dapat dibuka antar dua warga aktif di sekolah yang sama.
 - Text-only messages.
 - REST API only.
 - Admin Sekolah, teacher, dan student boleh berpartisipasi jika masih menjadi
   member aktif sekolah tersebut.
 - Tidak ada WebSocket/realtime.
-- Tidak ada subject/class room, DM, attachment, typing indicator,
+- Tidak ada subject/class room, attachment, typing indicator,
   online/offline, delete/unsend, moderation UI, atau notification integration.
 
 Subject/class chat adalah ekspansi masa depan.
@@ -46,6 +47,15 @@ Custom group room permission:
 - User harus active school member.
 - User juga harus active `chat_room_members` dengan `left_at IS NULL`.
 
+Direct message permission:
+
+- `chat_rooms.room_sch_id` harus sama dengan active school.
+- `chat_rooms.room_type = "dm"`.
+- `chat_rooms.room_ref_type IS NULL`.
+- `chat_rooms.room_ref_id IS NULL`.
+- User harus active school member.
+- User juga harus active `chat_room_members` dengan `left_at IS NULL`.
+
 ## Endpoints
 
 ### List My Rooms
@@ -53,8 +63,9 @@ Custom group room permission:
 `GET /rooms?search=`
 
 Mengembalikan room sekolah dan custom group room yang dapat diakses oleh user
-saat ini. Query `search` opsional, case-insensitive, dan mencari berdasarkan
-nama room atau nama sekolah. Ordering tetap berdasarkan aktivitas terakhir.
+saat ini, termasuk direct message yang user ikuti. Query `search` opsional,
+case-insensitive, dan mencari berdasarkan nama room, nama sekolah, atau nama
+/ email target DM. Ordering tetap berdasarkan aktivitas terakhir.
 
 ```json
 {
@@ -119,7 +130,48 @@ Membuka atau membuat room utama untuk active school.
     "roomRefType": "school",
     "roomRefId": "school-uuid",
     "schoolId": "school-uuid",
-    "schoolName": "SMA EduVerse",
+    "schoolName": "SMA Wiyata",
+    "unreadCount": 0,
+    "canSend": true
+  }
+}
+```
+
+### Open Direct Message
+
+`POST /dm/open`
+
+```json
+{
+  "targetUserId": "uuid"
+}
+```
+
+Rules:
+
+- Current user harus active school member.
+- Target user harus active school member di sekolah aktif yang sama.
+- Tidak boleh DM diri sendiri.
+- Jika room DM dengan dua anggota aktif yang sama sudah ada, endpoint akan
+  mengembalikan room yang sama.
+- Jika belum ada, endpoint akan membuat room baru bertipe `dm`, lalu menambahkan
+  kedua user ke `chat_room_members`.
+
+Response:
+
+```json
+{
+  "room": {
+    "roomId": "uuid",
+    "roomName": "Budi Santoso",
+    "roomType": "dm",
+    "roomRefType": null,
+    "roomRefId": null,
+    "schoolId": "school-uuid",
+    "schoolName": "Sekolah Wiyata",
+    "dmTargetUserId": "uuid",
+    "dmTargetName": "Budi Santoso",
+    "dmTargetEmail": "budi@example.com",
     "unreadCount": 0,
     "canSend": true
   }
@@ -157,7 +209,7 @@ Response:
     "roomRefType": null,
     "roomRefId": null,
     "schoolId": "school-uuid",
-    "schoolName": "SMA EduVerse",
+    "schoolName": "SMA Wiyata",
     "unreadCount": 0,
     "canSend": true
   }
@@ -178,7 +230,7 @@ anggota. Hanya active member grup yang boleh membaca info grup.
     "roomName": "Grup Belajar Fisika",
     "roomType": "group",
     "schoolId": "school-uuid",
-    "schoolName": "SMA EduVerse",
+    "schoolName": "SMA Wiyata",
     "creator": {
       "userId": "uuid",
       "fullName": "Budi",
