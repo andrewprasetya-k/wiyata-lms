@@ -152,6 +152,7 @@ sub_id uuid [pk, default: `gen_random_uuid()`]
 sub_sch_id uuid [ref: > schools.sch_id]
 sub_name varchar(100)
 sub_code varchar(20)
+sub_color varchar(9)
 created_at timestamp [default: `now()`]
 
 indexes {
