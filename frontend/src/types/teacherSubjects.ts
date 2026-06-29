@@ -6,6 +6,7 @@ export interface TeacherSubjectClass {
   subjectId: string
   subjectName: string
   subjectCode?: string
+  subjectColor?: string
   studentCount: number
   materialCount: number
   assignmentCount: number

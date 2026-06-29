@@ -47,6 +47,7 @@ export interface SubjectItem {
   schoolCode?: string
   subjectName: string
   subjectCode: string
+  color?: string
   createdAt: string
 }
 
@@ -59,6 +60,13 @@ export interface CreateSubjectPayload {
   schoolId: string
   subjectName: string
   subjectCode: string
+  color?: string
+}
+
+export interface UpdateSubjectPayload {
+  subjectName?: string
+  subjectCode?: string
+  color?: string
 }
 
 export interface AssignmentCategoryItem {

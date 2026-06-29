@@ -9,6 +9,7 @@ export interface SubjectClassItem {
   subjectId: string
   subjectName?: string
   subjectCode?: string
+  subjectColor?: string
   teacherId: string
   teacherName?: string
 }
@@ -33,6 +34,7 @@ export interface MaterialItem {
   materialId: string
   subjectClassId: string
   subjectName?: string
+  subjectColor?: string
   materialTitle: string
   materialDesc: string
   materialType: string
@@ -54,6 +56,7 @@ export interface MaterialListWithSubjectResponse {
     subjectClassId: string
     subjectCode: string
     subjectName?: string
+    subjectColor?: string
     teacherId: string
     teacherName?: string
   }

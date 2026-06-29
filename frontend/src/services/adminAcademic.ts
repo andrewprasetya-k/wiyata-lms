@@ -10,6 +10,7 @@ import type {
   SchoolAssignmentCategoriesResponse,
   SchoolSubjectsResponse,
   TermItem,
+  UpdateSubjectPayload,
 } from '../types/adminAcademic'
 
 export async function getAcademicYearsBySchool(schoolCode: string) {
@@ -59,6 +60,11 @@ export async function getSubjectsBySchool(schoolCode: string) {
 
 export async function createSubject(payload: CreateSubjectPayload) {
   const { data } = await api.post('/subjects', payload)
+  return data
+}
+
+export async function updateSubject(subjectId: string, payload: UpdateSubjectPayload) {
+  const { data } = await api.patch(`/subjects/${subjectId}`, payload)
   return data
 }
 

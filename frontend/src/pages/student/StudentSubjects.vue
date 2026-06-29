@@ -11,7 +11,7 @@ import { getSubjectClassesByClass } from "../../services/classWorkspace";
 import { useActiveClassStore } from "../../stores/activeClass";
 import { useAuthStore } from "../../stores/auth";
 import type { SubjectClassItem } from "../../types/classWorkspace";
-import { getSubjectColor } from "../../utils/color";
+import { resolveSubjectColor } from "../../utils/color";
 
 const auth = useAuthStore();
 const activeClassStore = useActiveClassStore();
@@ -262,11 +262,7 @@ onMounted(loadSubjects);
               <div
                 class="relative flex h-24 flex-col justify-end px-4 pb-4 text-white"
                 :style="{
-                  backgroundColor: getSubjectColor(
-                    subject.subjectClassId ||
-                      subject.subjectName ||
-                      subject.subjectCode,
-                  ),
+                  backgroundColor: resolveSubjectColor(subject),
                 }"
               >
                 <span

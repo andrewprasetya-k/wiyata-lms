@@ -14,7 +14,7 @@ import { useAuthStore } from "../../stores/auth";
 import { getTeacherDashboard } from "../../services/teacherDashboard";
 import type { MembershipInfo } from "../../types/auth";
 import type { TeacherDashboardSummary } from "../../types/teacherDashboard";
-import { getSubjectColor } from "../../utils/color";
+import { resolveSubjectColor } from "../../utils/color";
 import LatestChatCard from "../../components/chat/LatestChatCard.vue";
 
 const auth = useAuthStore();
@@ -257,9 +257,11 @@ onMounted(loadDashboard);
                   <div
                     class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-white"
                     :style="{
-                      backgroundColor: getSubjectColor(
-                        `${item.classId}-${item.subjectName}`,
-                      ),
+                      backgroundColor: resolveSubjectColor({
+                        subjectColor: item.subjectColor,
+                        subjectId: item.classId,
+                        subjectName: item.subjectName,
+                      }),
                     }"
                   >
                     <PhBookOpen :size="18" weight="duotone" />

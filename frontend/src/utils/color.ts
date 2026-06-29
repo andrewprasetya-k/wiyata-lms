@@ -15,6 +15,26 @@ export function getSubjectColor(seed?: string | null) {
   return subjectPalette[Math.abs(hash) % subjectPalette.length];
 }
 
+export function resolveSubjectColor(subject: {
+  color?: string | null;
+  subjectColor?: string | null;
+  subjectId?: string | null;
+  subjectClassId?: string | null;
+  subjectName?: string | null;
+  subjectCode?: string | null;
+}) {
+  return (
+    subject.color ||
+    subject.subjectColor ||
+    getSubjectColor(
+      subject.subjectId ||
+        subject.subjectClassId ||
+        subject.subjectName ||
+        subject.subjectCode,
+    )
+  );
+}
+
 function hashString(value: string) {
   let hash = 0;
   for (let index = 0; index < value.length; index += 1) {

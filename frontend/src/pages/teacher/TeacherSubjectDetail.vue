@@ -30,7 +30,7 @@ import type {
 } from "../../types/teacherAssignment";
 import type { MaterialItem } from "../../types/teacherMaterial";
 import type { TeacherSubjectClass } from "../../types/teacherSubjects";
-import { getSubjectColor } from "../../utils/color";
+import { resolveSubjectColor } from "../../utils/color";
 import { formatDate, formatDateTime } from "../../utils/date";
 import { useToastStore } from "../../stores/toast";
 
@@ -53,6 +53,11 @@ const submissionsLoading = ref(false);
 const errorMessage = ref("");
 const submissionsError = ref("");
 const deletingAssignmentId = ref<string | null>(null);
+const subjectAccentColor = computed(() =>
+  subject.value
+    ? resolveSubjectColor(subject.value)
+    : resolveSubjectColor({ subjectClassId: subjectClassId.value }),
+);
 
 const submissionCount = computed(
   () =>
@@ -199,7 +204,7 @@ onMounted(loadWorkspace);
         <div class="flex min-w-0 items-start gap-3">
           <div
             class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white"
-            :style="{ backgroundColor: getSubjectColor(subjectClassId) }"
+            :style="{ backgroundColor: subjectAccentColor }"
           >
             <PhBookOpen :size="21" weight="duotone" />
           </div>

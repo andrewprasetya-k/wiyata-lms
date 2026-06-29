@@ -11,6 +11,7 @@ export interface MaterialItem {
   materialId: string
   subjectClassId?: string
   subjectName?: string
+  subjectColor?: string
   materialTitle: string
   materialDesc?: string
   materialType: string
@@ -32,6 +33,7 @@ export interface MaterialListResponse {
   subjectClass: {
     subjectClassId: string
     subjectName: string
+    subjectColor?: string
   }
   data: {
     data: MaterialItem[]

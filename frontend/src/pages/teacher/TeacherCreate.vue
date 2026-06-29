@@ -10,7 +10,7 @@ import {
 } from "@phosphor-icons/vue";
 import { getMyTeachingSubjectClasses } from "../../services/teacherSubjects";
 import type { TeacherSubjectClass } from "../../types/teacherSubjects";
-import { getSubjectColor } from "../../utils/color";
+import { resolveSubjectColor } from "../../utils/color";
 
 const route = useRoute();
 const loading = ref(false);
@@ -136,11 +136,7 @@ onMounted(loadSubjects);
             <div
               class="flex h-13 w-13 items-center justify-center rounded-2xl text-white"
               :style="{
-                backgroundColor: getSubjectColor(
-                  subject.subjectClassId ||
-                    subject.subjectName ||
-                    subject.subjectCode,
-                ),
+                backgroundColor: resolveSubjectColor(subject),
               }"
             >
               <PhBookOpen :size="26" weight="duotone" />

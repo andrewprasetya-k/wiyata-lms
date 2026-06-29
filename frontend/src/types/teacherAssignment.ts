@@ -75,6 +75,7 @@ export interface TeacherSubjectClassHeader {
   subjectClassId: string
   subjectCode: string
   subjectName?: string
+  subjectColor?: string
   teacherId: string
   teacherName?: string
 }
@@ -114,6 +115,7 @@ export interface TeacherSubmissionInboxItem {
   assignmentTitle: string
   subjectName: string
   subjectCode?: string
+  subjectColor?: string
   className: string
   classCode?: string
   deadline?: string | null
@@ -142,6 +144,7 @@ export interface TeacherAssignmentInboxItem {
   assignmentTitle: string
   subjectName: string
   subjectCode?: string
+  subjectColor?: string
   className: string
   classCode?: string
   categoryName?: string

@@ -26,7 +26,7 @@ import type { FeedPost } from "../../types/feed";
 import type { NotificationItem } from "../../types/dashboard";
 import type { StudentAssignmentInboxItem } from "../../types/assignment";
 import { formatDate, formatDateTime } from "../../utils/date";
-import { getSubjectColor } from "../../utils/color";
+import { getSubjectColor, resolveSubjectColor } from "../../utils/color";
 import { useToastStore } from "../../stores/toast";
 import LatestChatCard from "../../components/chat/LatestChatCard.vue";
 
@@ -469,22 +469,14 @@ onMounted(loadDashboard);
                 <div
                   class="h-1.5 w-full"
                   :style="{
-                    backgroundColor: getSubjectColor(
-                      subject.subjectClassId ||
-                        subject.subjectName ||
-                        subject.subjectCode,
-                    ),
+                    backgroundColor: resolveSubjectColor(subject),
                   }"
                 />
                 <div class="flex min-w-0 items-start gap-3 p-4">
                   <div
                     class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-white"
                     :style="{
-                      backgroundColor: getSubjectColor(
-                        subject.subjectClassId ||
-                          subject.subjectName ||
-                          subject.subjectCode,
-                      ),
+                      backgroundColor: resolveSubjectColor(subject),
                     }"
                   >
                     <PhBookOpen :size="18" weight="duotone" />

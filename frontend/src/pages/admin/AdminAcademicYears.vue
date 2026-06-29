@@ -17,6 +17,7 @@ import {
   getSubjectsBySchool,
   getTermsByAcademicYear,
   saveAssessmentWeights,
+  updateSubject,
 } from "../../services/adminAcademic";
 import type {
   AcademicYearItem,
@@ -26,13 +27,16 @@ import type {
   TermItem,
 } from "../../types/adminAcademic";
 import { formatDateTime } from "../../utils/date";
+import { getSubjectColor } from "../../utils/color";
 import {
   PhBookOpen,
   PhCalendarBlank,
   PhChartBar,
   PhChecks,
+  PhPencilSimple,
   PhPlusCircle,
   PhTag,
+  PhX,
   PhWarningCircle,
 } from "@phosphor-icons/vue";
 
@@ -78,7 +82,8 @@ const activeAction = ref("");
 
 const academicYearForm = ref({ academicYearName: "" });
 const termForm = ref({ termName: "" });
-const subjectForm = ref({ subjectName: "", subjectCode: "" });
+const subjectForm = ref({ subjectName: "", subjectCode: "", color: "" });
+const editingSubjectId = ref("");
 const categoryForm = ref({ categoryName: "" });
 
 const selectedAcademicYear = computed(
@@ -116,6 +121,23 @@ const isWeightTotalValid = computed(
   () => Math.abs(totalWeight.value - 100) <= 0.01,
 );
 
+const subjectColorPreview = computed(() => {
+  const color = normalizeSubjectColor(subjectForm.value.color);
+  if (color && isValidSubjectColor(color)) return color;
+  const seed =
+    subjectForm.value.subjectName ||
+    subjectForm.value.subjectCode ||
+    editingSubjectId.value;
+  return getSubjectColor(seed);
+});
+
+const subjectColorPickerValue = computed({
+  get: () => toColorPickerValue(subjectColorPreview.value),
+  set: (value: string) => {
+    subjectForm.value.color = value;
+  },
+});
+
 const canSubmitWeights = computed(
   () =>
     currentSchool.value.hasContext &&
@@ -125,6 +147,31 @@ const canSubmitWeights = computed(
     isWeightTotalValid.value &&
     activeAction.value !== "weights-save",
 );
+
+function normalizeSubjectColor(color?: string | null) {
+  return color?.trim() ?? "";
+}
+
+function isValidSubjectColor(color: string) {
+  return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(color);
+}
+
+function toColorPickerValue(color: string) {
+  const normalized = normalizeSubjectColor(color);
+  if (/^#[0-9a-fA-F]{6}$/.test(normalized)) return normalized;
+  if (/^#[0-9a-fA-F]{3}$/.test(normalized)) {
+    const [, r, g, b] = normalized;
+    return `#${r}${r}${g}${g}${b}${b}`;
+  }
+  if (/^#[0-9a-fA-F]{8}$/.test(normalized)) {
+    return normalized.slice(0, 7);
+  }
+  return "#4f46e5";
+}
+
+function subjectDisplayColor(subject: SubjectItem) {
+  return subject.color || getSubjectColor(subject.subjectId || subject.subjectName);
+}
 
 function parseWeightValue(value?: string) {
   if (value === undefined || value.trim() === "") return 0;
@@ -380,24 +427,61 @@ async function submitSubject() {
     toast.error("Nama dan kode mata pelajaran wajib diisi.");
     return;
   }
+  const color = normalizeSubjectColor(subjectForm.value.color);
+  if (color && !isValidSubjectColor(color)) {
+    toast.error("Warna mata pelajaran harus berupa hex, contoh #4f46e5.");
+    return;
+  }
 
-  activeAction.value = "subject-create";
+  activeAction.value = editingSubjectId.value
+    ? `subject-update-${editingSubjectId.value}`
+    : "subject-create";
 
   try {
-    await createSubject({
-      schoolId: currentSchool.value.schoolId,
+    const payload = {
       subjectName: subjectForm.value.subjectName.trim(),
       subjectCode: subjectForm.value.subjectCode.trim(),
-    });
-    subjectForm.value.subjectName = "";
-    subjectForm.value.subjectCode = "";
-    toast.success("Mata pelajaran berhasil dibuat.");
+      color,
+    };
+
+    if (editingSubjectId.value) {
+      await updateSubject(editingSubjectId.value, payload);
+      toast.success("Mata pelajaran berhasil diperbarui.");
+    } else {
+      await createSubject({
+        schoolId: currentSchool.value.schoolId,
+        ...payload,
+      });
+      toast.success("Mata pelajaran berhasil dibuat.");
+    }
+    resetSubjectForm();
     await loadSubjects();
-  } catch {
-    toast.error("Mata pelajaran belum bisa dibuat.");
+  } catch (error) {
+    toast.error(
+      getApiErrorMessage(
+        error,
+        editingSubjectId.value
+          ? "Mata pelajaran belum bisa diperbarui."
+          : "Mata pelajaran belum bisa dibuat.",
+      ),
+    );
   } finally {
     activeAction.value = "";
   }
+}
+
+function editSubject(subject: SubjectItem) {
+  editingSubjectId.value = subject.subjectId;
+  subjectForm.value = {
+    subjectName: subject.subjectName,
+    subjectCode: subject.subjectCode,
+    color: subject.color ?? "",
+  };
+}
+
+function resetSubjectForm() {
+  editingSubjectId.value = "";
+  subjectForm.value = { subjectName: "", subjectCode: "", color: "" };
 }
 
 async function submitCategory() {
@@ -864,15 +948,59 @@ watch(selectedWeightSubjectId, () => {
               placeholder="Kode"
               class="min-w-0 rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
             />
+            <div class="sm:col-span-2">
+              <label class="text-xs font-semibold text-[#6b7280]">
+                Warna mata pelajaran
+              </label>
+              <div class="mt-2 grid gap-3 sm:grid-cols-[auto_minmax(0,1fr)]">
+                <input
+                  v-model="subjectColorPickerValue"
+                  type="color"
+                  class="h-11 w-14 rounded-lg border border-[#e5e7eb] bg-white p-1"
+                  aria-label="Pilih warna mata pelajaran"
+                />
+                <div class="flex min-w-0 items-center gap-3">
+                  <span
+                    class="h-8 w-8 shrink-0 rounded-full border border-[#ebe7df]"
+                    :style="{ backgroundColor: subjectColorPreview }"
+                    aria-hidden="true"
+                  />
+                  <input
+                    v-model="subjectForm.color"
+                    type="text"
+                    placeholder="#4f46e5"
+                    class="min-w-0 flex-1 rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                  />
+                </div>
+              </div>
+              <p class="mt-2 text-xs leading-5 text-[#8a8494]">
+                Opsional. Kosongkan untuk memakai warna fallback otomatis.
+              </p>
+            </div>
             <button
               type="submit"
               class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#171322] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#2f2b3a] disabled:cursor-not-allowed disabled:opacity-60 sm:col-span-2"
               :disabled="
-                activeAction === 'subject-create' || !currentSchool.hasContext
+                activeAction === 'subject-create' ||
+                activeAction === `subject-update-${editingSubjectId}` ||
+                !currentSchool.hasContext
               "
             >
               <PhPlusCircle :size="18" weight="duotone" />
-              Tambah mata pelajaran
+              {{
+                editingSubjectId
+                  ? "Simpan mata pelajaran"
+                  : "Tambah mata pelajaran"
+              }}
+            </button>
+            <button
+              v-if="editingSubjectId"
+              type="button"
+              class="inline-flex items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-4 py-3 text-sm font-semibold text-[#4a4356] transition hover:bg-[#fbfaf8] sm:col-span-2"
+              @click="resetSubjectForm"
+            >
+              <PhX :size="18" weight="duotone" />
+              Batalkan edit
             </button>
           </form>
 
@@ -901,14 +1029,39 @@ watch(selectedWeightSubjectId, () => {
               :key="subject.subjectId"
               class="rounded-lg border border-[#ebe7df] bg-[#fcfbf8] p-4"
             >
-              <h3 class="truncate text-base font-semibold text-[#171322]">
-                {{ subject.subjectName }}
-              </h3>
-              <p class="mt-2 text-sm text-[#6b7280]">
-                {{ subject.subjectCode }} •
-                {{ subject.schoolCode || currentSchool.schoolCode }} • dibuat
-                {{ formatDateTime(subject.createdAt) }}
-              </p>
+              <div class="flex min-w-0 items-start justify-between gap-3">
+                <div class="flex min-w-0 items-start gap-3">
+                  <span
+                    class="mt-1 h-3 w-3 shrink-0 rounded-full"
+                    :style="{ backgroundColor: subjectDisplayColor(subject) }"
+                    aria-hidden="true"
+                  />
+                  <div class="min-w-0">
+                    <h3 class="truncate text-base font-semibold text-[#171322]">
+                      {{ subject.subjectName }}
+                    </h3>
+                    <p class="mt-2 text-sm text-[#6b7280]">
+                      {{ subject.subjectCode }} •
+                      {{ subject.schoolCode || currentSchool.schoolCode }} •
+                      dibuat {{ formatDateTime(subject.createdAt) }}
+                    </p>
+                    <p class="mt-1 text-xs text-[#8a8494]">
+                      Warna:
+                      <span class="font-medium text-[#4a4356]">
+                        {{ subject.color || "fallback otomatis" }}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  class="inline-flex shrink-0 items-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-3 py-2 text-xs font-semibold text-[#4a4356] transition hover:bg-[#fbfaf8]"
+                  @click="editSubject(subject)"
+                >
+                  <PhPencilSimple :size="16" weight="duotone" />
+                  Edit
+                </button>
+              </div>
             </article>
           </div>
         </article>

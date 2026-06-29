@@ -32,6 +32,7 @@ import type { EnrollmentMemberItem } from "../../types/adminEnrollment";
 import type { SchoolMemberItem } from "../../types/adminUser";
 import type { SubjectClassItem } from "../../types/adminSubjectClass";
 import { useToastStore } from "../../stores/toast";
+import { resolveSubjectColor } from "../../utils/color";
 
 const auth = useAuthStore();
 const toast = useToastStore();
@@ -585,7 +586,8 @@ onMounted(async () => {
                 >
                   <div class="flex min-w-0 items-center gap-3">
                     <div
-                      class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#eef2ff] text-[#4f46e5]"
+                      class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-white"
+                      :style="{ backgroundColor: resolveSubjectColor(subjectClass) }"
                     >
                       <PhBookOpen :size="20" weight="duotone" />
                     </div>

@@ -15,7 +15,7 @@ import type {
   TeacherAssignmentInboxItem,
   TeacherAssignmentInboxSummary,
 } from "../../types/teacherAssignment";
-import { getSubjectColor } from "../../utils/color";
+import { resolveSubjectColor } from "../../utils/color";
 import { formatDate } from "../../utils/date";
 
 type AssignmentFilter = "all" | "active" | "overdue" | "pending";
@@ -341,11 +341,7 @@ onMounted(loadAssignments);
                     <div
                       class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-white"
                       :style="{
-                        backgroundColor: getSubjectColor(
-                          item.item.subjectClassId ||
-                            item.item.subjectName ||
-                            item.item.subjectCode,
-                        ),
+                        backgroundColor: resolveSubjectColor(item.item),
                       }"
                     >
                       <PhBookOpen :size="20" weight="duotone" />

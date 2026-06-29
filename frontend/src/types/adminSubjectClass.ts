@@ -3,6 +3,7 @@ export interface SubjectClassItem {
   subjectId: string;
   subjectName?: string;
   subjectCode?: string;
+  subjectColor?: string;
   teacherId: string;
   teacherName?: string;
 }
