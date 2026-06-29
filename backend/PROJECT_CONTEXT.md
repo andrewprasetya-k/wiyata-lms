@@ -1,8 +1,8 @@
-# 🧠 Project Handoff Context: Eduverse LMS Backend
+# 🧠 Project Handoff Context: Wiyata LMS Backend
 
 ## 📌 Project Overview
 
-Eduverse is a Learning Management System (LMS) built with **Go (Gin Framework)** and **GORM**. The system uses a multi-school architecture where users can belong to one or more schools.
+Wiyata is a Learning Management System (LMS) built with **Go (Gin Framework)** and **GORM**. The system uses a multi-school architecture where users can belong to one or more schools.
 
 ## 🏗️ Architectural Patterns (Strictly Follow These)
 
@@ -56,18 +56,21 @@ Full API specs are available in `backend/docs/api/`. Refer to these files before
 ## 🎯 Recent Implementations (March 2026)
 
 ### **Grade Book System** ✅
+
 - **Files**: `internal/domain/assignment.go` (AssessmentWeight), `internal/dto/assignment_dto.go`, `internal/repository/assessment_weight_repo.go`, `internal/service/grade_service.go`, `internal/handler/grade_handler.go`
 - **Endpoints**: `/api/grades/*` - Configure weights, calculate final grades, grade reports
 - **Features**: Weighted grade calculation, letter grade conversion, class reports
 - **Documentation**: `docs/api/grade.md`
 
 ### **Notification System** ✅
+
 - **Files**: `internal/domain/notification.go`, `internal/dto/notification_dto.go`, `internal/repository/notification_repo.go`, `internal/service/notification_service.go`, `internal/handler/notification_handler.go`
 - **Endpoints**: `/api/notifications/*` - CRUD notifications, unread count, mark as read
 - **Database**: Table `edv.notifications` with index on `(ntf_usr_id, is_read, created_at DESC)`
 - **Documentation**: `docs/api/notification.md`
 
 ### **RBAC Enhancement** ✅
+
 - **Super Admin Clarification**: System admin (not school admin), read access to all schools, no academic operations without school role
 - **Documentation**: Updated `docs/api/rbac.md` with detailed access matrix
 

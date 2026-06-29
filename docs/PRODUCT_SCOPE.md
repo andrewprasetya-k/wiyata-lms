@@ -1,27 +1,27 @@
-# Eduverse LMS — Product Scope Locked Version
+# Wiyata LMS — Product Scope Locked Version
 
 ## 1. Product Vision
 
-Eduverse LMS adalah platform learning management system multi-sekolah yang membantu sekolah mengelola proses pembelajaran digital secara terstruktur, mulai dari setup akademik, kelas, mata pelajaran, materi, tugas, submission, penilaian, komunikasi kelas, notifikasi, media, hingga fitur kolaborasi lanjutan seperti chat dan student notes.
+Wiyata LMS adalah platform learning management system multi-sekolah yang membantu sekolah mengelola proses pembelajaran digital secara terstruktur, mulai dari setup akademik, kelas, mata pelajaran, materi, tugas, submission, penilaian, komunikasi kelas, notifikasi, media, hingga fitur kolaborasi lanjutan seperti chat dan student notes.
 
 Arah utama produk adalah membuat pengalaman belajar harian yang jelas dan nyaman untuk siswa, sekaligus tetap kuat untuk kebutuhan guru, admin sekolah, dan super admin.
 
-Eduverse bukan sekadar admin dashboard sekolah. Eduverse adalah academic workspace yang menggabungkan:
+Wiyata bukan sekadar admin dashboard sekolah. Wiyata adalah academic workspace yang menggabungkan:
 
-* struktur akademik sekolah,
-* aktivitas belajar per mata pelajaran,
-* komunikasi kelas,
-* pengumpulan tugas,
-* penilaian,
-* notifikasi,
-* media pembelajaran,
-* dan personal learning notes.
+- struktur akademik sekolah,
+- aktivitas belajar per mata pelajaran,
+- komunikasi kelas,
+- pengumpulan tugas,
+- penilaian,
+- notifikasi,
+- media pembelajaran,
+- dan personal learning notes.
 
 ---
 
 ## 2. Core Product Principle
 
-Prinsip domain utama Eduverse:
+Prinsip domain utama Wiyata:
 
 ```text
 Class = academic context
@@ -43,10 +43,10 @@ Super Admin mengelola level platform dan setup sekolah. Super Admin tidak otomat
 
 Tanggung jawab utama:
 
-* mengelola school tenant,
-* melihat konfigurasi platform,
-* memonitor kondisi sistem,
-* membantu setup awal sekolah.
+- mengelola school tenant,
+- melihat konfigurasi platform,
+- memonitor kondisi sistem,
+- membantu setup awal sekolah.
 
 ### 3.2 Admin Sekolah
 
@@ -54,14 +54,14 @@ Admin sekolah mengelola struktur akademik dan operasional sekolah.
 
 Tanggung jawab utama:
 
-* academic year,
-* term,
-* subject,
-* class,
-* subject class,
-* user membership,
-* role assignment,
-* enrollment siswa/guru.
+- academic year,
+- term,
+- subject,
+- class,
+- subject class,
+- user membership,
+- role assignment,
+- enrollment siswa/guru.
 
 ### 3.3 Teacher
 
@@ -69,12 +69,12 @@ Teacher mengelola pembelajaran dalam subject class yang dia ampu.
 
 Tanggung jawab utama:
 
-* membuat material,
-* membuat assignment,
-* melihat submission,
-* memberi assessment/feedback,
-* membuat feed/pengumuman level class,
-* berkomunikasi melalui fitur chat nanti.
+- membuat material,
+- membuat assignment,
+- melihat submission,
+- memberi assessment/feedback,
+- membuat feed/pengumuman level class,
+- berkomunikasi melalui fitur chat nanti.
 
 ### 3.4 Student
 
@@ -82,14 +82,14 @@ Student adalah pengguna harian utama aplikasi.
 
 Tanggung jawab utama:
 
-* memilih active class,
-* melihat subject yang diikuti,
-* membuka material,
-* mengerjakan assignment,
-* melihat nilai dan feedback,
-* membaca feed kelas,
-* menerima notifikasi,
-* membuat catatan pribadi per material nanti.
+- memilih active class,
+- melihat subject yang diikuti,
+- membuka material,
+- mengerjakan assignment,
+- melihat nilai dan feedback,
+- membaca feed kelas,
+- menerima notifikasi,
+- membuat catatan pribadi per material nanti.
 
 ---
 
@@ -97,7 +97,7 @@ Tanggung jawab utama:
 
 ### 4.1 School
 
-School adalah tenant utama Eduverse. Semua data akademik seperti academic year, term, subject, class, material, feed, media, dan notification berada dalam konteks school.
+School adalah tenant utama Wiyata. Semua data akademik seperti academic year, term, subject, class, material, feed, media, dan notification berada dalam konteks school.
 
 ### 4.2 User vs School User
 
@@ -113,10 +113,10 @@ users → school_users → user_roles → roles
 
 Implikasi:
 
-* satu user bisa berada di banyak school,
-* satu user bisa punya role berbeda di school berbeda,
-* frontend harus memiliki active school context,
-* request school-scoped harus mengirim `SchoolId` header.
+- satu user bisa berada di banyak school,
+- satu user bisa punya role berbeda di school berbeda,
+- frontend harus memiliki active school context,
+- request school-scoped harus mengirim `SchoolId` header.
 
 ### 4.3 Academic Year dan Term
 
@@ -134,10 +134,10 @@ XII IPA 1 - Semester Ganjil
 
 Class digunakan untuk:
 
-* enrollment siswa/guru,
-* feed kelas,
-* daftar subject class,
-* active class context di frontend.
+- enrollment siswa/guru,
+- feed kelas,
+- daftar subject class,
+- active class context di frontend.
 
 Class bukan pusat materi/tugas harian.
 
@@ -184,13 +184,13 @@ school_user → enrollment → class
 
 Enrollment memiliki role class:
 
-* teacher,
-* student.
+- teacher,
+- student.
 
 Catatan penting:
 
-* enrollment menunjukkan anggota class,
-* `subject_classes.scl_scu_id` menunjukkan guru pengampu subject tertentu.
+- enrollment menunjukkan anggota class,
+- `subject_classes.scl_scu_id` menunjukkan guru pengampu subject tertentu.
 
 ---
 
@@ -216,9 +216,9 @@ Create school
 
 Tujuan:
 
-* membentuk struktur akademik dasar,
-* memastikan siswa masuk ke class,
-* memastikan subject class punya guru pengampu.
+- membentuk struktur akademik dasar,
+- memastikan siswa masuk ke class,
+- memastikan subject class punya guru pengampu.
 
 ---
 
@@ -315,9 +315,9 @@ student_notes.snt_usr_id + student_notes.snt_mat_id
 
 Keputusan penting:
 
-* membuka material tidak otomatis berarti completed,
-* jika ingin passive tracking, update `last_opened_at`,
-* status `completed` harus berdasarkan aksi eksplisit atau rule yang jelas.
+- membuka material tidak otomatis berarti completed,
+- jika ingin passive tracking, update `last_opened_at`,
+- status `completed` harus berdasarkan aksi eksplisit atau rule yang jelas.
 
 ---
 
@@ -402,23 +402,23 @@ feeds.fds_cls_id → classes.cls_id
 
 Feed digunakan untuk:
 
-* pengumuman kelas,
-* komunikasi umum lintas subject dalam class,
-* diskusi melalui comments,
-* attachment jika diperlukan.
+- pengumuman kelas,
+- komunikasi umum lintas subject dalam class,
+- diskusi melalui comments,
+- attachment jika diperlukan.
 
 Keputusan penting:
 
-* Feed bukan level subject,
-* Feed bukan chat realtime,
-* Feed adalah REST-based class communication.
+- Feed bukan level subject,
+- Feed bukan chat realtime,
+- Feed adalah REST-based class communication.
 
 Feed type badge seperti Tugas/Materi/Pengumuman tidak diprioritaskan sekarang karena tidak ada field eksplisit di schema.
 
 Future TODO:
 
-* auto-create feed post ketika teacher membuat material,
-* auto-create feed post ketika teacher membuat assignment.
+- auto-create feed post ketika teacher membuat material,
+- auto-create feed post ketika teacher membuat assignment.
 
 ---
 
@@ -435,11 +435,11 @@ comments.cmn_source_id
 
 Comment bisa menempel ke:
 
-* material,
-* assignment,
-* feed,
-* submission,
-* comment.
+- material,
+- assignment,
+- feed,
+- submission,
+- comment.
 
 Frontend harus selalu memahami konteks source sebelum render comment.
 
@@ -465,17 +465,17 @@ attachments.att_med_id
 
 Media bisa digunakan untuk:
 
-* material attachment,
-* assignment attachment,
-* submission attachment,
-* feed attachment,
-* chat attachment nanti.
+- material attachment,
+- assignment attachment,
+- submission attachment,
+- feed attachment,
+- chat attachment nanti.
 
 Prinsip penting:
 
-* storage upload harus real, bukan fake URL,
-* metadata disimpan setelah upload sukses,
-* delete media harus mempertimbangkan cleanup storage.
+- storage upload harus real, bukan fake URL,
+- metadata disimpan setelah upload sukses,
+- delete media harus mempertimbangkan cleanup storage.
 
 ---
 
@@ -492,11 +492,11 @@ notifications.ntf_related_id → konten terkait
 
 Notification trigger yang didukung:
 
-* assignment created,
-* assignment graded,
-* material added,
-* feed posted,
-* comment added.
+- assignment created,
+- assignment graded,
+- material added,
+- feed posted,
+- comment added.
 
 Notification bersifat best-effort.
 
@@ -508,18 +508,18 @@ Aksi utama tidak boleh gagal hanya karena notifikasi gagal.
 
 Schema mendukung:
 
-* subject chat,
-* direct message,
-* group chat,
-* class chat.
+- subject chat,
+- direct message,
+- group chat,
+- class chat.
 
 Keputusan produk saat ini:
 
-* class chat tidak digunakan di UI utama,
-* class-level communication cukup melalui Feed,
-* subject chat boleh digunakan nanti,
-* DM dan group chat tetap dimungkinkan,
-* chat belum masuk implementasi MVP frontend saat ini.
+- class chat tidak digunakan di UI utama,
+- class-level communication cukup melalui Feed,
+- subject chat boleh digunakan nanti,
+- DM dan group chat tetap dimungkinkan,
+- chat belum masuk implementasi MVP frontend saat ini.
 
 Chat menggunakan:
 
@@ -533,9 +533,9 @@ chat_read_receipts
 
 Room type yang relevan untuk UI nanti:
 
-* subject,
-* dm,
-* group.
+- subject,
+- dm,
+- group.
 
 Class room tidak diprioritaskan untuk UI.
 
@@ -606,12 +606,12 @@ Dashboard adalah ringkasan aktivitas, bukan pusat CRUD.
 
 Dashboard boleh menampilkan:
 
-* active class context,
-* subject shortcut,
-* tugas pending,
-* notification/recent activity,
-* feed snippet,
-* placeholder chat preview jika chat belum siap.
+- active class context,
+- subject shortcut,
+- tugas pending,
+- notification/recent activity,
+- feed snippet,
+- placeholder chat preview jika chat belum siap.
 
 ### Subjects
 
@@ -631,9 +631,9 @@ Menampilkan subject class dalam active class.
 
 Tabs:
 
-* Materi,
-* Tugas,
-* Catatan.
+- Materi,
+- Tugas,
+- Catatan.
 
 Tidak ada Feed tab.
 
@@ -817,12 +817,12 @@ GET /api/student/subjects/:sclId/overview
 
 Berisi:
 
-* subject info,
-* teacher,
-* material count,
-* completed material count,
-* pending assignments,
-* latest activity.
+- subject info,
+- teacher,
+- material count,
+- completed material count,
+- pending assignments,
+- latest activity.
 
 ---
 
@@ -830,18 +830,18 @@ Berisi:
 
 Fitur berikut tidak diimplementasikan sekarang dan harus tampil sebagai placeholder/TODO jika muncul di frontend:
 
-* realtime chat WebSocket,
-* notes autosave,
-* rich text editor,
-* nested comments,
-* transcript/export,
-* advanced analytics,
-* class chat UI,
-* feed type badge,
-* notification preferences,
-* email delivery,
-* thumbnail generation,
-* signed/private download URL.
+- realtime chat WebSocket,
+- notes autosave,
+- rich text editor,
+- nested comments,
+- transcript/export,
+- advanced analytics,
+- class chat UI,
+- feed type badge,
+- notification preferences,
+- email delivery,
+- thumbnail generation,
+- signed/private download URL.
 
 ---
 
@@ -888,7 +888,7 @@ Keputusan berikut dianggap fixed sampai ada alasan besar untuk mengubahnya:
 
 ## 11. Summary
 
-Eduverse LMS adalah LMS multi-school dengan struktur akademik yang jelas:
+Wiyata LMS adalah LMS multi-school dengan struktur akademik yang jelas:
 
 ```text
 School → Term → Class → Subject Class → Materials / Assignments

@@ -3,12 +3,14 @@
 Base URL: `/api`
 
 ## 1. Register
+
 Create a new plain global user account and receive JWT token.
 
 - **URL:** `/register`
 - **Method:** `POST`
 - **Authentication:** Not required
 - **Body:**
+
 ```json
 {
   "fullName": "John Doe",
@@ -18,6 +20,7 @@ Create a new plain global user account and receive JWT token.
 ```
 
 **Validation:**
+
 - `fullName`: Required
 - `email`: Required, valid email format
 - `password`: Required, minimum 6 characters
@@ -26,6 +29,7 @@ Create a new plain global user account and receive JWT token.
   School access is granted later by a school admin through membership and role assignment.
 
 **Response (201 Created):**
+
 ```json
 {
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -42,18 +46,21 @@ Create a new plain global user account and receive JWT token.
 Newly registered users may not have school memberships or roles yet, so `memberships` can be empty.
 
 **Error Responses:**
+
 - `400 Bad Request`: Validation error
 - `409 Conflict`: Email already registered
 
 ---
 
 ## 2. Login
+
 Authenticate user and receive JWT token.
 
 - **URL:** `/login`
 - **Method:** `POST`
 - **Authentication:** Not required
 - **Body:**
+
 ```json
 {
   "email": "john@example.com",
@@ -62,6 +69,7 @@ Authenticate user and receive JWT token.
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -76,7 +84,7 @@ Authenticate user and receive JWT token.
       "school": {
         "id": "uuid",
         "code": "SCH001",
-        "name": "Eduverse Academy"
+        "name": "Wiyata Academy"
       },
       "roles": ["teacher"],
       "isDefault": true
@@ -94,6 +102,7 @@ Authenticate user and receive JWT token.
 `memberships` is the source for frontend role-based routing after login. A user can belong to multiple schools and can have multiple roles per school. If multiple memberships or roles are returned, the frontend should ask the user to choose the active school/role context.
 
 **Error Responses:**
+
 - `400 Bad Request`: Validation error
 - `401 Unauthorized`: Invalid credentials
 
@@ -102,6 +111,7 @@ Authenticate user and receive JWT token.
 ## JWT Token Structure
 
 **Claims:**
+
 ```json
 {
   "user_id": "uuid",
@@ -120,9 +130,11 @@ Roles are not embedded as the main JWT authority. Backend authorization checks r
 ## Using Authentication
 
 ### 1. Get Token
+
 Login or register to receive JWT token.
 
 ### 2. Include Token in Requests
+
 Add `Authorization` header to all protected endpoints:
 
 ```
@@ -130,6 +142,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 ### 3. Example Request
+
 ```bash
 curl -X GET http://localhost:8080/api/schools \
   -H "Authorization: Bearer eyJhbGc..."
@@ -142,10 +155,12 @@ curl -X GET http://localhost:8080/api/schools \
 All endpoints except `/login` and `/register` require authentication.
 
 **Public (No Auth):**
+
 - `POST /api/login`
 - `POST /api/register`
 
 **Protected (Auth Required):**
+
 - All `/api/schools/*` endpoints
 - All `/api/users/*` endpoints
 - All `/api/materials/*` endpoints
@@ -157,7 +172,9 @@ All endpoints except `/login` and `/register` require authentication.
 ## Error Responses
 
 ### 401 Unauthorized
+
 **Missing Token:**
+
 ```json
 {
   "error": "Unauthorized"
@@ -165,6 +182,7 @@ All endpoints except `/login` and `/register` require authentication.
 ```
 
 **Invalid Token Format:**
+
 ```json
 {
   "error": "Invalid token format"
@@ -172,6 +190,7 @@ All endpoints except `/login` and `/register` require authentication.
 ```
 
 **Invalid/Expired Token:**
+
 ```json
 {
   "error": "Invalid token"
@@ -213,10 +232,10 @@ func (h *Handler) SomeEndpoint(c *gin.Context) {
     // Get authenticated user info from token
     userID := middleware.GetUserID(c)
     email := middleware.GetEmail(c)
-    
+
     // Use in business logic
     data := h.service.GetByUser(userID)
-    
+
     c.JSON(200, data)
 }
 ```

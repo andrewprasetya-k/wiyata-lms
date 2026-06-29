@@ -1,12 +1,12 @@
-# Eduverse LMS
+# Wiyata LMS
 
-Eduverse adalah Learning Management System (LMS) multi-sekolah yang dirancang untuk mengelola proses pembelajaran digital secara terstruktur. Platform ini mendukung manajemen akademik, pembelajaran berbasis kelas, pengumpulan tugas, penilaian, komunikasi kelas, dan notifikasi.
+Wiyata adalah Learning Management System (LMS) multi-sekolah yang dirancang untuk mengelola proses pembelajaran digital secara terstruktur. Platform ini mendukung manajemen akademik, pembelajaran berbasis kelas, pengumpulan tugas, penilaian, komunikasi kelas, dan notifikasi.
 
 [English Version](README_EN.md)
 
-# EduVerse LMS
+# Wiyata LMS
 
-EduVerse is a multi-school Learning Management System (LMS) designed to support digital learning, academic management, assignments, assessments, and classroom collaboration.
+Wiyata is a multi-school Learning Management System (LMS) designed to support digital learning, academic management, assignments, assessments, and classroom collaboration.
 
 ### Key Highlights
 
@@ -41,7 +41,7 @@ EduVerse is a multi-school Learning Management System (LMS) designed to support 
 
 ## Gambaran Umum
 
-Eduverse LMS adalah platform akademik yang mengintegrasikan:
+Wiyata LMS adalah platform akademik yang mengintegrasikan:
 
 - Struktur akademik sekolah (tahun ajaran, semester, kelas, mata pelajaran)
 - Ruang kerja pembelajaran harian per mata pelajaran (subject class)
@@ -69,7 +69,7 @@ Poin penting: Materi dan tugas hidup di **SubjectClass**, bukan di kelas. Feed h
 ## Struktur Repository
 
 ```
-eduverse-lms/
+wiyata-lms/
 ├── README.md (Bahasa Indonesia)
 ├── README_EN.md (English)
 ├── ANALYSIS_INDEX.md (panduan navigasi dokumentasi)
@@ -110,24 +110,28 @@ eduverse-lms/
 ### Setup Development
 
 1. Masuk ke direktori backend:
+
 ```bash
 cd backend
 ```
 
 2. Install dependensi:
+
 ```bash
 go mod download
 ```
 
 3. Setup file .env:
+
 ```bash
 cp .env.example .env
 # Edit .env dan sesuaikan nilai-nilai:
-# DB_DSN=postgres://user:password@localhost:5432/eduverse_dev
+# DB_DSN=postgres://user:password@localhost:5432/wiyata_dev
 # JWT_SECRET=your-secret-key-here
 ```
 
 4. Jalankan aplikasi:
+
 ```bash
 go run ./cmd/api
 ```
@@ -138,10 +142,10 @@ Server akan berjalan di `http://localhost:8080`
 
 ```bash
 # Build untuk production
-go build -o eduverse ./cmd/api
+go build -o wiyata ./cmd/api
 
 # Jalankan binary
-./eduverse
+./wiyata
 ```
 
 ### Code Formatting
@@ -189,17 +193,17 @@ Setiap layer memiliki tanggung jawab yang jelas dan terpisah.
 
 ### File-file Dokumentasi
 
-| File | Ukuran | Tujuan |
-|------|--------|--------|
-| README.md | 14 KB | Panduan utama (Bahasa Indonesia) |
-| README_EN.md | 14 KB | Panduan utama (English) |
-| ANALYSIS_INDEX.md | 7.9 KB | Panduan navigasi ke dokumentasi |
-| CODEBASE_ANALYSIS.md | 44 KB | Analisis teknis lengkap (16 bagian) |
-| QUICK_REFERENCE.md | 8.3 KB | Referensi cepat pola dan query |
-| PRODUCT_SCOPE.md | 17 KB | Scope produk dan keputusan bisnis |
-| backend/schema.md | - | Skema database (format DBML) |
-| backend/AGENT.md | - | Engineering context summary |
-| backend/PROJECT_CONTEXT.md | - | Business context |
+| File                       | Ukuran | Tujuan                              |
+| -------------------------- | ------ | ----------------------------------- |
+| README.md                  | 14 KB  | Panduan utama (Bahasa Indonesia)    |
+| README_EN.md               | 14 KB  | Panduan utama (English)             |
+| ANALYSIS_INDEX.md          | 7.9 KB | Panduan navigasi ke dokumentasi     |
+| CODEBASE_ANALYSIS.md       | 44 KB  | Analisis teknis lengkap (16 bagian) |
+| QUICK_REFERENCE.md         | 8.3 KB | Referensi cepat pola dan query      |
+| PRODUCT_SCOPE.md           | 17 KB  | Scope produk dan keputusan bisnis   |
+| backend/schema.md          | -      | Skema database (format DBML)        |
+| backend/AGENT.md           | -      | Engineering context summary         |
+| backend/PROJECT_CONTEXT.md | -      | Business context                    |
 
 ### Urutan Membaca untuk Developer Baru
 
@@ -217,6 +221,7 @@ Jika butuh navigasi spesifik: **ANALYSIS_INDEX.md**
 #### 1. Handler Layer (23 handlers)
 
 Menangani HTTP requests dan responses:
+
 - Parse HTTP request body menjadi DTO
 - Extract user identity dari JWT context
 - Memanggil service layer
@@ -228,6 +233,7 @@ Contoh: `internal/handler/material_handler.go`, `internal/handler/assignment_han
 #### 2. Service Layer (21 services)
 
 Mengandung business logic:
+
 - Validasi business rules
 - Koordinasi antar repository
 - Trigger notifications (best-effort)
@@ -239,6 +245,7 @@ Contoh: `internal/service/material_service.go`, `internal/service/feed_service.g
 #### 3. Repository Layer (22 repositories)
 
 Menangani akses database:
+
 - Query database via GORM
 - Handle soft deletes
 - Preload related entities
@@ -250,6 +257,7 @@ Contoh: `internal/repository/material_repo.go`, `internal/repository/assignment_
 #### 4. Domain Layer (19 domain models)
 
 Mendefinisikan entity dan business rules:
+
 - Define GORM models dengan table names dan relationships
 - Define constants dan enums (NotificationType, SourceType, dll)
 - Tidak ada business logic, hanya struktur data
@@ -265,6 +273,7 @@ Middleware utama melindungi routes:
 3. **RequireRole** - verifikasi user memiliki peran yang diperlukan
 
 Middleware chain pada route tertentu:
+
 ```
 Route → AuthRequired → RequireSchoolMember → RequireRole("teacher") → Handler
 ```
@@ -293,7 +302,7 @@ File `.env` di direktori `backend/`:
 
 ```
 # Database
-DB_DSN=postgres://user:password@localhost:5432/eduverse_dev
+DB_DSN=postgres://user:password@localhost:5432/wiyata_dev
 
 # JWT
 JWT_SECRET=your-super-secret-key-change-this-in-production
@@ -307,7 +316,7 @@ STORAGE_PATH=./uploads
 ### Running Locally
 
 1. Pastikan PostgreSQL sudah berjalan
-2. Buat database: `createdb eduverse_dev`
+2. Buat database: `createdb wiyata_dev`
 3. Set environment variables di `.env`
 4. Run: `go run ./cmd/api`
 
@@ -348,6 +357,7 @@ Gunakan standard Go testing dengan package `testing`.
 ### Naming Conventions
 
 #### Domain/Models
+
 ```go
 type Material struct {
     ID             string
@@ -364,6 +374,7 @@ func (Material) TableName() string {
 ```
 
 #### DTO Naming
+
 ```go
 // Request DTO: Create + EntityName + DTO
 type CreateMaterialDTO struct {
@@ -380,10 +391,12 @@ type MaterialResponseDTO struct {
 ```
 
 #### JSON Naming
+
 - Database columns: snake_case (mat_id, mat_title)
 - JSON fields: camelCase (materialId, materialTitle)
 
 #### Service/Repository Methods
+
 ```go
 // Service: logical action name
 func (s *materialService) Create(...)
@@ -434,7 +447,7 @@ import (
     "errors"
     "fmt"
     "gorm.io/gorm"
-    
+
     "backend/internal/domain"
     "backend/internal/repository"
 )

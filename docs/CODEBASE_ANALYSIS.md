@@ -1,19 +1,22 @@
 # EDUVERSE LMS - COMPLETE CODEBASE ANALYSIS REPORT
 
 ## EXECUTIVE SUMMARY
-Eduverse LMS is a multi-tenant learning management system built with Go (Gin), PostgreSQL, and JWT auth. The application implements a strict 4-layer architecture: Handler → Service → Repository → Domain/Database. The system manages schools, users, academic structures (academic years, terms, classes, subject classes), learning materials, assignments with submissions/grading, communication (feeds, comments), and notifications.
+
+Wiyata LMS is a multi-tenant learning management system built with Go (Gin), PostgreSQL, and JWT auth. The application implements a strict 4-layer architecture: Handler → Service → Repository → Domain/Database. The system manages schools, users, academic structures (academic years, terms, classes, subject classes), learning materials, assignments with submissions/grading, communication (feeds, comments), and notifications.
 
 ---
 
 ## 1. ROUTES INVENTORY
 
 ### 1.1 Authentication Routes (Public)
+
 ```
 POST   /api/login                           - Login user
 POST   /api/register                        - Register new user
 ```
 
 ### 1.2 School Management Routes (Protected)
+
 ```
 POST   /api/schools                         - Create school (super_admin)
 GET    /api/schools                         - List schools (super_admin)
@@ -27,6 +30,7 @@ DELETE /api/schools/permanent/:schoolCode   - Hard delete school (super_admin)
 ```
 
 ### 1.3 Academic Structure Routes (Protected)
+
 ```
 POST   /api/academic-years                  - Create academic year (admin/super_admin)
 GET    /api/academic-years                  - List all academic years
@@ -62,6 +66,7 @@ DELETE /api/classes/:id                     - Delete (admin, school member)
 ```
 
 ### 1.4 Subject Class Routes (Protected)
+
 ```
 POST   /api/subject-classes/assign          - Assign teacher to subject class (admin/teacher)
 GET    /api/subject-classes/my-teaching     - Get my teaching (teacher, school member)
@@ -72,6 +77,7 @@ DELETE /api/subject-classes/:id             - Unassign (admin)
 ```
 
 ### 1.5 Enrollment Routes (Protected)
+
 ```
 POST   /api/enrollments                     - Enroll member (admin/teacher, school member)
 GET    /api/enrollments/class/:classId      - Get by class
@@ -82,6 +88,7 @@ DELETE /api/enrollments/:id                 - Unenroll (admin/teacher, school me
 ```
 
 ### 1.6 User Management Routes (Protected)
+
 ```
 POST   /api/users                           - Create user (admin/super_admin)
 GET    /api/users                           - List all users (admin/super_admin)
@@ -97,6 +104,7 @@ DELETE /api/school-users/:userId            - Unenroll from school (admin/super_
 ```
 
 ### 1.7 RBAC Routes (Protected)
+
 ```
 POST   /api/rbac/roles                      - Create role (super_admin)
 GET    /api/rbac/roles                      - Get all roles
@@ -113,6 +121,7 @@ POST   /api/rbac/super-admin                - Create super admin (super_admin)
 ```
 
 ### 1.8 Material Routes (Protected)
+
 ```
 POST   /api/materials                       - Create material (teacher, school member)
 GET    /api/materials                       - List materials
@@ -123,6 +132,7 @@ POST   /api/materials/progress              - Update progress
 ```
 
 ### 1.9 Assignment Routes (Protected)
+
 ```
 POST   /api/assignments/categories          - Create category (admin, school member)
 GET    /api/assignments/categories/school/:schoolCode - Get categories by school (school member)
@@ -146,6 +156,7 @@ DELETE /api/assignments/assess/:submissionId - Delete assessment (teacher, schoo
 ```
 
 ### 1.10 Feed & Comment Routes (Protected)
+
 ```
 POST   /api/feeds                           - Create feed (teacher/admin, school member)
 GET    /api/feeds/class/:classId            - Get by class
@@ -161,6 +172,7 @@ DELETE /api/comments/:id                    - Delete
 ```
 
 ### 1.11 Grade Routes (Protected)
+
 ```
 POST   /api/grades/weights                  - Configure weights (admin/teacher)
 GET    /api/grades/weights/subject/:subjectId - Get weights by subject (school member)
@@ -168,6 +180,7 @@ GET    /api/grades/class/:classId/subject/:subjectId - Get class report (teacher
 ```
 
 ### 1.12 Media & Attachment Routes (Protected)
+
 ```
 POST   /api/medias/upload                   - Upload media
 POST   /api/medias/metadata                 - Record metadata
@@ -176,6 +189,7 @@ DELETE /api/medias/:id                      - Delete media
 ```
 
 ### 1.13 Notification Routes (Protected)
+
 ```
 GET    /api/notifications                   - Get notifications
 GET    /api/notifications/unread-count      - Get unread count
@@ -185,6 +199,7 @@ DELETE /api/notifications/:id               - Delete notification
 ```
 
 ### 1.14 Log & Dashboard Routes (Protected)
+
 ```
 GET    /api/logs/school/:schoolId           - Get logs by school
 GET    /api/dashboard/student/:userId       - Student dashboard
@@ -195,12 +210,14 @@ GET    /api/dashboard/student/:userId       - Student dashboard
 ## 2. HANDLER LAYER
 
 ### 2.1 Structure
+
 - **Pattern**: HTTP request parsing → DTO binding → service invocation → response mapping
 - **Error Handling**: Centralized `HandleError()` and `HandleBindingError()` from `error_handler.go`
 - **Context**: Extracts `userID` via `middleware.GetUserID(c)` from JWT claims
 - **Response Format**: JSON with `gin.H{}` maps or typed DTOs
 
 ### 2.2 Key Handlers (23 total)
+
 1. **AuthHandler**: Login, Register
 2. **SchoolHandler**: CRUD schools, check availability, soft/hard delete
 3. **AcademicYearHandler**: CRUD academic years with activate/deactivate
@@ -223,6 +240,7 @@ GET    /api/dashboard/student/:userId       - Student dashboard
 20. **DashboardHandler**: Student/teacher dashboard data
 
 ### 2.3 Handler Patterns Observed
+
 - **Multipart Form Support**: MaterialHandler supports both JSON and `multipart/form-data`
 - **Pagination**: Query params `page` (default 1), `limit` (default varies)
 - **School Context**: Via `SchoolId` header or `schoolCode` URL param (enforced by middleware)
@@ -235,6 +253,7 @@ GET    /api/dashboard/student/:userId       - Student dashboard
 ## 3. SERVICE LAYER
 
 ### 3.1 Architecture
+
 - **21 Service Interfaces** with focused responsibilities
 - **Dependency Injection**: Services depend on repositories, other services, and storage providers
 - **Best-Effort Notifications**: Notification failures don't cascade (errors ignored with `_`)
@@ -243,20 +262,23 @@ GET    /api/dashboard/student/:userId       - Student dashboard
 ### 3.2 Service Categories
 
 #### Academic Management Services
+
 - **AcademicYearService**: Create, list, activate/deactivate academic years per school
 - **TermService**: CRUD terms within academic years, toggle active status
 - **SubjectService**: CRUD subjects per school
 - **ClassService**: CRUD classes within terms, school-scoped
 
 #### User & Authorization Services
+
 - **UserService**: CRUD users, password management, activation status
 - **SchoolUserService**: Manage user memberships in schools
 - **AuthService**: Login/register, JWT token generation
 - **RBACService**: Role assignment, permission checking, super admin management
 
 #### Learning Content Services
+
 - **SubjectClassService**: Assign teachers to subject-class combinations
-- **MaterialService**: 
+- **MaterialService**:
   - Create (supports JSON + file uploads via multipart)
   - File storage integration (upload to provider, record metadata)
   - Progress tracking (mark completed, track last_opened_at)
@@ -264,6 +286,7 @@ GET    /api/dashboard/student/:userId       - Student dashboard
 - **EnrollmentService**: Enroll students/teachers to classes with role differentiation
 
 #### Assignment & Assessment Services
+
 - **AssignmentService**:
   - Create/update/delete assignments with categories
   - Submit (upsert) submissions
@@ -273,6 +296,7 @@ GET    /api/dashboard/student/:userId       - Student dashboard
 - **GradeService**: Calculate weighted grades per student per subject
 
 #### Communication & Content Services
+
 - **FeedService**:
   - Create feed at CLASS level (not subject)
   - Authorization: teachers must teach ≥1 subject in class
@@ -283,13 +307,16 @@ GET    /api/dashboard/student/:userId       - Student dashboard
 - **AttachmentService**: Link media to sources (material, assignment, feed, submission, comment)
 
 #### System Services
+
 - **NotificationService**: Create/fetch/mark-read notifications
 - **MediaService**: Upload files, record metadata, delete with storage cleanup
 - **LogService**: Log user actions with metadata
 - **DashboardService**: Aggregate dashboard data (TODO details TBD)
 
 ### 3.3 Key Patterns
+
 1. **Upload File Handling**:
+
    ```go
    // MaterialService.Create()
    - Upload file to storage provider
@@ -318,6 +345,7 @@ GET    /api/dashboard/student/:userId       - Student dashboard
 ## 4. REPOSITORY LAYER
 
 ### 4.1 Structure
+
 - **22 Repository Interfaces** (one per domain entity/concept)
 - **Implementation**: Direct GORM queries against PostgreSQL
 - **Soft Deletes**: Handled via GORM's `DeletedAt` column
@@ -327,6 +355,7 @@ GET    /api/dashboard/student/:userId       - Student dashboard
 ### 4.2 Repository Types
 
 #### Core Entity Repositories
+
 1. **SchoolRepository**: CRUD schools, code→ID conversion, soft/hard delete
 2. **UserRepository**: CRUD users, find by email, activate/deactivate
 3. **SchoolUserRepository**: Get school members, get user's schools
@@ -338,6 +367,7 @@ GET    /api/dashboard/student/:userId       - Student dashboard
 9. **EnrollmentRepository**: Get members by class/school user, count students
 
 #### Content Repositories
+
 10. **MaterialRepository**: CRUD, get by subject class with pagination
 11. **AssignmentRepository**: CRUD assignments, submissions, assessments
 12. **AttachmentRepository**: Link/unlink media to content sources
@@ -346,6 +376,7 @@ GET    /api/dashboard/student/:userId       - Student dashboard
 15. **CommentRepository**: CRUD comments, get by source (polymorphic), count by source
 
 #### System Repositories
+
 16. **NotificationRepository**: CRUD notifications, get unread count
 17. **LogRepository**: Create logs, get by school
 18. **GradeRepository**: Calculate student grades
@@ -357,6 +388,7 @@ GET    /api/dashboard/student/:userId       - Student dashboard
 ### 4.3 Key Query Patterns
 
 #### Preloading Strategy
+
 ```go
 // Example: GetAssignmentWithSubmissions
 db.Preload("Category").
@@ -367,12 +399,14 @@ db.Preload("Category").
 ```
 
 #### Pagination
+
 ```go
 offset := (page - 1) * limit
 query.Limit(limit).Offset(offset).Order("created_at desc")
 ```
 
 #### Soft Deletes
+
 ```go
 // GORM handles deleted_at automatically
 // Queries ignore soft-deleted records unless .Unscoped()
@@ -380,6 +414,7 @@ Delete(&model) // Sets deleted_at, doesn't remove
 ```
 
 #### RowsAffected Safety
+
 ```go
 result := db.Save(model)
 if result.RowsAffected == 0 {
@@ -392,6 +427,7 @@ if result.RowsAffected == 0 {
 ## 5. DOMAIN MODELS (19 entities)
 
 ### 5.1 Entity Dependency Graph
+
 ```
 School (root tenant)
 ├── User (global identity)
@@ -417,6 +453,7 @@ School (root tenant)
 ### 5.2 Critical Domain Models
 
 #### School
+
 ```go
 School {
     ID, Name, Code (unique), Address, Email, Phone, Website
@@ -427,6 +464,7 @@ School {
 ```
 
 #### User & SchoolUser
+
 ```go
 User {
     ID, FullName, Email (unique per deleted_at), Password (hidden in JSON)
@@ -443,6 +481,7 @@ SchoolUser {
 ```
 
 #### Academic Structure
+
 ```go
 AcademicYear { ID, SchoolID, Name, IsActive }
 Term { ID, AcademicYearID, Name, IsActive }
@@ -453,6 +492,7 @@ SubjectClass { ID, ClassID, SubjectID, SchoolUserID (teacher) }
 ```
 
 #### Learning Content
+
 ```go
 Material {
     ID, SchoolID, SubjectClassID (not ClassID—critical design)
@@ -491,6 +531,7 @@ AssessmentWeight { ID, SubjectID, CategoryID, Weight (decimal) }
 ```
 
 #### Communication
+
 ```go
 Feed {
     ID, SchoolID, ClassID (NOT SubjectClassID—class-level only)
@@ -520,6 +561,7 @@ Media {
 ```
 
 #### System
+
 ```go
 Notification {
     ID, UserID, Type (assignment_created|assignment_graded|comment_added|material_added|feed_posted)
@@ -538,6 +580,7 @@ UserRole { ID, SchoolUserID, RoleID, CreatedAt }
 ```
 
 ### 5.3 SourceType Constants (Polymorphic)
+
 ```go
 const (
     SourceMaterial   SourceType = "material"
@@ -549,6 +592,7 @@ const (
 ```
 
 ### 5.4 Status Constants
+
 ```go
 MaterialProgress:
     - not_started
@@ -573,16 +617,19 @@ Notification Types (constants):
 ### 6.1 DTO Categories
 
 #### Request DTOs (Input Validation)
+
 - **Binding Tags**: `binding:"required,uuid"`, `binding:"omitempty"`, `binding:"oneof=teacher student"`
 - **Schema**: Match required fields for creation, optional fields for updates
 
 #### Response DTOs (Output Mapping)
+
 - **Pattern**: Flatten/transform domain models for API consumption
 - **Naming**: Consistent snake_case → camelCase conversion
 
 ### 6.2 Key DTO Flows
 
 #### Material Flow
+
 ```go
 CreateMaterialDTO {
     SchoolID (uuid), SubjectClassID (uuid), Title, Description, Type, MediaIDs, Medias
@@ -598,6 +645,7 @@ MaterialResponseDTO {
 ```
 
 #### Assignment Flow
+
 ```go
 CreateAssignmentDTO {
     SchoolID, SubjectClassID, CategoryID, Title, Description, Deadline, AllowLateSubmission, MediaIDs
@@ -621,6 +669,7 @@ AssessmentResponseDTO {
 ```
 
 #### Feed Flow
+
 ```go
 CreateFeedDTO {
     SchoolID, ClassID, Content, MediaIDs
@@ -632,6 +681,7 @@ FeedResponseDTO {
 ```
 
 #### Enrollment Flow
+
 ```go
 CreateEnrollmentDTO {
     SchoolID, SchoolUserIDs (array), ClassID, Role (teacher|student)
@@ -649,6 +699,7 @@ EnrollmentResponseDTO {
 ### 7.1 Handler-Level Validation (via DTO binding)
 
 #### Required Fields
+
 ```go
 // School context
 SchoolID:        required, uuid
@@ -672,6 +723,7 @@ Role:            required, oneof=teacher student (class enrollment)
 ```
 
 #### Optional Fields
+
 ```go
 // Nullable in domain
 Deadline:        nullable time.Time
@@ -681,6 +733,7 @@ Feedback:        optional, string
 ```
 
 #### Special Validations
+
 - **UUID Format**: Binding tag `uuid` validates format
 - **Email Unique**: User email unique per deleted_at state (enforced at DB level)
 - **School Code Unique**: Global unique constraint
@@ -695,6 +748,7 @@ Feedback:        optional, string
 ### 7.2 Service-Level Validation
 
 #### Authorization Checks
+
 ```go
 // Feed creation (teacher)
 - Teacher must teach ≥1 subject in class
@@ -711,6 +765,7 @@ Feedback:        optional, string
 ```
 
 #### Business Rule Validation
+
 ```go
 // Feed posting
 - Class must belong to school
@@ -727,6 +782,7 @@ Feedback:        optional, string
 ## 8. DATABASE TABLES & RELATIONSHIPS
 
 ### 8.1 Core Tables
+
 ```
 edv.schools (root tenant)
 ├── edv.users
@@ -754,19 +810,21 @@ edv.schools (root tenant)
 ### 8.2 Key Relationships
 
 #### School Scoping
+
 ```
 All entities (except User, Role) have scu_sch_id or equivalent
 Enforces data isolation between schools
 ```
 
 #### Class vs SubjectClass
+
 ```
 Class: Academic context (XII IPA 1)
     - 1 class : N subject classes
     - Materials/assignments live in subject classes (NOT class)
     - Feed live in class (communication across all subjects)
     - Enrollments link students/teachers to class
-    
+
 SubjectClass: Daily learning workspace
     - Composite: ClassID + SubjectID + TeacherID
     - 1 teacher : 1 subject : 1 class
@@ -774,6 +832,7 @@ SubjectClass: Daily learning workspace
 ```
 
 #### Soft Deletes
+
 ```
 Most entities: deleted_at nullable timestamp
 GORM automatically filters out soft-deleted in queries
@@ -781,6 +840,7 @@ Hard delete available for super_admin only
 ```
 
 #### Composite Unique Keys
+
 ```
 (scu_usr_id, scu_sch_id)          → SchoolUser
 (acy_sch_id, acy_name)             → AcademicYear
@@ -800,23 +860,27 @@ Hard delete available for super_admin only
 ## 9. EXISTING BUSINESS RULES
 
 ### 9.1 School & Membership
+
 1. **Super Admin Bypass**: Super admins bypass school membership checks
 2. **User→SchoolUser→Role Chain**: Roles attach to school membership, not global user
 3. **One User Multi-School**: User can belong to multiple schools with different roles
 4. **School Soft Delete**: Deleted schools recoverable by super admin
 
 ### 9.2 Academic Structure
+
 1. **Active State**: Academic years and terms have `is_active` boolean (not enforced at DB level—advisory)
 2. **Term Ownership**: Terms belong to academic years; classes belong to terms
 3. **Class-Term Lock**: Class code unique per school+term combo (can't duplicate class in same term)
 
 ### 9.3 Learning Hierarchy
+
 1. **Material Ownership**: Materials belong to SubjectClass, NOT Class
 2. **Assignment Ownership**: Assignments belong to SubjectClass, NOT Class
 3. **Feed Scope**: Feeds belong to Class (cross-subject communication)
 4. **Student Enrollment**: Enrollment at CLASS level; extends to all subject classes in class
 
 ### 9.4 Assignment Lifecycle
+
 1. **Submission Upsert**: Only 1 submission per student per assignment (upsert on resubmit)
 2. **Late Tracking**: IsLate computed via Deadline comparison (not stored)
 3. **Assessment Upsert**: Only 1 assessment per submission (upsert on re-grade)
@@ -824,11 +888,13 @@ Hard delete available for super_admin only
 5. **Late Allowed**: AllowLateSubmission boolean allows submission after deadline
 
 ### 9.5 Communication
+
 1. **Feed Authorization**: Teachers can only post if teaching ≥1 subject in class
 2. **Comment Polymorphism**: Comments can attach to material, assignment, feed, submission, or another comment
 3. **Content Owner Notification**: Content owner notified of comment (except self-comment)
 
 ### 9.6 Notifications (Best-Effort)
+
 1. **Assignment Created**: Notify all students in class
 2. **Material Added**: Notify all students in class
 3. **Feed Posted**: Notify all class members except creator
@@ -837,11 +903,13 @@ Hard delete available for super_admin only
 6. **Failure Tolerance**: Notification failures don't cascade; main action succeeds
 
 ### 9.7 Material Progress
+
 1. **No Auto-Complete**: Opening material doesn't mark completed
 2. **Last Opened Tracking**: LastOpenedAt updated passively (advisory only)
 3. **Explicit Completion**: Status='completed' requires explicit action (via UpdateProgress endpoint)
 
 ### 9.8 Grade Calculation
+
 1. **Weighted by Category**: Grades weighted per subject + assignment category
 2. **Weights Per Subject**: Different subjects can have different category weights
 3. **No GPA**: Only per-subject grades tracked
@@ -853,18 +921,20 @@ Hard delete available for super_admin only
 ### 10.1 Cascading Operations
 
 #### Material Creation
+
 ```
 Material created
   ├─ Files uploaded to storage provider
   ├─ Media records created
   ├─ Attachments linked
   └─ Notifications sent to all class students (best-effort)
-  
+
 If any file upload fails:
   └─ Best-effort cleanup of uploaded objects (may orphan files)
 ```
 
 #### Assignment Creation
+
 ```
 Assignment created
   ├─ Attachments linked
@@ -872,6 +942,7 @@ Assignment created
 ```
 
 #### Feed Creation
+
 ```
 Feed created
   ├─ Authorization check: teacher must teach in class
@@ -880,12 +951,14 @@ Feed created
 ```
 
 #### Comment Creation
+
 ```
 Comment created
   └─ Notification sent to content owner (if not self-comment, best-effort)
 ```
 
 #### Submission Creation
+
 ```
 Submission created (upsert)
   ├─ Attachments linked
@@ -893,6 +966,7 @@ Submission created (upsert)
 ```
 
 #### Assessment Creation
+
 ```
 Assessment created (upsert on submission)
   └─ Notification sent to student (best-effort)
@@ -901,6 +975,7 @@ Assessment created (upsert on submission)
 ### 10.2 Deletion Side Effects
 
 #### Material Deletion
+
 ```
 Material soft-deleted
   ├─ Material progress orphaned (no cascade delete)
@@ -909,6 +984,7 @@ Material soft-deleted
 ```
 
 #### Assignment Deletion
+
 ```
 Assignment soft-deleted
   ├─ Submissions remain (soft-deleted separately)
@@ -917,6 +993,7 @@ Assignment soft-deleted
 ```
 
 #### Class Deletion
+
 ```
 Class soft-deleted
   ├─ Enrollments remain (soft-deleted separately)
@@ -927,6 +1004,7 @@ Class soft-deleted
 ```
 
 #### SubjectClass Deletion
+
 ```
 SubjectClass deleted (unassign)
   ├─ Materials remain (orphaned, still accessible)
@@ -935,12 +1013,14 @@ SubjectClass deleted (unassign)
 ```
 
 #### School Deletion (Soft)
+
 ```
 School soft-deleted
   └─ Entire school data hidden from queries (GORM soft delete filter)
 ```
 
 #### School Deletion (Hard/Permanent)
+
 ```
 School permanently deleted
   └─ ALL school data removed (foreign key constraints cascade if enabled—verify!)
@@ -949,6 +1029,7 @@ School permanently deleted
 ### 10.3 Update Side Effects
 
 #### Material Update
+
 ```
 Material updated
   ├─ Old attachments unlinked
@@ -957,6 +1038,7 @@ Material updated
 ```
 
 #### Assignment Update
+
 ```
 Assignment updated
   ├─ Old attachments unlinked
@@ -965,6 +1047,7 @@ Assignment updated
 ```
 
 #### Feed Update
+
 ```
 Feed updated
   ├─ Old attachments unlinked
@@ -973,6 +1056,7 @@ Feed updated
 ```
 
 #### Submission Update
+
 ```
 Submission updated
   ├─ Old attachments unlinked
@@ -981,6 +1065,7 @@ Submission updated
 ```
 
 #### Assessment Update
+
 ```
 Assessment updated
   └─ Score/feedback updated
@@ -990,34 +1075,39 @@ Assessment updated
 ### 10.4 Authorization Dependencies
 
 #### Feed Creation (Teacher Role)
+
 ```
 Handler: middleware.RequireRole("teacher")
 Service: Verify teacher teaches ≥1 subject in class
   └─ Query: SubjectClass where ClassID = feed.ClassID AND TeacherID = userID
-  
+
 If not authorized:
   └─ Return 403 "teacher does not teach any subject in this class"
 ```
 
 #### Material Creation (Teacher Role)
+
 ```
 Handler: middleware.RequireRole("teacher")
 Service: (No service-level auth check—only handler-level)
 ```
 
 #### Assignment Creation (Teacher Role)
+
 ```
 Handler: middleware.RequireRole("teacher")
 Service: (No service-level auth check—only handler-level)
 ```
 
 #### Submission (Student Role)
+
 ```
 Handler: middleware.RequireRole("student")
 Service: (No student verification—assume upsert is idempotent and allowed)
 ```
 
 #### Assessment (Teacher Role)
+
 ```
 Handler: middleware.RequireRole("teacher")
 Service: (No teacher-owns-assignment check—any teacher can assess)
@@ -1027,6 +1117,7 @@ Service: (No teacher-owns-assignment check—any teacher can assess)
 ### 10.5 Storage Provider Integration
 
 #### Upload Flow
+
 ```
 Handler receives multipart files
   ├─ Check file size ≤ 10MB
@@ -1037,6 +1128,7 @@ Handler receives multipart files
 ```
 
 #### Storage Provider Types
+
 ```
 1. Supabase (default in .env)
 2. Local filesystem (disabled if provider nil)
@@ -1044,6 +1136,7 @@ Handler receives multipart files
 ```
 
 #### Current Status
+
 ```
 - Real upload attempted (not mock)
 - Cleanup on failure is best-effort (may orphan files)
@@ -1054,16 +1147,19 @@ Handler receives multipart files
 ### 10.6 Data Consistency Risks
 
 #### Race Conditions
+
 1. **Submission Upsert**: Two concurrent submissions from same student → last write wins (expected)
 2. **Assessment Upsert**: Two concurrent assessments from different teachers → last write wins (unexpected, should lock)
 3. **Material Progress**: Concurrent progress updates → GORM Save() overwrites (expected)
 
 #### Orphaned Data
+
 1. **Soft-deleted materials** with attachments: Attachments not automatically cleaned
 2. **Orphaned SubjectClass**: Materials/assignments remain accessible
 3. **Uploaded files**: If Media creation fails, objects orphaned in storage
 
 #### Missing Constraints
+
 1. **Teacher Ownership**: Assessment doesn't verify teacher created assignment
 2. **Student Enrollment**: Submission doesn't verify student enrolled in class
 3. **Submission Count**: No max submission limit (expected—unlimited resubmit)
@@ -1073,6 +1169,7 @@ Handler receives multipart files
 ## 11. MIDDLEWARE FLOW
 
 ### 11.1 Authentication Middleware (`AuthRequired()`)
+
 ```
 1. Extract Authorization header ("Bearer <token>")
 2. Parse JWT with JWT_SECRET from .env
@@ -1083,6 +1180,7 @@ Handler receives multipart files
 ```
 
 ### 11.2 School Member Middleware (`RequireSchoolMember()`)
+
 ```
 1. Extract schoolID from:
    a. SchoolId header (priority 1)
@@ -1094,6 +1192,7 @@ Handler receives multipart files
 ```
 
 ### 11.3 Role Middleware (`RequireRole()`)
+
 ```
 1. Get schoolID from context (set by RequireSchoolMember) or from header/param
 2. Query RBAC: Get user's roles in school
@@ -1103,11 +1202,13 @@ Handler receives multipart files
 ```
 
 ### 11.4 CORS Middleware
+
 ```
 corsMiddleware() applies to all routes
 ```
 
 ### 11.5 Middleware Chaining Pattern
+
 ```
 // Example: Create material (protected, school member, teacher only)
 materialAPI.POST("",
@@ -1128,6 +1229,7 @@ materialAPI.POST("",
 ## 12. ERROR HANDLING
 
 ### 12.1 Centralized Error Handler
+
 ```go
 func HandleError(c *gin.Context, err error) {
     // Maps Go errors to HTTP responses
@@ -1141,6 +1243,7 @@ func HandleBindingError(c *gin.Context, err error) {
 ```
 
 ### 12.2 Common Error Responses
+
 ```
 401 Unauthorized       - Missing/invalid JWT
 403 Forbidden          - Insufficient permissions, not school member
@@ -1151,6 +1254,7 @@ func HandleBindingError(c *gin.Context, err error) {
 ```
 
 ### 12.3 Error Propagation
+
 ```
 Handler
   ├─ Service
@@ -1164,6 +1268,7 @@ Handler
 ## 13. REQUEST/RESPONSE FLOW EXAMPLES
 
 ### Example 1: Create Material (with file upload)
+
 ```
 Request:
   POST /api/materials
@@ -1201,6 +1306,7 @@ Response:
 ```
 
 ### Example 2: Submit Assignment
+
 ```
 Request:
   POST /api/assignments/submit/:assignmentId
@@ -1231,6 +1337,7 @@ Response:
 ```
 
 ### Example 3: Get Assignments by Subject Class
+
 ```
 Request:
   GET /api/assignments/subject-class/:subjectClassId?page=1&limit=20&search=math
@@ -1268,6 +1375,7 @@ Response:
 ## 14. ROUTING PRECEDENCE WARNING
 
 ### Risky Pattern Detected
+
 ```
 Route Definition Order (main.go):
 1. assignmentAPI.GET("/my-submission/:assignmentId", ...) ✓
@@ -1290,28 +1398,30 @@ Reorder routes: specific → generic
 
 ## 15. SUMMARY TABLE: Layer Responsibilities
 
-| Layer | Responsibility | Key Files | Count |
-|-------|---|---|---|
-| **Handler** | HTTP parsing, auth checks, response mapping | `internal/handler/*_handler.go` | 23 |
-| **Service** | Business logic, notification triggers, orchestration | `internal/service/*_service.go` | 21 |
-| **Repository** | Database queries, soft deletes, preloading | `internal/repository/*_repo.go` | 22 |
-| **Domain** | Entity models, constants, table names | `internal/domain/*.go` | 19 |
-| **DTO** | Input validation, response mapping | `internal/dto/*.go` | 19+ |
-| **Middleware** | Auth JWT, RBAC roles, school context | `internal/middleware/*.go` | 2 |
-| **Storage** | File uploads, providers | `internal/storage/` | Custom |
+| Layer          | Responsibility                                       | Key Files                       | Count  |
+| -------------- | ---------------------------------------------------- | ------------------------------- | ------ |
+| **Handler**    | HTTP parsing, auth checks, response mapping          | `internal/handler/*_handler.go` | 23     |
+| **Service**    | Business logic, notification triggers, orchestration | `internal/service/*_service.go` | 21     |
+| **Repository** | Database queries, soft deletes, preloading           | `internal/repository/*_repo.go` | 22     |
+| **Domain**     | Entity models, constants, table names                | `internal/domain/*.go`          | 19     |
+| **DTO**        | Input validation, response mapping                   | `internal/dto/*.go`             | 19+    |
+| **Middleware** | Auth JWT, RBAC roles, school context                 | `internal/middleware/*.go`      | 2      |
+| **Storage**    | File uploads, providers                              | `internal/storage/`             | Custom |
 
 ---
 
 ## 16. CRITICAL FINDINGS & NOTES
 
 ### Known Issues (from AGENT.md & review)
+
 1. ⚠️ **Route Ordering**: GET /assignments/status/:id may be swallowed by GET /assignments/:assignmentId
 2. ⚠️ **Schema Inconsistency**: Docs reference asg_scl_id but code unclear on class vs subject class
-3. ⚠️ **No Unit Tests**: 0 \*_test.go files exist
+3. ⚠️ **No Unit Tests**: 0 \*\_test.go files exist
 4. ⚠️ **gofmt Non-Compliance**: Many files not formatted
 5. ⚠️ **Orphaned Files**: /backend/tmp/main binary artifact in repo
 
 ### Unimplemented TODOs (deferred to future)
+
 1. ❌ **Real File Storage**: S3/Supabase integration (stub only)
 2. ❌ **Chat WebSocket**: Realtime messaging (schema ready, routes pending)
 3. ❌ **Student Notes**: Personal notes per material (schema ready, routes pending)
@@ -1321,6 +1431,7 @@ Reorder routes: specific → generic
 7. ❌ **Nested Comments**: Comment threading (flat only)
 
 ### Design Decisions
+
 1. ✅ **Soft Deletes**: All entities except linking tables
 2. ✅ **Upsert Semantics**: Submissions and Assessments (last-write-wins)
 3. ✅ **Best-Effort Notifications**: Don't cascade on failure

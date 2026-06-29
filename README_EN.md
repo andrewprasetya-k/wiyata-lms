@@ -1,12 +1,12 @@
-# Eduverse LMS
+# Wiyata LMS
 
-Eduverse is a multi-school Learning Management System (LMS) designed to manage digital learning processes in a structured way. The platform supports academic management, class-based learning, assignment submission, grading, class communication, and notifications.
+Wiyata is a multi-school Learning Management System (LMS) designed to manage digital learning processes in a structured way. The platform supports academic management, class-based learning, assignment submission, grading, class communication, and notifications.
 
 [Versi Indonesia](README.md)
 
-# EduVerse LMS
+# Wiyata LMS
 
-EduVerse is a multi-school Learning Management System (LMS) designed to support digital learning, academic management, assignments, assessments, and classroom collaboration.
+Wiyata is a multi-school Learning Management System (LMS) designed to support digital learning, academic management, assignments, assessments, and classroom collaboration.
 
 ### Key Highlights
 
@@ -26,7 +26,6 @@ EduVerse is a multi-school Learning Management System (LMS) designed to support 
 - JWT Authentication
 - Vue.js (In Progress)
 
-
 ## Table of Contents
 
 - [Overview](#overview)
@@ -42,7 +41,7 @@ EduVerse is a multi-school Learning Management System (LMS) designed to support 
 
 ## Overview
 
-Eduverse LMS is an academic platform that integrates:
+Wiyata LMS is an academic platform that integrates:
 
 - School academic structure (academic years, terms, classes, subjects)
 - Daily learning workspace per subject (subject class)
@@ -70,7 +69,7 @@ Key point: Materials and assignments live in **SubjectClass**, not in Class. Fee
 ## Repository Structure
 
 ```
-eduverse-lms/
+wiyata-lms/
 ├── README.md (Indonesian version)
 ├── README_EN.md (English version)
 ├── ANALYSIS_INDEX.md (documentation navigation guide)
@@ -111,24 +110,28 @@ eduverse-lms/
 ### Development Setup
 
 1. Navigate to backend directory:
+
 ```bash
 cd backend
 ```
 
 2. Install dependencies:
+
 ```bash
 go mod download
 ```
 
 3. Setup .env file:
+
 ```bash
 cp .env.example .env
 # Edit .env and adjust values:
-# DB_DSN=postgres://user:password@localhost:5432/eduverse_dev
+# DB_DSN=postgres://user:password@localhost:5432/wiyata_dev
 # JWT_SECRET=your-secret-key-here
 ```
 
 4. Run the application:
+
 ```bash
 go run ./cmd/api
 ```
@@ -152,10 +155,10 @@ go test ./internal/service/...
 
 ```bash
 # Build for production
-go build -o eduverse ./cmd/api
+go build -o wiyata ./cmd/api
 
 # Run the binary
-./eduverse
+./wiyata
 ```
 
 ### Code Formatting
@@ -203,17 +206,17 @@ Each layer has clear and separated responsibilities.
 
 ### Documentation Files
 
-| File | Size | Purpose |
-|------|------|---------|
-| README.md | 14 KB | Main guide (Indonesian) |
-| README_EN.md | 14 KB | Main guide (English) |
-| ANALYSIS_INDEX.md | 7.9 KB | Documentation navigation guide |
-| CODEBASE_ANALYSIS.md | 44 KB | Comprehensive technical analysis (16 sections) |
-| QUICK_REFERENCE.md | 8.3 KB | Quick reference patterns and queries |
-| PRODUCT_SCOPE.md | 17 KB | Product scope and business decisions |
-| backend/schema.md | - | Database schema (DBML format) |
-| backend/AGENT.md | - | Engineering context summary |
-| backend/PROJECT_CONTEXT.md | - | Business context |
+| File                       | Size   | Purpose                                        |
+| -------------------------- | ------ | ---------------------------------------------- |
+| README.md                  | 14 KB  | Main guide (Indonesian)                        |
+| README_EN.md               | 14 KB  | Main guide (English)                           |
+| ANALYSIS_INDEX.md          | 7.9 KB | Documentation navigation guide                 |
+| CODEBASE_ANALYSIS.md       | 44 KB  | Comprehensive technical analysis (16 sections) |
+| QUICK_REFERENCE.md         | 8.3 KB | Quick reference patterns and queries           |
+| PRODUCT_SCOPE.md           | 17 KB  | Product scope and business decisions           |
+| backend/schema.md          | -      | Database schema (DBML format)                  |
+| backend/AGENT.md           | -      | Engineering context summary                    |
+| backend/PROJECT_CONTEXT.md | -      | Business context                               |
 
 ### Reading Guide for New Developers
 
@@ -231,6 +234,7 @@ For specific navigation: **ANALYSIS_INDEX.md**
 #### 1. Handler Layer (23 handlers)
 
 Handles HTTP requests and responses:
+
 - Parse HTTP request body into DTO
 - Extract user identity from JWT context
 - Call service layer
@@ -242,6 +246,7 @@ Examples: `internal/handler/material_handler.go`, `internal/handler/assignment_h
 #### 2. Service Layer (21 services)
 
 Contains business logic:
+
 - Validate business rules
 - Coordinate between repositories
 - Trigger notifications (best-effort)
@@ -253,6 +258,7 @@ Examples: `internal/service/material_service.go`, `internal/service/feed_service
 #### 3. Repository Layer (22 repositories)
 
 Handles database access:
+
 - Query database via GORM
 - Handle soft deletes
 - Preload related entities
@@ -264,6 +270,7 @@ Examples: `internal/repository/material_repo.go`, `internal/repository/assignmen
 #### 4. Domain Layer (19 domain models)
 
 Defines entities and business rules:
+
 - Define GORM models with table names and relationships
 - Define constants and enums (NotificationType, SourceType, etc)
 - No business logic, only data structures
@@ -279,6 +286,7 @@ Main middleware protecting routes:
 3. **RequireRole** - verify user has required role
 
 Middleware chain on specific routes:
+
 ```
 Route → AuthRequired → RequireSchoolMember → RequireRole("teacher") → Handler
 ```
@@ -307,7 +315,7 @@ See `backend/schema.md` for full details.
 
 ```
 # Database
-DB_DSN=postgres://user:password@localhost:5432/eduverse_dev
+DB_DSN=postgres://user:password@localhost:5432/wiyata_dev
 
 # JWT
 JWT_SECRET=your-super-secret-key-change-this-in-production
@@ -321,7 +329,7 @@ STORAGE_PATH=./uploads
 ### Running Locally
 
 1. Ensure PostgreSQL is running
-2. Create database: `createdb eduverse_dev`
+2. Create database: `createdb wiyata_dev`
 3. Set environment variables in `.env`
 4. Run: `go run ./cmd/api`
 
@@ -344,8 +352,8 @@ Follow this order:
 6. **Handler** - Implement HTTP handlers in `internal/handler/`
 7. **Routes** - Register routes in `cmd/api/main.go`
 
-
 #### Domain/Models
+
 ```go
 type Material struct {
     ID             string
@@ -362,6 +370,7 @@ func (Material) TableName() string {
 ```
 
 #### DTO Naming
+
 ```go
 // Request DTO: Create + EntityName + DTO
 type CreateMaterialDTO struct {
@@ -378,10 +387,12 @@ type MaterialResponseDTO struct {
 ```
 
 #### JSON Naming
+
 - Database columns: snake_case (mat_id, mat_title)
 - JSON fields: camelCase (materialId, materialTitle)
 
 #### Service/Repository Methods
+
 ```go
 // Service: logical action name
 func (s *materialService) Create(...)
@@ -432,7 +443,7 @@ import (
     "errors"
     "fmt"
     "gorm.io/gorm"
-    
+
     "backend/internal/domain"
     "backend/internal/repository"
 )

@@ -3,19 +3,21 @@
 Base URL: `/api/school-users`
 
 ## 1. Enroll User to School
+
 Connect an existing user to a school.
 
 - **URL:** `/enroll`
 - **Method:** `POST`
 - **Body:**
-| Field | Type | Required | Note |
-| :--- | :--- | :--- | :--- |
-| `userId` | uuid | Yes | |
-| `schoolId` | uuid | Yes | |
+  | Field | Type | Required | Note |
+  | :--- | :--- | :--- | :--- |
+  | `userId` | uuid | Yes | |
+  | `schoolId` | uuid | Yes | |
 
 ---
 
 ## 2. List Members by School
+
 Retrieve all users who belong to a specific school, including school details.
 
 - **URL:** `/school/:schoolCode`
@@ -26,11 +28,12 @@ Retrieve all users who belong to a specific school, including school details.
   - `search` (optional): Search by user name or email
 
 **Response Example:**
+
 ```json
 {
   "school": {
     "schoolId": "uuid",
-    "schoolName": "Eduverse Academy",
+    "schoolName": "Wiyata Academy",
     "schoolCode": "SD-ANGKASA"
   },
   "members": {
@@ -55,6 +58,7 @@ Retrieve all users who belong to a specific school, including school details.
 ---
 
 ## 3. List Schools by User
+
 Retrieve all schools that a specific user belongs to.
 
 - **URL:** `/user/:userId`
@@ -63,6 +67,7 @@ Retrieve all schools that a specific user belongs to.
 ---
 
 ## 4. Unenroll User
+
 Remove a user's membership from a school.
 
 - **URL:** `/:id`

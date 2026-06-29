@@ -3,6 +3,7 @@
 Base URL: `/api/academic-years`
 
 ## 1. List All Academic Years
+
 Retrieve a paginated list of all academic years (Super Admin view).
 
 - **URL:** `(base URL)`
@@ -13,6 +14,7 @@ Retrieve a paginated list of all academic years (Super Admin view).
   - `search` (optional): Search by academic year name.
 
 **Response Example:**
+
 ```json
 {
   "data": [...],
@@ -26,18 +28,20 @@ Retrieve a paginated list of all academic years (Super Admin view).
 ---
 
 ## 2. List Academic Years by School
+
 Retrieve all academic years for a specific school using its code.
 
 - **URL:** `/school/:schoolCode`
 - **Method:** `GET`
 
 **Response Example:**
+
 ```json
 [
   {
     "academicYearId": "uuid-string",
     "schoolId": "uuid-school-id",
-    "schoolName": "Eduverse Academy",
+    "schoolName": "Wiyata Academy",
     "schoolCode": "EDU01",
     "academicYearName": "2023/2024",
     "isActive": true,
@@ -49,6 +53,7 @@ Retrieve all academic years for a specific school using its code.
 ---
 
 ## 3. Get Academic Year Detail
+
 Retrieve detail of a specific academic year by its ID.
 
 - **URL:** `/:id`
@@ -57,19 +62,21 @@ Retrieve detail of a specific academic year by its ID.
 ---
 
 ## 4. Create Academic Year
+
 Create a new academic year for a school. Status is `false` by default.
 
 - **URL:** `(base URL)`
 - **Method:** `POST`
 - **Body:**
-| Field | Type | Required | Note |
-| :--- | :--- | :--- | :--- |
-| `schoolId` | uuid | Yes | Reference to School ID |
-| `academicYearName` | string | Yes | e.g., "2023/2024" |
+  | Field | Type | Required | Note |
+  | :--- | :--- | :--- | :--- |
+  | `schoolId` | uuid | Yes | Reference to School ID |
+  | `academicYearName` | string | Yes | e.g., "2023/2024" |
 
 ---
 
 ## 5. Update Academic Year
+
 Update basic information of an academic year.
 
 - **URL:** `/:id`
@@ -80,6 +87,7 @@ Update basic information of an academic year.
 ---
 
 ## 6. Activate Academic Year
+
 Set an academic year as the active one for its school. This will automatically deactivate all other academic years in the same school.
 
 - **URL:** `/activate/:id`
@@ -89,6 +97,7 @@ Set an academic year as the active one for its school. This will automatically d
 ---
 
 ## 7. Deactivate Academic Year
+
 Manually deactivate an academic year.
 
 - **URL:** `/deactivate/:id`
@@ -98,6 +107,7 @@ Manually deactivate an academic year.
 ---
 
 ## 8. Delete Academic Year
+
 Permanently remove an academic year.
 
 - **URL:** `/:id`
