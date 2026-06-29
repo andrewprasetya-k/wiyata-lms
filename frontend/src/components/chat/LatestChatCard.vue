@@ -1,11 +1,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
 import { RouterLink } from "vue-router";
-import {
-  PhArrowRight,
-  PhChatCircleText,
-  PhWarningCircle,
-} from "@phosphor-icons/vue";
+import { PhArrowRight, PhChatCircleText, PhWarningCircle } from "@phosphor-icons/vue";
+import { useAuthStore } from "../../stores/auth";
 import { getChatRooms } from "../../services/chat";
 import type { ChatRoom } from "../../types/chat";
 
@@ -22,8 +19,20 @@ const props = withDefaults(
 const rooms = ref<ChatRoom[]>([]);
 const isLoading = ref(false);
 const hasError = ref(false);
+const authStore = useAuthStore();
+const currentUserId = computed(() => authStore.user?.id || "");
 
-const visibleRooms = computed(() => rooms.value.slice(0, props.limit));
+const unreadRooms = computed(() =>
+  [...rooms.value]
+    .filter((room) => room.unreadCount > 0)
+    .sort((left, right) => {
+      const leftTime = new Date(left.lastMessageAt || 0).getTime();
+      const rightTime = new Date(right.lastMessageAt || 0).getTime();
+      return rightTime - leftTime;
+    }),
+);
+
+const visibleRooms = computed(() => unreadRooms.value.slice(0, props.limit));
 
 onMounted(loadLatestChats);
 
@@ -49,9 +58,42 @@ function roomDisplayName(room: ChatRoom) {
 }
 
 function roomPreview(room: ChatRoom) {
-  if (!room.lastMessage?.content) return "Belum ada pesan.";
+  if (!room.lastMessage) return "Belum ada pesan.";
+  const content =
+    room.lastMessage.content ||
+    attachmentPreview(room.lastMessage.attachmentCount, room.lastMessage.attachmentMimeType, room.lastMessage.attachmentFileName);
+  if (room.roomType === "dm") return content;
+  if (room.lastMessage.senderId === currentUserId.value) {
+    return `✓ ${content}`;
+  }
   const sender = room.lastMessage.senderName || "Pengguna";
-  return `${sender}: ${room.lastMessage.content}`;
+  return `${sender}: ${content}`;
+}
+
+function attachmentPreview(
+  count?: number,
+  mimeType?: string,
+  fileName?: string,
+) {
+  if ((count || 0) <= 0) return "Belum ada pesan.";
+  if (count === 1) {
+    if (isImageMimeType(mimeType)) return "📷 Foto";
+    if (fileName) return `📄 ${shortAttachmentName(fileName)}`;
+    return "📄 File";
+  }
+  if (isImageMimeType(mimeType)) return `📷 ${count} foto`;
+  return `📎 ${count} file`;
+}
+
+function isImageMimeType(mimeType?: string | null) {
+  return ["image/png", "image/jpeg", "image/webp", "image/gif"].includes(
+    (mimeType || "").toLowerCase(),
+  );
+}
+
+function shortAttachmentName(fileName?: string | null) {
+  if (!fileName) return "File";
+  return fileName.length > 18 ? `${fileName.slice(0, 15)}...` : fileName;
 }
 
 function formatTime(value?: string | null) {
@@ -71,7 +113,7 @@ function formatTime(value?: string | null) {
       <div class="min-w-0">
         <p class="text-sm font-semibold text-[#171322]">Chat terbaru</p>
         <p class="mt-1 text-xs leading-5 text-[#8b8592]">
-          Ruang percakapan dengan aktivitas terakhir.
+          Percakapan yang belum kamu baca.
         </p>
       </div>
       <RouterLink
@@ -149,7 +191,7 @@ function formatTime(value?: string | null) {
       v-else
       class="rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-4 text-sm leading-6 text-[#7a7385]"
     >
-      Belum ada aktivitas chat terbaru.
+      Semua percakapan telah dibaca.
     </p>
   </article>
 </template>

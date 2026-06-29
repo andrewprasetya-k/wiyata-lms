@@ -178,14 +178,7 @@ const selectedAddMembers = computed(() =>
     selectedAddMemberIds.value.includes(member.userId),
   ),
 );
-const latestOwnMessageId = computed(() => {
-  for (let index = messages.value.length - 1; index >= 0; index -= 1) {
-    if (messages.value[index].isMine) {
-      return messages.value[index].messageId;
-    }
-  }
-  return "";
-});
+const messageGroupGapMs = 5 * 60 * 1000;
 
 onMounted(async () => {
   isDestroyed = false;
@@ -701,7 +694,11 @@ async function submitMessage() {
   const filesToSend = attachmentsToSend.map((attachment) => attachment.file);
   if (!content && filesToSend.length === 0) return;
   const roomID = selectedRoom.value.roomId;
-  const optimistic = createOptimisticMessage(roomID, content, attachmentsToSend);
+  const optimistic = createOptimisticMessage(
+    roomID,
+    content,
+    attachmentsToSend,
+  );
   messages.value = dedupeMessages([...messages.value, optimistic]);
   draft.value = "";
   revokePendingAttachmentUrls();
@@ -746,7 +743,11 @@ async function uploadChatFiles(files: File[]) {
   }
   const mediaIds: string[] = [];
   for (const file of files) {
-    const uploaded = await uploadMediaFile(file, selectedRoom.value.schoolId, "user");
+    const uploaded = await uploadMediaFile(
+      file,
+      selectedRoom.value.schoolId,
+      "user",
+    );
     mediaIds.push(uploaded.mediaId);
   }
   return mediaIds;
@@ -888,7 +889,9 @@ function createOptimisticMessage(
 }
 
 function replaceOptimisticMessage(tempId: string, canonical: ChatMessage) {
-  const existing = messages.value.find((message) => message.messageId === tempId);
+  const existing = messages.value.find(
+    (message) => message.messageId === tempId,
+  );
   if (existing) {
     revokeAttachmentObjectUrls(existing);
   }
@@ -1010,7 +1013,10 @@ function dedupeMessages(items: ChatMessage[]) {
 
 function messageContentKey(message: ChatMessage) {
   const attachmentKey = (message.attachments ?? [])
-    .map((attachment) => attachment.mediaId || `${attachment.fileName}:${attachment.sizeBytes}`)
+    .map(
+      (attachment) =>
+        attachment.mediaId || `${attachment.fileName}:${attachment.sizeBytes}`,
+    )
     .join(",");
   return `${message.roomId}:${message.senderId}:${message.content}:${attachmentKey}`;
 }
@@ -1025,13 +1031,89 @@ function lastMessage(items: ChatMessage[]) {
   return items.length > 0 ? items[items.length - 1] : undefined;
 }
 
+function previousMessage(index: number) {
+  return index > 0 ? messages.value[index - 1] : null;
+}
+
+function nextMessage(index: number) {
+  return index < messages.value.length - 1 ? messages.value[index + 1] : null;
+}
+
+function messageTimeGapExceeded(
+  currentMessage: ChatMessage,
+  compareMessage: ChatMessage | null,
+) {
+  if (!compareMessage) return true;
+  const currentTime = new Date(currentMessage.createdAt).getTime();
+  const previousTime = new Date(compareMessage.createdAt).getTime();
+  if (Number.isNaN(currentTime) || Number.isNaN(previousTime)) return true;
+  return Math.abs(currentTime - previousTime) > messageGroupGapMs;
+}
+
+function isSameDay(left?: string | null, right?: string | null) {
+  if (!left || !right) return false;
+  const leftDate = new Date(left);
+  const rightDate = new Date(right);
+  if (Number.isNaN(leftDate.getTime()) || Number.isNaN(rightDate.getTime())) {
+    return false;
+  }
+  return (
+    leftDate.getFullYear() === rightDate.getFullYear() &&
+    leftDate.getMonth() === rightDate.getMonth() &&
+    leftDate.getDate() === rightDate.getDate()
+  );
+}
+
+function shouldShowDateDivider(message: ChatMessage, index: number) {
+  const previous = previousMessage(index);
+  if (!previous) return true;
+  return !isSameDay(message.createdAt, previous.createdAt);
+}
+
+function formatDateDivider(value?: string | null) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return new Intl.DateTimeFormat("id-ID", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  }).format(date);
+}
+
+function shouldShowSender(message: ChatMessage, index: number) {
+  if (selectedRoomIsDM.value || message.isMine) return false;
+  const previous = previousMessage(index);
+  if (!previous) return true;
+  if (previous.senderId !== message.senderId) return true;
+  if (!isSameDay(message.createdAt, previous.createdAt)) return true;
+  return messageTimeGapExceeded(message, previous);
+}
+
+function isGroupedWithPrevious(message: ChatMessage, index: number) {
+  const previous = previousMessage(index);
+  if (!previous) return false;
+  if (previous.senderId !== message.senderId) return false;
+  if (previous.isMine !== message.isMine) return false;
+  if (!isSameDay(message.createdAt, previous.createdAt)) return false;
+  return !messageTimeGapExceeded(message, previous);
+}
+
+function isGroupedWithNext(message: ChatMessage, index: number) {
+  const next = nextMessage(index);
+  if (!next) return false;
+  if (next.senderId !== message.senderId) return false;
+  if (next.isMine !== message.isMine) return false;
+  if (!isSameDay(message.createdAt, next.createdAt)) return false;
+  return !messageTimeGapExceeded(message, next);
+}
+
 function readIndicatorFor(message: ChatMessage) {
   if (
     !message.isMine ||
     message.deliveryStatus === "uploading" ||
     message.deliveryStatus === "sending" ||
-    message.deliveryStatus === "failed" ||
-    message.messageId !== latestOwnMessageId.value
+    message.deliveryStatus === "failed"
   ) {
     return "";
   }
@@ -1133,17 +1215,14 @@ function roomPreview(room: ChatRoom) {
       ? room.dmTargetEmail || "Belum ada pesan."
       : room.schoolName || "Belum ada pesan.";
   }
-  const content =
-    room.lastMessage.content ||
-    attachmentPreviewTextForRoom(
-      room.lastMessage.attachmentCount ?? 0,
-      room.lastMessage.attachmentMimeType,
-      room.lastMessage.attachmentFileName,
-    );
-  const senderName =
-    room.lastMessage.senderId === currentUserId.value
-      ? "Anda"
-      : room.lastMessage.senderName || "Pengguna";
+  const content = roomPreviewContent(room);
+  if (isDirectMessageRoom(room)) {
+    return content;
+  }
+  if (room.lastMessage.senderId === currentUserId.value) {
+    return roomPreviewReadPrefix(room) + content;
+  }
+  const senderName = room.lastMessage.senderName || "Pengguna";
   return `${senderName}: ${content}`;
 }
 
@@ -1162,6 +1241,36 @@ function attachmentPreviewTextForRoom(
     return `📷 ${count} foto`;
   }
   return `📎 ${count} file`;
+}
+
+function roomPreviewContent(room: ChatRoom) {
+  return (
+    room.lastMessage?.content ||
+    attachmentPreviewTextForRoom(
+      room.lastMessage?.attachmentCount ?? 0,
+      room.lastMessage?.attachmentMimeType,
+      room.lastMessage?.attachmentFileName,
+    )
+  );
+}
+
+function roomPreviewReadPrefix(room: ChatRoom) {
+  if (!room.lastMessage?.messageId) return "";
+  const memberCount = roomPreviewReadCount(room);
+  return memberCount > 0 ? "✓✓ " : "✓ ";
+}
+
+function roomPreviewReadCount(room: ChatRoom) {
+  if (selectedRoom.value?.roomId !== room.roomId) return 0;
+  if (!room.lastMessage?.messageId || !readSummary.value?.members?.length) return 0;
+  const createdAt = new Date(room.lastMessage.createdAt).getTime();
+  return readSummary.value.members.filter((member) => {
+    if (member.userId === currentUserId.value) return false;
+    if (member.lastReadMessageId === room.lastMessage?.messageId) return true;
+    if (!member.lastReadAt || Number.isNaN(createdAt)) return false;
+    const lastReadAt = new Date(member.lastReadAt).getTime();
+    return !Number.isNaN(lastReadAt) && lastReadAt >= createdAt;
+  }).length;
 }
 
 function shortAttachmentName(fileName?: string) {
@@ -1208,7 +1317,8 @@ function fileTypeLabel(mimeType?: string, fileName?: string) {
   ) {
     return "Dokumen";
   }
-  if (value.startsWith("text/") || ["txt", "md", "rtf"].includes(ext)) return "Teks";
+  if (value.startsWith("text/") || ["txt", "md", "rtf"].includes(ext))
+    return "Teks";
   if (
     value.includes("zip") ||
     value.includes("compressed") ||
@@ -1653,9 +1763,12 @@ function formatDateTime(value?: string | null) {
               class="pointer-events-none absolute inset-4 z-20 flex items-center justify-center rounded-2xl border-2 border-dashed border-[#4f46e5] bg-[#eef2ff]/80"
             >
               <div class="rounded-2xl bg-white px-5 py-4 text-center shadow-sm">
-                <p class="text-sm font-semibold text-[#171322]">Lepas file di sini</p>
+                <p class="text-sm font-semibold text-[#171322]">
+                  Lepas file di sini
+                </p>
                 <p class="mt-1 text-xs text-[#6b7280]">
-                  Maksimal {{ maxChatAttachments }} file, masing-masing hingga {{ maxChatAttachmentSizeMb }}MB
+                  Maksimal {{ maxChatAttachments }} file, masing-masing hingga
+                  {{ maxChatAttachmentSizeMb }}MB
                 </p>
               </div>
             </div>
@@ -1756,18 +1869,34 @@ function formatDateTime(value?: string | null) {
                 </div>
 
                 <template v-else>
-                  <article
-                    v-for="message in messages"
+                  <template
+                    v-for="(message, index) in messages"
                     :key="message.messageId"
-                    class="flex gap-2"
-                    :class="message.isMine ? 'justify-end' : 'justify-start'"
                   >
+                    <div
+                      v-if="shouldShowDateDivider(message, index)"
+                      class="flex items-center gap-3 py-2"
+                    >
+                      <div class="h-px flex-1 bg-[#e7e1d7]" />
+                      <span class="shrink-0 rounded-full bg-white px-3 py-1 text-[11px] font-medium text-[#8b8592]">
+                        {{ formatDateDivider(message.createdAt) }}
+                      </span>
+                      <div class="h-px flex-1 bg-[#e7e1d7]" />
+                    </div>
+
+                    <article
+                      class="flex gap-2"
+                      :class="[
+                        message.isMine ? 'justify-end' : 'justify-start',
+                        isGroupedWithPrevious(message, index) ? 'mt-1' : 'mt-3',
+                      ]"
+                    >
                     <div
                       class="flex max-w-[88%] flex-col gap-1 sm:max-w-[72%]"
                       :class="message.isMine ? 'items-end' : 'items-start'"
                     >
                       <p
-                        v-if="!message.isMine"
+                        v-if="shouldShowSender(message, index)"
                         class="px-2 text-xs font-medium text-[#6b7280]"
                       >
                         {{ message.senderName }}
@@ -1776,21 +1905,40 @@ function formatDateTime(value?: string | null) {
                         class="rounded-2xl px-4 py-2 text-sm leading-relaxed"
                         :class="
                           message.isMine
-                            ? 'rounded-br-md bg-[#4f46e5] text-white'
-                            : 'rounded-bl-md border border-[#ebe7df] bg-white text-[#171322]'
+                            ? [
+                                isGroupedWithPrevious(message, index) ? 'rounded-tr-lg' : 'rounded-tr-2xl',
+                                isGroupedWithNext(message, index) ? 'rounded-br-lg' : 'rounded-br-md',
+                                'bg-[#4f46e5] text-white'
+                              ]
+                            : [
+                                isGroupedWithPrevious(message, index) ? 'rounded-tl-lg' : 'rounded-tl-2xl',
+                                isGroupedWithNext(message, index) ? 'rounded-bl-lg' : 'rounded-bl-md',
+                                'border border-[#ebe7df] bg-white text-[#171322]'
+                              ]
                         "
                       >
-                        <p v-if="message.content" class="whitespace-pre-wrap wrap-break-word">
+                        <p
+                          v-if="message.content"
+                          class="whitespace-pre-wrap wrap-break-word"
+                        >
                           {{ message.content }}
                         </p>
                         <div
                           v-if="message.attachments?.length"
                           class="mt-2 grid gap-2"
-                          :class="message.attachments.length > 1 ? 'sm:grid-cols-2' : ''"
+                          :class="
+                            message.attachments.length > 1
+                              ? 'sm:grid-cols-2'
+                              : ''
+                          "
                         >
                           <button
                             v-for="attachment in message.attachments"
-                            :key="attachment.attachmentId || attachment.mediaId || attachment.fileName"
+                            :key="
+                              attachment.attachmentId ||
+                              attachment.mediaId ||
+                              attachment.fileName
+                            "
                             type="button"
                             class="group overflow-hidden rounded-xl text-left"
                             :class="
@@ -1798,9 +1946,7 @@ function formatDateTime(value?: string | null) {
                                 ? 'bg-white/10 text-white ring-1 ring-white/20'
                                 : 'border border-[#ebe7df] bg-[#fbfaf8] text-[#171322]'
                             "
-                            @click="
-                              openAttachment(attachment)
-                            "
+                            @click="openAttachment(attachment)"
                             :aria-label="
                               isSafeImageType(attachment.mimeType)
                                 ? `Buka pratinjau ${attachment.fileName || 'gambar'}`
@@ -1808,7 +1954,10 @@ function formatDateTime(value?: string | null) {
                             "
                           >
                             <img
-                              v-if="isSafeImageType(attachment.mimeType) && attachment.url"
+                              v-if="
+                                isSafeImageType(attachment.mimeType) &&
+                                attachment.url
+                              "
                               :src="attachment.url"
                               :alt="attachment.fileName || 'Lampiran gambar'"
                               class="max-h-64 w-full object-cover transition duration-200 group-hover:scale-[1.01]"
@@ -1816,31 +1965,59 @@ function formatDateTime(value?: string | null) {
                             <div class="flex min-w-0 items-center gap-3 p-3">
                               <span
                                 class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
-                                :class="message.isMine ? 'bg-white/15' : 'bg-white text-[#4f46e5]'"
+                                :class="
+                                  message.isMine
+                                    ? 'bg-white/15'
+                                    : 'bg-white text-[#4f46e5]'
+                                "
                               >
                                 <component
-                                  :is="filePreviewIcon(attachment.mimeType, attachment.fileName)"
+                                  :is="
+                                    filePreviewIcon(
+                                      attachment.mimeType,
+                                      attachment.fileName,
+                                    )
+                                  "
                                   class="h-5 w-5"
                                   weight="duotone"
                                 />
                               </span>
                               <span class="min-w-0 flex-1">
-                                <span class="block truncate text-xs font-semibold">
+                                <span
+                                  class="block truncate text-xs font-semibold"
+                                >
                                   {{ attachment.fileName || "Lampiran" }}
                                 </span>
                                 <span
                                   class="mt-0.5 block truncate text-[11px]"
-                                  :class="message.isMine ? 'text-white/70' : 'text-[#8b8592]'"
+                                  :class="
+                                    message.isMine
+                                      ? 'text-white/70'
+                                      : 'text-[#8b8592]'
+                                  "
                                 >
-                                  {{ fileTypeLabel(attachment.mimeType, attachment.fileName) }}
-                                  <template v-if="formatFileSize(attachment.sizeBytes)">
+                                  {{
+                                    fileTypeLabel(
+                                      attachment.mimeType,
+                                      attachment.fileName,
+                                    )
+                                  }}
+                                  <template
+                                    v-if="formatFileSize(attachment.sizeBytes)"
+                                  >
                                     · {{ formatFileSize(attachment.sizeBytes) }}
                                   </template>
                                 </span>
                               </span>
-                              <span class="inline-flex items-center gap-1 text-[11px] font-semibold">
+                              <span
+                                class="inline-flex items-center gap-1 text-[11px] font-semibold"
+                              >
                                 <PhDownloadSimple class="h-3.5 w-3.5" />
-                                {{ isSafeImageType(attachment.mimeType) ? "Lihat" : "Buka" }}
+                                {{
+                                  isSafeImageType(attachment.mimeType)
+                                    ? "Lihat"
+                                    : "Buka"
+                                }}
                               </span>
                             </div>
                           </button>
@@ -1871,7 +2048,10 @@ function formatDateTime(value?: string | null) {
                           @click="retryFailedMessage(message)"
                         >
                           Gagal
-                          <span class="underline decoration-dotted underline-offset-2">Coba lagi</span>
+                          <span
+                            class="underline decoration-dotted underline-offset-2"
+                            >Coba lagi</span
+                          >
                         </button>
                         <span
                           v-else-if="readIndicatorLabel(message)"
@@ -1900,7 +2080,8 @@ function formatDateTime(value?: string | null) {
                         </span>
                       </p>
                     </div>
-                  </article>
+                    </article>
+                  </template>
                 </template>
               </div>
             </div>
@@ -1932,17 +2113,32 @@ function formatDateTime(value?: string | null) {
                       class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-[#4f46e5]"
                     >
                       <component
-                        :is="filePreviewIcon(attachment.file.type, attachment.file.name)"
+                        :is="
+                          filePreviewIcon(
+                            attachment.file.type,
+                            attachment.file.name,
+                          )
+                        "
                         class="h-5 w-5"
                         weight="duotone"
                       />
                     </span>
                     <span class="min-w-0 flex-1">
-                      <span class="block truncate text-xs font-semibold text-[#171322]">
+                      <span
+                        class="block truncate text-xs font-semibold text-[#171322]"
+                      >
                         {{ attachment.file.name }}
                       </span>
-                      <span class="mt-0.5 block truncate text-[11px] text-[#8b8592]">
-                        {{ fileTypeLabel(attachment.file.type, attachment.file.name) }} · {{ formatFileSize(attachment.file.size) }}
+                      <span
+                        class="mt-0.5 block truncate text-[11px] text-[#8b8592]"
+                      >
+                        {{
+                          fileTypeLabel(
+                            attachment.file.type,
+                            attachment.file.name,
+                          )
+                        }}
+                        · {{ formatFileSize(attachment.file.size) }}
                       </span>
                     </span>
                     <button
@@ -1968,7 +2164,10 @@ function formatDateTime(value?: string | null) {
                 <button
                   type="button"
                   class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#ebe7df] bg-white text-[#6b7280] transition hover:border-[#c7d2fe] hover:text-[#4f46e5] focus:outline-none focus:ring-2 focus:ring-[#4f46e5]/15 disabled:cursor-not-allowed disabled:opacity-60"
-                  :disabled="!selectedRoom?.canSend || selectedFiles.length >= maxChatAttachments"
+                  :disabled="
+                    !selectedRoom?.canSend ||
+                    selectedFiles.length >= maxChatAttachments
+                  "
                   title="Tambah lampiran"
                   aria-label="Tambah lampiran"
                   @click="openFilePicker"
@@ -1992,9 +2191,14 @@ function formatDateTime(value?: string | null) {
                   <PhPaperPlaneTilt class="h-5 w-5" weight="fill" />
                 </button>
               </div>
-              <p class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#9ca3af]">
+              <p
+                class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#9ca3af]"
+              >
                 <span>Enter untuk kirim, Shift+Enter untuk baris baru.</span>
-                <span v-if="composerStatusLabel" class="inline-flex items-center gap-1.5 font-medium text-[#6b7280]">
+                <span
+                  v-if="composerStatusLabel"
+                  class="inline-flex items-center gap-1.5 font-medium text-[#6b7280]"
+                >
                   <PhSpinnerGap class="h-3.5 w-3.5 animate-spin" />
                   {{ composerStatusLabel }}
                 </span>
