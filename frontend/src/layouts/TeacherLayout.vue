@@ -11,16 +11,27 @@ import {
 import { useRoute } from "vue-router";
 import SlimSidebar from "../components/layout/Sidebar.vue";
 import { useChatUnreadCount } from "../composables/useChatUnreadCount";
+import { useFeedUnreadCount } from "../composables/useFeedUnreadCount";
 
 const route = useRoute();
 const { unreadCount, badgeLabel } = useChatUnreadCount();
+const { unreadCount: feedUnreadCount, badgeLabel: feedBadgeLabel } =
+  useFeedUnreadCount();
 
 const items = computed(() => [
   { label: "Dashboard", icon: PhHouse, to: "/teacher/dashboard" },
   { label: "Mata Pelajaran", icon: PhBookOpen, to: "/teacher/subjects" },
   { label: "Tugas", icon: PhCalendarBlank, to: "/teacher/assignments" },
   { label: "Pengumpulan", icon: PhTray, to: "/teacher/submissions" },
-  { label: "Feed", icon: PhMegaphone, to: "/teacher/feed" },
+  {
+    label: "Feed",
+    icon: PhMegaphone,
+    to: "/teacher/feed",
+    badgeCount: feedUnreadCount.value,
+    badgeLabel: feedBadgeLabel.value,
+    badgeAriaLabel: `${feedUnreadCount.value} feed belum dibaca`,
+    emphasized: feedUnreadCount.value > 0 && !route.path.startsWith("/teacher/feed"),
+  },
   {
     label: "Chat",
     icon: PhChatCircle,

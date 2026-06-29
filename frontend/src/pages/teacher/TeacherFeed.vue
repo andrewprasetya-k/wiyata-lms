@@ -9,7 +9,12 @@ import {
 } from "@phosphor-icons/vue";
 import FeedComments from "../../components/feed/FeedComments.vue";
 import { getMyTeachingSubjectClasses } from "../../services/teacherSubjects";
-import { createClassFeed, getClassFeed } from "../../services/feed";
+import {
+  createClassFeed,
+  getClassFeed,
+  markFeedNotificationsRead,
+} from "../../services/feed";
+import { emitFeedUnreadRefresh } from "../../composables/useFeedUnreadCount";
 import type { TeacherSubjectClass } from "../../types/teacherSubjects";
 import type { FeedClassHeader, FeedPost } from "../../types/feed";
 import { useAuthStore } from "../../stores/auth";
@@ -138,6 +143,7 @@ async function loadFeed() {
     const response = await getClassFeed(selectedClassId.value);
     classHeader.value = response.class;
     posts.value = response.data.data ?? [];
+    void markCurrentFeedRead();
   } catch (error) {
     posts.value = [];
     classHeader.value = null;
@@ -200,6 +206,15 @@ onMounted(async () => {
   await loadClasses();
   await loadFeed();
 });
+
+async function markCurrentFeedRead() {
+  try {
+    await markFeedNotificationsRead();
+    emitFeedUnreadRefresh();
+  } catch {
+    // Feed read marker should not block the feed page.
+  }
+}
 
 function updatePostCommentCount(feedId: string, count: number) {
   posts.value = posts.value.map((post) =>

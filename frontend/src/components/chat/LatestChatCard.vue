@@ -116,7 +116,9 @@ function formatTime(value?: string | null) {
 </script>
 
 <template>
-  <article class="rounded-xl border border-[#ebe7df] bg-white p-4 sm:p-5">
+  <article
+    class="min-w-0 max-w-full overflow-hidden rounded-xl border border-[#ebe7df] bg-white p-4 sm:p-5"
+  >
     <div class="mb-4 flex items-center justify-between gap-3">
       <div class="min-w-0">
         <p class="text-sm font-semibold text-[#171322]">Chat terbaru</p>
@@ -151,27 +153,27 @@ function formatTime(value?: string | null) {
       </p>
     </div>
 
-    <div v-else-if="visibleRooms.length > 0" class="space-y-2">
+    <div v-else-if="visibleRooms.length > 0" class="min-w-0 space-y-2">
       <RouterLink
         v-for="room in visibleRooms"
         :key="room.roomId"
         :to="to"
-        class="flex min-w-0 items-center gap-3 rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-3 transition hover:border-[#c7d2fe] hover:bg-white"
+        class="flex min-w-0 max-w-full overflow-hidden items-center gap-3 rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-3 transition hover:border-[#c7d2fe] hover:bg-white"
       >
         <span
           class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#eef2ff] text-[#4f46e5]"
         >
           <PhChatCircleText :size="18" weight="duotone" />
         </span>
-        <span class="min-w-0 flex-1">
+        <span class="min-w-0 flex-1 overflow-hidden">
           <span
-            class="block truncate text-sm text-[#171322]"
+            class="block max-w-full truncate text-sm text-[#171322]"
             :class="room.unreadCount > 0 ? 'font-bold' : 'font-semibold'"
           >
             {{ roomDisplayName(room) }}
           </span>
           <span
-            class="mt-0.5 block truncate text-xs"
+            class="mt-0.5 block max-w-full overflow-hidden text-xs break-all line-clamp-2"
             :class="
               room.unreadCount > 0
                 ? 'font-semibold text-[#3f3a4a]'
@@ -181,7 +183,7 @@ function formatTime(value?: string | null) {
             {{ roomPreview(room) }}
           </span>
         </span>
-        <span class="flex shrink-0 flex-col items-end gap-1">
+        <span class="flex w-10 shrink-0 flex-col items-end gap-1">
           <span class="text-[11px] text-[#9ca3af]">
             {{ formatTime(room.lastMessageAt) }}
           </span>

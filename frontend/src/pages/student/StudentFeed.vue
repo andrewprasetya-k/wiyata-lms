@@ -10,7 +10,8 @@ import {
 } from "@phosphor-icons/vue";
 import AttachmentPreviewList from "../../components/common/AttachmentPreviewList.vue";
 import FeedComments from "../../components/feed/FeedComments.vue";
-import { getClassFeed } from "../../services/feed";
+import { getClassFeed, markFeedNotificationsRead } from "../../services/feed";
+import { emitFeedUnreadRefresh } from "../../composables/useFeedUnreadCount";
 import { useActiveClassStore } from "../../stores/activeClass";
 import { useAuthStore } from "../../stores/auth";
 import type { FeedClassHeader, FeedPost } from "../../types/feed";
@@ -60,6 +61,7 @@ async function loadContext() {
     const feed = await getClassFeed(activeClassStore.activeClassId);
     classHeader.value = feed.class;
     posts.value = feed.data.data || [];
+    void markCurrentFeedRead();
   } catch {
     errorMessage.value =
       "Feed kelas belum bisa dimuat. Periksa koneksi atau coba lagi nanti.";
@@ -69,6 +71,15 @@ async function loadContext() {
 }
 
 onMounted(loadContext);
+
+async function markCurrentFeedRead() {
+  try {
+    await markFeedNotificationsRead();
+    emitFeedUnreadRefresh();
+  } catch {
+    // Feed read marker should not block the feed page.
+  }
+}
 
 function updatePostCommentCount(feedId: string, count: number) {
   posts.value = posts.value.map((post) =>

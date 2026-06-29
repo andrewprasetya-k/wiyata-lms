@@ -5,6 +5,7 @@ import type {
   CreateFeedPayload,
   FeedComment,
 } from '../types/feed'
+import type { UnreadCountResponse } from '../types/dashboard'
 
 export async function getClassFeed(classId: string) {
   const { data } = await api.get<ClassFeedResponse>(`/feeds/class/${classId}`, {
@@ -37,5 +38,15 @@ export async function createFeedComment(feedId: string, content: string) {
 
 export async function deleteFeedComment(commentId: string) {
   const { data } = await api.delete<{ message: string }>(`/comments/${commentId}`)
+  return data
+}
+
+export async function getFeedUnreadCount() {
+  const { data } = await api.get<UnreadCountResponse>('/feeds/unread-count')
+  return data
+}
+
+export async function markFeedNotificationsRead() {
+  const { data } = await api.patch<{ message: string }>('/feeds/read')
   return data
 }
