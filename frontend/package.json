@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource-variable/plus-jakarta-sans": "^5.2.8",
     "@phosphor-icons/vue": "^2.2.1",
     "@tailwindcss/vite": "^4.3.0",
     "axios": "^1.16.1",
