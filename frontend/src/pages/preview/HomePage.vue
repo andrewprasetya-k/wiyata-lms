@@ -126,7 +126,7 @@ const mainRoles = [
       "Materi, tugas, pengumpulan, penilaian, dan pengumuman tersusun dalam satu workspace — proses mengajar lebih mudah dipantau.",
     points: [
       "Kelola materi & tugas per kelas",
-      "Tinjau pengumpulan & beri nilai",
+      "Nilai pengumpulan tugas & berikan umpan balik",
       "Pengumuman kelas terintegrasi",
     ],
   },
@@ -141,16 +141,6 @@ const mainRoles = [
       "Atur penugasan guru ke mata pelajaran",
       "Manajemen warga sekolah",
     ],
-  },
-];
-
-const adminRoles = [
-  {
-    anchor: "super-admin",
-    eyebrow: "Super Admin",
-    title: "Mengelola struktur platform dari lapisan teratas",
-    description:
-      "Sekolah dan akun global bisa diatur dari lapisan platform tanpa harus ikut masuk ke operasional akademik harian masing-masing sekolah.",
   },
 ];
 
@@ -177,7 +167,7 @@ const screenshotSlots = [
   <main class="overflow-x-hidden bg-[#fbfaf8] text-[#171322]">
     <!-- ───────────── NAVBAR ───────────── -->
     <header
-      class="sticky top-0 z-50 border-b border-[#e7e2da]/70 bg-[#fbfaf8]/95 backdrop-blur-md"
+      class="fixed left-0 right-0 w-full top-0 z-50 bg-[#fbfaf8]/50 backdrop-blur-xl backdrop-saturate-150 transition-colors duration-300"
     >
       <div
         class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8"
@@ -280,11 +270,9 @@ const screenshotSlots = [
 
       <!-- Sub-headline -->
       <p class="mt-6 max-w-2xl text-lg leading-8 text-[#6b7280]">
-        Kelola materi, tugas, penilaian, komunikasi, dan aktivitas kelas dalam
-        workspace yang rapi dan terhubung — untuk siswa, guru, dan admin
-        sekolah.
+        Kelola materi, tugas, komunikasi, dan penilaian dalam satu workspace
+        bagi murid, guru, dan sekolah.
       </p>
-
       <!-- CTAs -->
       <div
         class="mt-9 flex flex-col items-start gap-3 sm:flex-row sm:items-center"
@@ -328,7 +316,7 @@ const screenshotSlots = [
 
           <!-- Placeholder content area -->
           <div
-            class="flex aspect-[16/9] w-full flex-col items-center justify-center gap-4 bg-[#f8f7f4] px-8 text-center"
+            class="flex aspect-video w-full flex-col items-center justify-center gap-4 bg-[#f8f7f4] px-8 text-center"
             style="min-height: 380px"
           >
             <div
@@ -406,7 +394,7 @@ const screenshotSlots = [
               >
                 <PhCheckCircle
                   :size="16"
-                  class="mt-0.5 flex-shrink-0 text-[#4f46e5]"
+                  class="mt-0.5 shrink-0 text-[#4f46e5]"
                 />
                 {{ point }}
               </li>
@@ -459,34 +447,10 @@ const screenshotSlots = [
                 :key="point"
                 class="flex items-start gap-2 text-sm text-[#6b7280]"
               >
-                <PhDot :size="16" class="mt-1 flex-shrink-0 text-[#4f46e5]" />
+                <PhDot :size="16" class="mt-1 shrink-0 text-[#4f46e5]" />
                 {{ point }}
               </li>
             </ul>
-          </article>
-        </div>
-
-        <!-- Admin + Super Admin — horizontal card below -->
-        <div
-          class="mt-px grid gap-px border-x border-b border-[#e7e2da] bg-[#e7e2da] sm:grid-cols-2"
-        >
-          <article
-            v-for="role in adminRoles"
-            :key="role.title"
-            :id="role.anchor"
-            class="bg-white px-8 py-8"
-          >
-            <p
-              class="text-xs font-semibold uppercase tracking-widest text-[#6b7280]"
-            >
-              {{ role.eyebrow }}
-            </p>
-            <h3 class="mt-3 text-lg font-semibold text-[#171322]">
-              {{ role.title }}
-            </h3>
-            <p class="mt-2.5 text-sm leading-7 text-[#6b7280]">
-              {{ role.description }}
-            </p>
           </article>
         </div>
       </div>
@@ -566,7 +530,7 @@ const screenshotSlots = [
           <div
             v-for="slot in screenshotSlots"
             :key="slot.label"
-            class="flex aspect-[4/3] flex-col items-center justify-center gap-3 rounded-xl border border-[#e7e2da] bg-white text-center"
+            class="flex aspect-4/3 flex-col items-center justify-center gap-3 rounded-xl border border-[#e7e2da] bg-white text-center"
           >
             <component :is="slot.icon" :size="22" class="text-[#d1cde5]" />
             <div>
