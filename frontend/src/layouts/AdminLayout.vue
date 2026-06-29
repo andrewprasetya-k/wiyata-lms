@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import {
   PhBookOpen,
   PhCalendarBlank,
@@ -8,9 +9,14 @@ import {
   PhStudent,
   PhUsers,
 } from "@phosphor-icons/vue";
+import { useRoute } from "vue-router";
 import Sidebar from "../components/layout/Sidebar.vue";
+import { useChatUnreadCount } from "../composables/useChatUnreadCount";
 
-const items = [
+const route = useRoute();
+const { unreadCount, badgeLabel } = useChatUnreadCount();
+
+const items = computed(() => [
   { label: "Dashboard", icon: PhHouse, to: "/admin/dashboard" },
   {
     label: "Struktur Akademik",
@@ -25,8 +31,16 @@ const items = [
     icon: PhChalkboardTeacher,
     to: "/admin/subject-classes",
   },
-  { label: "Chat", icon: PhChatCircle, to: "/admin/chat" },
-];
+  {
+    label: "Chat",
+    icon: PhChatCircle,
+    to: "/admin/chat",
+    badgeCount: unreadCount.value,
+    badgeLabel: badgeLabel.value,
+    badgeAriaLabel: `${unreadCount.value} chat belum dibaca`,
+    emphasized: unreadCount.value > 0 && !route.path.startsWith("/admin/chat"),
+  },
+]);
 </script>
 
 <template>
@@ -34,7 +48,7 @@ const items = [
     <div class="mx-auto flex min-h-screen max-w-360">
       <Sidebar
         class="sticky top-0 h-screen shrink-0"
-        label="Admin navigation"
+        label="Navigasi admin sekolah"
         :items="items"
         profile-to="/admin/profile"
       />

@@ -42,7 +42,13 @@ function isActive(to: string) {
         :key="item.label"
         :title="item.label"
         class="relative flex h-10 w-10 items-center justify-center rounded-xl text-[#a3a1aa] transition hover:bg-[#f3f1ec] hover:text-[#3f3a4a]"
-        :class="isActive(item.to) ? 'bg-[#eef2ff] text-[#4f46e5]' : ''"
+        :class="
+          isActive(item.to)
+            ? 'bg-[#eef2ff] text-[#4f46e5]'
+            : item.emphasized
+              ? 'font-semibold text-[#575269]'
+              : ''
+        "
         :to="item.to"
       >
         <component :is="item.icon" :size="20" weight="regular" />
@@ -50,6 +56,26 @@ function isActive(to: string) {
           v-if="item.hasDot"
           class="absolute right-2 top-2 h-1.5 w-1.5 rounded-full border border-white bg-[#4f46e5]"
         />
+        <Transition
+          enter-active-class="transition duration-200 ease-out"
+          enter-from-class="scale-95 opacity-0"
+          enter-to-class="scale-100 opacity-100"
+          leave-active-class="transition duration-150 ease-out"
+          leave-from-class="scale-100 opacity-100"
+          leave-to-class="scale-95 opacity-0"
+          mode="out-in"
+        >
+          <span
+            v-if="item.badgeCount"
+            :key="item.badgeLabel || String(item.badgeCount)"
+            class="absolute -right-2 top-0 inline-flex min-w-[1.1rem] items-center justify-center rounded-full bg-[#4f46e5] px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white shadow-sm"
+            :aria-label="
+              item.badgeAriaLabel || `${item.badgeCount} chat belum dibaca`
+            "
+          >
+            {{ item.badgeLabel || item.badgeCount }}
+          </span>
+        </Transition>
       </RouterLink>
     </nav>
 

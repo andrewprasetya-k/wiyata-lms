@@ -83,6 +83,7 @@ const accessError = ref("");
 const threadError = ref("");
 const composerError = ref("");
 const messagesEl = ref<HTMLElement | null>(null);
+const roomListEl = ref<HTMLElement | null>(null);
 const fileInputEl = ref<HTMLInputElement | null>(null);
 const isLightboxOpen = ref(false);
 const lightboxImage = ref<{ url: string; name: string } | null>(null);
@@ -125,6 +126,7 @@ const maxChatAttachments = 5;
 const maxChatAttachmentSizeMb = 10;
 const authStore = useAuthStore();
 const socketStatus = ref<ChatSocketStatus>("disconnected");
+const showJumpToLatest = ref(false);
 
 const selectedRoomName = computed(() => roomDisplayName(selectedRoom.value));
 const selectedSchoolName = computed(
@@ -228,6 +230,7 @@ async function loadLatestMessages() {
   if (!selectedRoom.value) return;
   isLoadingMessages.value = true;
   threadError.value = "";
+  showJumpToLatest.value = false;
   try {
     const response = await getMessages(selectedRoom.value.roomId, {
       limit: 50,
@@ -248,6 +251,7 @@ async function loadLatestMessages() {
 
 async function refreshMessages(options: { silent?: boolean } = {}) {
   if (!selectedRoom.value) return;
+  const wasNearBottom = isNearBottom();
   if (!options.silent) {
     isRefreshing.value = true;
   }
@@ -256,15 +260,17 @@ async function refreshMessages(options: { silent?: boolean } = {}) {
       limit: 50,
     });
     const previousLastId = lastMessage(messages.value)?.messageId;
+    const latestMessageId = lastMessage(response.messages)?.messageId;
     messages.value = dedupeMessages(response.messages);
     nextBefore.value = response.nextBefore ?? null;
     hasMore.value = response.hasMore;
     await refreshRooms();
     if (
-      lastMessage(messages.value)?.messageId !== previousLastId ||
-      (selectedRoom.value?.unreadCount ?? 0) > 0
+      wasNearBottom &&
+      (lastMessage(messages.value)?.messageId !== previousLastId ||
+        (selectedRoom.value?.unreadCount ?? 0) > 0)
     ) {
-      await markSelectedRoomRead();
+      await markSelectedRoomRead(latestMessageId);
     }
     await refreshReadSummary();
     await nextTick();
@@ -272,7 +278,11 @@ async function refreshMessages(options: { silent?: boolean } = {}) {
       !previousLastId ||
       lastMessage(messages.value)?.messageId !== previousLastId
     ) {
-      scrollToBottom();
+      if (wasNearBottom) {
+        scrollToBottom();
+      } else {
+        showJumpToLatest.value = true;
+      }
     }
   } catch (error) {
     if (!options.silent) {
@@ -306,6 +316,7 @@ async function handleVisibilityChange() {
 }
 
 async function refreshRooms() {
+  const previousScrollTop = roomListEl.value?.scrollTop ?? 0;
   try {
     const latestRooms = await getChatRooms(roomSearch.value.trim());
     rooms.value = latestRooms;
@@ -314,6 +325,10 @@ async function refreshRooms() {
         latestRooms.find(
           (room) => room.roomId === selectedRoom.value?.roomId,
         ) ?? selectedRoom.value;
+    }
+    await nextTick();
+    if (roomListEl.value) {
+      roomListEl.value.scrollTop = previousScrollTop;
     }
   } catch {
     // Room summary refresh is non-critical for the thread.
@@ -835,13 +850,22 @@ async function handleNewMessageEvent(event: NewMessageEvent) {
   if (!message?.messageId) return;
 
   if (selectedRoom.value?.roomId === event.roomId) {
+    const wasNearBottom = isNearBottom();
     messages.value = dedupeMessages([...messages.value, message]);
-    if (!message.isMine && document.visibilityState === "visible") {
+    if (
+      !message.isMine &&
+      document.visibilityState === "visible" &&
+      wasNearBottom
+    ) {
       await markSelectedRoomRead(message.messageId);
     }
     await refreshReadSummary();
     await nextTick();
-    scrollToBottom();
+    if (message.isMine || wasNearBottom) {
+      scrollToBottom();
+    } else {
+      showJumpToLatest.value = true;
+    }
   }
   scheduleRoomRefresh();
 }
@@ -1025,6 +1049,30 @@ function scrollToBottom() {
   if (messagesEl.value) {
     messagesEl.value.scrollTop = messagesEl.value.scrollHeight;
   }
+  showJumpToLatest.value = false;
+}
+
+function isNearBottom(threshold = 96) {
+  const element = messagesEl.value;
+  if (!element) return true;
+  const remaining =
+    element.scrollHeight - element.scrollTop - element.clientHeight;
+  return remaining <= threshold;
+}
+
+function handleMessageScroll() {
+  if (isNearBottom()) {
+    showJumpToLatest.value = false;
+    if (
+      document.visibilityState === "visible" &&
+      selectedRoom.value &&
+      (selectedRoom.value.unreadCount ?? 0) > 0
+    ) {
+      void markSelectedRoomRead(lastMessage(messages.value)?.messageId);
+      void refreshRooms();
+      void refreshReadSummary();
+    }
+  }
 }
 
 function lastMessage(items: ChatMessage[]) {
@@ -1074,10 +1122,15 @@ function formatDateDivider(value?: string | null) {
   if (!value) return "";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "";
+  const today = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(today.getDate() - 1);
+  if (isSameDay(date.toISOString(), today.toISOString())) return "Hari Ini";
+  if (isSameDay(date.toISOString(), yesterday.toISOString())) return "Kemarin";
   return new Intl.DateTimeFormat("id-ID", {
-    day: "2-digit",
+    weekday: "long",
+    day: "numeric",
     month: "long",
-    year: "numeric",
   }).format(date);
 }
 
@@ -1499,6 +1552,7 @@ function formatDateTime(value?: string | null) {
           class="grid h-[calc(100vh-1.5rem)] min-h-155 flex-1 overflow-hidden rounded-xl bg-white lg:grid-cols-[300px_minmax(0,1fr)]"
         >
           <aside
+            ref="roomListEl"
             class="min-w-0 overflow-y-auto border-[#ebe7df] bg-[#fbfaf8] lg:border-r"
           >
             <div class="border-b border-[#ebe7df] bg-white px-4 py-4 sm:px-5">
@@ -1547,8 +1601,8 @@ function formatDateTime(value?: string | null) {
               >
                 Sekolah
               </p>
-              <button
-                v-for="room in schoolRooms"
+                <button
+                  v-for="room in schoolRooms"
                 :key="room.roomId"
                 type="button"
                 class="flex w-full min-w-0 items-center gap-3 rounded-lg border px-3 py-3 text-left transition hover:bg-white"
@@ -1596,6 +1650,7 @@ function formatDateTime(value?: string | null) {
                   <span
                     v-if="room.unreadCount > 0"
                     class="rounded-full bg-[#4f46e5] px-2 py-0.5 text-[11px] font-semibold text-white"
+                    :aria-label="`${room.unreadCount} pesan belum dibaca`"
                   >
                     {{ room.unreadCount }}
                   </span>
@@ -1656,6 +1711,7 @@ function formatDateTime(value?: string | null) {
                   <span
                     v-if="room.unreadCount > 0"
                     class="rounded-full bg-[#4f46e5] px-2 py-0.5 text-[11px] font-semibold text-white"
+                    :aria-label="`${room.unreadCount} pesan belum dibaca`"
                   >
                     {{ room.unreadCount }}
                   </span>
@@ -1723,6 +1779,7 @@ function formatDateTime(value?: string | null) {
                   <span
                     v-if="room.unreadCount > 0"
                     class="rounded-full bg-[#4f46e5] px-2 py-0.5 text-[11px] font-semibold text-white"
+                    :aria-label="`${room.unreadCount} pesan belum dibaca`"
                   >
                     {{ room.unreadCount }}
                   </span>
@@ -1742,10 +1799,10 @@ function formatDateTime(value?: string | null) {
               >
                 <PhChatCircleText class="mx-auto h-8 w-8 text-[#b5aa9c]" />
                 <p class="mt-3 text-sm font-semibold text-[#171322]">
-                  Ruang belum tersedia
+                  Belum ada percakapan.
                 </p>
                 <p class="mt-1 text-xs text-[#6b7280]">
-                  Buka ulang halaman untuk membuat ruang sekolah.
+                  Mulai percakapan melalui ruang sekolah, grup, atau pesan langsung.
                 </p>
               </div>
             </div>
@@ -1815,6 +1872,7 @@ function formatDateTime(value?: string | null) {
             <div
               ref="messagesEl"
               class="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-5"
+              @scroll="handleMessageScroll"
             >
               <div class="ml-auto mr-auto flex max-w-screen flex-col gap-3">
                 <button
@@ -2084,6 +2142,21 @@ function formatDateTime(value?: string | null) {
                   </template>
                 </template>
               </div>
+            </div>
+
+            <div
+              v-if="showJumpToLatest"
+              class="pointer-events-none absolute bottom-24 right-5 z-10 sm:right-6"
+            >
+              <button
+                type="button"
+                class="pointer-events-auto inline-flex items-center gap-2 rounded-full border border-[#d7d1ff] bg-white px-3 py-2 text-xs font-semibold text-[#4f46e5] shadow-sm transition hover:border-[#4f46e5] hover:bg-[#eef2ff]"
+                aria-label="Lompat ke pesan terbaru"
+                @click="scrollToBottom"
+              >
+                <span class="text-sm leading-none">↓</span>
+                Pesan baru
+              </button>
             </div>
 
             <form

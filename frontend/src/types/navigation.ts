@@ -5,4 +5,8 @@ export interface NavItem {
   to: string
   icon: Component
   hasDot?: boolean
+  badgeCount?: number
+  badgeLabel?: string
+  badgeAriaLabel?: string
+  emphasized?: boolean
 }
