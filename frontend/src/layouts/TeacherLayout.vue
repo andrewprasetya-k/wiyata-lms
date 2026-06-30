@@ -3,6 +3,7 @@ import { computed } from "vue";
 import {
   PhBookOpen,
   PhCalendarBlank,
+  PhCalendarCheck,
   PhChatCircle,
   PhHouse,
   PhMegaphone,
@@ -23,6 +24,7 @@ const items = computed(() => [
   { label: "Mata Pelajaran", icon: PhBookOpen, to: "/teacher/subjects" },
   { label: "Tugas", icon: PhCalendarBlank, to: "/teacher/assignments" },
   { label: "Pengumpulan", icon: PhTray, to: "/teacher/submissions" },
+  { label: "Aktivitas", icon: PhCalendarCheck, to: "/teacher/activity" },
   {
     label: "Feed",
     icon: PhMegaphone,

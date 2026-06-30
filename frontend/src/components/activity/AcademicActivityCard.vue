@@ -49,6 +49,10 @@ const emptyMessage = computed(() =>
     : "Tidak ada aktivitas akademik hari ini.",
 );
 
+const activityRoute = computed(() =>
+  props.role === "teacher" ? "/teacher/activity" : "/student/activity",
+);
+
 function priorityWeight(priority?: string | null) {
   return priority === "high" ? 1 : 0;
 }
@@ -155,15 +159,14 @@ function isInternalLink(link?: string | null) {
           {{ subtitle }}
         </p>
       </div>
-      <button
-        class="inline-flex shrink-0 cursor-not-allowed items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-[#a09aa8]"
-        type="button"
-        disabled
-        aria-label="Halaman semua aktivitas belum tersedia"
+      <RouterLink
+        :to="activityRoute"
+        class="inline-flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-[#4f46e5] transition hover:bg-[#eef2ff] hover:text-[#4338ca] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5] focus-visible:ring-offset-2"
+        aria-label="Lihat semua aktivitas akademik"
       >
         Lihat semua aktivitas
         <PhArrowRight :size="14" />
-      </button>
+      </RouterLink>
     </div>
 
     <div v-if="loading" class="space-y-3" aria-label="Memuat aktivitas">

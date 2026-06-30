@@ -2,6 +2,7 @@
 import { computed } from "vue";
 import {
   PhCalendarBlank,
+  PhCalendarCheck,
   PhBookOpen,
   PhChartBar,
   PhChatCircle,
@@ -32,6 +33,7 @@ const items = computed(() => [
     emphasized: feedUnreadCount.value > 0 && !route.path.startsWith("/student/feed"),
   },
   { label: "Tugas", icon: PhCalendarBlank, to: "/student/assignments" },
+  { label: "Aktivitas", icon: PhCalendarCheck, to: "/student/activity" },
   { label: "Nilai", icon: PhChartBar, to: "/student/grades" },
   {
     label: "Chat",

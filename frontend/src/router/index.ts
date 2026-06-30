@@ -19,9 +19,11 @@ import StudentNotes from "../pages/student/StudentNotes.vue";
 import StudentSubjects from "../pages/student/StudentSubjects.vue";
 import StudentGrades from "../pages/student/StudentGrades.vue";
 import StudentChat from "../pages/student/StudentChat.vue";
+import StudentActivity from "../pages/student/StudentActivity.vue";
 import TeacherDashboard from "../pages/teacher/TeacherDashboard.vue";
 import TeacherSubjectDetail from "../pages/teacher/TeacherSubjectDetail.vue";
 import TeacherSubjects from "../pages/teacher/TeacherSubjects.vue";
+import TeacherActivity from "../pages/teacher/TeacherActivity.vue";
 import AdminDashboard from "../pages/admin/AdminDashboard.vue";
 import AdminAcademicYears from "../pages/admin/AdminAcademicYears.vue";
 import AdminClasses from "../pages/admin/AdminClasses.vue";
@@ -136,6 +138,12 @@ const router = createRouter({
           name: "student-feed",
           component: StudentFeed,
           meta: { title: "Feed Kelas" },
+        },
+        {
+          path: "activity",
+          name: "student-activity",
+          component: StudentActivity,
+          meta: { title: "Aktivitas Akademik" },
         },
         {
           path: "assignments",
@@ -255,6 +263,12 @@ const router = createRouter({
           name: "teacher-feed",
           component: TeacherFeed,
           meta: { title: "Feed Kelas" },
+        },
+        {
+          path: "activity",
+          name: "teacher-activity",
+          component: TeacherActivity,
+          meta: { title: "Aktivitas Akademik" },
         },
         {
           path: "chat",
