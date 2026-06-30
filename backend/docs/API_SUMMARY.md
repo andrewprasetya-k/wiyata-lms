@@ -306,6 +306,12 @@ Most list endpoints support:
 - **Student Material Notes**: Note deletion is an intentional hard delete for the material-only MVP
 - **Upsert Logic**: Submissions and assessments auto-update if already exist
 
+### Timestamp Policy
+
+- Current schema uses `timestamp without time zone` for most business timestamps.
+- MVP write policy: backend-generated business timestamps are written as Asia/Jakarta local wall-clock time.
+- Future production policy should migrate to `timestamptz`/UTC with an explicit historical data conversion plan.
+
 ### File Handling
 
 - **Multipart Upload**: Direct file upload with auto-detection

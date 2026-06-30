@@ -4,9 +4,9 @@ import (
 	"backend/internal/domain"
 	"backend/internal/dto"
 	"backend/internal/repository"
+	"backend/internal/utils"
 	"errors"
 	"fmt"
-	"time"
 
 	"gorm.io/gorm"
 )
@@ -237,7 +237,7 @@ func (s *assignmentService) GetTeacherAssignmentInbox(userID string, schoolID st
 		Items: items,
 	}
 	response.Summary.TotalAssignments = len(items)
-	now := time.Now()
+	now := utils.NowJakarta()
 	for _, item := range items {
 		if item.Deadline != nil && item.Deadline.Before(now) {
 			response.Summary.OverdueAssignments++
@@ -369,7 +369,7 @@ func (s *assignmentService) DeleteAssignment(id string) error {
 }
 
 func (s *assignmentService) Submit(sbm *domain.Submission, mediaIDs []string, actorUserID string, isAdmin bool) error {
-	sbm.SubmittedAt = time.Now()
+	sbm.SubmittedAt = utils.NowJakarta()
 
 	// Check deadline before submitting
 	assignment, err := s.repo.GetAssignmentByID(sbm.AssignmentID)
@@ -474,7 +474,7 @@ func (s *assignmentService) UpdateSubmission(id string, mediaIDs []string, actor
 		}
 	}
 
-	sbm.SubmittedAt = time.Now()
+	sbm.SubmittedAt = utils.NowJakarta()
 	err = s.repo.UpdateSubmission(sbm)
 	if err != nil {
 		return err

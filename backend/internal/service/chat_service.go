@@ -4,6 +4,7 @@ import (
 	"backend/internal/domain"
 	"backend/internal/dto"
 	"backend/internal/repository"
+	"backend/internal/utils"
 	"errors"
 	"fmt"
 	"strings"
@@ -152,6 +153,7 @@ func (s *chatService) OpenSchoolRoom(userID string, schoolID string) (*dto.ChatR
 			RefType:   chatRefTypeSchool,
 			RefID:     schoolID,
 			CreatedBy: userID,
+			CreatedAt: utils.NowJakarta(),
 		}
 		if err := s.repo.CreateSchoolRoom(room); err != nil {
 			return nil, err
@@ -451,10 +453,11 @@ func (s *chatService) CreateMessage(userID string, schoolID string, roomID strin
 		messageType = chatMessageTypeFile
 	}
 	message := domain.ChatMessage{
-		RoomID:  roomID,
-		UserID:  userID,
-		Content: content,
-		Type:    messageType,
+		RoomID:    roomID,
+		UserID:    userID,
+		Content:   content,
+		Type:      messageType,
+		CreatedAt: utils.NowJakarta(),
 	}
 	if err := s.repo.CreateMessageWithAttachments(&message, attachmentMediaIDs); err != nil {
 		return nil, err

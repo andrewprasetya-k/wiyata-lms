@@ -2,6 +2,7 @@ package repository
 
 import (
 	"backend/internal/domain"
+	"backend/internal/utils"
 	"fmt"
 	"time"
 
@@ -304,6 +305,7 @@ func (r *chatRepository) FindDirectMessageRoom(schoolID string, userID string, t
 func (r *chatRepository) CreateDirectMessageRoom(schoolID string, creatorID string, targetUserID string) (*ChatRoomRow, error) {
 	var created domain.ChatRoom
 	err := r.db.Transaction(func(tx *gorm.DB) error {
+		now := utils.NowJakarta()
 		var existing ChatRoomRow
 		if err := tx.Raw(chatRoomListSelect()+`
 			WHERE cr.room_sch_id = ?
@@ -343,16 +345,16 @@ func (r *chatRepository) CreateDirectMessageRoom(schoolID string, creatorID stri
 		}
 
 		if err := tx.Raw(`
-			INSERT INTO edv.chat_rooms (room_sch_id, room_name, room_type, room_ref_type, room_ref_id, created_by)
-			VALUES (?, '', 'dm', NULL, NULL, ?)
+			INSERT INTO edv.chat_rooms (room_sch_id, room_name, room_type, room_ref_type, room_ref_id, created_by, created_at)
+			VALUES (?, '', 'dm', NULL, NULL, ?, ?)
 			RETURNING room_id, room_sch_id, room_name, room_type, created_by, created_at
-		`, schoolID, creatorID).Scan(&created).Error; err != nil {
+		`, schoolID, creatorID, now).Scan(&created).Error; err != nil {
 			return err
 		}
 
 		members := []domain.ChatRoomMember{
-			{RoomID: created.ID, UserID: creatorID, Role: "member"},
-			{RoomID: created.ID, UserID: targetUserID, Role: "member"},
+			{RoomID: created.ID, UserID: creatorID, Role: "member", JoinedAt: now},
+			{RoomID: created.ID, UserID: targetUserID, Role: "member", JoinedAt: now},
 		}
 		return tx.Clauses(clause.OnConflict{
 			Columns:   []clause.Column{{Name: "crm_room_id"}, {Name: "crm_usr_id"}},
@@ -497,11 +499,12 @@ func (r *chatRepository) UserIsRoomAdmin(userID string, roomID string) (bool, er
 func (r *chatRepository) CreateGroupRoomWithMembers(schoolID string, roomName string, creatorID string, memberUserIDs []string) (*domain.ChatRoom, error) {
 	var created domain.ChatRoom
 	err := r.db.Transaction(func(tx *gorm.DB) error {
+		now := utils.NowJakarta()
 		if err := tx.Raw(`
-			INSERT INTO edv.chat_rooms (room_sch_id, room_name, room_type, room_ref_type, room_ref_id, created_by)
-			VALUES (?, ?, 'group', NULL, NULL, ?)
+			INSERT INTO edv.chat_rooms (room_sch_id, room_name, room_type, room_ref_type, room_ref_id, created_by, created_at)
+			VALUES (?, ?, 'group', NULL, NULL, ?, ?)
 			RETURNING room_id, room_sch_id, room_name, room_type, created_by, created_at
-		`, schoolID, roomName, creatorID).Scan(&created).Error; err != nil {
+		`, schoolID, roomName, creatorID, now).Scan(&created).Error; err != nil {
 			return err
 		}
 
@@ -512,9 +515,10 @@ func (r *chatRepository) CreateGroupRoomWithMembers(schoolID string, roomName st
 				role = "admin"
 			}
 			members = append(members, domain.ChatRoomMember{
-				RoomID: created.ID,
-				UserID: memberID,
-				Role:   role,
+				RoomID:   created.ID,
+				UserID:   memberID,
+				Role:     role,
+				JoinedAt: now,
 			})
 		}
 		if len(members) == 0 {
@@ -552,7 +556,7 @@ func (r *chatRepository) UpdateGroupRoomName(roomID string, schoolID string, roo
 }
 
 func (r *chatRepository) LeaveGroupRoom(roomID string, schoolID string, userID string) error {
-	now := time.Now()
+	now := utils.NowJakarta()
 	return r.db.Transaction(func(tx *gorm.DB) error {
 		var room struct {
 			RoomID    string `gorm:"column:room_id"`
@@ -607,7 +611,7 @@ func (r *chatRepository) LeaveGroupRoom(roomID string, schoolID string, userID s
 }
 
 func (r *chatRepository) AddGroupRoomMembers(roomID string, schoolID string, memberUserIDs []string) error {
-	now := time.Now()
+	now := utils.NowJakarta()
 	return r.db.Transaction(func(tx *gorm.DB) error {
 		var roomIDFound string
 		if err := tx.Raw(`
@@ -670,7 +674,7 @@ func (r *chatRepository) AddGroupRoomMembers(roomID string, schoolID string, mem
 }
 
 func (r *chatRepository) RemoveGroupRoomMember(roomID string, schoolID string, targetUserID string) error {
-	now := time.Now()
+	now := utils.NowJakarta()
 	return r.db.Transaction(func(tx *gorm.DB) error {
 		var room struct {
 			RoomID    string `gorm:"column:room_id"`
@@ -864,10 +868,12 @@ func (r *chatRepository) CreateMessageWithAttachments(message *domain.ChatMessag
 		if err := tx.Create(message).Error; err != nil {
 			return err
 		}
+		now := utils.NowJakarta()
 		for _, mediaID := range mediaIDs {
 			attachment := domain.ChatAttachment{
 				MessageID: message.ID,
 				MediaID:   mediaID,
+				CreatedAt: now,
 			}
 			if err := tx.Create(&attachment).Error; err != nil {
 				return err
@@ -952,7 +958,7 @@ func (r *chatRepository) ListMessageAttachments(messageIDs []string) (map[string
 }
 
 func (r *chatRepository) UpsertReadReceipt(roomID string, userID string, messageID *string) error {
-	now := time.Now()
+	now := utils.NowJakarta()
 	receipt := domain.ChatReadReceipt{
 		RoomID:            roomID,
 		UserID:            userID,
