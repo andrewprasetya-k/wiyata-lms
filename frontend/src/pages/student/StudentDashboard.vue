@@ -21,14 +21,17 @@ import {
   markAllNotificationsAsRead,
   markNotificationAsRead,
 } from "../../services/studentDashboard";
+import { getAcademicActivities } from "../../services/activity";
 import type { SubjectClassItem } from "../../types/classWorkspace";
 import type { FeedPost } from "../../types/feed";
 import type { NotificationItem } from "../../types/dashboard";
 import type { StudentAssignmentInboxItem } from "../../types/assignment";
+import type { AcademicActivityItem } from "../../types/activity";
 import { formatDate, formatDateTime } from "../../utils/date";
 import { getSubjectColor, resolveSubjectColor } from "../../utils/color";
 import { useToastStore } from "../../stores/toast";
 import LatestChatCard from "../../components/chat/LatestChatCard.vue";
+import AcademicActivityCard from "../../components/activity/AcademicActivityCard.vue";
 
 const auth = useAuthStore();
 const activeClassStore = useActiveClassStore();
@@ -43,6 +46,9 @@ const unreadCount = ref(0);
 const isLoading = ref(true);
 const assignmentsLoading = ref(false);
 const assignmentsError = ref("");
+const activities = ref<AcademicActivityItem[]>([]);
+const activitiesLoading = ref(false);
+const activitiesError = ref("");
 const markingNotificationIds = ref<Set<string>>(new Set());
 const markingAllNotifications = ref(false);
 const errorMessage = ref("");
@@ -139,6 +145,21 @@ async function loadAssignmentPreview() {
     assignmentsError.value = "Preview tugas belum bisa dimuat.";
   } finally {
     assignmentsLoading.value = false;
+  }
+}
+
+async function loadActivities() {
+  activitiesLoading.value = true;
+  activitiesError.value = "";
+
+  try {
+    const response = await getAcademicActivities();
+    activities.value = response.items ?? [];
+  } catch {
+    activities.value = [];
+    activitiesError.value = "Aktivitas akademik belum bisa dimuat.";
+  } finally {
+    activitiesLoading.value = false;
   }
 }
 
@@ -330,7 +351,10 @@ async function markAllNotificationsRead() {
   }
 }
 
-onMounted(loadDashboard);
+onMounted(() => {
+  loadDashboard();
+  loadActivities();
+});
 </script>
 
 <template>
@@ -371,6 +395,14 @@ onMounted(loadDashboard);
       </header>
 
       <div class="space-y-5 px-5 py-5 sm:px-6 lg:px-8 lg:py-6">
+        <AcademicActivityCard
+          :activities="activities"
+          :loading="activitiesLoading"
+          :error="activitiesError"
+          role="student"
+          :max-items="5"
+        />
+
         <section
           v-if="errorMessage"
           class="rounded-xl border border-[#f1d6d3] bg-white p-5 sm:p-6"

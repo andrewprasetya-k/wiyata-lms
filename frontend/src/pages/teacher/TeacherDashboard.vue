@@ -12,16 +12,22 @@ import {
 } from "@phosphor-icons/vue";
 import { useAuthStore } from "../../stores/auth";
 import { getTeacherDashboard } from "../../services/teacherDashboard";
+import { getAcademicActivities } from "../../services/activity";
 import type { MembershipInfo } from "../../types/auth";
 import type { TeacherDashboardSummary } from "../../types/teacherDashboard";
+import type { AcademicActivityItem } from "../../types/activity";
 import { resolveSubjectColor } from "../../utils/color";
 import LatestChatCard from "../../components/chat/LatestChatCard.vue";
+import AcademicActivityCard from "../../components/activity/AcademicActivityCard.vue";
 
 const auth = useAuthStore();
 
 const loading = ref(false);
 const errorMessage = ref("");
 const summary = ref<TeacherDashboardSummary | null>(null);
+const activities = ref<AcademicActivityItem[]>([]);
+const activitiesLoading = ref(false);
+const activitiesError = ref("");
 
 const activeMembership = computed<MembershipInfo | undefined>(() => {
   const activeSchoolMembership = auth.memberships.find(
@@ -95,7 +101,25 @@ async function loadDashboard() {
   }
 }
 
-onMounted(loadDashboard);
+async function loadActivities() {
+  activitiesLoading.value = true;
+  activitiesError.value = "";
+
+  try {
+    const response = await getAcademicActivities();
+    activities.value = response.items ?? [];
+  } catch {
+    activities.value = [];
+    activitiesError.value = "Aktivitas mengajar belum bisa dimuat.";
+  } finally {
+    activitiesLoading.value = false;
+  }
+}
+
+onMounted(() => {
+  loadDashboard();
+  loadActivities();
+});
 </script>
 
 <template>
@@ -313,6 +337,14 @@ onMounted(loadDashboard);
           </article>
 
           <aside class="grid min-w-0 gap-3">
+            <AcademicActivityCard
+              :activities="activities"
+              :loading="activitiesLoading"
+              :error="activitiesError"
+              role="teacher"
+              :max-items="5"
+            />
+
             <LatestChatCard to="/teacher/chat" :limit="4" />
 
             <RouterLink
