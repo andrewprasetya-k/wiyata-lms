@@ -16,7 +16,7 @@ import type {
   TeacherAssignmentInboxSummary,
 } from "../../types/teacherAssignment";
 import { resolveSubjectColor } from "../../utils/color";
-import { formatDate } from "../../utils/date";
+import { formatDate, parseBackendTimestamp } from "../../utils/date";
 
 type AssignmentFilter = "all" | "active" | "overdue" | "pending";
 
@@ -123,7 +123,7 @@ function compareAssignments(a: TeacherAssignmentRow, b: TeacherAssignmentRow) {
 
 function getDeadlineTime(deadline?: string | null) {
   if (!deadline) return Number.MAX_SAFE_INTEGER;
-  const value = new Date(deadline).getTime();
+  const value = parseBackendTimestamp(deadline)?.getTime() ?? Number.NaN;
   return Number.isNaN(value) ? Number.MAX_SAFE_INTEGER : value;
 }
 

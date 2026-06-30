@@ -27,7 +27,11 @@ import type { FeedPost } from "../../types/feed";
 import type { NotificationItem } from "../../types/dashboard";
 import type { StudentAssignmentInboxItem } from "../../types/assignment";
 import type { AcademicActivityItem } from "../../types/activity";
-import { formatDate, formatDateTime } from "../../utils/date";
+import {
+  formatDate,
+  formatDateTime,
+  parseBackendTimestamp,
+} from "../../utils/date";
 import { getSubjectColor, resolveSubjectColor } from "../../utils/color";
 import { useToastStore } from "../../stores/toast";
 import LatestChatCard from "../../components/chat/LatestChatCard.vue";
@@ -355,7 +359,7 @@ function compareAssignments(
 
 function getDeadlineTime(deadline?: string | null) {
   if (!deadline) return Number.MAX_SAFE_INTEGER;
-  const value = new Date(deadline).getTime();
+  const value = parseBackendTimestamp(deadline)?.getTime() ?? Number.NaN;
   return Number.isNaN(value) ? Number.MAX_SAFE_INTEGER : value;
 }
 

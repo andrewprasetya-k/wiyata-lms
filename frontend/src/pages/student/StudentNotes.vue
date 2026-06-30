@@ -11,7 +11,7 @@ import {
 } from "@phosphor-icons/vue";
 import { getStudentNotes } from "../../services/studentNotes";
 import type { StudentGlobalMaterialNote } from "../../types/studentNotes";
-import { formatDateTime } from "../../utils/date";
+import { formatDateTime, parseBackendTimestamp } from "../../utils/date";
 import { getSubjectColor } from "../../utils/color";
 
 interface NoteGroup {
@@ -101,7 +101,7 @@ function selectNote(noteId: string) {
 
 function getTime(value?: string | null) {
   if (!value) return 0;
-  const time = new Date(value).getTime();
+  const time = parseBackendTimestamp(value)?.getTime() ?? Number.NaN;
   return Number.isNaN(time) ? 0 : time;
 }
 

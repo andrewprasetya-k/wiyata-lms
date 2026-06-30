@@ -24,6 +24,10 @@ import { deleteMedia } from "../../services/media";
 import MediaUploader from "../../components/common/MediaUploader.vue";
 import type { TeacherSubjectClass } from "../../types/teacherSubjects";
 import type { AssignmentCategory } from "../../types/teacherAssignment";
+import {
+  formatDateInputValue,
+  formatTimeInputValue,
+} from "../../utils/date";
 
 const route = useRoute();
 const router = useRouter();
@@ -160,12 +164,8 @@ async function loadInitialData() {
           form.value.description = asg.assignmentDescription || "";
           form.value.allowLate = asg.allowLateSubmission ?? false;
           if (asg.deadline) {
-            const dateObj = new Date(asg.deadline);
-            form.value.deadlineDate = dateObj.toISOString().split("T")[0];
-            form.value.deadlineTime = dateObj
-              .toISOString()
-              .split("T")[1]
-              .substring(0, 5);
+            form.value.deadlineDate = formatDateInputValue(asg.deadline);
+            form.value.deadlineTime = formatTimeInputValue(asg.deadline);
           }
           if (asg.attachments) {
             existingAttachments.value = asg.attachments.map((a: any) => ({

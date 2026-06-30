@@ -5,6 +5,10 @@ import { PhArrowRight, PhWarningCircle } from "@phosphor-icons/vue";
 import { useAuthStore } from "../../stores/auth";
 import { getChatRooms } from "../../services/chat";
 import type { ChatRoom } from "../../types/chat";
+import {
+  formatTime as formatBackendTime,
+  parseBackendTimestamp,
+} from "../../utils/date";
 
 const props = withDefaults(
   defineProps<{
@@ -32,8 +36,10 @@ const unreadRooms = computed(() =>
   [...rooms.value]
     .filter((room) => room.unreadCount > 0)
     .sort((left, right) => {
-      const leftTime = new Date(left.lastMessageAt || 0).getTime();
-      const rightTime = new Date(right.lastMessageAt || 0).getTime();
+      const leftTime =
+        parseBackendTimestamp(left.lastMessageAt)?.getTime() ?? 0;
+      const rightTime =
+        parseBackendTimestamp(right.lastMessageAt)?.getTime() ?? 0;
       return rightTime - leftTime;
     }),
 );
@@ -117,12 +123,8 @@ function shortAttachmentName(fileName?: string | null) {
 
 function formatTime(value?: string | null) {
   if (!value) return "";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
-  return new Intl.DateTimeFormat("id-ID", {
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
+  const formatted = formatBackendTime(value);
+  return formatted === "Waktu tidak tersedia" ? "" : formatted;
 }
 </script>
 

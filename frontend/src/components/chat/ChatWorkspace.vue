@@ -54,6 +54,11 @@ import type {
   ChatReadSummary,
   ChatRoom,
 } from "../../types/chat";
+import {
+  APP_TIME_ZONE,
+  formatTime as formatBackendTime,
+  parseBackendTimestamp,
+} from "../../utils/date";
 
 defineProps<{
   audience: "student" | "teacher" | "admin";
@@ -1092,17 +1097,24 @@ function messageTimeGapExceeded(
   compareMessage: ChatMessage | null,
 ) {
   if (!compareMessage) return true;
-  const currentTime = new Date(currentMessage.createdAt).getTime();
-  const previousTime = new Date(compareMessage.createdAt).getTime();
+  const currentTime =
+    parseBackendTimestamp(currentMessage.createdAt)?.getTime() ?? Number.NaN;
+  const previousTime =
+    parseBackendTimestamp(compareMessage.createdAt)?.getTime() ?? Number.NaN;
   if (Number.isNaN(currentTime) || Number.isNaN(previousTime)) return true;
   return Math.abs(currentTime - previousTime) > messageGroupGapMs;
 }
 
 function isSameDay(left?: string | null, right?: string | null) {
   if (!left || !right) return false;
-  const leftDate = new Date(left);
-  const rightDate = new Date(right);
-  if (Number.isNaN(leftDate.getTime()) || Number.isNaN(rightDate.getTime())) {
+  const leftDate = parseBackendTimestamp(left);
+  const rightDate = parseBackendTimestamp(right);
+  if (
+    !leftDate ||
+    !rightDate ||
+    Number.isNaN(leftDate.getTime()) ||
+    Number.isNaN(rightDate.getTime())
+  ) {
     return false;
   }
   return (
@@ -1120,17 +1132,18 @@ function shouldShowDateDivider(message: ChatMessage, index: number) {
 
 function formatDateDivider(value?: string | null) {
   if (!value) return "";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
+  const date = parseBackendTimestamp(value);
+  if (!date || Number.isNaN(date.getTime())) return "";
   const today = new Date();
   const yesterday = new Date();
   yesterday.setDate(today.getDate() - 1);
-  if (isSameDay(date.toISOString(), today.toISOString())) return "Hari Ini";
-  if (isSameDay(date.toISOString(), yesterday.toISOString())) return "Kemarin";
+  if (isSameDay(value, today.toISOString())) return "Hari Ini";
+  if (isSameDay(value, yesterday.toISOString())) return "Kemarin";
   return new Intl.DateTimeFormat("id-ID", {
     weekday: "long",
     day: "numeric",
     month: "long",
+    timeZone: APP_TIME_ZONE,
   }).format(date);
 }
 
@@ -1194,12 +1207,14 @@ function readIndicatorCount(message: ChatMessage) {
 
 function readByOtherCount(message: ChatMessage) {
   if (!readSummary.value?.members.length) return 0;
-  const messageCreatedAt = new Date(message.createdAt).getTime();
+  const messageCreatedAt =
+    parseBackendTimestamp(message.createdAt)?.getTime() ?? Number.NaN;
   return readSummary.value.members.filter((member) => {
     if (member.userId === currentUserId.value) return false;
     if (member.lastReadMessageId === message.messageId) return true;
     if (!member.lastReadAt || Number.isNaN(messageCreatedAt)) return false;
-    const lastReadAt = new Date(member.lastReadAt).getTime();
+    const lastReadAt =
+      parseBackendTimestamp(member.lastReadAt)?.getTime() ?? Number.NaN;
     return !Number.isNaN(lastReadAt) && lastReadAt >= messageCreatedAt;
   }).length;
 }
@@ -1316,12 +1331,15 @@ function roomPreviewReadPrefix(room: ChatRoom) {
 function roomPreviewReadCount(room: ChatRoom) {
   if (selectedRoom.value?.roomId !== room.roomId) return 0;
   if (!room.lastMessage?.messageId || !readSummary.value?.members?.length) return 0;
-  const createdAt = new Date(room.lastMessage.createdAt).getTime();
+  const createdAt =
+    parseBackendTimestamp(room.lastMessage.createdAt)?.getTime() ??
+    Number.NaN;
   return readSummary.value.members.filter((member) => {
     if (member.userId === currentUserId.value) return false;
     if (member.lastReadMessageId === room.lastMessage?.messageId) return true;
     if (!member.lastReadAt || Number.isNaN(createdAt)) return false;
-    const lastReadAt = new Date(member.lastReadAt).getTime();
+    const lastReadAt =
+      parseBackendTimestamp(member.lastReadAt)?.getTime() ?? Number.NaN;
     return !Number.isNaN(lastReadAt) && lastReadAt >= createdAt;
   }).length;
 }
@@ -1480,23 +1498,20 @@ function resolveChatError(error: unknown) {
 
 function formatTime(value?: string | null) {
   if (!value) return "";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
-  return new Intl.DateTimeFormat("id-ID", {
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
+  const formatted = formatBackendTime(value);
+  return formatted === "Waktu tidak tersedia" ? "" : formatted;
 }
 
 function formatDateTime(value?: string | null) {
   if (!value) return "";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
+  const date = parseBackendTimestamp(value);
+  if (!date || Number.isNaN(date.getTime())) return "";
   return new Intl.DateTimeFormat("id-ID", {
     day: "2-digit",
     month: "short",
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: APP_TIME_ZONE,
   }).format(date);
 }
 </script>

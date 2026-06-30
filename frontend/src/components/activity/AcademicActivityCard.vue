@@ -4,6 +4,7 @@ import { RouterLink } from "vue-router";
 import { PhArrowRight, PhCalendarCheck } from "@phosphor-icons/vue";
 import type { AcademicActivityItem } from "../../types/activity";
 import { getSubjectColor } from "../../utils/color";
+import { parseBackendTimestamp } from "../../utils/date";
 
 const props = withDefaults(
   defineProps<{
@@ -58,8 +59,10 @@ function priorityWeight(priority?: string | null) {
 }
 
 function getActivityTime(item: AcademicActivityItem) {
-  const dateTime = `${item.date || ""}T${item.time || "00:00"}`;
-  const parsed = new Date(dateTime).getTime();
+  const parsed =
+    parseBackendTimestamp(
+      item.date ? `${item.date}T${item.time || "00:00"}` : null,
+    )?.getTime() ?? Number.NaN;
   return Number.isNaN(parsed) ? Number.MAX_SAFE_INTEGER : parsed;
 }
 

@@ -13,7 +13,7 @@ import type {
   TeacherSubmissionInboxItem,
   TeacherSubmissionInboxSummary,
 } from "../../types/teacherAssignment";
-import { formatDate } from "../../utils/date";
+import { formatDate, parseBackendTimestamp } from "../../utils/date";
 
 type InboxFilter = "all" | "pending" | "graded";
 
@@ -79,7 +79,7 @@ function compareInboxItems(
 
 function getDeadlineTime(deadline?: string | null) {
   if (!deadline) return Number.MAX_SAFE_INTEGER;
-  const value = new Date(deadline).getTime();
+  const value = parseBackendTimestamp(deadline)?.getTime() ?? Number.NaN;
   return Number.isNaN(value) ? Number.MAX_SAFE_INTEGER : value;
 }
 

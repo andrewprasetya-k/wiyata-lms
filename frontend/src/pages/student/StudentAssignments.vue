@@ -15,7 +15,11 @@ import type {
   StudentAssignmentInboxItem,
   StudentAssignmentInboxSummary,
 } from "../../types/assignment";
-import { formatDate, formatDateTime } from "../../utils/date";
+import {
+  formatDate,
+  formatDateTime,
+  parseBackendTimestamp,
+} from "../../utils/date";
 
 type AssignmentFilter =
   | "all"
@@ -122,7 +126,7 @@ function compareAssignments(
 
 function getDeadlineTime(deadline?: string | null) {
   if (!deadline) return Number.MAX_SAFE_INTEGER;
-  const value = new Date(deadline).getTime();
+  const value = parseBackendTimestamp(deadline)?.getTime() ?? Number.NaN;
   return Number.isNaN(value) ? Number.MAX_SAFE_INTEGER : value;
 }
 

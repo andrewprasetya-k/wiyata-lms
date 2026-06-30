@@ -1,5 +1,6 @@
 import type { AcademicActivityItem } from "../../types/activity"
 import { getSubjectColor } from "../../utils/color"
+import { parseBackendTimestamp } from "../../utils/date"
 
 export type ActivityRole = "student" | "teacher"
 
@@ -83,8 +84,10 @@ export function activitySubjectColor(item: AcademicActivityItem) {
 }
 
 export function activityTimestamp(item: AcademicActivityItem) {
-  const parsed = new Date(`${item.date || ""}T${item.time || "00:00"}`)
-  const value = parsed.getTime()
+  const parsed = parseBackendTimestamp(
+    item.date ? `${item.date}T${item.time || "00:00"}` : null,
+  )
+  const value = parsed?.getTime() ?? Number.NaN
   return Number.isNaN(value) ? Number.MAX_SAFE_INTEGER : value
 }
 
