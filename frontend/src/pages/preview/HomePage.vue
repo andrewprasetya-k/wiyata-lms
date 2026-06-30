@@ -320,7 +320,7 @@ const screenshotSlots = [
       <h1
         class="mt-5 max-w-3xl text-5xl font-semibold leading-[1.1] tracking-tight text-[#171322] sm:text-6xl lg:text-[68px]"
       >
-        Satu ruang kerja untuk aktivitas akademik sekolah.
+        Satu workspace untuk aktivitas akademik sekolah.
       </h1>
 
       <!-- Sub-headline -->
