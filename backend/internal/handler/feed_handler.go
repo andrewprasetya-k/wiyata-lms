@@ -65,12 +65,20 @@ func (h *FeedHandler) Create(c *gin.Context) {
 		CreatedBy: userID,
 	}
 
-	if err := h.service.Create(&feed, userID, getFeedActiveRoles(c)); err != nil {
+	roles := getFeedActiveRoles(c)
+	if err := h.service.Create(&feed, userID, roles); err != nil {
 		HandleError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"message": "Feed posted"})
+	response := dto.CreateFeedResponseDTO{Message: "Feed posted"}
+	if createdFeed, err := h.service.GetByID(feed.ID, schoolID, userID, roles); err == nil {
+		count, _ := h.commentService.CountBySource(string(domain.SourceFeed), createdFeed.ID, schoolID)
+		feedDTO := h.mapToResponse(createdFeed, count)
+		response.Feed = &feedDTO
+	}
+
+	c.JSON(http.StatusCreated, response)
 }
 
 func (h *FeedHandler) GetByID(c *gin.Context) {

@@ -22,6 +22,11 @@ type FeedResponseDTO struct {
 	CommentCount int                `json:"commentCount"`
 }
 
+type CreateFeedResponseDTO struct {
+	Message string           `json:"message"`
+	Feed    *FeedResponseDTO `json:"feed,omitempty"`
+}
+
 type ClassWithFeedsDTO struct {
 	Class ClassHeaderDTO    `json:"class"`
 	Data  PaginatedResponse `json:"data"`
