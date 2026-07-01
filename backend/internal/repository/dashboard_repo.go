@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"backend/internal/utils"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -40,7 +40,7 @@ func (r *dashboardRepository) GetPendingAssignmentsCount(userID string) (int, er
 		Joins("JOIN edv.subject_classes sc ON a.asg_scl_id = sc.scl_id").
 		Joins("JOIN edv.enrollments e ON sc.scl_cls_id = e.enr_cls_id").
 		Joins("JOIN edv.school_users su ON e.enr_scu_id = su.scu_id AND su.deleted_at IS NULL").
-		Where("su.scu_usr_id = ? AND e.left_at IS NULL AND a.asg_deadline > ? AND a.deleted_at IS NULL", userID, utils.NowJakarta()).
+		Where("su.scu_usr_id = ? AND e.left_at IS NULL AND a.asg_deadline > ? AND a.deleted_at IS NULL", userID, time.Now()).
 		Where("NOT EXISTS (SELECT 1 FROM edv.submissions s WHERE s.sbm_asg_id = a.asg_id AND s.sbm_usr_id = ? AND s.deleted_at IS NULL)", userID).
 		Count(&count).Error
 	return int(count), err
@@ -66,7 +66,7 @@ func (r *dashboardRepository) GetUpcomingDeadlines(userID string, limit int) ([]
 			AND a.deleted_at IS NULL
 		ORDER BY a.asg_deadline ASC
 		LIMIT ?
-	`, userID, userID, utils.NowJakarta(), limit).Scan(&results).Error
+	`, userID, userID, time.Now(), limit).Scan(&results).Error
 	return results, err
 }
 

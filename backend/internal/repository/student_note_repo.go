@@ -2,8 +2,8 @@ package repository
 
 import (
 	"backend/internal/domain"
-	"backend/internal/utils"
 	"errors"
+	"time"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -103,7 +103,7 @@ func (r *studentNoteRepository) Upsert(note *domain.StudentNote) (*domain.Studen
 		DoUpdates: clause.Assignments(map[string]any{
 			"snt_sch_id":  note.SchoolID,
 			"snt_content": note.Content,
-			"updated_at":  utils.NowJakarta(),
+			"updated_at":  time.Now(),
 		}),
 	}).Create(note).Error
 	if err != nil {

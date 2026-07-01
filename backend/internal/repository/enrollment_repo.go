@@ -2,7 +2,7 @@ package repository
 
 import (
 	"backend/internal/domain"
-	"backend/internal/utils"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -107,7 +107,7 @@ func (r *enrollmentRepository) Reactivate(id string, role string) error {
 func (r *enrollmentRepository) SoftDelete(id string) error {
 	result := r.db.Model(&domain.Enrollment{}).
 		Where("enr_id = ? AND left_at IS NULL", id).
-		Update("left_at", utils.NowJakarta())
+		Update("left_at", time.Now())
 	if result.Error != nil {
 		return result.Error
 	}
