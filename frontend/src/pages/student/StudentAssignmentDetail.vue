@@ -11,6 +11,7 @@ import {
   PhWarningCircle,
 } from "@phosphor-icons/vue";
 import AttachmentPreviewList from "../../components/common/AttachmentPreviewList.vue";
+import DiscussionComments from "../../components/discussion/DiscussionComments.vue";
 import { useAuthStore } from "../../stores/auth";
 import {
   getMySubmissionByAssignment,
@@ -393,6 +394,14 @@ async function handleSubmit() {
             empty-text="Tugas ini tidak memiliki lampiran."
           />
         </article>
+
+        <DiscussionComments
+          source-type="assignment"
+          :source-id="assignment.assignmentId"
+          title="Diskusi tugas"
+          placeholder="Tulis pertanyaan atau komentar tentang tugas ini..."
+          empty-text="Belum ada diskusi untuk tugas ini."
+        />
       </div>
 
       <aside class="min-w-0 lg:sticky lg:top-6">
