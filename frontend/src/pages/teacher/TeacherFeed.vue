@@ -30,13 +30,18 @@ interface TeacherFeedClass {
   subjectCount: number;
 }
 
+type LocalFeedPost = FeedPost & {
+  optimisticId?: string;
+  optimisticStatus?: "pending";
+};
+
 const auth = useAuthStore();
 const toast = useToastStore();
 
 const classes = ref<TeacherFeedClass[]>([]);
 const selectedClassId = ref("");
 const classHeader = ref<FeedClassHeader | null>(null);
-const posts = ref<FeedPost[]>([]);
+const posts = ref<LocalFeedPost[]>([]);
 const content = ref("");
 
 const classesLoading = ref(false);
@@ -180,20 +185,31 @@ async function submitFeed() {
 
   submitting.value = true;
   const submittedClassId = selectedClassId.value;
+  const submittedContent = content.value.trim();
+  const optimisticPost = createOptimisticFeedPost(submittedContent);
+  posts.value = [optimisticPost, ...posts.value];
+  content.value = "";
 
   try {
     const response = await createClassFeed({
       schoolId: activeSchoolId.value,
       classId: submittedClassId,
-      content: content.value.trim(),
+      content: submittedContent,
     });
     toast.success("Pengumuman kelas berhasil dikirim.");
-    content.value = "";
     if (response.feed && selectedClassId.value === submittedClassId) {
-      prependCreatedFeed(response.feed);
+      replaceOptimisticFeed(optimisticPost.optimisticId, response.feed);
+    } else if (selectedClassId.value === submittedClassId) {
+      removeOptimisticFeed(optimisticPost.optimisticId);
     }
-    void refreshFeedAfterCreate();
+    void refreshFeedAfterCreate(submittedClassId);
   } catch (error) {
+    if (selectedClassId.value === submittedClassId) {
+      removeOptimisticFeed(optimisticPost.optimisticId);
+    }
+    if (!content.value.trim()) {
+      content.value = submittedContent;
+    }
     if (isForbiddenError(error)) {
       feedAccessMessage.value =
         "Pengumuman kelas ini belum bisa dimuat. Pastikan guru masih aktif di Penempatan Kelas.";
@@ -205,19 +221,61 @@ async function submitFeed() {
   }
 }
 
-function prependCreatedFeed(feed: FeedPost) {
-  if (posts.value.some((post) => post.feedId === feed.feedId)) {
+function createOptimisticFeedPost(content: string): LocalFeedPost {
+  const optimisticId = `temp-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  return {
+    optimisticId,
+    optimisticStatus: "pending",
+    feedId: optimisticId,
+    content,
+    creatorName: auth.user?.fullName || "Anda",
+    createdAt: new Date().toISOString(),
+    attachments: [],
+    commentCount: 0,
+  };
+}
+
+function replaceOptimisticFeed(
+  optimisticId: string | undefined,
+  feed: FeedPost,
+) {
+  if (!optimisticId) return;
+
+  const existingCanonical = posts.value.some(
+    (post) => post.feedId === feed.feedId && post.optimisticId !== optimisticId,
+  );
+  if (existingCanonical) {
+    removeOptimisticFeed(optimisticId);
     return;
   }
 
-  posts.value = [feed, ...posts.value];
+  posts.value = posts.value.map((post) =>
+    post.optimisticId === optimisticId ? feed : post,
+  );
 }
 
-async function refreshFeedAfterCreate() {
+function removeOptimisticFeed(optimisticId: string | undefined) {
+  if (!optimisticId) return;
+  posts.value = posts.value.filter(
+    (post) => post.optimisticId !== optimisticId,
+  );
+}
+
+function isOptimisticFeed(post: LocalFeedPost) {
+  return Boolean(post.optimisticStatus);
+}
+
+async function refreshFeedAfterCreate(classId: string) {
   try {
-    await loadFeed();
+    const response = await getClassFeed(classId);
+    if (selectedClassId.value !== classId) {
+      return;
+    }
+
+    classHeader.value = response.class;
+    posts.value = response.data.data ?? [];
   } catch {
-    // loadFeed owns visible feed error state; create already succeeded.
+    // Create already succeeded; background sync should not hide the new post.
   }
 }
 
@@ -497,6 +555,7 @@ function updatePostCommentCount(feedId: string, count: number) {
               v-for="post in posts"
               :key="post.feedId"
               class="min-w-0 rounded-xl border border-[#ebe7df] bg-white"
+              :class="isOptimisticFeed(post) ? 'opacity-80' : ''"
             >
               <div class="flex min-w-0 items-start gap-3 px-4 pt-4 sm:px-5">
                 <div
@@ -529,9 +588,13 @@ function updatePostCommentCount(feedId: string, count: number) {
               </p>
               <div class="border-t border-[#f3f1ec] px-4 pb-4 sm:px-5">
                 <FeedComments
+                  v-if="!isOptimisticFeed(post)"
                   :post="post"
                   @comment-count-change="updatePostCommentCount"
                 />
+                <p v-else class="py-3 text-xs leading-5 text-[#8b8592]">
+                  Komentar tersedia setelah pengumuman tersimpan.
+                </p>
               </div>
             </article>
           </div>
