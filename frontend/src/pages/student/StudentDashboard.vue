@@ -28,6 +28,7 @@ import type { NotificationItem } from "../../types/dashboard";
 import type { StudentAssignmentInboxItem } from "../../types/assignment";
 import type { AcademicActivityItem } from "../../types/activity";
 import {
+  APP_TIME_ZONE,
   formatDate,
   formatDateTime,
   parseBackendTimestamp,
@@ -52,6 +53,18 @@ const activeClassStore = useActiveClassStore();
 const toast = useToastStore();
 const router = useRouter();
 const { unreadCount: feedPanelUnreadCount } = useFeedUnreadCount();
+const jakartaDateKeyFormatter = new Intl.DateTimeFormat("en-CA", {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  timeZone: APP_TIME_ZONE,
+});
+const jakartaTimeFormatter = new Intl.DateTimeFormat("id-ID", {
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,
+  timeZone: APP_TIME_ZONE,
+});
 
 const subjects = ref<SubjectClassItem[]>([]);
 const feedPosts = ref<FeedPost[]>([]);
@@ -111,7 +124,7 @@ const calendarActivities = computed(
 );
 const selectedDateActivities = computed(() =>
   calendarActivities.value
-    .filter((item) => item.date === selectedDate.value)
+    .filter((item) => calendarActivityDateKey(item) === selectedDate.value)
     .sort(compareActivities),
 );
 const selectedDateDeadlineActivities = computed(() =>
@@ -355,31 +368,29 @@ function buildCalendarDays(date: Date) {
   const month = date.getMonth();
   const firstDay = new Date(year, month, 1);
   const startOffset = firstDay.getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const calendarStart = new Date(year, month, 1 - startOffset);
   const days = [];
 
   const realToday = new Date();
-  const isCurrentMonth =
-    realToday.getMonth() === month && realToday.getFullYear() === year;
 
-  for (let i = 0; i < startOffset; i += 1) {
-    days.push({
-      key: `empty-${i}`,
-      label: "",
-      isToday: false,
-      dateKey: "",
-      activities: [] as AcademicActivityItem[],
-      extraCount: 0,
-    });
-  }
-
-  for (let day = 1; day <= daysInMonth; day += 1) {
-    const dateKey = formatApiDate(new Date(year, month, day));
+  for (let index = 0; index < 42; index += 1) {
+    const currentDate = new Date(
+      calendarStart.getFullYear(),
+      calendarStart.getMonth(),
+      calendarStart.getDate() + index,
+    );
+    const dateKey = formatApiDate(currentDate);
     const dayActivities = activitiesForDate(dateKey);
+    const isCurrentMonth =
+      currentDate.getMonth() === month && currentDate.getFullYear() === year;
     days.push({
-      key: String(day),
-      label: String(day),
-      isToday: isCurrentMonth && day === realToday.getDate(),
+      key: dateKey,
+      label: String(currentDate.getDate()),
+      isCurrentMonth,
+      isToday:
+        currentDate.getFullYear() === realToday.getFullYear() &&
+        currentDate.getMonth() === realToday.getMonth() &&
+        currentDate.getDate() === realToday.getDate(),
       dateKey,
       activities: dayActivities.slice(0, 3),
       extraCount: Math.max(0, dayActivities.length - 3),
@@ -391,9 +402,25 @@ function buildCalendarDays(date: Date) {
 
 function activitiesForDate(dateKey: string) {
   return calendarActivities.value
-    .filter((item) => item.date === dateKey)
     .filter((item) => item.type === "assignment_due")
+    .filter((item) => calendarActivityDateKey(item) === dateKey)
     .sort(compareActivities);
+}
+
+function calendarActivityDateKey(activity: AcademicActivityItem) {
+  const eventAt = calendarActivityInstant(activity);
+  return eventAt ? jakartaDateKeyFormatter.format(eventAt) : activity.date;
+}
+
+function calendarActivityInstant(activity: AcademicActivityItem) {
+  if (activity.type !== "assignment_due" || !activity.date || !activity.time) {
+    return null;
+  }
+
+  const eventAt = parseBackendTimestamp(
+    `${activity.date}T${activity.time}:00Z`,
+  );
+  return eventAt;
 }
 
 function monthKey(date: Date) {
@@ -419,6 +446,7 @@ function selectCalendarDate(dateKey: string) {
 function calendarDateAriaLabel(day: {
   label: string;
   dateKey: string;
+  isCurrentMonth?: boolean;
   activities: AcademicActivityItem[];
   extraCount: number;
 }) {
@@ -432,10 +460,13 @@ function calendarDateAriaLabel(day: {
       }).format(date)
     : day.label;
   const count = day.activities.length + day.extraCount;
-  return `${label}, ${count} aktivitas`;
+  const monthContext = day.isCurrentMonth ? "" : ", di luar bulan ini";
+  return `${label}${monthContext}, ${count} aktivitas`;
 }
 
 function calendarActivityTime(activity: AcademicActivityItem) {
+  const eventAt = calendarActivityInstant(activity);
+  if (eventAt) return jakartaTimeFormatter.format(eventAt);
   return activity.time || "Sepanjang hari";
 }
 
@@ -659,7 +690,7 @@ onMounted(() => {
           :loading="activitiesLoading"
           :error="activitiesError"
           role="student"
-          :max-items="5"
+          :max-items="3"
         />
 
         <section
@@ -926,10 +957,10 @@ onMounted(() => {
     </section>
 
     <aside
-      class="min-w-0 border-t border-[#ebe7df] bg-white lg:sticky lg:top-0 lg:h-screen lg:min-h-0 lg:overflow-hidden lg:border-l lg:border-t-0"
+      class="min-w-0 border-t border-[#ebe7df] bg-white lg:sticky lg:top-0 lg:h-dvh lg:min-h-0 lg:overflow-hidden lg:border-l lg:border-t-0"
     >
       <div
-        class="flex flex-col gap-4 p-4 lg:h-full lg:min-h-0 lg:overflow-hidden"
+        class="flex flex-col gap-3 p-4 lg:h-full lg:min-h-0 lg:overflow-hidden"
       >
         <DashboardUpdatesPanel
           class="lg:min-h-0 lg:flex-1 lg:overflow-hidden"
@@ -1099,8 +1130,8 @@ onMounted(() => {
           </template>
         </DashboardUpdatesPanel>
 
-        <section class="shrink-0 rounded-xl bg-white p-4">
-          <div class="mb-4 flex items-center justify-between">
+        <section class="shrink-0 rounded-xl bg-white p-3">
+          <div class="mb-2 flex items-center justify-between">
             <p class="text-sm font-medium text-[#171322]">{{ currentMonth }}</p>
             <div class="flex gap-1">
               <button
@@ -1124,19 +1155,21 @@ onMounted(() => {
             <span
               v-for="day in ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']"
               :key="day"
-              class="py-1 text-[10px] text-[#a09aa8]"
+              class="py-0.5 text-[10px] text-[#a09aa8]"
             >
               {{ day }}
             </span>
-            <span v-for="day in calendarDays" :key="day.key" class="min-h-10.5">
+            <span v-for="day in calendarDays" :key="day.key" class="min-h-8">
               <button
                 v-if="day.dateKey"
                 type="button"
-                class="flex h-full min-h-10.5 w-full flex-col items-center justify-center rounded-lg px-1 py-1 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5] focus-visible:ring-offset-2"
+                class="flex h-full min-h-8 w-full flex-col items-center justify-center rounded-lg px-1 py-0.5 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5] focus-visible:ring-offset-2"
                 :class="[
                   day.isToday
                     ? 'bg-[#4f46e5] font-medium text-white'
-                    : 'text-[#4a4356] hover:bg-[#fbfaf8]',
+                    : day.isCurrentMonth
+                      ? 'text-[#4a4356] hover:bg-[#fbfaf8]'
+                      : 'text-[#c0bac8] hover:bg-[#fbfaf8]',
                   selectedDate === day.dateKey
                     ? 'ring-2 ring-[#4f46e5] ring-offset-1'
                     : '',
@@ -1148,7 +1181,7 @@ onMounted(() => {
                 <span>{{ day.label }}</span>
                 <span
                   v-if="day.activities.length || day.extraCount"
-                  class="mt-1 flex h-2 items-center justify-center gap-0.5"
+                  class="mt-0.5 flex h-2 items-center justify-center gap-0.5"
                   aria-hidden="true"
                 >
                   <span
@@ -1170,129 +1203,132 @@ onMounted(() => {
                   </span>
                 </span>
               </button>
-              <span v-else class="block min-h-10.5" />
+              <span v-else class="block min-h-8" />
             </span>
           </div>
 
-          <div class="mt-5 border-t border-[#ebe7df] pt-4">
-            <div class="mb-3 flex items-center justify-between gap-3">
+          <div class="mt-3 border-t border-[#ebe7df] pt-3">
+            <div class="mb-2 flex items-center justify-between gap-3">
               <p class="text-sm font-medium text-[#171322]">Deadline Tugas</p>
               <p class="shrink-0 text-xs text-[#8b8592]">
                 {{ formatActivityDate(selectedDate) }}
               </p>
             </div>
 
-            <div v-if="calendarActivitiesLoading" class="space-y-2">
+            <div class="h-32 overflow-y-auto pr-1">
               <div
-                v-for="item in 3"
-                :key="item"
-                class="h-12 animate-pulse rounded-lg bg-[#fbfaf8]"
-              />
-            </div>
-
-            <div
-              v-else-if="calendarActivitiesError"
-              class="rounded-lg bg-[#fbfaf8] p-3 text-xs leading-5 text-[#7a7385]"
-            >
-              {{ calendarActivitiesError }}
-            </div>
-
-            <div
-              v-else-if="selectedDatePreview.length === 0"
-              class="border-b border-[#ebe7df] bg-[#fbfaf8] p-3 text-xs leading-5 text-[#7a7385]"
-            >
-              Tidak ada deadline tugas pada tanggal ini.
-            </div>
-
-            <ul
-              v-else
-              class="space-y-2"
-              aria-label="Deadline tugas pada tanggal ini"
-            >
-              <li
-                v-for="activity in selectedDatePreview"
-                :key="activity.id"
-                class="min-w-0"
+                v-if="calendarActivitiesLoading"
+                class="rounded-lg bg-[#fbfaf8] p-3 text-xs leading-5 text-[#7a7385]"
               >
-                <RouterLink
-                  v-if="isInternalActivityLink(activity.link)"
-                  :to="activity.link || ''"
-                  class="group flex min-w-0 items-start gap-2 border-b border-[#ebe7df] bg-[#fbfaf8] p-3 transition hover:border-[#c7d2fe] hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5] focus-visible:ring-offset-2"
-                  :aria-label="`${activityTypeLabel(activity.type, 'student')}: ${activity.title}`"
-                >
-                  <span
-                    class="mt-1.5 h-2 w-2 shrink-0 rounded-full"
-                    :style="{
-                      backgroundColor: activity.subject
-                        ? activitySubjectColor(activity)
-                        : '#a09aa8',
-                    }"
-                    aria-hidden="true"
-                  />
-                  <span class="min-w-0 flex-1">
-                    <span
-                      class="flex min-w-0 items-center justify-between gap-2"
-                    >
-                      <span class="text-[11px] font-medium text-[#4f46e5]">
-                        {{ activityTypeLabel(activity.type, "student") }}
-                      </span>
-                      <span class="shrink-0 text-[10px] text-[#9ca3af]">
-                        {{ calendarActivityTime(activity) }}
-                      </span>
-                    </span>
-                    <span
-                      class="mt-1 block truncate text-xs font-medium text-[#171322] transition group-hover:text-[#4f46e5]"
-                    >
-                      {{ activity.title }}
-                    </span>
-                  </span>
-                </RouterLink>
+                Memuat deadline...
+              </div>
 
-                <article
-                  v-else
-                  class="flex min-w-0 items-start gap-2 rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-3"
+              <div
+                v-else-if="calendarActivitiesError"
+                class="rounded-lg bg-[#fbfaf8] p-3 text-xs leading-5 text-[#7a7385]"
+              >
+                {{ calendarActivitiesError }}
+              </div>
+
+              <div
+                v-else-if="selectedDatePreview.length === 0"
+                class="border-b border-[#ebe7df] bg-[#fbfaf8] p-3 text-xs leading-5 text-[#7a7385]"
+              >
+                Tidak ada deadline tugas pada tanggal ini.
+              </div>
+
+              <ul
+                v-else
+                class="space-y-2"
+                aria-label="Deadline tugas pada tanggal ini"
+              >
+                <li
+                  v-for="activity in selectedDatePreview"
+                  :key="activity.id"
+                  class="min-w-0"
                 >
-                  <span
-                    class="mt-1.5 h-2 w-2 shrink-0 rounded-full"
-                    :style="{
-                      backgroundColor: activity.subject
-                        ? activitySubjectColor(activity)
-                        : '#a09aa8',
-                    }"
-                    aria-hidden="true"
-                  />
-                  <div class="min-w-0 flex-1">
-                    <div
-                      class="flex min-w-0 items-center justify-between gap-2"
-                    >
-                      <span class="text-[11px] font-medium text-[#4f46e5]">
-                        {{ activityTypeLabel(activity.type, "student") }}
+                  <RouterLink
+                    v-if="isInternalActivityLink(activity.link)"
+                    :to="activity.link || ''"
+                    class="group flex min-w-0 items-start gap-2 border-b border-[#ebe7df] bg-[#fbfaf8] p-3 transition hover:border-[#c7d2fe] hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5] focus-visible:ring-offset-2"
+                    :aria-label="`${activityTypeLabel(activity.type, 'student')}: ${activity.title}`"
+                  >
+                    <span
+                      class="mt-1.5 h-2 w-2 shrink-0 rounded-full"
+                      :style="{
+                        backgroundColor: activity.subject
+                          ? activitySubjectColor(activity)
+                          : '#a09aa8',
+                      }"
+                      aria-hidden="true"
+                    />
+                    <span class="min-w-0 flex-1">
+                      <span
+                        class="flex min-w-0 items-center justify-between gap-2"
+                      >
+                        <span class="text-[11px] font-medium text-[#4f46e5]">
+                          {{ activityTypeLabel(activity.type, "student") }}
+                        </span>
+                        <span class="shrink-0 text-[10px] text-[#9ca3af]">
+                          {{ calendarActivityTime(activity) }}
+                        </span>
                       </span>
-                      <span class="shrink-0 text-[10px] text-[#9ca3af]">
-                        {{ calendarActivityTime(activity) }}
+                      <span
+                        class="mt-1 block truncate text-xs font-medium text-[#171322] transition group-hover:text-[#4f46e5]"
+                      >
+                        {{ activity.title }}
                       </span>
+                    </span>
+                  </RouterLink>
+
+                  <article
+                    v-else
+                    class="flex min-w-0 items-start gap-2 rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-3"
+                  >
+                    <span
+                      class="mt-1.5 h-2 w-2 shrink-0 rounded-full"
+                      :style="{
+                        backgroundColor: activity.subject
+                          ? activitySubjectColor(activity)
+                          : '#a09aa8',
+                      }"
+                      aria-hidden="true"
+                    />
+                    <div class="min-w-0 flex-1">
+                      <div
+                        class="flex min-w-0 items-center justify-between gap-2"
+                      >
+                        <span class="text-[11px] font-medium text-[#4f46e5]">
+                          {{ activityTypeLabel(activity.type, "student") }}
+                        </span>
+                        <span class="shrink-0 text-[10px] text-[#9ca3af]">
+                          {{ calendarActivityTime(activity) }}
+                        </span>
+                      </div>
+                      <p
+                        class="mt-1 truncate text-xs font-medium text-[#171322]"
+                      >
+                        {{ activity.title }}
+                      </p>
                     </div>
-                    <p class="mt-1 truncate text-xs font-medium text-[#171322]">
-                      {{ activity.title }}
-                    </p>
-                  </div>
-                </article>
-              </li>
-            </ul>
+                  </article>
+                </li>
+              </ul>
 
-            <p
-              v-if="
-                selectedDateDeadlineActivities.length >
-                selectedDatePreview.length
-              "
-              class="mt-3 text-xs text-[#8b8592]"
-            >
-              +{{
-                selectedDateDeadlineActivities.length -
-                selectedDatePreview.length
-              }}
-              deadline lainnya
-            </p>
+              <p
+                v-if="
+                  selectedDateDeadlineActivities.length >
+                  selectedDatePreview.length
+                "
+                class="mt-3 text-xs text-[#8b8592]"
+              >
+                +{{
+                  selectedDateDeadlineActivities.length -
+                  selectedDatePreview.length
+                }}
+                deadline lainnya
+              </p>
+            </div>
           </div>
         </section>
       </div>

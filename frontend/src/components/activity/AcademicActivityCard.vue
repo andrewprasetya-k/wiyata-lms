@@ -35,11 +35,7 @@ const sortedActivities = computed(() =>
 );
 
 const visibleActivities = computed(() =>
-  sortedActivities.value.slice(0, props.maxItems),
-);
-
-const hiddenActivityCount = computed(() =>
-  Math.max(0, sortedActivities.value.length - visibleActivities.value.length),
+  sortedActivities.value,
 );
 
 const subtitle = computed(() =>
@@ -210,7 +206,15 @@ function isInternalLink(link?: string | null) {
     </div>
 
     <div v-else>
-      <ul class="divide-y divide-[#ebe7df]" aria-label="Daftar aktivitas">
+      <ul
+        class="divide-y divide-[#ebe7df]"
+        :class="
+          sortedActivities.length > props.maxItems
+            ? 'max-h-60 overflow-y-auto pr-1'
+            : ''
+        "
+        aria-label="Daftar aktivitas"
+      >
         <li
           v-for="activity in visibleActivities"
           :key="activity.id"
@@ -290,12 +294,6 @@ function isInternalLink(link?: string | null) {
         </li>
       </ul>
 
-      <p
-        v-if="hiddenActivityCount > 0"
-        class="mt-3 rounded-lg bg-[#fbfaf8] px-3 py-2 text-xs text-[#7a7385]"
-      >
-        +{{ hiddenActivityCount }} aktivitas lainnya
-      </p>
     </div>
   </article>
 </template>
