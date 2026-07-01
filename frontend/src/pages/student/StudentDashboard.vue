@@ -81,6 +81,11 @@ const viewDate = ref(new Date());
 let subjectPreviewRequestId = 0;
 let feedPreviewRequestId = 0;
 
+interface ClassContextLoadResult {
+  canLoadAreas: boolean;
+  activeClassId: string | null;
+}
+
 const activeMembership = computed(() => auth.activeMembership);
 const schoolUserId = computed(() => auth.activeSchoolUserId);
 const schoolName = computed(
@@ -127,27 +132,32 @@ function changeMonth(step: number) {
 }
 
 async function loadDashboard(selectedClassId?: string) {
-  const activeClassId = await loadClassContext(selectedClassId);
+  const classContext = await loadClassContext(selectedClassId);
+  if (!classContext.canLoadAreas) return;
 
   await Promise.allSettled([
     loadNotifications(),
     loadAssignmentPreview(),
-    activeClassId ? loadSubjectPreview(activeClassId) : Promise.resolve(),
-    activeClassId ? loadFeedPreview(activeClassId) : Promise.resolve(),
+    classContext.activeClassId
+      ? loadSubjectPreview(classContext.activeClassId)
+      : Promise.resolve(),
+    classContext.activeClassId
+      ? loadFeedPreview(classContext.activeClassId)
+      : Promise.resolve(),
   ]);
 }
 
-async function loadClassContext(selectedClassId?: string) {
+async function loadClassContext(selectedClassId?: string): Promise<ClassContextLoadResult> {
   if (!auth.user?.id) {
     errorMessage.value = "Sesi login belum lengkap. Silakan login ulang.";
     isLoading.value = false;
-    return null;
+    return { canLoadAreas: false, activeClassId: null };
   }
 
   if (!schoolUserId.value) {
     errorMessage.value = "Konteks sekolah belum tersedia.";
     isLoading.value = false;
-    return null;
+    return { canLoadAreas: false, activeClassId: null };
   }
 
   isLoading.value = true;
@@ -168,14 +178,14 @@ async function loadClassContext(selectedClassId?: string) {
     if (!activeClassId) {
       subjects.value = [];
       feedPosts.value = [];
-      return null;
+      return { canLoadAreas: true, activeClassId: null };
     }
 
-    return activeClassId;
+    return { canLoadAreas: true, activeClassId };
   } catch {
     errorMessage.value =
       "Dashboard belum bisa dimuat. Periksa koneksi atau coba lagi nanti.";
-    return null;
+    return { canLoadAreas: false, activeClassId: null };
   } finally {
     isLoading.value = false;
   }
