@@ -179,15 +179,19 @@ async function submitFeed() {
   }
 
   submitting.value = true;
+  const submittedClassId = selectedClassId.value;
 
   try {
-    await createClassFeed({
+    const response = await createClassFeed({
       schoolId: activeSchoolId.value,
-      classId: selectedClassId.value,
+      classId: submittedClassId,
       content: content.value.trim(),
     });
     toast.success("Pengumuman kelas berhasil dikirim.");
     content.value = "";
+    if (response.feed && selectedClassId.value === submittedClassId) {
+      prependCreatedFeed(response.feed);
+    }
     void refreshFeedAfterCreate();
   } catch (error) {
     if (isForbiddenError(error)) {
@@ -199,6 +203,14 @@ async function submitFeed() {
   } finally {
     submitting.value = false;
   }
+}
+
+function prependCreatedFeed(feed: FeedPost) {
+  if (posts.value.some((post) => post.feedId === feed.feedId)) {
+    return;
+  }
+
+  posts.value = [feed, ...posts.value];
 }
 
 async function refreshFeedAfterCreate() {

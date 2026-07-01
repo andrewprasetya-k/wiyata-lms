@@ -4,6 +4,7 @@ import type {
   CreateFeedCommentPayload,
   CreateFeedPayload,
   FeedComment,
+  FeedPost,
 } from '../types/feed'
 import type { UnreadCountResponse } from '../types/dashboard'
 
@@ -15,7 +16,7 @@ export async function getClassFeed(classId: string) {
 }
 
 export async function createClassFeed(payload: CreateFeedPayload) {
-  const { data } = await api.post<{ message: string }>('/feeds', payload)
+  const { data } = await api.post<{ message: string; feed?: FeedPost }>('/feeds', payload)
   return data
 }
 
