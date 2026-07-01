@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, watch } from "vue";
 import { RouterLink } from "vue-router";
 import { PhArrowRight, PhWarningCircle } from "@phosphor-icons/vue";
 import { useAuthStore } from "../../stores/auth";
-import { getChatRooms } from "../../services/chat";
 import type { ChatRoom } from "../../types/chat";
+import { useChatRoomSummary } from "../../composables/useChatRoomSummary";
 import {
   formatTime as formatBackendTime,
   parseBackendTimestamp,
@@ -26,11 +26,11 @@ const emit = defineEmits<{
   unreadChange: [count: number];
 }>();
 
-const rooms = ref<ChatRoom[]>([]);
-const isLoading = ref(false);
-const hasError = ref(false);
+const { rooms, totalUnreadCount, loading, error } = useChatRoomSummary();
 const authStore = useAuthStore();
 const currentUserId = computed(() => authStore.user?.id || "");
+const isLoading = computed(() => loading.value && rooms.value.length === 0);
+const hasError = computed(() => Boolean(error.value) && rooms.value.length === 0);
 
 const unreadRooms = computed(() =>
   [...rooms.value]
@@ -44,31 +44,15 @@ const unreadRooms = computed(() =>
     }),
 );
 
-const totalUnreadCount = computed(() =>
-  rooms.value.reduce(
-    (total, room) => total + Math.max(0, room.unreadCount || 0),
-    0,
-  ),
-);
-
 const visibleRooms = computed(() => unreadRooms.value.slice(0, props.limit));
 
-onMounted(loadLatestChats);
-
-async function loadLatestChats() {
-  isLoading.value = true;
-  hasError.value = false;
-  try {
-    rooms.value = await getChatRooms();
-    emit("unreadChange", totalUnreadCount.value);
-  } catch {
-    rooms.value = [];
-    hasError.value = true;
-    emit("unreadChange", 0);
-  } finally {
-    isLoading.value = false;
-  }
-}
+watch(
+  totalUnreadCount,
+  (count) => {
+    emit("unreadChange", count);
+  },
+  { immediate: true },
+);
 
 function roomDisplayName(room: ChatRoom) {
   if (room.roomRefType === "school") return "Ruang Sekolah";
