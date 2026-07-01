@@ -84,6 +84,24 @@ function updateGradingForm() {
 
 watch(activeIndex, updateGradingForm);
 
+function patchCurrentSubmissionAssessment(scoreValue: number, feedbackValue: string) {
+  const submissionId = currentSubmission.value?.submissionId;
+  if (!submissionId) return;
+
+  submissions.value = submissions.value.map((submission) =>
+    submission.submissionId === submissionId
+      ? {
+          ...submission,
+          assessment: {
+            ...submission.assessment,
+            score: scoreValue,
+            feedback: feedbackValue,
+          },
+        }
+      : submission,
+  );
+}
+
 async function handleGrade() {
   if (!currentSubmission.value) return;
   if (score.value === "") {
@@ -91,14 +109,17 @@ async function handleGrade() {
     return;
   }
 
+  const nextScore = Number(score.value);
+  const nextFeedback = feedback.value;
+
   submitting.value = true;
   try {
     await assessSubmission(currentSubmission.value.submissionId, {
-      score: Number(score.value),
-      feedback: feedback.value,
+      score: nextScore,
+      feedback: nextFeedback,
     });
 
-    await loadData();
+    patchCurrentSubmissionAssessment(nextScore, nextFeedback);
     toast.success("Nilai berhasil disimpan.");
   } catch (err) {
     toast.error("Gagal menyimpan nilai.");
