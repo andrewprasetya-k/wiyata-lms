@@ -52,10 +52,10 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 
 <template>
   <section
-    class="bg-white"
+    class="flex min-h-0 flex-col bg-white"
     aria-labelledby="updates-panel-title"
   >
-    <div class="px-2">
+    <div class="shrink-0 px-2">
       <!-- <h2 id="updates-panel-title" class="text-sm font-medium text-[#171322]">
         Updates
       </h2> -->
@@ -94,12 +94,13 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
       </div>
     </div>
 
-    <div class="p-4">
+    <div class="min-h-0 flex-1 overflow-hidden p-4">
       <div
         v-show="activeTab === 'notifications'"
         id="updates-panel-notifications"
         role="tabpanel"
         aria-labelledby="updates-tab-notifications"
+        class="h-full min-h-0 overflow-y-auto pr-1"
       >
         <slot name="notifications" />
       </div>
@@ -108,6 +109,7 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
         id="updates-panel-chat"
         role="tabpanel"
         aria-labelledby="updates-tab-chat"
+        class="h-full min-h-0 overflow-y-auto pr-1"
       >
         <slot name="chat" />
       </div>
@@ -116,6 +118,7 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
         id="updates-panel-feed"
         role="tabpanel"
         aria-labelledby="updates-tab-feed"
+        class="h-full min-h-0 overflow-y-auto pr-1"
       >
         <slot name="feed" />
       </div>

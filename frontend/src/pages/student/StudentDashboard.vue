@@ -784,10 +784,11 @@ onMounted(() => {
     </section>
 
     <aside
-      class="min-w-0 border-t border-[#ebe7df] bg-white lg:border-l lg:border-t-0"
+      class="min-w-0 border-t border-[#ebe7df] bg-white lg:sticky lg:top-0 lg:h-screen lg:min-h-0 lg:overflow-hidden lg:border-l lg:border-t-0"
     >
-      <div class="flex flex-col gap-4 p-4">
+      <div class="flex flex-col gap-4 p-4 lg:h-full lg:min-h-0 lg:overflow-hidden">
         <DashboardUpdatesPanel
+          class="lg:min-h-0 lg:flex-1 lg:overflow-hidden"
           :notification-badge="unreadCount"
           :chat-badge="chatPanelUnreadCount"
           :feed-badge="feedPanelUnreadCount"
