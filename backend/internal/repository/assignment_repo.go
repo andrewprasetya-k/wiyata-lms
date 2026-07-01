@@ -3,8 +3,8 @@ package repository
 import (
 	"backend/internal/domain"
 	"backend/internal/dto"
-	"backend/internal/utils"
 	"errors"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -214,7 +214,7 @@ func (r *assignmentRepository) GetTeacherAssignmentInbox(userID string, schoolID
 
 func (r *assignmentRepository) GetStudentAssignmentInbox(userID string, schoolID string) ([]dto.StudentAssignmentInboxItemDTO, error) {
 	var rows []dto.StudentAssignmentInboxItemDTO
-	now := utils.NowJakarta()
+	now := time.Now()
 	err := r.db.Table("edv.assignments a").
 		Select(`
 			a.asg_id AS assignment_id,
@@ -353,10 +353,9 @@ func (r *assignmentRepository) UpdateSubmission(sbm *domain.Submission) error {
 }
 
 func (r *assignmentRepository) DeleteSubmission(id string) error {
-	// Gunakan gorm.Expr agar "now()" dianggap sebagai fungsi SQL, bukan string biasa
 	result := r.db.Model(&domain.Submission{}).
 		Where("sbm_id = ?", id).
-		Update("deleted_at", utils.NowJakarta())
+		Update("deleted_at", time.Now())
 
 	if result.Error != nil {
 		return result.Error
@@ -377,7 +376,7 @@ func (r *assignmentRepository) UpsertAssessment(asm *domain.Assessment) error {
 			return err
 		}
 
-		now := utils.NowJakarta()
+		now := time.Now()
 		if len(existing) == 0 {
 			asm.AssessedAt = now
 			return tx.Create(asm).Error
