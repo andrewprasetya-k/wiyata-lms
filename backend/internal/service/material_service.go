@@ -5,12 +5,12 @@ import (
 	"backend/internal/dto"
 	"backend/internal/repository"
 	"backend/internal/storage"
-	"backend/internal/utils"
 	"context"
 	"fmt"
 	"io"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -225,7 +225,7 @@ func (s *materialService) Delete(id string) error {
 }
 
 func (s *materialService) UpdateProgress(userID, matID string, status string) error {
-	now := utils.NowJakarta()
+	now := time.Now()
 	prog := &domain.MaterialProgress{
 		UserID:       userID,
 		MaterialID:   matID,
