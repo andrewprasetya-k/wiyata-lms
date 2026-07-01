@@ -58,8 +58,14 @@ const assignmentPreviewItems = ref<StudentAssignmentInboxItem[]>([]);
 const notifications = ref<NotificationItem[]>([]);
 const unreadCount = ref(0);
 const isLoading = ref(true);
+const notificationsLoading = ref(false);
+const notificationsError = ref("");
 const assignmentsLoading = ref(false);
 const assignmentsError = ref("");
+const subjectPreviewLoading = ref(false);
+const subjectPreviewError = ref("");
+const feedPreviewLoading = ref(false);
+const feedPreviewError = ref("");
 const activities = ref<AcademicActivityItem[]>([]);
 const activitiesLoading = ref(false);
 const activitiesError = ref("");
@@ -72,6 +78,8 @@ const markingNotificationIds = ref<Set<string>>(new Set());
 const markingAllNotifications = ref(false);
 const errorMessage = ref("");
 const viewDate = ref(new Date());
+let subjectPreviewRequestId = 0;
+let feedPreviewRequestId = 0;
 
 const activeMembership = computed(() => auth.activeMembership);
 const schoolUserId = computed(() => auth.activeSchoolUserId);
@@ -119,49 +127,74 @@ function changeMonth(step: number) {
 }
 
 async function loadDashboard(selectedClassId?: string) {
+  const activeClassId = await loadClassContext(selectedClassId);
+
+  await Promise.allSettled([
+    loadNotifications(),
+    loadAssignmentPreview(),
+    activeClassId ? loadSubjectPreview(activeClassId) : Promise.resolve(),
+    activeClassId ? loadFeedPreview(activeClassId) : Promise.resolve(),
+  ]);
+}
+
+async function loadClassContext(selectedClassId?: string) {
   if (!auth.user?.id) {
     errorMessage.value = "Sesi login belum lengkap. Silakan login ulang.";
     isLoading.value = false;
-    return;
+    return null;
   }
 
   if (!schoolUserId.value) {
     errorMessage.value = "Konteks sekolah belum tersedia.";
     isLoading.value = false;
-    return;
+    return null;
   }
 
   isLoading.value = true;
   errorMessage.value = "";
+  subjects.value = [];
+  feedPosts.value = [];
+  subjectPreviewError.value = "";
+  feedPreviewError.value = "";
+  subjectPreviewRequestId += 1;
+  feedPreviewRequestId += 1;
+  subjectPreviewLoading.value = false;
+  feedPreviewLoading.value = false;
 
   try {
     await activeClassStore.loadClasses(schoolUserId.value);
 
     const activeClassId = selectedClassId ?? activeClassStore.activeClassId;
-    const notificationData = await getRecentNotifications();
-
-    notifications.value = notificationData.data ?? [];
-    unreadCount.value = notificationData.unreadCount ?? 0;
-    await loadAssignmentPreview();
-
     if (!activeClassId) {
       subjects.value = [];
       feedPosts.value = [];
-      return;
+      return null;
     }
 
-    const [subjectData, feedData] = await Promise.all([
-      getSubjectClassesByClass(activeClassId),
-      getClassFeed(activeClassId),
-    ]);
-
-    subjects.value = subjectData.subjects ?? [];
-    feedPosts.value = feedData.data.data ?? [];
+    return activeClassId;
   } catch {
     errorMessage.value =
       "Dashboard belum bisa dimuat. Periksa koneksi atau coba lagi nanti.";
+    return null;
   } finally {
     isLoading.value = false;
+  }
+}
+
+async function loadNotifications() {
+  notificationsLoading.value = true;
+  notificationsError.value = "";
+
+  try {
+    const notificationData = await getRecentNotifications();
+    notifications.value = notificationData.data ?? [];
+    unreadCount.value = notificationData.unreadCount ?? 0;
+  } catch {
+    notifications.value = [];
+    unreadCount.value = 0;
+    notificationsError.value = "Notifikasi belum bisa dimuat.";
+  } finally {
+    notificationsLoading.value = false;
   }
 }
 
@@ -177,6 +210,46 @@ async function loadAssignmentPreview() {
     assignmentsError.value = "Preview tugas belum bisa dimuat.";
   } finally {
     assignmentsLoading.value = false;
+  }
+}
+
+async function loadSubjectPreview(activeClassId: string) {
+  const requestId = (subjectPreviewRequestId += 1);
+  subjectPreviewLoading.value = true;
+  subjectPreviewError.value = "";
+
+  try {
+    const subjectData = await getSubjectClassesByClass(activeClassId);
+    if (requestId !== subjectPreviewRequestId || activeClassId !== activeClassStore.activeClassId) return;
+    subjects.value = subjectData.subjects ?? [];
+  } catch {
+    if (requestId !== subjectPreviewRequestId || activeClassId !== activeClassStore.activeClassId) return;
+    subjects.value = [];
+    subjectPreviewError.value = "Mata pelajaran belum bisa dimuat.";
+  } finally {
+    if (requestId === subjectPreviewRequestId && activeClassId === activeClassStore.activeClassId) {
+      subjectPreviewLoading.value = false;
+    }
+  }
+}
+
+async function loadFeedPreview(activeClassId: string) {
+  const requestId = (feedPreviewRequestId += 1);
+  feedPreviewLoading.value = true;
+  feedPreviewError.value = "";
+
+  try {
+    const feedData = await getClassFeed(activeClassId);
+    if (requestId !== feedPreviewRequestId || activeClassId !== activeClassStore.activeClassId) return;
+    feedPosts.value = feedData.data.data ?? [];
+  } catch {
+    if (requestId !== feedPreviewRequestId || activeClassId !== activeClassStore.activeClassId) return;
+    feedPosts.value = [];
+    feedPreviewError.value = "Feed kelas belum bisa dimuat.";
+  } finally {
+    if (requestId === feedPreviewRequestId && activeClassId === activeClassStore.activeClassId) {
+      feedPreviewLoading.value = false;
+    }
   }
 }
 
@@ -636,7 +709,27 @@ onMounted(() => {
               </RouterLink>
             </div>
 
-            <div v-if="subjects.length > 0" class="grid gap-3 sm:grid-cols-2">
+            <div v-if="subjectPreviewLoading" class="grid gap-3 sm:grid-cols-2">
+              <div
+                v-for="item in 4"
+                :key="item"
+                class="h-24 animate-pulse rounded-lg bg-[#fbfaf8]"
+              />
+            </div>
+
+            <div
+              v-else-if="subjectPreviewError"
+              class="rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-5"
+            >
+              <p class="text-sm font-medium text-[#171322]">
+                Mata pelajaran tidak dapat dimuat
+              </p>
+              <p class="mt-2 text-sm leading-6 text-[#7a7385]">
+                {{ subjectPreviewError }}
+              </p>
+            </div>
+
+            <div v-else-if="subjects.length > 0" class="grid gap-3 sm:grid-cols-2">
               <RouterLink
                 v-for="subject in subjects.slice(0, 4)"
                 :key="subject.subjectClassId"
@@ -821,12 +914,18 @@ onMounted(() => {
               </button>
             </div>
 
-            <div v-if="isLoading" class="space-y-2">
+            <div v-if="notificationsLoading" class="space-y-2">
               <div
                 v-for="item in 3"
                 :key="item"
                 class="h-16 animate-pulse rounded-lg bg-[#f0ede8]"
               />
+            </div>
+            <div
+              v-else-if="notificationsError"
+              class="rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-4 text-sm leading-6 text-[#7a7385]"
+            >
+              {{ notificationsError }}
             </div>
             <div v-else-if="notifications.length > 0" class="space-y-1">
               <button
@@ -898,12 +997,18 @@ onMounted(() => {
               </RouterLink>
             </div>
 
-            <div v-if="isLoading" class="space-y-2">
+            <div v-if="feedPreviewLoading" class="space-y-2">
               <div
                 v-for="item in 3"
                 :key="item"
                 class="h-16 animate-pulse rounded-lg bg-[#f0ede8]"
               />
+            </div>
+            <div
+              v-else-if="feedPreviewError"
+              class="rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-4 text-sm leading-6 text-[#7a7385]"
+            >
+              {{ feedPreviewError }}
             </div>
             <div
               v-else-if="feedPosts.length > 0"
