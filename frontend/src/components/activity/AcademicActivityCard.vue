@@ -34,15 +34,7 @@ const sortedActivities = computed(() =>
   }),
 );
 
-const visibleActivities = computed(() =>
-  sortedActivities.value,
-);
-
-const subtitle = computed(() =>
-  props.role === "teacher"
-    ? "Aktivitas mengajar yang perlu ditindaklanjuti."
-    : "Aktivitas akademik yang perlu diperhatikan.",
-);
+const visibleActivities = computed(() => sortedActivities.value);
 
 const emptyMessage = computed(() =>
   props.role === "teacher"
@@ -151,9 +143,6 @@ function isInternalLink(link?: string | null) {
         >
           Hari Ini
         </h2>
-        <p class="mt-1 text-xs leading-5 text-[#8b8592]">
-          {{ subtitle }}
-        </p>
       </div>
       <RouterLink
         :to="activityRoute"
@@ -293,7 +282,6 @@ function isInternalLink(link?: string | null) {
           </div>
         </li>
       </ul>
-
     </div>
   </article>
 </template>
