@@ -4,6 +4,7 @@ import (
 	"backend/internal/domain"
 	"backend/internal/dto"
 	"backend/internal/repository"
+	"backend/internal/utils"
 	"fmt"
 	"slices"
 	"strings"
@@ -47,6 +48,10 @@ func (s *commentService) Create(comment *domain.Comment, schoolID string, userID
 	}
 	if err := s.ensureCanAccessSource(comment.SourceType, comment.SourceID, schoolID, userID, roles); err != nil {
 		return err
+	}
+
+	if comment.CreatedAt.IsZero() {
+		comment.CreatedAt = utils.NowJakarta()
 	}
 
 	if err := s.repo.Create(comment); err != nil {

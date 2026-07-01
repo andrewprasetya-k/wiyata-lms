@@ -237,7 +237,7 @@ func (h *FeedHandler) mapToResponse(f *domain.Feed, commentCount int) dto.FeedRe
 		ID:           f.ID,
 		Content:      f.Content,
 		CreatorName:  f.Creator.FullName,
-		CreatedAt:    f.CreatedAt.Format("02-01-2006 15:04:05"),
+		CreatedAt:    formatUTCDateTime(f.CreatedAt),
 		Attachments:  atts,
 		CommentCount: commentCount,
 	}
