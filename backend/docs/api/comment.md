@@ -2,23 +2,23 @@
 
 Base URL: `/api/comments`
 
-Comments are feed-only for the school MVP. The comment table can technically store other source types, but `material`, `assignment`, and `submission` comments are post-MVP and are rejected by the API for now.
+Comments support class feed posts, materials, and assignments for the school MVP. The comment table can technically store other source types, but `submission` and nested `comment` discussions are still post-MVP and are rejected by the API for now.
 
 All comment endpoints require authenticated active school membership. The active school is read from the `SchoolId` context/header; `schoolId` in the request body is not trusted and must match the active school if provided.
 
 ## Authorization
 
-For `sourceType = feed`, the source feed must exist, belong to the active school, and be accessible to the current actor:
+The source must exist, belong to the active school, and be accessible to the current actor.
 
-- **Admin:** can list/create/delete comments on active-school feed posts.
-- **Teacher:** can list/create comments only on feed posts for classes they actively teach. Active teacher enrollment requires `enrollments.left_at IS NULL`.
-- **Student:** can list/create comments only on feed posts for classes where they are actively enrolled. Active student enrollment requires `enrollments.left_at IS NULL`.
+- **Feed:** class-level comments. Admin can access active-school feed comments. Teacher access requires teaching the feed class. Student access requires active class enrollment.
+- **Material:** subject-class discussion. Admin can access active-school material comments. Teacher access requires teaching the material subject class. Student access requires active enrollment in that subject class.
+- **Assignment:** class-wide assignment discussion. Admin can access active-school assignment comments. Teacher access requires teaching the assignment subject class. Student access requires active enrollment in that subject class.
 - **Update:** only the comment owner can edit their own comment.
 - **Delete:** comment owner can delete their own comment; admin can delete active-school comments.
 
 Soft-deleted comments are excluded from list/detail responses by the existing soft-delete behavior.
 
-## 1. Create Feed Comment
+## 1. Create Comment
 
 - **URL:** `(base URL)`
 - **Method:** `POST`
@@ -27,18 +27,19 @@ Soft-deleted comments are excluded from list/detail responses by the existing so
 ```json
 {
   "sourceType": "feed",
-  "sourceId": "feed-uuid",
+  "sourceId": "source-uuid",
   "content": "Comment text"
 }
 ```
 
+Supported `sourceType` values are `feed`, `material`, and `assignment`.
 `schoolId` may be sent by older clients, but it must match active `SchoolId`.
 
-## 2. Get Comments by Feed
+## 2. Get Comments by Source
 
 - **URL:** `(base URL)`
 - **Method:** `GET`
-- **Query Params:** `?type=feed&id=feed-uuid`
+- **Query Params:** `?type=feed|material|assignment&id=source-uuid`
 - **Response:** Array of comments ordered by `created_at ASC`.
 
 ```json
@@ -59,7 +60,7 @@ Soft-deleted comments are excluded from list/detail responses by the existing so
 
 - **URL:** `/:id`
 - **Method:** `GET`
-- **Authorization:** Current actor must still have access to the source feed.
+- **Authorization:** Current actor must still have access to the comment source.
 
 ## 4. Update Own Comment
 
@@ -83,9 +84,8 @@ Soft-deleted comments are excluded from list/detail responses by the existing so
 
 ## Post-MVP
 
-- Comments on `material`, `assignment`, and `submission`.
+- Comments on `submission`.
 - Nested replies.
 - Attachments.
 - Reactions.
 - Realtime/WebSocket updates.
-- Comment notification deep links.

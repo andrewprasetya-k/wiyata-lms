@@ -101,6 +101,7 @@ func main() {
 	materialRepo := repository.NewMaterialRepository(db)
 	materialService := service.NewMaterialService(materialRepo, attachmentService, mediaRepo, storageProvider, notificationService, subjectClassRepo, enrollmentRepo)
 	materialHandler := handler.NewMaterialHandler(materialService, subjectClassService)
+	assignmentRepo := repository.NewAssignmentRepository(db)
 
 	studentNoteRepo := repository.NewStudentNoteRepository(db)
 	studentNoteService := service.NewStudentNoteService(studentNoteRepo, materialRepo, subjectClassRepo)
@@ -110,7 +111,7 @@ func main() {
 	feedService := service.NewFeedService(feedRepo, attachmentService, notificationService, enrollmentRepo, classRepo, subjectClassRepo)
 	commentRepo := repository.NewCommentRepository(db)
 	contentOwnerRepo := repository.NewContentOwnerRepository(db)
-	commentService := service.NewCommentService(commentRepo, contentOwnerRepo, notificationService, feedRepo, enrollmentRepo, subjectClassRepo)
+	commentService := service.NewCommentService(commentRepo, contentOwnerRepo, notificationService, feedRepo, materialRepo, assignmentRepo, enrollmentRepo, subjectClassRepo)
 	feedHandler := handler.NewFeedHandler(feedService, commentService, classService, notificationService)
 	commentHandler := handler.NewCommentHandler(commentService)
 
@@ -121,7 +122,6 @@ func main() {
 	chatHandler := handler.NewChatHandler(chatService, chatHub)
 	chatWebSocketHandler := realtime.NewWebSocketHandler(chatHub, chatService)
 
-	assignmentRepo := repository.NewAssignmentRepository(db)
 	assignmentService := service.NewAssignmentService(assignmentRepo, attachmentService, mediaRepo, notificationService, enrollmentRepo)
 	assignmentHandler := handler.NewAssignmentHandler(assignmentService, schoolService, subjectClassService)
 

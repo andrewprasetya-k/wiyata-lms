@@ -179,11 +179,11 @@ Academic Activity is not notification/feed/calendar storage. It merges academic 
 
 ## 💬 Comments
 
-- `POST /comments` - Create feed-only comment in active school
-- `GET /comments?type=feed&id=` - Get accessible feed comments
-- `GET /comments/:id` - Get accessible active-school feed comment by ID
-- `PATCH /comments/:id` - Update own active-school feed comment
-- `DELETE /comments/:id` - Delete own feed comment, or admin-delete active-school comment
+- `POST /comments` - Create feed/material/assignment comment in active school
+- `GET /comments?type=feed|material|assignment&id=` - Get accessible comments
+- `GET /comments/:id` - Get accessible active-school comment by ID
+- `PATCH /comments/:id` - Update own active-school comment
+- `DELETE /comments/:id` - Delete own comment, or admin-delete active-school comment
 
 ## 💬 Chat
 

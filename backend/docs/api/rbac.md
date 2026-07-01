@@ -442,14 +442,14 @@ Assessment weight management is admin-only for MVP. Weights are subject-level, s
 | `/feeds/:id`              | PATCH  | ❌          | ✅\*   | ✅\*     | ❌       |
 | `/feeds/:id`              | DELETE | ❌          | ✅\*   | ✅\*     | ❌       |
 | `/comments`               | POST   | ❌          | ✅\*\* | ✅\*\*   | ✅\*\*   |
-| `/comments?type=feed&id=` | GET    | ❌          | 📖\*\* | 📖\*\*   | 📖\*\*   |
+| `/comments?type=...&id=`   | GET    | ❌          | 📖\*\* | 📖\*\*   | 📖\*\*   |
 | `/comments/:id`           | GET    | ❌          | 📖\*\* | 📖\*\*   | 📖\*\*   |
 | `/comments/:id`           | PATCH  | ❌          | ❌     | ✅\*\*\* | ✅\*\*\* |
 | `/comments/:id`           | DELETE | ❌          | ✅\*\* | ✅\*\*\* | ✅\*\*\* |
 
 \*Feed access is scoped to active `SchoolId`. Feed is class-level. Admin can manage feeds in active-school classes. Teacher can create/read/update/delete only in classes they actively teach, and teacher update/delete is limited to their own feed posts. Student can read only feeds from classes where the current student has active enrollment (`left_at IS NULL`). Feed attachments, comments UI, reactions, and realtime are deferred from the MVP.
 
-\*\*Comments are feed-only for MVP. Admin can access active-school feed comments. Teacher can access comments only on feed posts for classes they actively teach. Student can access comments only on feed posts for classes where they are actively enrolled (`left_at IS NULL`). Non-feed comments are post-MVP and rejected.
+\*\*Comments support `feed`, `material`, and `assignment` sources for MVP. Admin can access active-school comments. Teacher access requires teaching the source class/subject class. Student access requires active enrollment (`left_at IS NULL`) in the source class/subject class. `submission` and nested `comment` discussions are post-MVP and rejected.
 
 \*\*\*Teacher/student comment update/delete is limited to their own comments.
 
