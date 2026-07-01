@@ -71,6 +71,11 @@ const isSubmitDisabled = computed(
     (activeTab.value === "assignment" && categories.value.length === 0),
 );
 
+function buildJakartaDeadlineISOString(date: string, time: string) {
+  if (!date) return undefined;
+  return `${date}T${time || "23:59"}:00+07:00`;
+}
+
 // Form State
 const form = ref({
   title: "",
@@ -245,10 +250,10 @@ async function handleSubmit() {
         });
       }
     } else {
-      let deadline = undefined;
-      if (form.value.deadlineDate) {
-        deadline = `${form.value.deadlineDate}T${form.value.deadlineTime}:00Z`;
-      }
+      const deadline = buildJakartaDeadlineISOString(
+        form.value.deadlineDate,
+        form.value.deadlineTime,
+      );
 
       if (isEditMode.value && assignmentId.value) {
         await updateAssignment(assignmentId.value, {
