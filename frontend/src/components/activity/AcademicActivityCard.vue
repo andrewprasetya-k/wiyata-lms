@@ -4,7 +4,11 @@ import { RouterLink } from "vue-router";
 import { PhArrowRight, PhCalendarCheck } from "@phosphor-icons/vue";
 import type { AcademicActivityItem } from "../../types/activity";
 import { getSubjectColor } from "../../utils/color";
-import { parseBackendTimestamp } from "../../utils/date";
+import {
+  getTimeMinutes,
+  parseBackendDateOnly,
+  todayDateOnly,
+} from "../../utils/date";
 
 const props = withDefaults(
   defineProps<{
@@ -59,11 +63,9 @@ function priorityWeight(priority?: string | null) {
 }
 
 function getActivityTime(item: AcademicActivityItem) {
-  const parsed =
-    parseBackendTimestamp(
-      item.date ? `${item.date}T${item.time || "00:00"}` : null,
-    )?.getTime() ?? Number.NaN;
-  return Number.isNaN(parsed) ? Number.MAX_SAFE_INTEGER : parsed;
+  const dateKey = Number(item.date?.replaceAll("-", "") ?? Number.NaN);
+  if (Number.isNaN(dateKey)) return Number.MAX_SAFE_INTEGER;
+  return dateKey * 1_440 + getTimeMinutes(item.time);
 }
 
 function typeLabel(type: string) {
@@ -108,36 +110,31 @@ function timelineLabel(item: AcademicActivityItem) {
 function relativeDateLabel(value?: string | null) {
   if (!value) return "Tanggal belum tersedia";
 
-  const date = parseDate(value);
-  if (!date) return "Tanggal belum tersedia";
-
-  const today = startOfDay(new Date());
-  const target = startOfDay(date);
-  const diffDays = Math.round(
-    (target.getTime() - today.getTime()) / 86_400_000,
-  );
+  const diffDays = dateOnlyDiffDays(value);
+  if (diffDays === null) return "Tanggal belum tersedia";
 
   if (diffDays === 0) return "Hari ini";
   if (diffDays === 1) return "Besok";
 
+  const date = parseBackendDateOnly(value);
+  if (!date) return "Tanggal belum tersedia";
   return new Intl.DateTimeFormat("id-ID", {
     day: "2-digit",
     month: "short",
-  }).format(target);
-}
-
-function parseDate(value: string) {
-  const parts = value.split("-").map(Number);
-  if (parts.length !== 3 || parts.some((part) => Number.isNaN(part))) {
-    return null;
-  }
-
-  const [year, month, day] = parts;
-  return new Date(year, month - 1, day);
+  }).format(date);
 }
 
 function startOfDay(date: Date) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function dateOnlyDiffDays(value?: string | null) {
+  const target = parseBackendDateOnly(value);
+  const today = parseBackendDateOnly(todayDateOnly());
+  if (!target || !today) return null;
+  return Math.round(
+    (startOfDay(target).getTime() - startOfDay(today).getTime()) / 86_400_000,
+  );
 }
 
 function isInternalLink(link?: string | null) {

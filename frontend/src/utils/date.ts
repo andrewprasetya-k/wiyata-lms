@@ -67,6 +67,64 @@ export function formatShortDate(value?: string | Date | null) {
   }).format(date);
 }
 
+export function parseBackendDateOnly(value?: string | null) {
+  const parts = dateOnlyParts(value);
+  if (!parts) return null;
+
+  const date = new Date(parts.year, parts.month - 1, parts.day);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+export function formatDateOnly(value?: string | null) {
+  const date = parseBackendDateOnly(value);
+  if (!date) return fallback;
+
+  return new Intl.DateTimeFormat("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(date);
+}
+
+export function todayDateOnly() {
+  const parts = dateParts(new Date());
+  if (!parts.year || !parts.month || !parts.day) return "";
+  return `${parts.year}-${parts.month}-${parts.day}`;
+}
+
+export function compareDateOnly(
+  left?: string | null,
+  right?: string | null,
+) {
+  const leftKey = normalizeDateOnly(left);
+  const rightKey = normalizeDateOnly(right);
+  if (!leftKey && !rightKey) return 0;
+  if (!leftKey) return 1;
+  if (!rightKey) return -1;
+  return leftKey.localeCompare(rightKey);
+}
+
+export function getTimeMinutes(value?: string | null) {
+  const match = value?.trim().match(/^(\d{2}):(\d{2})/);
+  if (!match) return 0;
+
+  const [, hour, minute] = match;
+  const hourValue = Number(hour);
+  const minuteValue = Number(minute);
+  if (
+    Number.isNaN(hourValue) ||
+    Number.isNaN(minuteValue) ||
+    hourValue < 0 ||
+    hourValue > 23 ||
+    minuteValue < 0 ||
+    minuteValue > 59
+  ) {
+    return 0;
+  }
+
+  return hourValue * 60 + minuteValue;
+}
+
 export function formatDateInputValue(value?: string | Date | null) {
   const date = parseBackendTimestamp(value);
   if (!date) return "";
@@ -201,6 +259,37 @@ function parseJakartaWallClock(parts: {
 
 function fractionToMillisecond(value: string) {
   return Number(value.padEnd(3, "0").slice(0, 3));
+}
+
+function normalizeDateOnly(value?: string | null) {
+  const parts = dateOnlyParts(value);
+  if (!parts) return "";
+  return `${parts.year}-${String(parts.month).padStart(2, "0")}-${String(
+    parts.day,
+  ).padStart(2, "0")}`;
+}
+
+function dateOnlyParts(value?: string | null) {
+  const match = value?.trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return null;
+
+  const [, yearValue, monthValue, dayValue] = match;
+  const year = Number(yearValue);
+  const month = Number(monthValue);
+  const day = Number(dayValue);
+  if (
+    Number.isNaN(year) ||
+    Number.isNaN(month) ||
+    Number.isNaN(day) ||
+    month < 1 ||
+    month > 12 ||
+    day < 1 ||
+    day > 31
+  ) {
+    return null;
+  }
+
+  return { year, month, day };
 }
 
 function dateKey(value: Date) {

@@ -41,6 +41,7 @@ import {
   activitySubjectColor,
   activityTypeLabel,
   compareActivities,
+  formatActivityDate,
   formatApiDate,
   isInternalActivityLink,
   parseActivityDate,
@@ -1000,7 +1001,7 @@ onMounted(() => {
             <div class="mb-3 flex items-center justify-between gap-3">
               <p class="text-sm font-medium text-[#171322]">Deadline Tugas</p>
               <p class="shrink-0 text-xs text-[#8b8592]">
-                {{ formatDate(selectedDate) }}
+                {{ formatActivityDate(selectedDate) }}
               </p>
             </div>
 

@@ -1,6 +1,12 @@
 import type { AcademicActivityItem } from "../../types/activity"
 import { getSubjectColor } from "../../utils/color"
-import { parseBackendTimestamp } from "../../utils/date"
+import {
+  compareDateOnly,
+  formatDateOnly,
+  getTimeMinutes,
+  parseBackendDateOnly,
+  todayDateOnly,
+} from "../../utils/date"
 
 export type ActivityRole = "student" | "teacher"
 
@@ -84,11 +90,9 @@ export function activitySubjectColor(item: AcademicActivityItem) {
 }
 
 export function activityTimestamp(item: AcademicActivityItem) {
-  const parsed = parseBackendTimestamp(
-    item.date ? `${item.date}T${item.time || "00:00"}` : null,
-  )
-  const value = parsed?.getTime() ?? Number.NaN
-  return Number.isNaN(value) ? Number.MAX_SAFE_INTEGER : value
+  const dateKey = Number(item.date?.replaceAll("-", "") ?? Number.NaN)
+  if (Number.isNaN(dateKey)) return Number.MAX_SAFE_INTEGER
+  return dateKey * 1_440 + getTimeMinutes(item.time)
 }
 
 export function compareActivities(
@@ -98,7 +102,9 @@ export function compareActivities(
   const priorityDiff =
     priorityWeight(right.priority) - priorityWeight(left.priority)
   if (priorityDiff !== 0) return priorityDiff
-  return activityTimestamp(left) - activityTimestamp(right)
+  const dateDiff = compareDateOnly(left.date, right.date)
+  if (dateDiff !== 0) return dateDiff
+  return getTimeMinutes(left.time) - getTimeMinutes(right.time)
 }
 
 export function priorityWeight(priority?: string | null) {
@@ -110,26 +116,15 @@ export function isInternalActivityLink(link?: string | null) {
 }
 
 export function formatActivityDate(value?: string | null) {
-  const date = parseActivityDate(value)
-  if (!date) return "Tanggal belum tersedia"
-
-  return new Intl.DateTimeFormat("id-ID", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  }).format(date)
+  const formatted = formatDateOnly(value)
+  return formatted === "Tanggal tidak tersedia"
+    ? "Tanggal belum tersedia"
+    : formatted
 }
 
 export function activityRelativeLabel(item: AcademicActivityItem) {
-  const date = parseActivityDate(item.date)
-  if (!date) return "Tanggal belum tersedia"
-
-  const today = startOfDay(new Date())
-  const target = startOfDay(date)
-  const diffDays = Math.round(
-    (target.getTime() - today.getTime()) / 86_400_000,
-  )
-
+  const diffDays = dateOnlyDiffDays(item.date)
+  if (diffDays === null) return "Tanggal belum tersedia"
   let label = formatActivityDate(item.date)
   if (diffDays === 0) label = "Hari ini"
   if (diffDays === 1) label = "Besok"
@@ -138,15 +133,8 @@ export function activityRelativeLabel(item: AcademicActivityItem) {
 }
 
 export function activityGroupLabel(value?: string | null) {
-  const date = parseActivityDate(value)
-  if (!date) return "Nanti"
-
-  const today = startOfDay(new Date())
-  const target = startOfDay(date)
-  const diffDays = Math.round(
-    (target.getTime() - today.getTime()) / 86_400_000,
-  )
-
+  const diffDays = dateOnlyDiffDays(value)
+  if (diffDays === null) return "Nanti"
   if (diffDays < 0) return "Sebelumnya"
   if (diffDays === 0) return "Hari Ini"
   if (diffDays === 1) return "Besok"
@@ -155,13 +143,7 @@ export function activityGroupLabel(value?: string | null) {
 }
 
 export function parseActivityDate(value?: string | null) {
-  if (!value) return null
-  const parts = value.split("-").map(Number)
-  if (parts.length !== 3 || parts.some((part) => Number.isNaN(part))) {
-    return null
-  }
-  const [year, month, day] = parts
-  return new Date(year, month - 1, day)
+  return parseBackendDateOnly(value)
 }
 
 export function formatApiDate(date: Date) {
@@ -179,4 +161,13 @@ export function addDays(date: Date, days: number) {
 
 function startOfDay(date: Date) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate())
+}
+
+function dateOnlyDiffDays(value?: string | null) {
+  const target = parseBackendDateOnly(value)
+  const today = parseBackendDateOnly(todayDateOnly())
+  if (!target || !today) return null
+  return Math.round(
+    (startOfDay(target).getTime() - startOfDay(today).getTime()) / 86_400_000,
+  )
 }
