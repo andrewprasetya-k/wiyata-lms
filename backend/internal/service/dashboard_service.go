@@ -66,7 +66,7 @@ func (s *dashboardService) GetStudentDashboard(userID string) (*dto.StudentDashb
 			AssignmentID:    d["assignment_id"].(string),
 			AssignmentTitle: d["assignment_title"].(string),
 			SubjectName:     d["subject_name"].(string),
-			Deadline:        deadline.Format("02-01-2006 15:04"),
+			Deadline:        formatAPITime(deadline),
 			IsSubmitted:     d["is_submitted"].(bool),
 		})
 	}
@@ -154,7 +154,7 @@ func (s *dashboardService) GetAdminDashboard(schoolID string) (*dto.AdminDashboa
 		recentActivities = append(recentActivities, dto.ActivityLogDTO{
 			UserName:  a["user_name"].(string),
 			Action:    a["action"].(string),
-			Timestamp: timestamp.Format("02-01-2006 15:04:05"),
+			Timestamp: formatAPITime(timestamp),
 		})
 	}
 

@@ -143,7 +143,7 @@ func (h *CommentHandler) mapCommentToResponse(comment *domain.Comment, userID st
 		SourceID:    comment.SourceID,
 		Content:     comment.Content,
 		CreatorName: comment.User.FullName,
-		CreatedAt:   formatUTCDateTime(comment.CreatedAt),
+		CreatedAt:   formatAPITime(comment.CreatedAt),
 		IsMine:      comment.UserID == userID,
 	}
 }

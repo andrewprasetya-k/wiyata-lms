@@ -137,6 +137,6 @@ func (h *UserHandler) mapToResponse(user *domain.User) dto.UserResponseDTO {
 		FullName:  user.FullName,
 		Email:     user.Email,
 		IsActive:  user.IsActive,
-		CreatedAt: user.CreatedAt.Format("02-01-2006 15:04:05"),
+		CreatedAt: formatAPITime(user.CreatedAt),
 	}
 }

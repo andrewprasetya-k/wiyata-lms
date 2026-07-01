@@ -76,7 +76,7 @@ func (h *SchoolUserHandler) GetMembersBySchool(c *gin.Context) {
 			Email:     m.User.Email,
 			SchoolID:  m.SchoolID,
 			Roles:     roles,
-			CreatedAt: m.CreatedAt.Format("02-01-2006 15:04:05"),
+			CreatedAt: formatAPITime(m.CreatedAt),
 		})
 	}
 
@@ -121,7 +121,7 @@ func (h *SchoolUserHandler) GetSchoolsByUser(c *gin.Context) {
 			SchoolID:   s.SchoolID,
 			SchoolName: s.School.Name,
 			SchoolCode: s.School.Code,
-			CreatedAt:  s.CreatedAt.Format("02-01-2006 15:04:05"),
+			CreatedAt:  formatAPITime(s.CreatedAt),
 		})
 	}
 

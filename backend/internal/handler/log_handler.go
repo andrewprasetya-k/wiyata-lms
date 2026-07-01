@@ -36,7 +36,7 @@ func (h *LogHandler) GetBySchool(c *gin.Context) {
 			UserName:  l.User.FullName,
 			Action:    l.Action,
 			Metadata:  l.Metadata,
-			CreatedAt: l.CreatedAt.Format("02-01-2006 15:04:05"),
+			CreatedAt: formatAPITime(l.CreatedAt),
 		})
 	}
 

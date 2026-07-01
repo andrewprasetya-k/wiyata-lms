@@ -153,6 +153,6 @@ func (h *TermHandler) mapToResponse(t *domain.Term) dto.TermResponseDTO {
 		SchoolName:       t.AcademicYear.School.Name,
 		Name:             t.Name,
 		IsActive:         t.IsActive,
-		CreatedAt:        t.CreatedAt.Format("02-01-2006 15:04:05"),
+		CreatedAt:        formatAPITime(t.CreatedAt),
 	}
 }

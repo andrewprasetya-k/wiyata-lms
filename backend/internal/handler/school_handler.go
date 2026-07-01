@@ -168,8 +168,8 @@ func (h *SchoolHandler) mapToResponse(s *domain.School) dto.SchoolResponseDTO {
 		Phone:     s.Phone,
 		Website:   s.Website,
 		IsDeleted: s.DeletedAt.Valid,
-		CreatedAt: s.CreatedAt.Format("02-01-2006 15:04:05"),
-		UpdatedAt: s.UpdatedAt.Format("02-01-2006 15:04:05"),
+		CreatedAt: formatAPITime(s.CreatedAt),
+		UpdatedAt: formatAPITime(s.UpdatedAt),
 	}
 }
 

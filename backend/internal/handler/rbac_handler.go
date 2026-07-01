@@ -178,6 +178,6 @@ func (h *RBACHandler) mapRoleToResponse(role *domain.Role) dto.RoleResponseDTO {
 	return dto.RoleResponseDTO{
 		ID:        role.ID,
 		Name:      role.Name,
-		CreatedAt: role.CreatedAt.Format("02-01-2006 15:04:05"),
+		CreatedAt: formatAPITime(role.CreatedAt),
 	}
 }

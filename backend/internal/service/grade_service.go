@@ -396,11 +396,7 @@ func (s *gradeService) calculateSubjectFinalGrade(subjectID string, categoryScor
 }
 
 func formatTimePointer(value *time.Time) *string {
-	if value == nil {
-		return nil
-	}
-	formatted := value.Format("02-01-2006 15:04:05")
-	return &formatted
+	return formatAPITimePtr(value)
 }
 
 func stringValue(value *string) string {

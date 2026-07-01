@@ -26,7 +26,7 @@ func mapAttachmentMedia(attachment domain.Attachment, schoolID string) (dto.Medi
 		FileURL:      safeHTTPURL(media.FileURL),
 		ThumbnailURL: safeHTTPURL(media.ThumbnailURL),
 		OwnerType:    string(media.OwnerType),
-		CreatedAt:    media.CreatedAt.Format("02-01-2006 15:04:05"),
+		CreatedAt:    formatAPITime(media.CreatedAt),
 	}, true
 }
 

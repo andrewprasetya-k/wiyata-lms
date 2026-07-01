@@ -628,7 +628,7 @@ func (s *adminSchoolMemberImportService) mapSchoolMember(member *domain.SchoolUs
 	}
 	var deletedAt *string
 	if member.DeletedAt.Valid {
-		formatted := member.DeletedAt.Time.Format("02-01-2006 15:04:05")
+		formatted := formatAPITime(member.DeletedAt.Time)
 		deletedAt = &formatted
 	}
 	return dto.AdminSchoolMemberResponseDTO{
@@ -638,7 +638,7 @@ func (s *adminSchoolMemberImportService) mapSchoolMember(member *domain.SchoolUs
 		Email:        member.User.Email,
 		Roles:        roles,
 		ClassCodes:   classCodes,
-		CreatedAt:    member.CreatedAt.Format("02-01-2006 15:04:05"),
+		CreatedAt:    formatAPITime(member.CreatedAt),
 		DeletedAt:    deletedAt,
 	}
 }

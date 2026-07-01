@@ -71,7 +71,7 @@ func (h *AssignmentHandler) GetCategoriesBySchool(c *gin.Context) {
 			ID:        cat.ID,
 			SchoolID:  cat.SchoolID,
 			Name:      cat.Name,
-			CreatedAt: cat.CreatedAt.Format("02-01-2006 15:04:05"),
+			CreatedAt: formatAPITime(cat.CreatedAt),
 		})
 	}
 
@@ -276,8 +276,8 @@ func (h *AssignmentHandler) GetStudentAssignmentDetail(c *gin.Context) {
 		CategoryName:        assignment.Category.Name,
 		Deadline:            assignment.Deadline,
 		AllowLateSubmission: assignment.AllowLateSubmission,
-		CreatedAt:           assignment.CreatedAt.Format("02-01-2006 15:04:05"),
-		UpdatedAt:           assignment.UpdatedAt.Format("02-01-2006 15:04:05"),
+		CreatedAt:           formatAPITime(assignment.CreatedAt),
+		UpdatedAt:           formatAPITime(assignment.UpdatedAt),
 		Attachments:         attachments,
 	})
 }
@@ -359,7 +359,7 @@ func (h *AssignmentHandler) GetSubjectClassSubmissions(c *gin.Context) {
 					Score:      submission.Assessment.Score,
 					Feedback:   submission.Assessment.Feedback,
 					Assessor:   submission.Assessment.Assessor.FullName,
-					AssessedAt: submission.Assessment.AssessedAt.Format("02-01-2006 15:04:05"),
+					AssessedAt: formatAPITime(submission.Assessment.AssessedAt),
 				}
 				group.GradedCount++
 				response.Summary.GradedCount++
@@ -383,7 +383,7 @@ func (h *AssignmentHandler) GetSubjectClassSubmissions(c *gin.Context) {
 			group.Submissions = append(group.Submissions, dto.SubmissionResponseDTO{
 				ID:          submission.ID,
 				UserName:    submission.User.FullName,
-				SubmittedAt: submission.SubmittedAt.Format("02-01-2006 15:04:05"),
+				SubmittedAt: formatAPITime(submission.SubmittedAt),
 				IsLate:      isLate,
 				Attachments: atts,
 				Assessment:  assessmentDTO,
@@ -483,7 +483,7 @@ func (h *AssignmentHandler) GetSubmissionsByAssignment(c *gin.Context) {
 				Score:      s.Assessment.Score,
 				Feedback:   s.Assessment.Feedback,
 				Assessor:   s.Assessment.Assessor.FullName,
-				AssessedAt: s.Assessment.AssessedAt.Format("02-01-2006 15:04:05"),
+				AssessedAt: formatAPITime(s.Assessment.AssessedAt),
 			}
 		}
 
@@ -497,7 +497,7 @@ func (h *AssignmentHandler) GetSubmissionsByAssignment(c *gin.Context) {
 		submissionsDTO = append(submissionsDTO, dto.SubmissionResponseDTO{
 			ID:          s.ID,
 			UserName:    s.User.FullName,
-			SubmittedAt: s.SubmittedAt.Format("02-01-2006 15:04:05"),
+			SubmittedAt: formatAPITime(s.SubmittedAt),
 			IsLate:      asg.Deadline != nil && s.SubmittedAt.After(*asg.Deadline),
 			Attachments: atts,
 			Assessment:  assessmentDTO,
@@ -709,7 +709,7 @@ func (h *AssignmentHandler) GetSubmissionByID(c *gin.Context) {
 			Score:      submission.Assessment.Score,
 			Feedback:   submission.Assessment.Feedback,
 			Assessor:   submission.Assessment.Assessor.FullName,
-			AssessedAt: submission.Assessment.AssessedAt.Format("02-01-2006 15:04:05"),
+			AssessedAt: formatAPITime(submission.Assessment.AssessedAt),
 		}
 	}
 
@@ -723,7 +723,7 @@ func (h *AssignmentHandler) GetSubmissionByID(c *gin.Context) {
 	response := dto.SubmissionResponseDTO{
 		ID:          submission.ID,
 		UserName:    submission.User.FullName,
-		SubmittedAt: submission.SubmittedAt.Format("02-01-2006 15:04:05"),
+		SubmittedAt: formatAPITime(submission.SubmittedAt),
 		IsLate:      assignment.Deadline != nil && submission.SubmittedAt.After(*assignment.Deadline),
 		Attachments: atts,
 		Assessment:  assessmentDTO,
@@ -823,7 +823,7 @@ func (h *AssignmentHandler) mapAsgToResponse(a *domain.Assignment) dto.Assignmen
 		CategoryName:        a.Category.Name,
 		Deadline:            a.Deadline,
 		AllowLateSubmission: a.AllowLateSubmission,
-		CreatedAt:           a.CreatedAt.Format("02-01-2006 15:04:05"),
+		CreatedAt:           formatAPITime(a.CreatedAt),
 		Attachments:         atts,
 	}
 }
@@ -1035,7 +1035,7 @@ func (h *AssignmentHandler) mapMySubmissionToResponse(s *domain.Submission) *dto
 			ID:           s.Assessment.ID,
 			Score:        s.Assessment.Score,
 			Feedback:     s.Assessment.Feedback,
-			AssessedAt:   s.Assessment.AssessedAt.Format("02-01-2006 15:04:05"),
+			AssessedAt:   formatAPITime(s.Assessment.AssessedAt),
 			AssessorName: s.Assessment.Assessor.FullName,
 		}
 	}
@@ -1043,7 +1043,7 @@ func (h *AssignmentHandler) mapMySubmissionToResponse(s *domain.Submission) *dto
 	return &dto.MySubmissionDTO{
 		ID:           s.ID,
 		AssignmentID: s.AssignmentID,
-		SubmittedAt:  s.SubmittedAt.Format("02-01-2006 15:04:05"),
+		SubmittedAt:  formatAPITime(s.SubmittedAt),
 		Attachments:  atts,
 		Assessment:   assessment,
 	}

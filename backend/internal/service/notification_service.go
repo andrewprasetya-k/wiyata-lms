@@ -68,7 +68,7 @@ func (s *notificationService) GetByUserID(userID string, page, limit int, unread
 			Message:        notification.Message,
 			Link:           notification.Link,
 			IsRead:         notification.IsRead,
-			CreatedAt:      notification.CreatedAt.Format("02-01-2006 15:04:05"),
+			CreatedAt:      formatAPITime(notification.CreatedAt),
 		})
 	}
 

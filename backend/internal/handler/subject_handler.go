@@ -183,6 +183,6 @@ func (h *SubjectHandler) mapToResponse(s *domain.Subject) dto.SubjectResponseDTO
 		Name:       s.Name,
 		Code:       s.Code,
 		Color:      s.Color,
-		CreatedAt:  s.CreatedAt.Format("02-01-2006 15:04:05"),
+		CreatedAt:  formatAPITime(s.CreatedAt),
 	}
 }

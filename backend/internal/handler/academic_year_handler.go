@@ -170,7 +170,7 @@ func (h *AcademicYearHandler) mapToResponse(acy *domain.AcademicYear) dto.Academ
 		SchoolCode: acy.School.Code,
 		Name:       acy.Name,
 		IsActive:   acy.IsActive,
-		CreatedAt:  acy.CreatedAt.Format("02-01-2006 15:04:05"),
+		CreatedAt:  formatAPITime(acy.CreatedAt),
 	}
 }
 

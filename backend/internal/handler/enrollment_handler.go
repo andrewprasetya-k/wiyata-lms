@@ -191,7 +191,7 @@ func (h *EnrollmentHandler) mapToResponse(r *domain.Enrollment) dto.EnrollmentRe
 		SchoolUserID: r.SchoolUserID,
 		ClassID:      r.ClassID,
 		Role:         r.Role,
-		JoinedAt:     r.JoinedAt.Format("02-01-2006 15:04:05"),
+		JoinedAt:     formatAPITime(r.JoinedAt),
 	}
 	if r.SchoolUser.User.ID != "" {
 		response.UserFullName = r.SchoolUser.User.FullName
@@ -201,7 +201,7 @@ func (h *EnrollmentHandler) mapToResponse(r *domain.Enrollment) dto.EnrollmentRe
 		response.ClassTitle = r.Class.Title
 	}
 	if r.LeftAt != nil {
-		response.LeftAt = r.LeftAt.Format("02-01-2006 15:04:05")
+		response.LeftAt = formatAPITime(*r.LeftAt)
 	}
 	return response
 }

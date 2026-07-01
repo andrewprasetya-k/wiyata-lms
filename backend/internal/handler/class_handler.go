@@ -162,8 +162,8 @@ func (h *ClassHandler) mapToResponse(c *domain.Class) dto.ClassResponseDTO {
 		CreatedBy:        c.CreatedBy,
 		CreatorName:      c.Creator.FullName,
 		IsActive:         c.IsActive,
-		CreatedAt:        c.CreatedAt.Format("02-01-2006 15:04:05"),
-		UpdatedAt:        c.UpdatedAt.Format("02-01-2006 15:04:05"),
+		CreatedAt:        formatAPITime(c.CreatedAt),
+		UpdatedAt:        formatAPITime(c.UpdatedAt),
 	}
 }
 

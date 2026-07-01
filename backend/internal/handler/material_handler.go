@@ -419,7 +419,7 @@ func (h *MaterialHandler) mapToResponse(m *domain.Material) dto.MaterialResponse
 		Description:    m.Description,
 		Type:           string(m.Type),
 		CreatorName:    m.Creator.FullName,
-		CreatedAt:      m.CreatedAt.Format("02-01-2006 15:04:05"),
+		CreatedAt:      formatAPITime(m.CreatedAt),
 		Attachments:    atts,
 	}
 }
