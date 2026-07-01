@@ -38,8 +38,8 @@ Retrieve a paginated list of schools with filtering, searching, and sorting capa
       "schoolPhone": "081234567890",
       "schoolWebsite": "https://edu.com",
       "isDeleted": false,
-      "createdAt": "13-02-2026 09:00:00",
-      "updatedAt": "13-02-2026 09:00:00"
+      "createdAt": "2026-02-13T09:00:00Z",
+      "updatedAt": "2026-02-13T09:00:00Z"
     }
   ],
   "totalItems": 50,

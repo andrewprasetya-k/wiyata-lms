@@ -49,7 +49,7 @@ Soft-deleted comments are excluded from list/detail responses by the existing so
     "sourceId": "feed-uuid",
     "content": "Comment text",
     "creatorName": "Student Name",
-    "createdAt": "23-06-2026 10:00:00",
+    "createdAt": "2026-06-23T10:00:00Z",
     "isMine": true
   }
 ]

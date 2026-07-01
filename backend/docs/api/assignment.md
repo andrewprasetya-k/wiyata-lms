@@ -131,7 +131,7 @@ Base URL: `/api/assignments`
         {
           "submissionId": "uuid",
           "studentName": "Nama Siswa",
-          "submittedAt": "02-03-2026 10:30:00",
+          "submittedAt": "2026-03-02T10:30:00Z",
           "isLate": false,
           "attachments": [
             {
@@ -146,7 +146,7 @@ Base URL: `/api/assignments`
             "score": 90,
             "feedback": "Bagus",
             "assessorName": "Nama Guru",
-            "assessedAt": "03-03-2026 09:00:00"
+            "assessedAt": "2026-03-03T09:00:00Z"
           }
         }
       ]
@@ -338,8 +338,8 @@ Base URL: `/api/assignments`
   "categoryName": "Kuis",
   "deadline": "2026-03-01T23:59:59Z",
   "allowLateSubmission": false,
-  "createdAt": "01-03-2026 09:00:00",
-  "updatedAt": "01-03-2026 09:00:00",
+  "createdAt": "2026-03-01T09:00:00Z",
+  "updatedAt": "2026-03-01T09:00:00Z",
   "attachments": [
     {
       "mediaId": "uuid",
@@ -349,7 +349,7 @@ Base URL: `/api/assignments`
       "fileUrl": "https://...",
       "thumbnailUrl": "",
       "ownerType": "user",
-      "createdAt": "01-03-2026 08:55:00"
+      "createdAt": "2026-03-01T08:55:00Z"
     }
   ]
 }
@@ -388,7 +388,7 @@ The web client uses absolute HTTP(S) `fileUrl` values directly for inline image/
   "submission": {
     "submissionId": "uuid",
     "assignmentId": "uuid",
-    "submittedAt": "02-03-2026 10:30:00",
+    "submittedAt": "2026-03-02T10:30:00Z",
     "attachments": [
       {
         "mediaId": "uuid",
@@ -410,7 +410,7 @@ The web client uses absolute HTTP(S) `fileUrl` values directly for inline image/
   "submission": {
     "submissionId": "uuid",
     "assignmentId": "uuid",
-    "submittedAt": "02-03-2026 10:30:00",
+    "submittedAt": "2026-03-02T10:30:00Z",
     "attachments": [
       {
         "mediaId": "uuid",
@@ -424,7 +424,7 @@ The web client uses absolute HTTP(S) `fileUrl` values directly for inline image/
       "assessmentId": "uuid",
       "score": 90,
       "feedback": "Bagus",
-      "assessedAt": "03-03-2026 09:00:00",
+      "assessedAt": "2026-03-03T09:00:00Z",
       "assessorName": "Nama Guru"
     }
   }

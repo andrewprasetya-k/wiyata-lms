@@ -46,9 +46,9 @@ sch_email text
 sch_phone text
 sch_website text
 sch_logo uuid
-created_at timestamp [default: `now()`]
-updated_at timestamp [default: `now()`]
-deleted_at timestamp
+created_at timestamptz [default: `now()`]
+updated_at timestamptz [default: `now()`]
+deleted_at timestamptz
 }
 
 Table academic_years {
@@ -56,7 +56,7 @@ acy_id uuid [pk, default: `gen_random_uuid()`]
 acy_sch_id uuid [ref: > schools.sch_id]
 acy_name varchar(20)
 is_active boolean [default: false]
-created_at timestamp [default: `now()`]
+created_at timestamptz [default: `now()`]
 
 indexes {
 (acy_sch_id, acy_name) [unique]
@@ -68,7 +68,7 @@ trm_id uuid [pk, default: `gen_random_uuid()`]
 trm_acy_id uuid [ref: > academic_years.acy_id]
 trm_name varchar(10)
 is_active boolean [default: false]
-created_at timestamp [default: `now()`]
+created_at timestamptz [default: `now()`]
 
 indexes {
 (trm_acy_id, trm_name) [unique]
@@ -81,9 +81,9 @@ usr_nama_lengkap varchar(150)
 usr_email varchar(150) [not null]
 usr_password varchar(255)
 is_active boolean [default: true]
-created_at timestamp [default: `now()`]
-updated_at timestamp [default: `now()`]
-deleted_at timestamp
+created_at timestamptz [default: `now()`]
+updated_at timestamptz [default: `now()`]
+deleted_at timestamptz
 
 indexes {
 (usr_email, deleted_at) [unique]
@@ -94,8 +94,8 @@ Table school_users {
 scu_id uuid [pk, default: `gen_random_uuid()`]
 scu_usr_id uuid [ref: > users.usr_id]
 scu_sch_id uuid [ref: > schools.sch_id]
-created_at timestamp [default: `now()`]
-deleted_at timestamp
+created_at timestamptz [default: `now()`]
+deleted_at timestamptz
 
 indexes {
 (scu_usr_id, scu_sch_id) [unique]
@@ -105,14 +105,14 @@ indexes {
 Table roles {
 rol_id uuid [pk, default: `gen_random_uuid()`]
 rol_name varchar(50)
-created_at timestamp [default: `now()`]
+created_at timestamptz [default: `now()`]
 }
 
 Table user_roles {
 urol_id uuid [pk, default: `gen_random_uuid()`]
 urol_scu_id uuid [ref: > school_users.scu_id]
 urol_rol_id uuid [ref: > roles.rol_id]
-created_at timestamp [default: `now()`]
+created_at timestamptz [default: `now()`]
 
 indexes {
 (urol_scu_id, urol_rol_id) [unique]
@@ -131,8 +131,8 @@ med_thumbnail_url text
 is_public boolean [default: true]
 med_owner_type owner_type
 med_owner_id uuid
-created_at timestamp [default: `now()`]
-deleted_at timestamp
+created_at timestamptz [default: `now()`]
+deleted_at timestamptz
 }
 
 // Relationship for school logo
@@ -144,7 +144,7 @@ att_sch_id uuid [ref: > schools.sch_id]
 att_source_id uuid
 att_source_type source_type
 att_med_id uuid [ref: > medias.med_id]
-created_at timestamp [default: `now()`]
+created_at timestamptz [default: `now()`]
 }
 
 Table subjects {
@@ -153,7 +153,7 @@ sub_sch_id uuid [ref: > schools.sch_id]
 sub_name varchar(100)
 sub_code varchar(20)
 sub_color varchar(9)
-created_at timestamp [default: `now()`]
+created_at timestamptz [default: `now()`]
 
 indexes {
 (sub_sch_id, sub_code) [unique]
@@ -170,9 +170,9 @@ cls_desc text
 created_by uuid [ref: > users.usr_id]
 is_active boolean [default: true]
 cls_chat_room_id uuid [ref: > chat_rooms.room_id] //NEW COLUMN TO SUPPORT CHAT FEATURE
-created_at timestamp [default: `now()`]
-updated_at timestamp [default: `now()`]
-deleted_at timestamp
+created_at timestamptz [default: `now()`]
+updated_at timestamptz [default: `now()`]
+deleted_at timestamptz
 
 indexes {
 (cls_sch_id, cls_code, cls_trm_id) [unique]
@@ -199,8 +199,8 @@ enr_sch_id uuid [ref: > schools.sch_id]
 enr_scu_id uuid [ref: > school_users.scu_id]
 enr_cls_id uuid [ref: > classes.cls_id]
 enr_role class_role
-joined_at timestamp [default: `now()`]
-left_at timestamp
+joined_at timestamptz [default: `now()`]
+left_at timestamptz
 
 indexes {
 (enr_scu_id, enr_cls_id) [unique]
@@ -218,9 +218,9 @@ mat_title varchar(150)
 mat_desc text
 mat_types material_type
 created_by uuid [ref: > users.usr_id]
-created_at timestamp [default: `now()`]
-updated_at timestamp [default: `now()`]
-deleted_at timestamp
+created_at timestamptz [default: `now()`]
+updated_at timestamptz [default: `now()`]
+deleted_at timestamptz
 }
 
 Table material_progress {
@@ -228,7 +228,7 @@ map_id uuid [pk, default: `gen_random_uuid()`]
 map_usr_id uuid [ref: > users.usr_id]
 map_mat_id uuid [ref: > materials.mat_id]
 map_status status_progress
-last_opened_at timestamp
+last_opened_at timestamptz
 
 indexes {
 (map_usr_id, map_mat_id) [unique]
@@ -241,8 +241,8 @@ fds_sch_id uuid [ref: > schools.sch_id]
 fds_cls_id uuid [ref: > classes.cls_id]
 fds_content text
 created_by uuid [ref: > users.usr_id]
-created_at timestamp [default: `now()`]
-deleted_at timestamp
+created_at timestamptz [default: `now()`]
+deleted_at timestamptz
 }
 
 Table comments {
@@ -252,15 +252,15 @@ cmn_source_type source_type
 cmn_source_id uuid
 cmn_usr_id uuid [ref: > users.usr_id]
 cmn_content text
-created_at timestamp [default: `now()`]
-deleted_at timestamp
+created_at timestamptz [default: `now()`]
+deleted_at timestamptz
 }
 
 Table assignment_categories {
 asc_id uuid [pk, default: `gen_random_uuid()`]
 asc_sch_id uuid [ref: > schools.sch_id]
 asc_name varchar(50)
-created_at timestamp [default: `now()`]
+created_at timestamptz [default: `now()`]
 
 indexes {
 (asc_sch_id, asc_name) [unique]
@@ -274,12 +274,12 @@ asg_scl_id uuid [ref: > subject_classes.scl_id]
 asg_asc_id uuid [ref: > assignment_categories.asc_id]
 asg_title varchar(150)
 asg_desc text
-asg_deadline timestamp
+asg_deadline timestamptz
 asg_allowed_late bool
 created_by uuid [ref: > users.usr_id]
-created_at timestamp [default: `now()`]
-updated_at timestamp [default: `now()`]
-deleted_at timestamp
+created_at timestamptz [default: `now()`]
+updated_at timestamptz [default: `now()`]
+deleted_at timestamptz
 }
 
 Table submissions {
@@ -287,8 +287,8 @@ sbm_id uuid [pk, default: `gen_random_uuid()`]
 sbm_sch_id uuid [ref: > schools.sch_id]
 sbm_asg_id uuid [ref: > assignments.asg_id]
 sbm_usr_id uuid [ref: > users.usr_id]
-submitted_at timestamp [default: `now()`]
-deleted_at timestamp
+submitted_at timestamptz [default: `now()`]
+deleted_at timestamptz
 
 indexes {
 (sbm_asg_id, sbm_usr_id) [unique]
@@ -301,7 +301,7 @@ asm_sbm_id uuid [ref: > submissions.sbm_id]
 asm_score decimal(5,2)
 asm_feedback text
 assessed_by uuid [ref: > users.usr_id]
-assessed_at timestamp [default: `now()`]
+assessed_at timestamptz [default: `now()`]
 
 indexes {
 (asm_sbm_id) [unique]
@@ -325,7 +325,7 @@ log_sch_id uuid [ref: > schools.sch_id]
 log_usr_id uuid [ref: > users.usr_id]
 log_action varchar(150)
 log_metadata jsonb
-created_at timestamp [default: `now()`]
+created_at timestamptz [default: `now()`]
 }
 
 Table notifications {
@@ -337,7 +337,7 @@ ntf_message text
 ntf_link text
 ntf_related_id uuid
 is_read boolean [default: false]
-created_at timestamp [default: `now()`]
+created_at timestamptz [default: `now()`]
 
 indexes {
 (ntf_usr_id, is_read, created_at) [name: 'idx_notifications_user']
@@ -370,8 +370,8 @@ room_ref_type varchar(20) // 'class' | 'subject' | null
 room_ref_id uuid // cls_id atau scl_id, null untuk DM
 
 created_by uuid [ref: > users.usr_id]
-created_at timestamp [default: `now()`]
-deleted_at timestamp
+created_at timestamptz [default: `now()`]
+deleted_at timestamptz
 
 indexes {
 (room_sch_id, room_ref_type, room_ref_id) [unique, name: 'idx_chat_room_ref']
@@ -384,8 +384,8 @@ crm_room_id uuid [ref: > chat_rooms.room_id]
 crm_usr_id uuid [ref: > users.usr_id]
 crm_enr_id uuid [ref: > enrollments.enr_id]
 crm_role varchar(20) [default: 'member'] // NEW — 'admin' | 'member'
-joined_at timestamp [default: `now()`]
-left_at timestamp
+joined_at timestamptz [default: `now()`]
+left_at timestamptz
 
 indexes {
 (crm_room_id, crm_usr_id) [unique]
@@ -407,8 +407,8 @@ msg_reply_to uuid [ref: > chat_messages.msg_id]
 msg_ref_type source_type // pakai enum source_type yang sudah ada
 msg_ref_id uuid
 
-created_at timestamp [default: `now()`]
-deleted_at timestamp
+created_at timestamptz [default: `now()`]
+deleted_at timestamptz
 }
 
 Table chat_attachments {
@@ -418,7 +418,7 @@ cat_msg_id uuid [ref: > chat_messages.msg_id]
 // pakai medias yang sudah ada di Wiyata
 cat_med_id uuid [ref: > medias.med_id]
 
-created_at timestamp [default: `now()`]
+created_at timestamptz [default: `now()`]
 }
 
 Table chat_read_receipts {
@@ -426,7 +426,7 @@ rct_id uuid [pk, default: `gen_random_uuid()`]
 rct_room_id uuid [ref: > chat_rooms.room_id]
 rct_usr_id uuid [ref: > users.usr_id]
 last_read_msg_id uuid [ref: > chat_messages.msg_id]
-last_read_at timestamp
+last_read_at timestamptz
 
 indexes {
 (rct_room_id, rct_usr_id) [unique]
@@ -439,8 +439,8 @@ snt_sch_id uuid [ref: > schools.sch_id]
 snt_usr_id uuid [ref: > users.usr_id]
 snt_mat_id uuid [ref: > materials.mat_id]
 snt_content text // private plain-text material note, max 10,000 characters at API layer
-created_at timestamp [default: `now()`]
-updated_at timestamp [default: `now()`]
+created_at timestamptz [default: `now()`]
+updated_at timestamptz [default: `now()`]
 
 indexes {
 (snt_usr_id, snt_mat_id) [unique]

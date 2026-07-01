@@ -50,7 +50,7 @@ Base URL: `/api/enrollments`
         "userFullName": "John Doe",
         "userEmail": "john@example.com",
         "role": "student",
-        "joinedAt": "23-02-2026 10:00:00"
+        "joinedAt": "2026-02-23T10:00:00Z"
       }
     ],
     "totalItems": 40,

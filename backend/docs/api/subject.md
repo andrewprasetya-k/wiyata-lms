@@ -38,7 +38,7 @@ Retrieve all subjects for a specific school, including school details.
       "subjectName": "Matematika",
       "subjectCode": "MTK",
       "color": "#4F46E5",
-      "createdAt": "13-02-2026 15:00:00"
+      "createdAt": "2026-02-13T15:00:00Z"
     }
   ]
 }

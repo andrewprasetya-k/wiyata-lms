@@ -834,7 +834,7 @@ SubjectClass: Daily learning workspace
 #### Soft Deletes
 
 ```
-Most entities: deleted_at nullable timestamp
+Most entities: deleted_at nullable timestamptz
 GORM automatically filters out soft-deleted in queries
 Hard delete available for super_admin only
 ```

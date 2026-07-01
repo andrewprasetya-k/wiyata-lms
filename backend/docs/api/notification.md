@@ -32,7 +32,7 @@ Retrieve notifications untuk authenticated user dengan pagination.
       "message": "New assignment 'Quiz Chapter 1' has been posted in Matematika",
       "link": "/assignments/uuid",
       "isRead": false,
-      "createdAt": "12-03-2026 10:00:00"
+      "createdAt": "2026-03-12T10:00:00Z"
     },
     {
       "notificationId": "uuid",
@@ -41,7 +41,7 @@ Retrieve notifications untuk authenticated user dengan pagination.
       "message": "Your assignment 'Quiz Chapter 1' has been graded: 85/100",
       "link": "/assignments/uuid",
       "isRead": true,
-      "createdAt": "11-03-2026 15:30:00"
+      "createdAt": "2026-03-11T15:30:00Z"
     }
   ],
   "unreadCount": 3,

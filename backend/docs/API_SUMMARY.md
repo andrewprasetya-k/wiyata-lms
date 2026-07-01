@@ -308,9 +308,12 @@ Most list endpoints support:
 
 ### Timestamp Policy
 
-- Current schema uses `timestamp without time zone` for most business timestamps.
-- MVP write policy: backend-generated business timestamps are written as Asia/Jakarta local wall-clock time.
-- Future production policy should migrate to `timestamptz`/UTC with an explicit historical data conversion plan.
+- Schema timestamp columns use PostgreSQL `timestamptz`.
+- Backend stores timestamp values as instants, not Asia/Jakarta wall-clock literals.
+- API timestamp responses use RFC3339 timezone-aware strings.
+- Frontend displays timestamp values in the user's/local display timezone.
+- Assignment deadlines are instants. The MVP teacher form sends deadline input with the Jakarta offset (`+07:00`) so the selected school-local time is preserved.
+- Academic Activity `date` remains date-only (`YYYY-MM-DD`) and is not a timestamp.
 
 ### File Handling
 

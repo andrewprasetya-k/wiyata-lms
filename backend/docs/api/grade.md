@@ -138,10 +138,10 @@ SchoolId: uuid-school-id
           "categoryName": "Quiz",
           "deadline": "2026-03-01T23:59:59Z",
           "status": "graded",
-          "submittedAt": "02-03-2026 10:30:00",
+          "submittedAt": "2026-03-02T10:30:00Z",
           "score": 90,
           "feedback": "Bagus",
-          "assessedAt": "03-03-2026 09:00:00",
+          "assessedAt": "2026-03-03T09:00:00Z",
           "assessorName": "Nama Guru"
         }
       ]

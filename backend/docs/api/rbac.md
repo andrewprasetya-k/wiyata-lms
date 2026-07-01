@@ -44,12 +44,12 @@ Role-Based Access Control (RBAC) mengamankan API endpoints berdasarkan role user
   {
     "roleId": "uuid",
     "roleName": "super_admin",
-    "createdAt": "02-01-2006 15:04:05"
+    "createdAt": "2026-02-24T03:30:00Z"
   },
   {
     "roleId": "uuid",
     "roleName": "teacher",
-    "createdAt": "02-01-2006 15:04:05"
+    "createdAt": "2026-02-24T03:30:00Z"
   }
 ]
 ```

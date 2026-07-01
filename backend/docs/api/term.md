@@ -33,7 +33,7 @@ Retrieve all terms for a specific academic year.
     "schoolName": "Wiyata Academy",
     "termName": "Semester Ganjil",
     "isActive": true,
-    "createdAt": "13-02-2026 11:00:00"
+    "createdAt": "2026-02-13T11:00:00Z"
   }
 ]
 ```

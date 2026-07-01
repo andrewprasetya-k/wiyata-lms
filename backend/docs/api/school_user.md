@@ -44,7 +44,7 @@ Retrieve all users who belong to a specific school, including school details.
         "fullName": "John Doe",
         "email": "john@doe.com",
         "roles": ["Teacher", "Admin"],
-        "createdAt": "13-02-2026 14:00:00"
+        "createdAt": "2026-02-13T14:00:00Z"
       }
     ],
     "totalItems": 150,

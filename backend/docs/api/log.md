@@ -19,7 +19,7 @@ Retrieve a paginated history of system activities for a specific school.
       "userName": "Admin Budi",
       "action": "CREATE_CLASS",
       "metadata": "{"classTitle": "X-IPA-1"}",
-      "createdAt": "13-02-2026 17:00:00"
+      "createdAt": "2026-02-13T17:00:00Z"
     }
   ],
   "totalItems": 500,

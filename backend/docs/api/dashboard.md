@@ -16,7 +16,7 @@ Get dashboard statistics for a student.
       "assignmentId": "uuid",
       "assignmentTitle": "Quiz Chapter 1",
       "subjectName": "Matematika",
-      "deadline": "01-03-2026 23:59",
+      "deadline": "2026-03-01T16:59:00Z",
       "isSubmitted": false
     }
   ],
@@ -93,7 +93,7 @@ Get dashboard statistics for school admin.
     {
       "userName": "John Doe",
       "action": "Created new assignment",
-      "timestamp": "24-02-2026 10:30:00"
+      "timestamp": "2026-02-24T03:30:00Z"
     }
   ]
 }
