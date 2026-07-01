@@ -6,6 +6,12 @@ let pollTimer: number | undefined;
 let refreshTimer: number | undefined;
 let consumerCount = 0;
 let optimisticClearVersion = 0;
+let suppressAutoRefreshUntil = 0;
+const optimisticClearSuppressionMs = 5000;
+
+function isAutoRefreshSuppressed() {
+  return Date.now() < suppressAutoRefreshUntil;
+}
 
 function schedulePolling() {
   if (pollTimer) {
@@ -19,7 +25,11 @@ function schedulePolling() {
   }, 45000);
 }
 
-async function refreshUnreadCount() {
+async function refreshUnreadCount(options: { force?: boolean } = {}) {
+  if (!options.force && isAutoRefreshSuppressed()) {
+    return;
+  }
+
   try {
     const response = await getFeedUnreadCount();
     unreadCount.value = Math.max(0, response.unreadCount || 0);
@@ -52,6 +62,7 @@ export function emitFeedUnreadRefresh() {
 
 export function clearFeedUnreadOptimistically() {
   optimisticClearVersion += 1;
+  suppressAutoRefreshUntil = Date.now() + optimisticClearSuppressionMs;
   const snapshot = {
     previousCount: unreadCount.value,
     version: optimisticClearVersion,
@@ -62,6 +73,7 @@ export function clearFeedUnreadOptimistically() {
 
 export function restoreFeedUnreadCount(snapshot: { previousCount: number; version: number }) {
   if (snapshot.version !== optimisticClearVersion) return;
+  suppressAutoRefreshUntil = 0;
   unreadCount.value = Math.max(0, snapshot.previousCount);
 }
 
