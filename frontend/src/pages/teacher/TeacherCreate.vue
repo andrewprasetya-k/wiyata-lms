@@ -40,7 +40,7 @@ async function loadSubjects() {
     subjects.value = await getMyTeachingSubjectClasses();
   } catch {
     errorMessage.value =
-      "Subject yang diajar belum bisa dimuat. Coba lagi beberapa saat.";
+      "Mata pelajaran yang diajar belum bisa dimuat. Coba lagi beberapa saat.";
   } finally {
     loading.value = false;
   }
@@ -57,11 +57,11 @@ onMounted(loadSubjects);
       >
         <p class="text-sm font-medium text-[#8a6d3b]">Buat konten</p>
         <h1 class="mt-3 text-3xl font-medium text-[#171322] md:text-4xl">
-          Pilih subject terlebih dahulu
+          Pilih mata pelajaran terlebih dahulu
         </h1>
         <p class="mt-3 max-w-2xl text-sm leading-6 text-[#6b6475]">
-          Materi dan tugas dibuat dari subject workspace agar setiap konten
-          terhubung ke subject class yang benar.
+          Materi dan tugas dibuat dari ruang mengajar agar setiap konten
+          terhubung ke mata pelajaran dan kelas yang tepat.
         </p>
       </header>
 
@@ -69,7 +69,7 @@ onMounted(loadSubjects);
         v-if="loading"
         class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5"
       >
-        <p class="text-sm text-[#6b6475]">Memuat subject yang diajar...</p>
+        <p class="text-sm text-[#6b6475]">Memuat mata pelajaran yang diajar...</p>
       </section>
 
       <section
@@ -87,7 +87,7 @@ onMounted(loadSubjects);
             />
             <div>
               <h2 class="text-lg font-medium text-[#171322]">
-                Gagal memuat subject
+                Gagal memuat mata pelajaran
               </h2>
               <p class="mt-2 text-sm leading-6 text-[#6b6475]">
                 {{ errorMessage }}
@@ -116,10 +116,10 @@ onMounted(loadSubjects);
           </div>
           <div>
             <h2 class="text-lg font-medium text-[#171322]">
-              Belum ada subject yang diajar
+              Belum ada mata pelajaran yang diajar
             </h2>
             <p class="mt-2 max-w-2xl text-sm leading-6 text-[#6b6475]">
-              Admin sekolah perlu menugaskan guru ke subject class terlebih
+              Admin sekolah perlu menugaskan guru ke kelas ajar terlebih
               dahulu sebelum materi atau tugas dapat dibuat.
             </p>
           </div>
@@ -153,7 +153,7 @@ onMounted(loadSubjects);
             {{ subject.className || subject.classCode || "Kelas" }}
           </p>
           <h2 class="mt-1 text-2xl font-medium text-[#171322]">
-            {{ subject.subjectName || "Subject" }}
+            {{ subject.subjectName || "Mata pelajaran" }}
           </h2>
           <p
             v-if="subject.classCode"
@@ -162,7 +162,7 @@ onMounted(loadSubjects);
             Kode kelas: {{ subject.classCode }}
           </p>
           <p class="mt-4 text-sm leading-6 text-[#6b6475]">
-            Konten yang dibuat akan masuk ke workspace subject ini dan dapat
+            Konten yang dibuat akan masuk ke ruang mengajar ini dan dapat
             dilihat oleh siswa di kelas terkait.
           </p>
 
