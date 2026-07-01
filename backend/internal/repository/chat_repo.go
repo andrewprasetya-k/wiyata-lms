@@ -2,7 +2,6 @@ package repository
 
 import (
 	"backend/internal/domain"
-	"backend/internal/utils"
 	"fmt"
 	"time"
 
@@ -305,7 +304,7 @@ func (r *chatRepository) FindDirectMessageRoom(schoolID string, userID string, t
 func (r *chatRepository) CreateDirectMessageRoom(schoolID string, creatorID string, targetUserID string) (*ChatRoomRow, error) {
 	var created domain.ChatRoom
 	err := r.db.Transaction(func(tx *gorm.DB) error {
-		now := utils.NowJakarta()
+		now := time.Now()
 		var existing ChatRoomRow
 		if err := tx.Raw(chatRoomListSelect()+`
 			WHERE cr.room_sch_id = ?
@@ -499,7 +498,7 @@ func (r *chatRepository) UserIsRoomAdmin(userID string, roomID string) (bool, er
 func (r *chatRepository) CreateGroupRoomWithMembers(schoolID string, roomName string, creatorID string, memberUserIDs []string) (*domain.ChatRoom, error) {
 	var created domain.ChatRoom
 	err := r.db.Transaction(func(tx *gorm.DB) error {
-		now := utils.NowJakarta()
+		now := time.Now()
 		if err := tx.Raw(`
 			INSERT INTO edv.chat_rooms (room_sch_id, room_name, room_type, room_ref_type, room_ref_id, created_by, created_at)
 			VALUES (?, ?, 'group', NULL, NULL, ?, ?)
@@ -556,7 +555,7 @@ func (r *chatRepository) UpdateGroupRoomName(roomID string, schoolID string, roo
 }
 
 func (r *chatRepository) LeaveGroupRoom(roomID string, schoolID string, userID string) error {
-	now := utils.NowJakarta()
+	now := time.Now()
 	return r.db.Transaction(func(tx *gorm.DB) error {
 		var room struct {
 			RoomID    string `gorm:"column:room_id"`
@@ -611,7 +610,7 @@ func (r *chatRepository) LeaveGroupRoom(roomID string, schoolID string, userID s
 }
 
 func (r *chatRepository) AddGroupRoomMembers(roomID string, schoolID string, memberUserIDs []string) error {
-	now := utils.NowJakarta()
+	now := time.Now()
 	return r.db.Transaction(func(tx *gorm.DB) error {
 		var roomIDFound string
 		if err := tx.Raw(`
@@ -674,7 +673,7 @@ func (r *chatRepository) AddGroupRoomMembers(roomID string, schoolID string, mem
 }
 
 func (r *chatRepository) RemoveGroupRoomMember(roomID string, schoolID string, targetUserID string) error {
-	now := utils.NowJakarta()
+	now := time.Now()
 	return r.db.Transaction(func(tx *gorm.DB) error {
 		var room struct {
 			RoomID    string `gorm:"column:room_id"`
@@ -849,7 +848,7 @@ func (r *chatRepository) ListMessages(roomID string, limit int, before *time.Tim
 			WHERE msg.msg_room_id = ?
 				AND msg.msg_type IN ('text', 'file')
 				AND msg.deleted_at IS NULL
-				AND (?::timestamp IS NULL OR msg.created_at < ?)
+				AND (?::timestamptz IS NULL OR msg.created_at < ?)
 			ORDER BY msg.created_at DESC
 			LIMIT ?
 		) page
@@ -868,7 +867,7 @@ func (r *chatRepository) CreateMessageWithAttachments(message *domain.ChatMessag
 		if err := tx.Create(message).Error; err != nil {
 			return err
 		}
-		now := utils.NowJakarta()
+		now := time.Now()
 		for _, mediaID := range mediaIDs {
 			attachment := domain.ChatAttachment{
 				MessageID: message.ID,
@@ -958,7 +957,7 @@ func (r *chatRepository) ListMessageAttachments(messageIDs []string) (map[string
 }
 
 func (r *chatRepository) UpsertReadReceipt(roomID string, userID string, messageID *string) error {
-	now := utils.NowJakarta()
+	now := time.Now()
 	receipt := domain.ChatReadReceipt{
 		RoomID:            roomID,
 		UserID:            userID,
