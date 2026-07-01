@@ -25,10 +25,16 @@ const emit = defineEmits<{
 const isExpanded = ref(false)
 const hasLoaded = ref(false)
 const isLoading = ref(false)
-const isSubmitting = ref(false)
+const pendingSubmitCount = ref(0)
 const errorMessage = ref('')
+const submitErrorMessage = ref('')
 const commentText = ref('')
-const comments = ref<FeedComment[]>([])
+type LocalFeedComment = FeedComment & {
+  optimisticStatus?: 'pending'
+  localOnly?: boolean
+}
+
+const comments = ref<LocalFeedComment[]>([])
 const deletingCommentIds = ref<Set<string>>(new Set())
 
 const visibleCommentCount = computed(() => props.post.commentCount ?? comments.value.length)
@@ -62,18 +68,51 @@ function getCommentErrorMessage(error: unknown, fallback: string) {
   return fallback
 }
 
-async function loadComments() {
-  isLoading.value = true
+function emitCurrentCommentCount() {
+  emit('comment-count-change', props.post.feedId, comments.value.length)
+}
+
+function createTempComment(content: string): LocalFeedComment {
+  return {
+    commentId: `temp-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+    sourceType: 'feed',
+    sourceId: props.post.feedId,
+    content,
+    creatorName: 'Anda',
+    createdAt: new Date().toISOString(),
+    isMine: true,
+    optimisticStatus: 'pending',
+  }
+}
+
+async function loadComments(options: { preserveLocal?: boolean; excludeTempId?: string; silent?: boolean } = {}) {
+  if (!options.silent) {
+    isLoading.value = true
+  }
   errorMessage.value = ''
 
   try {
-    comments.value = await getFeedComments(props.post.feedId)
+    const serverComments = await getFeedComments(props.post.feedId)
+    const localComments = options.preserveLocal
+      ? comments.value.filter(
+          (comment) =>
+            comment.optimisticStatus === 'pending' && comment.commentId !== options.excludeTempId,
+        )
+      : []
+
+    comments.value = [...serverComments, ...localComments]
     hasLoaded.value = true
-    emit('comment-count-change', props.post.feedId, comments.value.length)
+    emitCurrentCommentCount()
+    return true
   } catch (error) {
-    errorMessage.value = getCommentErrorMessage(error, 'Komentar belum bisa dimuat.')
+    if (!options.silent) {
+      errorMessage.value = getCommentErrorMessage(error, 'Komentar belum bisa dimuat.')
+    }
+    return false
   } finally {
-    isLoading.value = false
+    if (!options.silent) {
+      isLoading.value = false
+    }
   }
 }
 
@@ -87,21 +126,41 @@ async function toggleComments() {
 
 async function submitComment() {
   const trimmed = commentText.value.trim()
-  if (!trimmed || isSubmitting.value) {
+  if (!trimmed) {
     return
   }
 
-  isSubmitting.value = true
-  errorMessage.value = ''
+  const tempComment = createTempComment(trimmed)
+  comments.value = [...comments.value, tempComment]
+  commentText.value = ''
+  pendingSubmitCount.value += 1
+  submitErrorMessage.value = ''
+  emitCurrentCommentCount()
 
   try {
     await createFeedComment(props.post.feedId, trimmed)
-    commentText.value = ''
-    await loadComments()
+    const refreshed = await loadComments({
+      preserveLocal: true,
+      excludeTempId: tempComment.commentId,
+      silent: true,
+    })
+
+    if (!refreshed) {
+      comments.value = comments.value.map((comment) =>
+        comment.commentId === tempComment.commentId
+          ? { ...comment, optimisticStatus: undefined, localOnly: true }
+          : comment,
+      )
+    }
   } catch (error) {
-    errorMessage.value = getCommentErrorMessage(error, 'Komentar belum bisa dikirim.')
+    comments.value = comments.value.filter((comment) => comment.commentId !== tempComment.commentId)
+    if (!commentText.value.trim()) {
+      commentText.value = trimmed
+    }
+    submitErrorMessage.value = getCommentErrorMessage(error, 'Komentar belum bisa dikirim.')
+    emitCurrentCommentCount()
   } finally {
-    isSubmitting.value = false
+    pendingSubmitCount.value = Math.max(0, pendingSubmitCount.value - 1)
   }
 }
 
@@ -116,7 +175,7 @@ async function removeComment(comment: FeedComment) {
   try {
     await deleteFeedComment(comment.commentId)
     comments.value = comments.value.filter((item) => item.commentId !== comment.commentId)
-    emit('comment-count-change', props.post.feedId, comments.value.length)
+    emitCurrentCommentCount()
   } catch (error) {
     errorMessage.value = getCommentErrorMessage(error, 'Komentar belum bisa dihapus.')
   } finally {
@@ -151,7 +210,7 @@ async function removeComment(comment: FeedComment) {
         <button
           class="mt-3 inline-flex items-center gap-2 rounded-2xl border border-[#fed7aa] px-3 py-2 text-xs font-medium text-[#9a3412] transition hover:bg-[#ffedd5]"
           type="button"
-          @click="loadComments"
+          @click="() => loadComments()"
         >
           <PhArrowClockwise :size="14" />
           Coba lagi
@@ -177,11 +236,11 @@ async function removeComment(comment: FeedComment) {
                 {{ comment.creatorName || 'Pengirim tidak tersedia' }}
               </p>
               <p class="mt-0.5 text-[11px] text-[#a09aa8]">
-                {{ formatDateTime(comment.createdAt) }}
+                {{ comment.optimisticStatus === 'pending' ? 'Mengirim...' : formatDateTime(comment.createdAt) }}
               </p>
             </div>
             <button
-              v-if="comment.isMine"
+              v-if="comment.isMine && !comment.optimisticStatus && !comment.localOnly"
               class="inline-flex shrink-0 items-center gap-1 rounded-xl px-2 py-1 text-[11px] font-medium text-[#b42318] transition hover:bg-[#fff1f0] disabled:cursor-not-allowed disabled:opacity-60"
               type="button"
               :disabled="deletingCommentIds.has(comment.commentId)"
@@ -191,8 +250,14 @@ async function removeComment(comment: FeedComment) {
               Hapus
             </button>
           </div>
-          <p class="mt-2 whitespace-pre-line break-words text-xs leading-5 text-[#4a4356]">
+          <p class="mt-2 whitespace-pre-line wrap-break-word text-xs leading-5 text-[#4a4356]">
             {{ comment.content }}
+          </p>
+          <p
+            v-if="comment.optimisticStatus === 'pending'"
+            class="mt-2 text-[11px] font-medium text-[#7a7385]"
+          >
+            Mengirim komentar...
           </p>
         </div>
       </div>
@@ -206,15 +271,18 @@ async function removeComment(comment: FeedComment) {
           maxlength="800"
           placeholder="Tulis komentar singkat..."
         />
+        <p v-if="submitErrorMessage" class="text-[11px] font-medium text-[#b42318]">
+          {{ submitErrorMessage }}
+        </p>
         <div class="flex items-center justify-between gap-3">
           <p class="text-[11px] text-[#8b8592]">Komentar hanya untuk feed kelas.</p>
           <button
             class="inline-flex items-center gap-2 rounded-2xl bg-[#4f46e5] px-3 py-2 text-xs font-medium text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:opacity-60"
             type="submit"
-            :disabled="!commentText.trim() || isSubmitting"
+            :disabled="!commentText.trim()"
           >
             <PhPaperPlaneTilt :size="14" weight="duotone" />
-            {{ isSubmitting ? 'Mengirim...' : 'Kirim' }}
+            {{ pendingSubmitCount > 0 ? 'Kirim lagi' : 'Kirim' }}
           </button>
         </div>
       </form>
