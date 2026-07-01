@@ -423,68 +423,81 @@ function isInternalNotificationLink(link?: string) {
   return Boolean(link && link.startsWith("/") && !link.startsWith("//"));
 }
 
-async function markNotificationRead(item: NotificationItem) {
+function markNotificationRead(item: NotificationItem) {
   if (markingNotificationIds.value.has(item.notificationId)) {
-    return false;
+    return;
   }
 
   if (item.isRead) {
-    return true;
+    return;
   }
 
+  const previousUnreadCount = unreadCount.value;
+  const previousNotification = notifications.value.find(
+    (notification) => notification.notificationId === item.notificationId,
+  );
+
+  notifications.value = notifications.value.map((notification) =>
+    notification.notificationId === item.notificationId
+      ? { ...notification, isRead: true }
+      : notification,
+  );
+  unreadCount.value = Math.max(0, unreadCount.value - 1);
   markingNotificationIds.value = new Set([
     ...markingNotificationIds.value,
     item.notificationId,
   ]);
 
-  try {
-    await markNotificationAsRead(item.notificationId);
-    notifications.value = notifications.value.map((notification) =>
-      notification.notificationId === item.notificationId
-        ? { ...notification, isRead: true }
-        : notification,
-    );
-    unreadCount.value = Math.max(0, unreadCount.value - 1);
-    return true;
-  } catch (error) {
-    toast.error(notificationErrorMessage(error));
-    return false;
-  } finally {
-    const next = new Set(markingNotificationIds.value);
-    next.delete(item.notificationId);
-    markingNotificationIds.value = next;
-  }
+  void markNotificationAsRead(item.notificationId)
+    .catch((error) => {
+      if (previousNotification && !previousNotification.isRead) {
+        notifications.value = notifications.value.map((notification) =>
+          notification.notificationId === item.notificationId
+            ? { ...notification, isRead: false }
+            : notification,
+        );
+        unreadCount.value = previousUnreadCount;
+      }
+      toast.error(notificationErrorMessage(error));
+    })
+    .finally(() => {
+      const next = new Set(markingNotificationIds.value);
+      next.delete(item.notificationId);
+      markingNotificationIds.value = next;
+    });
 }
 
 async function handleNotificationClick(item: NotificationItem) {
-  if (markingNotificationIds.value.has(item.notificationId)) {
-    return;
-  }
-
-  const didMark = await markNotificationRead(item);
-  if (didMark && isInternalNotificationLink(item.link)) {
+  markNotificationRead(item);
+  if (isInternalNotificationLink(item.link)) {
     await router.push(item.link as string);
   }
 }
 
-async function markAllNotificationsRead() {
+function markAllNotificationsRead() {
   if (unreadCount.value <= 0 || markingAllNotifications.value) return;
 
+  const previousNotifications = notifications.value;
+  const previousUnreadCount = unreadCount.value;
   markingAllNotifications.value = true;
+  notifications.value = notifications.value.map((notification) => ({
+    ...notification,
+    isRead: true,
+  }));
+  unreadCount.value = 0;
 
-  try {
-    await markAllNotificationsAsRead();
-    notifications.value = notifications.value.map((notification) => ({
-      ...notification,
-      isRead: true,
-    }));
-    unreadCount.value = 0;
-    toast.success("Semua notifikasi ditandai sudah dibaca.");
-  } catch (error) {
-    toast.error(notificationErrorMessage(error));
-  } finally {
-    markingAllNotifications.value = false;
-  }
+  void markAllNotificationsAsRead()
+    .then(() => {
+      toast.success("Semua notifikasi ditandai sudah dibaca.");
+    })
+    .catch((error) => {
+      notifications.value = previousNotifications;
+      unreadCount.value = previousUnreadCount;
+      toast.error(notificationErrorMessage(error));
+    })
+    .finally(() => {
+      markingAllNotifications.value = false;
+    });
 }
 
 onMounted(() => {
