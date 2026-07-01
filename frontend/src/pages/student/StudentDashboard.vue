@@ -28,7 +28,6 @@ import type { NotificationItem } from "../../types/dashboard";
 import type { StudentAssignmentInboxItem } from "../../types/assignment";
 import type { AcademicActivityItem } from "../../types/activity";
 import {
-  APP_TIME_ZONE,
   formatDate,
   formatDateTime,
   parseBackendTimestamp,
@@ -53,18 +52,6 @@ const activeClassStore = useActiveClassStore();
 const toast = useToastStore();
 const router = useRouter();
 const { unreadCount: feedPanelUnreadCount } = useFeedUnreadCount();
-const jakartaDateKeyFormatter = new Intl.DateTimeFormat("en-CA", {
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-  timeZone: APP_TIME_ZONE,
-});
-const jakartaTimeFormatter = new Intl.DateTimeFormat("id-ID", {
-  hour: "2-digit",
-  minute: "2-digit",
-  hour12: false,
-  timeZone: APP_TIME_ZONE,
-});
 
 const subjects = ref<SubjectClassItem[]>([]);
 const feedPosts = ref<FeedPost[]>([]);
@@ -124,7 +111,7 @@ const calendarActivities = computed(
 );
 const selectedDateActivities = computed(() =>
   calendarActivities.value
-    .filter((item) => calendarActivityDateKey(item) === selectedDate.value)
+    .filter((item) => item.date === selectedDate.value)
     .sort(compareActivities),
 );
 const selectedDateDeadlineActivities = computed(() =>
@@ -403,24 +390,8 @@ function buildCalendarDays(date: Date) {
 function activitiesForDate(dateKey: string) {
   return calendarActivities.value
     .filter((item) => item.type === "assignment_due")
-    .filter((item) => calendarActivityDateKey(item) === dateKey)
+    .filter((item) => item.date === dateKey)
     .sort(compareActivities);
-}
-
-function calendarActivityDateKey(activity: AcademicActivityItem) {
-  const eventAt = calendarActivityInstant(activity);
-  return eventAt ? jakartaDateKeyFormatter.format(eventAt) : activity.date;
-}
-
-function calendarActivityInstant(activity: AcademicActivityItem) {
-  if (activity.type !== "assignment_due" || !activity.date || !activity.time) {
-    return null;
-  }
-
-  const eventAt = parseBackendTimestamp(
-    `${activity.date}T${activity.time}:00Z`,
-  );
-  return eventAt;
 }
 
 function monthKey(date: Date) {
@@ -465,8 +436,6 @@ function calendarDateAriaLabel(day: {
 }
 
 function calendarActivityTime(activity: AcademicActivityItem) {
-  const eventAt = calendarActivityInstant(activity);
-  if (eventAt) return jakartaTimeFormatter.format(eventAt);
   return activity.time || "Sepanjang hari";
 }
 
