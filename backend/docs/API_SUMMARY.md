@@ -8,6 +8,7 @@ Base URL: `http://localhost:8080/api`
 
 - `POST /login` - User login
 - `POST /register` - Public user self-registration (plain global account only)
+- `POST /school-registration-requests` - Submit a public school registration request for later super admin review
 
 **All other endpoints require JWT authentication.**
 
@@ -21,6 +22,7 @@ Authorization: Bearer <your-jwt-token>
 
 ## 🏫 Schools
 
+- `POST /school-registration-requests` - Public request approval flow foundation; creates a pending school registration request only
 - `POST /schools` - Create school
 - `POST /super-admin/school-bootstrap` - Atomically create school tenant and assign initial school admin (system super_admin only)
 - `GET /schools` - List all schools (with pagination)

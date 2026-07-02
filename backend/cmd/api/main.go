@@ -39,6 +39,9 @@ func main() {
 	schoolRepo := repository.NewSchoolRepository(db)
 	schoolService := service.NewSchoolService(schoolRepo)
 	schoolHandler := handler.NewSchoolHandler(schoolService)
+	schoolRegistrationRequestRepo := repository.NewSchoolRegistrationRequestRepository(db)
+	schoolRegistrationRequestService := service.NewSchoolRegistrationRequestService(schoolRegistrationRequestRepo)
+	schoolRegistrationRequestHandler := handler.NewSchoolRegistrationRequestHandler(schoolRegistrationRequestService)
 
 	academicYearRepo := repository.NewAcademicYearRepository(db)
 	academicYearService := service.NewAcademicYearService(academicYearRepo, schoolService)
@@ -163,6 +166,7 @@ func main() {
 		//public routes
 		api.POST("/login", authHandler.Login)
 		api.POST("/register", authHandler.Register)
+		api.POST("/school-registration-requests", schoolRegistrationRequestHandler.Create)
 		api.GET("/ws/chat", chatWebSocketHandler.Chat)
 
 		//protected routes

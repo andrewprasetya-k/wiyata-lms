@@ -51,6 +51,29 @@ updated_at timestamptz [default: `now()`]
 deleted_at timestamptz
 }
 
+Table school_registration_requests {
+srr_id uuid [pk, default: `gen_random_uuid()`]
+srr_school_name text [not null]
+srr_npsn text
+srr_pic_name text [not null]
+srr_pic_email text [not null]
+srr_pic_phone text
+srr_pic_role text
+srr_message text
+srr_status text [not null, default: `'pending'`]
+srr_reviewed_by uuid [ref: > users.usr_id]
+srr_reviewed_at timestamptz
+srr_review_note text
+created_at timestamptz [default: `now()`]
+updated_at timestamptz [default: `now()`]
+
+indexes {
+(srr_status, created_at) [name: 'idx_school_registration_requests_status_created']
+(srr_pic_email, srr_status) [name: 'idx_school_registration_requests_pic_email_status']
+(srr_school_name, srr_status) [name: 'idx_school_registration_requests_school_name_status']
+}
+}
+
 Table academic_years {
 acy_id uuid [pk, default: `gen_random_uuid()`]
 acy_sch_id uuid [ref: > schools.sch_id]
