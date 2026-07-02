@@ -244,6 +244,12 @@ const screenshotSlots = [
         <!-- CTA + mobile -->
         <div class="flex items-center gap-3">
           <RouterLink
+            to="/school-registration"
+            class="hidden rounded-lg border border-[#e7e2da] bg-white px-4 py-2 text-sm font-medium text-[#5f5968] transition-colors hover:text-[#171322] sm:inline-flex"
+          >
+            Daftarkan Sekolah
+          </RouterLink>
+          <RouterLink
             to="/login"
             class="rounded-lg bg-[#4f46e5] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#4338ca]"
           >
@@ -333,9 +339,16 @@ const screenshotSlots = [
         class="mt-9 flex flex-col items-start gap-3 sm:flex-row sm:items-center"
       >
         <RouterLink
+          to="/school-registration"
+          id="hero-cta-daftar-sekolah"
+          class="inline-flex h-11 items-center justify-center rounded-lg bg-[#4f46e5] px-6 text-sm font-medium text-white transition-colors hover:bg-[#4338ca]"
+        >
+          Daftarkan Sekolah
+        </RouterLink>
+        <RouterLink
           to="/login"
           id="hero-cta-masuk"
-          class="inline-flex h-11 items-center justify-center rounded-lg bg-[#4f46e5] px-6 text-sm font-medium text-white transition-colors hover:bg-[#4338ca]"
+          class="inline-flex h-11 items-center justify-center rounded-lg border border-[#e7e2da] bg-white px-6 text-sm font-medium text-[#171322] transition-colors hover:bg-[#f8f7f4]"
         >
           Masuk ke Wiyata
         </RouterLink>
@@ -638,9 +651,17 @@ const screenshotSlots = [
 
           <div class="flex flex-col items-start gap-3 lg:items-end">
             <RouterLink
+              to="/school-registration"
+              id="final-cta-daftar-sekolah"
+              class="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-[#4f46e5] px-7 text-sm font-medium text-white transition-colors hover:bg-[#4338ca]"
+            >
+              Daftarkan Sekolah
+              <PhArrowRight :size="15" />
+            </RouterLink>
+            <RouterLink
               to="/login"
               id="final-cta-masuk"
-              class="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-[#4f46e5] px-7 text-sm font-medium text-white transition-colors hover:bg-[#4338ca]"
+              class="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-[#e7e2da] bg-transparent px-7 text-sm font-medium text-[#6b7280] transition-colors hover:border-[#d1cde5] hover:text-[#171322]"
             >
               Masuk ke Wiyata
               <PhArrowRight :size="15" />
@@ -695,6 +716,11 @@ const screenshotSlots = [
             >
             <RouterLink to="/login" class="hover:text-[#6b7280]"
               >Masuk</RouterLink
+            >
+            <RouterLink
+              to="/school-registration"
+              class="hover:text-[#6b7280]"
+              >Daftarkan Sekolah</RouterLink
             >
           </nav>
         </div>

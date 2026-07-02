@@ -46,6 +46,8 @@ import TeacherFeed from "../pages/teacher/TeacherFeed.vue";
 import TeacherChat from "../pages/teacher/TeacherChat.vue";
 import NotificationCenter from "../components/notifications/NotificationCenter.vue";
 import HomePage from "../pages/preview/HomePage.vue";
+import SchoolRegistration from "../pages/public/SchoolRegistration.vue";
+import AcceptInvitation from "../pages/public/AcceptInvitation.vue";
 import NotFoundPage from "../pages/common/NotFoundPage.vue";
 
 export const dashboardByRole: Record<RoleName, string> = {
@@ -67,6 +69,18 @@ const router = createRouter({
       name: "home",
       component: HomePage,
       meta: { title: "Satu workspace untuk aktivitas akademik sekolah." },
+    },
+    {
+      path: "/school-registration",
+      name: "school-registration",
+      component: SchoolRegistration,
+      meta: { title: "Daftarkan Sekolah" },
+    },
+    {
+      path: "/invite/:token",
+      name: "accept-invitation",
+      component: AcceptInvitation,
+      meta: { title: "Terima Undangan" },
     },
     {
       path: "/",
