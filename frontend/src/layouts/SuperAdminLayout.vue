@@ -1,10 +1,20 @@
 <script setup lang="ts">
-import { PhBuildings, PhHouse, PhUsers } from "@phosphor-icons/vue";
+import {
+  PhBuildings,
+  PhClipboardText,
+  PhHouse,
+  PhUsers,
+} from "@phosphor-icons/vue";
 import SlimSidebar from "../components/layout/Sidebar.vue";
 
 const items = [
   { label: "Dashboard", icon: PhHouse, to: "/superadmin/dashboard" },
   { label: "Sekolah", icon: PhBuildings, to: "/superadmin/schools" },
+  {
+    label: "Pendaftaran",
+    icon: PhClipboardText,
+    to: "/superadmin/school-registration-requests",
+  },
   { label: "Akun Global", icon: PhUsers, to: "/superadmin/users" },
 ];
 </script>

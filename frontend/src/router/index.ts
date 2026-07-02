@@ -33,6 +33,7 @@ import AdminUsers from "../pages/admin/AdminUsers.vue";
 import AdminChat from "../pages/admin/AdminChat.vue";
 import SuperAdminDashboard from "../pages/superadmin/SuperAdminDashboard.vue";
 import SuperAdminSchools from "../pages/superadmin/SuperAdminSchools.vue";
+import SuperAdminSchoolRegistrationRequests from "../pages/superadmin/SuperAdminSchoolRegistrationRequests.vue";
 import SuperAdminUsers from "../pages/superadmin/SuperAdminUsers.vue";
 import ReadProfile from "../pages/profile/ReadProfile.vue";
 import TeacherCreate from "../pages/teacher/TeacherCreate.vue";
@@ -401,6 +402,12 @@ const router = createRouter({
           name: "superadmin-schools",
           component: SuperAdminSchools,
           meta: { title: "Sekolah" },
+        },
+        {
+          path: "school-registration-requests",
+          name: "superadmin-school-registration-requests",
+          component: SuperAdminSchoolRegistrationRequests,
+          meta: { title: "Permintaan Pendaftaran Sekolah" },
         },
         {
           path: "users",
