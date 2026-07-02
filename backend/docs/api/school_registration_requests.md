@@ -172,7 +172,7 @@ Response:
 
 `PATCH /api/super-admin/school-registration-requests/:id/approve`
 
-Approving a request creates a school, creates an admin invitation, and marks the request as approved in one transaction. It does not create a user, school membership, password, or send email yet.
+Approving a request creates a school, creates an admin invitation, and marks the request as approved in one transaction. It then sends the admin invitation email best-effort when SMTP is configured. Email failure does not roll back approval, and the response still returns the invitation link/token for manual delivery.
 
 Only `pending` requests can be approved.
 
@@ -229,7 +229,7 @@ Response:
 }
 ```
 
-The raw invitation token is returned only once for development/testing because email sending is not implemented yet. The database stores only `inv_token_hash`.
+The raw invitation token is returned only once for development/testing and manual fallback. The database stores only `inv_token_hash`.
 
 ## Public Invitation Accept
 

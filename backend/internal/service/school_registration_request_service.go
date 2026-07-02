@@ -9,7 +9,9 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"net/mail"
+	"os"
 	"strings"
 	"time"
 
@@ -25,11 +27,15 @@ type SchoolRegistrationRequestService interface {
 }
 
 type schoolRegistrationRequestService struct {
-	repo repository.SchoolRegistrationRequestRepository
+	repo         repository.SchoolRegistrationRequestRepository
+	emailService EmailService
 }
 
-func NewSchoolRegistrationRequestService(repo repository.SchoolRegistrationRequestRepository) SchoolRegistrationRequestService {
-	return &schoolRegistrationRequestService{repo: repo}
+func NewSchoolRegistrationRequestService(repo repository.SchoolRegistrationRequestRepository, emailService EmailService) SchoolRegistrationRequestService {
+	if emailService == nil {
+		emailService = noopEmailService{}
+	}
+	return &schoolRegistrationRequestService{repo: repo, emailService: emailService}
 }
 
 func (s *schoolRegistrationRequestService) Create(input dto.CreateSchoolRegistrationRequestDTO) (*dto.CreateSchoolRegistrationRequestResponseDTO, error) {
@@ -247,6 +253,12 @@ func (s *schoolRegistrationRequestService) Approve(id string, reviewerID string,
 		return nil, err
 	}
 
+	acceptURL := "/invite/" + rawToken
+	emailAcceptURL := buildInvitationAcceptURL(rawToken)
+	if err := s.emailService.SendSchoolAdminInvitation(invitation.Email, school.Name, emailAcceptURL); err != nil {
+		fmt.Printf("[Email Warning] failed to send school admin invitation invitation_id=%s email=%s error=%s\n", invitation.ID, maskEmail(invitation.Email), err.Error())
+	}
+
 	return &dto.ApproveSchoolRegistrationRequestResponseDTO{
 		Message: "School registration request approved",
 		Request: mapSchoolRegistrationRequestDetail(updatedRequest),
@@ -260,7 +272,7 @@ func (s *schoolRegistrationRequestService) Approve(id string, reviewerID string,
 			Email:        invitation.Email,
 			Role:         invitation.Role,
 			ExpiresAt:    formatAPITime(invitation.ExpiresAt),
-			AcceptURL:    "/invite/" + rawToken,
+			AcceptURL:    acceptURL,
 			Token:        rawToken,
 		},
 	}, nil
@@ -331,6 +343,28 @@ func generateInvitationToken() (string, string, error) {
 	rawToken := base64.RawURLEncoding.EncodeToString(tokenBytes)
 	sum := sha256.Sum256([]byte(rawToken))
 	return rawToken, hex.EncodeToString(sum[:]), nil
+}
+
+func buildInvitationAcceptURL(rawToken string) string {
+	path := "/invite/" + rawToken
+	publicURL := strings.TrimRight(strings.TrimSpace(os.Getenv("APP_PUBLIC_URL")), "/")
+	if publicURL == "" {
+		return path
+	}
+	return publicURL + path
+}
+
+func maskEmail(email string) string {
+	email = strings.TrimSpace(email)
+	parts := strings.Split(email, "@")
+	if len(parts) != 2 || parts[0] == "" {
+		return "unknown"
+	}
+	local := parts[0]
+	if len(local) <= 2 {
+		return local[:1] + "***@" + parts[1]
+	}
+	return local[:2] + "***@" + parts[1]
 }
 
 func isValidSchoolRegistrationStatus(status string) bool {
