@@ -1,60 +1,60 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
-import { RouterLink, useRoute } from 'vue-router'
+import { computed, onMounted, reactive, ref } from "vue";
+import { RouterLink, useRoute } from "vue-router";
 import {
   acceptInvitation,
   getInvitation,
   type AcceptInvitationResponse,
   type InvitationMetadata,
-} from '../../services/onboarding'
+} from "../../services/onboarding";
 
-const route = useRoute()
-const token = computed(() => String(route.params.token ?? ''))
+const route = useRoute();
+const token = computed(() => String(route.params.token ?? ""));
 
-const invitation = ref<InvitationMetadata | null>(null)
-const accepted = ref<AcceptInvitationResponse | null>(null)
-const loading = ref(true)
-const submitting = ref(false)
-const errorMessage = ref('')
+const invitation = ref<InvitationMetadata | null>(null);
+const accepted = ref<AcceptInvitationResponse | null>(null);
+const loading = ref(true);
+const submitting = ref(false);
+const errorMessage = ref("");
 
 const form = reactive({
-  name: '',
-  password: '',
-  confirmPassword: '',
-})
+  name: "",
+  password: "",
+  confirmPassword: "",
+});
 
 const canSubmit = computed(
   () =>
-    form.name.trim() !== '' &&
+    form.name.trim() !== "" &&
     form.password.length >= 6 &&
     form.password === form.confirmPassword,
-)
+);
 
 function formatDateTime(value: string) {
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return value
-  return new Intl.DateTimeFormat('id-ID', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(date)
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat("id-ID", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(date);
 }
 
 function errorFromResponse(error: unknown) {
-  const maybeError = error as { response?: { data?: { error?: string } } }
-  return maybeError.response?.data?.error ?? 'Undangan belum bisa diproses.'
+  const maybeError = error as { response?: { data?: { error?: string } } };
+  return maybeError.response?.data?.error ?? "Undangan belum bisa diproses.";
 }
 
 async function loadInvitation() {
-  loading.value = true
-  errorMessage.value = ''
+  loading.value = true;
+  errorMessage.value = "";
   try {
-    invitation.value = await getInvitation(token.value)
+    invitation.value = await getInvitation(token.value);
   } catch (error) {
     errorMessage.value =
       errorFromResponse(error) ||
-      'Undangan tidak valid, sudah kedaluwarsa, atau sudah digunakan.'
+      "Undangan tidak valid, sudah kedaluwarsa, atau sudah digunakan.";
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
 
@@ -62,27 +62,27 @@ async function submit() {
   if (!canSubmit.value || submitting.value) {
     errorMessage.value =
       form.password !== form.confirmPassword
-        ? 'Konfirmasi password belum sama.'
-        : 'Lengkapi nama dan password minimal 6 karakter.'
-    return
+        ? "Konfirmasi password belum sama."
+        : "Lengkapi nama dan password minimal 6 karakter.";
+    return;
   }
 
-  submitting.value = true
-  errorMessage.value = ''
+  submitting.value = true;
+  errorMessage.value = "";
   try {
     accepted.value = await acceptInvitation(token.value, {
       name: form.name.trim(),
       password: form.password,
       confirmPassword: form.confirmPassword,
-    })
+    });
   } catch (error) {
-    errorMessage.value = errorFromResponse(error)
+    errorMessage.value = errorFromResponse(error);
   } finally {
-    submitting.value = false
+    submitting.value = false;
   }
 }
 
-onMounted(loadInvitation)
+onMounted(loadInvitation);
 </script>
 
 <template>
@@ -101,7 +101,9 @@ onMounted(loadInvitation)
     </div>
 
     <section class="mx-auto mt-12 max-w-4xl">
-      <div class="rounded-xl border border-[#ebe7df] bg-white p-6 shadow-sm md:p-8">
+      <div
+        class="rounded-xl border border-[#ebe7df] bg-white p-6 shadow-sm md:p-8"
+      >
         <div v-if="loading" class="space-y-5">
           <div class="h-5 w-36 animate-pulse rounded bg-[#ebe7df]" />
           <div class="h-9 w-2/3 animate-pulse rounded bg-[#ebe7df]" />
@@ -119,7 +121,8 @@ onMounted(loadInvitation)
             <p class="mt-2 text-sm leading-6 text-[#48614b]">
               Akun {{ accepted.user.email }} sekarang terhubung dengan
               {{ accepted.school.schoolName }} sebagai {{ accepted.role }}.
-              Silakan login memakai email undangan dan password yang baru dibuat.
+              Silakan login memakai email undangan dan password yang baru
+              dibuat.
             </p>
           </div>
           <RouterLink
@@ -131,7 +134,7 @@ onMounted(loadInvitation)
         </div>
 
         <div v-else-if="errorMessage && !invitation" class="space-y-5">
-          <div class="rounded-xl border border-[#ffd7d2] bg-[#fff7f5] p-5">
+          <div class="rounded-xl bg-[#fff7f5] p-5">
             <p class="text-lg font-semibold text-[#9f2a1d]">
               Undangan tidak bisa dibuka.
             </p>
@@ -147,7 +150,10 @@ onMounted(loadInvitation)
           </RouterLink>
         </div>
 
-        <div v-else-if="invitation" class="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
+        <div
+          v-else-if="invitation"
+          class="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]"
+        >
           <div>
             <p class="text-sm font-medium text-[#4f46e5]">Undangan sekolah</p>
             <h1 class="mt-3 text-3xl font-semibold leading-tight">
@@ -158,7 +164,9 @@ onMounted(loadInvitation)
               mulai memakai Wiyata setelah login.
             </p>
 
-            <dl class="mt-6 space-y-4 rounded-xl border border-[#ebe7df] bg-[#fbfaf8] p-5 text-sm">
+            <dl
+              class="mt-6 space-y-4 rounded-xl border border-[#ebe7df] bg-[#fbfaf8] p-5 text-sm"
+            >
               <div>
                 <dt class="text-[#8a8394]">Sekolah</dt>
                 <dd class="mt-1 font-medium text-[#171322]">
@@ -238,7 +246,7 @@ onMounted(loadInvitation)
               :disabled="submitting || !canSubmit"
               class="flex h-11 w-full items-center justify-center rounded-lg bg-[#4f46e5] px-5 text-sm font-medium text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:bg-[#bab7d8]"
             >
-              {{ submitting ? 'Memproses...' : 'Terima undangan' }}
+              {{ submitting ? "Memproses..." : "Terima undangan" }}
             </button>
           </form>
         </div>
