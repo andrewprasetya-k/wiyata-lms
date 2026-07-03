@@ -2,7 +2,14 @@
 
 Base URL: `/api/admin/school-member-invitations`
 
-These endpoints let an active-school admin invite teachers and students by email. They create invitation tokens only. They do not create users, school memberships, roles, or enrollments until the public invitation accept flow is extended in the next sprint.
+These endpoints let an active-school admin invite teachers and students by email. They create invitation tokens only. They do not create users, school memberships, roles, or enrollments when the invitation is created.
+
+When the public invitation accept endpoint is used:
+
+- Teacher invitations create or reuse the user, create or restore school membership, and assign the teacher role.
+- Student invitations create or reuse the user, create or restore school membership, assign the student role, and create or reactivate the stored class enrollment.
+- Admin onboarding invitations remain compatible and do not create enrollment.
+- If the stored student class no longer exists in the invitation school, accept fails and the invitation remains unaccepted.
 
 Direct-create school member endpoints remain available as a fallback and are not changed by this API.
 

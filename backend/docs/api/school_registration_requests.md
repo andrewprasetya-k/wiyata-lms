@@ -280,6 +280,8 @@ Behavior:
 - Sets the password only for a new user or an existing user with no password.
 - Creates or restores the school membership.
 - Assigns the invited role to the membership.
+- For student school-member invitations with a stored class, creates or reactivates the student enrollment during accept.
+- If the stored invitation class no longer exists in the invitation school, accept is rejected and the invitation remains unaccepted.
 - Marks the invitation as accepted.
 
 Response:

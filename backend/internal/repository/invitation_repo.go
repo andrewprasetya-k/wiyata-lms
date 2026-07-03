@@ -10,6 +10,7 @@ import (
 )
 
 var ErrInvitationInvalid = errors.New("invitation is invalid or expired")
+var ErrInvitationClassUnavailable = errors.New("invitation class is no longer available")
 
 type InvitationAcceptResult struct {
 	Invitation domain.Invitation
@@ -98,6 +99,12 @@ func (r *invitationRepository) Accept(tokenHash string, name string, passwordHas
 			DoNothing: true,
 		}).Create(&userRole).Error; err != nil {
 			return err
+		}
+
+		if invitation.Role == "student" && invitation.ClassID != nil {
+			if err := ensureInvitationStudentEnrollment(tx, invitation, schoolUser.ID); err != nil {
+				return err
+			}
 		}
 
 		if err := tx.Model(&domain.Invitation{}).
@@ -197,4 +204,41 @@ func resolveInvitationSchoolUser(tx *gorm.DB, userID string, schoolID string) (*
 		return nil, err
 	}
 	return &schoolUser, nil
+}
+
+func ensureInvitationStudentEnrollment(tx *gorm.DB, invitation domain.Invitation, schoolUserID string) error {
+	var class domain.Class
+	err := tx.Where("cls_id = ? AND cls_sch_id = ? AND deleted_at IS NULL", *invitation.ClassID, invitation.SchoolID).
+		First(&class).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return ErrInvitationClassUnavailable
+		}
+		return err
+	}
+
+	var enrollment domain.Enrollment
+	err = tx.Where("enr_scu_id = ? AND enr_cls_id = ?", schoolUserID, class.ID).First(&enrollment).Error
+	if err == nil {
+		if enrollment.LeftAt == nil && enrollment.Role == "student" {
+			return nil
+		}
+		return tx.Model(&domain.Enrollment{}).
+			Where("enr_id = ?", enrollment.ID).
+			Updates(map[string]any{
+				"enr_role": "student",
+				"left_at":  nil,
+			}).Error
+	}
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err
+	}
+
+	enrollment = domain.Enrollment{
+		SchoolID:     invitation.SchoolID,
+		SchoolUserID: schoolUserID,
+		ClassID:      class.ID,
+		Role:         "student",
+	}
+	return tx.Create(&enrollment).Error
 }

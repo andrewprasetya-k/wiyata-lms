@@ -50,6 +50,8 @@ func handleInvitationError(c *gin.Context, err error) {
 	switch {
 	case errors.Is(err, repository.ErrInvitationInvalid):
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invitation is invalid or expired"})
+	case errors.Is(err, repository.ErrInvitationClassUnavailable):
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invitation class is no longer available"})
 	case strings.Contains(errStr, "invitation"):
 		c.JSON(http.StatusBadRequest, gin.H{"error": errStr})
 	default:
