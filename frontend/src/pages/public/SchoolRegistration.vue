@@ -1,55 +1,56 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
-import { RouterLink } from 'vue-router'
-import { submitSchoolRegistrationRequest } from '../../services/onboarding'
+import { computed, reactive, ref } from "vue";
+import { RouterLink } from "vue-router";
+import { submitSchoolRegistrationRequest } from "../../services/onboarding";
 
 const form = reactive({
-  schoolName: '',
-  npsn: '',
-  picName: '',
-  picEmail: '',
-  picPhone: '',
-  picRole: '',
-  message: '',
-})
+  schoolName: "",
+  npsn: "",
+  picName: "",
+  picEmail: "",
+  picPhone: "",
+  picRole: "",
+  message: "",
+});
 
-const loading = ref(false)
-const errorMessage = ref('')
-const submittedEmail = ref('')
-const submittedSchool = ref('')
+const loading = ref(false);
+const errorMessage = ref("");
+const submittedEmail = ref("");
+const submittedSchool = ref("");
 
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const canSubmit = computed(
   () =>
-    form.schoolName.trim() !== '' &&
-    form.picName.trim() !== '' &&
+    form.schoolName.trim() !== "" &&
+    form.picName.trim() !== "" &&
     emailPattern.test(form.picEmail.trim()),
-)
+);
 
 function optional(value: string) {
-  const trimmed = value.trim()
-  return trimmed === '' ? undefined : trimmed
+  const trimmed = value.trim();
+  return trimmed === "" ? undefined : trimmed;
 }
 
 function errorFromResponse(error: unknown) {
-  const maybeError = error as { response?: { data?: { error?: string } } }
-  const message = maybeError.response?.data?.error
-  if (!message) return 'Request belum bisa dikirim. Coba lagi sebentar lagi.'
-  if (message.includes('pending registration request')) {
-    return 'Request pendaftaran untuk sekolah atau email ini masih menunggu review.'
+  const maybeError = error as { response?: { data?: { error?: string } } };
+  const message = maybeError.response?.data?.error;
+  if (!message) return "Request belum bisa dikirim. Coba lagi sebentar lagi.";
+  if (message.includes("pending registration request")) {
+    return "Request pendaftaran untuk sekolah atau email ini masih menunggu review.";
   }
-  return message
+  return message;
 }
 
 async function submit() {
   if (!canSubmit.value || loading.value) {
-    errorMessage.value = 'Lengkapi nama sekolah, nama PIC, dan email yang valid.'
-    return
+    errorMessage.value =
+      "Lengkapi nama sekolah, nama PIC, dan email yang valid.";
+    return;
   }
 
-  loading.value = true
-  errorMessage.value = ''
+  loading.value = true;
+  errorMessage.value = "";
 
   try {
     await submitSchoolRegistrationRequest({
@@ -60,13 +61,13 @@ async function submit() {
       picPhone: optional(form.picPhone),
       picRole: optional(form.picRole),
       message: optional(form.message),
-    })
-    submittedEmail.value = form.picEmail.trim()
-    submittedSchool.value = form.schoolName.trim()
+    });
+    submittedEmail.value = form.picEmail.trim();
+    submittedSchool.value = form.schoolName.trim();
   } catch (error) {
-    errorMessage.value = errorFromResponse(error)
+    errorMessage.value = errorFromResponse(error);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
 </script>
@@ -86,7 +87,9 @@ async function submit() {
       </RouterLink>
     </div>
 
-    <section class="mx-auto mt-12 grid max-w-5xl gap-8 lg:grid-cols-[0.9fr_1.1fr]">
+    <section
+      class="mx-auto mt-12 grid max-w-5xl gap-8 lg:grid-cols-[0.9fr_1.1fr]"
+    >
       <div class="pt-4">
         <p class="text-sm font-medium text-[#4f46e5]">Pendaftaran sekolah</p>
         <h1 class="mt-4 text-4xl font-semibold leading-tight lg:text-5xl">
@@ -96,13 +99,6 @@ async function submit() {
           Kirim data awal sekolah dan kontak PIC. Tim Wiyata akan meninjau
           request sebelum akun admin sekolah dibuat melalui undangan.
         </p>
-        <div class="mt-8 rounded-xl border border-[#ebe7df] bg-white p-5 text-sm text-[#6b6475]">
-          <p class="font-medium text-[#171322]">Yang terjadi setelah submit</p>
-          <p class="mt-2 leading-6">
-            Request masuk ke antrian review super admin. Undangan admin sekolah
-            dibuat setelah request disetujui.
-          </p>
-        </div>
       </div>
 
       <div class="rounded-xl border border-[#ebe7df] bg-white p-6 shadow-sm">
@@ -239,7 +235,7 @@ async function submit() {
             :disabled="loading || !canSubmit"
             class="flex h-11 w-full items-center justify-center rounded-lg bg-[#4f46e5] px-5 text-sm font-medium text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:bg-[#bab7d8]"
           >
-            {{ loading ? 'Mengirim request...' : 'Kirim request pendaftaran' }}
+            {{ loading ? "Mengirim request..." : "Kirim request pendaftaran" }}
           </button>
         </form>
       </div>
