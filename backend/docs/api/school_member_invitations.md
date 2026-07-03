@@ -50,6 +50,8 @@ Rules:
 - Existing direct-create/import flows are not affected.
 - A pending invitation for the same active school, email, and role is rejected.
 - The raw token is returned only once for manual fallback. Only the token hash is stored.
+- After the invitation row is created, Wiyata sends an invitation email best-effort when SMTP is configured.
+- SMTP disabled or email delivery failure does not fail the invitation; use `acceptUrl` or `token` as the manual fallback.
 
 Response:
 
@@ -74,6 +76,13 @@ Response:
   "token": "<rawToken>"
 }
 ```
+
+Email behavior:
+
+- Teacher email copy says the recipient is invited as `Guru`.
+- Student email copy says the recipient is invited as `Siswa`.
+- The email includes the full accept URL built from `APP_PUBLIC_URL` and `/invite/:token`.
+- Email failures are logged without SMTP secrets or raw tokens.
 
 ## List Invitations
 

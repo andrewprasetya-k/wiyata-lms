@@ -9,6 +9,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"net/mail"
 	"strings"
 	"time"
@@ -21,11 +22,15 @@ type SchoolMemberInvitationService interface {
 }
 
 type schoolMemberInvitationService struct {
-	repo repository.SchoolMemberInvitationRepository
+	repo         repository.SchoolMemberInvitationRepository
+	emailService EmailService
 }
 
-func NewSchoolMemberInvitationService(repo repository.SchoolMemberInvitationRepository) SchoolMemberInvitationService {
-	return &schoolMemberInvitationService{repo: repo}
+func NewSchoolMemberInvitationService(repo repository.SchoolMemberInvitationRepository, emailService EmailService) SchoolMemberInvitationService {
+	if emailService == nil {
+		emailService = noopEmailService{}
+	}
+	return &schoolMemberInvitationService{repo: repo, emailService: emailService}
 }
 
 func (s *schoolMemberInvitationService) Create(schoolID string, invitedBy string, input dto.CreateSchoolMemberInvitationDTO) (*dto.CreateSchoolMemberInvitationResponseDTO, error) {
@@ -54,6 +59,11 @@ func (s *schoolMemberInvitationService) Create(schoolID string, invitedBy string
 	}
 	if role != "student" && role != "teacher" {
 		return nil, errors.New("invitation role must be student or teacher")
+	}
+
+	school, err := s.repo.FindSchoolByID(schoolID)
+	if err != nil {
+		return nil, err
 	}
 
 	var classID *string
@@ -103,10 +113,16 @@ func (s *schoolMemberInvitationService) Create(schoolID string, invitedBy string
 		invitation.Class = *invitedClass
 	}
 
+	acceptURL := "/invite/" + rawToken
+	emailAcceptURL := buildInvitationAcceptURL(rawToken)
+	if err := s.emailService.SendSchoolMemberInvitation(invitation.Email, school.Name, invitation.Role, emailAcceptURL); err != nil {
+		fmt.Printf("[Email Warning] failed to send school member invitation invitation_id=%s email=%s error=%s\n", invitation.ID, maskEmail(invitation.Email), err.Error())
+	}
+
 	return &dto.CreateSchoolMemberInvitationResponseDTO{
 		Message:    "School member invitation created",
 		Invitation: mapSchoolMemberInvitation(*invitation, now),
-		AcceptURL:  "/invite/" + rawToken,
+		AcceptURL:  acceptURL,
 		Token:      rawToken,
 	}, nil
 }

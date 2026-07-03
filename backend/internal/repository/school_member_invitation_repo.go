@@ -14,6 +14,7 @@ var ErrSchoolMemberInvitationNotRevocable = errors.New("school member invitation
 
 type SchoolMemberInvitationRepository interface {
 	Create(invitation *domain.Invitation) error
+	FindSchoolByID(schoolID string) (*domain.School, error)
 	FindClassByCode(schoolID string, classCode string) (*domain.Class, error)
 	HasPendingDuplicate(schoolID string, email string, role string, now time.Time) (bool, error)
 	List(schoolID string, status string, page int, limit int, now time.Time) ([]domain.Invitation, int64, error)
@@ -30,6 +31,14 @@ func NewSchoolMemberInvitationRepository(db *gorm.DB) SchoolMemberInvitationRepo
 
 func (r *schoolMemberInvitationRepository) Create(invitation *domain.Invitation) error {
 	return r.db.Create(invitation).Error
+}
+
+func (r *schoolMemberInvitationRepository) FindSchoolByID(schoolID string) (*domain.School, error) {
+	var school domain.School
+	if err := r.db.Where("sch_id = ?", schoolID).First(&school).Error; err != nil {
+		return nil, err
+	}
+	return &school, nil
 }
 
 func (r *schoolMemberInvitationRepository) FindClassByCode(schoolID string, classCode string) (*domain.Class, error) {

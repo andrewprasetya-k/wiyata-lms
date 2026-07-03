@@ -11,6 +11,7 @@ import (
 
 type EmailService interface {
 	SendSchoolAdminInvitation(toEmail string, schoolName string, acceptURL string) error
+	SendSchoolMemberInvitation(toEmail string, schoolName string, role string, acceptURL string) error
 }
 
 type noopEmailService struct{}
@@ -40,6 +41,10 @@ func NewEmailServiceFromEnv() EmailService {
 }
 
 func (noopEmailService) SendSchoolAdminInvitation(string, string, string) error {
+	return nil
+}
+
+func (noopEmailService) SendSchoolMemberInvitation(string, string, string, string) error {
 	return nil
 }
 
@@ -84,6 +89,40 @@ Jika Anda tidak meminta akses ini, abaikan email ini.
 Salam,
 Wiyata
 `, schoolName, acceptURL)
+
+	return s.sendPlainText(toEmail, subject, body)
+}
+
+func (s *smtpEmailService) SendSchoolMemberInvitation(toEmail string, schoolName string, role string, acceptURL string) error {
+	toEmail = strings.TrimSpace(toEmail)
+	schoolName = strings.TrimSpace(schoolName)
+	role = strings.TrimSpace(strings.ToLower(role))
+	acceptURL = strings.TrimSpace(acceptURL)
+	if toEmail == "" || schoolName == "" || role == "" || acceptURL == "" {
+		return fmt.Errorf("email invitation fields are required")
+	}
+
+	roleLabel := "Warga Sekolah"
+	if role == "teacher" {
+		roleLabel = "Guru"
+	}
+	if role == "student" {
+		roleLabel = "Siswa"
+	}
+
+	subject := "Undangan Bergabung di Wiyata"
+	body := fmt.Sprintf(`Halo,
+
+Anda diundang menjadi %s di %s.
+
+Gunakan link berikut untuk menerima undangan dan membuat password:
+%s
+
+Link undangan ini memiliki masa berlaku terbatas. Jika Anda tidak meminta akses ini, abaikan email ini.
+
+Salam,
+Wiyata
+`, roleLabel, schoolName, acceptURL)
 
 	return s.sendPlainText(toEmail, subject, body)
 }
