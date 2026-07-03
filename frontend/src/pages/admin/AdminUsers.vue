@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
 import {
+  PhCopy,
   PhDownloadSimple,
+  PhEnvelopeSimple,
   PhFileCsv,
   PhMagnifyingGlass,
   PhPlusCircle,
@@ -20,6 +22,7 @@ import {
   getAdminSchoolMembers,
   removeAdminSchoolMember,
 } from "../../services/adminSchoolMember";
+import { createSchoolMemberInvitation } from "../../services/adminSchoolMemberInvitation";
 import {
   commitSchoolMemberImport,
   previewSchoolMemberImport,
@@ -33,6 +36,10 @@ import type {
   AdminSchoolMemberImportCommitResponse,
   AdminSchoolMemberImportPreviewResponse,
 } from "../../types/adminSchoolMemberImport";
+import type {
+  CreateSchoolMemberInvitationPayload,
+  CreateSchoolMemberInvitationResponse,
+} from "../../types/adminSchoolMemberInvitation";
 import { formatDateTime } from "../../utils/date";
 
 const allowedRoleNames = ["student", "teacher", "admin"];
@@ -64,6 +71,7 @@ const rolesLoading = ref(false);
 const savingRolesSchoolUserId = ref("");
 const importPreviewLoading = ref(false);
 const importCommitLoading = ref(false);
+const isInvitingMember = ref(false);
 const isCreatingMember = ref(false);
 const removingSchoolUserId = ref("");
 
@@ -72,10 +80,18 @@ const rolesError = ref("");
 const importError = ref("");
 
 const memberSearch = ref("");
+const memberEntryMode = ref<"invite" | "direct">("invite");
 const importFile = ref<File | null>(null);
 const importDefaultPassword = ref("");
 const importPreview = ref<AdminSchoolMemberImportPreviewResponse | null>(null);
 const importResult = ref<AdminSchoolMemberImportCommitResponse | null>(null);
+const inviteResult = ref<CreateSchoolMemberInvitationResponse | null>(null);
+const inviteForm = ref<CreateSchoolMemberInvitationPayload>({
+  fullName: "",
+  email: "",
+  role: "student",
+  classCode: "",
+});
 const manualForm = ref<AdminSchoolMemberCreatePayload>({
   fullName: "",
   email: "",
@@ -222,6 +238,74 @@ function getApiErrorMessage(error: unknown, fallback: string) {
       return response.data.message;
   }
   return fallback;
+}
+
+const inviteLink = computed(() => {
+  const acceptUrl = inviteResult.value?.acceptUrl;
+  if (!acceptUrl) return "";
+  if (/^https?:\/\//i.test(acceptUrl)) return acceptUrl;
+  return `${window.location.origin}${acceptUrl.startsWith("/") ? "" : "/"}${acceptUrl}`;
+});
+
+function setMemberEntryMode(mode: "invite" | "direct") {
+  memberEntryMode.value = mode;
+}
+
+function resetInviteForm() {
+  inviteForm.value = {
+    fullName: "",
+    email: "",
+    role: "student",
+    classCode: "",
+  };
+}
+
+async function submitInviteMember() {
+  const payload: CreateSchoolMemberInvitationPayload = {
+    fullName: inviteForm.value.fullName.trim(),
+    email: inviteForm.value.email.trim(),
+    role: inviteForm.value.role,
+    classCode:
+      inviteForm.value.role === "student"
+        ? inviteForm.value.classCode?.trim() || undefined
+        : undefined,
+  };
+
+  if (!payload.fullName || !payload.email || !payload.role) {
+    toast.error("Nama, email, dan peran wajib diisi.");
+    return;
+  }
+  if (payload.role === "student" && !payload.classCode) {
+    toast.error("Kode kelas wajib diisi untuk undangan siswa.");
+    return;
+  }
+
+  isInvitingMember.value = true;
+  inviteResult.value = null;
+  try {
+    inviteResult.value = await createSchoolMemberInvitation(payload);
+    toast.success("Undangan email berhasil dibuat.");
+    resetInviteForm();
+  } catch (error) {
+    toast.error(
+      getApiErrorMessage(
+        error,
+        "Undangan belum bisa dibuat. Pastikan data valid.",
+      ),
+    );
+  } finally {
+    isInvitingMember.value = false;
+  }
+}
+
+async function copyInviteLink() {
+  if (!inviteLink.value) return;
+  try {
+    await navigator.clipboard.writeText(inviteLink.value);
+    toast.success("Link undangan disalin.");
+  } catch {
+    toast.error("Link belum bisa disalin otomatis.");
+  }
 }
 
 const importTemplateRows = [
@@ -790,12 +874,12 @@ onMounted(async () => {
                   Tambah warga sekolah
                 </p>
                 <h2 class="mt-1 text-base font-semibold text-[#171322]">
-                  Manual atau import CSV
+                  Undang atau buat akun
                 </h2>
                 <p class="mt-1 text-xs leading-5 text-[#6b7280]">
-                  Tambahkan warga ke sekolah aktif. Akun global yang sudah ada
-                  dipakai ulang berdasarkan email tanpa membuka daftar pengguna
-                  platform.
+                  Undangan email menjadi alur utama agar guru dan siswa
+                  membuat password sendiri. Pembuatan akun langsung tetap
+                  tersedia sebagai fallback.
                 </p>
               </div>
               <PhPlusCircle
@@ -805,7 +889,131 @@ onMounted(async () => {
               />
             </div>
 
-            <form class="mt-5 space-y-3" @submit.prevent="submitManualMember">
+            <div
+              class="mt-5 grid rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-1 text-xs font-medium text-[#6b7280] sm:grid-cols-2"
+              role="tablist"
+              aria-label="Mode tambah warga sekolah"
+            >
+              <button
+                type="button"
+                class="rounded-md px-3 py-2 transition"
+                :class="
+                  memberEntryMode === 'invite'
+                    ? 'bg-white text-[#171322] shadow-sm'
+                    : 'hover:text-[#171322]'
+                "
+                :aria-selected="memberEntryMode === 'invite'"
+                role="tab"
+                @click="setMemberEntryMode('invite')"
+              >
+                Undang via Email
+              </button>
+              <button
+                type="button"
+                class="rounded-md px-3 py-2 transition"
+                :class="
+                  memberEntryMode === 'direct'
+                    ? 'bg-white text-[#171322] shadow-sm'
+                    : 'hover:text-[#171322]'
+                "
+                :aria-selected="memberEntryMode === 'direct'"
+                role="tab"
+                @click="setMemberEntryMode('direct')"
+              >
+                Buat Akun Langsung
+              </button>
+            </div>
+
+            <form
+              v-if="memberEntryMode === 'invite'"
+              class="mt-5 space-y-3"
+              @submit.prevent="submitInviteMember"
+            >
+              <label class="block text-xs font-medium text-[#6b7280]">
+                Nama lengkap
+                <input
+                  v-model="inviteForm.fullName"
+                  type="text"
+                  placeholder="Nama guru atau siswa"
+                  class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#4f46e5] focus:bg-white"
+                />
+              </label>
+              <label class="block text-xs font-medium text-[#6b7280]">
+                Email
+                <input
+                  v-model="inviteForm.email"
+                  type="email"
+                  placeholder="email@sekolah.sch.id"
+                  class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#4f46e5] focus:bg-white"
+                />
+              </label>
+              <label class="block text-xs font-medium text-[#6b7280]">
+                Peran
+                <select
+                  v-model="inviteForm.role"
+                  class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition focus:border-[#4f46e5] focus:bg-white"
+                >
+                  <option value="student">Siswa</option>
+                  <option value="teacher">Guru</option>
+                </select>
+              </label>
+              <label class="block text-xs font-medium text-[#6b7280]">
+                Kode kelas
+                <input
+                  v-model="inviteForm.classCode"
+                  type="text"
+                  placeholder="Wajib untuk siswa"
+                  class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#4f46e5] focus:bg-white disabled:cursor-not-allowed disabled:opacity-60"
+                  :disabled="inviteForm.role !== 'student'"
+                />
+              </label>
+              <p
+                class="rounded-lg border border-[#dbeafe] bg-[#eff6ff] px-3 py-2 text-xs leading-5 text-[#1d4ed8]"
+              >
+                Pengguna akan menerima email undangan dan membuat password
+                sendiri. Jika email tidak terkirim, gunakan link manual setelah
+                undangan dibuat.
+              </p>
+              <button
+                type="submit"
+                class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#171322] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#374151] disabled:opacity-60"
+                :disabled="isInvitingMember"
+              >
+                <PhEnvelopeSimple :size="17" weight="duotone" />
+                {{ isInvitingMember ? "Mengirim undangan..." : "Kirim undangan" }}
+              </button>
+
+              <div
+                v-if="inviteResult"
+                class="rounded-lg border border-[#bbf7d0] bg-[#f0fdf4] p-3 text-xs leading-5 text-[#166534]"
+              >
+                <p class="font-semibold">Undangan berhasil dibuat.</p>
+                <p class="mt-1">
+                  Email dikirim secara best-effort. Link manual tersedia sebagai
+                  fallback.
+                </p>
+                <div
+                  v-if="inviteLink"
+                  class="mt-3 rounded-lg border border-[#dcfce7] bg-white p-2 text-[#374151]"
+                >
+                  <p class="break-all text-[11px]">{{ inviteLink }}</p>
+                  <button
+                    type="button"
+                    class="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-md border border-[#bbf7d0] px-3 py-2 text-xs font-semibold text-[#166534] transition hover:bg-[#f0fdf4]"
+                    @click="copyInviteLink"
+                  >
+                    <PhCopy :size="15" weight="duotone" />
+                    Salin link
+                  </button>
+                </div>
+              </div>
+            </form>
+
+            <form
+              v-else
+              class="mt-5 space-y-3"
+              @submit.prevent="submitManualMember"
+            >
               <label class="block text-xs font-medium text-[#6b7280]">
                 Nama lengkap
                 <input
