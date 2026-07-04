@@ -15,6 +15,7 @@ import (
 type AuthService interface {
 	Login(email string, password string) (*dto.LoginResponseDTO, error)
 	Register(fullName string, email string, password string) (*dto.LoginResponseDTO, error)
+	GetContext(userID string) (*dto.AuthContextResponseDTO, error)
 }
 
 type authService struct {
@@ -88,6 +89,14 @@ func (s *authService) Register(fullName string, email string, password string) (
 	return s.Login(email, password) // Auto-login after registration
 }
 
+func (s *authService) GetContext(userID string) (*dto.AuthContextResponseDTO, error) {
+	user, err := s.userRepo.GetByID(userID)
+	if err != nil {
+		return nil, err
+	}
+	return s.buildAuthContext(user)
+}
+
 func (s *authService) buildLoginResponse(token string, user *domain.User) (*dto.LoginResponseDTO, error) {
 	response := &dto.LoginResponseDTO{
 		Token: token,
@@ -96,6 +105,21 @@ func (s *authService) buildLoginResponse(token string, user *domain.User) (*dto.
 			FullName: user.FullName,
 			Email:    user.Email,
 		},
+	}
+
+	context, err := s.buildAuthContext(user)
+	if err != nil {
+		return nil, err
+	}
+	response.Memberships = context.Memberships
+	response.GlobalRoles = context.GlobalRoles
+	response.DefaultContext = context.DefaultContext
+
+	return response, nil
+}
+
+func (s *authService) buildAuthContext(user *domain.User) (*dto.AuthContextResponseDTO, error) {
+	response := &dto.AuthContextResponseDTO{
 		Memberships: []dto.MembershipInfo{},
 		GlobalRoles: []string{},
 	}

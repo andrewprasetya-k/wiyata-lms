@@ -19,6 +19,12 @@ type LoginResponseDTO struct {
 	DefaultContext *DefaultContext  `json:"defaultContext,omitempty"`
 }
 
+type AuthContextResponseDTO struct {
+	Memberships    []MembershipInfo `json:"memberships"`
+	GlobalRoles    []string         `json:"globalRoles"`
+	DefaultContext *DefaultContext  `json:"defaultContext,omitempty"`
+}
+
 type UserInfo struct {
 	ID       string `json:"id"`
 	FullName string `json:"fullName"`

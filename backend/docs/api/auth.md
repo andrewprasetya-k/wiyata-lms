@@ -108,6 +108,72 @@ Authenticate user and receive JWT token.
 
 ---
 
+## 3. Refresh Auth Context
+
+Return the authoritative school membership and role context for the current
+authenticated user.
+
+- **URL:** `/me/context`
+- **Method:** `GET`
+- **Authentication:** Required
+
+**Response (200 OK):**
+
+```json
+{
+  "memberships": [
+    {
+      "schoolUserId": "uuid",
+      "school": {
+        "id": "uuid",
+        "code": "SCH001",
+        "name": "Wiyata Academy"
+      },
+      "roles": ["teacher", "student"],
+      "isDefault": true
+    }
+  ],
+  "globalRoles": [],
+  "defaultContext": {
+    "schoolId": "uuid",
+    "schoolUserId": "uuid",
+    "roles": ["teacher", "student"]
+  }
+}
+```
+
+Soft-deleted `school_users` memberships are excluded. `defaultContext`, when
+present, always points to an active membership.
+
+---
+
+## Active School and Role Headers
+
+School-scoped endpoints continue to use:
+
+```http
+SchoolId: <school-id>
+```
+
+During the staged active-role rollout, clients may also send:
+
+```http
+Active-Role: admin|teacher|student
+```
+
+Behavior:
+
+- If `Active-Role` is present, the backend validates that the role is assigned
+  to the current user in the active school.
+- `RequireRole` authorizes only the selected active role. It does not fall back
+  to another role the user also owns.
+- If `Active-Role` is absent, legacy behavior is preserved temporarily:
+  `RequireRole` authorizes against any role the user owns in the active school.
+- Unsupported active role values return `400 Bad Request`.
+- Role not assigned in the active school returns `403 Forbidden`.
+- Role assigned but not allowed by the route returns `403 Forbidden`.
+- `super_admin` platform routes remain separate and do not use `Active-Role`.
+
 ## JWT Token Structure
 
 **Claims:**

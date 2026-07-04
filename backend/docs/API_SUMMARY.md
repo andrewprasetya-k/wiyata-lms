@@ -20,6 +20,22 @@ Base URL: `http://localhost:8080/api`
 Authorization: Bearer <your-jwt-token>
 ```
 
+**Context Headers:**
+
+```
+SchoolId: <active-school-id>
+Active-Role: admin|teacher|student
+```
+
+`Active-Role` is optional during migration. When present, school-scoped routes
+authorize only the selected role after verifying it belongs to the current user
+in the active school. When absent, legacy multi-role authorization is preserved
+temporarily.
+
+**Protected Context Endpoint:**
+
+- `GET /me/context` - Refresh current memberships, global roles, and default context from backend authority
+
 ---
 
 ## 🏫 Schools

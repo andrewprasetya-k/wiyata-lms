@@ -4,6 +4,7 @@ import (
 	"backend/internal/repository"
 	"net/http"
 	"slices"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -11,6 +12,12 @@ import (
 var rbacRepo repository.RBACRepository
 
 const SystemSchoolCode = "000000"
+
+var supportedActiveSchoolRoles = map[string]bool{
+	"admin":   true,
+	"teacher": true,
+	"student": true,
+}
 
 // InitRBAC initializes RBAC middleware with repository
 func InitRBAC(repo repository.RBACRepository) {
@@ -58,7 +65,14 @@ func RequireSchoolMember(schoolService interface {
 			}
 		}
 
-		// kalau super admin, bypass cek membership sekolah
+		activeRole, hasActiveRole, ok := parseActiveRoleHeader(c)
+		if !ok {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Unsupported Active-Role"})
+			c.Abort()
+			return
+		}
+
+		// kalau super admin, bypass cek membership sekolah when no active role is selected.
 		isSuperAdmin, err := rbacRepo.IsSuperAdmin(userID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify permissions"})
@@ -66,7 +80,7 @@ func RequireSchoolMember(schoolService interface {
 			return
 		}
 
-		if !isSuperAdmin {
+		if !isSuperAdmin || hasActiveRole {
 			// check school membership kalau bukan super admin
 			isMember, err := rbacRepo.IsUserInSchool(userID, schoolID)
 			if err != nil {
@@ -80,6 +94,30 @@ func RequireSchoolMember(schoolService interface {
 				c.Abort()
 				return
 			}
+
+			schoolUserID, err := rbacRepo.GetSchoolUserID(userID, schoolID)
+			if err != nil {
+				c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: not a member of this school"})
+				c.Abort()
+				return
+			}
+			c.Set("school_user_id", schoolUserID)
+		}
+
+		if hasActiveRole {
+			roles, err := rbacRepo.GetUserRoleNamesInSchool(userID, schoolID)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify roles"})
+				c.Abort()
+				return
+			}
+			if !slices.Contains(roles, activeRole) {
+				c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: active role is not assigned in this school"})
+				c.Abort()
+				return
+			}
+			c.Set("active_role", activeRole)
+			c.Set("user_roles", []string{activeRole})
 		}
 
 		c.Set("school_id", schoolID)
@@ -132,10 +170,34 @@ func RequireRole(schoolService interface {
 			}
 		}
 
+		activeRole, hasActiveRole, ok := activeRoleFromContextOrHeader(c)
+		if !ok {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Unsupported Active-Role"})
+			c.Abort()
+			return
+		}
+
 		roles, err := rbacRepo.GetUserRoleNamesInSchool(userID, schoolID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify roles"})
 			c.Abort()
+			return
+		}
+
+		if hasActiveRole {
+			if !slices.Contains(roles, activeRole) {
+				c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: active role is not assigned in this school"})
+				c.Abort()
+				return
+			}
+			if !slices.Contains(allowedRoles, activeRole) {
+				c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: active role is not allowed for this route"})
+				c.Abort()
+				return
+			}
+			c.Set("active_role", activeRole)
+			c.Set("user_roles", []string{activeRole})
+			c.Next()
 			return
 		}
 
@@ -162,6 +224,26 @@ func RequireRole(schoolService interface {
 		c.Set("user_roles", roles)
 		c.Next()
 	}
+}
+
+func parseActiveRoleHeader(c *gin.Context) (string, bool, bool) {
+	role := strings.ToLower(strings.TrimSpace(c.GetHeader("Active-Role")))
+	if role == "" {
+		return "", false, true
+	}
+	if !supportedActiveSchoolRoles[role] {
+		return "", true, false
+	}
+	return role, true, true
+}
+
+func activeRoleFromContextOrHeader(c *gin.Context) (string, bool, bool) {
+	if raw, exists := c.Get("active_role"); exists {
+		if role, ok := raw.(string); ok && role != "" {
+			return role, true, true
+		}
+	}
+	return parseActiveRoleHeader(c)
 }
 
 // RequireSystemSuperAdmin checks whether the current user has super_admin role

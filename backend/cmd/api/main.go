@@ -181,6 +181,11 @@ func main() {
 		//protected routes
 		api.Use(middleware.AuthRequired())
 
+		meAPI := api.Group("/me")
+		{
+			meAPI.GET("/context", authHandler.GetContext)
+		}
+
 		schoolAPI := api.Group("/schools")
 		{
 			schoolAPI.POST("", middleware.RequireRole(schoolService, "super_admin"), schoolHandler.CreateSchool)
