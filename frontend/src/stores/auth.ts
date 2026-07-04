@@ -33,8 +33,10 @@ export const useAuthStore = defineStore('auth', () => {
   const activeContext = ref<ActiveContext | null>(null)
   const isRestored = ref(false)
   const isContextReady = ref(false)
-  const contextRefreshAttempted = ref(false)
+  const isContextInitialized = ref(false)
   const contextVersion = ref(0)
+  let contextRefreshPromise: Promise<boolean> | null = null
+  let contextRefreshGeneration = 0
 
   const isAuthenticated = computed(() => Boolean(token.value))
 
@@ -80,6 +82,7 @@ export const useAuthStore = defineStore('auth', () => {
     )
   })
   const activeSchoolUserId = computed(() => activeMembership.value?.schoolUserId ?? '')
+  // Compatibility surface: these intentionally expose only the selected active role.
   const activeRoles = computed<RoleName[]>(() => (activeRole.value ? [activeRole.value] : []))
   const allRoles = computed<RoleName[]>(() => activeRoles.value)
 
@@ -98,7 +101,9 @@ export const useAuthStore = defineStore('auth', () => {
     })
 
     isContextReady.value = true
-    contextRefreshAttempted.value = false
+    isContextInitialized.value = true
+    contextRefreshGeneration += 1
+    contextRefreshPromise = null
     persistCurrentSession()
   }
 
@@ -117,7 +122,9 @@ export const useAuthStore = defineStore('auth', () => {
     defaultContext.value = undefined
     activeContext.value = null
     isContextReady.value = false
-    contextRefreshAttempted.value = false
+    isContextInitialized.value = false
+    contextRefreshGeneration += 1
+    contextRefreshPromise = null
     contextVersion.value += 1
     activeClass.reset()
     clearStoredSession()
@@ -141,31 +148,65 @@ export const useAuthStore = defineStore('auth', () => {
     persistCurrentSession()
   }
 
-  async function refreshUserContext() {
+  async function ensureUserContext() {
     if (!token.value) {
       isContextReady.value = true
+      isContextInitialized.value = true
       return false
     }
-    if (contextRefreshAttempted.value) {
+    if (isContextInitialized.value) {
       isContextReady.value = true
-      return true
+      return Boolean(activeContext.value)
+    }
+    return requestUserContext()
+  }
+
+  async function refreshUserContext() {
+    return requestUserContext()
+  }
+
+  async function requestUserContext() {
+    if (!token.value) {
+      isContextReady.value = true
+      isContextInitialized.value = true
+      return false
+    }
+    if (contextRefreshPromise) {
+      return contextRefreshPromise
     }
 
-    contextRefreshAttempted.value = true
-    try {
-      const { data } = await api.get<AuthContextResponse>('/me/context')
-      memberships.value = data.memberships ?? []
-      globalRoles.value = data.globalRoles ?? []
-      defaultContext.value = data.defaultContext
-      reconcileActiveContext()
-      isContextReady.value = true
-      persistCurrentSession()
-      return true
-    } catch {
-      // Keep the local persisted context for transient refresh failures.
-      isContextReady.value = true
-      return false
-    }
+    const requestToken = token.value
+    const requestGeneration = contextRefreshGeneration
+
+    const request = api
+      .get<AuthContextResponse>('/me/context')
+      .then(({ data }) => {
+        if (token.value !== requestToken || requestGeneration !== contextRefreshGeneration) {
+          return false
+        }
+        memberships.value = data.memberships ?? []
+        globalRoles.value = data.globalRoles ?? []
+        defaultContext.value = data.defaultContext
+        reconcileActiveContext()
+        persistCurrentSession()
+        return true
+      })
+      .catch(() => {
+        // Keep the local persisted context for transient refresh failures.
+        return false
+      })
+      .finally(() => {
+        if (token.value === requestToken && requestGeneration === contextRefreshGeneration) {
+          isContextReady.value = true
+          isContextInitialized.value = true
+        }
+        if (contextRefreshPromise === request) {
+          contextRefreshPromise = null
+        }
+      })
+
+    contextRefreshPromise = request
+    return contextRefreshPromise
   }
 
   function reconcileActiveContext() {
@@ -302,6 +343,7 @@ export const useAuthStore = defineStore('auth', () => {
     login,
     logout,
     restoreSession,
+    ensureUserContext,
     refreshUserContext,
     reconcileActiveContext,
     switchContext,

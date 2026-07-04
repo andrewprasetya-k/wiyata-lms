@@ -446,7 +446,7 @@ router.beforeEach(async (to) => {
   auth.restoreSession();
 
   if (to.name === "login" && auth.isAuthenticated) {
-    await auth.refreshUserContext();
+    await auth.ensureUserContext();
     return auth.landingRoute();
   }
 
@@ -455,7 +455,7 @@ router.beforeEach(async (to) => {
   }
 
   if (to.meta.requiresAuth) {
-    await auth.refreshUserContext();
+    await auth.ensureUserContext();
     if (!auth.activeContext) {
       return { name: "unauthorized" };
     }
