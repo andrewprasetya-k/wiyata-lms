@@ -7,6 +7,9 @@ export interface AdminSchoolMemberItem {
   classCodes?: string[];
   createdAt: string;
   deletedAt?: string | null;
+  userCreated?: boolean;
+  membershipAction?: string;
+  emailNotification?: string;
 }
 
 export interface AdminSchoolMemberListResponse {

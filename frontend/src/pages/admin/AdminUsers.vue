@@ -118,6 +118,46 @@ function roleLabel(roleName: string) {
   return roleName;
 }
 
+function memberCreateSuccessMessage(member: AdminSchoolMemberItem) {
+  if (member.userCreated === true) {
+    return "Akun baru berhasil dibuat. Password awal diberikan oleh admin/sekolah.";
+  }
+  if (member.userCreated === false) {
+    return "Akun global sudah ada. Password tidak diubah; pengguna login memakai password yang sudah ada.";
+  }
+  return "Warga sekolah berhasil ditambahkan.";
+}
+
+function importResultNote(result: {
+  status: string;
+  userCreated?: boolean;
+  reason?: string;
+}) {
+  if (result.status === "failed") {
+    return result.reason || "Baris belum bisa diproses.";
+  }
+  if (result.status === "skipped") {
+    return result.reason || "Data sudah sesuai, tidak ada perubahan.";
+  }
+  if (result.userCreated === true) {
+    return "Akun baru dibuat. Password awal diberikan oleh admin/sekolah.";
+  }
+  if (result.userCreated === false) {
+    return "Akun global sudah ada. Password tidak diubah.";
+  }
+  return result.reason || "Berhasil diproses.";
+}
+
+function importEmailNote(emailNotification?: string) {
+  if (emailNotification === "account_created") {
+    return "Email info akun dikirim tanpa password.";
+  }
+  if (emailNotification === "added_to_school") {
+    return "Email penambahan sekolah dikirim tanpa password.";
+  }
+  return "";
+}
+
 function rolePriority(roleName: string) {
   const normalized = normalizeRoleName(roleName);
   if (normalized === "admin") return 0;
@@ -555,8 +595,8 @@ async function submitManualMember() {
 
   isCreatingMember.value = true;
   try {
-    await createAdminSchoolMember(payload);
-    toast.success("Warga sekolah berhasil ditambahkan.");
+    const createdMember = await createAdminSchoolMember(payload);
+    toast.success(memberCreateSuccessMessage(createdMember));
     resetManualForm();
     memberSearch.value = "";
     await loadMembers();
@@ -1067,8 +1107,10 @@ onMounted(async () => {
               <p
                 class="rounded-lg border border-[#fed7aa] bg-[#fff7ed] px-3 py-2 text-xs leading-5 text-[#92400e]"
               >
-                Password awal digunakan untuk akun baru. Pengguna dapat
-                mengganti password setelah login.
+                Password awal hanya dipakai untuk akun baru. Jika email sudah
+                terdaftar, password tidak akan diubah dan pengguna login
+                memakai password yang sudah ada. Password tidak dikirim melalui
+                email.
               </p>
               <button
                 type="submit"
@@ -1142,8 +1184,10 @@ onMounted(async () => {
                 <p
                   class="rounded-lg border border-[#fed7aa] bg-[#fff7ed] px-3 py-2 text-xs leading-5 text-[#92400e]"
                 >
-                  Password awal hanya dipakai untuk akun baru. Pengguna dapat
-                  mengganti password setelah login.
+                  Password awal hanya dipakai untuk akun baru. Jika email sudah
+                  terdaftar, password tidak akan diubah dan pengguna login
+                  memakai password yang sudah ada. Password tidak dikirim
+                  melalui email.
                 </p>
 
                 <button
@@ -1270,6 +1314,54 @@ onMounted(async () => {
                   {{ importResult.skippedCount }} dilewati,
                   {{ importResult.failedCount }} gagal.
                 </p>
+                <div
+                  v-if="importResult.results.length > 0"
+                  class="mt-3 max-h-64 space-y-2 overflow-y-auto pr-1"
+                >
+                  <article
+                    v-for="result in importResult.results"
+                    :key="`${result.rowNumber}-${result.email}`"
+                    class="rounded-md border border-[#bbf7d0] bg-white/70 px-3 py-2"
+                  >
+                    <div class="flex items-start justify-between gap-3">
+                      <div class="min-w-0">
+                        <p class="truncate font-semibold text-[#14532d]">
+                          {{ result.fullName || result.email }}
+                        </p>
+                        <p class="mt-0.5 break-all text-[#166534]">
+                          {{ result.email }}
+                        </p>
+                      </div>
+                      <span
+                        class="shrink-0 rounded-full px-2 py-1 text-[10px] font-semibold"
+                        :class="
+                          result.status === 'imported'
+                            ? 'bg-[#dcfce7] text-[#166534]'
+                            : result.status === 'skipped'
+                              ? 'bg-[#fef3c7] text-[#92400e]'
+                              : 'bg-[#fee2e2] text-[#b91c1c]'
+                        "
+                      >
+                        {{
+                          result.status === "imported"
+                            ? "Diproses"
+                            : result.status === "skipped"
+                              ? "Dilewati"
+                              : "Gagal"
+                        }}
+                      </span>
+                    </div>
+                    <p class="mt-2 text-[#166534]">
+                      {{ importResultNote(result) }}
+                    </p>
+                    <p
+                      v-if="importEmailNote(result.emailNotification)"
+                      class="mt-1 text-[#15803d]"
+                    >
+                      {{ importEmailNote(result.emailNotification) }}
+                    </p>
+                  </article>
+                </div>
               </div>
             </div>
           </section>

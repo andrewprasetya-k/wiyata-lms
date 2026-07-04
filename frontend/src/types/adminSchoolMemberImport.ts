@@ -27,6 +27,9 @@ export interface AdminSchoolMemberImportResult {
   classCode?: string;
   status: "imported" | "skipped" | "failed";
   reason?: string;
+  userCreated?: boolean;
+  membershipAction?: string;
+  emailNotification?: string;
 }
 
 export interface AdminSchoolMemberImportCommitResponse {
