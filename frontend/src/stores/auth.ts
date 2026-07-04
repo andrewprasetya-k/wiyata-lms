@@ -4,15 +4,25 @@ import { api } from '../services/api'
 import { clearStoredSession, persistSession, readStoredSession } from '../services/session'
 import { useActiveClassStore } from './activeClass'
 import type {
+  ActiveContext,
+  AuthContextResponse,
   DefaultContext,
   LoginPayload,
   LoginResponse,
   MembershipInfo,
   RoleName,
+  SchoolRole,
   UserInfo,
 } from '../types/auth'
 
-const rolePriority: RoleName[] = ['super_admin', 'admin', 'teacher', 'student']
+const schoolRolePriority: SchoolRole[] = ['admin', 'teacher', 'student']
+
+const landingRouteByRole: Record<RoleName, string> = {
+  super_admin: '/superadmin/dashboard',
+  admin: '/admin/dashboard',
+  teacher: '/teacher/dashboard',
+  student: '/student/dashboard',
+}
 
 export const useAuthStore = defineStore('auth', () => {
   const token = ref<string | null>(null)
@@ -20,58 +30,58 @@ export const useAuthStore = defineStore('auth', () => {
   const memberships = ref<MembershipInfo[]>([])
   const globalRoles = ref<RoleName[]>([])
   const defaultContext = ref<DefaultContext | undefined>()
-  const activeSchoolId = ref<string | null>(null)
-  const activeRoles = ref<RoleName[]>([])
+  const activeContext = ref<ActiveContext | null>(null)
   const isRestored = ref(false)
+  const isContextReady = ref(false)
+  const contextRefreshAttempted = ref(false)
+  const contextVersion = ref(0)
 
   const isAuthenticated = computed(() => Boolean(token.value))
+
+  const availableContexts = computed<ActiveContext[]>(() => {
+    const seen = new Set<string>()
+    const contexts: ActiveContext[] = []
+
+    for (const membership of memberships.value) {
+      for (const role of schoolRolePriority) {
+        if (!membership.roles.includes(role)) continue
+        const key = `school:${membership.school.id}:${membership.schoolUserId}:${role}`
+        if (seen.has(key)) continue
+        seen.add(key)
+        contexts.push({
+          type: 'school',
+          schoolId: membership.school.id,
+          schoolUserId: membership.schoolUserId,
+          role,
+        })
+      }
+    }
+
+    if (globalRoles.value.includes('super_admin')) {
+      contexts.push({ type: 'platform', role: 'super_admin' })
+    }
+
+    return contexts
+  })
+
+  const activeRole = computed<RoleName | null>(() => activeContext.value?.role ?? null)
+  const activeSchoolId = computed(() =>
+    activeContext.value?.type === 'school' ? activeContext.value.schoolId : null,
+  )
   const activeMembership = computed(() => {
-    const activeId = activeSchoolId.value ?? defaultContext.value?.schoolId ?? null
-    if (activeId) {
-      return memberships.value.find((membership) => membership.school.id === activeId) ?? null
-    }
-
-    if (defaultContext.value?.schoolUserId) {
-      return (
-        memberships.value.find(
-          (membership) => membership.schoolUserId === defaultContext.value?.schoolUserId,
-        ) ?? null
-      )
-    }
-
-    return memberships.value.find((membership) => membership.isDefault) ?? memberships.value[0] ?? null
+    const context = activeContext.value
+    if (context?.type !== 'school') return null
+    return (
+      memberships.value.find(
+        (membership) =>
+          membership.school.id === context.schoolId &&
+          membership.schoolUserId === context.schoolUserId,
+      ) ?? null
+    )
   })
   const activeSchoolUserId = computed(() => activeMembership.value?.schoolUserId ?? '')
-  const allRoles = computed<RoleName[]>(() => {
-    const roles = new Set<RoleName>([...globalRoles.value, ...activeRoles.value])
-    return [...roles]
-  })
-
-  function resolveActiveSchoolId(
-    preferredSchoolId: string | null | undefined,
-    nextDefaultContext?: DefaultContext,
-    nextMemberships: MembershipInfo[] = [],
-  ) {
-    if (
-      preferredSchoolId &&
-      nextMemberships.some((membership) => membership.school.id === preferredSchoolId)
-    ) {
-      return preferredSchoolId
-    }
-
-    if (
-      nextDefaultContext?.schoolId &&
-      nextMemberships.some((membership) => membership.school.id === nextDefaultContext.schoolId)
-    ) {
-      return nextDefaultContext.schoolId
-    }
-
-    return (
-      nextMemberships.find((membership) => membership.isDefault)?.school.id ??
-      nextMemberships[0]?.school.id ??
-      null
-    )
-  }
+  const activeRoles = computed<RoleName[]>(() => (activeRole.value ? [activeRole.value] : []))
+  const allRoles = computed<RoleName[]>(() => activeRoles.value)
 
   function applySession(response: LoginResponse) {
     token.value = response.token
@@ -79,26 +89,17 @@ export const useAuthStore = defineStore('auth', () => {
     memberships.value = response.memberships ?? []
     globalRoles.value = response.globalRoles ?? []
     defaultContext.value = response.defaultContext
-    activeSchoolId.value = resolveActiveSchoolId(
-      response.defaultContext?.schoolId,
-      response.defaultContext,
-      memberships.value,
-    )
-    activeRoles.value =
-      memberships.value.find((membership) => membership.school.id === activeSchoolId.value)?.roles ??
-      response.defaultContext?.roles ??
-      response.memberships?.[0]?.roles ??
-      []
 
-    persistSession({
-      token: token.value,
-      user: user.value,
-      memberships: memberships.value,
-      globalRoles: globalRoles.value,
+    const stored = readStoredSession()
+    activeContext.value = chooseActiveContext({
+      preferredContext: stored.activeContext,
+      legacySchoolId: stored.activeSchoolId,
       defaultContext: defaultContext.value,
-      activeSchoolId: activeSchoolId.value,
-      activeRoles: activeRoles.value,
     })
+
+    isContextReady.value = true
+    contextRefreshAttempted.value = false
+    persistCurrentSession()
   }
 
   async function login(payload: LoginPayload) {
@@ -114,8 +115,10 @@ export const useAuthStore = defineStore('auth', () => {
     memberships.value = []
     globalRoles.value = []
     defaultContext.value = undefined
-    activeSchoolId.value = null
-    activeRoles.value = []
+    activeContext.value = null
+    isContextReady.value = false
+    contextRefreshAttempted.value = false
+    contextVersion.value += 1
     activeClass.reset()
     clearStoredSession()
   }
@@ -128,33 +131,155 @@ export const useAuthStore = defineStore('auth', () => {
     memberships.value = stored.memberships
     globalRoles.value = stored.globalRoles
     defaultContext.value = stored.defaultContext
-    activeSchoolId.value = resolveActiveSchoolId(
-      stored.activeSchoolId,
-      stored.defaultContext,
-      stored.memberships,
-    )
-    activeRoles.value = activeMembership.value?.roles ?? stored.activeRoles
-    if (token.value && stored.activeSchoolId !== activeSchoolId.value) {
-      persistSession({
-        token: token.value ?? '',
-        user: user.value,
-        memberships: memberships.value,
-        globalRoles: globalRoles.value,
-        defaultContext: defaultContext.value,
-        activeSchoolId: activeSchoolId.value,
-        activeRoles: activeRoles.value,
-      })
-    }
+    activeContext.value = chooseActiveContext({
+      preferredContext: stored.activeContext,
+      legacySchoolId: stored.activeSchoolId,
+      defaultContext: stored.defaultContext,
+    })
+    isContextReady.value = !token.value || Boolean(activeContext.value)
     isRestored.value = true
+    persistCurrentSession()
+  }
+
+  async function refreshUserContext() {
+    if (!token.value) {
+      isContextReady.value = true
+      return false
+    }
+    if (contextRefreshAttempted.value) {
+      isContextReady.value = true
+      return true
+    }
+
+    contextRefreshAttempted.value = true
+    try {
+      const { data } = await api.get<AuthContextResponse>('/me/context')
+      memberships.value = data.memberships ?? []
+      globalRoles.value = data.globalRoles ?? []
+      defaultContext.value = data.defaultContext
+      reconcileActiveContext()
+      isContextReady.value = true
+      persistCurrentSession()
+      return true
+    } catch {
+      // Keep the local persisted context for transient refresh failures.
+      isContextReady.value = true
+      return false
+    }
+  }
+
+  function reconcileActiveContext() {
+    const previousContext = activeContext.value
+    activeContext.value = chooseActiveContext({
+      preferredContext: activeContext.value,
+      defaultContext: defaultContext.value,
+    })
+    if (!sameNullableContext(previousContext, activeContext.value)) {
+      contextVersion.value += 1
+      useActiveClassStore().reset()
+      window.dispatchEvent(new CustomEvent('wiyata:context-changed'))
+    }
+  }
+
+  function switchContext(targetContext: ActiveContext) {
+    const validContext = availableContexts.value.find((context) =>
+      sameContext(context, targetContext),
+    )
+    if (!validContext) {
+      return null
+    }
+
+    activeContext.value = validContext
+    contextVersion.value += 1
+    useActiveClassStore().reset()
+    persistCurrentSession()
+    window.dispatchEvent(new CustomEvent('wiyata:context-changed'))
+    return landingRouteForContext(validContext)
   }
 
   function hasAnyRole(roles: RoleName[]) {
     if (roles.length === 0) return true
-    return roles.some((role) => allRoles.value.includes(role))
+    return activeRole.value ? roles.includes(activeRole.value) : false
   }
 
   function primaryRole() {
-    return rolePriority.find((role) => allRoles.value.includes(role)) ?? null
+    return activeRole.value
+  }
+
+  function landingRoute(context: ActiveContext | null = activeContext.value) {
+    return landingRouteForContext(context)
+  }
+
+  function persistCurrentSession() {
+    if (!token.value) return
+    persistSession({
+      token: token.value,
+      user: user.value,
+      memberships: memberships.value,
+      globalRoles: globalRoles.value,
+      defaultContext: defaultContext.value,
+      activeContext: activeContext.value,
+      activeSchoolId: activeSchoolId.value,
+      activeRoles: activeRoles.value,
+    })
+  }
+
+  function chooseActiveContext(options: {
+    preferredContext?: ActiveContext | null
+    legacySchoolId?: string | null
+    defaultContext?: DefaultContext
+  }) {
+    if (options.preferredContext && isValidContext(options.preferredContext)) {
+      return matchingContext(options.preferredContext)
+    }
+
+    if (options.legacySchoolId) {
+      const legacyContext = contextForSchool(options.legacySchoolId)
+      if (legacyContext) return legacyContext
+    }
+
+    if (options.defaultContext) {
+      const defaultSchoolContext = contextForDefault(options.defaultContext)
+      if (defaultSchoolContext) return defaultSchoolContext
+    }
+
+    return availableContexts.value[0] ?? null
+  }
+
+  function contextForDefault(context: DefaultContext) {
+    const membership = memberships.value.find(
+      (item) => item.school.id === context.schoolId && item.schoolUserId === context.schoolUserId,
+    )
+    if (!membership) return null
+    return contextForMembership(membership, context.roles)
+  }
+
+  function contextForSchool(schoolId: string) {
+    const membership = memberships.value.find((item) => item.school.id === schoolId)
+    if (!membership) return null
+    return contextForMembership(membership, membership.roles)
+  }
+
+  function contextForMembership(membership: MembershipInfo, preferredRoles: RoleName[]) {
+    const role =
+      schoolRolePriority.find(
+        (candidate) => membership.roles.includes(candidate) && preferredRoles.includes(candidate),
+      ) ?? schoolRolePriority.find((candidate) => membership.roles.includes(candidate))
+    if (!role) return null
+    return {
+      type: 'school',
+      schoolId: membership.school.id,
+      schoolUserId: membership.schoolUserId,
+      role,
+    } satisfies ActiveContext
+  }
+
+  function isValidContext(context: ActiveContext) {
+    return availableContexts.value.some((item) => sameContext(item, context))
+  }
+
+  function matchingContext(context: ActiveContext) {
+    return availableContexts.value.find((item) => sameContext(item, context)) ?? null
   }
 
   return {
@@ -163,16 +288,45 @@ export const useAuthStore = defineStore('auth', () => {
     memberships,
     globalRoles,
     defaultContext,
+    activeContext,
+    activeRole,
     activeSchoolId,
     activeMembership,
     activeSchoolUserId,
     activeRoles,
+    availableContexts,
+    contextVersion,
     isAuthenticated,
+    isContextReady,
     allRoles,
     login,
     logout,
     restoreSession,
+    refreshUserContext,
+    reconcileActiveContext,
+    switchContext,
     hasAnyRole,
     primaryRole,
+    landingRoute,
   }
 })
+
+function sameContext(a: ActiveContext, b: ActiveContext) {
+  if (a.type !== b.type) return false
+  if (a.type === 'platform' && b.type === 'platform') return a.role === b.role
+  if (a.type === 'school' && b.type === 'school') {
+    return a.schoolId === b.schoolId && a.schoolUserId === b.schoolUserId && a.role === b.role
+  }
+  return false
+}
+
+function sameNullableContext(a: ActiveContext | null, b: ActiveContext | null) {
+  if (!a && !b) return true
+  if (!a || !b) return false
+  return sameContext(a, b)
+}
+
+function landingRouteForContext(context: ActiveContext | null) {
+  if (!context) return '/unauthorized'
+  return landingRouteByRole[context.role]
+}

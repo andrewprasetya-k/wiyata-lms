@@ -3,25 +3,16 @@ import { computed } from "vue";
 import { useRouter } from "vue-router";
 import { PhCompassTool } from "@phosphor-icons/vue";
 import { useAuthStore } from "../../stores/auth";
-import type { RoleName } from "../../types/auth";
 
 const router = useRouter();
 const auth = useAuthStore();
-
-const dashboardByRole: Record<RoleName, string> = {
-  super_admin: "/superadmin/dashboard",
-  admin: "/admin/dashboard",
-  teacher: "/teacher/dashboard",
-  student: "/student/dashboard",
-};
 
 const primaryTarget = computed(() => {
   if (!auth.isAuthenticated) {
     return "/home";
   }
 
-  const role = auth.primaryRole();
-  return role ? dashboardByRole[role] : "/home";
+  return auth.landingRoute();
 });
 
 const primaryLabel = computed(() =>

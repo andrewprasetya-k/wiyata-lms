@@ -1,10 +1,11 @@
-import type { DefaultContext, MembershipInfo, RoleName, UserInfo } from '../types/auth'
+import type { ActiveContext, DefaultContext, MembershipInfo, RoleName, UserInfo } from '../types/auth'
 
 const TOKEN_KEY = 'edv_token'
 const USER_KEY = 'edv_user'
 const MEMBERSHIPS_KEY = 'edv_memberships'
 const GLOBAL_ROLES_KEY = 'edv_global_roles'
 const DEFAULT_CONTEXT_KEY = 'edv_default_context'
+const ACTIVE_CONTEXT_KEY = 'edv_active_context'
 const ACTIVE_SCHOOL_KEY = 'edv_active_school_id'
 const ACTIVE_ROLES_KEY = 'edv_active_roles'
 const ACTIVE_CLASS_KEY = 'edv_active_class_id'
@@ -17,12 +18,21 @@ export function getActiveSchoolId() {
   return localStorage.getItem(ACTIVE_SCHOOL_KEY)
 }
 
+export function getActiveRole() {
+  const context = parseJSON<ActiveContext | null>(localStorage.getItem(ACTIVE_CONTEXT_KEY), null)
+  if (context?.type === 'school') return context.role
+  const roles = parseJSON<RoleName[]>(localStorage.getItem(ACTIVE_ROLES_KEY), [])
+  const role = roles[0]
+  return role === 'admin' || role === 'teacher' || role === 'student' ? role : null
+}
+
 export function persistSession(payload: {
   token: string
   user: UserInfo | null
   memberships: MembershipInfo[]
   globalRoles: RoleName[]
   defaultContext?: DefaultContext
+  activeContext?: ActiveContext | null
   activeSchoolId: string | null
   activeRoles: RoleName[]
 }) {
@@ -31,6 +41,11 @@ export function persistSession(payload: {
   localStorage.setItem(MEMBERSHIPS_KEY, JSON.stringify(payload.memberships))
   localStorage.setItem(GLOBAL_ROLES_KEY, JSON.stringify(payload.globalRoles))
   localStorage.setItem(DEFAULT_CONTEXT_KEY, JSON.stringify(payload.defaultContext ?? null))
+  if (payload.activeContext) {
+    localStorage.setItem(ACTIVE_CONTEXT_KEY, JSON.stringify(payload.activeContext))
+  } else {
+    localStorage.removeItem(ACTIVE_CONTEXT_KEY)
+  }
   if (payload.activeSchoolId) {
     localStorage.setItem(ACTIVE_SCHOOL_KEY, payload.activeSchoolId)
   } else {
@@ -49,6 +64,7 @@ export function readStoredSession() {
       localStorage.getItem(DEFAULT_CONTEXT_KEY),
       undefined,
     ),
+    activeContext: parseJSON<ActiveContext | null>(localStorage.getItem(ACTIVE_CONTEXT_KEY), null),
     activeSchoolId: localStorage.getItem(ACTIVE_SCHOOL_KEY),
     activeRoles: parseJSON<RoleName[]>(localStorage.getItem(ACTIVE_ROLES_KEY), []),
   }
@@ -60,6 +76,7 @@ export function clearStoredSession() {
   localStorage.removeItem(MEMBERSHIPS_KEY)
   localStorage.removeItem(GLOBAL_ROLES_KEY)
   localStorage.removeItem(DEFAULT_CONTEXT_KEY)
+  localStorage.removeItem(ACTIVE_CONTEXT_KEY)
   localStorage.removeItem(ACTIVE_SCHOOL_KEY)
   localStorage.removeItem(ACTIVE_ROLES_KEY)
   localStorage.removeItem(ACTIVE_CLASS_KEY)

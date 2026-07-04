@@ -2,7 +2,6 @@
 import { computed, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { PhArrowRight } from "@phosphor-icons/vue";
-import { dashboardByRole } from "../../router";
 import { useAuthStore } from "../../stores/auth";
 
 const auth = useAuthStore();
@@ -25,9 +24,7 @@ async function submit() {
 
   try {
     await auth.login({ email: email.value, password: password.value });
-    const role = auth.primaryRole();
-    const fallback = role ? dashboardByRole[role] : "/unauthorized";
-    await router.push((route.query.redirect as string | undefined) ?? fallback);
+    await router.push((route.query.redirect as string | undefined) ?? auth.landingRoute());
   } catch {
     errorMessage.value = "Email atau password tidak valid.";
   } finally {

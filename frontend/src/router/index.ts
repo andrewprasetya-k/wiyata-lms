@@ -51,13 +51,6 @@ import SchoolRegistration from "../pages/public/SchoolRegistration.vue";
 import AcceptInvitation from "../pages/public/AcceptInvitation.vue";
 import NotFoundPage from "../pages/common/NotFoundPage.vue";
 
-export const dashboardByRole: Record<RoleName, string> = {
-  super_admin: "/superadmin/dashboard",
-  admin: "/admin/dashboard",
-  teacher: "/teacher/dashboard",
-  student: "/student/dashboard",
-};
-
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -448,17 +441,24 @@ declare module "vue-router" {
 
 const APP_NAME = "Wiyata";
 
-router.beforeEach((to) => {
+router.beforeEach(async (to) => {
   const auth = useAuthStore();
   auth.restoreSession();
 
   if (to.name === "login" && auth.isAuthenticated) {
-    const role = auth.primaryRole();
-    return role ? dashboardByRole[role] : "/unauthorized";
+    await auth.refreshUserContext();
+    return auth.landingRoute();
   }
 
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
     return { name: "login", query: { redirect: to.fullPath } };
+  }
+
+  if (to.meta.requiresAuth) {
+    await auth.refreshUserContext();
+    if (!auth.activeContext) {
+      return { name: "unauthorized" };
+    }
   }
 
   const requiredRoles = to.matched.flatMap((record) => record.meta.roles ?? []);

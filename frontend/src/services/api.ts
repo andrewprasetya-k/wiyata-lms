@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { clearStoredSession, getActiveSchoolId, getStoredToken } from './session'
+import { clearStoredSession, getActiveRole, getActiveSchoolId, getStoredToken } from './session'
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080/api',
@@ -8,6 +8,7 @@ export const api = axios.create({
 api.interceptors.request.use((config) => {
   const token = getStoredToken()
   const activeSchoolId = getActiveSchoolId()
+  const activeRole = getActiveRole()
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
@@ -15,6 +16,10 @@ api.interceptors.request.use((config) => {
 
   if (activeSchoolId) {
     config.headers.SchoolId = activeSchoolId
+  }
+
+  if (activeSchoolId && activeRole) {
+    config.headers['Active-Role'] = activeRole
   }
 
   return config
