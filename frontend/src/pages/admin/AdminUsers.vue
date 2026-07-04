@@ -877,9 +877,9 @@ onMounted(async () => {
                   Undang atau buat akun
                 </h2>
                 <p class="mt-1 text-xs leading-5 text-[#6b7280]">
-                  Undangan email menjadi alur utama agar guru dan siswa
-                  membuat password sendiri. Pembuatan akun langsung tetap
-                  tersedia sebagai fallback.
+                  Undangan email menjadi alur utama agar guru dan siswa membuat
+                  password sendiri. Pembuatan akun langsung tetap tersedia
+                  sebagai fallback.
                 </p>
               </div>
               <PhPlusCircle
@@ -980,7 +980,9 @@ onMounted(async () => {
                 :disabled="isInvitingMember"
               >
                 <PhEnvelopeSimple :size="17" weight="duotone" />
-                {{ isInvitingMember ? "Mengirim undangan..." : "Kirim undangan" }}
+                {{
+                  isInvitingMember ? "Mengirim undangan..." : "Kirim undangan"
+                }}
               </button>
 
               <div
@@ -989,8 +991,8 @@ onMounted(async () => {
               >
                 <p class="font-semibold">Undangan berhasil dibuat.</p>
                 <p class="mt-1">
-                  Email dikirim secara best-effort. Link manual tersedia sebagai
-                  fallback.
+                  Paste kode undangan di browser untuk membuat akun baru, atau
+                  salin link undangan di bawah.
                 </p>
                 <div
                   v-if="inviteLink"
