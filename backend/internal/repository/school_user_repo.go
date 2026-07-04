@@ -73,6 +73,7 @@ func (r *schoolUserRepository) GetByUser(userID string) ([]*domain.SchoolUser, e
 	err := r.db.Preload("School").
 		Preload("Roles.Role").
 		Where("scu_usr_id = ?", userID).
+		Where("school_users.deleted_at IS NULL").
 		Find(&schools).Error
 	return schools, err
 }

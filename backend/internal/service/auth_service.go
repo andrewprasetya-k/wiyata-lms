@@ -110,7 +110,12 @@ func (s *authService) buildLoginResponse(token string, user *domain.User) (*dto.
 	}
 
 	globalRoleSet := map[string]bool{}
-	for i, schoolUser := range schoolUsers {
+	activeMembershipIndex := 0
+	for _, schoolUser := range schoolUsers {
+		if schoolUser.DeletedAt.Valid {
+			continue
+		}
+
 		roles := make([]string, 0, len(schoolUser.Roles))
 		for _, userRole := range schoolUser.Roles {
 			if userRole.Role.Name == "" {
@@ -131,9 +136,10 @@ func (s *authService) buildLoginResponse(token string, user *domain.User) (*dto.
 				Name: schoolUser.School.Name,
 			},
 			Roles:     roles,
-			IsDefault: i == 0,
+			IsDefault: activeMembershipIndex == 0,
 		}
 		response.Memberships = append(response.Memberships, membership)
+		activeMembershipIndex++
 
 		if response.DefaultContext == nil {
 			response.DefaultContext = &dto.DefaultContext{
