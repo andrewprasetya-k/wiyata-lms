@@ -70,6 +70,30 @@ Behavior:
 - Jika membership sekolah pernah dihapus, membership dipulihkan dengan
   `school_users.deleted_at = NULL`.
 - `classCode` opsional dan hanya berlaku untuk role `student`.
+- Setelah operasi sukses, sistem mengirim email best-effort:
+  - akun baru menerima email bahwa akun Wiyata sudah dibuat;
+  - akun yang sudah ada menerima email bahwa akun tersebut ditambahkan ke
+    sekolah aktif.
+- Password awal tidak pernah dikirim melalui email. Admin/sekolah harus
+  menyampaikan password awal melalui kanal aman di luar Wiyata.
+- Kegagalan email tidak menggagalkan pembuatan/penautan warga sekolah.
+
+Response tambahan:
+
+```json
+{
+  "schoolUserId": "...",
+  "userId": "...",
+  "fullName": "Budi Santoso",
+  "email": "budi@siswa.sch.id",
+  "roles": ["student"],
+  "classCodes": ["X-IPA-1"],
+  "createdAt": "2026-06-26T10:00:00Z",
+  "userCreated": true,
+  "membershipAction": "created",
+  "emailNotification": "account_created"
+}
+```
 
 ## Hapus dari Sekolah Aktif
 
@@ -160,6 +184,9 @@ Behavior:
 - Jika `classCode` diisi dan role adalah `student`, student dienroll ke kelas
   aktif tersebut.
 - Teacher class assignment dan subject assignment tidak dilakukan oleh import ini.
+- Setelah transaksi import sukses, email dikirim best-effort hanya untuk baris
+  yang berhasil diimpor. Baris gagal atau skipped tidak menerima email.
+- Password awal tidak pernah dikirim melalui email.
 
 Response:
 
@@ -175,8 +202,18 @@ Response:
       "email": "budi@siswa.sch.id",
       "role": "student",
       "classCode": "X-IPA-1",
-      "status": "imported"
+      "status": "imported",
+      "userCreated": true,
+      "membershipAction": "created",
+      "emailNotification": "account_created"
     }
   ]
 }
 ```
+
+Nilai `emailNotification`:
+
+- `account_created`: akun global baru dibuat dan email akun dibuat dikirim.
+- `added_to_school`: akun global sudah ada dan email penambahan ke sekolah
+  dikirim.
+- kosong/tidak ada: tidak ada email yang perlu dikirim, misalnya baris skipped.

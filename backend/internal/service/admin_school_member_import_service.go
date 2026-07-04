@@ -26,11 +26,15 @@ type AdminSchoolMemberImportService interface {
 }
 
 type adminSchoolMemberImportService struct {
-	db *gorm.DB
+	db           *gorm.DB
+	emailService EmailService
 }
 
-func NewAdminSchoolMemberImportService(db *gorm.DB) AdminSchoolMemberImportService {
-	return &adminSchoolMemberImportService{db: db}
+func NewAdminSchoolMemberImportService(db *gorm.DB, emailService EmailService) AdminSchoolMemberImportService {
+	if emailService == nil {
+		emailService = noopEmailService{}
+	}
+	return &adminSchoolMemberImportService{db: db, emailService: emailService}
 }
 
 type normalizedImportRow struct {
@@ -40,6 +44,12 @@ type normalizedImportRow struct {
 	Role      string
 	ClassCode string
 	Errors    []string
+}
+
+type schoolMemberEmailJob struct {
+	Email        string
+	Role         string
+	Notification string
 }
 
 var allowedSchoolMemberImportRoles = map[string]bool{
@@ -109,6 +119,7 @@ func (s *adminSchoolMemberImportService) Commit(schoolID string, defaultPassword
 	}
 
 	results := make([]dto.AdminSchoolMemberImportResultDTO, 0, len(preview.Rows))
+	emailJobs := make([]schoolMemberEmailJob, 0, len(preview.Rows))
 	err = s.db.Transaction(func(tx *gorm.DB) error {
 		for _, row := range preview.Rows {
 			result := dto.AdminSchoolMemberImportResultDTO{
@@ -148,12 +159,23 @@ func (s *adminSchoolMemberImportService) Commit(schoolID string, defaultPassword
 				}
 			}
 
+			result.UserCreated = createdUser
+			result.MembershipAction = membershipAction
+			result.EmailNotification = schoolMemberEmailNotification(createdUser, membershipAction, roleAssigned, classTouched)
 			if membershipAction == "restored" {
 				result.Reason = "Membership sekolah dipulihkan."
 			}
 			if !createdUser && membershipAction == "existing" && !roleAssigned && !classTouched {
 				result.Status = "skipped"
 				result.Reason = "Akun sudah menjadi warga sekolah dengan data yang sama."
+				result.EmailNotification = ""
+			}
+			if result.Status == "imported" && result.EmailNotification != "" {
+				emailJobs = append(emailJobs, schoolMemberEmailJob{
+					Email:        row.Email,
+					Role:         row.Role,
+					Notification: result.EmailNotification,
+				})
 			}
 			results = append(results, result)
 		}
@@ -162,6 +184,7 @@ func (s *adminSchoolMemberImportService) Commit(schoolID string, defaultPassword
 	if err != nil {
 		return nil, err
 	}
+	s.sendSchoolMemberEmailNotifications(schoolID, emailJobs)
 
 	response := dto.AdminSchoolMemberImportCommitResponseDTO{Results: results}
 	for _, result := range results {
@@ -259,12 +282,13 @@ func (s *adminSchoolMemberImportService) AddMember(schoolID string, input dto.Ad
 	}
 
 	var response *dto.AdminSchoolMemberResponseDTO
+	emailJobs := make([]schoolMemberEmailJob, 0, 1)
 	err = s.db.Transaction(func(tx *gorm.DB) error {
-		user, _, err := s.findOrCreateUser(tx, row.FullName, row.Email, input.Password)
+		user, createdUser, err := s.findOrCreateUser(tx, row.FullName, row.Email, input.Password)
 		if err != nil {
 			return err
 		}
-		schoolUser, _, err := s.findOrCreateSchoolUser(tx, schoolID, user.ID)
+		schoolUser, membershipAction, err := s.findOrCreateSchoolUser(tx, schoolID, user.ID)
 		if err != nil {
 			return err
 		}
@@ -272,15 +296,18 @@ func (s *adminSchoolMemberImportService) AddMember(schoolID string, input dto.Ad
 		if err != nil {
 			return err
 		}
-		if _, err := s.ensureRole(tx, schoolUser.ID, roleID); err != nil {
+		roleAssigned, err := s.ensureRole(tx, schoolUser.ID, roleID)
+		if err != nil {
 			return err
 		}
+		classTouched := false
 		if row.ClassCode != "" && row.Role == "student" {
 			classID, err := s.findClassIDByCode(tx, schoolID, row.ClassCode)
 			if err != nil {
 				return err
 			}
-			if _, err := s.ensureActiveStudentEnrollment(tx, schoolID, schoolUser.ID, classID); err != nil {
+			classTouched, err = s.ensureActiveStudentEnrollment(tx, schoolID, schoolUser.ID, classID)
+			if err != nil {
 				return err
 			}
 		}
@@ -292,10 +319,24 @@ func (s *adminSchoolMemberImportService) AddMember(schoolID string, input dto.Ad
 			return err
 		}
 		mapped := s.mapSchoolMember(schoolUser, classCodes[schoolUser.ID])
+		mapped.UserCreated = createdUser
+		mapped.MembershipAction = membershipAction
+		mapped.EmailNotification = schoolMemberEmailNotification(createdUser, membershipAction, roleAssigned, classTouched)
+		if mapped.EmailNotification != "" {
+			emailJobs = append(emailJobs, schoolMemberEmailJob{
+				Email:        row.Email,
+				Role:         row.Role,
+				Notification: mapped.EmailNotification,
+			})
+		}
 		response = &mapped
 		return nil
 	})
-	return response, err
+	if err != nil {
+		return nil, err
+	}
+	s.sendSchoolMemberEmailNotifications(schoolID, emailJobs)
+	return response, nil
 }
 
 func (s *adminSchoolMemberImportService) RemoveMember(schoolID string, schoolUserID string) error {
@@ -320,6 +361,51 @@ func (s *adminSchoolMemberImportService) RestoreMember(schoolID string, schoolUs
 		return gorm.ErrRecordNotFound
 	}
 	return nil
+}
+
+func schoolMemberEmailNotification(createdUser bool, membershipAction string, roleAssigned bool, classTouched bool) string {
+	if createdUser {
+		return "account_created"
+	}
+	if membershipAction == "created" || membershipAction == "restored" || roleAssigned || classTouched {
+		return "added_to_school"
+	}
+	return ""
+}
+
+func (s *adminSchoolMemberImportService) sendSchoolMemberEmailNotifications(schoolID string, jobs []schoolMemberEmailJob) {
+	if len(jobs) == 0 {
+		return
+	}
+
+	schoolName, err := s.findSchoolName(schoolID)
+	if err != nil {
+		fmt.Printf("[Email Warning] failed to load school for member notification school_id=%s error=%s\n", schoolID, err.Error())
+		return
+	}
+
+	for _, job := range jobs {
+		var sendErr error
+		switch job.Notification {
+		case "account_created":
+			sendErr = s.emailService.SendSchoolMemberAccountCreated(job.Email, schoolName, job.Role)
+		case "added_to_school":
+			sendErr = s.emailService.SendSchoolMemberAddedToSchool(job.Email, schoolName, job.Role)
+		default:
+			continue
+		}
+		if sendErr != nil {
+			fmt.Printf("[Email Warning] failed to send school member notification school_id=%s email=%s notification=%s error=%s\n", schoolID, maskEmail(job.Email), job.Notification, sendErr.Error())
+		}
+	}
+}
+
+func (s *adminSchoolMemberImportService) findSchoolName(schoolID string) (string, error) {
+	var school domain.School
+	if err := s.db.Select("sch_name").Where("sch_id = ?", schoolID).First(&school).Error; err != nil {
+		return "", err
+	}
+	return school.Name, nil
 }
 
 func (s *adminSchoolMemberImportService) parseCSV(content []byte) ([]normalizedImportRow, error) {

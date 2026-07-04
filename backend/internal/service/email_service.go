@@ -12,6 +12,8 @@ import (
 type EmailService interface {
 	SendSchoolAdminInvitation(toEmail string, schoolName string, acceptURL string) error
 	SendSchoolMemberInvitation(toEmail string, schoolName string, role string, acceptURL string) error
+	SendSchoolMemberAccountCreated(toEmail string, schoolName string, role string) error
+	SendSchoolMemberAddedToSchool(toEmail string, schoolName string, role string) error
 }
 
 type noopEmailService struct{}
@@ -45,6 +47,14 @@ func (noopEmailService) SendSchoolAdminInvitation(string, string, string) error 
 }
 
 func (noopEmailService) SendSchoolMemberInvitation(string, string, string, string) error {
+	return nil
+}
+
+func (noopEmailService) SendSchoolMemberAccountCreated(string, string, string) error {
+	return nil
+}
+
+func (noopEmailService) SendSchoolMemberAddedToSchool(string, string, string) error {
 	return nil
 }
 
@@ -125,6 +135,65 @@ Wiyata
 `, roleLabel, schoolName, acceptURL)
 
 	return s.sendPlainText(toEmail, subject, body)
+}
+
+func (s *smtpEmailService) SendSchoolMemberAccountCreated(toEmail string, schoolName string, role string) error {
+	toEmail = strings.TrimSpace(toEmail)
+	schoolName = strings.TrimSpace(schoolName)
+	roleLabel := schoolMemberRoleLabel(role)
+	if toEmail == "" || schoolName == "" {
+		return fmt.Errorf("email account-created fields are required")
+	}
+
+	subject := "Akun Wiyata Anda Sudah Dibuat"
+	body := fmt.Sprintf(`Halo,
+
+Akun Wiyata Anda sudah dibuat dan ditambahkan sebagai %s di %s.
+
+Password awal diberikan langsung oleh admin/sekolah. Demi keamanan, Wiyata tidak mengirim password melalui email.
+
+Silakan login menggunakan email ini dan password awal yang diberikan oleh admin/sekolah.
+
+Salam,
+Wiyata
+`, roleLabel, schoolName)
+
+	return s.sendPlainText(toEmail, subject, body)
+}
+
+func (s *smtpEmailService) SendSchoolMemberAddedToSchool(toEmail string, schoolName string, role string) error {
+	toEmail = strings.TrimSpace(toEmail)
+	schoolName = strings.TrimSpace(schoolName)
+	roleLabel := schoolMemberRoleLabel(role)
+	if toEmail == "" || schoolName == "" {
+		return fmt.Errorf("email added-to-school fields are required")
+	}
+
+	subject := "Anda Ditambahkan ke Sekolah di Wiyata"
+	body := fmt.Sprintf(`Halo,
+
+Akun Wiyata Anda sudah ditambahkan sebagai %s di %s.
+
+Password akun Anda tidak diubah. Silakan login menggunakan password akun Wiyata yang sudah ada.
+
+Salam,
+Wiyata
+`, roleLabel, schoolName)
+
+	return s.sendPlainText(toEmail, subject, body)
+}
+
+func schoolMemberRoleLabel(role string) string {
+	switch strings.TrimSpace(strings.ToLower(role)) {
+	case "teacher":
+		return "Guru"
+	case "student":
+		return "Siswa"
+	case "admin":
+		return "Admin Sekolah"
+	default:
+		return "Warga Sekolah"
+	}
 }
 
 func (s *smtpEmailService) sendPlainText(toEmail string, subject string, body string) error {

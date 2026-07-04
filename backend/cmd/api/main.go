@@ -62,7 +62,7 @@ func main() {
 	schoolUserRepo := repository.NewSchoolUserRepository(db)
 	schoolUserService := service.NewSchoolUserService(schoolUserRepo, schoolService)
 	schoolUserHandler := handler.NewSchoolUserHandler(schoolUserService, schoolService)
-	adminSchoolMemberImportService := service.NewAdminSchoolMemberImportService(db)
+	adminSchoolMemberImportService := service.NewAdminSchoolMemberImportService(db, emailService)
 	adminSchoolMemberImportHandler := handler.NewAdminSchoolMemberImportHandler(adminSchoolMemberImportService)
 	schoolMemberInvitationRepo := repository.NewSchoolMemberInvitationRepository(db)
 	schoolMemberInvitationService := service.NewSchoolMemberInvitationService(schoolMemberInvitationRepo, emailService)

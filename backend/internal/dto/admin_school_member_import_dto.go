@@ -22,13 +22,16 @@ type AdminSchoolMemberImportCommitRequestDTO struct {
 }
 
 type AdminSchoolMemberImportResultDTO struct {
-	RowNumber int    `json:"rowNumber"`
-	FullName  string `json:"fullName"`
-	Email     string `json:"email"`
-	Role      string `json:"role"`
-	ClassCode string `json:"classCode,omitempty"`
-	Status    string `json:"status"`
-	Reason    string `json:"reason,omitempty"`
+	RowNumber         int    `json:"rowNumber"`
+	FullName          string `json:"fullName"`
+	Email             string `json:"email"`
+	Role              string `json:"role"`
+	ClassCode         string `json:"classCode,omitempty"`
+	Status            string `json:"status"`
+	Reason            string `json:"reason,omitempty"`
+	UserCreated       bool   `json:"userCreated"`
+	MembershipAction  string `json:"membershipAction,omitempty"`
+	EmailNotification string `json:"emailNotification,omitempty"`
 }
 
 type AdminSchoolMemberImportCommitResponseDTO struct {
@@ -47,14 +50,17 @@ type AdminSchoolMemberCreateDTO struct {
 }
 
 type AdminSchoolMemberResponseDTO struct {
-	SchoolUserID string   `json:"schoolUserId"`
-	UserID       string   `json:"userId"`
-	FullName     string   `json:"fullName"`
-	Email        string   `json:"email"`
-	Roles        []string `json:"roles"`
-	ClassCodes   []string `json:"classCodes,omitempty"`
-	CreatedAt    string   `json:"createdAt"`
-	DeletedAt    *string  `json:"deletedAt,omitempty"`
+	SchoolUserID      string   `json:"schoolUserId"`
+	UserID            string   `json:"userId"`
+	FullName          string   `json:"fullName"`
+	Email             string   `json:"email"`
+	Roles             []string `json:"roles"`
+	ClassCodes        []string `json:"classCodes,omitempty"`
+	CreatedAt         string   `json:"createdAt"`
+	DeletedAt         *string  `json:"deletedAt,omitempty"`
+	UserCreated       bool     `json:"userCreated"`
+	MembershipAction  string   `json:"membershipAction,omitempty"`
+	EmailNotification string   `json:"emailNotification,omitempty"`
 }
 
 type AdminSchoolMemberListResponseDTO struct {
