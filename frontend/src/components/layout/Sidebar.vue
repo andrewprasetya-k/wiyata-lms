@@ -3,6 +3,7 @@ import { PhSignOut } from "@phosphor-icons/vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "../../stores/auth";
 import type { NavItem } from "../../types/navigation";
+import ContextSwitcher from "./ContextSwitcher.vue";
 
 defineProps<{
   items: NavItem[];
@@ -35,6 +36,8 @@ function isActive(to: string) {
         class="h-9 w-9 rounded-xl object-contain"
       />
     </div>
+
+    <ContextSwitcher />
 
     <nav class="flex flex-1 flex-col items-center gap-1" :aria-label="label">
       <RouterLink

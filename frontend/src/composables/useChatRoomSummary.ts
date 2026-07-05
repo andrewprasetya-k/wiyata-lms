@@ -1,7 +1,7 @@
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import { getChatRooms } from "../services/chat";
 import { connectChatSocket } from "../services/chatSocket";
-import { getActiveSchoolId, getStoredToken } from "../services/session";
+import { getActiveRole, getActiveSchoolId, getStoredToken } from "../services/session";
 import type { ChatRoom, ChatSocketEvent } from "../types/chat";
 
 const rooms = ref<ChatRoom[]>([]);
@@ -16,6 +16,7 @@ let refreshTimer: number | undefined;
 let socketConnection: { close: () => void } | null = null;
 let inFlightRefresh: Promise<ChatRoom[]> | null = null;
 let contextKey = "";
+let contextGeneration = 0;
 
 const totalUnreadCount = computed(() =>
   rooms.value.reduce(
@@ -62,6 +63,7 @@ function startSummarySync() {
   connectRealtime();
   scheduleNextPoll();
   document.addEventListener("visibilitychange", handleVisibilityChange);
+  window.addEventListener("wiyata:context-changed", handleContextChanged);
 }
 
 function stopSummarySync() {
@@ -78,6 +80,7 @@ function stopSummarySync() {
   socketConnection = null;
   inFlightRefresh = null;
   document.removeEventListener("visibilitychange", handleVisibilityChange);
+  window.removeEventListener("wiyata:context-changed", handleContextChanged);
 }
 
 async function handleVisibilityChange() {
@@ -88,10 +91,12 @@ async function handleVisibilityChange() {
 function connectRealtime() {
   socketConnection?.close();
   socketConnection = null;
-  if (!getStoredToken() || !getActiveSchoolId()) return;
+  const socketContext = buildContextKey();
+  if (!socketContext) return;
 
   socketConnection = connectChatSocket({
     onEvent(event: ChatSocketEvent) {
+      if (contextKey !== socketContext) return;
       if (
         event.type === "new_message" ||
         event.type === "message_read" ||
@@ -101,7 +106,7 @@ function connectRealtime() {
       }
     },
     onStatusChange(status) {
-      if (!isStarted) return;
+      if (!isStarted || contextKey !== socketContext) return;
       isConnected.value = status === "connected";
       scheduleNextPoll();
     },
@@ -140,28 +145,32 @@ async function refreshRooms() {
 
   if (inFlightRefresh) return inFlightRefresh;
 
+  const generation = contextGeneration;
   loading.value = true;
   error.value = "";
-  inFlightRefresh = getChatRooms()
+  const request = getChatRooms()
     .then((nextRooms) => {
-      if (contextKey === requestContext) {
+      if (contextKey === requestContext && generation === contextGeneration) {
         rooms.value = nextRooms;
       }
       return nextRooms;
     })
     .catch(() => {
-      if (contextKey === requestContext) {
+      if (contextKey === requestContext && generation === contextGeneration) {
         error.value = "Ringkasan chat belum bisa dimuat.";
       }
       return rooms.value;
     })
     .finally(() => {
-      if (contextKey === requestContext) {
+      if (contextKey === requestContext && generation === contextGeneration) {
         loading.value = false;
       }
-      inFlightRefresh = null;
+      if (inFlightRefresh === request) {
+        inFlightRefresh = null;
+      }
     });
 
+  inFlightRefresh = request;
   return inFlightRefresh;
 }
 
@@ -170,8 +179,11 @@ function ensureContext() {
   if (nextContextKey === contextKey) return contextKey;
 
   contextKey = nextContextKey;
+  contextGeneration += 1;
   rooms.value = [];
   error.value = "";
+  loading.value = false;
+  isConnected.value = false;
   inFlightRefresh = null;
   socketConnection?.close();
   socketConnection = null;
@@ -183,9 +195,35 @@ function ensureContext() {
   return contextKey;
 }
 
+function handleContextChanged() {
+  contextGeneration += 1;
+  contextKey = buildContextKey();
+  rooms.value = [];
+  error.value = "";
+  loading.value = false;
+  isConnected.value = false;
+  inFlightRefresh = null;
+  if (refreshTimer) {
+    window.clearTimeout(refreshTimer);
+    refreshTimer = undefined;
+  }
+  if (pollTimer) {
+    window.clearTimeout(pollTimer);
+    pollTimer = undefined;
+  }
+  socketConnection?.close();
+  socketConnection = null;
+
+  if (!isStarted) return;
+  connectRealtime();
+  void refreshRooms();
+  scheduleNextPoll();
+}
+
 function buildContextKey() {
   const token = getStoredToken();
   const schoolId = getActiveSchoolId();
-  if (!token || !schoolId) return "";
-  return `${schoolId}:${token}`;
+  const role = getActiveRole();
+  if (!token || !schoolId || !role) return "";
+  return `${schoolId}:${role}:${token}`;
 }

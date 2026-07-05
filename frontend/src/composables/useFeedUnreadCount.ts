@@ -1,5 +1,6 @@
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import { getFeedUnreadCount } from "../services/feed";
+import { getActiveRole, getActiveSchoolId, getStoredToken } from "../services/session";
 
 const unreadCount = ref(0);
 let pollTimer: number | undefined;
@@ -7,6 +8,7 @@ let refreshTimer: number | undefined;
 let consumerCount = 0;
 let optimisticClearVersion = 0;
 let suppressAutoRefreshUntil = 0;
+let requestGeneration = 0;
 const optimisticClearSuppressionMs = 5000;
 
 function isAutoRefreshSuppressed() {
@@ -26,13 +28,22 @@ function schedulePolling() {
 }
 
 async function refreshUnreadCount(options: { force?: boolean } = {}) {
+  const requestContext = buildContextKey();
+  if (!requestContext) {
+    unreadCount.value = 0;
+    return;
+  }
+
   if (!options.force && isAutoRefreshSuppressed()) {
     return;
   }
 
+  const generation = requestGeneration;
   try {
     const response = await getFeedUnreadCount();
-    unreadCount.value = Math.max(0, response.unreadCount || 0);
+    if (generation === requestGeneration && requestContext === buildContextKey()) {
+      unreadCount.value = Math.max(0, response.unreadCount || 0);
+    }
   } catch {
     // Feed badge should fail silently.
   }
@@ -54,6 +65,27 @@ function handleVisibilityChange() {
 
 function handleFeedUnreadRefresh() {
   scheduleRefresh();
+}
+
+function handleContextChanged() {
+  requestGeneration += 1;
+  suppressAutoRefreshUntil = 0;
+  unreadCount.value = 0;
+  if (refreshTimer) {
+    window.clearTimeout(refreshTimer);
+    refreshTimer = undefined;
+  }
+  if (consumerCount > 0) {
+    void refreshUnreadCount({ force: true });
+  }
+}
+
+function buildContextKey() {
+  const token = getStoredToken();
+  const schoolId = getActiveSchoolId();
+  const role = getActiveRole();
+  if (!token || !schoolId || !role) return "";
+  return `${schoolId}:${role}:${token}`;
 }
 
 export function emitFeedUnreadRefresh() {
@@ -90,6 +122,7 @@ export function useFeedUnreadCount() {
       schedulePolling();
       document.addEventListener("visibilitychange", handleVisibilityChange);
       window.addEventListener("wiyata:feed-unread-refresh", handleFeedUnreadRefresh);
+      window.addEventListener("wiyata:context-changed", handleContextChanged);
     }
   });
 
@@ -104,6 +137,7 @@ export function useFeedUnreadCount() {
       }
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("wiyata:feed-unread-refresh", handleFeedUnreadRefresh);
+      window.removeEventListener("wiyata:context-changed", handleContextChanged);
     }
   });
 

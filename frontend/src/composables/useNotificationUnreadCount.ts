@@ -1,5 +1,6 @@
 import { computed, ref } from 'vue'
 import { getNotificationUnreadCount } from '../services/notifications'
+import { getActiveRole, getActiveSchoolId, getStoredToken } from '../services/session'
 
 const unreadCount = ref(0)
 const loading = ref(false)
@@ -7,29 +8,47 @@ const error = ref('')
 let initialized = false
 let lifecycleStarted = false
 let refreshPromise: Promise<void> | null = null
+let requestGeneration = 0
 
 function normalizeCount(value: number) {
   return Math.max(0, Number.isFinite(value) ? value : 0)
 }
 
 async function refreshUnreadCount() {
+  const requestContext = buildContextKey()
+  if (!requestContext) {
+    unreadCount.value = 0
+    error.value = ''
+    return
+  }
+
   if (refreshPromise) return refreshPromise
 
+  const generation = requestGeneration
   loading.value = true
   error.value = ''
 
-  refreshPromise = getNotificationUnreadCount()
+  const request = getNotificationUnreadCount()
     .then((response) => {
-      unreadCount.value = normalizeCount(response.unreadCount)
+      if (generation === requestGeneration && requestContext === buildContextKey()) {
+        unreadCount.value = normalizeCount(response.unreadCount)
+      }
     })
     .catch(() => {
-      error.value = 'Jumlah notifikasi belum bisa dimuat.'
+      if (generation === requestGeneration && requestContext === buildContextKey()) {
+        error.value = 'Jumlah notifikasi belum bisa dimuat.'
+      }
     })
     .finally(() => {
-      loading.value = false
-      refreshPromise = null
+      if (generation === requestGeneration && requestContext === buildContextKey()) {
+        loading.value = false
+      }
+      if (refreshPromise === request) {
+        refreshPromise = null
+      }
     })
 
+  refreshPromise = request
   return refreshPromise
 }
 
@@ -42,6 +61,28 @@ function startLifecycleRefresh() {
       void refreshUnreadCount()
     }
   })
+  window.addEventListener('wiyata:context-changed', handleContextChanged)
+}
+
+function handleContextChanged() {
+  requestGeneration += 1
+  initialized = false
+  refreshPromise = null
+  unreadCount.value = 0
+  loading.value = false
+  error.value = ''
+  if (lifecycleStarted) {
+    initialized = true
+    void refreshUnreadCount()
+  }
+}
+
+function buildContextKey() {
+  const token = getStoredToken()
+  const schoolId = getActiveSchoolId()
+  const role = getActiveRole()
+  if (!token || !schoolId || !role) return ''
+  return `${schoolId}:${role}:${token}`
 }
 
 export function useNotificationUnreadCount() {
