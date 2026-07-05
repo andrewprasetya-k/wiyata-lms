@@ -4,9 +4,11 @@ Base URL: `/api/notifications`
 
 ## Overview
 
-Real-time notification system untuk inform users tentang activities seperti new assignments, grades, comments, dll.
+REST notification system untuk inform users tentang activities seperti new assignments, grades, comments, feed posts, material updates, and discussion activity.
 
 Notifications are currently scoped to the authenticated global user (`ntf_usr_id`), not to `school_user` or a specific school. Read/delete operations must use the JWT user context and cannot target another user's notification.
+
+Current frontend behavior uses the Notification Center, dashboard preview, sidebar unread badge, manual refresh, visibility refresh, and optimistic read updates. General notification delivery does **not** currently use WebSocket or SSE. Chat has its own separate WebSocket flow.
 
 ---
 
@@ -128,7 +130,7 @@ Delete specific notification.
 | `assignment_graded` | Submission has been graded | Student who submitted | N/A |
 | `material_added` | New learning material posted | Students enrolled in the class | N/A |
 | `feed_posted` | New announcement posted | All class members | Excluded |
-| `comment_added` | New comment on content | Owner of the commented content | Excluded |
+| `comment_added` | New comment on feed/material/assignment discussion | Content creator or active class participants depending on source and commenter role | Excluded |
 
 ---
 
@@ -147,7 +149,7 @@ Notifications are created **automatically** by the backend when the following ev
 **Behavior:**
 - All triggers are **best-effort** — if notification creation fails, the primary action (create assignment, grade, etc.) still succeeds.
 - `feed_posted`: creator is excluded from recipients.
-- `comment_added`: if the commenter is the content owner, no notification is sent.
+- `comment_added`: skips the commenter and deduplicates recipients. Feed behavior remains source-owner/class-aware according to the feed comment flow. Material/assignment discussion notifies active students when teacher/admin comments, and notifies the content creator/teacher when a student comments.
 - `unread-count` increments automatically for each notification created.
 
 **Supported comment source types for `comment_added`:**
@@ -157,32 +159,21 @@ Notifications are created **automatically** by the backend when the following ev
 | `feed` | feed creator |
 | `material` | material creator |
 | `assignment` | assignment creator |
-| `submission` | student who submitted |
 
 ---
 
-## Real-time Integration
+## Frontend Refresh Behavior
 
-### Frontend Polling (Current)
-```javascript
-// Poll every 30 seconds for new notifications
-setInterval(async () => {
-  const response = await fetch('/api/notifications/unread-count');
-  const { unreadCount } = await response.json();
-  updateBadge(unreadCount);
-}, 30000);
-```
+The frontend currently uses shared notification services/composables:
 
-### WebSocket (Future Enhancement)
-```javascript
-// Real-time notifications via WebSocket
-const ws = new WebSocket('ws://localhost:8080/ws/notifications');
-ws.onmessage = (event) => {
-  const notification = JSON.parse(event.data);
-  showNotification(notification);
-  updateUnreadCount();
-};
-```
+- `frontend/src/services/notifications.ts`
+- `frontend/src/composables/useNotificationUnreadCount.ts`
+- Notification Center pages for student and teacher.
+- Dashboard preview widgets and sidebar badge.
+
+Unread state is refreshed by explicit calls and visibility/context refresh behavior. There is no `/ws/notifications` endpoint in the current backend.
+
+Chat realtime is separate and uses the chat WebSocket implementation; do not treat that as a general notification WebSocket.
 
 ---
 
@@ -255,4 +246,4 @@ async function loadNotifications(page = 1) {
 
 ---
 
-**Last Updated:** 2026-05-18
+**Last Updated:** 2026-07-05

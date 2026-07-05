@@ -1,30 +1,28 @@
 # Wiyata LMS
 
-Wiyata adalah Learning Management System (LMS) multi-sekolah yang dirancang untuk mengelola proses pembelajaran digital secara terstruktur. Platform ini mendukung manajemen akademik, pembelajaran berbasis kelas, pengumpulan tugas, penilaian, komunikasi kelas, dan notifikasi.
+Wiyata adalah Learning Management System (LMS) multi-sekolah yang sudah memiliki backend API dan frontend Vue untuk mengelola proses pembelajaran digital secara terstruktur. Platform ini mendukung onboarding sekolah, manajemen akademik, pembelajaran berbasis kelas/mata pelajaran, pengumpulan tugas, penilaian, feed, diskusi, chat, dan notifikasi.
 
 [English Version](README_EN.md)
-
-# Wiyata LMS
-
-Wiyata is a multi-school Learning Management System (LMS) designed to support digital learning, academic management, assignments, assessments, and classroom collaboration.
 
 ### Key Highlights
 
 - Multi-tenant LMS architecture supporting multiple schools
 - Backend built with Go (Gin), PostgreSQL, and GORM
-- JWT authentication and role-based access control (RBAC)
+- Frontend built with Vue 3, TypeScript, Vite, and Tailwind CSS
+- JWT authentication and role-based access control (RBAC) through school memberships
+- Global user identity with per-school memberships and school-level roles
+- Runtime context uses one active school plus one active school role; platform `super_admin` is separate
 - RESTful APIs for academic management workflows
 - Layered architecture (Handler → Service → Repository → Domain)
-- 22 database tables covering academic structure, learning content, communication, and access control
 - Winner of 1st Place in a university-wide UI/UX competition
 
 ### Tech Stack
 
-- Go (Gin)
-- PostgreSQL
-- GORM
+- Go (Gin), GORM, PostgreSQL/Supabase
+- Vue 3, TypeScript, Vite, Tailwind CSS
 - JWT Authentication
-- Vue.js (In Progress)
+- SMTP email foundation with no-op fallback
+- Supabase-compatible media storage provider
 
 ## Daftar Isi
 
@@ -43,13 +41,14 @@ Wiyata is a multi-school Learning Management System (LMS) designed to support di
 
 Wiyata LMS adalah platform akademik yang mengintegrasikan:
 
+- Onboarding sekolah, approval super admin, undangan admin sekolah, dan undangan guru/siswa
 - Struktur akademik sekolah (tahun ajaran, semester, kelas, mata pelajaran)
 - Ruang kerja pembelajaran harian per mata pelajaran (subject class)
 - Materi pembelajaran dengan pelacakan progres
 - Sistem tugas dengan pengumpulan dan penilaian
-- Komunikasi kelas dan feedback
-- Notifikasi otomatis untuk aktivitas pembelajaran
-- Manajemen pengguna dan kontrol akses berbasis peran (RBAC)
+- Feed kelas, diskusi materi/tugas/feed, dan chat
+- Notification Center dan unread badges
+- Manajemen pengguna global, membership sekolah, dan kontrol akses berbasis peran (RBAC)
 
 ### Model Mental Utama
 
@@ -59,12 +58,14 @@ Sekolah (tenant root)
   │   └─ SubjectClass (kelas + mata pelajaran + guru)
   │       ├─ Materi pembelajaran
   │       └─ Tugas & penilaian
-  ├─ Pendaftaran siswa/guru ke kelas
+  ├─ Penempatan siswa/guru ke kelas
   ├─ Feed kelas (komunikasi lintas mata pelajaran)
-  └─ Komentar (dapat diattach ke materi, tugas, feed, atau submission)
+  └─ Komentar/diskusi (feed, materi, dan tugas)
 ```
 
 Poin penting: Materi dan tugas hidup di **SubjectClass**, bukan di kelas. Feed hidup di level **Kelas** untuk komunikasi yang meliputi semua mata pelajaran.
+
+Identitas user bersifat global. Akses akademik berasal dari `school_users` dan `user_roles`; setiap request school-scoped menggunakan `SchoolId` dan, pada frontend saat ini, `Active-Role`.
 
 ## Struktur Repository
 
@@ -106,37 +107,34 @@ wiyata-lms/
 
 - Go 1.21 atau lebih baru
 - PostgreSQL 13 atau lebih baru
+- Node.js dan npm untuk frontend
 
 ### Setup Development
 
-1. Masuk ke direktori backend:
+1. Setup backend:
 
 ```bash
 cd backend
-```
-
-2. Install dependensi:
-
-```bash
 go mod download
-```
-
-3. Setup file .env:
-
-```bash
 cp .env.example .env
-# Edit .env dan sesuaikan nilai-nilai:
+# Edit .env:
 # DB_DSN=postgres://user:password@localhost:5432/wiyata_dev
 # JWT_SECRET=your-secret-key-here
-```
-
-4. Jalankan aplikasi:
-
-```bash
 go run ./cmd/api
 ```
 
-Server akan berjalan di `http://localhost:8080`
+Server backend berjalan di `http://localhost:8080`.
+
+2. Setup frontend:
+
+```bash
+cd frontend
+npm install
+cp env.example .env
+npm run dev
+```
+
+Frontend dev server mengikuti konfigurasi Vite dan `VITE_API_BASE_URL`.
 
 ### Build
 
@@ -164,10 +162,18 @@ gofmt -w .
 
 - **Language**: Go 1.21+
 - **Web Framework**: Gin (HTTP routing dan middleware)
-- **Database**: PostgreSQL dengan GORM ORM
+- **Database**: PostgreSQL/Supabase dengan GORM ORM
 - **Authentication**: JWT (JSON Web Tokens)
 - **Password Hashing**: bcrypt
 - **Configuration**: dotenv (.env files)
+
+### Frontend Stack
+
+- **Framework**: Vue 3
+- **Language**: TypeScript
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS
+- **State/Context**: Pinia store plus localStorage persistence for auth/session context
 
 ### Architecture Pattern
 
@@ -193,24 +199,25 @@ Setiap layer memiliki tanggung jawab yang jelas dan terpisah.
 
 ### File-file Dokumentasi
 
-| File                       | Ukuran | Tujuan                              |
-| -------------------------- | ------ | ----------------------------------- |
-| README.md                  | 14 KB  | Panduan utama (Bahasa Indonesia)    |
-| README_EN.md               | 14 KB  | Panduan utama (English)             |
-| ANALYSIS_INDEX.md          | 7.9 KB | Panduan navigasi ke dokumentasi     |
-| CODEBASE_ANALYSIS.md       | 44 KB  | Analisis teknis lengkap (16 bagian) |
-| QUICK_REFERENCE.md         | 8.3 KB | Referensi cepat pola dan query      |
-| PRODUCT_SCOPE.md           | 17 KB  | Scope produk dan keputusan bisnis   |
-| backend/schema.md          | -      | Skema database (format DBML)        |
-| backend/AGENT.md           | -      | Engineering context summary         |
-| backend/PROJECT_CONTEXT.md | -      | Business context                    |
+| File | Tujuan |
+| --- | --- |
+| docs/AI_HANDOFF.md | Panduan read-first untuk AI coding agent dan developer baru |
+| README.md | Panduan utama Bahasa Indonesia |
+| README_EN.md | Panduan utama English |
+| backend/schema.md | Referensi skema database dalam format DBML |
+| backend/docs/api/ | Dokumentasi API yang lebih spesifik |
+| docs/ANALYSIS_INDEX.md | Panduan navigasi dokumentasi historis |
+| docs/CODEBASE_ANALYSIS.md | Analisis teknis historis; verifikasi ulang dengan kode saat ini |
+| docs/QUICK_REFERENCE.md | Referensi cepat pola dan query |
+| docs/PRODUCT_SCOPE.md | Scope produk dan keputusan bisnis |
 
 ### Urutan Membaca untuk Developer Baru
 
-1. **README.md** (file ini) - gambaran umum
-2. **QUICK_REFERENCE.md** - pola dan struktur dasar
-3. **PRODUCT_SCOPE.md** - konteks bisnis dan requirement
-4. **CODEBASE_ANALYSIS.md** - deep dive teknis
+1. **docs/AI_HANDOFF.md** - konteks implementasi terkini dan aturan keamanan
+2. **README.md** (file ini) - gambaran umum dan setup
+3. **backend/docs/api/** - kontrak API spesifik
+4. **backend/schema.md** - referensi skema
+5. **Dokumentasi historis di docs/** - gunakan sebagai referensi, lalu verifikasi dengan kode
 
 Jika butuh navigasi spesifik: **ANALYSIS_INDEX.md**
 
@@ -218,7 +225,7 @@ Jika butuh navigasi spesifik: **ANALYSIS_INDEX.md**
 
 ### 4 Layer Aplikasi
 
-#### 1. Handler Layer (23 handlers)
+#### 1. Handler Layer
 
 Menangani HTTP requests dan responses:
 
@@ -230,7 +237,7 @@ Menangani HTTP requests dan responses:
 
 Contoh: `internal/handler/material_handler.go`, `internal/handler/assignment_handler.go`
 
-#### 2. Service Layer (21 services)
+#### 2. Service Layer
 
 Mengandung business logic:
 
@@ -242,7 +249,7 @@ Mengandung business logic:
 
 Contoh: `internal/service/material_service.go`, `internal/service/feed_service.go`
 
-#### 3. Repository Layer (22 repositories)
+#### 3. Repository Layer
 
 Menangani akses database:
 
@@ -254,7 +261,7 @@ Menangani akses database:
 
 Contoh: `internal/repository/material_repo.go`, `internal/repository/assignment_repo.go`
 
-#### 4. Domain Layer (19 domain models)
+#### 4. Domain Layer
 
 Mendefinisikan entity dan business rules:
 
@@ -280,7 +287,7 @@ Route → AuthRequired → RequireSchoolMember → RequireRole("teacher") → Ha
 
 ### Database Schema
 
-Database terdiri dari 22 tabel utama:
+Database memakai schema `edv` dengan tabel untuk:
 
 **Academic Structure**: schools, academic_years, terms, subjects, classes, subject_classes
 
@@ -288,7 +295,7 @@ Database terdiri dari 22 tabel utama:
 
 **Learning Content**: materials, material_progress, assignments, submissions, assessments, assignment_categories
 
-**Communication**: feeds, comments, attachments, medias
+**Communication**: feeds, comments, attachments, medias, chat rooms/messages/receipts
 
 **System**: notifications, logs
 
@@ -309,8 +316,11 @@ JWT_SECRET=your-super-secret-key-change-this-in-production
 JWT_EXPIRY=24h
 
 # Storage (optional)
-STORAGE_PROVIDER=local
-STORAGE_PATH=./uploads
+STORAGE_PROVIDER=disabled
+
+# Public app URL and SMTP (optional)
+APP_PUBLIC_URL=http://localhost:5173
+SMTP_ENABLED=false
 ```
 
 ### Running Locally
@@ -491,30 +501,28 @@ Keputusan desain ini adalah non-negotiable dan tidak boleh diubah tanpa persetuj
 
 6. **RBAC per School**: User dapat memiliki role berbeda di sekolah berbeda. Role attach ke school membership, bukan user global.
 
-7. **Polymorphic Comments**: Comment dapat di-attach ke material, assignment, feed, submission, atau comment lain via SourceType + SourceID.
+7. **Polymorphic Comments**: Comment/diskusi saat ini aktif untuk feed, material, dan assignment via SourceType + SourceID. Nested replies/submission discussion masih perlu keputusan produk dan implementasi lanjutan.
 
 ## Issue yang Diketahui
 
-1. **Route Ordering**: GET `/assignments/status/:id` dapat tertelan oleh GET `/assignments/:assignmentId` karena dynamic route matching.
+1. **Dokumentasi historis**: Beberapa dokumen lama masih bersifat planning/analysis. Jika dokumen konflik dengan implementasi, cek kode dan test terlebih dahulu.
 
-2. **No Unit Tests**: Belum ada test files. Struktur sudah siap tapi belum diimplementasi.
+2. **Enrollment role derivation**: Frontend Penempatan Kelas sudah menginfer role dari school member role, tetapi backend masih menerima payload `role` dan belum menjadi sumber derivasi authoritative.
 
-3. **Code Formatting**: Banyak file tidak mengikuti gofmt standard.
+3. **Notification realtime**: Notification Center dan unread state menggunakan REST/frontend refresh. WebSocket realtime saat ini ada untuk chat, bukan notifikasi umum.
 
-4. **Missing Auth Checks**: Assessment tidak verify teacher memiliki assignment. Submission tidak verify student enrolled di class.
-
-5. **File Storage**: Storage provider masih stub. Real S3/Supabase integration belum diimplementasi.
+4. **File delivery**: Upload ke storage sudah ada, tetapi signed/private download URL dan thumbnail generation masih follow-up.
 
 ## Fitur yang Ditunda (Out of Scope)
 
-Fitur-fitur berikut direncanakan tapi belum di-scope untuk MVP:
+Fitur-fitur berikut masih direncanakan atau perlu keputusan produk:
 
-- Realtime chat WebSocket
-- Student personal notes per material
-- Email notification delivery
 - Signed/private file URLs
 - Auto thumbnail generation dari video
 - Nested comment threading
+- Assignment extension request/review flow
+- Grade/transcript export
+- Notification preferences dan realtime notification delivery
 
 ## Kontribusi
 

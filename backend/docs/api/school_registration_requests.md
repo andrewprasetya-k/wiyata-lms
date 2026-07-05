@@ -1,6 +1,6 @@
 # School Registration Requests API
 
-Public visitors can submit a school registration request for later super admin review. This endpoint only creates a pending request; school creation, approval/rejection, invitation, and email delivery are handled by later onboarding steps.
+Public visitors can submit a school registration request for super admin review. The current onboarding flow supports pending request submission, super admin list/detail/reject/approve, school creation on approval, admin invitation creation, public invitation acceptance, and best-effort invitation email delivery when SMTP is configured.
 
 ## Submit Request
 
@@ -72,7 +72,7 @@ If a pending request already exists with the same normalized `picEmail` or `scho
 }
 ```
 
-Approved and rejected historical requests are not blocked in this foundation step.
+Approved and rejected historical requests do not block a new submission with the same school/contact data.
 
 ## Super Admin Management
 

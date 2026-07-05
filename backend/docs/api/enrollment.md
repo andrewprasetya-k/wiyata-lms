@@ -21,6 +21,12 @@ Base URL: `/api/enrollments`
   - Every `schoolUserId` must belong to the active school.
 - **Note:** Bulk enrollment supported. Existing duplicate class enrollments are skipped.
 - **Re-enroll behavior:** If the member previously left the class (`leftAt` is set), enrolling the same member again reactivates the existing enrollment by clearing `leftAt` and updating the class role if needed. The original `joinedAt` is intentionally preserved as the first time the member joined the class.
+- **Current frontend behavior:** Admin Enrollments no longer presents one global "class role" dropdown. The frontend infers placement role from each selected school member's school-level role:
+  - school role `student` → enrollment `role=student`
+  - school role `teacher` → enrollment `role=teacher`
+  - admin-only/no eligible members are not selectable
+  - mixed student and teacher selections are split into role-based API requests
+- **Backend caveat:** The backend still receives the `role` payload and applies the current validation/write behavior. It does not yet authoritatively derive `enr_role` from school-level roles. Do not treat frontend role inference as a backend security guarantee.
 
 ## 2. Get Enrollments by Class
 - **URL:** `/class/:classId`
@@ -88,7 +94,7 @@ Base URL: `/api/enrollments`
   "role": "teacher|student"
 }
 ```
-- **Use Case:** Change member role (e.g., promote student to teacher assistant)
+- **Use Case:** Legacy/admin correction path for class placement role. Because downstream queries still depend on `enr_role`, changing it must be done carefully.
 
 ## 6. Unenroll Member
 - **URL:** `/:id`
@@ -108,7 +114,13 @@ Base URL: `/api/enrollments`
 ## Features
 
 - **Bulk Enrollment:** Multiple users can be enrolled at once
-- **Role Management:** Support for teacher and student roles
+- **Class Placement Role Semantics:** `edv.enrollments.enr_role` remains `student|teacher` and is essential downstream for access, teacher assignment validation, student workspace context, and class membership queries.
 - **Bidirectional Queries:** Get by class or by member
 - **Class Context:** Enrollment list includes class header
 - **History Preservation:** Unenroll preserves the enrollment row and original `joined_at`, and does not delete academic history such as submissions, assessments, or grades.
+
+## Important Downstream Dependency
+
+Subject-class teacher assignment requires the teacher to already have an active teacher placement in the target class. Admins should place the teacher in the class first, then create the subject-class teaching assignment.
+
+Future backend work may derive the enrollment role from school-level roles authoritatively. Until that exists, the API contract still includes the submitted `role`.
