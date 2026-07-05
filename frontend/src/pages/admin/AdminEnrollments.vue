@@ -156,20 +156,6 @@ function placementRoleLabel(member: SchoolMemberItem) {
   return "Tidak dapat ditempatkan";
 }
 
-function schoolRolesLabel(member: SchoolMemberItem) {
-  return member.roles?.length
-    ? member.roles
-        .map((role) => {
-          const normalized = normalizeRoleName(role);
-          if (normalized === "teacher") return "Guru";
-          if (normalized === "student") return "Siswa";
-          if (normalized === "admin") return "Admin sekolah";
-          return role;
-        })
-        .join(", ")
-    : "Peran sekolah belum tersedia";
-}
-
 function unenrollConfirmationCopy(enrollment: EnrollmentMemberItem) {
   if (enrollment.role === "teacher") {
     return "Guru akan dikeluarkan dari kelas. Jika masih memiliki penugasan mengajar di kelas ini, lepaskan penugasan tersebut terlebih dahulu.";
