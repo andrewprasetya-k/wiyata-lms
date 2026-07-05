@@ -60,7 +60,6 @@ const selectedAcademicYearId = ref("");
 const selectedTermId = ref("");
 const selectedClassId = ref("");
 const selectedSchoolUserIds = ref<string[]>([]);
-const classRole = ref<ClassEnrollmentRole | "">("student");
 const memberSearch = ref("");
 const pendingUnenroll = ref<EnrollmentMemberItem | null>(null);
 
@@ -107,6 +106,10 @@ const availableMembers = computed(() =>
   ),
 );
 
+const eligibleAvailableMembers = computed(() =>
+  availableMembers.value.filter((member) => inferPlacementRole(member)),
+);
+
 const selectedMembers = computed(() =>
   availableMembers.value.filter((member) =>
     selectedSchoolUserIds.value.includes(member.schoolUserId),
@@ -131,11 +134,33 @@ function classRoleLabel(role: string) {
   return role;
 }
 
+function normalizeRoleName(roleName: string) {
+  return roleName.trim().toLowerCase();
+}
+
+function inferPlacementRole(
+  member: SchoolMemberItem,
+): ClassEnrollmentRole | null {
+  const roles = (member.roles ?? []).map(normalizeRoleName);
+  const hasStudentRole = roles.includes("student");
+  const hasTeacherRole = roles.includes("teacher");
+
+  if (hasStudentRole && !hasTeacherRole) return "student";
+  if (hasTeacherRole && !hasStudentRole) return "teacher";
+  return null;
+}
+
+function placementRoleLabel(member: SchoolMemberItem) {
+  const role = inferPlacementRole(member);
+  if (role) return classRoleLabel(role);
+  return "Tidak dapat ditempatkan";
+}
+
 function schoolRolesLabel(member: SchoolMemberItem) {
   return member.roles?.length
     ? member.roles
         .map((role) => {
-          const normalized = role.trim().toLowerCase();
+          const normalized = normalizeRoleName(role);
           if (normalized === "teacher") return "Guru";
           if (normalized === "student") return "Siswa";
           if (normalized === "admin") return "Admin sekolah";
@@ -154,6 +179,11 @@ function unenrollConfirmationCopy(enrollment: EnrollmentMemberItem) {
 }
 
 function toggleMember(schoolUserId: string) {
+  const member = availableMembers.value.find(
+    (item) => item.schoolUserId === schoolUserId,
+  );
+  if (!member || !inferPlacementRole(member)) return;
+
   if (selectedSchoolUserIds.value.includes(schoolUserId)) {
     selectedSchoolUserIds.value = selectedSchoolUserIds.value.filter(
       (id) => id !== schoolUserId,
@@ -166,7 +196,7 @@ function toggleMember(schoolUserId: string) {
 
 function resetSelectedMembers() {
   const availableIds = new Set(
-    availableMembers.value.map((member) => member.schoolUserId),
+    eligibleAvailableMembers.value.map((member) => member.schoolUserId),
   );
   selectedSchoolUserIds.value = selectedSchoolUserIds.value.filter((id) =>
     availableIds.has(id),
@@ -323,26 +353,60 @@ async function submitEnrollment() {
     toast.error("Pilih minimal satu warga sekolah.");
     return;
   }
-  if (!classRole.value) {
-    toast.error("Pilih peran kelas.");
+  const grouped = selectedMembers.value.reduce(
+    (acc, member) => {
+      const role = inferPlacementRole(member);
+      if (role) acc[role].push(member.schoolUserId);
+      return acc;
+    },
+    { student: [], teacher: [] } as Record<ClassEnrollmentRole, string[]>,
+  );
+  const requests = (["student", "teacher"] as ClassEnrollmentRole[])
+    .filter((role) => grouped[role].length > 0)
+    .map((role) => ({
+      role,
+      schoolUserIds: grouped[role],
+    }));
+
+  if (requests.length === 0) {
+    toast.error("Pilih warga sekolah dengan peran Siswa atau Guru.");
     return;
   }
 
   submitting.value = true;
   try {
-    await createClassEnrollments({
-      schoolId: currentSchool.value.schoolId,
-      schoolUserIds: selectedSchoolUserIds.value,
-      classId: selectedClassId.value,
-      role: classRole.value,
-    });
-    toast.success(
-      "Penempatan berhasil diproses. Warga yang sudah terdaftar akan dilewati.",
+    const results = await Promise.allSettled(
+      requests.map((request) =>
+        createClassEnrollments({
+          schoolId: currentSchool.value.schoolId,
+          schoolUserIds: request.schoolUserIds,
+          classId: selectedClassId.value,
+          role: request.role,
+        }),
+      ),
     );
-    selectedSchoolUserIds.value = [];
-    await loadEnrollments();
-  } catch {
-    toast.error("Warga sekolah belum bisa ditambahkan ke kelas.");
+
+    const successCount = results.filter(
+      (result) => result.status === "fulfilled",
+    ).length;
+    const failureCount = results.length - successCount;
+
+    if (successCount > 0 && failureCount > 0) {
+      toast.error(
+        "Sebagian penempatan berhasil, tetapi ada kelompok peran yang belum bisa diproses.",
+      );
+    } else if (failureCount > 0) {
+      toast.error("Warga sekolah belum bisa ditambahkan ke kelas.");
+    } else {
+      toast.success(
+        "Penempatan berhasil diproses. Warga yang sudah terdaftar akan dilewati.",
+      );
+    }
+
+    if (successCount > 0) {
+      selectedSchoolUserIds.value = [];
+    }
+    await Promise.all([loadEnrollments(), loadMembers()]);
   } finally {
     submitting.value = false;
   }
@@ -781,7 +845,7 @@ onMounted(async () => {
                     Pilih warga sekolah
                   </h2>
                   <p class="mt-1 text-xs leading-5 text-[#6b7280]">
-                    Penempatan guru belum otomatis membuat penugasan mengajar.
+                    Peran penempatan mengikuti peran warga sekolah.
                   </p>
                 </div>
                 <span
@@ -810,17 +874,6 @@ onMounted(async () => {
                       <PhMagnifyingGlass :size="17" weight="duotone" />
                     </button>
                   </div>
-                </label>
-                <label class="block text-xs font-medium text-[#6b7280]">
-                  Peran di kelas
-                  <select
-                    v-model="classRole"
-                    class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition focus:border-[#4f46e5] focus:bg-white"
-                  >
-                    <option value="" disabled>Pilih peran</option>
-                    <option value="student">Siswa</option>
-                    <option value="teacher">Guru</option>
-                  </select>
                 </label>
               </div>
 
@@ -857,11 +910,23 @@ onMounted(async () => {
                 >
                   Tidak ada warga sekolah yang dapat ditambahkan ke kelas ini.
                 </div>
+                <div
+                  v-else-if="eligibleAvailableMembers.length === 0"
+                  class="rounded-lg bg-[#fbfaf8] p-3 text-xs leading-5 text-[#6b7280]"
+                >
+                  Belum ada siswa atau guru yang dapat ditempatkan. Tambahkan
+                  peran Siswa atau Guru di Warga Sekolah terlebih dahulu.
+                </div>
                 <div v-else class="max-h-72 space-y-2 overflow-y-auto pr-1">
                   <label
                     v-for="member in availableMembers"
                     :key="member.schoolUserId"
-                    class="flex cursor-pointer items-start gap-3 rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-3 transition hover:border-[#d1d5db]"
+                    class="flex items-start gap-3 rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-3 transition"
+                    :class="
+                      inferPlacementRole(member)
+                        ? 'cursor-pointer hover:border-[#d1d5db]'
+                        : 'cursor-not-allowed opacity-65'
+                    "
                   >
                     <input
                       type="checkbox"
@@ -869,6 +934,7 @@ onMounted(async () => {
                       :checked="
                         selectedSchoolUserIds.includes(member.schoolUserId)
                       "
+                      :disabled="!inferPlacementRole(member)"
                       @change="toggleMember(member.schoolUserId)"
                     />
                     <span class="min-w-0 flex-1">
@@ -881,9 +947,16 @@ onMounted(async () => {
                         {{ member.email || "Email tidak tersedia" }}
                       </span>
                       <span
-                        class="mt-2 inline-flex rounded-lg bg-white px-2 py-1 text-[11px] font-medium text-[#6b7280]"
+                        class="ml-2 mt-2 inline-flex rounded-lg px-2 py-1 text-[11px] font-medium"
+                        :class="
+                          inferPlacementRole(member) === 'teacher'
+                            ? 'bg-[#eef2ff] text-[#4f46e5]'
+                            : inferPlacementRole(member) === 'student'
+                              ? 'bg-[#ecfdf5] text-[#059669]'
+                              : 'bg-[#f3f4f6] text-[#6b7280]'
+                        "
                       >
-                        {{ schoolRolesLabel(member) }}
+                        {{ placementRoleLabel(member) }}
                       </span>
                     </span>
                   </label>
@@ -897,8 +970,7 @@ onMounted(async () => {
                   submitting ||
                   !currentSchool.hasContext ||
                   !selectedClassId ||
-                  selectedSchoolUserIds.length === 0 ||
-                  !classRole
+                  selectedSchoolUserIds.length === 0
                 "
                 @click="submitEnrollment"
               >
