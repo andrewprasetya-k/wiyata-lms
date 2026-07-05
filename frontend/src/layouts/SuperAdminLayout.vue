@@ -6,7 +6,9 @@ import {
   PhUsers,
 } from "@phosphor-icons/vue";
 import SlimSidebar from "../components/layout/Sidebar.vue";
+import { useAuthStore } from "../stores/auth";
 
+const auth = useAuthStore();
 const items = [
   { label: "Dashboard", icon: PhHouse, to: "/superadmin/dashboard" },
   { label: "Sekolah", icon: PhBuildings, to: "/superadmin/schools" },
@@ -28,7 +30,7 @@ const items = [
         :items="items"
         profile-to="/superadmin/profile"
       />
-      <RouterView />
+      <RouterView :key="auth.contextVersion" />
     </div>
   </div>
 </template>

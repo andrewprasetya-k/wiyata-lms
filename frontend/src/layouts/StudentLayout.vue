@@ -16,7 +16,9 @@ import SlimSidebar from "../components/layout/Sidebar.vue";
 import { useChatUnreadCount } from "../composables/useChatUnreadCount";
 import { useFeedUnreadCount } from "../composables/useFeedUnreadCount";
 import { useNotificationUnreadCount } from "../composables/useNotificationUnreadCount";
+import { useAuthStore } from "../stores/auth";
 
+const auth = useAuthStore();
 const route = useRoute();
 const { unreadCount, badgeLabel } = useChatUnreadCount();
 const { unreadCount: feedUnreadCount, badgeLabel: feedBadgeLabel } =
@@ -74,7 +76,7 @@ const items = computed(() => [
         :items="items"
         profile-to="/student/profile"
       />
-      <RouterView />
+      <RouterView :key="auth.contextVersion" />
     </div>
   </div>
 </template>

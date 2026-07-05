@@ -12,7 +12,9 @@ import {
 import { useRoute } from "vue-router";
 import Sidebar from "../components/layout/Sidebar.vue";
 import { useChatUnreadCount } from "../composables/useChatUnreadCount";
+import { useAuthStore } from "../stores/auth";
 
+const auth = useAuthStore();
 const route = useRoute();
 const { unreadCount, badgeLabel } = useChatUnreadCount();
 
@@ -52,7 +54,7 @@ const items = computed(() => [
         :items="items"
         profile-to="/admin/profile"
       />
-      <RouterView />
+      <RouterView :key="auth.contextVersion" />
     </div>
   </div>
 </template>
