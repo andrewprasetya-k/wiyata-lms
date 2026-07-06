@@ -379,16 +379,34 @@ onMounted(() => {
 
             <div
               v-else-if="schools.length === 0"
-              class="rounded-lg border border-dashed border-[#d1d5db] bg-[#fafafa] px-4 py-8 text-sm leading-6 text-[#6b7280]"
+              class="rounded-lg bg-[#fbfaf8] px-5 py-8 text-center"
             >
-              Belum ada sekolah. Tambahkan sekolah pertama dari panel di kanan.
+              <PhBuildings
+                class="mx-auto h-7 w-7 text-[#9ca3af]"
+                weight="duotone"
+              />
+              <h3 class="mt-3 text-sm font-semibold text-[#171322]">
+                Belum ada sekolah
+              </h3>
+              <p class="mt-2 text-sm leading-6 text-[#6b7280]">
+                Tambahkan sekolah pertama dari panel di kanan.
+              </p>
             </div>
 
             <div
               v-else-if="filteredSchools.length === 0"
-              class="rounded-lg border border-dashed border-[#d1d5db] bg-[#fafafa] px-4 py-8 text-sm leading-6 text-[#6b7280]"
+              class="rounded-lg bg-[#fbfaf8] px-5 py-8 text-center"
             >
-              Tidak ada sekolah yang cocok dengan pencarian.
+              <PhMagnifyingGlass
+                class="mx-auto h-7 w-7 text-[#9ca3af]"
+                weight="duotone"
+              />
+              <h3 class="mt-3 text-sm font-semibold text-[#171322]">
+                Tidak ada sekolah yang cocok
+              </h3>
+              <p class="mt-2 text-sm leading-6 text-[#6b7280]">
+                Ubah kata kunci pencarian untuk melihat sekolah lain.
+              </p>
             </div>
 
             <template v-else>

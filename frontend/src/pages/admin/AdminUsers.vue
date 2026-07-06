@@ -771,11 +771,10 @@ onMounted(async () => {
 
             <div
               v-else-if="members.length === 0"
-              class="rounded-lg bg-[#fbfaf8] px-5 py-10 text-center"
+              class="rounded-lg bg-[#fbfaf8] px-5 py-8 text-center"
             >
               <PhUsers
-                :size="28"
-                class="mx-auto text-[#9ca3af]"
+                class="mx-auto h-7 w-7 text-[#9ca3af]"
                 weight="duotone"
               />
               <h3 class="mt-3 text-sm font-semibold text-[#171322]">

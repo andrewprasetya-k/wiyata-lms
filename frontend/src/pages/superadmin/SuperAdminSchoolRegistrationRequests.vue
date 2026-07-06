@@ -325,9 +325,18 @@ onMounted(() => {
 
           <div
             v-else-if="requests.length === 0"
-            class="rounded-lg border border-dashed border-[#d1d5db] bg-[#fafafa] px-4 py-8 text-sm leading-6 text-[#6b7280]"
+            class="rounded-lg bg-[#fbfaf8] px-5 py-8 text-center"
           >
-            Belum ada request dengan status {{ statusLabel(activeStatus) }}.
+            <PhClipboardText
+              class="mx-auto h-7 w-7 text-[#9ca3af]"
+              weight="duotone"
+            />
+            <h3 class="mt-3 text-sm font-semibold text-[#171322]">
+              Belum ada request
+            </h3>
+            <p class="mt-2 text-sm leading-6 text-[#6b7280]">
+              Belum ada request dengan status {{ statusLabel(activeStatus) }}.
+            </p>
           </div>
 
           <article
