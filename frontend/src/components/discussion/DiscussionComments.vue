@@ -293,8 +293,8 @@ onMounted(() => {
     </div>
 
     <div v-else class="mt-4 space-y-3">
-      <div v-if="comments.length === 0" class="rounded-xl bg-[#fbfaf8] p-4">
-        <p class="text-sm text-[#7a7385]">{{ emptyText }}</p>
+      <div v-if="comments.length === 0" class="rounded-lg bg-[#fbfaf8] p-3">
+        <p class="text-sm leading-6 text-[#6b7280]">{{ emptyText }}</p>
       </div>
 
       <div

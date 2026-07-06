@@ -241,17 +241,16 @@ function selectRange(value: "today" | "7d" | "30d") {
 
         <section
           v-else-if="groupedActivities.length === 0"
-          class="rounded-xl border border-[#ebe7df] bg-white p-6"
+          class="rounded-lg bg-[#fbfaf8] px-5 py-8 text-center"
         >
-          <div
-            class="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-[#eef2ff] text-[#4f46e5]"
-          >
-            <PhCalendarCheck :size="20" weight="duotone" />
-          </div>
-          <h2 class="text-sm font-medium text-[#171322]">
+          <PhCalendarCheck
+            class="mx-auto h-7 w-7 text-[#9ca3af]"
+            weight="duotone"
+          />
+          <h2 class="mt-3 text-sm font-semibold text-[#171322]">
             {{ emptyMessage }}
           </h2>
-          <p class="mt-2 max-w-lg text-sm leading-6 text-[#7a7385]">
+          <p class="mt-2 text-sm leading-6 text-[#6b7280]">
             Coba ubah rentang waktu atau filter untuk melihat aktivitas lain.
           </p>
         </section>

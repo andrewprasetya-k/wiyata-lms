@@ -1735,7 +1735,7 @@ function formatDateTime(value?: string | null) {
 
               <div
                 v-if="groupRooms.length === 0"
-                class="rounded-lg border border-dashed border-[#d8d2c8] bg-white px-3 py-4 text-center text-xs text-[#6b7280]"
+                class="rounded-lg bg-[#fbfaf8] p-3 text-sm leading-6 text-[#6b7280]"
               >
                 Belum ada grup khusus.
               </div>
@@ -1803,20 +1803,23 @@ function formatDateTime(value?: string | null) {
 
               <div
                 v-if="directMessageRooms.length === 0"
-                class="rounded-lg border border-dashed border-[#d8d2c8] bg-white px-3 py-4 text-center text-xs text-[#6b7280]"
+                class="rounded-lg bg-[#fbfaf8] p-3 text-sm leading-6 text-[#6b7280]"
               >
                 Belum ada pesan langsung.
               </div>
 
               <div
                 v-if="rooms.length === 0"
-                class="rounded-lg border border-dashed border-[#d8d2c8] bg-white px-4 py-8 text-center"
+                class="rounded-lg bg-[#fbfaf8] px-5 py-8 text-center"
               >
-                <PhChatCircleText class="mx-auto h-8 w-8 text-[#b5aa9c]" />
+                <PhChatCircleText
+                  class="mx-auto h-7 w-7 text-[#9ca3af]"
+                  weight="duotone"
+                />
                 <p class="mt-3 text-sm font-semibold text-[#171322]">
                   Belum ada percakapan.
                 </p>
-                <p class="mt-1 text-xs text-[#6b7280]">
+                <p class="mt-2 text-sm leading-6 text-[#6b7280]">
                   Mulai percakapan melalui ruang sekolah, grup, atau pesan
                   langsung.
                 </p>
@@ -1929,11 +1932,15 @@ function formatDateTime(value?: string | null) {
                   v-else-if="messages.length === 0"
                   class="flex min-h-80 flex-col items-center justify-center rounded-2xl px-6 text-center"
                 >
-                  <PhChatCircleText class="h-10 w-10 text-[#b5aa9c]" />
-                  <h3 class="mt-4 text-base font-semibold text-[#171322]">
+                  <div
+                    class="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-[#eef2ff] text-[#4f46e5]"
+                  >
+                    <PhChatCircleText class="h-5 w-5" weight="duotone" />
+                  </div>
+                  <h3 class="text-sm font-semibold text-[#171322]">
                     Belum ada pesan.
                   </h3>
-                  <p class="mt-2 max-w-sm text-sm text-[#6b7280]">
+                  <p class="mt-1 max-w-sm text-sm leading-6 text-[#6b7280]">
                     {{
                       selectedRoomIsDM
                         ? "Mulai percakapan pertama di pesan langsung ini."
@@ -2381,7 +2388,7 @@ function formatDateTime(value?: string | null) {
               </div>
               <div
                 v-else-if="dmResults.length === 0"
-                class="px-3 py-8 text-center text-sm text-[#6b7280]"
+                class="rounded-lg bg-[#fbfaf8] p-3 text-sm leading-6 text-[#6b7280]"
               >
                 Tidak ada warga sekolah yang cocok.
               </div>
@@ -2553,7 +2560,7 @@ function formatDateTime(value?: string | null) {
               </div>
               <div
                 v-else-if="memberResults.length === 0"
-                class="px-3 py-8 text-center text-sm text-[#6b7280]"
+                class="rounded-lg bg-[#fbfaf8] p-3 text-sm leading-6 text-[#6b7280]"
               >
                 Tidak ada warga yang cocok.
               </div>
@@ -2763,7 +2770,7 @@ function formatDateTime(value?: string | null) {
                 </div>
                 <div
                   v-else-if="addMemberResults.length === 0"
-                  class="px-3 py-6 text-center text-sm text-[#6b7280]"
+                  class="rounded-lg bg-[#fbfaf8] p-3 text-sm leading-6 text-[#6b7280]"
                 >
                   Tidak ada warga yang bisa ditambahkan.
                 </div>

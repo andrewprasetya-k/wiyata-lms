@@ -183,12 +183,12 @@ function isInternalLink(link?: string | null) {
       <div
         class="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-[#eef2ff] text-[#4f46e5]"
       >
-        <PhCalendarCheck :size="18" weight="duotone" />
+        <PhCalendarCheck class="h-5 w-5" weight="duotone" />
       </div>
-      <p class="text-sm font-medium text-[#171322]">
+      <p class="text-sm font-semibold text-[#171322]">
         {{ emptyMessage }}
       </p>
-      <p class="mt-2 text-xs leading-5 text-[#7a7385]">
+      <p class="mt-1 text-sm leading-6 text-[#6b7280]">
         Aktivitas akan muncul saat ada tenggat, materi, pengumuman, atau
         pengumpulan yang relevan.
       </p>

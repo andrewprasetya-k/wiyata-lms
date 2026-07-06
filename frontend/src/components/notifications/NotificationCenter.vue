@@ -370,18 +370,18 @@ onMounted(() => {
 
         <div
           v-else-if="notifications.length === 0"
-          class="flex flex-col items-center gap-3 px-5 py-14 text-center"
+          class="flex flex-col items-center px-5 py-14 text-center"
         >
           <div
-            class="flex h-11 w-11 items-center justify-center rounded-full bg-[#eef2ff] text-[#4f46e5]"
+            class="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-[#eef2ff] text-[#4f46e5]"
           >
-            <PhBell :size="23" weight="duotone" />
+            <PhBell class="h-5 w-5" weight="duotone" />
           </div>
           <div>
             <h2 class="text-sm font-semibold text-[#171322]">
               {{ emptyTitle }}
             </h2>
-            <p class="mt-1 max-w-md text-sm leading-6 text-[#7a7385]">
+            <p class="mt-1 max-w-md text-sm leading-6 text-[#6b7280]">
               {{ emptyDescription }}
             </p>
           </div>

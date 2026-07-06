@@ -326,10 +326,10 @@ onMounted(() => {
               v-else
               class="mt-4 rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-5"
             >
-              <h3 class="text-sm font-medium text-[#171322]">
+              <h3 class="text-sm font-semibold text-[#171322]">
                 Belum ada ringkasan mata pelajaran
               </h3>
-              <p class="mt-2 text-sm leading-6 text-[#7a7385]">
+              <p class="mt-1 text-sm leading-6 text-[#6b7280]">
                 Ringkasan akan tampil setelah data kelas dan aktivitas belajar
                 tersedia.
               </p>

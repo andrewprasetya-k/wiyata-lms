@@ -190,11 +190,16 @@ function formatTime(value?: string | null) {
       </RouterLink>
     </div>
 
-    <p
+    <div
       v-else
-      class="rounded-lg bg-[#fbfaf8] p-4 text-sm leading-6 text-[#7a7385]"
+      class="rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-4"
     >
-      Tidak ada percakapan yang belum dibaca.
-    </p>
+      <p class="text-sm font-semibold text-[#171322]">
+        Tidak ada percakapan baru
+      </p>
+      <p class="mt-1 text-sm leading-6 text-[#6b7280]">
+        Percakapan yang belum dibaca akan tampil di sini.
+      </p>
+    </div>
   </article>
 </template>

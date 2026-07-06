@@ -876,8 +876,8 @@ onMounted(() => {
               v-else-if="assignmentPreview.length === 0"
               class="shrink-0 rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-4"
             >
-              <p class="text-sm font-medium text-[#171322]">Belum ada tugas</p>
-              <p class="mt-2 text-sm leading-6 text-[#7a7385]">
+              <p class="text-sm font-semibold text-[#171322]">Belum ada tugas</p>
+              <p class="mt-1 text-sm leading-6 text-[#6b7280]">
                 Tugas akan muncul setelah guru membuat tugas untuk mata
                 pelajaran di kelasmu.
               </p>
@@ -1036,9 +1036,14 @@ onMounted(() => {
             </div>
             <div
               v-else
-              class="rounded-lg bg-[#fbfaf8] p-4 text-sm text-[#7a7385]"
+              class="rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-4"
             >
-              Belum ada notifikasi terbaru.
+              <p class="text-sm font-semibold text-[#171322]">
+                Belum ada notifikasi terbaru
+              </p>
+              <p class="mt-1 text-sm leading-6 text-[#6b7280]">
+                Notifikasi baru dari kelas aktif akan tampil di sini.
+              </p>
             </div>
           </template>
 
@@ -1105,9 +1110,14 @@ onMounted(() => {
             </div>
             <div
               v-else
-              class="rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-4 text-sm leading-6 text-[#7a7385]"
+              class="rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-4"
             >
-              Belum ada pengumuman untuk kelas aktif.
+              <p class="text-sm font-semibold text-[#171322]">
+                Belum ada pengumuman
+              </p>
+              <p class="mt-1 text-sm leading-6 text-[#6b7280]">
+                Pengumuman untuk kelas aktif akan tampil di sini.
+              </p>
             </div>
           </template>
         </DashboardUpdatesPanel>
