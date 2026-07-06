@@ -296,12 +296,12 @@ onMounted(loadWorkspace);
           <div
             class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
           >
-            <PhBookOpen :size="25" weight="duotone" />
+            <PhBookOpen class="h-6 w-6" weight="duotone" />
           </div>
-          <h2 class="mt-3 text-lg font-medium text-[#171322]">
+          <h2 class="mt-3 text-base font-semibold text-[#171322]">
             Mata pelajaran tidak ditemukan
           </h2>
-          <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#7a7385]">
+          <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#6b7280]">
             Mata pelajaran ini tidak tersedia untuk akun guru pada sekolah
             aktif.
           </p>
@@ -377,14 +377,14 @@ onMounted(loadWorkspace);
                 class="rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-8 text-center"
               >
                 <div
-                  class="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
+                  class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
                 >
-                  <PhFileText :size="22" weight="duotone" />
+                  <PhFileText class="h-6 w-6" weight="duotone" />
                 </div>
-                <h2 class="mt-3 text-lg font-medium text-[#171322]">
+                <h2 class="mt-3 text-base font-semibold text-[#171322]">
                   Belum ada materi
                 </h2>
-                <p class="mt-2 text-sm leading-6 text-[#7a7385]">
+                <p class="mt-2 text-sm leading-6 text-[#6b7280]">
                   Materi yang dibuat untuk mata pelajaran ini akan tampil di
                   sini.
                 </p>
@@ -453,14 +453,14 @@ onMounted(loadWorkspace);
                 class="rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-8 text-center"
               >
                 <div
-                  class="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
+                  class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
                 >
-                  <PhClipboardText :size="22" weight="duotone" />
+                  <PhClipboardText class="h-6 w-6" weight="duotone" />
                 </div>
-                <h2 class="mt-3 text-lg font-medium text-[#171322]">
+                <h2 class="mt-3 text-base font-semibold text-[#171322]">
                   Belum ada tugas
                 </h2>
-                <p class="mt-2 text-sm leading-6 text-[#7a7385]">
+                <p class="mt-2 text-sm leading-6 text-[#6b7280]">
                   Tugas yang dibuat untuk mata pelajaran ini akan tampil di
                   sini.
                 </p>
@@ -616,15 +616,15 @@ onMounted(loadWorkspace);
                 v-else-if="submissionCount === 0"
                 class="rounded-lg border border-[#ebe7df] bg-white p-8 text-center"
               >
-                <PhCheckCircle
-                  :size="30"
-                  class="mx-auto text-[#b5afbf]"
-                  weight="duotone"
-                />
-                <h2 class="mt-3 text-lg font-medium text-[#171322]">
+                <div
+                  class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
+                >
+                  <PhCheckCircle class="h-6 w-6" weight="duotone" />
+                </div>
+                <h2 class="mt-3 text-base font-semibold text-[#171322]">
                   Belum ada pengumpulan
                 </h2>
-                <p class="mt-2 text-sm leading-6 text-[#6b6475]">
+                <p class="mt-2 text-sm leading-6 text-[#6b7280]">
                   Pengumpulan siswa akan tampil setelah ada tugas yang
                   dikumpulkan pada mata pelajaran ini.
                 </p>

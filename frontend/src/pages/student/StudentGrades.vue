@@ -232,12 +232,12 @@ onMounted(loadGrades);
           <div
             class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
           >
-            <PhBookOpen :size="24" weight="duotone" />
+            <PhBookOpen class="h-6 w-6" weight="duotone" />
           </div>
-          <h2 class="mt-4 text-sm font-medium text-[#171322]">
+          <h2 class="mt-3 text-base font-semibold text-[#171322]">
             Belum ada kelas aktif
           </h2>
-          <p class="mx-auto mt-1 max-w-md text-sm leading-6 text-[#7a7385]">
+          <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#6b7280]">
             Nilai akan tampil setelah kamu ditempatkan pada kelas aktif.
           </p>
         </article>
@@ -253,12 +253,12 @@ onMounted(loadGrades);
           <div
             class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
           >
-            <PhChartBar :size="24" weight="duotone" />
+            <PhChartBar class="h-6 w-6" weight="duotone" />
           </div>
-          <h2 class="mt-4 text-sm font-medium text-[#171322]">
+          <h2 class="mt-3 text-base font-semibold text-[#171322]">
             Nilai belum tersedia
           </h2>
-          <p class="mx-auto mt-1 max-w-md text-sm leading-6 text-[#7a7385]">
+          <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#6b7280]">
             Belum ada mata pelajaran dengan data pengumpulan atau penilaian pada
             kelas ini.
           </p>
@@ -316,14 +316,14 @@ onMounted(loadGrades);
           class="rounded-xl border border-[#ebe7df] bg-white p-6 text-center"
         >
           <div
-            class="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
+            class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
           >
-            <PhChartBar :size="22" weight="duotone" />
+            <PhChartBar class="h-6 w-6" weight="duotone" />
           </div>
-          <h2 class="mt-3 text-sm font-medium text-[#171322]">
+          <h2 class="mt-3 text-base font-semibold text-[#171322]">
             Belum ada tugas untuk dinilai
           </h2>
-          <p class="mt-1 text-sm leading-6 text-[#7a7385]">
+          <p class="mt-2 text-sm leading-6 text-[#6b7280]">
             Mata pelajaran sudah tersedia, tetapi belum memiliki tugas pada
             kelas aktif.
           </p>

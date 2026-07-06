@@ -200,12 +200,12 @@ onMounted(loadSubjects);
           <div
             class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
           >
-            <PhBooks :size="25" weight="duotone" />
+            <PhBooks class="h-6 w-6" weight="duotone" />
           </div>
-          <h2 class="mt-3 text-lg font-medium text-[#171322]">
+          <h2 class="mt-3 text-base font-semibold text-[#171322]">
             Belum ada kelas aktif
           </h2>
-          <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#7a7385]">
+          <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#6b7280]">
             Mata pelajaran akan tampil setelah akunmu terdaftar pada kelas di
             sekolah aktif.
           </p>
@@ -222,12 +222,12 @@ onMounted(loadSubjects);
           <div
             class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
           >
-            <PhBooks :size="25" weight="duotone" />
+            <PhBooks class="h-6 w-6" weight="duotone" />
           </div>
-          <h2 class="mt-3 text-lg font-medium text-[#171322]">
+          <h2 class="mt-3 text-base font-semibold text-[#171322]">
             Mata pelajaran belum tersedia
           </h2>
-          <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#7a7385]">
+          <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#6b7280]">
             Kelas aktif belum memiliki mata pelajaran yang bisa ditampilkan.
           </p>
         </article>

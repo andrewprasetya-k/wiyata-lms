@@ -227,12 +227,12 @@ function getInitials(name?: string) {
           <div
             class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
           >
-            <PhMegaphone :size="24" weight="duotone" />
+            <PhMegaphone class="h-6 w-6" weight="duotone" />
           </div>
-          <h2 class="mt-4 text-sm font-medium text-[#171322]">
+          <h2 class="mt-3 text-base font-semibold text-[#171322]">
             Belum ada pengumuman
           </h2>
-          <p class="mx-auto mt-1 max-w-md text-sm leading-6 text-[#7a7385]">
+          <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#6b7280]">
             Pengumuman akan tampil setelah teacher atau admin membagikan
             informasi untuk kelas ini.
           </p>
@@ -361,12 +361,12 @@ function getInitials(name?: string) {
         <div
           class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
         >
-          <PhMegaphone :size="24" weight="duotone" />
+          <PhMegaphone class="h-6 w-6" weight="duotone" />
         </div>
-        <h2 class="mt-4 text-sm font-medium text-[#171322]">
+        <h2 class="mt-3 text-base font-semibold text-[#171322]">
           Belum ada kelas aktif
         </h2>
-        <p class="mx-auto mt-1 max-w-md text-sm leading-6 text-[#7a7385]">
+        <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#6b7280]">
           Feed kelas akan tersedia setelah kamu ditempatkan pada kelas aktif.
         </p>
         <RouterLink

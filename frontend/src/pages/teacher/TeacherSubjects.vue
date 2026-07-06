@@ -102,12 +102,12 @@ onMounted(loadSubjects);
           <div
             class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
           >
-            <PhBookOpen :size="25" weight="duotone" />
+            <PhBookOpen class="h-6 w-6" weight="duotone" />
           </div>
-          <h2 class="mt-3 text-lg font-medium text-[#171322]">
+          <h2 class="mt-3 text-base font-semibold text-[#171322]">
             Belum ada mata pelajaran yang diajar
           </h2>
-          <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#7a7385]">
+          <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#6b7280]">
             Admin sekolah perlu menugaskan guru ke mata pelajaran dan kelas
             aktif terlebih dahulu.
           </p>

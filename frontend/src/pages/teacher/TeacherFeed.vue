@@ -377,12 +377,12 @@ function updatePostCommentCount(feedId: string, count: number) {
         <div
           class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
         >
-          <PhChalkboardTeacher :size="24" weight="duotone" />
+          <PhChalkboardTeacher class="h-6 w-6" weight="duotone" />
         </div>
-        <h2 class="mt-3 text-lg font-semibold text-[#171322]">
+        <h2 class="mt-3 text-base font-semibold text-[#171322]">
           Belum ada kelas aktif
         </h2>
-        <p class="mt-2 text-sm leading-6 text-[#6b6475]">
+        <p class="mt-2 text-sm leading-6 text-[#6b7280]">
           Belum ada kelas aktif yang bisa digunakan untuk mengirim pengumuman.
         </p>
       </section>
@@ -537,14 +537,14 @@ function updatePostCommentCount(feedId: string, count: number) {
             class="mt-3 rounded-xl border border-[#ebe7df] bg-white px-5 py-10 text-center"
           >
             <div
-              class="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
+              class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
             >
-              <PhMegaphone :size="22" weight="duotone" />
+              <PhMegaphone class="h-6 w-6" weight="duotone" />
             </div>
             <h3 class="mt-3 text-base font-semibold text-[#171322]">
               Belum ada pengumuman
             </h3>
-            <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#7a7385]">
+            <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#6b7280]">
               Pengumuman yang Anda kirim untuk kelas ini akan tampil di sini dan
               dapat dibaca oleh siswa aktif.
             </p>

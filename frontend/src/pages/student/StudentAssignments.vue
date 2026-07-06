@@ -295,12 +295,12 @@ onMounted(loadAssignments);
             <div
               class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
             >
-              <PhClipboardText :size="25" weight="duotone" />
+              <PhClipboardText class="h-6 w-6" weight="duotone" />
             </div>
-            <h2 class="mt-3 text-lg font-medium text-[#171322]">
+            <h2 class="mt-3 text-base font-semibold text-[#171322]">
               Belum ada tugas
             </h2>
-            <p class="mx-auto mt-2 max-w-xl text-sm leading-6 text-[#7a7385]">
+            <p class="mx-auto mt-2 max-w-xl text-sm leading-6 text-[#6b7280]">
               Tugas akan tampil setelah guru menerbitkan tugas pada mata
               pelajaran di kelas aktifmu.
             </p>
@@ -310,12 +310,12 @@ onMounted(loadAssignments);
             <div
               class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
             >
-              <PhCheckCircle :size="25" weight="duotone" />
+              <PhCheckCircle class="h-6 w-6" weight="duotone" />
             </div>
-            <h2 class="mt-3 text-lg font-medium text-[#171322]">
+            <h2 class="mt-3 text-base font-semibold text-[#171322]">
               Tidak ada tugas pada filter ini
             </h2>
-            <p class="mx-auto mt-2 max-w-xl text-sm leading-6 text-[#7a7385]">
+            <p class="mx-auto mt-2 max-w-xl text-sm leading-6 text-[#6b7280]">
               Pilih filter lain untuk melihat tugas yang tersedia.
             </p>
           </div>

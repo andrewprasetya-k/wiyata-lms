@@ -264,14 +264,14 @@ onMounted(loadSubject);
             class="rounded-xl border border-[#ebe7df] bg-white p-6 text-center"
           >
             <div
-              class="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
+              class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
             >
-              <PhBookOpen :size="22" weight="duotone" />
+              <PhBookOpen class="h-6 w-6" weight="duotone" />
             </div>
-            <p class="mt-3 text-sm font-medium text-[#171322]">
+            <p class="mt-3 text-base font-semibold text-[#171322]">
               Belum ada materi
             </p>
-            <p class="mt-1 text-sm leading-6 text-[#7a7385]">
+            <p class="mt-2 text-sm leading-6 text-[#6b7280]">
               Materi akan tampil setelah guru menambahkan konten pada mata
               pelajaran ini.
             </p>
@@ -401,14 +401,14 @@ onMounted(loadSubject);
             class="rounded-xl border border-[#ebe7df] bg-white p-6 text-center"
           >
             <div
-              class="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
+              class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
             >
-              <PhClipboardText :size="22" weight="duotone" />
+              <PhClipboardText class="h-6 w-6" weight="duotone" />
             </div>
-            <p class="mt-3 text-sm font-medium text-[#171322]">
+            <p class="mt-3 text-base font-semibold text-[#171322]">
               Belum ada tugas
             </p>
-            <p class="mt-1 text-sm leading-6 text-[#7a7385]">
+            <p class="mt-2 text-sm leading-6 text-[#6b7280]">
               Tugas akan tampil setelah guru menambahkannya pada mata pelajaran
               ini.
             </p>
@@ -539,14 +539,14 @@ onMounted(loadSubject);
             class="rounded-xl border border-[#ebe7df] bg-white p-6 text-center"
           >
             <div
-              class="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
+              class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
             >
-              <PhNotebook :size="22" weight="duotone" />
+              <PhNotebook class="h-6 w-6" weight="duotone" />
             </div>
-            <p class="mt-3 text-sm font-medium text-[#171322]">
+            <p class="mt-3 text-base font-semibold text-[#171322]">
               Belum ada catatan untuk materi di mata pelajaran ini
             </p>
-            <p class="mt-1 text-sm leading-6 text-[#7a7385]">
+            <p class="mt-2 text-sm leading-6 text-[#6b7280]">
               Catatan yang kamu simpan dari halaman materi akan tampil di sini.
             </p>
           </article>
