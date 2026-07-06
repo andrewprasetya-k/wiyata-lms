@@ -5,7 +5,12 @@ import {
   PhFile,
   PhFilePdf,
   PhImage,
+  PhSparkle,
+  PhSpinnerGap,
 } from "@phosphor-icons/vue";
+import { summarizeMaterialDocument } from "../../services/materialSummary";
+import { useAuthStore } from "../../stores/auth";
+import type { MaterialDocumentSummaryResponse } from "../../types/materialSummary";
 
 interface AttachmentPreviewItem {
   mediaId: string;
@@ -18,6 +23,7 @@ interface AttachmentPreviewItem {
 
 interface Props {
   attachments?: AttachmentPreviewItem[];
+  materialId?: string;
   emptyText?: string;
   initiallyExpanded?: boolean;
 }
@@ -28,8 +34,14 @@ const props = withDefaults(defineProps<Props>(), {
   initiallyExpanded: true,
 });
 
+const auth = useAuthStore();
 const failedImages = ref<Record<string, boolean>>({});
 const expandedPreviews = ref<Record<string, boolean>>({});
+const summaryLoading = ref<Record<string, boolean>>({});
+const summaryErrors = ref<Record<string, string>>({});
+const summaries = ref<Record<string, MaterialDocumentSummaryResponse>>({});
+const summaryRequestIds = ref<Record<string, number>>({});
+let summaryRequestSequence = 0;
 
 function isSafeURL(value?: string) {
   if (!value || value.trim() !== value) return false;
@@ -79,6 +91,86 @@ function fileTypeLabel(attachment: AttachmentPreviewItem) {
 
 function markImageFailed(mediaId: string) {
   failedImages.value = { ...failedImages.value, [mediaId]: true };
+}
+
+function canSummarize(attachment: AttachmentPreviewItem) {
+  return Boolean(props.materialId && attachment.mediaId && isPDF(attachment));
+}
+
+function isSummaryLoading(mediaId: string) {
+  return Boolean(summaryLoading.value[mediaId]);
+}
+
+function summaryError(mediaId: string) {
+  return summaryErrors.value[mediaId] ?? "";
+}
+
+function summaryResult(mediaId: string) {
+  return summaries.value[mediaId];
+}
+
+async function summarizeAttachment(attachment: AttachmentPreviewItem) {
+  if (!props.materialId || !canSummarize(attachment) || isSummaryLoading(attachment.mediaId)) {
+    return;
+  }
+
+  const mediaId = attachment.mediaId;
+  const requestId = ++summaryRequestSequence;
+  const contextVersion = auth.contextVersion;
+  summaryRequestIds.value = { ...summaryRequestIds.value, [mediaId]: requestId };
+  summaryLoading.value = { ...summaryLoading.value, [mediaId]: true };
+  summaryErrors.value = { ...summaryErrors.value, [mediaId]: "" };
+
+  try {
+    const result = await summarizeMaterialDocument(props.materialId, mediaId);
+    if (!isCurrentSummaryRequest(mediaId, requestId, contextVersion)) return;
+    summaries.value = { ...summaries.value, [mediaId]: result };
+  } catch (error) {
+    if (!isCurrentSummaryRequest(mediaId, requestId, contextVersion)) return;
+    summaryErrors.value = {
+      ...summaryErrors.value,
+      [mediaId]: materialSummaryErrorMessage(error),
+    };
+  } finally {
+    if (isCurrentSummaryRequest(mediaId, requestId, contextVersion)) {
+      summaryLoading.value = { ...summaryLoading.value, [mediaId]: false };
+    }
+  }
+}
+
+function isCurrentSummaryRequest(mediaId: string, requestId: number, contextVersion: number) {
+  return (
+    summaryRequestIds.value[mediaId] === requestId &&
+    auth.contextVersion === contextVersion
+  );
+}
+
+function materialSummaryErrorMessage(error: unknown) {
+  const status = responseStatus(error);
+  if (status === 415) return "Saat ini rangkuman AI hanya mendukung file PDF.";
+  if (status === 413) return "File terlalu besar untuk dirangkum saat ini.";
+  if (status === 422) {
+    return "PDF ini tidak memiliki teks yang dapat dibaca. PDF hasil scan belum didukung.";
+  }
+  if (status === 503) {
+    return "Fitur rangkuman AI belum aktif atau sedang tidak tersedia.";
+  }
+  if (status === 403 || status === 404) {
+    return "Kamu tidak memiliki akses ke dokumen ini atau dokumen tidak ditemukan.";
+  }
+  return "Gagal membuat rangkuman. Coba lagi nanti.";
+}
+
+function responseStatus(error: unknown) {
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "response" in error &&
+    typeof (error as { response?: { status?: unknown } }).response?.status === "number"
+  ) {
+    return (error as { response: { status: number } }).response.status;
+  }
+  return undefined;
 }
 </script>
 
@@ -176,10 +268,31 @@ function markImageFailed(mediaId: string) {
           </div>
 
           <div
-            v-if="isSafeURL(attachment.fileUrl)"
+            v-if="isSafeURL(attachment.fileUrl) || canSummarize(attachment)"
             class="flex shrink-0 flex-wrap gap-2"
           >
+            <button
+              v-if="canSummarize(attachment)"
+              class="inline-flex items-center gap-2 rounded-xl border border-[#ebe7df] bg-white px-3 py-2 text-xs font-medium text-[#5b4b7a] transition hover:border-[#d8d1c5] hover:bg-[#f8f7f4] focus:outline-none focus:ring-2 focus:ring-[#4f46e5]/25 disabled:cursor-not-allowed disabled:opacity-60"
+              type="button"
+              :disabled="isSummaryLoading(attachment.mediaId)"
+              @click="summarizeAttachment(attachment)"
+            >
+              <PhSpinnerGap
+                v-if="isSummaryLoading(attachment.mediaId)"
+                class="h-4 w-4 animate-spin"
+              />
+              <PhSparkle v-else :size="16" weight="duotone" />
+              {{
+                isSummaryLoading(attachment.mediaId)
+                  ? "Merangkum..."
+                  : summaryResult(attachment.mediaId)
+                    ? "Rangkum ulang"
+                    : "Rangkum dokumen"
+              }}
+            </button>
             <a
+              v-if="isSafeURL(attachment.fileUrl)"
               class="inline-flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-xs font-medium text-[#4f46e5] transition hover:bg-[#eef2ff] focus:outline-none focus:ring-2 focus:ring-[#4f46e5]/30"
               :href="attachment.fileUrl"
               rel="noopener noreferrer"
@@ -190,6 +303,53 @@ function markImageFailed(mediaId: string) {
                 isPDF(attachment) ? "Buka Attachment di tab baru" : "Buka file"
               }}
             </a>
+          </div>
+        </div>
+
+        <div
+          v-if="
+            canSummarize(attachment) &&
+            (isSummaryLoading(attachment.mediaId) ||
+              summaryError(attachment.mediaId) ||
+              summaryResult(attachment.mediaId))
+          "
+          class="border-t border-[#ebe7df] bg-white px-4 py-4"
+        >
+          <div
+            v-if="isSummaryLoading(attachment.mediaId)"
+            class="flex items-center gap-2 text-sm text-[#6b6475]"
+          >
+            <PhSpinnerGap class="h-4 w-4 animate-spin text-[#4f46e5]" />
+            Membuat rangkuman dokumen...
+          </div>
+
+          <div
+            v-else-if="summaryError(attachment.mediaId)"
+            class="rounded-xl border border-[#f1d6d3] bg-[#fffaf9] p-4"
+          >
+            <p class="text-sm leading-6 text-[#8a463f]">
+              {{ summaryError(attachment.mediaId) }}
+            </p>
+            <button
+              class="mt-3 inline-flex items-center gap-2 rounded-lg border border-[#ead5d0] bg-white px-3 py-2 text-xs font-medium text-[#8a463f] transition hover:bg-[#fff1ef] focus:outline-none focus:ring-2 focus:ring-[#d97757]/25"
+              type="button"
+              @click="summarizeAttachment(attachment)"
+            >
+              Coba lagi
+            </button>
+          </div>
+
+          <div
+            v-else-if="summaryResult(attachment.mediaId)"
+            class="rounded-xl border border-[#ebe7df] bg-[#fbfaf8] p-4"
+          >
+            <div class="flex items-center gap-2 text-sm font-medium text-[#171322]">
+              <PhSparkle :size="17" class="text-[#4f46e5]" weight="duotone" />
+              Rangkuman AI
+            </div>
+            <p class="mt-3 whitespace-pre-line text-sm leading-7 text-[#4a4356]">
+              {{ summaryResult(attachment.mediaId)?.summary }}
+            </p>
           </div>
         </div>
       </article>
