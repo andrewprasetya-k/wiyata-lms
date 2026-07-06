@@ -17,6 +17,10 @@ type Provider interface {
 	// objectPath: path to the file to delete
 	Delete(ctx context.Context, objectPath string) error
 
+	// Download reads a file from storage with a hard byte limit.
+	// Implementations must return ErrFileTooLarge if the object exceeds maxBytes.
+	Download(ctx context.Context, objectPath string, maxBytes int64) ([]byte, error)
+
 	// HealthCheck verifies storage is available
 	HealthCheck(ctx context.Context) error
 

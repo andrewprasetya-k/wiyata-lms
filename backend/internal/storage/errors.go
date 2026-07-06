@@ -15,4 +15,7 @@ var (
 
 	// ErrInvalidPath indicates invalid storage path
 	ErrInvalidPath = errors.New("invalid storage path")
+
+	// ErrFileTooLarge indicates the object exceeds the caller-provided read limit.
+	ErrFileTooLarge = errors.New("file exceeds maximum allowed size")
 )

@@ -110,7 +110,8 @@ func main() {
 
 	materialRepo := repository.NewMaterialRepository(db)
 	materialService := service.NewMaterialService(materialRepo, attachmentService, mediaRepo, storageProvider, notificationService, subjectClassRepo, enrollmentRepo)
-	materialHandler := handler.NewMaterialHandler(materialService, subjectClassService)
+	materialSummaryService := service.NewMaterialSummaryService(attachmentService, storageProvider, service.NewPDFTextExtractor(), service.NewMaterialAIServiceFromEnv())
+	materialHandler := handler.NewMaterialHandler(materialService, materialSummaryService, subjectClassService)
 	assignmentRepo := repository.NewAssignmentRepository(db)
 
 	studentNoteRepo := repository.NewStudentNoteRepository(db)
@@ -346,6 +347,7 @@ func main() {
 			materialAPI.POST("", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "teacher"), materialHandler.Create)
 			materialAPI.GET("", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "teacher", "student"), materialHandler.FindAll)
 			materialAPI.GET("/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "teacher", "student"), materialHandler.GetByID)
+			materialAPI.POST("/:materialId/media/:mediaId/summary", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "teacher", "student"), materialHandler.SummarizeAttachment)
 			materialAPI.PATCH("/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "teacher", "admin"), materialHandler.Update)
 			materialAPI.DELETE("/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "teacher", "admin"), materialHandler.Delete)
 			materialAPI.POST("/progress", materialHandler.UpdateProgress)

@@ -24,6 +24,11 @@ func (d *DisabledStorage) Delete(ctx context.Context, objectPath string) error {
 	return ErrNotImplemented
 }
 
+// Download returns ErrNotImplemented
+func (d *DisabledStorage) Download(ctx context.Context, objectPath string, maxBytes int64) ([]byte, error) {
+	return nil, ErrNotImplemented
+}
+
 // HealthCheck returns ErrUnavailable (storage not available)
 func (d *DisabledStorage) HealthCheck(ctx context.Context) error {
 	return ErrUnavailable

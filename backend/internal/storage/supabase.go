@@ -164,6 +164,48 @@ func (s *SupabaseStorage) Delete(ctx context.Context, objectPath string) error {
 	return nil
 }
 
+// Download reads a file from Supabase Storage with a hard byte limit.
+func (s *SupabaseStorage) Download(ctx context.Context, objectPath string, maxBytes int64) ([]byte, error) {
+	if maxBytes <= 0 {
+		return nil, ErrFileTooLarge
+	}
+	if err := s.pathValidator.Validate(objectPath); err != nil {
+		return nil, err
+	}
+
+	safeObjectPath := s.pathValidator.SafeURL(objectPath)
+	downloadURL := fmt.Sprintf("%s/storage/v1/object/%s/%s", s.url, s.bucketName, safeObjectPath)
+
+	req, err := http.NewRequestWithContext(ctx, "GET", downloadURL, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create download request: %w", err)
+	}
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", s.serviceKey))
+
+	resp, err := s.httpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("download request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusNotFound {
+		return nil, ErrNotFound
+	}
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return nil, fmt.Errorf("download failed with status %d", resp.StatusCode)
+	}
+
+	limitedReader := io.LimitReader(resp.Body, maxBytes+1)
+	data, err := io.ReadAll(limitedReader)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read downloaded file: %w", err)
+	}
+	if int64(len(data)) > maxBytes {
+		return nil, ErrFileTooLarge
+	}
+	return data, nil
+}
+
 // HealthCheck verifies Supabase Storage is available
 func (s *SupabaseStorage) HealthCheck(ctx context.Context) error {
 	// Simple health check: try to list bucket (minimal operation)

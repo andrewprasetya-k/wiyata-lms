@@ -11,16 +11,19 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type MaterialHandler struct {
 	service             service.MaterialService
+	summaryService      service.MaterialSummaryService
 	subjectClassService service.SubjectClassService
 }
 
-func NewMaterialHandler(service service.MaterialService, subjectClassService service.SubjectClassService) *MaterialHandler {
+func NewMaterialHandler(service service.MaterialService, summaryService service.MaterialSummaryService, subjectClassService service.SubjectClassService) *MaterialHandler {
 	return &MaterialHandler{
 		service:             service,
+		summaryService:      summaryService,
 		subjectClassService: subjectClassService,
 	}
 }
@@ -327,6 +330,60 @@ func (h *MaterialHandler) GetByID(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, h.mapToResponse(mat))
+}
+
+func (h *MaterialHandler) SummarizeAttachment(c *gin.Context) {
+	materialID := c.Param("materialId")
+	mediaID := c.Param("mediaId")
+	if _, err := uuid.Parse(materialID); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "materialId must be a valid UUID"})
+		return
+	}
+	if _, err := uuid.Parse(mediaID); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "mediaId must be a valid UUID"})
+		return
+	}
+	if middleware.GetUserID(c) == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	mat, err := h.service.GetByID(materialID)
+	if err != nil {
+		HandleError(c, err)
+		return
+	}
+	if mat.SchoolID != h.getSchoolContext(c) {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden"})
+		return
+	}
+	if !h.authorizeUserForSubjectClassAccess(c, mat.SubjectClassID) {
+		return
+	}
+
+	result, err := h.summaryService.Generate(c.Request.Context(), mat, mediaID)
+	if err != nil {
+		h.handleSummaryError(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, result)
+}
+
+func (h *MaterialHandler) handleSummaryError(c *gin.Context, err error) {
+	switch {
+	case errors.Is(err, service.ErrMaterialSummaryUnsupported):
+		c.JSON(http.StatusUnsupportedMediaType, gin.H{"status": "unsupported", "error": "Only text-based PDF material attachments can be summarized"})
+	case errors.Is(err, service.ErrMaterialSummaryFileTooLarge):
+		c.JSON(http.StatusRequestEntityTooLarge, gin.H{"status": "file_too_large", "error": "File is too large to summarize"})
+	case errors.Is(err, service.ErrMaterialSummaryExtraction), errors.Is(err, service.ErrMaterialSummaryStoragePath):
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"status": "extraction_failed", "error": "Could not extract readable text from this PDF"})
+	case errors.Is(err, service.ErrMaterialSummaryProvider):
+		c.JSON(http.StatusServiceUnavailable, gin.H{"status": "provider_unavailable", "error": "AI summarization is currently unavailable"})
+	case errors.Is(err, service.ErrMaterialSummaryAttachment):
+		c.JSON(http.StatusNotFound, gin.H{"error": "Material attachment was not found"})
+	default:
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to summarize material attachment"})
+	}
 }
 
 func (h *MaterialHandler) UpdateProgress(c *gin.Context) {
