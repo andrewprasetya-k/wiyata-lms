@@ -158,17 +158,17 @@ const mainRoles = [
 const screenshotSlots = [
   {
     label: "Tampilan Guru",
-    note: "Ganti dengan screenshot halaman guru",
+    note: "Preview halaman guru segera ditambahkan",
     icon: PhChalkboardTeacher,
   },
   {
     label: "Tampilan Admin",
-    note: "Ganti dengan screenshot halaman admin",
+    note: "Preview halaman admin segera ditambahkan",
     icon: PhShieldCheck,
   },
   {
     label: "Tampilan Chat & Feed",
-    note: "Ganti dengan screenshot halaman komunikasi",
+    note: "Preview komunikasi kelas segera ditambahkan",
     icon: PhChatCircle,
   },
 ];
@@ -396,7 +396,7 @@ const screenshotSlots = [
             <div>
               <p class="text-base font-medium text-[#171322]">Preview Wiyata</p>
               <p class="mt-1.5 max-w-sm text-sm leading-relaxed text-[#9ca3af]">
-                Tempatkan screenshot dashboard atau video demo di sini.
+                Screenshot dashboard Wiyata akan segera ditambahkan.
               </p>
             </div>
             <!-- Skeleton rows that signal "real UI is coming" -->
@@ -547,11 +547,11 @@ const screenshotSlots = [
           <h2
             class="mt-4 text-4xl font-semibold tracking-tight text-[#171322] sm:text-5xl"
           >
-            Siapkan ruang untuk demo produk.
+            Preview fitur Wiyata sedang disiapkan.
           </h2>
           <p class="mt-5 text-lg leading-8 text-[#6b7280]">
-            Bagian ini dapat diisi dengan video singkat, walkthrough, atau
-            kumpulan screenshot fitur Wiyata.
+            Video showcase dan screenshot fitur utama Wiyata akan segera
+            ditambahkan.
           </p>
         </div>
 
@@ -585,10 +585,10 @@ const screenshotSlots = [
               </button>
               <div>
                 <p class="text-sm font-medium text-white/80">
-                  Video demo akan ditambahkan di sini
+                  Video showcase Wiyata akan segera diunggah
                 </p>
                 <p class="mt-1 text-xs text-white/40">
-                  Walkthrough produk Wiyata · Segera hadir
+                  Walkthrough singkat produk Wiyata sedang disiapkan
                 </p>
               </div>
             </div>
@@ -603,7 +603,8 @@ const screenshotSlots = [
 
           <p class="mt-4 text-center text-xs text-[#9ca3af]">
             <!-- TODO: Replace this area with the actual Wiyata product demo video. -->
-            Placeholder video. Ganti dengan demo produk nyata saat sudah siap.
+            Preview video produk sedang disiapkan dan akan ditampilkan di bagian
+            ini.
           </p>
         </div>
 
@@ -625,10 +626,10 @@ const screenshotSlots = [
     </section>
 
     <!-- ───────────── FINAL CTA ───────────── -->
-    <section class="border-[#e7e2da] bg-white">
+    <section class="bg-white">
       <div class="mx-auto max-w-7xl px-6 py-32 lg:px-8">
         <div
-          class="grid gap-12 rounded-4xl border border-[#e7e2da] bg-[linear-gradient(135deg,#ffffff_0%,#f5f3ff_55%,#eef2ff_100%)] px-8 py-10 shadow-[0_24px_80px_-48px_rgba(79,70,229,0.45)] lg:grid-cols-[1fr_auto] lg:items-center lg:px-12 lg:py-12"
+          class="grid gap-12 rounded-4xl px-8 py-10 lg:grid-cols-[1fr_auto] lg:items-center lg:px-12 lg:py-12"
         >
           <div class="max-w-2xl">
             <p class="text-sm font-medium text-[#4f46e5]">
@@ -666,20 +667,13 @@ const screenshotSlots = [
               Masuk ke Wiyata
               <PhArrowRight :size="15" />
             </RouterLink>
-            <a
-              href="#fitur"
-              @click="handleAnchorClick($event, '#fitur')"
-              class="inline-flex h-12 items-center justify-center rounded-lg border border-[#e7e2da] bg-transparent px-7 text-sm font-medium text-[#6b7280] transition-colors hover:border-[#d1cde5] hover:text-[#171322]"
-            >
-              Pelajari fitur
-            </a>
           </div>
         </div>
       </div>
     </section>
 
     <!-- ───────────── FOOTER ───────────── -->
-    <footer class="border-[#e7e2da] bg-[#fbfaf8] border-t pt-10">
+    <footer class="bg-[#fbfaf8] pt-10">
       <div class="mx-auto max-w-7xl px-6 py-8 lg:px-8">
         <div
           class="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between"
@@ -717,9 +711,7 @@ const screenshotSlots = [
             <RouterLink to="/login" class="hover:text-[#6b7280]"
               >Masuk</RouterLink
             >
-            <RouterLink
-              to="/school-registration"
-              class="hover:text-[#6b7280]"
+            <RouterLink to="/school-registration" class="hover:text-[#6b7280]"
               >Daftarkan Sekolah</RouterLink
             >
           </nav>
