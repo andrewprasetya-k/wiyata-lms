@@ -49,12 +49,14 @@ const files = ref<{
 }[]>([])
 
 const mediaIds = ref<string[]>([])
+const removingFileKeys = ref(new Set<string>())
 
 import { watch } from 'vue'
 
 watch(() => props.initialMedia, (newVal) => {
   if (newVal && newVal.length > 0 && files.value.length === 0) {
     files.value = newVal.map(m => ({
+      id: m.mediaId,
       name: m.mediaName || 'Lampiran',
       size: m.fileSize || 0,
       progress: 100,
@@ -72,6 +74,18 @@ watch(() => props.initialMedia, (newVal) => {
 function emitUploadState() {
   emit('update:isUploading', files.value.some((file) => file.status === 'uploading'))
   emit('update:hasUploadError', files.value.some((file) => file.status === 'error'))
+}
+
+function createClientFileId() {
+  return `file-${crypto.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`}`
+}
+
+function fileKey(file: { id?: string; mediaId?: string }, index: number) {
+  return file.mediaId || file.id || `index-${index}`
+}
+
+function isFileRemoving(file: { id?: string; mediaId?: string }, index: number) {
+  return removingFileKeys.value.has(fileKey(file, index))
 }
 
 async function handleFileChange(event: Event) {
@@ -92,6 +106,7 @@ async function handleFileChange(event: Event) {
     }
 
     const fileItem = {
+      id: createClientFileId(),
       name: file.name,
       size: file.size,
       progress: 0,
@@ -121,20 +136,37 @@ async function handleFileChange(event: Event) {
 
 async function removeFile(index: number) {
   const file = files.value[index]
-  if (file.mediaId) {
-    try {
-      if (props.cleanupOnRemove && !file.isInitial) {
-        await deleteMedia(file.mediaId)
+  if (!file) return
+
+  const key = fileKey(file, index)
+  if (removingFileKeys.value.has(key)) return
+
+  removingFileKeys.value = new Set([...removingFileKeys.value, key])
+
+  try {
+    if (file.mediaId) {
+      try {
+        if (props.cleanupOnRemove && !file.isInitial) {
+          await deleteMedia(file.mediaId)
+        }
+        mediaIds.value = mediaIds.value.filter(id => id !== file.mediaId)
+        emit('update:mediaIds', [...mediaIds.value])
+      } catch (error) {
+        console.error('Failed to delete media', error)
+        toast.error('File belum berhasil dihapus. Coba lagi.')
       }
-      mediaIds.value = mediaIds.value.filter(id => id !== file.mediaId)
-      emit('update:mediaIds', [...mediaIds.value])
-    } catch (error) {
-      console.error('Failed to delete media', error)
-      toast.error('File belum berhasil dihapus. Coba lagi.')
     }
+
+    const currentIndex = files.value.findIndex((item, itemIndex) => fileKey(item, itemIndex) === key)
+    if (currentIndex >= 0) {
+      files.value.splice(currentIndex, 1)
+    }
+  } finally {
+    const nextRemovingKeys = new Set(removingFileKeys.value)
+    nextRemovingKeys.delete(key)
+    removingFileKeys.value = nextRemovingKeys
+    emitUploadState()
   }
-  files.value.splice(index, 1)
-  emitUploadState()
 }
 
 function formatSize(bytes: number) {
@@ -171,13 +203,15 @@ function formatSize(bytes: number) {
 
         <div class="flex shrink-0 items-center gap-3">
           <span v-if="file.status === 'uploading'" class="max-w-28 animate-pulse truncate text-xs text-[#4f46e5]">Mengunggah...</span>
+          <span v-else-if="isFileRemoving(file, index)" class="max-w-28 animate-pulse truncate text-xs text-[#4f46e5]">Menghapus...</span>
           <span v-else-if="file.status === 'error'" class="max-w-36 truncate text-xs text-[#dc2626]">{{ file.errorMessage }}</span>
           
           <button 
             type="button" 
             @click="removeFile(index)" 
-            class="rounded-lg p-1.5 text-[#8b8592] transition hover:bg-[#fff1f0] hover:text-[#dc2626] focus:outline-none focus:ring-2 focus:ring-[#dc2626]/15"
-            title="Hapus"
+            class="rounded-lg p-1.5 text-[#8b8592] transition hover:bg-[#fff1f0] hover:text-[#dc2626] disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-[#dc2626]/15"
+            :disabled="isFileRemoving(file, index)"
+            :title="isFileRemoving(file, index) ? 'Menghapus...' : 'Hapus'"
           >
             <PhTrash :size="18" />
           </button>

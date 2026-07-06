@@ -24,6 +24,7 @@ const loading = ref(false);
 const errorMessage = ref("");
 const selectedFilter = ref("all");
 const selectedRange = ref<"today" | "7d" | "30d">("7d");
+let activityRequestVersion = 0;
 
 const filters = computed(() => activityFilters(props.role));
 const rangeOptions = activityRanges;
@@ -97,25 +98,31 @@ const highPriorityCount = computed(
 onMounted(loadActivities);
 
 async function loadActivities() {
+  const requestVersion = ++activityRequestVersion;
+  const requestRange = dateRange.value;
   loading.value = true;
   errorMessage.value = "";
 
   try {
     const response = await getAcademicActivities({
-      from: dateRange.value.from,
-      to: dateRange.value.to,
+      from: requestRange.from,
+      to: requestRange.to,
     });
+    if (requestVersion !== activityRequestVersion) return;
     activities.value = response.items ?? [];
   } catch {
+    if (requestVersion !== activityRequestVersion) return;
     activities.value = [];
     errorMessage.value = "Aktivitas akademik belum bisa dimuat.";
   } finally {
-    loading.value = false;
+    if (requestVersion === activityRequestVersion) {
+      loading.value = false;
+    }
   }
 }
 
 function selectRange(value: "today" | "7d" | "30d") {
-  if (selectedRange.value === value) return;
+  if (loading.value || selectedRange.value === value) return;
   selectedRange.value = value;
   loadActivities();
 }
@@ -155,13 +162,14 @@ function selectRange(value: "today" | "7d" | "30d") {
                 v-for="range in rangeOptions"
                 :key="range.value"
                 type="button"
-                class="rounded-lg border px-3 py-1.5 text-xs font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5] focus-visible:ring-offset-2"
+                class="rounded-lg border px-3 py-1.5 text-xs font-medium transition disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5] focus-visible:ring-offset-2"
                 :class="
                   selectedRange === range.value
                     ? 'border-[#4f46e5] bg-[#eef2ff] text-[#4f46e5]'
                     : 'border-[#ebe7df] bg-white text-[#6b7280] hover:bg-[#fbfaf8]'
                 "
                 :aria-pressed="selectedRange === range.value"
+                :disabled="loading"
                 @click="selectRange(range.value)"
               >
                 {{ range.label }}
@@ -230,8 +238,9 @@ function selectRange(value: "today" | "7d" | "30d") {
               </div>
             </div>
             <button
-              class="rounded-lg bg-[#4f46e5] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5] focus-visible:ring-offset-2"
+              class="rounded-lg bg-[#4f46e5] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5] focus-visible:ring-offset-2"
               type="button"
+              :disabled="loading"
               @click="loadActivities"
             >
               Coba lagi

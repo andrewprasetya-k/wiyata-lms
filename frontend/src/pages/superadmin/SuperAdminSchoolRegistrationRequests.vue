@@ -35,10 +35,12 @@ const totalPages = ref(1)
 const totalItems = ref(0)
 const isLoading = ref(false)
 const detailLoading = ref(false)
+const loadingDetailRequestId = ref('')
 const actionLoading = ref(false)
 const errorMessage = ref('')
 const actionMode = ref<'approve' | 'reject' | null>(null)
 const approveResult = ref<ApproveSchoolRegistrationResponse | null>(null)
+let detailRequestVersion = 0
 
 const approveForm = reactive({
   schoolCode: '',
@@ -137,6 +139,9 @@ async function loadRequests(targetPage = page.value) {
 
 async function selectStatus(status: SchoolRegistrationStatus) {
   if (activeStatus.value === status) return
+  detailRequestVersion += 1
+  loadingDetailRequestId.value = ''
+  detailLoading.value = false
   activeStatus.value = status
   page.value = 1
   selectedRequest.value = null
@@ -145,17 +150,37 @@ async function selectStatus(status: SchoolRegistrationStatus) {
 }
 
 async function openDetail(id: string) {
+  const requestVersion = ++detailRequestVersion
+  loadingDetailRequestId.value = id
   detailLoading.value = true
   approveResult.value = null
   try {
-    selectedRequest.value = await getSchoolRegistrationRequestDetail(id)
+    const detail = await getSchoolRegistrationRequestDetail(id)
+    if (
+      requestVersion !== detailRequestVersion ||
+      loadingDetailRequestId.value !== id
+    ) {
+      return
+    }
+    selectedRequest.value = detail
     resetForms()
   } catch (error) {
-    toast.error(
-      getApiErrorMessage(error, 'Detail request belum bisa dimuat.'),
-    )
+    if (
+      requestVersion === detailRequestVersion &&
+      loadingDetailRequestId.value === id
+    ) {
+      toast.error(
+        getApiErrorMessage(error, 'Detail request belum bisa dimuat.'),
+      )
+    }
   } finally {
-    detailLoading.value = false
+    if (
+      requestVersion === detailRequestVersion &&
+      loadingDetailRequestId.value === id
+    ) {
+      detailLoading.value = false
+      loadingDetailRequestId.value = ''
+    }
   }
 }
 
@@ -369,9 +394,10 @@ onMounted(() => {
               <button
                 type="button"
                 class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-3 py-2 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60"
+                :disabled="detailLoading"
                 @click="openDetail(request.requestId)"
               >
-                Detail
+                {{ loadingDetailRequestId === request.requestId ? 'Memuat...' : 'Detail' }}
               </button>
             </div>
           </article>
