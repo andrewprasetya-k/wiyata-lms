@@ -455,7 +455,7 @@ onMounted(async () => {
       </div>
     </header>
 
-    <section class="px-5 py-5 sm:px-6 lg:px-8">
+    <section class="px-5 py-5 sm:px-6 lg:px-8 lg:py-6">
       <div
         v-if="!currentSchool.hasContext"
         class="mb-5 flex items-start gap-3 rounded-xl border border-[#fecaca] bg-[#fef2f2] p-4 text-sm leading-6 text-[#dc2626]"
@@ -469,10 +469,10 @@ onMounted(async () => {
 
       <div class="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
         <section
-          class="order-2 min-w-0 rounded-xl border border-[#ebe7df] bg-white lg:order-1"
+          class="order-2 min-w-0 rounded-2xl border border-[#ebe7df] bg-white lg:order-1"
         >
           <div
-            class="flex flex-col gap-3 border-b border-[#ebe7df] px-4 py-4 sm:flex-row sm:items-start sm:justify-between sm:px-5"
+            class="flex flex-col gap-3 border-b border-[#ebe7df] p-5 sm:flex-row sm:items-start sm:justify-between"
           >
             <div class="min-w-0">
               <p
@@ -507,7 +507,7 @@ onMounted(async () => {
             </div>
           </div>
 
-          <div class="p-4 sm:p-5">
+          <div class="p-5">
             <div v-if="subjectClassesLoading" class="space-y-3">
               <div
                 v-for="item in 3"
@@ -542,7 +542,7 @@ onMounted(async () => {
 
             <div
               v-else-if="!selectedClassId"
-              class="rounded-lg bg-[#fbfaf8] px-5 py-10 text-center"
+              class="rounded-lg bg-[#fbfaf8] px-5 py-8 text-center"
             >
               <PhCalendarBlank
                 :size="28"
@@ -560,7 +560,7 @@ onMounted(async () => {
 
             <div
               v-else-if="subjectClasses.length === 0"
-              class="rounded-lg bg-[#fbfaf8] px-5 py-10 text-center"
+              class="rounded-lg bg-[#fbfaf8] px-5 py-8 text-center"
             >
               <PhBookOpen
                 :size="28"
@@ -672,7 +672,7 @@ onMounted(async () => {
 
         <aside class="order-1 min-w-0 lg:order-2">
           <div class="space-y-5 lg:sticky lg:top-6">
-            <section class="rounded-xl border border-[#ebe7df] bg-white p-5">
+            <section class="rounded-2xl border border-[#ebe7df] bg-white p-5">
               <div class="flex items-start justify-between gap-3">
                 <div>
                   <p
@@ -796,7 +796,7 @@ onMounted(async () => {
               </div>
             </section>
 
-            <section class="rounded-xl border border-[#ebe7df] bg-white p-5">
+            <section class="rounded-2xl border border-[#ebe7df] bg-white p-5">
               <div class="flex items-start justify-between gap-3">
                 <div>
                   <p

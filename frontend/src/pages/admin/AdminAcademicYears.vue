@@ -641,7 +641,7 @@ watch(selectedWeightSubjectId, () => {
     </header>
 
     <section
-      class="flex w-full max-w-none flex-col gap-6 px-5 py-6 sm:px-6 lg:px-8"
+      class="flex w-full max-w-none flex-col gap-5 px-5 py-5 sm:px-6 lg:px-8 lg:py-6"
     >
       <div
         v-if="!currentSchool.hasContext"
@@ -651,9 +651,9 @@ watch(selectedWeightSubjectId, () => {
         akses sekolah yang valid.
       </div>
 
-      <section class="grid gap-6 lg:grid-cols-2">
+      <section class="grid gap-5 lg:grid-cols-2">
         <article
-          class="rounded-xl border border-[#ebe7df] bg-white p-5 shadow-sm"
+          class="rounded-2xl border border-[#ebe7df] bg-white p-5"
         >
           <div class="flex items-start justify-between gap-4">
             <div class="min-w-0">
@@ -766,7 +766,7 @@ watch(selectedWeightSubjectId, () => {
         </article>
 
         <article
-          class="rounded-xl border border-[#ebe7df] bg-white p-5 shadow-sm"
+          class="rounded-2xl border border-[#ebe7df] bg-white p-5"
         >
           <div class="flex items-start justify-between gap-4">
             <div class="min-w-0">
@@ -906,9 +906,9 @@ watch(selectedWeightSubjectId, () => {
         </article>
       </section>
 
-      <section class="grid gap-6 lg:grid-cols-2">
+      <section class="grid gap-5 lg:grid-cols-2">
         <article
-          class="rounded-xl border border-[#ebe7df] bg-white p-5 shadow-sm"
+          class="rounded-2xl border border-[#ebe7df] bg-white p-5"
         >
           <div class="flex items-start justify-between gap-4">
             <div class="min-w-0">
@@ -1067,7 +1067,7 @@ watch(selectedWeightSubjectId, () => {
         </article>
 
         <article
-          class="rounded-xl border border-[#ebe7df] bg-white p-5 shadow-sm"
+          class="rounded-2xl border border-[#ebe7df] bg-white p-5"
         >
           <div class="flex items-start justify-between gap-4">
             <div class="min-w-0">
@@ -1150,7 +1150,7 @@ watch(selectedWeightSubjectId, () => {
       </section>
 
       <section
-        class="rounded-xl border border-[#ebe7df] bg-white p-5 shadow-sm"
+        class="rounded-2xl border border-[#ebe7df] bg-white p-5"
       >
         <div
           class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"
