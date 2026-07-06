@@ -158,7 +158,7 @@ onMounted(loadAssignments);
   <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
     <header class="border-b border-[#ebe7df] bg-white">
       <div
-        class="flex min-w-0 flex-col gap-3 px-5 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8"
+        class="flex min-w-0 flex-col gap-3 px-8 py-5 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8"
       >
         <div class="min-w-0">
           <h1 class="text-xl font-medium text-[#171322] sm:text-2xl">
@@ -169,24 +169,13 @@ onMounted(loadAssignments);
             dari halaman detail tugas.
           </p>
         </div>
-        <div
-          class="inline-flex min-w-0 max-w-full items-center self-start rounded-lg border border-[#ebe7df] bg-[#f9fafb] px-3 py-2 text-xs text-[#6b7280] lg:self-auto"
-        >
-          <span class="shrink-0">Sekolah aktif</span>
-          <span class="mx-2 text-[#d1d5db]">·</span>
-          <span class="min-w-0 truncate font-medium text-[#171322]">
-            {{ schoolName }}
-          </span>
-        </div>
       </div>
     </header>
 
-    <section class="mx-auto max-w-screen min-w-0 px-5 py-5 sm:px-6 lg:px-8 lg:py-6">
-
-      <section
-        v-if="isLoading"
-        class="space-y-5"
-      >
+    <section
+      class="mx-auto max-w-screen min-w-0 px-5 py-5 sm:px-6 lg:px-8 lg:py-6"
+    >
+      <section v-if="isLoading" class="space-y-5">
         <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
           <div
             v-for="item in 5"
@@ -324,10 +313,7 @@ onMounted(loadAssignments);
             </p>
           </div>
 
-          <div
-            v-else-if="filteredItems.length === 0"
-            class="py-12 text-center"
-          >
+          <div v-else-if="filteredItems.length === 0" class="py-12 text-center">
             <div
               class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
             >
