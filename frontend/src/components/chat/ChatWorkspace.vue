@@ -1570,7 +1570,7 @@ function formatDateTime(value?: string | null) {
             ref="roomListEl"
             class="min-w-0 overflow-y-auto border-[#ebe7df] bg-[#fbfaf8] lg:border-r"
           >
-            <div class="border-b border-[#ebe7df] bg-white px-4 py-4 sm:px-5">
+            <div class="px-4 py-4 sm:px-5">
               <div class="flex items-center justify-between gap-3">
                 <p class="text-sm font-semibold text-[#171322]">
                   Ruang Diskusi
@@ -1828,7 +1828,7 @@ function formatDateTime(value?: string | null) {
           </aside>
 
           <section
-            class="relative flex min-h-0 min-w-0 flex-col bg-[#f8f7f4]"
+            class="relative flex min-h-0 min-w-0 flex-col bg-[#fbfaf8]"
             @dragenter="handleDragEnter"
             @dragover="handleDragOver"
             @dragleave="handleDragLeave"
@@ -2199,7 +2199,7 @@ function formatDateTime(value?: string | null) {
             </div>
 
             <form
-              class="shrink-0 border-t border-[#ebe7df] bg-white px-4 py-3 sm:px-5"
+              class="shrink-0 px-4 py-3 sm:px-5"
               @submit.prevent="submitMessage"
             >
               <p v-if="composerError" class="mb-2 text-sm text-red-600">
@@ -2275,7 +2275,7 @@ function formatDateTime(value?: string | null) {
                 />
                 <button
                   type="button"
-                  class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#ebe7df] bg-white text-[#6b7280] transition hover:border-[#c7d2fe] hover:text-[#4f46e5] focus:outline-none focus:ring-2 focus:ring-[#4f46e5]/15 disabled:cursor-not-allowed disabled:opacity-60"
+                  class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#ebe7df] text-[#6b7280] transition hover:border-[#c7d2fe] hover:text-[#4f46e5] focus:outline-none focus:ring-2 focus:ring-[#4f46e5]/15 disabled:cursor-not-allowed disabled:opacity-60"
                   :disabled="
                     !selectedRoom?.canSend ||
                     selectedFiles.length >= maxChatAttachments
