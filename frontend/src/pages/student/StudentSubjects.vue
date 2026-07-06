@@ -72,7 +72,7 @@ onMounted(loadSubjects);
 <template>
   <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
     <header class="border-b border-[#ebe7df] bg-white">
-      <div class="flex min-w-0 flex-col gap-1 px-5 py-4 sm:px-6 lg:px-8">
+      <div class="flex min-w-0 flex-col gap-1 px-5 py-5 sm:px-6 lg:px-8">
         <h1 class="text-2xl font-semibold text-[#171322] sm:text-3xl">
           Mata pelajaran
         </h1>

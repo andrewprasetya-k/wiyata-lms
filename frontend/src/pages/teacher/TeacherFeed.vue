@@ -311,7 +311,7 @@ function updatePostCommentCount(feedId: string, count: number) {
     <header class="border-b border-[#ebe7df] bg-white">
       <div class="px-5 py-5 sm:px-6 lg:px-8">
         <div
-          class="mt-2 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
+          class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
         >
           <div class="min-w-0">
             <h1 class="text-2xl font-semibold text-[#171322] sm:text-3xl">

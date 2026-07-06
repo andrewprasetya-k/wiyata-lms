@@ -108,24 +108,22 @@ function getInitials(name?: string) {
 <template>
   <main class="min-h-screen min-w-0 flex-1 bg-[#f8f7f4]">
     <header class="border-b border-[#ebe7df] bg-white">
-      <div
-        class="flex min-w-0 items-center gap-2 px-5 py-5 text-xs text-[#6b7280] sm:px-6 lg:px-8"
-      >
-        <RouterLink
-          class="inline-flex shrink-0 items-center gap-1.5 transition hover:text-[#4f46e5]"
-          to="/student/subjects"
-        >
-          <PhArrowLeft :size="15" />
-          Mata pelajaran
-        </RouterLink>
-        <span class="text-[#d1d5db]">/</span>
-        <span class="min-w-0 truncate font-medium text-[#171322]">
-          Pengumuman kelas
-        </span>
-      </div>
+      <div class="px-5 py-5 sm:px-6 lg:px-8">
+        <div class="flex min-w-0 items-center gap-2 text-xs text-[#6b7280]">
+          <RouterLink
+            class="inline-flex shrink-0 items-center gap-1.5 transition hover:text-[#4f46e5]"
+            to="/student/subjects"
+          >
+            <PhArrowLeft :size="15" />
+            Mata pelajaran
+          </RouterLink>
+          <span class="text-[#d1d5db]">/</span>
+          <span class="min-w-0 truncate font-medium text-[#171322]">
+            Pengumuman kelas
+          </span>
+        </div>
 
-      <div class="px-5 pb-4 pt-2 sm:px-6 lg:px-8">
-        <div class="flex min-w-0 items-start gap-3">
+        <div class="mt-4 flex min-w-0 items-start gap-3">
           <div
             class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
           >
