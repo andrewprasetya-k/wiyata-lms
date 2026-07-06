@@ -8,6 +8,7 @@ import {
   PhSparkle,
   PhSpinnerGap,
 } from "@phosphor-icons/vue";
+import MaterialAiSummaryCard from "../material/MaterialAiSummaryCard.vue";
 import { summarizeMaterialDocument } from "../../services/materialSummary";
 import { useAuthStore } from "../../stores/auth";
 import type { MaterialDocumentSummaryResponse } from "../../types/materialSummary";
@@ -341,15 +342,10 @@ function responseStatus(error: unknown) {
 
           <div
             v-else-if="summaryResult(attachment.mediaId)"
-            class="rounded-xl border border-[#ebe7df] bg-[#fbfaf8] p-4"
           >
-            <div class="flex items-center gap-2 text-sm font-medium text-[#171322]">
-              <PhSparkle :size="17" class="text-[#4f46e5]" weight="duotone" />
-              Rangkuman AI
-            </div>
-            <p class="mt-3 whitespace-pre-line text-sm leading-7 text-[#4a4356]">
-              {{ summaryResult(attachment.mediaId)?.summary }}
-            </p>
+            <MaterialAiSummaryCard
+              :summary="summaryResult(attachment.mediaId)?.summary"
+            />
           </div>
         </div>
       </article>
