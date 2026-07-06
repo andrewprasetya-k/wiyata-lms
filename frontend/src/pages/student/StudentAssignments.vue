@@ -154,10 +154,10 @@ onMounted(loadAssignments);
         class="flex min-w-0 flex-col gap-3 px-8 py-5 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8"
       >
         <div class="min-w-0">
-          <h1 class="text-xl font-medium text-[#171322] sm:text-2xl">
+          <h1 class="text-2xl font-semibold text-[#171322] sm:text-3xl">
             Tugas Saya
           </h1>
-          <p class="mt-1 max-w-2xl text-xs leading-5 text-[#6b7280] sm:text-sm">
+          <p class="mt-2 max-w-3xl text-sm leading-6 text-[#6b7280]">
             Pantau tugas dari semua kelas aktif. Pengumpulan tetap dilakukan
             dari halaman detail tugas.
           </p>

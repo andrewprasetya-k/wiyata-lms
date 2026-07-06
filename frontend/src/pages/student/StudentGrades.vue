@@ -117,10 +117,10 @@ onMounted(loadGrades);
         class="flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8"
       >
         <div>
-          <h1 class="text-xl font-medium text-[#171322] sm:text-2xl">
+          <h1 class="text-2xl font-semibold text-[#171322] sm:text-3xl">
             Nilai Saya
           </h1>
-          <p class="mt-1 text-xs leading-5 text-[#6b7280] sm:text-sm">
+          <p class="mt-2 max-w-3xl text-sm leading-6 text-[#6b7280]">
             Rekap nilai dan feedback untuk kelas aktif.
           </p>
         </div>

@@ -132,10 +132,10 @@ function getInitials(name?: string) {
             <PhMegaphone :size="21" weight="duotone" />
           </div>
           <div class="min-w-0">
-            <h1 class="truncate text-xl font-medium text-[#171322] sm:text-2xl">
+            <h1 class="truncate text-2xl font-semibold text-[#171322] sm:text-3xl">
               Feed Kelas
             </h1>
-            <p class="mt-1 text-xs leading-5 text-[#6b7280] sm:text-sm">
+            <p class="mt-2 max-w-3xl text-sm leading-6 text-[#6b7280]">
               Pengumuman dari teacher dan admin untuk kelas aktifmu.
             </p>
           </div>
