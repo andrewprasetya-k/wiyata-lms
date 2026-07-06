@@ -65,7 +65,8 @@ const subjects = ref<SubjectItem[]>([]);
 const categories = ref<AssignmentCategoryItem[]>([]);
 const selectedAcademicYearId = ref("");
 const selectedWeightSubjectId = ref("");
-const weightInputs = ref<Record<string, string>>({});
+type WeightInputValue = string | number | null | undefined;
+const weightInputs = ref<Record<string, string | number>>({});
 
 const academicYearsLoading = ref(false);
 const academicYearsError = ref("");
@@ -110,10 +111,7 @@ const totalWeight = computed(() =>
 
 const hasInvalidWeight = computed(() =>
   categories.value.some((category) => {
-    const rawValue = weightInputs.value[category.categoryId];
-    if (rawValue === "" || rawValue === undefined) return false;
-    const value = Number(rawValue);
-    return Number.isNaN(value) || value < 0 || value > 100;
+    return isWeightInputInvalid(weightInputs.value[category.categoryId]);
   }),
 );
 
@@ -143,8 +141,6 @@ const canSubmitWeights = computed(
     currentSchool.value.hasContext &&
     Boolean(selectedWeightSubjectId.value) &&
     categories.value.length > 0 &&
-    !hasInvalidWeight.value &&
-    isWeightTotalValid.value &&
     activeAction.value !== "weights-save",
 );
 
@@ -173,11 +169,37 @@ function subjectDisplayColor(subject: SubjectItem) {
   return subject.color || getSubjectColor(subject.subjectId || subject.subjectName);
 }
 
-function parseWeightValue(value?: string) {
-  if (value === undefined || value.trim() === "") return 0;
-  const numericValue = Number(value);
-  if (Number.isNaN(numericValue)) return 0;
-  return numericValue;
+function normalizeWeightInput(value: WeightInputValue) {
+  if (value === undefined || value === null) {
+    return { value: 0, valid: true };
+  }
+
+  if (typeof value === "number") {
+    return {
+      value: Number.isFinite(value) ? value : 0,
+      valid: Number.isFinite(value),
+    };
+  }
+
+  const normalized = value.trim().replace(",", ".");
+  if (normalized === "") {
+    return { value: 0, valid: true };
+  }
+
+  const numericValue = Number(normalized);
+  return {
+    value: Number.isFinite(numericValue) ? numericValue : 0,
+    valid: Number.isFinite(numericValue),
+  };
+}
+
+function parseWeightValue(value: WeightInputValue) {
+  return normalizeWeightInput(value).value;
+}
+
+function isWeightInputInvalid(value: WeightInputValue) {
+  const parsed = normalizeWeightInput(value);
+  return !parsed.valid || parsed.value < 0 || parsed.value > 100;
 }
 
 function formatWeight(value: number) {
@@ -211,7 +233,7 @@ function getApiStatus(error: unknown) {
 }
 
 function resetWeightInputs(weights: AssessmentWeightItem[] = []) {
-  const nextInputs: Record<string, string> = {};
+  const nextInputs: Record<string, string | number> = {};
   const weightMap = new Map(
     weights.map((weight) => [weight.categoryId, String(weight.weight)]),
   );
