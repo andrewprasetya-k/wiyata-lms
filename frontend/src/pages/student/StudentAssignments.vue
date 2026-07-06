@@ -10,7 +10,6 @@ import {
   PhWarningCircle,
 } from "@phosphor-icons/vue";
 import { getStudentAssignmentInbox } from "../../services/assignment";
-import { useAuthStore } from "../../stores/auth";
 import type {
   StudentAssignmentInboxItem,
   StudentAssignmentInboxSummary,
@@ -28,7 +27,6 @@ type AssignmentFilter =
   | "graded"
   | "overdue";
 
-const auth = useAuthStore();
 const isLoading = ref(true);
 const errorMessage = ref("");
 const items = ref<StudentAssignmentInboxItem[]>([]);
@@ -40,11 +38,6 @@ const inboxSummary = ref<StudentAssignmentInboxSummary>({
   overdueCount: 0,
 });
 const activeFilter = ref<AssignmentFilter>("all");
-
-const schoolName = computed(
-  () => auth.activeMembership?.school.name ?? "Sekolah aktif",
-);
-
 const summary = computed(() => inboxSummary.value);
 
 const filterTabs = computed(() => [
