@@ -11,6 +11,7 @@ import {
   PhClock,
 } from "@phosphor-icons/vue";
 import { useAuthStore } from "../../stores/auth";
+import { useToastStore } from "../../stores/toast";
 import { getMyTeachingSubjectClassById } from "../../services/teacherSubjects";
 import {
   getAssignmentCategories,
@@ -32,6 +33,7 @@ import {
 const route = useRoute();
 const router = useRouter();
 const auth = useAuthStore();
+const toast = useToastStore();
 
 const subjectClassId = computed(() =>
   String(route.params.subjectClassId ?? ""),
@@ -239,6 +241,7 @@ async function handleSubmit() {
           materialType: form.value.materialType,
           mediaIds: form.value.mediaIds,
         });
+        toast.success("Materi berhasil diperbarui.");
       } else {
         await createMaterial({
           schoolId: activeSchoolId.value,
@@ -248,6 +251,7 @@ async function handleSubmit() {
           materialType: form.value.materialType,
           mediaIds: form.value.mediaIds,
         });
+        toast.success("Materi berhasil dibuat.");
       }
     } else {
       const deadline = buildJakartaDeadlineISOString(
@@ -264,6 +268,7 @@ async function handleSubmit() {
           allowLateSubmission: form.value.allowLate,
           mediaIds: form.value.mediaIds,
         });
+        toast.success("Tugas berhasil diperbarui.");
       } else {
         await createAssignment({
           schoolId: activeSchoolId.value,
@@ -275,6 +280,7 @@ async function handleSubmit() {
           allowLateSubmission: form.value.allowLate,
           mediaIds: form.value.mediaIds,
         });
+        toast.success("Tugas berhasil dibuat.");
       }
     }
 

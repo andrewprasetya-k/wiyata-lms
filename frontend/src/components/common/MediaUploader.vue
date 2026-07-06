@@ -130,6 +130,7 @@ async function removeFile(index: number) {
       emit('update:mediaIds', [...mediaIds.value])
     } catch (error) {
       console.error('Failed to delete media', error)
+      toast.error('File belum berhasil dihapus. Coba lagi.')
     }
   }
   files.value.splice(index, 1)

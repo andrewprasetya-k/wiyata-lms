@@ -13,6 +13,7 @@ import {
 import AttachmentPreviewList from "../../components/common/AttachmentPreviewList.vue";
 import DiscussionComments from "../../components/discussion/DiscussionComments.vue";
 import { useAuthStore } from "../../stores/auth";
+import { useToastStore } from "../../stores/toast";
 import {
   getMySubmissionByAssignment,
   getStudentAssignmentDetail,
@@ -28,6 +29,7 @@ import { formatDateTime } from "../../utils/date";
 
 const route = useRoute();
 const auth = useAuthStore();
+const toast = useToastStore();
 const subjectClassId = computed(() => String(route.params.sclId ?? ""));
 const assignmentId = computed(() => String(route.params.asgId ?? ""));
 const assignment = ref<AssignmentItem | null>(null);
@@ -36,7 +38,6 @@ const errorMessage = ref("");
 const didLoad = ref(false);
 const selectedFiles = ref<File[]>([]);
 const submitError = ref("");
-const submitSuccess = ref("");
 const isSubmitting = ref(false);
 const submissionStatus = ref<MySubmissionResponse | null>(null);
 const isSubmissionLoading = ref(false);
@@ -94,7 +95,6 @@ function handleFileChange(event: Event) {
   const files = Array.from(input.files ?? []);
   selectedFiles.value = [...selectedFiles.value, ...files];
   submitError.value = "";
-  submitSuccess.value = "";
   input.value = "";
 }
 
@@ -156,7 +156,6 @@ async function handleSubmit() {
 
   isSubmitting.value = true;
   submitError.value = "";
-  submitSuccess.value = "";
   const uploadedMediaIds: string[] = [];
 
   try {
@@ -174,7 +173,7 @@ async function handleSubmit() {
 
     patchSubmittedStatus(uploaded);
     selectedFiles.value = [];
-    submitSuccess.value = "Tugas berhasil dikumpulkan.";
+    toast.success("Tugas berhasil dikumpulkan.");
   } catch (error) {
     if (uploadedMediaIds.length > 0) {
       await Promise.allSettled(
@@ -625,12 +624,6 @@ async function handleSubmit() {
               class="mt-4 rounded-lg bg-[#fff1f0] p-3 text-sm leading-5 text-[#b42318]"
             >
               {{ submitError }}
-            </p>
-            <p
-              v-if="submitSuccess"
-              class="mt-4 rounded-lg bg-[#ecfdf3] p-3 text-sm leading-5 text-[#027a48]"
-            >
-              {{ submitSuccess }}
             </p>
 
             <button
