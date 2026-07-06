@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onBeforeUnmount, ref } from "vue";
 import DOMPurify from "dompurify";
 import MarkdownIt from "markdown-it";
 import { PhSparkle } from "@phosphor-icons/vue";
 
 const props = defineProps<{
   summary?: string;
+  sourceName?: string;
 }>();
 
 const markdown = new MarkdownIt({
@@ -16,10 +17,9 @@ const markdown = new MarkdownIt({
 });
 
 const sanitizedHtml = computed(() => {
-  const source = props.summary?.trim() ?? "";
-  if (!source) return "";
+  if (!trimmedSummary.value) return "";
 
-  const rendered = markdown.render(source);
+  const rendered = markdown.render(trimmedSummary.value);
   return DOMPurify.sanitize(rendered, {
     ALLOWED_TAGS: [
       "p",
@@ -37,22 +37,84 @@ const sanitizedHtml = computed(() => {
     ALLOWED_ATTR: [],
   });
 });
+
+const trimmedSummary = computed(() => props.summary?.trim() ?? "");
+const copied = ref(false);
+let copiedTimer: number | undefined;
+
+async function copySummary() {
+  if (
+    !trimmedSummary.value ||
+    typeof navigator === "undefined" ||
+    !navigator.clipboard
+  ) {
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(trimmedSummary.value);
+  } catch {
+    return;
+  }
+
+  copied.value = true;
+
+  if (copiedTimer) {
+    window.clearTimeout(copiedTimer);
+  }
+  copiedTimer = window.setTimeout(() => {
+    copied.value = false;
+  }, 1800);
+}
+
+onBeforeUnmount(() => {
+  if (copiedTimer) {
+    window.clearTimeout(copiedTimer);
+  }
+});
 </script>
 
 <template>
   <div
-    v-if="sanitizedHtml"
     class="rounded-xl border border-[#ebe7df] bg-[#fbfaf8] p-4"
   >
-    <div class="flex items-center gap-2 text-sm font-medium text-[#171322]">
-      <PhSparkle :size="17" class="text-[#4f46e5]" weight="duotone" />
-      Rangkuman AI
+    <div class="flex flex-wrap items-start justify-between gap-3">
+      <div class="min-w-0">
+        <div class="flex items-center gap-2">
+          <span
+            class="inline-flex items-center gap-1.5 rounded-full border border-[#ddd7ee] bg-white px-2.5 py-1 text-xs font-semibold text-[#4f46e5]"
+          >
+            <PhSparkle :size="15" class="text-[#4f46e5]" weight="duotone" />
+            AI Summary
+          </span>
+        </div>
+        <p
+          v-if="sourceName"
+          class="mt-2 truncate text-xs leading-5 text-[#7a7385]"
+          :title="sourceName"
+        >
+          Dirangkum dari: {{ sourceName }}
+        </p>
+      </div>
+
+      <button
+        class="inline-flex items-center rounded-lg border border-[#ebe7df] bg-white px-3 py-1.5 text-xs font-medium text-[#5b4b7a] transition hover:border-[#d8d1c5] hover:bg-[#f8f7f4] focus:outline-none focus:ring-2 focus:ring-[#4f46e5]/25 disabled:cursor-not-allowed disabled:opacity-50"
+        type="button"
+        :disabled="!trimmedSummary"
+        @click="copySummary"
+      >
+        {{ copied ? "Tersalin" : "Salin" }}
+      </button>
     </div>
 
     <div
+      v-if="sanitizedHtml"
       class="ai-summary-content mt-4 text-sm leading-7 text-[#4a4356]"
       v-html="sanitizedHtml"
     />
+    <p v-else class="mt-4 text-sm leading-6 text-[#7a7385]">
+      Rangkuman belum tersedia.
+    </p>
   </div>
 </template>
 

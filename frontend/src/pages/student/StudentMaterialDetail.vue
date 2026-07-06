@@ -226,6 +226,7 @@ onMounted(loadMaterial);
           <AttachmentPreviewList
             class="mt-4"
             :attachments="material.attachments"
+            enable-ai-summary
             :material-id="material.materialId"
             empty-text="Materi ini tidak memiliki lampiran."
           />

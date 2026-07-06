@@ -347,7 +347,7 @@ func main() {
 			materialAPI.POST("", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "teacher"), materialHandler.Create)
 			materialAPI.GET("", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "teacher", "student"), materialHandler.FindAll)
 			materialAPI.GET("/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "teacher", "student"), materialHandler.GetByID)
-			materialAPI.POST("/:materialId/media/:mediaId/summary", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "teacher", "student"), materialHandler.SummarizeAttachment)
+			materialAPI.POST("/:materialId/media/:mediaId/summary", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "student"), materialHandler.SummarizeAttachment)
 			materialAPI.PATCH("/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "teacher", "admin"), materialHandler.Update)
 			materialAPI.DELETE("/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "teacher", "admin"), materialHandler.Delete)
 			materialAPI.POST("/progress", materialHandler.UpdateProgress)

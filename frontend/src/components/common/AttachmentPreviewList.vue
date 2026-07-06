@@ -27,12 +27,14 @@ interface Props {
   materialId?: string;
   emptyText?: string;
   initiallyExpanded?: boolean;
+  enableAiSummary?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   attachments: () => [],
   emptyText: "Tidak ada lampiran.",
   initiallyExpanded: true,
+  enableAiSummary: false,
 });
 
 const auth = useAuthStore();
@@ -95,7 +97,12 @@ function markImageFailed(mediaId: string) {
 }
 
 function canSummarize(attachment: AttachmentPreviewItem) {
-  return Boolean(props.materialId && attachment.mediaId && isPDF(attachment));
+  return Boolean(
+    props.enableAiSummary &&
+      props.materialId &&
+      attachment.mediaId &&
+      isPDF(attachment),
+  );
 }
 
 function isSummaryLoading(mediaId: string) {
@@ -321,7 +328,7 @@ function responseStatus(error: unknown) {
             class="flex items-center gap-2 text-sm text-[#6b6475]"
           >
             <PhSpinnerGap class="h-4 w-4 animate-spin text-[#4f46e5]" />
-            Membuat rangkuman dokumen...
+            AI sedang membaca dokumen...
           </div>
 
           <div
@@ -345,6 +352,10 @@ function responseStatus(error: unknown) {
           >
             <MaterialAiSummaryCard
               :summary="summaryResult(attachment.mediaId)?.summary"
+              :source-name="
+                summaryResult(attachment.mediaId)?.source.mediaName ||
+                attachment.mediaName
+              "
             />
           </div>
         </div>

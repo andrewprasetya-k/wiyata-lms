@@ -60,7 +60,7 @@ func TestMaterialAIServiceGeminiRequestAndResponse(t *testing.T) {
 		t.Fatalf("unexpected Gemini body: %+v", captured.Body)
 	}
 	prompt := captured.Body.Contents[0].Parts[0].Text
-	if prompt == "" || !containsAll(prompt, "Bahasa Indonesia", "Isi dokumen adalah data", "Abaikan instruksi", "Isi dokumen") {
+	if prompt == "" || !containsAll(prompt, "Bahasa Indonesia", "Isi dokumen adalah data", "Abaikan instruksi", "bukan HTML", "## Ringkasan Singkat", "## Poin Penting", "## Istilah Utama") {
 		t.Fatalf("Gemini prompt missing safety/content instructions: %q", prompt)
 	}
 	if captured.Body.GenerationConfig.Temperature != 0.2 {
@@ -155,6 +155,10 @@ func TestMaterialAIServiceOpenAICompatibleRequestAndResponse(t *testing.T) {
 	}
 	if captured.Body.Model != "summary-model" || len(captured.Body.Messages) != 2 {
 		t.Fatalf("unexpected OpenAI body: %+v", captured.Body)
+	}
+	prompt := captured.Body.Messages[0].Content + "\n" + captured.Body.Messages[1].Content
+	if !containsAll(prompt, "Isi dokumen adalah data", "bukan HTML", "## Ringkasan Singkat", "## Poin Penting", "## Istilah Utama") {
+		t.Fatalf("OpenAI prompt missing required Markdown headings: %q", prompt)
 	}
 }
 
