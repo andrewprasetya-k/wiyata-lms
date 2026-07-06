@@ -257,7 +257,7 @@ onMounted(() => {
         </div>
         <button
           type="button"
-          class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[#e5e7eb] bg-white px-4 py-2.5 text-sm font-semibold text-[#171322] transition hover:bg-[#fafafa] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+          class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
           :disabled="isLoading"
           @click="loadRequests()"
         >
@@ -316,7 +316,7 @@ onMounted(() => {
             <p class="text-sm leading-6 text-[#a8665d]">{{ errorMessage }}</p>
             <button
               type="button"
-              class="mt-3 rounded-lg border border-[#fecaca] bg-white px-3 py-2 text-sm font-semibold text-[#a8665d] transition hover:bg-[#fff8f6]"
+              class="mt-3 inline-flex items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-3 py-2 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60"
               @click="loadRequests()"
             >
               Coba lagi
@@ -368,7 +368,7 @@ onMounted(() => {
               </div>
               <button
                 type="button"
-                class="shrink-0 rounded-lg border border-[#e5e7eb] bg-white px-3 py-2 text-sm font-semibold text-[#171322] transition hover:bg-[#fafafa]"
+                class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-3 py-2 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60"
                 @click="openDetail(request.requestId)"
               >
                 Detail
@@ -383,7 +383,7 @@ onMounted(() => {
         >
           <button
             type="button"
-            class="rounded-lg border border-[#e5e7eb] bg-white px-3 py-2 font-semibold text-[#6b7280] disabled:cursor-not-allowed disabled:opacity-50"
+            class="inline-flex items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-3 py-2 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60"
             :disabled="page <= 1"
             @click="loadRequests(page - 1)"
           >
@@ -392,7 +392,7 @@ onMounted(() => {
           <span class="text-[#6b7280]">Halaman {{ page }} dari {{ totalPages }}</span>
           <button
             type="button"
-            class="rounded-lg border border-[#e5e7eb] bg-white px-3 py-2 font-semibold text-[#6b7280] disabled:cursor-not-allowed disabled:opacity-50"
+            class="inline-flex items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-3 py-2 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60"
             :disabled="page >= totalPages"
             @click="loadRequests(page + 1)"
           >
@@ -505,7 +505,7 @@ onMounted(() => {
               </div>
               <button
                 type="button"
-                class="mt-3 inline-flex items-center gap-2 rounded-lg bg-[#166534] px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#14532d]"
+                class="mt-3 inline-flex items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-3 py-2 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60"
                 @click="copyInvitationLink"
               >
                 <PhCopy :size="16" weight="bold" />
@@ -516,7 +516,7 @@ onMounted(() => {
             <div v-if="selectedIsPending" class="flex flex-wrap gap-2">
               <button
                 type="button"
-                class="inline-flex items-center gap-2 rounded-lg bg-[#027a48] px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#05603a]"
+                class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#16a34a] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#15803d] disabled:cursor-not-allowed disabled:opacity-60"
                 @click="actionMode = actionMode === 'approve' ? null : 'approve'"
               >
                 <PhCheckCircle :size="16" weight="bold" />
@@ -524,7 +524,7 @@ onMounted(() => {
               </button>
               <button
                 type="button"
-                class="inline-flex items-center gap-2 rounded-lg border border-[#fecaca] bg-white px-3 py-2 text-sm font-semibold text-[#b42318] transition hover:bg-[#fff8f6]"
+                class="inline-flex items-center justify-center gap-2 rounded-lg border border-[#fecaca] bg-white px-3 py-2 text-sm font-medium text-[#dc2626] transition hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-60"
                 @click="actionMode = actionMode === 'reject' ? null : 'reject'"
               >
                 <PhXCircle :size="16" weight="bold" />
@@ -579,7 +579,7 @@ onMounted(() => {
               </label>
               <button
                 type="submit"
-                class="w-full rounded-lg bg-[#027a48] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#05603a] disabled:opacity-60"
+                class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#16a34a] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#15803d] disabled:cursor-not-allowed disabled:opacity-60"
                 :disabled="actionLoading"
               >
                 {{ actionLoading ? 'Memproses...' : 'Approve dan buat undangan' }}
@@ -603,7 +603,7 @@ onMounted(() => {
               </label>
               <button
                 type="submit"
-                class="w-full rounded-lg bg-[#b42318] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#912018] disabled:opacity-60"
+                class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#dc2626] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#b91c1c] disabled:cursor-not-allowed disabled:opacity-60"
                 :disabled="actionLoading"
               >
                 {{ actionLoading ? 'Memproses...' : 'Reject request' }}

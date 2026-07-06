@@ -94,7 +94,7 @@ onMounted(() => {
         </div>
         <button
           type="button"
-          class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[#e5e7eb] bg-white px-4 py-2.5 text-sm font-semibold text-[#171322] transition hover:bg-[#fafafa] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+          class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
           :disabled="isLoading"
           @click="loadUsers"
         >
@@ -184,7 +184,7 @@ onMounted(() => {
               <p class="text-sm leading-6 text-[#a8665d]">{{ errorMessage }}</p>
               <button
                 type="button"
-                class="mt-3 inline-flex items-center gap-2 rounded-lg border border-[#fecaca] bg-white px-3 py-2 text-sm font-semibold text-[#a8665d] transition hover:bg-[#fff8f6]"
+                class="mt-3 inline-flex items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-3 py-2 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60"
                 @click="loadUsers"
               >
                 Coba lagi
