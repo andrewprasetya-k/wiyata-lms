@@ -41,6 +41,7 @@ import { connectChatSocket } from "../../services/chatSocket";
 import { deleteMedia, uploadMediaFile } from "../../services/media";
 import type { ChatSocketStatus } from "../../services/chatSocket";
 import { useAuthStore } from "../../stores/auth";
+import { useToastStore } from "../../stores/toast";
 import type {
   ChatAttachment,
   ChatGroupInfo,
@@ -63,6 +64,8 @@ import {
 defineProps<{
   audience: "student" | "teacher" | "admin";
 }>();
+
+const toast = useToastStore();
 
 interface PendingAttachmentItem {
   id: string;
@@ -423,6 +426,7 @@ async function submitCreateGroup() {
     selectedMemberIds.value = [];
     isCreateGroupOpen.value = false;
     await loadLatestMessages();
+    toast.success("Ruang chat berhasil dibuat.");
   } catch (error) {
     createGroupError.value = resolveChatError(error);
   } finally {
@@ -499,6 +503,7 @@ async function submitRenameGroup() {
     selectedRoom.value = room;
     groupInfo.value = { ...groupInfo.value, roomName: room.roomName };
     await refreshRooms();
+    toast.success("Nama ruang chat berhasil diperbarui.");
   } catch (error) {
     groupActionError.value = resolveChatError(error);
   } finally {
@@ -547,6 +552,7 @@ async function submitAddMembers() {
     addMemberSearch.value = "";
     await loadGroupInfo();
     await refreshRooms();
+    toast.success("Anggota berhasil ditambahkan.");
   } catch (error) {
     groupActionError.value = resolveChatError(error);
   } finally {
@@ -575,6 +581,7 @@ async function leaveSelectedGroup() {
     if (selectedRoom.value) {
       await loadLatestMessages();
     }
+    toast.success("Kamu berhasil keluar dari ruang chat.");
   } catch (error) {
     groupActionError.value = resolveChatError(error);
   } finally {
@@ -595,6 +602,7 @@ async function removeMember(member: ChatGroupMember) {
     await removeChatGroupMember(selectedRoom.value.roomId, member.userId);
     await loadGroupInfo();
     await refreshRooms();
+    toast.success("Anggota berhasil dikeluarkan.");
   } catch (error) {
     groupActionError.value = resolveChatError(error);
   } finally {
