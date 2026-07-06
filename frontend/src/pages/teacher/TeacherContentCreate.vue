@@ -325,59 +325,59 @@ onMounted(loadInitialData);
 <template>
   <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
     <header class="border-b border-[#ebe7df] bg-white">
-      <div
-        class="flex min-w-0 items-center gap-2 px-5 py-3 text-xs text-[#6b7280] sm:px-6 lg:px-8"
-      >
-        <button
-          type="button"
-          class="inline-flex shrink-0 items-center gap-1.5 transition hover:text-[#4f46e5]"
-          @click="router.back()"
-        >
-          <PhArrowLeft :size="15" />
-          Mata pelajaran
-        </button>
-        <span class="text-[#d1d5db]">/</span>
-        <span class="min-w-0 truncate font-medium text-[#171322]">
-          {{ isEditMode ? "Edit" : "Buat" }}
-          {{ activeTab === "material" ? "Materi" : "Tugas" }}
-        </span>
-      </div>
-
-      <div
-        class="flex min-w-0 flex-col gap-3 border-t border-[#f3f1ec] px-5 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8"
-      >
-        <div class="min-w-0">
-          <p class="text-xs font-medium uppercase tracking-wide text-[#7b61a8]">
-            {{ subject?.subjectName || "Konten mata pelajaran" }}
-          </p>
-          <h1 class="mt-1 text-xl font-semibold text-[#171322] sm:text-2xl">
+      <div class="px-5 py-5 sm:px-6 lg:px-8">
+        <div class="flex min-w-0 items-center gap-2 text-xs text-[#6b7280]">
+          <button
+            type="button"
+            class="inline-flex shrink-0 items-center gap-1.5 transition hover:text-[#4f46e5]"
+            @click="router.back()"
+          >
+            <PhArrowLeft :size="15" />
+            Mata pelajaran
+          </button>
+          <span class="text-[#d1d5db]">/</span>
+          <span class="min-w-0 truncate font-medium text-[#171322]">
             {{ isEditMode ? "Edit" : "Buat" }}
             {{ activeTab === "material" ? "Materi" : "Tugas" }}
-          </h1>
-          <p class="mt-1 text-sm text-[#6b7280]">
-            <template v-if="subject">
-              {{ subject.className }}
-              <span v-if="subject.subjectCode">
-                · {{ subject.subjectCode }}
-              </span>
-            </template>
-            <template v-else> Lengkapi informasi konten untuk siswa. </template>
-          </p>
+          </span>
         </div>
-        <span
-          class="inline-flex self-start rounded-lg px-2.5 py-1.5 text-xs font-medium lg:self-auto"
-          :class="
-            activeTab === 'material'
-              ? 'bg-[#eef2ff] text-[#4f46e5]'
-              : 'bg-[#fff7ed] text-[#ea580c]'
-          "
+
+        <div
+          class="mt-4 flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"
         >
-          {{ activeTab === "material" ? "Materi" : "Tugas" }}
-        </span>
+          <div class="min-w-0">
+            <p class="text-xs font-medium uppercase tracking-wide text-[#7b61a8]">
+              {{ subject?.subjectName || "Konten mata pelajaran" }}
+            </p>
+            <h1 class="mt-1 text-xl font-semibold text-[#171322] sm:text-2xl">
+              {{ isEditMode ? "Edit" : "Buat" }}
+              {{ activeTab === "material" ? "Materi" : "Tugas" }}
+            </h1>
+            <p class="mt-1 text-sm text-[#6b7280]">
+              <template v-if="subject">
+                {{ subject.className }}
+                <span v-if="subject.subjectCode">
+                  · {{ subject.subjectCode }}
+                </span>
+              </template>
+              <template v-else> Lengkapi informasi konten untuk siswa. </template>
+            </p>
+          </div>
+          <span
+            class="inline-flex self-start rounded-lg px-2.5 py-1.5 text-xs font-medium lg:self-auto"
+            :class="
+              activeTab === 'material'
+                ? 'bg-[#eef2ff] text-[#4f46e5]'
+                : 'bg-[#fff7ed] text-[#ea580c]'
+            "
+          >
+            {{ activeTab === "material" ? "Materi" : "Tugas" }}
+          </span>
+        </div>
       </div>
     </header>
 
-    <section class="px-5 py-5 sm:px-6 lg:px-8">
+    <section class="px-5 py-5 sm:px-6 lg:px-8 lg:py-6">
       <section
         v-if="errorMessage"
         class="mb-5 flex items-start gap-3 rounded-xl border border-[#fecaca] bg-[#fef2f2] p-4 text-sm leading-6 text-[#b42318]"

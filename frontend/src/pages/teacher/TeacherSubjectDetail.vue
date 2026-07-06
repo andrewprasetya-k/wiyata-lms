@@ -179,62 +179,64 @@ onMounted(loadWorkspace);
 <template>
   <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
     <header class="border-b border-[#ebe7df] bg-white">
-      <div
-        class="flex min-w-0 items-center gap-2 px-5 py-3 text-xs text-[#6b7280] sm:px-6 lg:px-8"
-      >
-        <RouterLink
-          to="/teacher/subjects"
-          class="inline-flex shrink-0 items-center gap-1.5 transition hover:text-[#4f46e5]"
-        >
-          <PhArrowLeft :size="15" />
-          Mata pelajaran
-        </RouterLink>
-        <span class="text-[#d1d5db]">/</span>
-        <span class="min-w-0 truncate font-medium text-[#171322]">
-          {{
-            subject?.subjectName ??
-            (loading ? "Memuat..." : "Ruang kerja mata pelajaran")
-          }}
-        </span>
-      </div>
-
-      <div
-        class="flex min-w-0 flex-col gap-4 border-t border-[#f3f1ec] px-5 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8"
-      >
-        <div class="flex min-w-0 items-start gap-3">
-          <div
-            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white"
-            :style="{ backgroundColor: subjectAccentColor }"
+      <div class="px-5 py-5 sm:px-6 lg:px-8">
+        <div class="flex min-w-0 items-center gap-2 text-xs text-[#6b7280]">
+          <RouterLink
+            to="/teacher/subjects"
+            class="inline-flex shrink-0 items-center gap-1.5 transition hover:text-[#4f46e5]"
           >
-            <PhBookOpen :size="21" weight="duotone" />
-          </div>
-          <div class="min-w-0">
-            <h1 class="truncate text-xl font-medium text-[#171322] sm:text-2xl">
-              {{
-                subject?.subjectName ??
-                (loading ? "Memuat mata pelajaran..." : "Mata pelajaran")
-              }}
-            </h1>
-            <p class="mt-1 truncate text-xs text-[#6b7280] sm:text-sm">
-              {{
-                subject
-                  ? [subject.className, subject.subjectCode]
-                      .filter(Boolean)
-                      .join(" · ")
-                  : "Kelola materi, tugas, dan pengumpulan siswa."
-              }}
-            </p>
-          </div>
+            <PhArrowLeft :size="15" />
+            Mata pelajaran
+          </RouterLink>
+          <span class="text-[#d1d5db]">/</span>
+          <span class="min-w-0 truncate font-medium text-[#171322]">
+            {{
+              subject?.subjectName ??
+              (loading ? "Memuat..." : "Ruang kerja mata pelajaran")
+            }}
+          </span>
         </div>
 
-        <RouterLink
-          v-if="subject"
-          :to="`/teacher/subjects/${subjectClassId}/create`"
-          class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#4f46e5] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#4338ca] sm:w-auto"
+        <div
+          class="mt-4 flex min-w-0 flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"
         >
-          <PhPlusCircle :size="17" weight="duotone" />
-          Post di kelas ini
-        </RouterLink>
+          <div class="flex min-w-0 items-start gap-3">
+            <div
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white"
+              :style="{ backgroundColor: subjectAccentColor }"
+            >
+              <PhBookOpen :size="21" weight="duotone" />
+            </div>
+            <div class="min-w-0">
+              <h1
+                class="truncate text-xl font-medium text-[#171322] sm:text-2xl"
+              >
+                {{
+                  subject?.subjectName ??
+                  (loading ? "Memuat mata pelajaran..." : "Mata pelajaran")
+                }}
+              </h1>
+              <p class="mt-1 truncate text-xs text-[#6b7280] sm:text-sm">
+                {{
+                  subject
+                    ? [subject.className, subject.subjectCode]
+                        .filter(Boolean)
+                        .join(" · ")
+                    : "Kelola materi, tugas, dan pengumpulan siswa."
+                }}
+              </p>
+            </div>
+          </div>
+
+          <RouterLink
+            v-if="subject"
+            :to="`/teacher/subjects/${subjectClassId}/create`"
+            class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#4f46e5] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#4338ca] sm:w-auto"
+          >
+            <PhPlusCircle :size="17" weight="duotone" />
+            Post di kelas ini
+          </RouterLink>
+        </div>
       </div>
     </header>
 
