@@ -689,7 +689,7 @@ watch(selectedWeightSubjectId, () => {
             />
             <button
               type="submit"
-              class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#171322] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#2f2b3a] disabled:cursor-not-allowed disabled:opacity-60"
+              class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#171322] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#374151] disabled:cursor-not-allowed disabled:opacity-60"
               :disabled="
                 activeAction === 'academic-year-create' ||
                 !currentSchool.hasContext
@@ -752,7 +752,7 @@ watch(selectedWeightSubjectId, () => {
 
                 <button
                   type="button"
-                  class="inline-flex items-center justify-center gap-2 rounded-lg border border-[#e5e7eb] bg-white px-3 py-2 text-sm font-semibold text-[#171322] transition hover:border-[#d6d3d1] hover:bg-[#fafafa] disabled:cursor-not-allowed disabled:opacity-60"
+                  class="inline-flex items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60"
                   :disabled="isAcademicYearActionPending(year.academicYearId)"
                   @click="toggleAcademicYear(year)"
                 >
@@ -819,7 +819,7 @@ watch(selectedWeightSubjectId, () => {
             />
             <button
               type="submit"
-              class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#171322] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#2f2b3a] disabled:cursor-not-allowed disabled:opacity-60"
+              class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#171322] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#374151] disabled:cursor-not-allowed disabled:opacity-60"
               :disabled="
                 activeAction === 'term-create' || !selectedAcademicYearId
               "
@@ -892,7 +892,7 @@ watch(selectedWeightSubjectId, () => {
 
                 <button
                   type="button"
-                  class="inline-flex items-center justify-center gap-2 rounded-lg border border-[#e5e7eb] bg-white px-3 py-2 text-sm font-semibold text-[#171322] transition hover:border-[#d6d3d1] hover:bg-[#fafafa] disabled:cursor-not-allowed disabled:opacity-60"
+                  class="inline-flex items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60"
                   :disabled="isTermActionPending(term.termId)"
                   @click="toggleTerm(term)"
                 >
@@ -979,7 +979,7 @@ watch(selectedWeightSubjectId, () => {
             </div>
             <button
               type="submit"
-              class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#171322] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#2f2b3a] disabled:cursor-not-allowed disabled:opacity-60 sm:col-span-2"
+              class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#171322] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#374151] disabled:cursor-not-allowed disabled:opacity-60 sm:col-span-2"
               :disabled="
                 activeAction === 'subject-create' ||
                 activeAction === `subject-update-${editingSubjectId}` ||
@@ -996,7 +996,7 @@ watch(selectedWeightSubjectId, () => {
             <button
               v-if="editingSubjectId"
               type="button"
-              class="inline-flex items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-4 py-3 text-sm font-semibold text-[#4a4356] transition hover:bg-[#fbfaf8] sm:col-span-2"
+              class="inline-flex items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60 sm:col-span-2"
               @click="resetSubjectForm"
             >
               <PhX :size="18" weight="duotone" />
@@ -1055,7 +1055,7 @@ watch(selectedWeightSubjectId, () => {
                 </div>
                 <button
                   type="button"
-                  class="inline-flex shrink-0 items-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-3 py-2 text-xs font-semibold text-[#4a4356] transition hover:bg-[#fbfaf8]"
+                  class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-3 py-2 text-xs font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60"
                   @click="editSubject(subject)"
                 >
                   <PhPencilSimple :size="16" weight="duotone" />
@@ -1103,7 +1103,7 @@ watch(selectedWeightSubjectId, () => {
             />
             <button
               type="submit"
-              class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#171322] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#2f2b3a] disabled:cursor-not-allowed disabled:opacity-60"
+              class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#171322] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#374151] disabled:cursor-not-allowed disabled:opacity-60"
               :disabled="
                 activeAction === 'category-create' || !currentSchool.hasContext
               "
@@ -1264,7 +1264,7 @@ watch(selectedWeightSubjectId, () => {
                 </p>
               </div>
               <button
-                class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#171322] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#2f2b3a] disabled:cursor-not-allowed disabled:opacity-60"
+                class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#171322] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#374151] disabled:cursor-not-allowed disabled:opacity-60"
                 type="submit"
                 :disabled="!canSubmitWeights"
               >

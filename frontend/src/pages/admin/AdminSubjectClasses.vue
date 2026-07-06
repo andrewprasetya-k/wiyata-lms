@@ -533,7 +533,7 @@ onMounted(async () => {
               </p>
               <button
                 type="button"
-                class="mt-4 rounded-lg bg-[#171322] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#374151]"
+                class="mt-4 inline-flex items-center justify-center gap-2 rounded-lg bg-[#171322] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#374151] disabled:cursor-not-allowed disabled:opacity-60"
                 @click="loadClassContext"
               >
                 Coba lagi
@@ -621,7 +621,7 @@ onMounted(async () => {
                   </div>
                   <button
                     type="button"
-                    class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-[#fecaca] bg-white px-3 py-2 text-xs font-medium text-[#dc2626] transition hover:bg-[#fef2f2] disabled:opacity-60"
+                    class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-[#fecaca] bg-white px-3 py-2 text-sm font-medium text-[#dc2626] transition hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-60"
                     :disabled="Boolean(unassigningId)"
                     @click="requestUnassign(subjectClass)"
                   >
@@ -645,7 +645,7 @@ onMounted(async () => {
                   <div class="mt-3 flex flex-wrap gap-2">
                     <button
                       type="button"
-                      class="rounded-lg bg-[#dc2626] px-3 py-2 text-xs font-medium text-white transition hover:bg-[#b91c1c] disabled:opacity-60"
+                      class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#dc2626] px-3 py-2 text-sm font-medium text-white transition hover:bg-[#b91c1c] disabled:cursor-not-allowed disabled:opacity-60"
                       :disabled="unassigningId === subjectClass.subjectClassId"
                       @click="confirmUnassign(subjectClass)"
                     >
@@ -657,7 +657,7 @@ onMounted(async () => {
                     </button>
                     <button
                       type="button"
-                      class="rounded-lg border border-[#fecaca] bg-white px-3 py-2 text-xs font-medium text-[#991b1b] transition hover:bg-[#fee2e2]"
+                      class="inline-flex items-center justify-center gap-2 rounded-lg border border-[#fecaca] bg-white px-3 py-2 text-sm font-medium text-[#dc2626] transition hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-60"
                       :disabled="unassigningId === subjectClass.subjectClassId"
                       @click="cancelUnassign"
                     >

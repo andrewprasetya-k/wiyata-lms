@@ -727,7 +727,7 @@ onMounted(async () => {
               />
               <button
                 type="submit"
-                class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-[#171322] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#374151] disabled:opacity-60"
+                class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-[#171322] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#374151] disabled:cursor-not-allowed disabled:opacity-60"
                 :disabled="membersLoading || !currentSchool.hasContext"
               >
                 <PhMagnifyingGlass :size="17" weight="duotone" />
@@ -762,7 +762,7 @@ onMounted(async () => {
               </p>
               <button
                 type="button"
-                class="mt-4 rounded-lg bg-[#171322] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#374151]"
+                class="mt-4 inline-flex items-center justify-center gap-2 rounded-lg bg-[#171322] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#374151] disabled:cursor-not-allowed disabled:opacity-60"
                 @click="rolesError ? loadRoles() : loadMembers()"
               >
                 Coba lagi
@@ -862,7 +862,7 @@ onMounted(async () => {
                     </label>
                     <button
                       type="button"
-                      class="mt-2.5 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#171322] px-3 py-2.5 text-sm font-medium text-white transition hover:bg-[#374151] disabled:opacity-60"
+                      class="mt-2.5 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#171322] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#374151] disabled:cursor-not-allowed disabled:opacity-60"
                       :disabled="
                         savingRolesSchoolUserId === member.schoolUserId ||
                         !memberRoleDrafts[member.schoolUserId]
@@ -883,7 +883,7 @@ onMounted(async () => {
                     </button>
                     <button
                       type="button"
-                      class="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[#fecaca] bg-white px-3 py-2.5 text-sm font-medium text-[#dc2626] transition hover:bg-[#fef2f2] disabled:opacity-60"
+                      class="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[#fecaca] bg-white px-3 py-2 text-sm font-medium text-[#dc2626] transition hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-60"
                       :disabled="removingSchoolUserId === member.schoolUserId"
                       @click="removeMember(member)"
                     >
@@ -1015,7 +1015,7 @@ onMounted(async () => {
               </p>
               <button
                 type="submit"
-                class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#171322] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#374151] disabled:opacity-60"
+                class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#171322] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#374151] disabled:cursor-not-allowed disabled:opacity-60"
                 :disabled="isInvitingMember"
               >
                 <PhEnvelopeSimple :size="17" weight="duotone" />
@@ -1040,7 +1040,7 @@ onMounted(async () => {
                   <p class="break-all text-[11px]">{{ inviteLink }}</p>
                   <button
                     type="button"
-                    class="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-md border border-[#bbf7d0] px-3 py-2 text-xs font-semibold text-[#166534] transition hover:bg-[#f0fdf4]"
+                    class="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60"
                     @click="copyInviteLink"
                   >
                     <PhCopy :size="15" weight="duotone" />
@@ -1113,7 +1113,7 @@ onMounted(async () => {
               </p>
               <button
                 type="submit"
-                class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#171322] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#374151] disabled:opacity-60"
+                class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#171322] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#374151] disabled:cursor-not-allowed disabled:opacity-60"
                 :disabled="isCreatingMember"
               >
                 <PhPlusCircle :size="17" weight="duotone" />
@@ -1143,7 +1143,7 @@ onMounted(async () => {
                 <div class="grid gap-2 sm:grid-cols-2">
                   <button
                     type="button"
-                    class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-4 py-2.5 text-sm font-medium text-[#171322] transition hover:border-[#ea580c] hover:text-[#ea580c]"
+                    class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60"
                     @click="downloadTemplate"
                   >
                     <PhDownloadSimple :size="17" weight="duotone" />
@@ -1152,7 +1152,7 @@ onMounted(async () => {
 
                   <button
                     type="button"
-                    class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-4 py-2.5 text-sm font-medium text-[#171322] transition hover:border-[#ea580c] hover:text-[#ea580c]"
+                    class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60"
                     @click="downloadExcelTemplate"
                   >
                     <PhDownloadSimple :size="17" weight="duotone" />
@@ -1191,7 +1191,7 @@ onMounted(async () => {
 
                 <button
                   type="button"
-                  class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#ea580c] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#c2410c] disabled:opacity-60"
+                  class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#ea580c] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#c2410c] disabled:cursor-not-allowed disabled:opacity-60"
                   :disabled="
                     importCommitLoading ||
                     importPreviewLoading ||
@@ -1207,7 +1207,7 @@ onMounted(async () => {
                 <button
                   v-if="importPreview || importResult || importFile"
                   type="button"
-                  class="inline-flex w-full items-center justify-center rounded-lg border border-[#ebe7df] bg-white px-4 py-2.5 text-sm font-medium text-[#171322] transition hover:bg-[#fbfaf8]"
+                  class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60"
                   :disabled="importCommitLoading || importPreviewLoading"
                   @click="resetImportState"
                 >

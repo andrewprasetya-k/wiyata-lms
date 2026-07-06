@@ -554,7 +554,7 @@ onMounted(async () => {
               </p>
               <button
                 type="button"
-                class="mt-4 rounded-lg bg-[#171322] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#374151]"
+                class="mt-4 inline-flex items-center justify-center gap-2 rounded-lg bg-[#171322] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#374151] disabled:cursor-not-allowed disabled:opacity-60"
                 @click="loadEnrollments"
               >
                 Coba lagi
@@ -645,7 +645,7 @@ onMounted(async () => {
                   </div>
                   <button
                     type="button"
-                    class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-[#fecaca] bg-white px-3 py-2 text-xs font-medium text-[#dc2626] transition hover:bg-[#fef2f2] disabled:opacity-60"
+                    class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-[#fecaca] bg-white px-3 py-2 text-sm font-medium text-[#dc2626] transition hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-60"
                     :disabled="Boolean(unenrollingId)"
                     @click="requestUnenroll(enrollment)"
                   >
@@ -666,7 +666,7 @@ onMounted(async () => {
                   <div class="mt-3 flex flex-wrap gap-2">
                     <button
                       type="button"
-                      class="rounded-lg bg-[#dc2626] px-3 py-2 text-xs font-medium text-white transition hover:bg-[#b91c1c] disabled:opacity-60"
+                      class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#dc2626] px-3 py-2 text-sm font-medium text-white transition hover:bg-[#b91c1c] disabled:cursor-not-allowed disabled:opacity-60"
                       :disabled="unenrollingId === enrollment.enrollmentId"
                       @click="confirmUnenroll(enrollment)"
                     >
@@ -678,7 +678,7 @@ onMounted(async () => {
                     </button>
                     <button
                       type="button"
-                      class="rounded-lg border border-[#fecaca] bg-white px-3 py-2 text-xs font-medium text-[#991b1b] transition hover:bg-[#fee2e2]"
+                      class="inline-flex items-center justify-center gap-2 rounded-lg border border-[#fecaca] bg-white px-3 py-2 text-sm font-medium text-[#dc2626] transition hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-60"
                       :disabled="unenrollingId === enrollment.enrollmentId"
                       @click="cancelUnenroll"
                     >
@@ -851,7 +851,7 @@ onMounted(async () => {
                     />
                     <button
                       type="button"
-                      class="inline-flex shrink-0 items-center justify-center rounded-lg border border-[#ebe7df] bg-white px-3 py-2.5 text-[#374151] transition hover:border-[#ea580c] hover:text-[#ea580c]"
+                      class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#ebe7df] bg-white text-[#6b7280] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60"
                       :disabled="membersLoading"
                       @click="loadMembers"
                     >
