@@ -203,6 +203,15 @@ Direct-create/import now distinguishes created vs reused user metadata and sends
 
 SMTP env keys are documented in `.env.example` and docs. Do not include actual env values in documentation.
 
+AI material summary env keys are backend-only:
+
+- `AI_SUMMARY_ENABLED`
+- `AI_SUMMARY_PROVIDER` (`openai` for OpenAI-compatible chat completions, `gemini` for Gemini REST)
+- `AI_SUMMARY_API_KEY`
+- `AI_SUMMARY_BASE_URL`
+- `AI_SUMMARY_MODEL`
+- `AI_SUMMARY_TIMEOUT_SECONDS`
+
 Security invariants:
 
 - Passwords are never sent by email.
@@ -211,6 +220,9 @@ Security invariants:
 - Raw invitation tokens are returned only once for dev/manual fallback.
 - Email failures are best-effort after successful DB work.
 - Do not log SMTP passwords or raw invitation tokens.
+- AI provider API keys stay on the backend. Do not send provider keys to the browser.
+- AI prompt text, extracted document content, provider API keys, and raw provider responses must not be logged.
+- Document contents are untrusted data. The summary prompt must treat them as data to summarize, not instructions to follow.
 ## 16. Academic Years, Terms, Classes, and Enrollments
 
 Academic setup is school-scoped. Admins manage years, terms, classes, subjects, enrollments, and subject-class assignments.
@@ -251,6 +263,22 @@ Materials and assignments live under subject class.
 
 Material progress exists. Opening material can update progress signals.
 
+Material PDF attachments can be summarized through:
+
+- `POST /api/materials/:materialId/media/:mediaId/summary`
+
+This MVP summarizes one attached PDF at a time from the file contents, not from `mat_desc`. The backend verifies material access, verifies the `mediaId` is attached to the material, resolves `material -> attachment -> media -> storagePath`, downloads internally from storage, extracts text from text-based PDF only, and calls the configured AI provider. It does not accept arbitrary file URLs from the frontend.
+
+AI summary MVP limitations:
+
+- PDF text layer only.
+- No OCR.
+- No DOCX/TXT/PPT/PPTX support yet.
+- No database persistence, cache, queue, or worker.
+- Provider switch supports `AI_SUMMARY_PROVIDER=openai` and `AI_SUMMARY_PROVIDER=gemini`.
+
+Student and teacher material detail pages show a "Rangkum dokumen" action on PDF attachments. Protected user-facing media delivery remains separate and deferred; internal backend storage download for summary does not make public media delivery protected.
+
 Assignment submit flow is not fully optimistic. After upload and submit success, frontend can patch safe local status but backend remains source of truth.
 
 Teacher assessment flow waits for backend success, then patches local submission state without blocking full reload where possible.
@@ -273,7 +301,7 @@ Notification Center exists for student and teacher. Notification unread state is
 Chat has DM/group/class-style room flows, unread summary, polling fallback, and WebSocket behavior. Chat realtime is separate from notifications.
 ## 21. Important Backend Endpoints
 
-Representative endpoints: `POST /api/login`, `GET /api/me/context`, `POST /api/school-registration-requests`, `/api/super-admin/school-registration-requests`, `GET /api/invitations/:token`, `POST /api/invitations/:token/accept`, `/api/admin/school-member-invitations`, `/api/admin/school-members`, `/api/admin/school-members/import/preview`, `/api/admin/school-members/import/commit`, `/api/enrollments`, `/api/subject-classes/assign`, `/api/subject-classes/my-teaching`, `/api/materials`, `/api/assignments`, `/api/comments`, `/api/feeds`, `/api/notifications`, `/api/chat/rooms`, `/api/ws/chat`.
+Representative endpoints: `POST /api/login`, `GET /api/me/context`, `POST /api/school-registration-requests`, `/api/super-admin/school-registration-requests`, `GET /api/invitations/:token`, `POST /api/invitations/:token/accept`, `/api/admin/school-member-invitations`, `/api/admin/school-members`, `/api/admin/school-members/import/preview`, `/api/admin/school-members/import/commit`, `/api/enrollments`, `/api/subject-classes/assign`, `/api/subject-classes/my-teaching`, `/api/materials`, `POST /api/materials/:materialId/media/:mediaId/summary`, `/api/assignments`, `/api/comments`, `/api/feeds`, `/api/notifications`, `/api/chat/rooms`, `/api/ws/chat`.
 
 Use specialized docs in `backend/docs/api/` and route registration in `backend/cmd/api/main.go` for exact contracts.
 ## 22. Important Frontend Routes

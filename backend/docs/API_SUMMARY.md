@@ -40,7 +40,7 @@ temporarily.
 
 ## 🏫 Schools
 
-- `POST /school-registration-requests` - Public request approval flow foundation; creates a pending school registration request only
+- `POST /school-registration-requests` - Submit public school registration request for super admin review, approval/rejection, school creation, admin invitation, and best-effort email flow
 - `GET /super-admin/school-registration-requests` - List school registration requests by status (system super_admin only)
 - `GET /super-admin/school-registration-requests/:id` - Get school registration request detail (system super_admin only)
 - `PATCH /super-admin/school-registration-requests/:id/approve` - Approve a pending school registration request and issue an admin invitation token (system super_admin only)
@@ -174,6 +174,7 @@ Subject payloads support optional `color` for visual identity. Accepted values a
 - `POST /materials` - Create material for current teacher-owned subject class (JSON or multipart form)
 - `GET /materials` - List materials for accessible `subjectClassId`
 - `GET /materials/:id` - Get accessible material by ID
+- `POST /materials/:materialId/media/:mediaId/summary` - Generate backend-only AI summary for one text-based PDF material attachment; requires `SchoolId`/`Active-Role`; provider disabled/unavailable returns `503`
 - `PATCH /materials/:id` - Update active-school material (admin or owning teacher)
 - `DELETE /materials/:id` - Delete active-school material (admin or owning teacher)
 - `POST /materials/progress` - Update material progress

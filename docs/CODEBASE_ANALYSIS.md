@@ -1,5 +1,12 @@
 # EDUVERSE LMS - COMPLETE CODEBASE ANALYSIS REPORT
 
+> **Historical snapshot warning:** This document is an older analysis snapshot and
+> several sections may be stale. Do not use it as the source of truth for active
+> school/role context, route registration, AI material summary, chat, email,
+> storage, student notes, or current implementation status. Verify current
+> behavior against code, `docs/PROJECT_CONTEXT_HANDOFF.md`,
+> `backend/docs/API_SUMMARY.md`, and focused docs in `backend/docs/api/`.
+
 ## EXECUTIVE SUMMARY
 
 Wiyata LMS is a multi-tenant learning management system built with Go (Gin), PostgreSQL, and JWT auth. The application implements a strict 4-layer architecture: Handler → Service → Repository → Domain/Database. The system manages schools, users, academic structures (academic years, terms, classes, subject classes), learning materials, assignments with submissions/grading, communication (feeds, comments), and notifications.

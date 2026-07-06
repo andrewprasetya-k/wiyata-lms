@@ -93,7 +93,60 @@ Each file is uploaded to storage first. If upload succeeds but DB record fails, 
 
 ---
 
-## 4. Update Material
+## 4. Summarize PDF Attachment with AI
+Generate an AI summary from the contents of one PDF attachment on a material.
+
+- **URL:** `/:materialId/media/:mediaId/summary`
+- **Method:** `POST`
+- **Auth:** Required
+- **Context:** Requires `SchoolId` and `Active-Role` headers for school context.
+- **Role:** `admin`, `teacher`, or `student`
+- **Request Body:** Not required.
+- **Source:** The summary is generated from the attached PDF file content, not from `mat_desc`. The material description is not the primary source.
+
+**Authorization:**
+- Admin can summarize active-school material attachments.
+- Teacher must teach the material's subject class.
+- Student must have an active `student` enrollment in the class behind the material's subject class.
+
+**Attachment and storage rules:**
+- `mediaId` must be linked to `materialId` through an attachment row where `att_source_type = material`, `att_source_id = materialId`, and `att_med_id = mediaId`.
+- The media and attachment must belong to the active school.
+- The endpoint does not accept arbitrary URLs from the frontend.
+- The backend resolves `material -> attachment -> media -> storagePath` and downloads the file internally from storage.
+
+**Supported file scope:**
+- Supports PDF files with a readable text layer only.
+- Does not support OCR, scanned PDFs without text, DOCX, TXT, PPT, or PPTX.
+- Corrupt, encrypted, empty, or unreadable PDFs return a controlled error.
+- The MVP is synchronous and does not persist/cache summaries.
+
+**Response `200`:**
+```json
+{
+  "status": "generated",
+  "summary": "Ringkasan singkat dokumen...",
+  "source": {
+    "materialId": "uuid",
+    "mediaId": "uuid",
+    "mediaName": "Materi.pdf",
+    "mimeType": "application/pdf"
+  }
+}
+```
+
+**Error mapping:**
+- `415 Unsupported Media Type`: file is not a supported PDF.
+- `413 Request Entity Too Large`: file exceeds the current summary size limit.
+- `422 Unprocessable Entity`: PDF cannot be read, has no extractable text, is corrupt, encrypted, empty, or is a scan without text layer.
+- `503 Service Unavailable`: AI provider is disabled, unavailable, timed out, or misconfigured.
+- `403 Forbidden` / `404 Not Found`: current user cannot access the material, or the material/attachment/media relationship is invalid.
+
+**Frontend note:** Student and teacher material detail pages show a **"Rangkum dokumen"** action on PDF attachments. The frontend sends only `materialId` and `mediaId`; provider API keys stay on the backend.
+
+---
+
+## 5. Update Material
 Update material details and its attachments.
 
 - **URL:** `/:id`
@@ -113,7 +166,7 @@ Update material details and its attachments.
 
 ---
 
-## 5. Delete Material
+## 6. Delete Material
 - **URL:** `/:id`
 - **Method:** `DELETE`
 - **Auth:** Required
@@ -123,7 +176,7 @@ Update material details and its attachments.
 
 ---
 
-## 6. Update Progress
+## 7. Update Progress
 Mark a material as completed for a user.
 
 - **URL:** `/progress`

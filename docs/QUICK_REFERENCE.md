@@ -1,5 +1,13 @@
 # EDUVERSE LMS - QUICK REFERENCE GUIDE
 
+> **Historical snapshot warning:** This quick reference is an older analysis aid.
+> Some routes, context behavior, feature status, and environment notes may be
+> stale. Do not use it as the source of truth for active school/role context,
+> current routes, AI material summary, chat, email, storage, student notes, or
+> implementation status. Verify against current code,
+> `docs/PROJECT_CONTEXT_HANDOFF.md`, `backend/docs/API_SUMMARY.md`, and focused
+> docs in `backend/docs/api/`.
+
 ## Architecture Overview
 ```
 Request Flow:
