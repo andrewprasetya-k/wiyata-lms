@@ -10,6 +10,7 @@ type AssessmentWeightRepository interface {
 	Create(weight *domain.AssessmentWeight) error
 	GetBySubject(subjectID string) ([]*domain.AssessmentWeight, error)
 	DeleteBySubject(subjectID string) error
+	ReplaceBySubject(subjectID string, weights []*domain.AssessmentWeight) error
 	GetTotalWeightBySubject(subjectID string) (float64, error)
 	SubjectBelongsToSchool(subjectID string, schoolID string) (bool, error)
 	CountCategoriesInSchool(categoryIDs []string, schoolID string) (int64, error)
@@ -39,6 +40,20 @@ func (r *assessmentWeightRepository) GetBySubject(subjectID string) ([]*domain.A
 
 func (r *assessmentWeightRepository) DeleteBySubject(subjectID string) error {
 	return r.db.Where("asw_sub_id = ?", subjectID).Delete(&domain.AssessmentWeight{}).Error
+}
+
+func (r *assessmentWeightRepository) ReplaceBySubject(subjectID string, weights []*domain.AssessmentWeight) error {
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("asw_sub_id = ?", subjectID).Delete(&domain.AssessmentWeight{}).Error; err != nil {
+			return err
+		}
+		for _, w := range weights {
+			if err := tx.Create(w).Error; err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 }
 
 func (r *assessmentWeightRepository) GetTotalWeightBySubject(subjectID string) (float64, error) {

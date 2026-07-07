@@ -82,22 +82,16 @@ func (s *gradeService) ConfigureWeights(req *dto.ConfigureWeightsDTO, schoolID s
 		return err
 	}
 
-	if err := s.weightRepo.DeleteBySubject(req.SubjectID); err != nil {
-		return err
-	}
-
+	weights := make([]*domain.AssessmentWeight, 0, len(req.Weights))
 	for _, w := range req.Weights {
-		weight := &domain.AssessmentWeight{
+		weights = append(weights, &domain.AssessmentWeight{
 			SubjectID:  req.SubjectID,
 			CategoryID: w.CategoryID,
 			Weight:     *w.Weight,
-		}
-		if err := s.weightRepo.Create(weight); err != nil {
-			return err
-		}
+		})
 	}
 
-	return nil
+	return s.weightRepo.ReplaceBySubject(req.SubjectID, weights)
 }
 
 func (s *gradeService) GetWeightsBySubject(subjectID string, schoolID string) (*dto.WeightResponseDTO, error) {
