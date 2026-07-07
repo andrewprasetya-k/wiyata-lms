@@ -3,6 +3,7 @@ package service
 import (
 	"backend/internal/domain"
 	"backend/internal/dto"
+	"backend/internal/events"
 	"backend/internal/repository"
 	"math"
 )
@@ -19,11 +20,12 @@ type NotificationService interface {
 }
 
 type notificationService struct {
-	repo repository.NotificationRepository
+	repo         repository.NotificationRepository
+	broadcaster events.SidebarBroadcaster
 }
 
-func NewNotificationService(repo repository.NotificationRepository) NotificationService {
-	return &notificationService{repo: repo}
+func NewNotificationService(repo repository.NotificationRepository, broadcaster events.SidebarBroadcaster) NotificationService {
+	return &notificationService{repo: repo, broadcaster: broadcaster}
 }
 
 func (s *notificationService) Create(req *dto.CreateNotificationDTO) error {
@@ -36,7 +38,12 @@ func (s *notificationService) Create(req *dto.CreateNotificationDTO) error {
 		RelatedID: req.RelatedID,
 	}
 
-	return s.repo.Create(notification)
+	if err := s.repo.Create(notification); err != nil {
+		return err
+	}
+
+	s.broadcastNotificationChanged(req.UserID)
+	return nil
 }
 
 func (s *notificationService) GetByUserID(userID string, page, limit int, unreadOnly bool) (*dto.NotificationListDTO, error) {
@@ -107,17 +114,43 @@ func (s *notificationService) GetFeedUnreadCount(userID string, schoolID string,
 }
 
 func (s *notificationService) MarkAsRead(notificationID string, userID string) error {
-	return s.repo.MarkAsRead(notificationID, userID)
+	if err := s.repo.MarkAsRead(notificationID, userID); err != nil {
+		return err
+	}
+	s.broadcastNotificationChanged(userID)
+	return nil
 }
 
 func (s *notificationService) MarkAllAsRead(userID string) error {
-	return s.repo.MarkAllAsRead(userID)
+	if err := s.repo.MarkAllAsRead(userID); err != nil {
+		return err
+	}
+	s.broadcastNotificationChanged(userID)
+	return nil
 }
 
 func (s *notificationService) MarkFeedNotificationsRead(userID string, schoolID string, types []string) error {
-	return s.repo.MarkFeedNotificationsRead(userID, schoolID, types)
+	if err := s.repo.MarkFeedNotificationsRead(userID, schoolID, types); err != nil {
+		return err
+	}
+	s.broadcastNotificationChanged(userID)
+	return nil
 }
 
 func (s *notificationService) Delete(notificationID string, userID string) error {
-	return s.repo.Delete(notificationID, userID)
+	if err := s.repo.Delete(notificationID, userID); err != nil {
+		return err
+	}
+	s.broadcastNotificationChanged(userID)
+	return nil
+}
+
+func (s *notificationService) broadcastNotificationChanged(userID string) {
+	if s.broadcaster == nil || userID == "" {
+		return
+	}
+	s.broadcaster.BroadcastToUser(userID, events.SidebarEvent{
+		Type:   events.SidebarEventTypeNotificationChanged,
+		UserID: userID,
+	})
 }

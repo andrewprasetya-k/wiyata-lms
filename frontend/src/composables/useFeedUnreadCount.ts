@@ -1,6 +1,11 @@
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import { getFeedUnreadCount } from "../services/feed";
-import { getActiveRole, getActiveSchoolId, getStoredToken } from "../services/session";
+import {
+  getActiveRole,
+  getActiveSchoolId,
+  getStoredToken,
+} from "../services/session";
+import { subscribeSidebarStream } from "../services/sidebarStream";
 
 const unreadCount = ref(0);
 let pollTimer: number | undefined;
@@ -9,22 +14,11 @@ let consumerCount = 0;
 let optimisticClearVersion = 0;
 let suppressAutoRefreshUntil = 0;
 let requestGeneration = 0;
+let unsubscribeSidebarStream: (() => void) | null = null;
 const optimisticClearSuppressionMs = 5000;
 
 function isAutoRefreshSuppressed() {
   return Date.now() < suppressAutoRefreshUntil;
-}
-
-function schedulePolling() {
-  if (pollTimer) {
-    window.clearTimeout(pollTimer);
-  }
-  pollTimer = window.setTimeout(async () => {
-    await refreshUnreadCount();
-    if (consumerCount > 0) {
-      schedulePolling();
-    }
-  }, 45000);
 }
 
 async function refreshUnreadCount(options: { force?: boolean } = {}) {
@@ -41,7 +35,10 @@ async function refreshUnreadCount(options: { force?: boolean } = {}) {
   const generation = requestGeneration;
   try {
     const response = await getFeedUnreadCount();
-    if (generation === requestGeneration && requestContext === buildContextKey()) {
+    if (
+      generation === requestGeneration &&
+      requestContext === buildContextKey()
+    ) {
       unreadCount.value = Math.max(0, response.unreadCount || 0);
     }
   } catch {
@@ -65,6 +62,12 @@ function handleVisibilityChange() {
 
 function handleFeedUnreadRefresh() {
   scheduleRefresh();
+}
+
+function handleSidebarEvent(event: { type: string }) {
+  if (event.type === "notification_changed" || event.type === "feed_changed") {
+    scheduleRefresh();
+  }
 }
 
 function handleContextChanged() {
@@ -103,7 +106,10 @@ export function clearFeedUnreadOptimistically() {
   return snapshot;
 }
 
-export function restoreFeedUnreadCount(snapshot: { previousCount: number; version: number }) {
+export function restoreFeedUnreadCount(snapshot: {
+  previousCount: number;
+  version: number;
+}) {
   if (snapshot.version !== optimisticClearVersion) return;
   suppressAutoRefreshUntil = 0;
   unreadCount.value = Math.max(0, snapshot.previousCount);
@@ -119,10 +125,13 @@ export function useFeedUnreadCount() {
     consumerCount += 1;
     if (consumerCount === 1) {
       void refreshUnreadCount();
-      schedulePolling();
       document.addEventListener("visibilitychange", handleVisibilityChange);
-      window.addEventListener("wiyata:feed-unread-refresh", handleFeedUnreadRefresh);
+      window.addEventListener(
+        "wiyata:feed-unread-refresh",
+        handleFeedUnreadRefresh,
+      );
       window.addEventListener("wiyata:context-changed", handleContextChanged);
+      unsubscribeSidebarStream = subscribeSidebarStream(handleSidebarEvent);
     }
   });
 
@@ -135,9 +144,20 @@ export function useFeedUnreadCount() {
       if (refreshTimer) {
         window.clearTimeout(refreshTimer);
       }
+      if (pollTimer) {
+        window.clearTimeout(pollTimer);
+      }
       document.removeEventListener("visibilitychange", handleVisibilityChange);
-      window.removeEventListener("wiyata:feed-unread-refresh", handleFeedUnreadRefresh);
-      window.removeEventListener("wiyata:context-changed", handleContextChanged);
+      window.removeEventListener(
+        "wiyata:feed-unread-refresh",
+        handleFeedUnreadRefresh,
+      );
+      window.removeEventListener(
+        "wiyata:context-changed",
+        handleContextChanged,
+      );
+      unsubscribeSidebarStream?.();
+      unsubscribeSidebarStream = null;
     }
   });
 

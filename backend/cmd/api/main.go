@@ -105,7 +105,12 @@ func main() {
 	attachmentService := service.NewAttachmentService(attachmentRepo)
 
 	notificationRepo := repository.NewNotificationRepository(db)
-	notificationService := service.NewNotificationService(notificationRepo)
+
+	sidebarHub := realtime.NewSidebarHub()
+	go sidebarHub.Run()
+	sidebarStreamHandler := realtime.NewSidebarStreamHandler(sidebarHub, authService)
+
+	notificationService := service.NewNotificationService(notificationRepo, sidebarHub)
 	notificationHandler := handler.NewNotificationHandler(notificationService)
 
 	materialRepo := repository.NewMaterialRepository(db)
@@ -119,7 +124,7 @@ func main() {
 	studentNoteHandler := handler.NewStudentNoteHandler(studentNoteService)
 
 	feedRepo := repository.NewFeedRepository(db)
-	feedService := service.NewFeedService(feedRepo, attachmentService, notificationService, enrollmentRepo, classRepo, subjectClassRepo)
+	feedService := service.NewFeedService(feedRepo, attachmentService, notificationService, enrollmentRepo, classRepo, subjectClassRepo, sidebarHub)
 	commentRepo := repository.NewCommentRepository(db)
 	contentOwnerRepo := repository.NewContentOwnerRepository(db)
 	commentService := service.NewCommentService(commentRepo, contentOwnerRepo, notificationService, feedRepo, materialRepo, assignmentRepo, enrollmentRepo, subjectClassRepo)
@@ -177,6 +182,7 @@ func main() {
 		api.POST("/school-registration-requests", schoolRegistrationRequestHandler.Create)
 		api.GET("/invitations/:token", invitationHandler.GetMetadata)
 		api.POST("/invitations/:token/accept", invitationHandler.Accept)
+		api.GET("/events/sidebar", sidebarStreamHandler.Stream)
 		api.GET("/ws/chat", chatWebSocketHandler.Chat)
 
 		//protected routes

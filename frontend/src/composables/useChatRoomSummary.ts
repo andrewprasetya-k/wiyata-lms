@@ -1,7 +1,11 @@
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import { getChatRooms } from "../services/chat";
 import { connectChatSocket } from "../services/chatSocket";
-import { getActiveRole, getActiveSchoolId, getStoredToken } from "../services/session";
+import {
+  getActiveRole,
+  getActiveSchoolId,
+  getStoredToken,
+} from "../services/session";
 import type { ChatRoom, ChatSocketEvent } from "../types/chat";
 
 const rooms = ref<ChatRoom[]>([]);
@@ -61,7 +65,6 @@ function startSummarySync() {
   ensureContext();
   void refreshRooms();
   connectRealtime();
-  scheduleNextPoll();
   document.addEventListener("visibilitychange", handleVisibilityChange);
   window.addEventListener("wiyata:context-changed", handleContextChanged);
 }
@@ -108,7 +111,6 @@ function connectRealtime() {
     onStatusChange(status) {
       if (!isStarted || contextKey !== socketContext) return;
       isConnected.value = status === "connected";
-      scheduleNextPoll();
     },
   });
 }
@@ -121,18 +123,6 @@ function scheduleRefresh() {
   refreshTimer = window.setTimeout(() => {
     void refreshRooms();
   }, 150);
-}
-
-function scheduleNextPoll() {
-  if (!isStarted) return;
-  if (pollTimer) {
-    window.clearTimeout(pollTimer);
-  }
-  const delay = isConnected.value ? 90000 : 18000;
-  pollTimer = window.setTimeout(async () => {
-    await refreshRooms();
-    scheduleNextPoll();
-  }, delay);
 }
 
 async function refreshRooms() {
@@ -207,17 +197,12 @@ function handleContextChanged() {
     window.clearTimeout(refreshTimer);
     refreshTimer = undefined;
   }
-  if (pollTimer) {
-    window.clearTimeout(pollTimer);
-    pollTimer = undefined;
-  }
   socketConnection?.close();
   socketConnection = null;
 
   if (!isStarted) return;
   connectRealtime();
   void refreshRooms();
-  scheduleNextPoll();
 }
 
 function buildContextKey() {

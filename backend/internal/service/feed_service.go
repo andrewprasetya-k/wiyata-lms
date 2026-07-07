@@ -3,6 +3,7 @@ package service
 import (
 	"backend/internal/domain"
 	"backend/internal/dto"
+	"backend/internal/events"
 	"backend/internal/repository"
 	"errors"
 	"fmt"
@@ -27,9 +28,10 @@ type feedService struct {
 	enrRepo          repository.EnrollmentRepository
 	classRepo        repository.ClassRepository
 	subjectClassRepo repository.SubjectClassRepository
+	broadcaster      events.SidebarBroadcaster
 }
 
-func NewFeedService(repo repository.FeedRepository, attService AttachmentService, notifService NotificationService, enrRepo repository.EnrollmentRepository, classRepo repository.ClassRepository, subjectClassRepo repository.SubjectClassRepository) FeedService {
+func NewFeedService(repo repository.FeedRepository, attService AttachmentService, notifService NotificationService, enrRepo repository.EnrollmentRepository, classRepo repository.ClassRepository, subjectClassRepo repository.SubjectClassRepository, broadcaster events.SidebarBroadcaster) FeedService {
 	return &feedService{
 		repo:             repo,
 		attService:       attService,
@@ -37,6 +39,7 @@ func NewFeedService(repo repository.FeedRepository, attService AttachmentService
 		enrRepo:          enrRepo,
 		classRepo:        classRepo,
 		subjectClassRepo: subjectClassRepo,
+		broadcaster:      broadcaster,
 	}
 }
 
@@ -173,7 +176,20 @@ func (s *feedService) Delete(id string, schoolID string, userID string, roles []
 	if err := s.ensureCanMutateFeed(feed, schoolID, userID, roles); err != nil {
 		return err
 	}
-	return s.repo.DeleteInSchool(id, schoolID)
+	if err := s.repo.DeleteInSchool(id, schoolID); err != nil {
+		return err
+	}
+
+	if s.broadcaster != nil {
+		if userIDs, membersErr := s.enrRepo.GetMemberUserIDsByClass(feed.ClassID); membersErr == nil {
+			s.broadcaster.BroadcastToUsers(schoolID, userIDs, events.SidebarEvent{
+				Type:     events.SidebarEventTypeFeedChanged,
+				SchoolID: schoolID,
+			})
+		}
+	}
+
+	return nil
 }
 
 func (s *feedService) ensureCanReadClassFeed(userID string, schoolID string, classID string, roles []string) error {
