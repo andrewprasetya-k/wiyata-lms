@@ -421,7 +421,7 @@ func main() {
 			assignmentAPI.GET("/student/:assignmentId", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "student"), assignmentHandler.GetStudentAssignmentDetail)
 			assignmentAPI.GET("/subject-class/submissions/:subjectClassId", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "teacher"), assignmentHandler.GetSubjectClassSubmissions)
 			assignmentAPI.GET("/subject-class/:subjectClassId", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "teacher", "student"), assignmentHandler.GetBySubjectClass)
-			assignmentAPI.GET("/status/:id", assignmentHandler.GetAssignmentStatus)
+			assignmentAPI.GET("/status/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "teacher", "admin"), assignmentHandler.GetAssignmentStatus)
 			assignmentAPI.GET("/my-submission/:assignmentId", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "student"), assignmentHandler.GetMySubmissionByAssignment)
 			assignmentAPI.GET("/:assignmentId", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "teacher"), assignmentHandler.GetSubmissionsByAssignment)
 			assignmentAPI.PATCH("/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "teacher", "admin"), assignmentHandler.UpdateAssignment)
@@ -443,7 +443,7 @@ func main() {
 		{
 			gradeAPI.POST("/weights", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin"), gradeHandler.ConfigureWeights)
 			gradeAPI.GET("/weights/subject/:subjectId", middleware.RequireSchoolMember(schoolService), gradeHandler.GetWeightsBySubject)
-			gradeAPI.GET("/class/:classId/subject/:subjectId", middleware.RequireRole(schoolService, "teacher", "admin"), gradeHandler.GetClassGradeReport)
+			gradeAPI.GET("/class/:classId/subject/:subjectId", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "teacher", "admin"), gradeHandler.GetClassGradeReport)
 			gradeAPI.GET("/my-grades/:classId", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "student"), gradeHandler.GetMyGradebookByClass)
 		}
 

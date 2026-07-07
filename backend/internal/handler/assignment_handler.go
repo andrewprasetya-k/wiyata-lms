@@ -520,8 +520,13 @@ func (h *AssignmentHandler) GetSubmissionsByAssignment(c *gin.Context) {
 
 func (h *AssignmentHandler) GetAssignmentStatus(c *gin.Context) {
 	id := c.Param("id")
+	schoolID := h.getSchoolContext(c)
+	if schoolID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required (SchoolId header)"})
+		return
+	}
 
-	status, err := h.service.GetAssignmentStatus(id)
+	status, err := h.service.GetAssignmentStatus(id, schoolID)
 	if err != nil {
 		HandleError(c, err)
 		return

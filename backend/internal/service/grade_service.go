@@ -18,7 +18,7 @@ type GradeService interface {
 	ConfigureWeights(req *dto.ConfigureWeightsDTO, schoolID string) error
 	GetWeightsBySubject(subjectID string, schoolID string) (*dto.WeightResponseDTO, error)
 	CalculateFinalGrade(studentID string, subjectID string) (*dto.GradeReportDTO, error)
-	GetClassGradeReport(classID, subjectID string) (*dto.ClassGradeReportDTO, error)
+	GetClassGradeReport(classID, subjectID, schoolID string) (*dto.ClassGradeReportDTO, error)
 	GetMyGradebookByClass(userID string, schoolID string, classID string) (*dto.MyGradebookResponseDTO, error)
 }
 
@@ -216,15 +216,21 @@ func (s *gradeService) CalculateFinalGrade(studentID string, subjectID string) (
 	}, nil
 }
 
-func (s *gradeService) GetClassGradeReport(classID, subjectID string) (*dto.ClassGradeReportDTO, error) {
+func (s *gradeService) GetClassGradeReport(classID, subjectID, schoolID string) (*dto.ClassGradeReportDTO, error) {
 	class, err := s.classRepo.GetByID(classID)
 	if err != nil {
 		return nil, err
+	}
+	if class.SchoolID != schoolID {
+		return nil, fmt.Errorf("forbidden: class does not belong to active school")
 	}
 
 	subject, err := s.subjectRepo.GetByID(subjectID)
 	if err != nil {
 		return nil, err
+	}
+	if subject.SchoolID != schoolID {
+		return nil, fmt.Errorf("forbidden: subject does not belong to active school")
 	}
 
 	students, err := s.gradeRepo.GetStudentsBySubjectClass(classID)

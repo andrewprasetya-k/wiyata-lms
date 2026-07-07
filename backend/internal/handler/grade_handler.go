@@ -70,8 +70,13 @@ func getGradeActiveSchoolID(c *gin.Context) (string, bool) {
 func (h *GradeHandler) GetClassGradeReport(c *gin.Context) {
 	classID := c.Param("classId")
 	subjectID := c.Param("subjectId")
+	schoolID, ok := getGradeActiveSchoolID(c)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required (SchoolId header)"})
+		return
+	}
 
-	report, err := h.service.GetClassGradeReport(classID, subjectID)
+	report, err := h.service.GetClassGradeReport(classID, subjectID, schoolID)
 	if err != nil {
 		HandleError(c, err)
 		return

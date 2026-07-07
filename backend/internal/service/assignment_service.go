@@ -25,7 +25,7 @@ type AssignmentService interface {
 	GetTeacherSubmissionInbox(userID string, schoolID string) (*dto.TeacherSubmissionInboxResponseDTO, error)
 	GetTeacherAssignmentInbox(userID string, schoolID string) (*dto.TeacherAssignmentInboxResponseDTO, error)
 	GetStudentAssignmentInbox(userID string, schoolID string) (*dto.StudentAssignmentInboxResponseDTO, error)
-	GetAssignmentStatus(assignmentID string) (map[string]interface{}, error)
+	GetAssignmentStatus(assignmentID string, schoolID string) (map[string]interface{}, error)
 	UpdateAssignment(id string, asg *domain.Assignment, mediaIDs []string, actorUserID string, isAdmin bool, validateCategory bool) error
 	DeleteAssignment(id string) error
 
@@ -281,11 +281,13 @@ func (s *assignmentService) GetStudentAssignmentInbox(userID string, schoolID st
 	return response, nil
 }
 
-func (s *assignmentService) GetAssignmentStatus(assignmentID string) (map[string]interface{}, error) {
-	// Get assignment with submissions
+func (s *assignmentService) GetAssignmentStatus(assignmentID string, schoolID string) (map[string]interface{}, error) {
 	asg, err := s.repo.GetAssignmentWithSubmissions(assignmentID)
 	if err != nil {
 		return nil, err
+	}
+	if asg.SchoolID != schoolID {
+		return nil, fmt.Errorf("forbidden: assignment does not belong to active school")
 	}
 
 	// Get total enrolled students in the class
