@@ -3,11 +3,13 @@
 Last verified against codebase: 2026-07-05.
 
 This document is a curated read-first guide for future AI coding agents working on Wiyata. It is not a raw merge of all existing documentation. Use it to orient quickly, then verify implementation details in code and tests before changing behavior.
+
 ## 1. Start Here / Purpose
 
 Wiyata has changed quickly across onboarding, multi-school identity, active role context, notifications, discussions, chat, and admin setup. Some historical docs are stale. This handoff captures current working contracts and the risks that matter most.
 
 When documentation conflicts with implementation, inspect code and tests. Do not change working behavior merely to match stale documentation.
+
 ## 2. Project Overview
 
 Wiyata is a multi-tenant academic workspace / LMS. It supports school onboarding, academic setup, class placement, subject-class workspaces, materials, assignments, submissions, assessment, feed, discussions, chat, notifications, and role-specific dashboards.
@@ -19,6 +21,7 @@ The product model is:
 - School is the tenant root.
 - User identity is global.
 - Academic access is scoped through school memberships and roles.
+
 ## 3. Repository Structure
 
 - `backend/` - Go/Gin/GORM API.
@@ -38,6 +41,7 @@ The product model is:
 - `frontend/src/pages/` - role-specific pages.
 - `frontend/src/layouts/` and `frontend/src/components/layout/` - role shells, sidebar, context switcher.
 - `docs/` - high-level analysis/reference docs.
+
 ## 4. Technology Stack
 
 Backend:
@@ -57,6 +61,7 @@ Frontend:
 - Tailwind CSS.
 - Pinia.
 - Axios-style API client.
+
 ## 5. Backend Architecture
 
 Backend code follows Handler → Service → Repository → Domain.
@@ -67,6 +72,7 @@ Backend code follows Handler → Service → Repository → Domain.
 - Domain models define persisted structure and table names.
 
 Notifications and email are generally best-effort. The main DB action should succeed even when notification/email delivery fails, unless a specific workflow says otherwise.
+
 ## 6. Frontend Architecture
 
 Frontend pages call typed service wrappers. Shared cross-page state is kept in Pinia stores or singleton composables.
@@ -74,6 +80,7 @@ Frontend pages call typed service wrappers. Shared cross-page state is kept in P
 The auth store is the source of current active context. Role layouts use keyed `RouterView` so switching school/role remounts pages whose loaders are only in `onMounted`.
 
 Avoid broad redesign. Match existing Wiyata visual style: warm academic workspace, white cards, subtle borders, restrained Tailwind.
+
 ## 7. Core Data Model
 
 Key entities:
@@ -91,6 +98,7 @@ Key entities:
 - `notifications`.
 - chat rooms/messages/attachments/read receipts.
 - onboarding `school_registration_requests` and `invitations`.
+
 ## 8. Multi-Tenant and Global Identity Model
 
 User accounts are global by email. A user can belong to multiple schools through `school_users`.
@@ -100,6 +108,7 @@ Roles are not global for ordinary school users. They attach to school membership
 `super_admin` is a platform context, not a school role context.
 
 Soft-deleted school memberships must not appear in login/context responses. Active school membership filtering is part of auth correctness.
+
 ## 9. Authentication and Authorization
 
 JWT identifies the global user. School-scoped APIs also require school membership context.
@@ -112,22 +121,32 @@ Important middleware concepts:
 - `RequireSystemSuperAdmin` protects platform routes.
 
 Frontend role/context values are never trusted alone. Backend validates `SchoolId` and `Active-Role` against live DB membership/roles.
+
 ## 10. Active School and Active Role Context
 
 Frontend active context is a union:
 
 ```ts
 type ActiveContext =
-  | { type: "school"; schoolId: string; schoolUserId: string; role: "admin" | "teacher" | "student" }
-  | { type: "platform"; role: "super_admin" }
+  | {
+      type: "school";
+      schoolId: string;
+      schoolUserId: string;
+      role: "admin" | "teacher" | "student";
+    }
+  | { type: "platform"; role: "super_admin" };
 ```
 
 Runtime behavior uses exactly one active school + one active school role. It no longer uses the union of all roles for route authorization.
 
+Sidebar awareness now uses a shared SSE stream at `/api/events/sidebar?token=&schoolId=` to invalidate feed and notification badge counts without periodic polling. Chat room summary remains websocket-driven with visibility/context refresh fallback.
 `auth.activeRole` is one selected role. `auth.activeRoles` and `auth.allRoles` are compatibility surfaces and should not be used to grant access to role pages.
+
 ## 11. Request Context Headers
 
 For school context, frontend sends:
+
+- `frontend/src/services/sidebarStream.ts` - shared SSE sidebar invalidation stream.
 
 - `SchoolId: <schoolId>`
 - `Active-Role: admin|teacher|student`
@@ -142,6 +161,7 @@ Backend CORS allowlist includes:
 - `schoolid`
 - `Active-Role`
 - `active-role`
+
 ## 12. Context Initialization, Persistence, and Recovery
 
 Authoritative context endpoint:
@@ -167,6 +187,7 @@ Singleton state reset/refetch on `wiyata:context-changed` exists for:
 - `useFeedUnreadCount`
 - `useNotificationUnreadCount`
 - `useChatRoomSummary`
+
 ## 13. School Registration and Approval
 
 Public visitors submit:
@@ -182,6 +203,7 @@ Super admin can:
 Approval creates a school, creates an admin invitation, marks the request approved, and sends invitation email best-effort after the transaction.
 
 The response still includes invitation token/link for manual fallback because email may be disabled or fail.
+
 ## 14. Member Invitation, Direct-Create, and Import
 
 School admin can invite teacher/student by email:
@@ -199,6 +221,7 @@ Direct-create/import remains available as fallback:
 - XLSX template/upload parsed in browser and converted to existing import flow.
 
 Direct-create/import now distinguishes created vs reused user metadata and sends account-created or added-to-school email best-effort without sending passwords.
+
 ## 15. Email Behavior and Security
 
 SMTP env keys are documented in `.env.example` and docs. Do not include actual env values in documentation.
@@ -223,6 +246,7 @@ Security invariants:
 - AI provider API keys stay on the backend. Do not send provider keys to the browser.
 - AI prompt text, extracted document content, provider API keys, and raw provider responses must not be logged.
 - Document contents are untrusted data. The summary prompt must treat them as data to summarize, not instructions to follow.
+
 ## 16. Academic Years, Terms, Classes, and Enrollments
 
 Academic setup is school-scoped. Admins manage years, terms, classes, subjects, enrollments, and subject-class assignments.
@@ -237,6 +261,7 @@ Current AdminEnrollments behavior:
 - mixed student/teacher selections are split into role-based API requests.
 
 Caveat: backend still receives and writes the `role` payload. It does not yet authoritatively derive enrollment role from school-level roles.
+
 ## 17. Subject Classes and Teacher Workspace
 
 `subject_classes` connect class + subject + teacher.
@@ -247,6 +272,7 @@ Teacher dashboard/workspace depends on subject-class assignment. Before assignin
 - active teacher placement in the target class.
 
 Admin UI label is "Penugasan Mengajar".
+
 ## 18. Student Learning Flows
 
 Student dashboard uses active class context and right rail awareness:
@@ -257,6 +283,7 @@ Student dashboard uses active class context and right rail awareness:
 - mini calendar.
 
 Academic Activity `date` is date-only `YYYY-MM-DD`. Do not parse it as timestamp. Calendar dots must remain assignment_due/deadline-only.
+
 ## 19. Materials, Assignments, Submissions, and Assessment
 
 Materials and assignments live under subject class.
@@ -284,6 +311,7 @@ Assignment submit flow is not fully optimistic. After upload and submit success,
 Teacher assessment flow waits for backend success, then patches local submission state without blocking full reload where possible.
 
 Timestamps are now `timestamptz` in DB and API responses should be RFC3339 for timestamp fields. Academic Activity `date` remains date-only.
+
 ## 20. Feed, Comments, Notifications, and Chat
 
 Feed posts and comments exist. Feed create supports canonical response and teacher optimistic placeholder UI.
@@ -299,16 +327,19 @@ Comments/discussions are polymorphic for:
 Notification Center exists for student and teacher. Notification unread state is REST/refresh based. There is no general notification WebSocket/SSE.
 
 Chat has DM/group/class-style room flows, unread summary, polling fallback, and WebSocket behavior. Chat realtime is separate from notifications.
+
 ## 21. Important Backend Endpoints
 
 Representative endpoints: `POST /api/login`, `GET /api/me/context`, `POST /api/school-registration-requests`, `/api/super-admin/school-registration-requests`, `GET /api/invitations/:token`, `POST /api/invitations/:token/accept`, `/api/admin/school-member-invitations`, `/api/admin/school-members`, `/api/admin/school-members/import/preview`, `/api/admin/school-members/import/commit`, `/api/enrollments`, `/api/subject-classes/assign`, `/api/subject-classes/my-teaching`, `/api/materials`, `POST /api/materials/:materialId/media/:mediaId/summary`, `/api/assignments`, `/api/comments`, `/api/feeds`, `/api/notifications`, `/api/chat/rooms`, `/api/ws/chat`.
 
 Use specialized docs in `backend/docs/api/` and route registration in `backend/cmd/api/main.go` for exact contracts.
+
 ## 22. Important Frontend Routes
 
 Representative routes: `/login`, `/school-registration`, `/invite/:token`, `/superadmin/dashboard`, `/super-admin/school-registration-requests`, `/admin/dashboard`, `/admin/users`, `/admin/enrollments`, `/admin/subject-classes`, `/teacher/dashboard`, `/teacher/subjects/:subjectClassId`, `/teacher/subjects/:subjectClassId/assignments/:assignmentId`, `/teacher/notifications`, `/student/dashboard`, `/student/subjects/:subjectClassId/materials/:materialId`, `/student/subjects/:subjectClassId/assignments/:assignmentId`, `/student/notifications`.
 
 Check `frontend/src/router/index.ts` before adding or linking routes.
+
 ## 23. Important Stores and Composables
 
 - `frontend/src/stores/auth.ts` - identity, memberships, active context, context reconciliation.
@@ -320,6 +351,7 @@ Check `frontend/src/router/index.ts` before adding or linking routes.
 - `frontend/src/composables/useChatRoomSummary.ts` - shared chat room summary and unread state.
 - `frontend/src/components/discussion/DiscussionComments.vue` - material/assignment discussion.
 - `frontend/src/components/feed/FeedComments.vue` - feed comments only.
+
 ## 24. Product Decisions and Security Invariants
 
 - Current code and tests override stale documentation.
@@ -334,11 +366,13 @@ Check `frontend/src/router/index.ts` before adding or linking routes.
 - Assignment deadline is an instant; teacher form sends Jakarta offset for MVP.
 - Academic Activity `date` remains date-only.
 - Enrollment `enr_role` remains essential until backend-authoritative derivation is implemented.
+
 ## 25. Recently Completed Work
 
 - Active school + active role backend/frontend foundation, visual ContextSwitcher, `Active-Role` CORS support, and keyed route remounting.
 - School registration, super admin approval/reject, admin invitation, public invitation accept, teacher/student member invitations, and best-effort emails.
 - Notification Center, material/assignment discussions, Teacher Assignment Detail, AdminEnrollments frontend role inference, and `timestamptz`/RFC3339 timestamp migration.
+
 ## 26. Known Technical Debt and Edge Cases
 
 - Backend still accepts enrollment `role` payload and does not authoritatively derive it from school roles.
@@ -348,15 +382,18 @@ Check `frontend/src/router/index.ts` before adding or linking routes.
 - Multi-role/multi-school QA should continue after context switcher changes.
 - Page-local in-flight requests are usually handled by route remount, not a global cancellation manager.
 - Some frontend build warnings may be non-blocking but should be rechecked in current output.
+
 ## 27. Current Open Work
 
 - Assignment extension request/review flow; protected media download URLs and thumbnails; grade/transcript export; notification preferences and optional realtime notification delivery; rich text and sanitization; nested comments if product decides; backend-authoritative enrollment role derivation.
+
 ## 28. Recommended Next Steps
 
 1. Add backend validation/derivation for enrollment role based on school-level roles.
 2. Add focused tests around context switching, invitation accept, and discussion notification recipients.
 3. Continue admin setup UX polish around prerequisites for subject-class assignment.
 4. Implement protected file delivery before expanding media-heavy workflows.
+
 ## 29. Validation Commands
 
 Backend:
@@ -380,11 +417,13 @@ Repo hygiene:
 git diff --check
 git status --short
 ```
+
 ## 30. Known Non-Blocking Warnings
 
 Historical local runs have surfaced non-blocking warnings such as CSS `@import` order or large Vite chunk warnings. Treat current command output as authoritative; do not assume old warnings still apply.
 
 Shell startup warnings from a developer's local profile are environment issues, not project validation failures.
+
 ## 31. AI Development Workflow
 
 - Read the code path before proposing a fix.
@@ -394,6 +433,7 @@ Shell startup warnings from a developer's local profile are environment issues, 
 - Prefer existing patterns over new architecture.
 - Run the requested validation commands.
 - Report honestly when validation is build-only and not runtime QA.
+
 ## 32. Git Safety Rules
 
 - The worktree may be dirty.
@@ -401,9 +441,11 @@ Shell startup warnings from a developer's local profile are environment issues, 
 - Do not use destructive commands such as `git reset --hard` or `git checkout --` without explicit approval.
 - Do not delete, rename, or archive docs unless the user explicitly asks.
 - For documentation-only tasks, do not modify runtime source, config, migrations, or tests.
+
 ## 33. Detailed Documentation Index
 
 Specialized docs to consult: `README.md`, `README_EN.md`, `TODO.md`, `backend/TODO.md`, `backend/schema.md`, `backend/docs/api/school_registration_requests.md`, `backend/docs/api/enrollment.md`, `backend/docs/api/notification.md`. Older analysis/reference docs in `docs/ANALYSIS_INDEX.md`, `docs/CODEBASE_ANALYSIS.md`, `docs/QUICK_REFERENCE.md`, and `docs/PRODUCT_SCOPE.md` must be verified against current code before relying on details.
+
 ## 34. Source-of-Truth Hierarchy
 
 Use this hierarchy when facts conflict:

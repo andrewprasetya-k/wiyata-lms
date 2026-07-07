@@ -15,7 +15,7 @@ message untuk warga aktif di sekolah yang sama.
 - Text messages dan attachment file/gambar melalui upload-first media flow.
 - REST API remains the source of truth.
 - WebSocket tersedia hanya sebagai realtime event transport.
-- Polling tetap dipertahankan sebagai fallback.
+- Chat room summary dan badge dipicu oleh event websocket serta refresh saat visibility/context change; tidak ada polling berkala untuk endpoint room summary di frontend saat ini.
 - Admin Sekolah, teacher, dan student boleh berpartisipasi jika masih menjadi
   member aktif sekolah tersebut.
 - Tidak ada subject/class room, typing indicator,
@@ -538,6 +538,5 @@ Broadcast eligibility:
 - Event tidak pernah dibroadcast lintas sekolah.
 
 Sprint 18B mengirim event `new_message`, `message_read`, dan `room_updated`.
-Message creation tetap melalui REST. Polling masih dipertahankan sebagai
-fallback. Typing indicator, presence, notifications, browser notification, dan
-message creation via WebSocket belum diimplementasikan.
+Message creation tetap melalui REST. Typing indicator, presence, notifications,
+browser notification, dan message creation via WebSocket belum diimplementasikan.

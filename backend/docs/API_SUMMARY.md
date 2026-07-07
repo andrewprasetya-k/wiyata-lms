@@ -36,6 +36,10 @@ temporarily.
 
 - `GET /me/context` - Refresh current memberships, global roles, and default context from backend authority
 
+**Realtime Sidebar Stream:**
+
+- `GET /events/sidebar?token=&schoolId=` - Server-Sent Events stream for sidebar badge invalidation events (`notification_changed`, `feed_changed`) in the active school context
+
 ---
 
 ## 🏫 Schools
@@ -241,11 +245,12 @@ idempotently when the same pair opens DM again. Unread counts exclude messages
 sent by the current user and are based on `chat_read_receipts.last_read_msg_id`
 or `last_read_at`. WebSocket in Sprint 18B is event transport only for
 `new_message`, `message_read`, and `room_updated`; message creation still uses
-REST and polling remains as fallback. Attachment messages upload files through
-`POST /api/medias/upload`, then send `mediaIds` to chat; `new_message` includes
-attachment metadata. Current storage URLs may be public depending on provider,
-with signed/protected downloads deferred.
-It does not enable subject/class rooms, typing indicators, message delete, or
+REST. The frontend refreshes room summaries on websocket events plus
+visibility/context changes rather than periodic polling. Attachment messages
+upload files through `POST /api/medias/upload`, then send `mediaIds` to chat;
+`new_message` includes attachment metadata. Current storage URLs may be public
+depending on provider, with signed/protected downloads deferred. It does not
+enable subject/class rooms, typing indicators, message delete, or
 notifications.
 
 ## 📝 Assignments & Grading
@@ -302,6 +307,10 @@ notifications.
 - `PATCH /notifications/read-all` - Mark all current user's notifications as read
 - `DELETE /notifications/:id` - Delete current user's notification
 
+## 📡 Sidebar Realtime
+
+- `GET /events/sidebar?token=&schoolId=` - SSE stream for badge invalidation events used by the sidebar notification and feed counters
+
 ## 📈 Dashboard
 
 - `GET /dashboard/student/:userId` - Get student dashboard (userId = usr_id)
@@ -357,5 +366,5 @@ Most list endpoints support:
 
 ---
 
-**Last Updated:** 2026-06-24
+**Last Updated:** 2026-07-07
 **Version:** 1.3
