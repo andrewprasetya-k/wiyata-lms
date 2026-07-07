@@ -30,6 +30,7 @@ import type {
 } from "../../types/adminEnrollment";
 import { formatDateTime } from "../../utils/date";
 import { useToastStore } from "../../stores/toast";
+import { getApiError } from "../../utils/error";
 
 const auth = useAuthStore();
 const toast = useToastStore();
@@ -406,20 +407,6 @@ function cancelUnenroll() {
   pendingUnenroll.value = null;
 }
 
-function getErrorMessage(error: unknown) {
-  if (
-    typeof error === "object" &&
-    error !== null &&
-    "response" in error &&
-    typeof (error as { response?: { data?: { error?: unknown } } }).response
-      ?.data?.error === "string"
-  ) {
-    return (error as { response: { data: { error: string } } }).response.data
-      .error;
-  }
-
-  return "Warga sekolah belum bisa dikeluarkan dari kelas.";
-}
 
 async function confirmUnenroll(enrollment: EnrollmentMemberItem) {
   if (!enrollment.enrollmentId || unenrollingId.value) return;
@@ -431,7 +418,7 @@ async function confirmUnenroll(enrollment: EnrollmentMemberItem) {
     pendingUnenroll.value = null;
     await loadEnrollments();
   } catch (error) {
-    toast.error(getErrorMessage(error));
+    toast.error(getApiError(error));
   } finally {
     unenrollingId.value = "";
   }

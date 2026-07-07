@@ -47,6 +47,7 @@ import {
   isInternalActivityLink,
   parseActivityDate,
 } from "../../components/activity/activityView";
+import { getApiError } from "../../utils/error";
 
 const auth = useAuthStore();
 const activeClassStore = useActiveClassStore();
@@ -488,20 +489,6 @@ function assignmentStatusClasses(item: StudentAssignmentInboxItem) {
   return "bg-[#fff7ed] text-[#b45309]";
 }
 
-function notificationErrorMessage(error: unknown) {
-  if (
-    typeof error === "object" &&
-    error !== null &&
-    "response" in error &&
-    typeof (error as { response?: { data?: { error?: unknown } } }).response
-      ?.data?.error === "string"
-  ) {
-    return (error as { response: { data: { error: string } } }).response.data
-      .error;
-  }
-
-  return "Status notifikasi belum bisa diperbarui.";
-}
 
 function notificationTitle(item: NotificationItem) {
   if (item.type === "assignment_created") return "Tugas baru";
@@ -567,7 +554,7 @@ function markNotificationRead(item: NotificationItem) {
         );
         notificationUnread.set(previousUnreadCount);
       }
-      toast.error(notificationErrorMessage(error));
+      toast.error(getApiError(error));
     })
     .finally(() => {
       const next = new Set(markingNotificationIds.value);
@@ -607,7 +594,7 @@ function markAllNotificationsRead() {
     .catch((error) => {
       notifications.value = previousNotifications;
       notificationUnread.set(previousUnreadCount);
-      toast.error(notificationErrorMessage(error));
+      toast.error(getApiError(error));
     })
     .finally(() => {
       markingAllNotifications.value = false;

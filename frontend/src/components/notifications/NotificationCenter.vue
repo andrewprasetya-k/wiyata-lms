@@ -17,6 +17,7 @@ import {
 import { useToastStore } from "../../stores/toast";
 import type { NotificationItem } from "../../types/dashboard";
 import { formatDateTime } from "../../utils/date";
+import { getApiError } from "../../utils/error";
 
 type NotificationFilter = "all" | "unread";
 
@@ -64,35 +65,6 @@ function normalizeTotalPages(value: number) {
   return Math.max(1, Number.isFinite(value) ? value : 1);
 }
 
-function responseErrorMessage(errorValue: unknown) {
-  if (
-    typeof errorValue === "object" &&
-    errorValue !== null &&
-    "response" in errorValue &&
-    typeof (errorValue as { response?: { data?: { error?: unknown } } })
-      .response?.data?.error === "string"
-  ) {
-    return (errorValue as { response: { data: { error: string } } }).response
-      .data.error;
-  }
-
-  return "Notifikasi belum bisa dimuat.";
-}
-
-function notificationActionError(errorValue: unknown) {
-  if (
-    typeof errorValue === "object" &&
-    errorValue !== null &&
-    "response" in errorValue &&
-    typeof (errorValue as { response?: { data?: { error?: unknown } } })
-      .response?.data?.error === "string"
-  ) {
-    return (errorValue as { response: { data: { error: string } } }).response
-      .data.error;
-  }
-
-  return "Status notifikasi belum bisa diperbarui.";
-}
 
 function notificationTitle(item: NotificationItem) {
   if (item.type === "assignment_created") return "Tugas baru";
@@ -161,7 +133,7 @@ async function loadNotifications(reset = true) {
     notificationUnread.set(response.unreadCount ?? 0);
   } catch (loadError) {
     if (currentRequestId === requestId) {
-      error.value = responseErrorMessage(loadError);
+      error.value = getApiError(loadError);
       if (reset) notifications.value = [];
     }
   } finally {
@@ -209,7 +181,7 @@ function markNotificationRead(item: NotificationItem) {
         );
         notificationUnread.set(previousUnreadCount);
       }
-      toast.error(notificationActionError(markError));
+      toast.error(getApiError(markError));
     })
     .finally(() => {
       const next = new Set(markingNotificationIds.value);
@@ -245,7 +217,7 @@ function markAllRead() {
     .catch((markError) => {
       notifications.value = previousNotifications;
       notificationUnread.set(previousUnreadCount);
-      toast.error(notificationActionError(markError));
+      toast.error(getApiError(markError));
     })
     .finally(() => {
       markingAll.value = false;

@@ -13,6 +13,7 @@ import {
   PhPlusCircle,
 } from "@phosphor-icons/vue";
 import { useToastStore } from "../../stores/toast";
+import { getApiError } from "../../utils/error";
 import {
   bootstrapSuperAdminSchool,
   getSuperAdminSchools,
@@ -91,21 +92,6 @@ function resetForm() {
   };
 }
 
-function getApiErrorMessage(error: unknown, fallback: string) {
-  if (typeof error === "object" && error !== null && "response" in error) {
-    const response = (
-      error as {
-        response?: { data?: { error?: unknown; message?: unknown } | string };
-      }
-    ).response;
-    if (typeof response?.data === "string") return response.data;
-    if (typeof response?.data?.error === "string") return response.data.error;
-    if (typeof response?.data?.message === "string")
-      return response.data.message;
-  }
-
-  return fallback;
-}
 
 async function loadSummary() {
   summaryError.value = "";
@@ -114,10 +100,7 @@ async function loadSummary() {
     summary.value = await getSuperAdminSchoolSummary();
   } catch (error) {
     summary.value = null;
-    summaryError.value = getApiErrorMessage(
-      error,
-      "Ringkasan sekolah belum bisa dimuat.",
-    );
+    summaryError.value = getApiError(error);
   }
 }
 
@@ -134,10 +117,7 @@ async function loadSchools() {
     schools.value = response.data ?? [];
   } catch (error) {
     schools.value = [];
-    errorMessage.value = getApiErrorMessage(
-      error,
-      "Daftar sekolah belum bisa dimuat.",
-    );
+    errorMessage.value = getApiError(error);
   } finally {
     isLoading.value = false;
   }
@@ -235,12 +215,7 @@ async function submitBootstrap() {
     resetForm();
     await refreshPage();
   } catch (error) {
-    toast.error(
-      getApiErrorMessage(
-        error,
-        "Setup sekolah belum bisa disimpan. Pastikan data sekolah dan admin awal valid.",
-      ),
-    );
+    toast.error(getApiError(error));
   } finally {
     isBootstrapping.value = false;
   }

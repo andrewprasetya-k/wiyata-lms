@@ -23,6 +23,7 @@ import type { FeedClassHeader, FeedPost } from "../../types/feed";
 import { useAuthStore } from "../../stores/auth";
 import { useToastStore } from "../../stores/toast";
 import { formatDateTime } from "../../utils/date";
+import { getApiError } from "../../utils/error";
 
 interface TeacherFeedClass {
   classId: string;
@@ -90,20 +91,6 @@ function mapTeachingClasses(subjects: TeacherSubjectClass[]) {
   );
 }
 
-function getErrorMessage(error: unknown, fallback: string) {
-  if (
-    typeof error === "object" &&
-    error !== null &&
-    "response" in error &&
-    typeof (error as { response?: { data?: { error?: unknown } } }).response
-      ?.data?.error === "string"
-  ) {
-    return (error as { response: { data: { error: string } } }).response.data
-      .error;
-  }
-
-  return fallback;
-}
 
 function isForbiddenError(error: unknown) {
   return (
@@ -125,10 +112,7 @@ async function loadClasses() {
   } catch (error) {
     classes.value = [];
     selectedClassId.value = "";
-    classesError.value = getErrorMessage(
-      error,
-      "Kelas yang diajar belum bisa dimuat.",
-    );
+    classesError.value = getApiError(error);
   } finally {
     classesLoading.value = false;
   }
@@ -162,10 +146,7 @@ async function loadFeed() {
       feedAccessMessage.value =
         "Pengumuman kelas ini belum bisa dimuat. Pastikan guru masih aktif di Penempatan Kelas.";
     } else {
-      feedError.value = getErrorMessage(
-        error,
-        "Pengumuman kelas belum bisa dimuat.",
-      );
+      feedError.value = getApiError(error);
     }
   } finally {
     if (selectedClassId.value === targetClassId) {
@@ -219,7 +200,7 @@ async function submitFeed() {
       feedAccessMessage.value =
         "Pengumuman kelas ini belum bisa dimuat. Pastikan guru masih aktif di Penempatan Kelas.";
     } else {
-      toast.error(getErrorMessage(error, "Pengumuman belum bisa dikirim."));
+      toast.error(getApiError(error));
     }
   } finally {
     submitting.value = false;

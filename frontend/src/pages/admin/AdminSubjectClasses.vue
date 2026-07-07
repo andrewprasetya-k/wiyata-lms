@@ -33,6 +33,7 @@ import type { SchoolMemberItem } from "../../types/adminUser";
 import type { SubjectClassItem } from "../../types/adminSubjectClass";
 import { useToastStore } from "../../stores/toast";
 import { resolveSubjectColor } from "../../utils/color";
+import { getApiError } from "../../utils/error";
 
 const auth = useAuthStore();
 const toast = useToastStore();
@@ -153,20 +154,6 @@ function normalizeRoleName(roleName: string) {
   return roleName.trim().toLowerCase();
 }
 
-function getErrorMessage(error: unknown) {
-  if (
-    typeof error === "object" &&
-    error !== null &&
-    "response" in error &&
-    typeof (error as { response?: { data?: { error?: unknown } } }).response
-      ?.data?.error === "string"
-  ) {
-    return (error as { response: { data: { error: string } } }).response.data
-      .error;
-  }
-
-  return "Penugasan mengajar belum bisa dilepas.";
-}
 
 function resetAssignmentForm() {
   if (
@@ -410,7 +397,7 @@ async function confirmUnassign(subjectClass: SubjectClassItem) {
     pendingUnassign.value = null;
     await loadClassContext();
   } catch (error) {
-    toast.error(getErrorMessage(error));
+    toast.error(getApiError(error));
   } finally {
     unassigningId.value = "";
   }

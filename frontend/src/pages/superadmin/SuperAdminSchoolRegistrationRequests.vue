@@ -8,6 +8,7 @@ import {
   PhXCircle,
 } from '@phosphor-icons/vue'
 import { useToastStore } from '../../stores/toast'
+import { getApiError } from '../../utils/error'
 import {
   approveSchoolRegistrationRequest,
   getSchoolRegistrationRequestDetail,
@@ -74,19 +75,6 @@ function formatDate(value?: string) {
   }).format(date)
 }
 
-function getApiErrorMessage(error: unknown, fallback: string) {
-  if (typeof error === 'object' && error !== null && 'response' in error) {
-    const response = (
-      error as {
-        response?: { data?: { error?: unknown; message?: unknown } | string }
-      }
-    ).response
-    if (typeof response?.data === 'string') return response.data
-    if (typeof response?.data?.error === 'string') return response.data.error
-    if (typeof response?.data?.message === 'string') return response.data.message
-  }
-  return fallback
-}
 
 function statusLabel(status: SchoolRegistrationStatus) {
   if (status === 'approved') return 'Approved'
@@ -128,10 +116,7 @@ async function loadRequests(targetPage = page.value) {
     totalItems.value = response.totalItems
   } catch (error) {
     requests.value = []
-    errorMessage.value = getApiErrorMessage(
-      error,
-      'Permintaan pendaftaran belum bisa dimuat.',
-    )
+    errorMessage.value = getApiError(error)
   } finally {
     isLoading.value = false
   }
@@ -169,9 +154,7 @@ async function openDetail(id: string) {
       requestVersion === detailRequestVersion &&
       loadingDetailRequestId.value === id
     ) {
-      toast.error(
-        getApiErrorMessage(error, 'Detail request belum bisa dimuat.'),
-      )
+      toast.error(getApiError(error))
     }
   } finally {
     if (
@@ -217,9 +200,7 @@ async function submitApprove() {
     actionMode.value = null
     toast.success('Request pendaftaran sekolah disetujui.')
   } catch (error) {
-    toast.error(
-      getApiErrorMessage(error, 'Request belum bisa disetujui.'),
-    )
+    toast.error(getApiError(error))
   } finally {
     actionLoading.value = false
   }
@@ -239,9 +220,7 @@ async function submitReject() {
     actionMode.value = null
     toast.success('Request pendaftaran sekolah ditolak.')
   } catch (error) {
-    toast.error(
-      getApiErrorMessage(error, 'Request belum bisa ditolak.'),
-    )
+    toast.error(getApiError(error))
   } finally {
     actionLoading.value = false
   }

@@ -26,6 +26,7 @@ import type {
 } from "../../types/assignment";
 import type { MediaUploadResponse } from "../../types/media";
 import { formatDateTime } from "../../utils/date";
+import { getApiError } from "../../utils/error";
 
 const route = useRoute();
 const auth = useAuthStore();
@@ -110,15 +111,6 @@ function formatFileSize(size: number) {
   return `${(size / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function getErrorMessage(error: unknown) {
-  if (typeof error === "object" && error !== null && "response" in error) {
-    const response = (
-      error as { response?: { data?: { error?: string; message?: string } } }
-    ).response;
-    return response?.data?.error ?? response?.data?.message;
-  }
-  return undefined;
-}
 
 function patchSubmittedStatus(uploaded: MediaUploadResponse[]) {
   if (!assignment.value) return;
@@ -191,9 +183,7 @@ async function handleSubmit() {
       );
     }
 
-    submitError.value =
-      getErrorMessage(error) ??
-      "Pengumpulan tugas gagal. Pastikan file valid dan coba lagi nanti.";
+    submitError.value = getApiError(error);
   } finally {
     isSubmitting.value = false;
   }

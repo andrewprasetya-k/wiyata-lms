@@ -10,6 +10,7 @@ import {
 } from "@phosphor-icons/vue";
 import { getAdminUsers } from "../../services/adminUser";
 import type { AdminUserItem } from "../../types/adminUser";
+import { getApiError } from "../../utils/error";
 
 const users = ref<AdminUserItem[]>([]);
 const isLoading = ref(false);
@@ -33,21 +34,6 @@ const activeCount = computed(
 
 const inactiveCount = computed(() => users.value.length - activeCount.value);
 
-function getApiErrorMessage(error: unknown, fallback: string) {
-  if (typeof error === "object" && error !== null && "response" in error) {
-    const response = (
-      error as {
-        response?: { data?: { error?: unknown; message?: unknown } | string };
-      }
-    ).response;
-    if (typeof response?.data === "string") return response.data;
-    if (typeof response?.data?.error === "string") return response.data.error;
-    if (typeof response?.data?.message === "string")
-      return response.data.message;
-  }
-
-  return fallback;
-}
 
 async function loadUsers() {
   isLoading.value = true;
@@ -58,10 +44,7 @@ async function loadUsers() {
     users.value = response.data ?? [];
   } catch (error) {
     users.value = [];
-    errorMessage.value = getApiErrorMessage(
-      error,
-      "Daftar akun global belum bisa dimuat.",
-    );
+    errorMessage.value = getApiError(error);
   } finally {
     isLoading.value = false;
   }

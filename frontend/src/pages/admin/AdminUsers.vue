@@ -41,6 +41,7 @@ import type {
   CreateSchoolMemberInvitationResponse,
 } from "../../types/adminSchoolMemberInvitation";
 import { formatDateTime } from "../../utils/date";
+import { getApiError } from "../../utils/error";
 
 const allowedRoleNames = ["student", "teacher", "admin"];
 const auth = useAuthStore();
@@ -265,20 +266,6 @@ function setRoleDraft(schoolUserId: string, roleId: string) {
   };
 }
 
-function getApiErrorMessage(error: unknown, fallback: string) {
-  if (typeof error === "object" && error !== null && "response" in error) {
-    const response = (
-      error as {
-        response?: { data?: { error?: unknown; message?: unknown } | string };
-      }
-    ).response;
-    if (typeof response?.data === "string") return response.data;
-    if (typeof response?.data?.error === "string") return response.data.error;
-    if (typeof response?.data?.message === "string")
-      return response.data.message;
-  }
-  return fallback;
-}
 
 const inviteLink = computed(() => {
   const acceptUrl = inviteResult.value?.acceptUrl;
@@ -327,12 +314,7 @@ async function submitInviteMember() {
     toast.success("Undangan email berhasil dibuat.");
     resetInviteForm();
   } catch (error) {
-    toast.error(
-      getApiErrorMessage(
-        error,
-        "Undangan belum bisa dibuat. Pastikan data valid.",
-      ),
-    );
+    toast.error(getApiError(error));
   } finally {
     isInvitingMember.value = false;
   }
@@ -505,12 +487,7 @@ async function handleImportFileChange(event: Event) {
       : file;
     importPreview.value = await previewSchoolMemberImport(previewFile);
   } catch (error) {
-    importError.value = getApiErrorMessage(
-      error,
-      error instanceof Error
-        ? error.message
-        : "File import belum bisa divalidasi. Pastikan format CSV atau XLSX sesuai template.",
-    );
+    importError.value = getApiError(error);
   } finally {
     importPreviewLoading.value = false;
   }
@@ -553,10 +530,7 @@ async function submitImportCommit() {
         error as { response: { data: AdminSchoolMemberImportCommitResponse } }
       ).response.data;
     }
-    importError.value = getApiErrorMessage(
-      error,
-      "Import belum bisa diproses. Pastikan semua baris valid dan password awal terisi.",
-    );
+    importError.value = getApiError(error);
   } finally {
     importCommitLoading.value = false;
   }
@@ -601,12 +575,7 @@ async function submitManualMember() {
     memberSearch.value = "";
     await loadMembers();
   } catch (error) {
-    toast.error(
-      getApiErrorMessage(
-        error,
-        "Warga sekolah belum bisa ditambahkan. Pastikan data valid.",
-      ),
-    );
+    toast.error(getApiError(error));
   } finally {
     isCreatingMember.value = false;
   }
@@ -624,12 +593,7 @@ async function removeMember(member: AdminSchoolMemberItem) {
     toast.success("Warga sekolah berhasil dihapus dari sekolah aktif.");
     await loadMembers();
   } catch (error) {
-    toast.error(
-      getApiErrorMessage(
-        error,
-        "Warga sekolah belum bisa dihapus dari sekolah aktif.",
-      ),
-    );
+    toast.error(getApiError(error));
   } finally {
     removingSchoolUserId.value = "";
   }
