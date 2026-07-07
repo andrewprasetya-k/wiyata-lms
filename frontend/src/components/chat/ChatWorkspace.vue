@@ -236,6 +236,7 @@ async function bootstrapChat() {
 
 async function loadLatestMessages() {
   if (!selectedRoom.value) return;
+  const roomId = selectedRoom.value.roomId;
   isLoadingMessages.value = true;
   threadError.value = "";
   showJumpToLatest.value = false;
@@ -243,6 +244,7 @@ async function loadLatestMessages() {
     const response = await getMessages(selectedRoom.value.roomId, {
       limit: 50,
     });
+    if (selectedRoom.value?.roomId !== roomId) return;
     messages.value = dedupeMessages(response.messages);
     nextBefore.value = response.nextBefore ?? null;
     hasMore.value = response.hasMore;
@@ -251,9 +253,12 @@ async function loadLatestMessages() {
     await nextTick();
     scrollToBottom();
   } catch (error) {
+    if (selectedRoom.value?.roomId !== roomId) return;
     threadError.value = resolveChatError(error);
   } finally {
-    isLoadingMessages.value = false;
+    if (selectedRoom.value?.roomId === roomId) {
+      isLoadingMessages.value = false;
+    }
   }
 }
 

@@ -143,16 +143,19 @@ async function loadFeed() {
     return;
   }
 
+  const targetClassId = selectedClassId.value;
   feedLoading.value = true;
   feedError.value = "";
   feedAccessMessage.value = "";
 
   try {
     const response = await getClassFeed(selectedClassId.value);
+    if (selectedClassId.value !== targetClassId) return;
     classHeader.value = response.class;
     posts.value = response.data.data ?? [];
     void markCurrentFeedRead();
   } catch (error) {
+    if (selectedClassId.value !== targetClassId) return;
     posts.value = [];
     classHeader.value = null;
     if (isForbiddenError(error)) {
@@ -165,7 +168,9 @@ async function loadFeed() {
       );
     }
   } finally {
-    feedLoading.value = false;
+    if (selectedClassId.value === targetClassId) {
+      feedLoading.value = false;
+    }
   }
 }
 
