@@ -65,6 +65,8 @@ Retrieve a paginated list of all classes.
 
 - **URL:** `/:id`
 - **Method:** `PATCH`
+- **Auth:** `RequireSchoolMember + RequireRole("admin", "teacher")`
+- **Ownership:** Handler verifies `class.SchoolID == activeSchoolID`. Returns `403 Forbidden` if the class belongs to a different school.
 - **Body:** `classTitle`, `classDescription`, `isActive`.
 
 ---
@@ -73,3 +75,5 @@ Retrieve a paginated list of all classes.
 
 - **URL:** `/:id`
 - **Method:** `DELETE`
+- **Auth:** `RequireSchoolMember + RequireRole("admin")`
+- **Ownership:** Handler verifies `class.SchoolID == activeSchoolID` before deleting.

@@ -116,11 +116,13 @@ JWT identifies the global user. School-scoped APIs also require school membershi
 Important middleware concepts:
 
 - `AuthRequired` validates JWT.
-- `RequireSchoolMember` validates active membership in `SchoolId`.
+- `RequireSchoolMember` validates active membership in `SchoolId`; sets `school_id` and `school_user_id` in gin context.
 - `RequireRole` authorizes the selected active role when `Active-Role` is present.
 - `RequireSystemSuperAdmin` protects platform routes.
 
 Frontend role/context values are never trusted alone. Backend validates `SchoolId` and `Active-Role` against live DB membership/roles.
+
+**Handler-level ownership check:** For resource mutations (PATCH/DELETE), after fetching the resource by ID the handler also verifies `resource.SchoolID == activeSchoolID` from gin context. This prevents cross-school mutations by users who hold a valid role in multiple schools. Pattern is applied on: academic year, term, subject, class, dashboard, and log endpoints. A mismatch returns `403 Forbidden`.
 
 ## 10. Active School and Active Role Context
 
@@ -372,6 +374,12 @@ Check `frontend/src/router/index.ts` before adding or linking routes.
 - Active school + active role backend/frontend foundation, visual ContextSwitcher, `Active-Role` CORS support, and keyed route remounting.
 - School registration, super admin approval/reject, admin invitation, public invitation accept, teacher/student member invitations, and best-effort emails.
 - Notification Center, material/assignment discussions, Teacher Assignment Detail, AdminEnrollments frontend role inference, and `timestamptz`/RFC3339 timestamp migration.
+- **Hardening Phase 1 — Authorization:** Added `RequireSchoolMember + RequireRole` to previously unprotected endpoints (`GET /assignments/status/:id`, `GET /grades/class/:classId/subject/:subjectId`). Added handler-level ownership checks (`resource.SchoolID == activeSchoolID`) to academic year, term, subject, class, dashboard, and log mutation/read endpoints.
+- **Hardening Phase 2 — Assessment Weight Transaction:** `ConfigureWeights` now uses `ReplaceBySubject()` — a single atomic DB transaction — instead of separate delete + create calls.
+- **Hardening Phase 3 — Resource Ownership Audit:** Dashboard endpoints now require school membership + matching role; params are validated against JWT context. Log endpoint restricted to admin/super_admin of the active school.
+- **Hardening Phase 4 — Async Consistency:** Stale response guards added to `ChatWorkspace.vue` (room switch) and `TeacherFeed.vue` (class switch). Pattern: capture resource ID before await, discard response if ID changed.
+- **Hardening Phase 5 — Error Handling:** Created `frontend/src/utils/error.ts` with `getApiError(error: unknown)`. Removed 11 duplicate local error helpers; all replaced with shared utility.
+- **Hardening Phase 6 — Backend Unit Tests:** Added `grade_service_test.go` (10 tests) and `assignment_service_test.go` (6 tests) covering weight validation, duplicate category, atomic replace, deadline enforcement, and submission integrity.
 
 ## 26. Known Technical Debt and Edge Cases
 
@@ -380,8 +388,10 @@ Check `frontend/src/router/index.ts` before adding or linking routes.
 - Notification realtime is not implemented.
 - Signed/private file delivery and thumbnails are unfinished.
 - Multi-role/multi-school QA should continue after context switcher changes.
-- Page-local in-flight requests are usually handled by route remount, not a global cancellation manager.
+- Page-local in-flight requests are usually handled by route remount, not a global cancellation manager; `TeacherFeed.vue` and `ChatWorkspace.vue` now also have explicit stale guards.
 - Some frontend build warnings may be non-blocking but should be rechecked in current output.
+- `POST /academic-years`, `POST /terms`, `POST /subjects`, `POST /classes` accept `schoolId` in request body without validating it against the caller's active school — known LOW risk (admin role required, create-only).
+- gofmt non-compliance across most Go source files.
 
 ## 27. Current Open Work
 
@@ -390,9 +400,10 @@ Check `frontend/src/router/index.ts` before adding or linking routes.
 ## 28. Recommended Next Steps
 
 1. Add backend validation/derivation for enrollment role based on school-level roles.
-2. Add focused tests around context switching, invitation accept, and discussion notification recipients.
+2. Add focused tests around context switching, invitation accept flow, and discussion notification recipients (see `backend/TODO.md` — Test Coverage Follow-Up).
 3. Continue admin setup UX polish around prerequisites for subject-class assignment.
 4. Implement protected file delivery before expanding media-heavy workflows.
+5. Apply gofmt to all Go source files.
 
 ## 29. Validation Commands
 

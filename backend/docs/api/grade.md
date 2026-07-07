@@ -41,11 +41,14 @@ Set bobot penilaian per kategori untuk mata pelajaran.
 - Every category must belong to the active school.
 - Category IDs must be unique in one request.
 - Weight per kategori: 0-100
-- Total weight harus = 100.00 with small decimal tolerance.
+- Total weight harus = 100.00 with small decimal tolerance (±0.01).
 - Minimum 1 kategori
 - The top-level `subjectId` is the source of truth. Item-level `subjectId` is not required and is ignored for MVP compatibility.
 - Assessment weights are subject-level for MVP, not subject_class/class-specific.
 - These weights feed the provisional weighted grade, not an official final report grade.
+
+**Transaction Behavior:**
+- Weight replacement is **atomic**: the existing weights for the subject are deleted and the new weights are inserted in a single database transaction (`ReplaceBySubject`). A partial failure rolls back entirely — no orphaned weight records are left.
 
 **Response (200 OK):**
 ```json
@@ -170,7 +173,8 @@ Retrieve provisional weighted grades untuk seluruh student di kelas untuk mata p
 
 - **URL:** `/class/:classId/subject/:subjectId`
 - **Method:** `GET`
-- **Auth:** Required (teacher, admin)
+- **Auth:** `RequireSchoolMember + RequireRole("teacher", "admin")`
+- **Ownership:** Service verifies both class and subject belong to the active school.
 
 **Response (200 OK):**
 ```json

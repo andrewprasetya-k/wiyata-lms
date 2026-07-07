@@ -82,6 +82,8 @@ Register a new subject for a school.
 
 - **URL:** `/:id`
 - **Method:** `PATCH`
+- **Auth:** `RequireSchoolMember + RequireRole("admin", "super_admin")`
+- **Ownership:** Handler verifies `subject.SchoolID == activeSchoolID`. Returns `403 Forbidden` if the subject belongs to a different school.
 - **Body:** `subjectName`, `subjectCode`, `color`.
 
 `color` is optional. Send an empty string to clear it and let the frontend use its deterministic fallback color.
@@ -92,3 +94,5 @@ Register a new subject for a school.
 
 - **URL:** `/:id`
 - **Method:** `DELETE`
+- **Auth:** `RequireSchoolMember + RequireRole("admin", "super_admin")`
+- **Ownership:** Handler verifies `subject.SchoolID == activeSchoolID` before deleting.

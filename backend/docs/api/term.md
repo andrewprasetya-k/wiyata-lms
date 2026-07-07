@@ -69,6 +69,8 @@ Update name of a term.
 
 - **URL:** `/:id`
 - **Method:** `PATCH`
+- **Auth:** `RequireSchoolMember + RequireRole("admin", "super_admin")`
+- **Ownership:** Handler verifies `term.AcademicYear.School.ID == activeSchoolID`. Returns `403 Forbidden` if the term belongs to a different school.
 - **Body:**
   - `termName` (string)
 
@@ -80,6 +82,8 @@ Set a term as the active one for its academic year. This will automatically deac
 
 - **URL:** `/activate/:id`
 - **Method:** `PATCH`
+- **Auth:** `RequireSchoolMember + RequireRole("admin", "super_admin")`
+- **Ownership:** Handler verifies `term.AcademicYear.School.ID == activeSchoolID` before activating.
 - **Response:** `{"message": "Term activated successfully"}`
 
 ---
@@ -90,6 +94,8 @@ Manually deactivate a term.
 
 - **URL:** `/deactivate/:id`
 - **Method:** `PATCH`
+- **Auth:** `RequireSchoolMember + RequireRole("admin", "super_admin")`
+- **Ownership:** Handler verifies `term.AcademicYear.School.ID == activeSchoolID` before deactivating.
 - **Response:** `{"message": "Term deactivated successfully"}`
 
 ---
@@ -100,3 +106,5 @@ Permanently remove a term.
 
 - **URL:** `/:id`
 - **Method:** `DELETE`
+- **Auth:** `RequireSchoolMember + RequireRole("admin", "super_admin")`
+- **Ownership:** Handler verifies `term.AcademicYear.School.ID == activeSchoolID` before deleting.

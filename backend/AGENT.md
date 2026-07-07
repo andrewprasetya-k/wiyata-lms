@@ -34,7 +34,7 @@ auth_service.go:35.
 go test ./...
 go build ./...
 
-Both pass after allowing Go to use its normal build cache. There are currently no \*\_test.go files. Formatting check:
+Both pass. Unit tests exist under backend/internal/service/ (student_note_service_test.go, grade_service_test.go, assignment_service_test.go, and others). Formatting check:
 
 gofmt -l .
 
@@ -45,9 +45,21 @@ This reports many files as not gofmt-formatted, including backend/cmd/api/main.g
    internal/handler/error_handler.go:13. Repositories should check RowsAffected == 0 on writes. Soft deletes are common. Response DTOs use app-specific JSON names like schoolId,
    schoolName, etc.
 9. Potential Pitfalls
-   Route ordering has risky patterns: e.g. /assignments/:submissionId is registered before /assignments/status/:id, so GET /assignments/status/:id may be swallowed by the dynamic
-   route. Some docs say assignments belong to SubjectClass, but backend/schema.md:265 still shows asg_cls_id, while project context says asg_scl_id. Shell startup has an unrelated
+   Some docs say assignments belong to SubjectClass, but backend/schema.md:265 still shows asg_cls_id, while project context says asg_scl_id. Shell startup has an unrelated
    issue: /Users/andrewprasetya/.zprofile:13: unmatched " appears on every command. backend/tmp/main is a built binary artifact in the repo tree.
-10. Recommended Next Steps
-    First reconcile docs/schema/code around assignment ownership and route behavior. Then run a gofmt-only cleanup, add focused tests around auth/RBAC and route matching, remove or
-    ignore generated tmp artifacts, and implement the high-priority TODOs in this order: real file storage, notification triggers, assignment extension flow.
+   Note: GET /assignments/status/:id route ordering was previously a pitfall but has since been secured with RequireSchoolMember + RequireRole middleware.
+10. Authorization Pattern
+    The enforced authorization chain for mutation endpoints is:
+    AuthRequired → RequireSchoolMember (sets school_id, school_user_id in context) → RequireRole → handler ownership check.
+    Handler ownership check: after fetching the resource by ID, verify resource.SchoolID == activeSchoolID (or equivalent field). Return 403 if mismatch. This prevents cross-school
+    mutations even when a user holds admin role in multiple schools.
+11. Assessment Weight Transaction
+    ConfigureWeights uses AssessmentWeightRepository.ReplaceBySubject(), which runs delete + insert in a single GORM transaction. Never use separate DeleteBySubject + Create calls
+    for weight replacement — partial failures would leave weights in an inconsistent state.
+12. Backend Test Strategy
+    Tests live in backend/internal/service/ as *_test.go files, same package (package service). Use stub structs implementing the repository interface — no mock framework, no testify.
+    Only test business rules in the service layer. Do not test handler JSON binding, simple CRUD repos, or DTO shapes. Sentinel errors use errors.Is(); non-sentinel errors use
+    strings.Contains(err.Error(), "...").
+13. Recommended Next Steps
+    Run a gofmt-only cleanup. Add focused tests around auth/RBAC context middleware and invitation accept flows. Remove or ignore generated tmp artifacts. Implement the high-priority
+    TODOs in backend/TODO.md in this order: real file storage, notification triggers, assignment extension flow.

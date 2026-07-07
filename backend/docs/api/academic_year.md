@@ -81,6 +81,8 @@ Update basic information of an academic year.
 
 - **URL:** `/:id`
 - **Method:** `PATCH`
+- **Auth:** `RequireSchoolMember + RequireRole("admin", "super_admin")`
+- **Ownership:** Handler verifies `academicYear.SchoolID == activeSchoolID`. Returns `403 Forbidden` if the academic year belongs to a different school.
 - **Body:**
   - `academicYearName` (string)
 
@@ -92,6 +94,8 @@ Set an academic year as the active one for its school. This will automatically d
 
 - **URL:** `/activate/:id`
 - **Method:** `PATCH`
+- **Auth:** `RequireSchoolMember + RequireRole("admin", "super_admin")`
+- **Ownership:** Handler verifies `academicYear.SchoolID == activeSchoolID` before activating.
 - **Response:** `{"message": "Academic year activated successfully"}`
 
 ---
@@ -102,6 +106,8 @@ Manually deactivate an academic year.
 
 - **URL:** `/deactivate/:id`
 - **Method:** `PATCH`
+- **Auth:** `RequireSchoolMember + RequireRole("admin", "super_admin")`
+- **Ownership:** Handler verifies `academicYear.SchoolID == activeSchoolID` before deactivating.
 - **Response:** `{"message": "Academic year deactivated successfully"}`
 
 ---
@@ -112,3 +118,5 @@ Permanently remove an academic year.
 
 - **URL:** `/:id`
 - **Method:** `DELETE`
+- **Auth:** `RequireSchoolMember + RequireRole("admin", "super_admin")`
+- **Ownership:** Handler verifies `academicYear.SchoolID == activeSchoolID` before deleting.

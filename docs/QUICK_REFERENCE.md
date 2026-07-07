@@ -72,10 +72,20 @@ School (tenant root)
 
 ## Authorization Layers
 ```
-1. Handler: middleware.RequireRole("teacher", "admin", ...)
-2. Service: Custom checks (e.g., teacher must teach in class for feed)
-3. Repository: GORM soft delete filtering
-4. Middleware: JWT + school context + role mapping
+1. Middleware: AuthRequired (JWT) → RequireSchoolMember → RequireRole
+2. Handler: ownership check — resource.SchoolID must equal activeSchoolID from context
+3. Service: Custom checks (e.g., teacher must teach in class for feed; student must be enrolled)
+4. Repository: GORM soft delete filtering
+```
+
+Handler ownership check pattern (Go):
+```go
+schoolID := getXxxSchoolID(c)  // reads school_id from gin context or SchoolId header
+resource, err := h.service.GetByID(id)
+if resource.SchoolID != schoolID {
+    c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: resource does not belong to active school"})
+    return
+}
 ```
 
 ## Key Service Patterns
@@ -189,8 +199,6 @@ STORAGE_PROVIDER    supabase | local | s3 (currently stub)
 ## Known Issues & TODOs
 
 ### Critical Issues
-- ⚠️ Route ordering: GET /assignments/status/:id swallowed by GET /assignments/:assignmentId
-- ⚠️ No unit tests
 - ⚠️ gofmt non-compliance
 
 ### Deferred Features (Out of Scope)
@@ -212,9 +220,11 @@ gofmt -l .
 # Run (requires .env with DB_DSN, JWT_SECRET)
 go run ./cmd/api
 
-# Test (none exist yet)
+# Run backend unit tests
 go test ./...
 ```
+
+Tests live in `backend/internal/service/` as `*_test.go` files (same package, standard library only, stub structs). Covered: grade weight validation, assignment deadline enforcement, student note access.
 
 ## File Structure
 ```
@@ -232,6 +242,35 @@ backend/
 ├── AGENT.md                  - Engineering context
 └── PROJECT_CONTEXT.md        - Business context
 ```
+
+## Frontend Patterns
+
+### Error extraction (`frontend/src/utils/error.ts`)
+```ts
+import { getApiError } from '@/utils/error'
+
+catch (error) {
+  toast.error(getApiError(error))   // extracts .data.error → .data.message → .message → fallback
+}
+```
+HTTP-status-specific handling (403/404 custom messages) stays inline in the catch block.
+
+### Async stale guard
+```ts
+// Capture identity before await
+const roomId = selectedRoom.value.roomId
+try {
+  const data = await fetchMessages(roomId)
+  if (selectedRoom.value?.roomId !== roomId) return  // discard stale response
+  messages.value = data
+} catch (e) {
+  if (selectedRoom.value?.roomId !== roomId) return
+  error.value = getApiError(e)
+} finally {
+  if (selectedRoom.value?.roomId === roomId) isLoading.value = false
+}
+```
+Apply this pattern in any `watch(async...)` or `onMounted(async...)` that loads data keyed by a selection (class, room, subject class, etc.).
 
 ---
 

@@ -7,6 +7,8 @@ Get dashboard statistics for a student.
 
 - **URL:** `/student/:userId`
 - **Method:** `GET`
+- **Auth:** `RequireSchoolMember + RequireRole("student")`
+- **Ownership:** Handler verifies `:userId` equals the JWT-authenticated user's ID. A student can only view their own dashboard.
 - **Response:**
 ```json
 {
@@ -40,6 +42,8 @@ Get dashboard statistics for a teacher.
 
 - **URL:** `/teacher/:schoolUserId`
 - **Method:** `GET`
+- **Auth:** `RequireSchoolMember + RequireRole("teacher")`
+- **Ownership:** Handler verifies `:schoolUserId` equals the `school_user_id` set in context by `RequireSchoolMember`. A teacher can only view their own dashboard.
 - **Note:** `schoolUserId` is the `school_user_id` (scu_id), NOT user_id
 - **Response:**
 ```json
@@ -74,6 +78,8 @@ Get dashboard statistics for school admin.
 
 - **URL:** `/admin/:schoolId`
 - **Method:** `GET`
+- **Auth:** `RequireSchoolMember + RequireRole("admin")`
+- **Ownership:** Handler verifies `:schoolId` equals the active `school_id` from context. An admin can only view their own school's dashboard.
 - **Response:**
 ```json
 {
@@ -154,7 +160,7 @@ GET /api/dashboard/admin/323e4567-e89b-12d3-a456-426614174000
 
 ## Notes
 
-- **Authentication Required**: These endpoints should be protected with JWT middleware
-- **Authorization**: Ensure users can only access their own dashboard (or admin can access school dashboard)
-- **Caching**: Consider adding Redis caching for admin dashboard if school is large
+- **Authentication Required**: All dashboard endpoints require JWT + school membership + matching role.
+- **Ownership enforced at handler**: The URL parameter (`:userId`, `:schoolUserId`, `:schoolId`) is validated against the caller's JWT context on every request. Sending another user's ID returns `403 Forbidden`.
+- **Caching**: Consider adding Redis caching for admin dashboard if school is large.
 - **Pagination**: Currently returns fixed limits (5 deadlines, 10 activities). Can be made configurable.
