@@ -133,8 +133,23 @@ func (h *SubjectHandler) GetByCode(c *gin.Context) {
 	c.JSON(http.StatusOK, h.mapToResponse(subject))
 }
 
+func getSubjectSchoolID(c *gin.Context) string {
+	if sid, exists := c.Get("school_id"); exists {
+		if value, ok := sid.(string); ok && value != "" {
+			return value
+		}
+	}
+	return c.GetHeader("SchoolId")
+}
+
 func (h *SubjectHandler) Update(c *gin.Context) {
 	id := c.Param("id")
+	schoolID := getSubjectSchoolID(c)
+	if schoolID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
+
 	var input dto.UpdateSubjectDTO
 	if err := c.ShouldBindJSON(&input); err != nil {
 		HandleBindingError(c, err)
@@ -144,6 +159,11 @@ func (h *SubjectHandler) Update(c *gin.Context) {
 	subject, err := h.service.GetByID(id)
 	if err != nil {
 		HandleError(c, err)
+		return
+	}
+
+	if subject.SchoolID != schoolID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: subject does not belong to active school"})
 		return
 	}
 
@@ -167,6 +187,22 @@ func (h *SubjectHandler) Update(c *gin.Context) {
 
 func (h *SubjectHandler) Delete(c *gin.Context) {
 	id := c.Param("id")
+	schoolID := getSubjectSchoolID(c)
+	if schoolID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
+
+	subject, err := h.service.GetByID(id)
+	if err != nil {
+		HandleError(c, err)
+		return
+	}
+	if subject.SchoolID != schoolID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: subject does not belong to active school"})
+		return
+	}
+
 	if err := h.service.Delete(id); err != nil {
 		HandleError(c, err)
 		return

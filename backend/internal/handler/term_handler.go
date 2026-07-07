@@ -92,8 +92,23 @@ func (h *TermHandler) GetByID(c *gin.Context) {
 	c.JSON(http.StatusOK, h.mapToResponse(term))
 }
 
+func getTermSchoolID(c *gin.Context) string {
+	if sid, exists := c.Get("school_id"); exists {
+		if value, ok := sid.(string); ok && value != "" {
+			return value
+		}
+	}
+	return c.GetHeader("SchoolId")
+}
+
 func (h *TermHandler) Update(c *gin.Context) {
 	id := c.Param("id")
+	schoolID := getTermSchoolID(c)
+	if schoolID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
+
 	var input dto.UpdateTermDTO
 	if err := c.ShouldBindJSON(&input); err != nil {
 		HandleBindingError(c, err)
@@ -103,6 +118,11 @@ func (h *TermHandler) Update(c *gin.Context) {
 	term, err := h.service.GetByID(id)
 	if err != nil {
 		HandleError(c, err)
+		return
+	}
+
+	if term.AcademicYear.School.ID != schoolID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: term does not belong to active school"})
 		return
 	}
 
@@ -120,6 +140,22 @@ func (h *TermHandler) Update(c *gin.Context) {
 
 func (h *TermHandler) Activate(c *gin.Context) {
 	id := c.Param("id")
+	schoolID := getTermSchoolID(c)
+	if schoolID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
+
+	term, err := h.service.GetByID(id)
+	if err != nil {
+		HandleError(c, err)
+		return
+	}
+	if term.AcademicYear.School.ID != schoolID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: term does not belong to active school"})
+		return
+	}
+
 	if err := h.service.Activate(id); err != nil {
 		HandleError(c, err)
 		return
@@ -129,6 +165,22 @@ func (h *TermHandler) Activate(c *gin.Context) {
 
 func (h *TermHandler) Deactivate(c *gin.Context) {
 	id := c.Param("id")
+	schoolID := getTermSchoolID(c)
+	if schoolID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
+
+	term, err := h.service.GetByID(id)
+	if err != nil {
+		HandleError(c, err)
+		return
+	}
+	if term.AcademicYear.School.ID != schoolID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: term does not belong to active school"})
+		return
+	}
+
 	if err := h.service.Deactivate(id); err != nil {
 		HandleError(c, err)
 		return
@@ -138,6 +190,22 @@ func (h *TermHandler) Deactivate(c *gin.Context) {
 
 func (h *TermHandler) Delete(c *gin.Context) {
 	id := c.Param("id")
+	schoolID := getTermSchoolID(c)
+	if schoolID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
+
+	term, err := h.service.GetByID(id)
+	if err != nil {
+		HandleError(c, err)
+		return
+	}
+	if term.AcademicYear.School.ID != schoolID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: term does not belong to active school"})
+		return
+	}
+
 	if err := h.service.Delete(id); err != nil {
 		HandleError(c, err)
 		return

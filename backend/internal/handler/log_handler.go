@@ -19,6 +19,17 @@ func NewLogHandler(service service.LogService) *LogHandler {
 
 func (h *LogHandler) GetBySchool(c *gin.Context) {
 	schoolID := c.Param("schoolId")
+
+	activeSchoolID, exists := c.Get("school_id")
+	if !exists {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
+	if activeSchoolID.(string) != schoolID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden"})
+		return
+	}
+
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
 

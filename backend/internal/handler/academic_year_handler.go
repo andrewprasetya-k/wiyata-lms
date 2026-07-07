@@ -109,8 +109,23 @@ func (h *AcademicYearHandler) GetByID(c *gin.Context) {
 	c.JSON(http.StatusOK, h.mapToResponse(acy))
 }
 
+func getAcademicYearSchoolID(c *gin.Context) string {
+	if sid, exists := c.Get("school_id"); exists {
+		if value, ok := sid.(string); ok && value != "" {
+			return value
+		}
+	}
+	return c.GetHeader("SchoolId")
+}
+
 func (h *AcademicYearHandler) Update(c *gin.Context) {
 	id := c.Param("id")
+	schoolID := getAcademicYearSchoolID(c)
+	if schoolID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
+
 	var input dto.UpdateAcademicYearDTO
 	if err := c.ShouldBindJSON(&input); err != nil {
 		HandleBindingError(c, err)
@@ -120,6 +135,11 @@ func (h *AcademicYearHandler) Update(c *gin.Context) {
 	acy, err := h.service.GetByID(id)
 	if err != nil {
 		HandleError(c, err)
+		return
+	}
+
+	if acy.SchoolID != schoolID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: academic year does not belong to active school"})
 		return
 	}
 
@@ -137,6 +157,22 @@ func (h *AcademicYearHandler) Update(c *gin.Context) {
 
 func (h *AcademicYearHandler) Activate(c *gin.Context) {
 	id := c.Param("id")
+	schoolID := getAcademicYearSchoolID(c)
+	if schoolID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
+
+	acy, err := h.service.GetByID(id)
+	if err != nil {
+		HandleError(c, err)
+		return
+	}
+	if acy.SchoolID != schoolID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: academic year does not belong to active school"})
+		return
+	}
+
 	if err := h.service.Activate(id); err != nil {
 		HandleError(c, err)
 		return
@@ -146,6 +182,22 @@ func (h *AcademicYearHandler) Activate(c *gin.Context) {
 
 func (h *AcademicYearHandler) Deactivate(c *gin.Context) {
 	id := c.Param("id")
+	schoolID := getAcademicYearSchoolID(c)
+	if schoolID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
+
+	acy, err := h.service.GetByID(id)
+	if err != nil {
+		HandleError(c, err)
+		return
+	}
+	if acy.SchoolID != schoolID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: academic year does not belong to active school"})
+		return
+	}
+
 	if err := h.service.Deactivate(id); err != nil {
 		HandleError(c, err)
 		return
@@ -155,6 +207,22 @@ func (h *AcademicYearHandler) Deactivate(c *gin.Context) {
 
 func (h *AcademicYearHandler) Delete(c *gin.Context) {
 	id := c.Param("id")
+	schoolID := getAcademicYearSchoolID(c)
+	if schoolID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
+
+	acy, err := h.service.GetByID(id)
+	if err != nil {
+		HandleError(c, err)
+		return
+	}
+	if acy.SchoolID != schoolID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: academic year does not belong to active school"})
+		return
+	}
+
 	if err := h.service.Delete(id); err != nil {
 		HandleError(c, err)
 		return

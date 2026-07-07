@@ -212,10 +212,10 @@ func main() {
 			academicYearAPI.GET("", academicYearHandler.FindAll)
 			academicYearAPI.GET("/:id", academicYearHandler.GetByID)
 			academicYearAPI.GET("/school/:schoolCode", middleware.RequireSchoolMember(schoolService), academicYearHandler.GetBySchool)
-			academicYearAPI.PATCH("/:id", middleware.RequireRole(schoolService, "admin", "super_admin"), academicYearHandler.Update)
-			academicYearAPI.PATCH("/activate/:id", middleware.RequireRole(schoolService, "admin", "super_admin"), academicYearHandler.Activate)
-			academicYearAPI.PATCH("/deactivate/:id", middleware.RequireRole(schoolService, "admin", "super_admin"), academicYearHandler.Deactivate)
-			academicYearAPI.DELETE("/:id", middleware.RequireRole(schoolService, "admin", "super_admin"), academicYearHandler.Delete)
+			academicYearAPI.PATCH("/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "super_admin"), academicYearHandler.Update)
+			academicYearAPI.PATCH("/activate/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "super_admin"), academicYearHandler.Activate)
+			academicYearAPI.PATCH("/deactivate/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "super_admin"), academicYearHandler.Deactivate)
+			academicYearAPI.DELETE("/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "super_admin"), academicYearHandler.Delete)
 		}
 
 		termAPI := api.Group("/terms")
@@ -224,10 +224,10 @@ func main() {
 			termAPI.GET("", termHandler.FindAll)
 			termAPI.GET("/:id", termHandler.GetByID)
 			termAPI.GET("/academic-year/:academicYearId", termHandler.GetByAcademicYear)
-			termAPI.PATCH("/:id", middleware.RequireRole(schoolService, "admin", "super_admin"), termHandler.Update)
-			termAPI.PATCH("/activate/:id", middleware.RequireRole(schoolService, "admin", "super_admin"), termHandler.Activate)
-			termAPI.PATCH("/deactivate/:id", middleware.RequireRole(schoolService, "admin", "super_admin"), termHandler.Deactivate)
-			termAPI.DELETE("/:id", middleware.RequireRole(schoolService, "admin", "super_admin"), termHandler.Delete)
+			termAPI.PATCH("/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "super_admin"), termHandler.Update)
+			termAPI.PATCH("/activate/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "super_admin"), termHandler.Activate)
+			termAPI.PATCH("/deactivate/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "super_admin"), termHandler.Deactivate)
+			termAPI.DELETE("/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "super_admin"), termHandler.Delete)
 		}
 
 		userAPI := api.Group("/users")
@@ -279,8 +279,8 @@ func main() {
 			subjectAPI.GET("/:id", subjectHandler.GetByID)
 			subjectAPI.GET("/school/:schoolCode", middleware.RequireSchoolMember(schoolService), subjectHandler.GetBySchool)
 			subjectAPI.GET("/school/:schoolCode/:subjectCode", middleware.RequireSchoolMember(schoolService), subjectHandler.GetByCode)
-			subjectAPI.PATCH("/:id", middleware.RequireRole(schoolService, "admin", "super_admin"), subjectHandler.Update)
-			subjectAPI.DELETE("/:id", middleware.RequireRole(schoolService, "admin", "super_admin"), subjectHandler.Delete)
+			subjectAPI.PATCH("/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "super_admin"), subjectHandler.Update)
+			subjectAPI.DELETE("/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "super_admin"), subjectHandler.Delete)
 		}
 
 		rbacAPI := api.Group("/rbac")
@@ -458,14 +458,14 @@ func main() {
 
 		logAPI := api.Group("/logs")
 		{
-			logAPI.GET("/school/:schoolId", logHandler.GetBySchool)
+			logAPI.GET("/school/:schoolId", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "super_admin"), logHandler.GetBySchool)
 		}
 
 		dashboardAPI := api.Group("/dashboard")
 		{
-			dashboardAPI.GET("/student/:userId", dashboardHandler.GetStudentDashboard)
-			dashboardAPI.GET("/teacher/:schoolUserId", dashboardHandler.GetTeacherDashboard)
-			dashboardAPI.GET("/admin/:schoolId", dashboardHandler.GetAdminDashboard)
+			dashboardAPI.GET("/student/:userId", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "student"), dashboardHandler.GetStudentDashboard)
+			dashboardAPI.GET("/teacher/:schoolUserId", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "teacher"), dashboardHandler.GetTeacherDashboard)
+			dashboardAPI.GET("/admin/:schoolId", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin"), dashboardHandler.GetAdminDashboard)
 		}
 
 		activityAPI := api.Group("/academic-activity")
