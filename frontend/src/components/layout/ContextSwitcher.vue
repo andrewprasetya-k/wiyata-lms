@@ -18,6 +18,8 @@ interface SchoolContextGroup {
   options: SchoolContextOption[];
 }
 
+const props = defineProps<{ collapsed?: boolean }>();
+
 const roleLabels: Record<RoleName, string> = {
   admin: "Admin",
   teacher: "Guru",
@@ -51,13 +53,11 @@ const schoolGroups = computed<SchoolContextGroup[]>(() => {
     if (!membership) continue;
 
     const existing = groups.get(membership.school.id);
-    const group =
-      existing ??
-      {
-        school: membership.school,
-        initials: initials(membership.school.name || membership.school.code),
-        options: [],
-      };
+    const group = existing ?? {
+      school: membership.school,
+      initials: initials(membership.school.name || membership.school.code),
+      options: [],
+    };
 
     group.options.push({
       context,
@@ -78,7 +78,9 @@ const platformContext = computed(() =>
 );
 
 const isPlatformActive = computed(() =>
-  platformContext.value ? isSameContext(platformContext.value, auth.activeContext) : false,
+  platformContext.value
+    ? isSameContext(platformContext.value, auth.activeContext)
+    : false,
 );
 
 function toggleMenu() {
@@ -177,15 +179,23 @@ function initials(value: string) {
     .split(/\s+/)
     .map((item) => item.trim())
     .filter(Boolean);
-  const source = words.length > 1 ? `${words[0][0]}${words[1][0]}` : value.slice(0, 2);
+  const source =
+    words.length > 1 ? `${words[0][0]}${words[1][0]}` : value.slice(0, 2);
   return source.toUpperCase();
 }
 
-function isSameContext(a: ActiveContext | null | undefined, b: ActiveContext | null | undefined) {
+function isSameContext(
+  a: ActiveContext | null | undefined,
+  b: ActiveContext | null | undefined,
+) {
   if (!a || !b || a.type !== b.type) return false;
   if (a.type === "platform" && b.type === "platform") return a.role === b.role;
   if (a.type === "school" && b.type === "school") {
-    return a.schoolId === b.schoolId && a.schoolUserId === b.schoolUserId && a.role === b.role;
+    return (
+      a.schoolId === b.schoolId &&
+      a.schoolUserId === b.schoolUserId &&
+      a.role === b.role
+    );
   }
   return false;
 }
@@ -193,10 +203,12 @@ function isSameContext(a: ActiveContext | null | undefined, b: ActiveContext | n
 
 <template>
   <div ref="rootEl" class="relative mb-4">
+    <!-- ── Collapsed trigger: icon-only square button (original) -->
     <button
+      v-if="props.collapsed"
       ref="triggerEl"
       type="button"
-      class="group flex h-11 w-11 items-center justify-center rounded-xl border border-[#ebe7df] bg-[#fbfaf8] text-[#4f46e5] transition hover:border-[#d8d2c6] hover:bg-[#f3f1ec] focus:outline-none focus:ring-2 focus:ring-[#c7d2fe] focus:ring-offset-2 focus:ring-offset-white disabled:cursor-default disabled:opacity-80"
+      class="group relative flex h-11 w-11 items-center justify-center rounded-xl border border-[#ebe7df] bg-[#fbfaf8] text-[#4f46e5] transition hover:border-[#d8d2c6] hover:bg-[#f3f1ec] focus:outline-none focus:ring-2 focus:ring-[#c7d2fe] focus:ring-offset-2 focus:ring-offset-white disabled:cursor-default disabled:opacity-80"
       :class="isOpen ? 'border-[#c7d2fe] bg-[#eef2ff]' : ''"
       :disabled="!hasMultipleContexts || isSwitching"
       :aria-haspopup="hasMultipleContexts ? 'menu' : undefined"
@@ -206,7 +218,9 @@ function isSameContext(a: ActiveContext | null | undefined, b: ActiveContext | n
       :title="`${activeDescription.title} - ${activeDescription.subtitle}`"
       @click="toggleMenu"
     >
-      <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-[11px] font-semibold shadow-sm">
+      <span
+        class="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-[11px] font-semibold shadow-sm"
+      >
         {{ activeDescription.initials }}
       </span>
       <PhCaretDown
@@ -217,90 +231,154 @@ function isSameContext(a: ActiveContext | null | undefined, b: ActiveContext | n
       />
     </button>
 
+    <!-- ── Expanded trigger: full-width row with name + role -->
+    <button
+      v-else
+      ref="triggerEl"
+      type="button"
+      class="flex w-full items-center gap-2.5 rounded-xl border border-[#ebe7df] bg-[#fbfaf8] px-2.5 py-2 text-left transition hover:border-[#d8d2c6] hover:bg-[#f3f1ec] focus:outline-none focus:ring-2 focus:ring-[#c7d2fe] focus:ring-offset-2 focus:ring-offset-white disabled:cursor-default disabled:opacity-80"
+      :class="isOpen ? 'border-[#c7d2fe] bg-[#eef2ff]' : ''"
+      :disabled="!hasMultipleContexts || isSwitching"
+      :aria-haspopup="hasMultipleContexts ? 'menu' : undefined"
+      :aria-expanded="hasMultipleContexts ? isOpen : undefined"
+      :aria-controls="hasMultipleContexts ? menuId : undefined"
+      :aria-label="`${activeDescription.ariaLabel}${hasMultipleContexts ? '. Buka pilihan konteks.' : ''}`"
+      @click="toggleMenu"
+    >
+      <span
+        class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-[11px] font-semibold"
+      >
+        {{ activeDescription.initials }}
+      </span>
+      <span class="min-w-0 flex-1">
+        <span class="block truncate text-[13px] font-semibold text-[#2f2b3a]">
+          {{ activeDescription.title }}
+        </span>
+        <span class="text-[11px] text-[#7c7789]">{{
+          activeDescription.subtitle
+        }}</span>
+      </span>
+      <PhCaretDown
+        v-if="hasMultipleContexts"
+        :size="13"
+        class="shrink-0 text-[#9b9589] transition-transform duration-150"
+        :class="isOpen ? 'rotate-180' : ''"
+      />
+    </button>
+
+    <!-- ── Dropdown (collapsed: opens right; expanded: opens below) -->
     <Transition
       enter-active-class="transition duration-150 ease-out"
-      enter-from-class="-translate-x-1 scale-95 opacity-0"
-      enter-to-class="translate-x-0 scale-100 opacity-100"
+      enter-from-class="scale-95 opacity-0"
+      enter-to-class="scale-100 opacity-100"
       leave-active-class="transition duration-100 ease-in"
-      leave-from-class="translate-x-0 scale-100 opacity-100"
-      leave-to-class="-translate-x-1 scale-95 opacity-0"
+      leave-from-class="scale-100 opacity-100"
+      leave-to-class="scale-95 opacity-0"
     >
       <div
         v-if="isOpen"
         :id="menuId"
         role="menu"
-        class="absolute left-full top-0 z-50 ml-3 w-72 rounded-xl border border-[#ebe7df] bg-white p-2 text-left shadow-xl shadow-[#2f2b3a]/10"
+        class="absolute z-50 w-72 rounded-xl border border-[#ebe7df] bg-white p-2 text-left shadow-xl shadow-[#2f2b3a]/10"
+        :class="
+          props.collapsed ? 'left-full top-0 ml-3' : 'left-0 top-full mt-1.5'
+        "
         aria-label="Pilih konteks sekolah dan peran"
       >
-          <div class="border-b border-[#ebe7df] px-3 py-2">
-            <p class="truncate text-sm font-semibold text-[#2f2b3a]" :title="activeDescription.title">
-              {{ activeDescription.title }}
-            </p>
-            <p class="text-xs text-[#7c7789]">{{ activeDescription.subtitle }}</p>
-          </div>
+        <div class="border-b border-[#ebe7df] px-3 py-2">
+          <p
+            class="truncate text-sm font-semibold text-[#2f2b3a]"
+            :title="activeDescription.title"
+          >
+            {{ activeDescription.title }}
+          </p>
+          <p class="text-xs text-[#7c7789]">{{ activeDescription.subtitle }}</p>
+        </div>
 
-          <div class="max-h-[70vh] overflow-y-auto py-2">
-            <section v-if="schoolGroups.length" class="space-y-2">
-              <div
-                v-for="group in schoolGroups"
-                :key="group.school.id"
-                class="space-y-1"
+        <div class="max-h-[70vh] overflow-y-auto py-2">
+          <section v-if="schoolGroups.length" class="space-y-2">
+            <div
+              v-for="group in schoolGroups"
+              :key="group.school.id"
+              class="space-y-1"
+            >
+              <p
+                class="truncate px-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9b9589]"
+                :title="group.school.name"
               >
-                <p
-                  class="truncate px-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9b9589]"
-                  :title="group.school.name"
-                >
-                  {{ group.school.name }}
-                </p>
-                <button
-                  v-for="option in group.options"
-                  :key="`${option.context.schoolUserId}-${option.context.role}`"
-                  type="button"
-                  role="menuitem"
-                  class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition hover:bg-[#f8f7f4] focus:bg-[#f8f7f4] focus:outline-none disabled:cursor-default disabled:bg-[#eef2ff]"
-                  :disabled="option.isActive || isSwitching"
-                  :aria-current="option.isActive ? 'true' : undefined"
-                  @click="selectContext(option.context)"
-                >
-                  <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#f3f1ec] text-[11px] font-semibold text-[#575269]">
-                    {{ group.initials }}
-                  </span>
-                  <span class="min-w-0 flex-1">
-                    <span class="block truncate text-sm font-medium text-[#2f2b3a]" :title="group.school.name">
-                      {{ group.school.name }}
-                    </span>
-                    <span class="text-xs text-[#7c7789]">{{ option.roleLabel }}</span>
-                  </span>
-                  <PhCheck v-if="option.isActive" :size="16" class="shrink-0 text-[#4f46e5]" />
-                </button>
-              </div>
-            </section>
-
-            <section v-if="platformContext" class="mt-2 border-t border-[#ebe7df] pt-2">
-              <p class="px-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9b9589]">
-                Platform
+                {{ group.school.name }}
               </p>
               <button
+                v-for="option in group.options"
+                :key="`${option.context.schoolUserId}-${option.context.role}`"
                 type="button"
                 role="menuitem"
-                class="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition hover:bg-[#f8f7f4] focus:bg-[#f8f7f4] focus:outline-none disabled:cursor-default disabled:bg-[#eef2ff]"
-                :disabled="isPlatformActive || isSwitching"
-                :aria-current="isPlatformActive ? 'true' : undefined"
-                @click="selectContext(platformContext)"
+                class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition hover:bg-[#f8f7f4] focus:bg-[#f8f7f4] focus:outline-none disabled:cursor-default disabled:bg-[#eef2ff]"
+                :disabled="option.isActive || isSwitching"
+                :aria-current="option.isActive ? 'true' : undefined"
+                @click="selectContext(option.context)"
               >
-                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#eef2ff] text-[#4f46e5]">
-                  <PhBuildings :size="17" />
+                <span
+                  class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#f3f1ec] text-[11px] font-semibold text-[#575269]"
+                >
+                  {{ group.initials }}
                 </span>
                 <span class="min-w-0 flex-1">
-                  <span class="block truncate text-sm font-medium text-[#2f2b3a]">
-                    Platform Wiyata
+                  <span
+                    class="block truncate text-sm font-medium text-[#2f2b3a]"
+                    :title="group.school.name"
+                  >
+                    {{ group.school.name }}
                   </span>
-                  <span class="text-xs text-[#7c7789]">Super Admin</span>
+                  <span class="text-xs text-[#7c7789]">{{
+                    option.roleLabel
+                  }}</span>
                 </span>
-                <PhCheck v-if="isPlatformActive" :size="16" class="shrink-0 text-[#4f46e5]" />
+                <PhCheck
+                  v-if="option.isActive"
+                  :size="16"
+                  class="shrink-0 text-[#4f46e5]"
+                />
               </button>
-            </section>
-          </div>
+            </div>
+          </section>
+
+          <section
+            v-if="platformContext"
+            class="mt-2 border-t border-[#ebe7df] pt-2"
+          >
+            <p
+              class="px-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9b9589]"
+            >
+              Platform
+            </p>
+            <button
+              type="button"
+              role="menuitem"
+              class="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition hover:bg-[#f8f7f4] focus:bg-[#f8f7f4] focus:outline-none disabled:cursor-default disabled:bg-[#eef2ff]"
+              :disabled="isPlatformActive || isSwitching"
+              :aria-current="isPlatformActive ? 'true' : undefined"
+              @click="selectContext(platformContext)"
+            >
+              <span
+                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#eef2ff] text-[#4f46e5]"
+              >
+                <PhBuildings :size="17" />
+              </span>
+              <span class="min-w-0 flex-1">
+                <span class="block truncate text-sm font-medium text-[#2f2b3a]">
+                  Platform Wiyata
+                </span>
+                <span class="text-xs text-[#7c7789]">Super Admin</span>
+              </span>
+              <PhCheck
+                v-if="isPlatformActive"
+                :size="16"
+                class="shrink-0 text-[#4f46e5]"
+              />
+            </button>
+          </section>
+        </div>
       </div>
     </Transition>
   </div>

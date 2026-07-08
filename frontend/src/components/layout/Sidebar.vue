@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { PhSignOut } from "@phosphor-icons/vue";
+import { ref } from "vue";
+import { PhSignOut, PhSidebarSimple } from "@phosphor-icons/vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "../../stores/auth";
 import type { NavItem } from "../../types/navigation";
@@ -15,6 +16,15 @@ const auth = useAuthStore();
 const route = useRoute();
 const router = useRouter();
 
+const isCollapsed = ref(
+  localStorage.getItem("wiyata_sidebar_collapsed") === "true",
+);
+
+function toggle() {
+  isCollapsed.value = !isCollapsed.value;
+  localStorage.setItem("wiyata_sidebar_collapsed", String(isCollapsed.value));
+}
+
 function logout() {
   auth.logout();
   router.push("/login");
@@ -27,38 +37,104 @@ function isActive(to: string) {
 
 <template>
   <aside
-    class="flex h-full w-16 flex-col items-center border-r border-[#ebe7df] bg-white/95 px-0 py-4"
+    class="flex h-full flex-col border-r border-[#ebe7df] bg-white/95 transition-[width] duration-200 ease-in-out"
+    :class="isCollapsed ? 'w-18' : 'w-62'"
   >
-    <div class="mb-3 flex h-9 w-9 items-center justify-center rounded-xl">
+    <!-- ── Header: logo + brand + toggle -->
+    <div
+      class="flex shrink-0 items-center"
+      :class="isCollapsed ? 'flex-col gap-1.5 px-0 py-3' : 'gap-2.5 px-3 py-3'"
+    >
       <img
         src="/logo_fix.svg"
         alt="Wiyata"
-        class="h-9 w-9 rounded-xl object-contain"
+        class="h-7 w-7 shrink-0 rounded-lg object-contain"
       />
+
+      <!-- Brand label — visible only when expanded -->
+      <span
+        class="flex-1 overflow-hidden whitespace-nowrap text-[15px] font-semibold tracking-tight text-[#171322] transition-[opacity,transform] duration-150"
+        :class="
+          isCollapsed
+            ? 'pointer-events-none -translate-x-1 opacity-0'
+            : 'translate-x-0 opacity-100'
+        "
+        aria-hidden="true"
+      >
+        Wiyata
+      </span>
+
+      <!-- Collapse / expand toggle -->
+      <button
+        class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-[#a3a1aa] transition hover:bg-[#f3f1ec] hover:text-[#3f3a4a]"
+        :title="isCollapsed ? 'Buka sidebar' : 'Tutup sidebar'"
+        type="button"
+        @click="toggle"
+      >
+        <PhSidebarSimple
+          :size="16"
+          class="transition-transform duration-200"
+          :class="isCollapsed ? 'rotate-180' : ''"
+        />
+      </button>
     </div>
 
-    <ContextSwitcher />
+    <!-- ── Context switcher -->
+    <div class="shrink-0 px-2 pt-3">
+      <ContextSwitcher :collapsed="isCollapsed" />
+    </div>
 
-    <nav class="flex flex-1 flex-col items-center gap-1" :aria-label="label">
+    <!-- ── Navigation -->
+    <nav
+      class="flex flex-1 flex-col gap-0.5 overflow-y-auto px-2 py-2"
+      :aria-label="label"
+    >
       <RouterLink
         v-for="item in items"
         :key="item.label"
-        :title="item.label"
-        class="relative flex h-10 w-10 items-center justify-center rounded-xl text-[#a3a1aa] transition hover:bg-[#f3f1ec] hover:text-[#3f3a4a]"
-        :class="
+        :title="isCollapsed ? item.label : undefined"
+        class="relative flex h-10 items-center rounded-xl text-[#a3a1aa] transition hover:bg-[#f3f1ec] hover:text-[#3f3a4a]"
+        :class="[
+          isCollapsed ? 'mx-auto w-10 justify-center' : 'w-full gap-3 px-3',
           isActive(item.to)
             ? 'bg-[#eef2ff] text-[#4f46e5]'
             : item.emphasized
-              ? 'font-semibold text-[#575269]'
-              : ''
-        "
+              ? 'text-[#575269]'
+              : '',
+        ]"
         :to="item.to"
       >
-        <component :is="item.icon" :size="20" weight="regular" />
+        <component
+          :is="item.icon"
+          :size="20"
+          weight="regular"
+          class="shrink-0 text-gray-500"
+        />
+
+        <!-- Label — visible only when expanded -->
+        <span
+          class="flex-1 truncate text-sm font-medium transition-[opacity,transform] duration-15 text-gray-500"
+          :class="
+            isCollapsed
+              ? 'pointer-events-none w-0 -translate-x-1 opacity-0'
+              : 'translate-x-0 opacity-100'
+          "
+        >
+          {{ item.label }}
+        </span>
+
+        <!-- hasDot indicator -->
         <span
           v-if="item.hasDot"
-          class="absolute right-2 top-2 h-1.5 w-1.5 rounded-full border border-white bg-[#4f46e5]"
+          class="absolute rounded-full border border-white bg-[#3f3a4a]"
+          :class="
+            isCollapsed
+              ? 'right-1.5 top-1.5 h-1.5 w-1.5'
+              : 'right-2 top-2 h-1.5 w-1.5'
+          "
         />
+
+        <!-- Badge count -->
         <Transition
           enter-active-class="transition duration-200 ease-out"
           enter-from-class="scale-95 opacity-0"
@@ -71,7 +147,8 @@ function isActive(to: string) {
           <span
             v-if="item.badgeCount"
             :key="item.badgeLabel || String(item.badgeCount)"
-            class="absolute -right-2 top-0 inline-flex min-w-[1.1rem] items-center justify-center rounded-full bg-[#4f46e5] px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white shadow-sm"
+            class="absolute inline-flex min-w-[1.1rem] items-center justify-center rounded-full bg-[#4f46e5] px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white shadow-sm"
+            :class="isCollapsed ? '-right-1.5 -top-1 ' : '-right-2 top-0'"
             :aria-label="
               item.badgeAriaLabel || `${item.badgeCount} chat belum dibaca`
             "
@@ -82,27 +159,62 @@ function isActive(to: string) {
       </RouterLink>
     </nav>
 
-    <button
-      title="Logout"
-      class="mb-3 flex h-10 w-10 items-center justify-center rounded-xl text-[#a3a1aa] transition hover:bg-[#f3f1ec] hover:text-[#3f3a4a]"
-      type="button"
-      @click="logout"
-    >
-      <PhSignOut :size="19" />
-    </button>
+    <!-- ── Bottom: logout + profile -->
+    <div class="shrink-0 space-y-2 px-2 py-4">
+      <!-- Logout -->
+      <button
+        class="relative flex h-10 w-full items-center rounded-xl text-red-600 transition hover:bg-red-600 hover:text-white/95 cursor-pointer"
+        :class="isCollapsed ? 'mx-auto w-10 justify-center' : 'gap-3 px-3'"
+        :title="isCollapsed ? 'Logout' : undefined"
+        type="button"
+        @click="logout"
+      >
+        <PhSignOut :size="19" class="shrink-0" />
+        <span
+          class="flex-1 truncate text-left text-sm font-medium transition-[opacity,transform] duration-150"
+          :class="
+            isCollapsed
+              ? 'pointer-events-none w-0 -translate-x-1 opacity-0'
+              : 'translate-x-0 opacity-100'
+          "
+        >
+          Logout
+        </span>
+      </button>
 
-    <RouterLink
-      :to="profileTo"
-      title="Buka profil"
-      aria-label="Buka profil"
-      class="flex h-8 w-8 items-center justify-center rounded-full bg-[#4f46e5] text-[11px] font-medium text-white transition hover:bg-[#4338ca]"
-      :class="
-        isActive(profileTo)
-          ? 'ring-2 ring-[#c7d2fe] ring-offset-2 ring-offset-white'
-          : ''
-      "
-    >
-      {{ auth.user?.fullName?.slice(0, 2).toUpperCase() || "EV" }}
-    </RouterLink>
+      <!-- Profile -->
+      <RouterLink
+        :to="profileTo"
+        :title="isCollapsed ? 'Buka profil' : undefined"
+        :aria-label="isCollapsed ? 'Buka profil' : undefined"
+        class="relative flex h-10 items-center rounded-xl transition hover:bg-[#f3f1ec] py-3"
+        :class="
+          isCollapsed ? 'mx-auto w-10 justify-center' : 'w-full gap-3 px-3'
+        "
+      >
+        <span
+          class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#4f46e5] text-[11px] font-medium text-white transition hover:bg-[#4338ca]"
+          :class="
+            isActive(profileTo)
+              ? 'ring-2 ring-[#c7d2fe] ring-offset-2 ring-offset-white'
+              : ''
+          "
+        >
+          {{ auth.user?.fullName?.slice(0, 2).toUpperCase() || "EV" }}
+        </span>
+        <span
+          class="min-w-0 flex-1 transition-[opacity,transform] duration-150"
+          :class="
+            isCollapsed
+              ? 'pointer-events-none w-0 -translate-x-1 opacity-0'
+              : 'translate-x-0 opacity-100'
+          "
+        >
+          <span class="block truncate text-sm font-medium text-[#2f2b3a]">
+            {{ auth.user?.fullName || "Pengguna" }}
+          </span>
+        </span>
+      </RouterLink>
+    </div>
   </aside>
 </template>
