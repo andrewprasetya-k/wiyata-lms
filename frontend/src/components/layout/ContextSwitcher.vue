@@ -208,7 +208,7 @@ function isSameContext(
       v-if="props.collapsed"
       ref="triggerEl"
       type="button"
-      class="group relative flex h-11 w-11 items-center justify-center rounded-xl border border-[#ebe7df] bg-[#fbfaf8] text-[#4f46e5] transition hover:border-[#d8d2c6] hover:bg-[#f3f1ec] focus:outline-none focus:ring-2 focus:ring-[#c7d2fe] focus:ring-offset-2 focus:ring-offset-white disabled:cursor-default disabled:opacity-80"
+      class="group relative mx-auto flex h-11 w-11 items-center justify-center rounded-xl border border-[#ebe7df] bg-[#fbfaf8] text-[#4f46e5] transition hover:border-[#d8d2c6] hover:bg-[#f3f1ec] focus:outline-none focus:ring-2 focus:ring-[#c7d2fe] focus:ring-offset-2 focus:ring-offset-white disabled:cursor-default disabled:opacity-80"
       :class="isOpen ? 'border-[#c7d2fe] bg-[#eef2ff]' : ''"
       :disabled="!hasMultipleContexts || isSwitching"
       :aria-haspopup="hasMultipleContexts ? 'menu' : undefined"

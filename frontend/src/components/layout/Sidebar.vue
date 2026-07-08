@@ -51,13 +51,13 @@ function isActive(to: string) {
         class="h-7 w-7 shrink-0 rounded-lg object-contain"
       />
 
-      <!-- Brand label — visible only when expanded -->
+      <!-- Brand label — flex-1 only in expanded; h-0 flex-none in collapsed to take zero space in flex-col -->
       <span
-        class="flex-1 overflow-hidden whitespace-nowrap text-[15px] font-semibold tracking-tight text-[#171322] transition-[opacity,transform] duration-150"
+        class="overflow-hidden whitespace-nowrap text-[15px] font-semibold tracking-tight text-[#171322] transition-[opacity,transform] duration-150"
         :class="
           isCollapsed
-            ? 'pointer-events-none -translate-x-1 opacity-0'
-            : 'translate-x-0 opacity-100'
+            ? 'pointer-events-none h-0 flex-none -translate-x-1 opacity-0'
+            : 'flex-1 translate-x-0 opacity-100'
         "
         aria-hidden="true"
       >
@@ -93,11 +93,11 @@ function isActive(to: string) {
         v-for="item in items"
         :key="item.label"
         :title="isCollapsed ? item.label : undefined"
-        class="relative flex h-10 items-center rounded-xl text-[#a3a1aa] transition hover:bg-[#f3f1ec] hover:text-[#3f3a4a]"
+        class="relative flex h-10 items-center rounded-xl text-[#a3a1aa] transition hover:bg-[#f3f1ec] hover:text-gray-700 cursor-pointer"
         :class="[
-          isCollapsed ? 'mx-auto w-10 justify-center' : 'w-full gap-3 px-3',
+          isCollapsed ? 'mx-auto w-4 justify-center px-6' : 'w-full gap-3 px-3',
           isActive(item.to)
-            ? 'bg-[#eef2ff] text-[#4f46e5]'
+            ? 'bg-[#f3f1ec] text-gray-900'
             : item.emphasized
               ? 'text-[#575269]'
               : '',
@@ -113,7 +113,7 @@ function isActive(to: string) {
 
         <!-- Label — visible only when expanded -->
         <span
-          class="flex-1 truncate text-sm font-medium transition-[opacity,transform] duration-15 text-gray-500"
+          class="flex-1 truncate text-sm font-medium transition-[opacity,transform] duration-150 text-gray-500"
           :class="
             isCollapsed
               ? 'pointer-events-none w-0 -translate-x-1 opacity-0'
@@ -163,8 +163,10 @@ function isActive(to: string) {
     <div class="shrink-0 space-y-2 px-2 py-4">
       <!-- Logout -->
       <button
-        class="relative flex h-10 w-full items-center rounded-xl text-red-600 transition hover:bg-red-600 hover:text-white/95 cursor-pointer"
-        :class="isCollapsed ? 'mx-auto w-10 justify-center' : 'gap-3 px-3'"
+        class="relative flex h-10 items-center rounded-xl text-red-600 transition hover:bg-red-600 hover:text-white/95 cursor-pointer"
+        :class="
+          isCollapsed ? 'mx-auto w-4 justify-center px-6' : 'w-full gap-3 px-3'
+        "
         :title="isCollapsed ? 'Logout' : undefined"
         type="button"
         @click="logout"
@@ -174,7 +176,7 @@ function isActive(to: string) {
           class="flex-1 truncate text-left text-sm font-medium transition-[opacity,transform] duration-150"
           :class="
             isCollapsed
-              ? 'pointer-events-none w-0 -translate-x-1 opacity-0'
+              ? 'pointer-events-none w-4 -translate-x-1 opacity-0'
               : 'translate-x-0 opacity-100'
           "
         >
@@ -187,9 +189,9 @@ function isActive(to: string) {
         :to="profileTo"
         :title="isCollapsed ? 'Buka profil' : undefined"
         :aria-label="isCollapsed ? 'Buka profil' : undefined"
-        class="relative flex h-10 items-center rounded-xl transition hover:bg-[#f3f1ec] py-3"
+        class="relative flex h-10 items-center rounded-xl transition hover:bg-[#f3f1ec]"
         :class="
-          isCollapsed ? 'mx-auto w-10 justify-center' : 'w-full gap-3 px-3'
+          isCollapsed ? 'mx-auto w-5 justify-center px-6' : 'w-full gap-3 px-3'
         "
       >
         <span
