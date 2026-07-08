@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
 import {
+  PhArrowRight,
   PhBookOpen,
   PhCalendarBlank,
   PhChalkboardTeacher,
@@ -582,6 +583,22 @@ onMounted(async () => {
           </div>
         </aside>
       </div>
+
+      <RouterLink
+        to="/admin/enrollments"
+        class="mt-5 flex items-center justify-between gap-4 rounded-2xl border border-[#ebe7df] bg-white p-5 transition hover:border-[#4f46e5] hover:shadow-sm"
+      >
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-[0.16em] text-[#ea580c]">
+            Langkah berikutnya
+          </p>
+          <p class="mt-1 text-base font-semibold text-[#171322]">Buka Penempatan Kelas</p>
+          <p class="mt-1 text-sm text-[#6b7280]">
+            Setelah kelas dibuat, masukkan siswa dan guru ke kelas yang sesuai.
+          </p>
+        </div>
+        <PhArrowRight :size="20" class="shrink-0 text-[#4f46e5]" weight="bold" />
+      </RouterLink>
     </section>
   </main>
 </template>

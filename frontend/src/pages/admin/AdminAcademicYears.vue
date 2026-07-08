@@ -30,6 +30,7 @@ import { formatDateTime } from "../../utils/date";
 import { getSubjectColor } from "../../utils/color";
 import { getApiError } from "../../utils/error";
 import {
+  PhArrowRight,
   PhBookOpen,
   PhCalendarBlank,
   PhChartBar,
@@ -81,6 +82,8 @@ const weightsLoading = ref(false);
 const weightsError = ref("");
 const weightsInfoMessage = ref("");
 const activeAction = ref("");
+const activeTab = ref<'periode' | 'mapel'>('periode');
+const mapelLoaded = ref(false);
 
 const academicYearForm = ref({ academicYearName: "" });
 const termForm = ref({ termName: "" });
@@ -322,11 +325,13 @@ async function loadCategories() {
   }
 }
 
-async function refreshAll() {
-  await loadAcademicYears();
-  await Promise.all([loadSubjects(), loadCategories()]);
-  await loadTerms();
-  await loadAssessmentWeights();
+async function switchTab(tab: 'periode' | 'mapel') {
+  activeTab.value = tab;
+  if (tab === 'mapel' && !mapelLoaded.value) {
+    mapelLoaded.value = true;
+    await Promise.all([loadSubjects(), loadCategories()]);
+    await loadAssessmentWeights();
+  }
 }
 
 async function submitAcademicYear() {
@@ -594,7 +599,8 @@ function isTermActionPending(termId: string) {
 
 onMounted(async () => {
   if (!currentSchool.value.hasContext) return;
-  await refreshAll();
+  await loadAcademicYears();
+  await loadTerms();
 });
 
 watch(selectedWeightSubjectId, () => {
@@ -644,6 +650,26 @@ watch(selectedWeightSubjectId, () => {
         akses sekolah yang valid.
       </div>
 
+      <div class="flex gap-1 self-start rounded-xl border border-[#ebe7df] bg-[#f3f1ec] p-1">
+        <button
+          type="button"
+          class="rounded-lg px-4 py-2 text-sm font-medium transition"
+          :class="activeTab === 'periode' ? 'bg-white text-[#171322] shadow-sm' : 'text-[#6b7280] hover:text-[#374151]'"
+          @click="switchTab('periode')"
+        >
+          Periode Akademik
+        </button>
+        <button
+          type="button"
+          class="rounded-lg px-4 py-2 text-sm font-medium transition"
+          :class="activeTab === 'mapel' ? 'bg-white text-[#171322] shadow-sm' : 'text-[#6b7280] hover:text-[#374151]'"
+          @click="switchTab('mapel')"
+        >
+          Mata Pelajaran
+        </button>
+      </div>
+
+      <template v-if="activeTab === 'periode'">
       <section class="grid gap-5 lg:grid-cols-2">
         <article
           class="rounded-2xl border border-[#ebe7df] bg-white p-5"
@@ -706,12 +732,14 @@ watch(selectedWeightSubjectId, () => {
             >
               {{ academicYearsError }}
             </p>
-            <p
+            <div
               v-else-if="academicYears.length === 0"
-              class="rounded-lg border border-dashed border-[#d1d5db] bg-[#fafafa] px-4 py-5 text-sm text-[#6b7280]"
+              class="rounded-lg border border-dashed border-[#d1d5db] bg-[#fafafa] px-4 py-8 text-center"
             >
-              Belum ada tahun ajaran untuk sekolah ini.
-            </p>
+              <PhCalendarBlank class="mx-auto h-7 w-7 text-[#9ca3af]" weight="duotone" />
+              <p class="mt-3 text-sm font-semibold text-[#171322]">Belum ada tahun ajaran</p>
+              <p class="mt-1 text-sm text-[#6b7280]">Buat tahun ajaran pertama menggunakan form di atas.</p>
+            </div>
 
             <article
               v-for="year in academicYears"
@@ -835,18 +863,22 @@ watch(selectedWeightSubjectId, () => {
             >
               {{ termsError }}
             </p>
-            <p
+            <div
               v-else-if="!selectedAcademicYearId"
-              class="rounded-lg border border-dashed border-[#d1d5db] bg-[#fafafa] px-4 py-5 text-sm text-[#6b7280]"
+              class="rounded-lg border border-dashed border-[#d1d5db] bg-[#fafafa] px-4 py-8 text-center"
             >
-              Pilih tahun ajaran untuk melihat semester.
-            </p>
-            <p
+              <PhCalendarBlank class="mx-auto h-7 w-7 text-[#9ca3af]" weight="duotone" />
+              <p class="mt-3 text-sm font-semibold text-[#171322]">Pilih tahun ajaran</p>
+              <p class="mt-1 text-sm text-[#6b7280]">Pilih tahun ajaran di atas untuk melihat dan mengelola semester.</p>
+            </div>
+            <div
               v-else-if="terms.length === 0"
-              class="rounded-lg border border-dashed border-[#d1d5db] bg-[#fafafa] px-4 py-5 text-sm text-[#6b7280]"
+              class="rounded-lg border border-dashed border-[#d1d5db] bg-[#fafafa] px-4 py-8 text-center"
             >
-              Belum ada semester untuk tahun ajaran ini.
-            </p>
+              <PhCalendarBlank class="mx-auto h-7 w-7 text-[#9ca3af]" weight="duotone" />
+              <p class="mt-3 text-sm font-semibold text-[#171322]">Belum ada semester</p>
+              <p class="mt-1 text-sm text-[#6b7280]">Buat semester pertama untuk tahun ajaran ini menggunakan form di atas.</p>
+            </div>
 
             <article
               v-for="term in terms"
@@ -899,6 +931,24 @@ watch(selectedWeightSubjectId, () => {
         </article>
       </section>
 
+      <RouterLink
+        to="/admin/classes"
+        class="flex items-center justify-between gap-4 rounded-2xl border border-[#ebe7df] bg-white p-5 transition hover:border-[#4f46e5] hover:shadow-sm"
+      >
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-[0.16em] text-[#ea580c]">
+            Langkah berikutnya
+          </p>
+          <p class="mt-1 text-base font-semibold text-[#171322]">Buat Kelas</p>
+          <p class="mt-1 text-sm text-[#6b7280]">
+            Setelah periode akademik siap, buat kelas untuk tiap tingkat dan semester.
+          </p>
+        </div>
+        <PhArrowRight :size="20" class="shrink-0 text-[#4f46e5]" weight="bold" />
+      </RouterLink>
+      </template>
+
+      <template v-if="activeTab === 'mapel'">
       <section class="grid gap-5 lg:grid-cols-2">
         <article
           class="rounded-2xl border border-[#ebe7df] bg-white p-5"
@@ -1010,12 +1060,14 @@ watch(selectedWeightSubjectId, () => {
             >
               {{ subjectsError }}
             </p>
-            <p
+            <div
               v-else-if="subjects.length === 0"
-              class="rounded-lg border border-dashed border-[#d1d5db] bg-[#fafafa] px-4 py-5 text-sm text-[#6b7280]"
+              class="rounded-lg border border-dashed border-[#d1d5db] bg-[#fafafa] px-4 py-8 text-center"
             >
-              Belum ada mata pelajaran untuk sekolah ini.
-            </p>
+              <PhBookOpen class="mx-auto h-7 w-7 text-[#9ca3af]" weight="duotone" />
+              <p class="mt-3 text-sm font-semibold text-[#171322]">Belum ada mata pelajaran</p>
+              <p class="mt-1 text-sm text-[#6b7280]">Tambah mata pelajaran pertama menggunakan form di atas.</p>
+            </div>
 
             <article
               v-for="subject in subjects"
@@ -1119,12 +1171,14 @@ watch(selectedWeightSubjectId, () => {
             >
               {{ categoriesError }}
             </p>
-            <p
+            <div
               v-else-if="categories.length === 0"
-              class="rounded-lg border border-dashed border-[#d1d5db] bg-[#fafafa] px-4 py-5 text-sm text-[#6b7280]"
+              class="rounded-lg border border-dashed border-[#d1d5db] bg-[#fafafa] px-4 py-8 text-center"
             >
-              Belum ada kategori tugas untuk sekolah ini.
-            </p>
+              <PhTag class="mx-auto h-7 w-7 text-[#9ca3af]" weight="duotone" />
+              <p class="mt-3 text-sm font-semibold text-[#171322]">Belum ada kategori tugas</p>
+              <p class="mt-1 text-sm text-[#6b7280]">Tambah kategori seperti "Kuis" atau "UTS" untuk dipakai di bobot penilaian.</p>
+            </div>
 
             <article
               v-for="category in categories"
@@ -1334,6 +1388,7 @@ watch(selectedWeightSubjectId, () => {
           </form>
         </div>
       </section>
+      </template>
     </section>
   </main>
 </template>
