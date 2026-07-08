@@ -926,6 +926,7 @@ watch(selectedWeightSubjectId, () => {
       </section>
 
       <RouterLink
+        v-if="terms.length > 0"
         to="/admin/classes"
         class="flex items-center justify-between gap-4 rounded-2xl border border-[#ebe7df] bg-white p-5 transition hover:border-[#4f46e5] hover:shadow-sm"
       >
@@ -935,7 +936,7 @@ watch(selectedWeightSubjectId, () => {
           </p>
           <p class="mt-1 text-base font-semibold text-[#171322]">Buat Kelas</p>
           <p class="mt-1 text-sm text-[#6b7280]">
-            Setelah periode akademik siap, buat kelas untuk tiap tingkat dan semester.
+            Semester sudah siap — buat kelas untuk tiap tingkat dan semester.
           </p>
         </div>
         <PhArrowRight :size="20" class="shrink-0 text-[#4f46e5]" weight="bold" />

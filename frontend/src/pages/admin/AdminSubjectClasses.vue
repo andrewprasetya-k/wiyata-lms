@@ -4,6 +4,7 @@ import {
   PhBookOpen,
   PhCalendarBlank,
   PhChalkboardTeacher,
+  PhChecks,
   PhLinkSimple,
   PhTrash,
   PhWarningCircle,
@@ -956,6 +957,26 @@ onMounted(async () => {
             </section>
           </div>
         </aside>
+      </div>
+
+      <div
+        v-if="subjectClasses.length > 0"
+        class="mt-5 flex items-center gap-4 rounded-2xl border border-[#bbf7d0] bg-[#f0fdf4] p-5"
+      >
+        <span
+          class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#dcfce7] text-[#059669]"
+        >
+          <PhChecks :size="22" weight="duotone" />
+        </span>
+        <div class="min-w-0">
+          <p class="eyebrow" style="color: #059669">Setup sekolah selesai</p>
+          <p class="mt-1 text-base font-semibold text-[#171322]">
+            Ruang mengajar sudah terkonfigurasi
+          </p>
+          <p class="mt-1 text-sm text-[#6b7280]">
+            Guru sudah terhubung ke kelas dan mata pelajaran. Siswa dapat memulai aktivitas belajar.
+          </p>
+        </div>
       </div>
     </section>
   </main>

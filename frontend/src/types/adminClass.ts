@@ -45,3 +45,9 @@ export interface CreateAdminClassPayload {
   classTitle: string;
   classDesc: string;
 }
+
+export interface UpdateAdminClassPayload {
+  classTitle?: string;
+  classDesc?: string;
+  isActive?: boolean;
+}

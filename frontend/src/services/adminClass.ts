@@ -3,6 +3,7 @@ import type {
   AdminClassListResponse,
   CreateAdminClassPayload,
   GetAdminClassesParams,
+  UpdateAdminClassPayload,
 } from "../types/adminClass";
 
 export async function getAdminClasses(params: GetAdminClassesParams) {
@@ -20,5 +21,10 @@ export async function getAdminClasses(params: GetAdminClassesParams) {
 
 export async function createAdminClass(payload: CreateAdminClassPayload) {
   const { data } = await api.post("/classes", payload);
+  return data;
+}
+
+export async function updateAdminClass(classId: string, payload: UpdateAdminClassPayload) {
+  const { data } = await api.patch(`/classes/${classId}`, payload);
   return data;
 }

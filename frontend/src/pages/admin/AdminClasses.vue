@@ -5,8 +5,13 @@ import {
   PhBookOpen,
   PhCalendarBlank,
   PhChalkboardTeacher,
+  PhCheck,
+  PhPencilSimple,
   PhPlusCircle,
+  PhToggleLeft,
+  PhToggleRight,
   PhWarningCircle,
+  PhX,
 } from "@phosphor-icons/vue";
 import { useAuthStore } from "../../stores/auth";
 import { useToastStore } from "../../stores/toast";
@@ -14,7 +19,11 @@ import {
   getAcademicYearsBySchool,
   getTermsByAcademicYear,
 } from "../../services/adminAcademic";
-import { createAdminClass, getAdminClasses } from "../../services/adminClass";
+import {
+  createAdminClass,
+  getAdminClasses,
+  updateAdminClass,
+} from "../../services/adminClass";
 import type { AcademicYearItem, TermItem } from "../../types/adminAcademic";
 import type { AdminClassItem } from "../../types/adminClass";
 import { formatDateTime } from "../../utils/date";
@@ -57,6 +66,11 @@ const classForm = ref({
   classTitle: "",
   classDesc: "",
 });
+
+const editingClassId = ref<string | null>(null);
+const editForm = ref({ classTitle: "", classDesc: "" });
+const isSavingEdit = ref(false);
+const togglingClassId = ref<string | null>(null);
 
 const selectedAcademicYear = computed(
   () =>
@@ -178,6 +192,63 @@ async function submitClass() {
     toast.error("Kelas belum bisa dibuat.");
   } finally {
     isCreating.value = false;
+  }
+}
+
+function startEdit(classItem: AdminClassItem) {
+  editingClassId.value = classItem.classId;
+  editForm.value = {
+    classTitle: classItem.classTitle,
+    classDesc: classItem.classDesc,
+  };
+}
+
+function cancelEdit() {
+  editingClassId.value = null;
+  editForm.value = { classTitle: "", classDesc: "" };
+}
+
+async function submitEdit(classItem: AdminClassItem) {
+  if (!editForm.value.classTitle.trim()) {
+    toast.error("Nama kelas wajib diisi.");
+    return;
+  }
+  isSavingEdit.value = true;
+  try {
+    const updated = await updateAdminClass(classItem.classId, {
+      classTitle: editForm.value.classTitle.trim(),
+      classDesc: editForm.value.classDesc.trim(),
+    });
+    const idx = classes.value.findIndex((c) => c.classId === classItem.classId);
+    if (idx !== -1) {
+      classes.value[idx] = { ...classes.value[idx], ...updated };
+    }
+    cancelEdit();
+    toast.success("Kelas berhasil diperbarui.");
+  } catch {
+    toast.error("Kelas belum bisa diperbarui.");
+  } finally {
+    isSavingEdit.value = false;
+  }
+}
+
+async function toggleActive(classItem: AdminClassItem) {
+  togglingClassId.value = classItem.classId;
+  try {
+    const updated = await updateAdminClass(classItem.classId, {
+      isActive: !classItem.isActive,
+    });
+    const idx = classes.value.findIndex((c) => c.classId === classItem.classId);
+    if (idx !== -1) {
+      classes.value[idx] = { ...classes.value[idx], ...updated };
+    }
+    toast.success(
+      classItem.isActive ? "Kelas dinonaktifkan." : "Kelas diaktifkan.",
+    );
+  } catch {
+    toast.error("Status kelas belum bisa diubah.");
+  } finally {
+    togglingClassId.value = null;
   }
 }
 
@@ -334,82 +405,180 @@ onMounted(async () => {
                 :key="classItem.classId"
                 class="min-w-0 py-4 first:pt-0 last:pb-0"
               >
-                <div
-                  class="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
-                >
-                  <div class="min-w-0">
-                    <div class="flex min-w-0 flex-wrap items-center gap-2">
-                      <h3
-                        class="min-w-0 wrap-break-word text-sm font-semibold text-[#171322]"
+                <!-- Edit mode -->
+                <template v-if="editingClassId === classItem.classId">
+                  <div class="flex min-w-0 flex-wrap items-center gap-2">
+                    <span
+                      class="rounded-lg bg-[#f3f4f6] px-2 py-1 text-[11px] font-medium text-[#6b7280]"
+                    >
+                      {{ classItem.classCode }}
+                    </span>
+                    <span
+                      class="rounded-lg px-2.5 py-1 text-[11px] font-medium"
+                      :class="
+                        classItem.isActive
+                          ? 'bg-[#ecfdf5] text-[#059669]'
+                          : 'bg-[#f3f4f6] text-[#6b7280]'
+                      "
+                    >
+                      {{ classItem.isActive ? "Aktif" : "Nonaktif" }}
+                    </span>
+                  </div>
+                  <div class="mt-3 space-y-3">
+                    <label class="block text-xs font-medium text-[#6b7280]">
+                      Nama kelas
+                      <input
+                        v-model="editForm.classTitle"
+                        type="text"
+                        class="mt-1.5 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3 py-2 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#4f46e5] focus:bg-white"
+                      />
+                    </label>
+                    <label class="block text-xs font-medium text-[#6b7280]">
+                      Deskripsi
+                      <textarea
+                        v-model="editForm.classDesc"
+                        rows="2"
+                        class="mt-1.5 w-full resize-none rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3 py-2 text-sm leading-6 text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#4f46e5] focus:bg-white"
+                      />
+                    </label>
+                    <div class="flex gap-2">
+                      <button
+                        type="button"
+                        class="inline-flex items-center gap-1.5 rounded-lg bg-[#ea580c] px-3 py-2 text-xs font-medium text-white transition hover:bg-[#c2410c] disabled:cursor-not-allowed disabled:opacity-60"
+                        :disabled="isSavingEdit"
+                        @click="submitEdit(classItem)"
                       >
-                        {{ classItem.classTitle }}
-                      </h3>
-                      <span
-                        class="rounded-lg bg-[#f3f4f6] px-2 py-1 text-[11px] font-medium text-[#6b7280]"
+                        <PhCheck :size="14" weight="bold" />
+                        {{ isSavingEdit ? "Menyimpan..." : "Simpan" }}
+                      </button>
+                      <button
+                        type="button"
+                        class="inline-flex items-center gap-1.5 rounded-lg border border-[#ebe7df] bg-white px-3 py-2 text-xs font-medium text-[#374151] transition hover:border-[#dc2626] hover:text-[#dc2626] disabled:cursor-not-allowed disabled:opacity-60"
+                        :disabled="isSavingEdit"
+                        @click="cancelEdit"
                       >
-                        {{ classItem.classCode }}
-                      </span>
+                        <PhX :size="14" weight="bold" />
+                        Batal
+                      </button>
                     </div>
-                    <p
-                      class="mt-1 wrap-break-word text-sm leading-6 text-[#6b7280]"
-                    >
-                      {{
-                        classItem.classDesc || "Deskripsi belum ditambahkan."
-                      }}
-                    </p>
                   </div>
-                  <span
-                    class="shrink-0 self-start rounded-lg px-2.5 py-1 text-[11px] font-medium"
-                    :class="
-                      classItem.isActive
-                        ? 'bg-[#ecfdf5] text-[#059669]'
-                        : 'bg-[#f3f4f6] text-[#6b7280]'
-                    "
-                  >
-                    {{ classItem.isActive ? "Aktif" : "Nonaktif" }}
-                  </span>
-                </div>
+                </template>
 
-                <dl
-                  class="mt-3 grid min-w-0 gap-x-5 gap-y-2 rounded-lg bg-[#fbfaf8] p-3 text-xs sm:grid-cols-2"
-                >
-                  <div class="min-w-0">
-                    <dt class="text-[#9ca3af]">Semester</dt>
-                    <dd
-                      class="mt-0.5 wrap-break-word font-medium text-[#374151]"
+                <!-- Read mode -->
+                <template v-else>
+                  <div
+                    class="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
+                  >
+                    <div class="min-w-0">
+                      <div class="flex min-w-0 flex-wrap items-center gap-2">
+                        <h3
+                          class="min-w-0 wrap-break-word text-sm font-semibold text-[#171322]"
+                        >
+                          {{ classItem.classTitle }}
+                        </h3>
+                        <span
+                          class="rounded-lg bg-[#f3f4f6] px-2 py-1 text-[11px] font-medium text-[#6b7280]"
+                        >
+                          {{ classItem.classCode }}
+                        </span>
+                      </div>
+                      <p
+                        class="mt-1 wrap-break-word text-sm leading-6 text-[#6b7280]"
+                      >
+                        {{
+                          classItem.classDesc || "Deskripsi belum ditambahkan."
+                        }}
+                      </p>
+                    </div>
+                    <span
+                      class="shrink-0 self-start rounded-lg px-2.5 py-1 text-[11px] font-medium"
+                      :class="
+                        classItem.isActive
+                          ? 'bg-[#ecfdf5] text-[#059669]'
+                          : 'bg-[#f3f4f6] text-[#6b7280]'
+                      "
                     >
-                      {{ classItem.termName || selectedTerm?.termName || "-" }}
-                    </dd>
+                      {{ classItem.isActive ? "Aktif" : "Nonaktif" }}
+                    </span>
                   </div>
-                  <div class="min-w-0">
-                    <dt class="text-[#9ca3af]">Tahun ajaran</dt>
-                    <dd
-                      class="mt-0.5 wrap-break-word font-medium text-[#374151]"
+
+                  <dl
+                    class="mt-3 grid min-w-0 gap-x-5 gap-y-2 rounded-lg bg-[#fbfaf8] p-3 text-xs sm:grid-cols-2"
+                  >
+                    <div class="min-w-0">
+                      <dt class="text-[#9ca3af]">Semester</dt>
+                      <dd
+                        class="mt-0.5 wrap-break-word font-medium text-[#374151]"
+                      >
+                        {{ classItem.termName || selectedTerm?.termName || "-" }}
+                      </dd>
+                    </div>
+                    <div class="min-w-0">
+                      <dt class="text-[#9ca3af]">Tahun ajaran</dt>
+                      <dd
+                        class="mt-0.5 wrap-break-word font-medium text-[#374151]"
+                      >
+                        {{
+                          classItem.academicYearName ||
+                          selectedAcademicYear?.academicYearName ||
+                          "-"
+                        }}
+                      </dd>
+                    </div>
+                    <div class="min-w-0">
+                      <dt class="text-[#9ca3af]">Dibuat</dt>
+                      <dd
+                        class="mt-0.5 wrap-break-word font-medium text-[#374151]"
+                      >
+                        {{ formatDateTime(classItem.createdAt) }}
+                      </dd>
+                    </div>
+                    <div class="min-w-0">
+                      <dt class="text-[#9ca3af]">Dibuat oleh</dt>
+                      <dd
+                        class="mt-0.5 wrap-break-word font-medium text-[#374151]"
+                      >
+                        {{ classItem.creatorName || "Tidak tersedia" }}
+                      </dd>
+                    </div>
+                  </dl>
+
+                  <div class="mt-3 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      class="inline-flex items-center gap-1.5 rounded-lg border border-[#ebe7df] bg-white px-3 py-1.5 text-xs font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60"
+                      :disabled="togglingClassId === classItem.classId"
+                      @click="startEdit(classItem)"
                     >
+                      <PhPencilSimple :size="13" weight="bold" />
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      class="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition disabled:cursor-not-allowed disabled:opacity-60"
+                      :class="
+                        classItem.isActive
+                          ? 'border-[#fecaca] bg-white text-[#dc2626] hover:bg-[#fef2f2]'
+                          : 'border-[#bbf7d0] bg-white text-[#059669] hover:bg-[#f0fdf4]'
+                      "
+                      :disabled="togglingClassId === classItem.classId"
+                      @click="toggleActive(classItem)"
+                    >
+                      <component
+                        :is="classItem.isActive ? PhToggleRight : PhToggleLeft"
+                        :size="14"
+                        weight="fill"
+                      />
                       {{
-                        classItem.academicYearName ||
-                        selectedAcademicYear?.academicYearName ||
-                        "-"
+                        togglingClassId === classItem.classId
+                          ? "Mengubah..."
+                          : classItem.isActive
+                            ? "Nonaktifkan"
+                            : "Aktifkan"
                       }}
-                    </dd>
+                    </button>
                   </div>
-                  <div class="min-w-0">
-                    <dt class="text-[#9ca3af]">Dibuat</dt>
-                    <dd
-                      class="mt-0.5 wrap-break-word font-medium text-[#374151]"
-                    >
-                      {{ formatDateTime(classItem.createdAt) }}
-                    </dd>
-                  </div>
-                  <div class="min-w-0">
-                    <dt class="text-[#9ca3af]">Dibuat oleh</dt>
-                    <dd
-                      class="mt-0.5 wrap-break-word font-medium text-[#374151]"
-                    >
-                      {{ classItem.creatorName || "Tidak tersedia" }}
-                    </dd>
-                  </div>
-                </dl>
+                </template>
               </article>
             </div>
           </div>
@@ -585,16 +754,17 @@ onMounted(async () => {
       </div>
 
       <RouterLink
+        v-if="classes.length > 0"
         to="/admin/enrollments"
         class="mt-5 flex items-center justify-between gap-4 rounded-2xl border border-[#ebe7df] bg-white p-5 transition hover:border-[#4f46e5] hover:shadow-sm"
       >
         <div>
-          <p class="text-xs font-semibold uppercase tracking-[0.16em] text-[#ea580c]">
+          <p class="eyebrow">
             Langkah berikutnya
           </p>
           <p class="mt-1 text-base font-semibold text-[#171322]">Buka Penempatan Kelas</p>
           <p class="mt-1 text-sm text-[#6b7280]">
-            Setelah kelas dibuat, masukkan siswa dan guru ke kelas yang sesuai.
+            Kelas sudah ada — masukkan siswa dan guru ke kelas yang sesuai.
           </p>
         </div>
         <PhArrowRight :size="20" class="shrink-0 text-[#4f46e5]" weight="bold" />

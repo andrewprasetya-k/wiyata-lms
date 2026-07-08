@@ -62,9 +62,7 @@ onMounted(() => {
         class="flex min-w-0 flex-col gap-3 px-5 py-5 sm:px-6 lg:flex-row lg:items-end lg:justify-between lg:px-8"
       >
         <div class="min-w-0">
-          <p
-            class="text-xs font-semibold uppercase tracking-[0.18em] text-[#ea580c]"
-          >
+          <p class="eyebrow">
             Super Admin
           </p>
           <h1 class="mt-2 text-2xl font-semibold text-[#171322] sm:text-3xl">
@@ -153,11 +151,12 @@ onMounted(() => {
           </div>
 
           <div class="mt-5 space-y-3">
-            <div
-              v-if="isLoading"
-              class="rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-4 py-5 text-sm text-[#6b7280]"
-            >
-              Memuat akun global...
+            <div v-if="isLoading" class="space-y-3">
+              <div
+                v-for="item in 3"
+                :key="item"
+                class="h-20 animate-pulse rounded-lg bg-[#fbfaf8]"
+              />
             </div>
 
             <div
