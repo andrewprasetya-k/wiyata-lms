@@ -519,10 +519,7 @@ const screenshotSlots = [
     </section>
 
     <!-- ───────────── PREVIEW / MEDIA ───────────── -->
-    <section
-      id="preview"
-      class="relative border-t border-[#e7e2da] bg-[#fbfaf8] scroll-mt-24"
-    >
+    <section id="preview" class="relative bg-[#fbfaf8] scroll-mt-24">
       <div
         class="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(251,250,248,1)_0%,rgba(245,243,255,0.80)_45%,rgba(251,250,248,1)_100%)]"
         aria-hidden="true"
@@ -606,25 +603,23 @@ const screenshotSlots = [
     </section>
 
     <!-- ───────────── FINAL CTA ───────────── -->
-    <section class="bg-[#fbfaf8]">
-      <div class="mx-auto max-w-7xl px-6 py-20 lg:px-8">
-        <!-- Contained CTA block -->
-        <div
-          class="relative overflow-hidden rounded-3xl border border-[#e0daf7] bg-white/80 px-8 py-12 shadow-[0_2px_24px_-4px_rgba(79,70,229,0.09),inset_0_1px_0_rgba(255,255,255,0.85)] backdrop-blur-xl backdrop-saturate-150 lg:px-14 lg:py-14"
-        >
-          <!-- Decorative glow inside container — visible through glass base -->
-          <div
-            class="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-[#4f46e5]/12 blur-3xl"
-            aria-hidden="true"
-          />
-          <div
-            class="pointer-events-none absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-[#f59e0b]/12 blur-3xl"
-            aria-hidden="true"
-          />
+    <section class="relative overflow-hidden bg-[#fbfaf8]">
+      <!-- Backdrop blobs — exist in section behind the card so backdrop-blur has something to blur -->
+      <div
+        class="pointer-events-none absolute right-0 top-1/4 h-50 w-lg -translate-y-1/2 translate-x-1/3 rounded-full bg-[#4f46e5]/22 blur-3xl"
+        aria-hidden="true"
+      />
+      <div
+        class="pointer-events-none absolute left-0 top-1/2 h-80 w-80 -translate-x-1/3 -translate-y-1/2 rounded-full bg-[#f59e0b]/20 blur-3xl"
+        aria-hidden="true"
+      />
 
-          <div
-            class="relative grid gap-10 lg:grid-cols-[1fr_auto] lg:items-center"
-          >
+      <div class="mx-auto max-w-7xl px-6 py-20 lg:px-8">
+        <!-- Glass card — backdrop-blur now blurs the section blobs behind it -->
+        <div
+          class="relative rounded-3xl bg-white/40 px-8 py-12 shadow-[0_2px_24px_-4px_rgba(79,70,229,0.09),inset_0_1px_0_rgba(255,255,255,0.85)] backdrop-blur-3xl backdrop-saturate-250 lg:px-14 lg:py-14"
+        >
+          <div class="grid gap-10 lg:grid-cols-[1fr_auto] lg:items-center">
             <div class="max-w-2xl">
               <p class="text-sm font-medium text-[#4f46e5]">
                 Wiyata Academic Workspace
