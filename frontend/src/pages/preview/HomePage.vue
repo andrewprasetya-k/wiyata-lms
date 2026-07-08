@@ -6,8 +6,8 @@ import {
   PhX,
   PhArrowRight,
   PhArrowDown,
-  PhMonitor,
   PhPlay,
+  PhMonitor,
   PhCheckCircle,
   PhDot,
   PhChalkboardTeacher,
@@ -27,14 +27,13 @@ const handleAnchorClick = (e: MouseEvent, selector: string) => {
   if (lenis) {
     e.preventDefault();
     lenis.scrollTo(selector, {
-      offset: -80, // Navbar height offset compensation
+      offset: -80,
       duration: 1.1,
     });
   }
 };
 
 onMounted(() => {
-  // Respect prefers-reduced-motion
   const prefersReduced = window.matchMedia(
     "(prefers-reduced-motion: reduce)",
   ).matches;
@@ -60,7 +59,7 @@ onUnmounted(() => {
   rafId = null;
 });
 
-// ── Features — editorial narrative list
+// ── Features
 const features = [
   {
     title: "Kelas & Materi",
@@ -154,7 +153,7 @@ const mainRoles = [
   },
 ];
 
-// ── Screenshot slots for media section
+// ── Screenshot slots
 const screenshotSlots = [
   {
     label: "Tampilan Guru",
@@ -173,24 +172,24 @@ const screenshotSlots = [
   },
 ];
 </script>
+
 <template>
   <main class="relative isolate overflow-x-hidden bg-[#fbfaf8] text-[#171322]">
-    <!-- Global decorative background -->
+    <!-- ── Global decorative background -->
     <div class="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+      <!-- Indigo glow — hero anchor -->
       <div
-        class="absolute left-1/2 top-0 h-130 w-225 -translate-x-1/2 rounded-full bg-[#4f46e5]/10 blur-3xl"
+        class="absolute left-1/2 top-0 h-130 w-225 -translate-x-1/2 rounded-full bg-[#4f46e5]/18 blur-3xl"
         aria-hidden="true"
       />
+      <!-- Warm amber glow — mid-page -->
       <div
-        class="absolute -right-45 top-105 h-105 w-105 rounded-full bg-[#38bdf8]/10 blur-3xl"
+        class="absolute -left-40 top-250 h-120 w-120 rounded-full bg-[#f59e0b]/12 blur-3xl"
         aria-hidden="true"
       />
+      <!-- Subtle dot grid -->
       <div
-        class="absolute -left-45 top-245 h-115 w-115 rounded-full bg-[#f59e0b]/8 blur-3xl"
-        aria-hidden="true"
-      />
-      <div
-        class="absolute inset-0 opacity-[0.035]"
+        class="absolute inset-0 opacity-[0.05]"
         style="
           background-image:
             linear-gradient(#171322 1px, transparent 1px),
@@ -200,48 +199,46 @@ const screenshotSlots = [
         aria-hidden="true"
       />
     </div>
+
     <!-- ───────────── NAVBAR ───────────── -->
     <header
-      class="fixed left-0 right-0 w-full top-0 z-50 backdrop-blur-xl backdrop-saturate-150 transition-colors duration-300"
+      class="fixed left-0 right-0 top-0 z-50 w-full backdrop-blur-xl backdrop-saturate-150 transition-colors duration-300"
     >
       <div
         class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8"
       >
-        <!-- Wordmark -->
         <RouterLink to="/home" class="flex items-center gap-2.5">
           <img
             src="/logo_fix.svg"
             alt="Wiyata"
             class="h-7 w-7 rounded-lg object-contain"
           />
-          <span class="text-[15px] font-semibold tracking-tight text-[#171322]"
-            >Wiyata Academic Workspace</span
-          >
+          <span class="text-[15px] font-semibold tracking-tight text-[#171322]">
+            Wiyata Academic Workspace
+          </span>
         </RouterLink>
 
-        <!-- Desktop nav links -->
         <nav class="hidden items-center gap-8 text-sm text-[#6b7280] md:flex">
           <a
             href="#fitur"
-            @click="handleAnchorClick($event, '#fitur')"
             class="transition-colors hover:text-[#171322]"
+            @click="handleAnchorClick($event, '#fitur')"
             >Fitur</a
           >
           <a
             href="#peran"
-            @click="handleAnchorClick($event, '#peran')"
             class="transition-colors hover:text-[#171322]"
+            @click="handleAnchorClick($event, '#peran')"
             >Untuk Siapa</a
           >
           <a
             href="#preview"
-            @click="handleAnchorClick($event, '#preview')"
             class="transition-colors hover:text-[#171322]"
+            @click="handleAnchorClick($event, '#preview')"
             >Preview</a
           >
         </nav>
 
-        <!-- CTA + mobile -->
         <div class="flex items-center gap-3">
           <RouterLink
             to="/school-registration"
@@ -267,7 +264,6 @@ const screenshotSlots = [
         </div>
       </div>
 
-      <!-- Mobile drawer -->
       <Transition
         enter-active-class="transition-all duration-200 ease-out"
         enter-from-class="opacity-0 -translate-y-1"
@@ -280,29 +276,29 @@ const screenshotSlots = [
           <div class="flex flex-col gap-1 px-6 py-4">
             <a
               href="#fitur"
+              class="rounded-md px-3 py-2.5 text-sm text-[#6b7280] hover:bg-[#f8f7f4] hover:text-[#171322]"
               @click="
                 mobileOpen = false;
                 handleAnchorClick($event, '#fitur');
               "
-              class="rounded-md px-3 py-2.5 text-sm text-[#6b7280] hover:bg-[#f8f7f4] hover:text-[#171322]"
               >Fitur</a
             >
             <a
               href="#peran"
+              class="rounded-md px-3 py-2.5 text-sm text-[#6b7280] hover:bg-[#f8f7f4] hover:text-[#171322]"
               @click="
                 mobileOpen = false;
                 handleAnchorClick($event, '#peran');
               "
-              class="rounded-md px-3 py-2.5 text-sm text-[#6b7280] hover:bg-[#f8f7f4] hover:text-[#171322]"
               >Untuk Siapa</a
             >
             <a
               href="#preview"
+              class="rounded-md px-3 py-2.5 text-sm text-[#6b7280] hover:bg-[#f8f7f4] hover:text-[#171322]"
               @click="
                 mobileOpen = false;
                 handleAnchorClick($event, '#preview');
               "
-              class="rounded-md px-3 py-2.5 text-sm text-[#6b7280] hover:bg-[#f8f7f4] hover:text-[#171322]"
               >Preview</a
             >
           </div>
@@ -314,60 +310,58 @@ const screenshotSlots = [
     <section
       class="relative mx-auto max-w-7xl px-6 pb-0 pt-24 lg:px-8 lg:pt-32"
     >
+      <!-- Hero-local blobs -->
       <div
-        class="pointer-events-none absolute -left-30 top-16 -z-10 h-72 w-72 rounded-full bg-[#4f46e5]/12 blur-3xl"
+        class="pointer-events-none absolute -left-30 top-16 -z-10 h-72 w-72 rounded-full bg-[#4f46e5]/20 blur-3xl"
         aria-hidden="true"
       />
       <div
-        class="pointer-events-none absolute -right-40 top-32 -z-10 h-80 w-80 rounded-full bg-[#38bdf8]/10 blur-3xl"
+        class="pointer-events-none absolute -right-40 top-32 -z-10 h-80 w-80 rounded-full bg-[#f59e0b]/14 blur-3xl"
         aria-hidden="true"
       />
-      <!-- Headline -->
+
       <h1
         class="mt-5 max-w-3xl text-5xl font-semibold leading-[1.1] tracking-tight text-[#171322] sm:text-6xl lg:text-[68px]"
       >
         Satu workspace untuk aktivitas akademik sekolah.
       </h1>
 
-      <!-- Sub-headline -->
       <p class="mt-6 max-w-2xl text-lg leading-8 text-[#6b7280]">
         Kelola materi, tugas, komunikasi, dan penilaian dalam satu workspace
         bagi murid, guru, dan sekolah.
       </p>
-      <!-- CTAs -->
-      <div
-        class="mt-9 flex flex-col items-start gap-3 sm:flex-row sm:items-center"
-      >
+
+      <!-- CTAs — three-tier hierarchy -->
+      <div class="mt-9 flex flex-wrap items-center gap-3">
         <RouterLink
           to="/school-registration"
           id="hero-cta-daftar-sekolah"
-          class="inline-flex h-11 items-center justify-center rounded-lg bg-[#4f46e5] px-6 text-sm font-medium text-white transition-colors hover:bg-[#4338ca]"
+          class="inline-flex h-12 items-center justify-center rounded-lg bg-[#4f46e5] px-8 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#4338ca]"
         >
           Daftarkan Sekolah
         </RouterLink>
         <RouterLink
           to="/login"
           id="hero-cta-masuk"
-          class="inline-flex h-11 items-center justify-center rounded-lg border border-[#e7e2da] bg-white px-6 text-sm font-medium text-[#171322] transition-colors hover:bg-[#f8f7f4]"
+          class="inline-flex h-11 items-center justify-center rounded-lg border border-[#e7e2da] bg-white px-6 text-sm font-medium text-[#5f5968] transition-colors hover:bg-[#f8f7f4] hover:text-[#171322]"
         >
           Masuk ke Wiyata
         </RouterLink>
         <a
           href="#preview"
           id="hero-cta-preview"
+          class="inline-flex h-11 items-center gap-1.5 text-sm font-medium text-[#6b7280] transition-colors hover:text-[#171322]"
           @click="handleAnchorClick($event, '#preview')"
-          class="inline-flex h-11 items-center justify-center gap-1.5 rounded-lg border border-[#e7e2da] bg-white px-6 text-sm font-medium text-[#171322] transition-colors hover:bg-[#f8f7f4]"
         >
           Lihat preview
-          <PhArrowDown :size="14" class="text-[#6b7280]" />
+          <PhArrowDown :size="14" />
         </a>
       </div>
 
-      <!-- ── LARGE PRODUCT PREVIEW PLACEHOLDER ── -->
-      <!-- TODO: Replace this placeholder with actual Wiyata product screenshot or demo video. -->
+      <!-- ── Product mockup (dashboard UI) ── -->
       <div class="mt-16">
         <div
-          class="relative overflow-hidden rounded-2xl border border-[#e7e2da] bg-white shadow-[0_24px_80px_-32px_rgba(79,70,229,0.35)] ring-1 ring-white/70"
+          class="relative overflow-hidden rounded-2xl border border-[#e7e2da] bg-white shadow-[0_28px_90px_-30px_rgba(79,70,229,0.32)] ring-1 ring-white/70"
         >
           <!-- Browser chrome -->
           <div
@@ -377,7 +371,7 @@ const screenshotSlots = [
             <span class="h-3 w-3 rounded-full bg-[#fcd34d]" />
             <span class="h-3 w-3 rounded-full bg-[#86efac]" />
             <div
-              class="ml-3 flex h-6 flex-1 max-w-xs items-center rounded-md bg-[#f0ece5] px-3 text-xs text-[#9ca3af]"
+              class="ml-3 flex h-6 max-w-xs flex-1 items-center rounded-md bg-[#f0ece5] px-3 text-xs text-[#9ca3af]"
             >
               app.wiyata.id/student/dashboard
             </div>
@@ -409,7 +403,7 @@ const screenshotSlots = [
         </div>
 
         <p class="mt-3 text-center text-xs text-[#9ca3af]">
-          Screenshot produk nyata akan ditambahkan di sini.
+          Tampilan dashboard siswa Wiyata.
         </p>
       </div>
     </section>
@@ -417,9 +411,8 @@ const screenshotSlots = [
     <!-- ───────────── FEATURE STORY ───────────── -->
     <section
       id="fitur"
-      class="relative mx-auto max-w-7xl px-6 py-32 lg:px-8 scroll-mt-24"
+      class="relative mx-auto max-w-7xl scroll-mt-24 border-t border-[#e7e2da] px-6 py-32 lg:px-8"
     >
-      <!-- Section label -->
       <div class="max-w-2xl">
         <p class="text-sm font-medium text-[#4f46e5]">Fitur utama</p>
         <h2
@@ -433,14 +426,12 @@ const screenshotSlots = [
         </p>
       </div>
 
-      <!-- Feature rows — editorial split layout -->
-      <div class="mt-20 space-y-0 divide-y divide-[#e7e2da]">
+      <div class="mt-20 divide-y divide-[#e7e2da]">
         <div
           v-for="(feature, i) in features"
           :key="feature.title"
-          class="grid grid-cols-1 gap-8 py-10 md:grid-cols-[280px_1fr] md:gap-16 lg:gap-24"
+          class="grid grid-cols-1 gap-8 py-10 transition-colors hover:bg-[#faf9f7] hover:backdrop-blur-3xl md:grid-cols-[280px_1fr] md:gap-16 lg:gap-24"
         >
-          <!-- Label column -->
           <div class="flex flex-col justify-start pt-0.5">
             <span
               class="mb-2 text-xs font-semibold uppercase tracking-widest text-[#4f46e5]"
@@ -451,7 +442,6 @@ const screenshotSlots = [
               {{ feature.title }}
             </h3>
           </div>
-          <!-- Description column -->
           <div class="flex flex-col justify-center">
             <p class="text-base leading-8 text-[#6b7280]">
               {{ feature.description }}
@@ -475,9 +465,9 @@ const screenshotSlots = [
     </section>
 
     <!-- ───────────── ROLE SECTION ───────────── -->
-    <section id="peran" class="relative border-[#e7e2da] bg-white scroll-mt-24">
+    <section id="peran" class="relative bg-white scroll-mt-24">
       <div
-        class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(79,70,229,0.08),transparent_32%),radial-gradient(circle_at_80%_30%,rgba(56,189,248,0.08),transparent_28%)]"
+        class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(79,70,229,0.07),transparent_32%),radial-gradient(circle_at_80%_30%,rgba(245,158,11,0.06),transparent_28%)]"
         aria-hidden="true"
       />
       <div class="relative mx-auto max-w-7xl px-6 py-32 lg:px-8">
@@ -494,15 +484,13 @@ const screenshotSlots = [
           </p>
         </div>
 
-        <!-- Three primary role columns -->
-        <div
-          class="mt-16 grid gap-px border border-[#e7e2da] bg-[#e7e2da] sm:grid-cols-3"
-        >
+        <!-- Individual role cards -->
+        <div class="mt-16 grid gap-5 sm:grid-cols-3">
           <article
             v-for="role in mainRoles"
-            :key="role.title"
             :id="role.anchor"
-            class="bg-white px-8 py-10"
+            :key="role.title"
+            class="rounded-2xl border border-[#e7e2da] bg-white px-8 py-9 transition hover:border-[#c7c3d7] hover:shadow-md"
           >
             <p
               class="text-xs font-semibold uppercase tracking-widest text-[#4f46e5]"
@@ -530,15 +518,13 @@ const screenshotSlots = [
       </div>
     </section>
 
-    <!-- ───────────── PRODUCT VIDEO / MEDIA PLACEHOLDER ───────────── -->
-    <!-- TODO: Replace with product video or feature screenshot carousel later. -->
-
+    <!-- ───────────── PREVIEW / MEDIA ───────────── -->
     <section
       id="preview"
-      class="relative border-[#e7e2da] bg-[#fbfaf8] scroll-mt-24"
+      class="relative border-t border-[#e7e2da] bg-[#fbfaf8] scroll-mt-24"
     >
       <div
-        class="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(251,250,248,1)_0%,rgba(245,243,255,0.85)_45%,rgba(251,250,248,1)_100%)]"
+        class="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(251,250,248,1)_0%,rgba(245,243,255,0.80)_45%,rgba(251,250,248,1)_100%)]"
         aria-hidden="true"
       />
       <div class="relative mx-auto max-w-7xl px-6 py-32 lg:px-8">
@@ -560,7 +546,6 @@ const screenshotSlots = [
           <div
             class="relative flex aspect-video w-full flex-col items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-[#1a1830] shadow-[0_30px_90px_-40px_rgba(26,24,48,0.75)]"
           >
-            <!-- Subtle dot grid -->
             <div
               class="pointer-events-none absolute inset-0 opacity-[0.06]"
               style="
@@ -573,8 +558,6 @@ const screenshotSlots = [
               "
               aria-hidden="true"
             />
-
-            <!-- Play button placeholder -->
             <div class="relative flex flex-col items-center gap-5 text-center">
               <button
                 disabled
@@ -592,8 +575,6 @@ const screenshotSlots = [
                 </p>
               </div>
             </div>
-
-            <!-- Duration badge -->
             <div
               class="absolute bottom-4 right-4 rounded-md bg-white/10 px-2.5 py-1 text-xs text-white/50"
             >
@@ -602,18 +583,17 @@ const screenshotSlots = [
           </div>
 
           <p class="mt-4 text-center text-xs text-[#9ca3af]">
-            <!-- TODO: Replace this area with the actual Wiyata product demo video. -->
             Preview video produk sedang disiapkan dan akan ditampilkan di bagian
             ini.
           </p>
         </div>
 
-        <!-- Three feature screenshot placeholders -->
+        <!-- Screenshot placeholders -->
         <div class="mt-10 grid gap-4 sm:grid-cols-3">
           <div
             v-for="slot in screenshotSlots"
             :key="slot.label"
-            class="flex aspect-4/3 flex-col items-center justify-center gap-3 rounded-xl border border-[#e7e2da] bg-white text-center"
+            class="flex aspect-4/3 flex-col items-center justify-center gap-3 rounded-xl border border-[#e7e2da] bg-white text-center shadow-sm"
           >
             <component :is="slot.icon" :size="22" class="text-[#d1cde5]" />
             <div>
@@ -626,59 +606,73 @@ const screenshotSlots = [
     </section>
 
     <!-- ───────────── FINAL CTA ───────────── -->
-    <section class="bg-white">
-      <div class="mx-auto max-w-7xl px-6 py-32 lg:px-8">
+    <section class="bg-[#fbfaf8]">
+      <div class="mx-auto max-w-7xl px-6 py-20 lg:px-8">
+        <!-- Contained CTA block -->
         <div
-          class="grid gap-12 rounded-4xl px-8 py-10 lg:grid-cols-[1fr_auto] lg:items-center lg:px-12 lg:py-12"
+          class="relative overflow-hidden rounded-3xl border border-[#e0daf7] bg-white/80 px-8 py-12 shadow-[0_2px_24px_-4px_rgba(79,70,229,0.09),inset_0_1px_0_rgba(255,255,255,0.85)] backdrop-blur-xl backdrop-saturate-150 lg:px-14 lg:py-14"
         >
-          <div class="max-w-2xl">
-            <p class="text-sm font-medium text-[#4f46e5]">
-              Wiyata Academic Workspace
-            </p>
-            <h2
-              class="mt-4 text-4xl font-semibold tracking-tight text-[#171322] sm:text-5xl"
-            >
-              Workspace sekolah yang sudah siap dipakai.
-            </h2>
-            <p class="mt-5 text-lg leading-8 text-[#6b7280]">
-              Gunakan akun Wiyata yang sudah terdaftar untuk melanjutkan
-              aktivitas belajar, mengajar, atau operasional sekolah dari satu
-              tempat yang sama.
-            </p>
-            <p class="mt-3 text-sm text-[#9ca3af]">
-              Untuk pengguna yang sudah memiliki akun Wiyata.
-            </p>
-          </div>
+          <!-- Decorative glow inside container — visible through glass base -->
+          <div
+            class="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-[#4f46e5]/12 blur-3xl"
+            aria-hidden="true"
+          />
+          <div
+            class="pointer-events-none absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-[#f59e0b]/12 blur-3xl"
+            aria-hidden="true"
+          />
 
-          <div class="flex flex-col items-start gap-3 lg:items-end">
-            <RouterLink
-              to="/school-registration"
-              id="final-cta-daftar-sekolah"
-              class="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-[#4f46e5] px-7 text-sm font-medium text-white transition-colors hover:bg-[#4338ca]"
-            >
-              Daftarkan Sekolah
-              <PhArrowRight :size="15" />
-            </RouterLink>
-            <RouterLink
-              to="/login"
-              id="final-cta-masuk"
-              class="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-[#e7e2da] bg-transparent px-7 text-sm font-medium text-[#6b7280] transition-colors hover:border-[#d1cde5] hover:text-[#171322]"
-            >
-              Masuk ke Wiyata
-              <PhArrowRight :size="15" />
-            </RouterLink>
+          <div
+            class="relative grid gap-10 lg:grid-cols-[1fr_auto] lg:items-center"
+          >
+            <div class="max-w-2xl">
+              <p class="text-sm font-medium text-[#4f46e5]">
+                Wiyata Academic Workspace
+              </p>
+              <h2
+                class="mt-4 text-4xl font-semibold tracking-tight text-[#171322] sm:text-5xl"
+              >
+                Workspace sekolah yang sudah siap dipakai.
+              </h2>
+              <p class="mt-5 text-lg leading-8 text-[#6b7280]">
+                Gunakan akun Wiyata yang sudah terdaftar untuk melanjutkan
+                aktivitas belajar, mengajar, atau operasional sekolah dari satu
+                tempat yang sama.
+              </p>
+              <p class="mt-3 text-sm text-[#9ca3af]">
+                Untuk pengguna yang sudah memiliki akun Wiyata.
+              </p>
+            </div>
+
+            <div class="flex flex-col items-start gap-3 lg:items-end">
+              <RouterLink
+                to="/school-registration"
+                id="final-cta-daftar-sekolah"
+                class="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-[#4f46e5] px-8 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#4338ca]"
+              >
+                Daftarkan Sekolah
+                <PhArrowRight :size="15" />
+              </RouterLink>
+              <RouterLink
+                to="/login"
+                id="final-cta-masuk"
+                class="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-[#e0daf7] bg-white/70 px-7 text-sm font-medium text-[#6b7280] transition-colors hover:border-[#c7c3d7] hover:text-[#171322]"
+              >
+                Masuk ke Wiyata
+                <PhArrowRight :size="15" />
+              </RouterLink>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
     <!-- ───────────── FOOTER ───────────── -->
-    <footer class="bg-[#fbfaf8] pt-10">
-      <div class="mx-auto max-w-7xl px-6 py-8 lg:px-8">
+    <footer class="border-t border-[#e7e2da] bg-[#fbfaf8]">
+      <div class="mx-auto max-w-7xl px-6 py-10 lg:px-8">
         <div
           class="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between"
         >
-          <!-- Brand -->
           <div class="flex items-center gap-2.5">
             <img
               src="/logo_fix.svg"
@@ -688,37 +682,36 @@ const screenshotSlots = [
             <span class="text-sm font-semibold text-[#171322]">Wiyata</span>
           </div>
 
-          <!-- Footer links -->
           <nav class="flex flex-wrap gap-x-7 gap-y-2 text-sm text-[#9ca3af]">
             <a
               href="#fitur"
-              @click="handleAnchorClick($event, '#fitur')"
               class="hover:text-[#6b7280]"
+              @click="handleAnchorClick($event, '#fitur')"
               >Fitur</a
             >
             <a
               href="#peran"
-              @click="handleAnchorClick($event, '#peran')"
               class="hover:text-[#6b7280]"
+              @click="handleAnchorClick($event, '#peran')"
               >Untuk Siapa</a
             >
             <a
               href="#preview"
-              @click="handleAnchorClick($event, '#preview')"
               class="hover:text-[#6b7280]"
+              @click="handleAnchorClick($event, '#preview')"
               >Preview</a
             >
             <RouterLink to="/login" class="hover:text-[#6b7280]"
               >Masuk</RouterLink
             >
-            <RouterLink to="/school-registration" class="hover:text-[#6b7280]"
-              >Daftarkan Sekolah</RouterLink
-            >
+            <RouterLink to="/school-registration" class="hover:text-[#6b7280]">
+              Daftarkan Sekolah
+            </RouterLink>
           </nav>
         </div>
 
         <div
-          class="mt-8 flex flex-col gap-1 border-[#e7e2da] pt-6 text-xs text-[#c4bfcc] sm:flex-row sm:justify-between"
+          class="mt-8 flex flex-col gap-1 border-t border-[#e7e2da] pt-6 text-xs text-[#c4bfcc] sm:flex-row sm:justify-between"
         >
           <p>© 2026 Wiyata Academic Workspace. All rights reserved.</p>
           <p>Learning Management System by Loka Wiyata</p>
