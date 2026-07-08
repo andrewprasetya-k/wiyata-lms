@@ -271,12 +271,9 @@ export const useAuthStore = defineStore("auth", () => {
 
   function persistCurrentSession() {
     if (!token.value) return;
-    // For platform context (super_admin), activeSchoolId.value is null because the
-    // computed only returns a schoolId for type:'school' contexts. However, backend
-    // RequireRole always needs a SchoolId to look up roles — and for super_admin that
-    // school is always the system school (code "000000"), guaranteed by CreateSuperAdmin.
-    // Fall back to the system school UUID from memberships so the API interceptor
-    // can include it in requests, restoring the pre-ab26e05 behaviour.
+    // make sure to send the superadmin school id to
+    // the backend if the user is a superadmin, so that the backend can set the active school id
+    // to the superadmin school id if the user is a superadmin
     const superAdminSchoolId = import.meta.env.VITE_SUPERADMIN_SCHOOL_ID;
     console.log("SUPERADMIN_SCHOOL_ID", superAdminSchoolId);
     const effectiveSchoolId =
