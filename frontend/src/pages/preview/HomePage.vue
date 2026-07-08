@@ -5,7 +5,6 @@ import {
   PhList,
   PhX,
   PhArrowRight,
-  PhArrowDown,
   PhPlay,
   PhMonitor,
   PhCheckCircle,
@@ -347,15 +346,6 @@ const screenshotSlots = [
         >
           Masuk ke Wiyata
         </RouterLink>
-        <a
-          href="#preview"
-          id="hero-cta-preview"
-          class="inline-flex h-11 items-center gap-1.5 text-sm font-medium text-[#6b7280] transition-colors hover:text-[#171322]"
-          @click="handleAnchorClick($event, '#preview')"
-        >
-          Lihat preview
-          <PhArrowDown :size="14" />
-        </a>
       </div>
 
       <!-- ── Product mockup (dashboard UI) ── -->

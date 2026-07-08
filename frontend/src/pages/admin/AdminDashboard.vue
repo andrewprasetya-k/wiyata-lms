@@ -35,9 +35,7 @@ const activeTerm = ref<TermItem | null>(null);
 const schoolId = computed(() => auth.activeSchoolId ?? "");
 const schoolCode = computed(() => auth.activeMembership?.school.code ?? "");
 const schoolName = computed(() => auth.activeMembership?.school.name ?? "");
-const firstName = computed(
-  () => auth.user?.fullName?.split(" ")[0] ?? "Admin",
-);
+const firstName = computed(() => auth.user?.fullName?.split(" ")[0] ?? "Admin");
 
 const setupSteps = computed(() => [
   {
@@ -188,7 +186,9 @@ async function loadDashboard() {
     activeYear.value = foundActiveYear;
 
     if (foundActiveYear) {
-      const terms = await getTermsByAcademicYear(foundActiveYear.academicYearId);
+      const terms = await getTermsByAcademicYear(
+        foundActiveYear.academicYearId,
+      );
       activeTerm.value = terms.find((t) => t.isActive) ?? null;
     }
   } catch {
@@ -214,7 +214,9 @@ onMounted(loadDashboard);
           class="flex min-w-0 flex-col gap-3 px-5 py-5 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8"
         >
           <div class="min-w-0">
-            <p class="text-xs font-semibold uppercase tracking-[0.06em] text-[#9ca3af]">
+            <p
+              class="text-xs font-semibold uppercase tracking-[0.06em] text-[#9ca3af]"
+            >
               Admin Sekolah
             </p>
             <h1 class="mt-1 text-2xl font-semibold text-[#171322] sm:text-3xl">
@@ -327,7 +329,10 @@ onMounted(loadDashboard);
               v-else-if="!loading"
               class="shrink-0 rounded-full bg-[#fff7ed] px-3 py-1 text-xs font-semibold text-[#ea580c]"
             >
-              {{ setupSteps.filter((s) => s.done).length }}/{{ setupSteps.length }} selesai
+              {{ setupSteps.filter((s) => s.done).length }}/{{
+                setupSteps.length
+              }}
+              selesai
             </span>
           </div>
 
@@ -352,15 +357,15 @@ onMounted(loadDashboard);
                 weight="duotone"
                 class="shrink-0 transition"
                 :class="
-                  step.done ? 'text-[#059669]' : 'text-[#d1d5db] group-hover:text-[#9ca3af]'
+                  step.done
+                    ? 'text-[#059669]'
+                    : 'text-[#d1d5db] group-hover:text-[#9ca3af]'
                 "
               />
               <span class="min-w-0 flex-1">
                 <span
                   class="block text-sm font-medium"
-                  :class="
-                    step.done ? 'text-[#171322]' : 'text-[#6b7280]'
-                  "
+                  :class="step.done ? 'text-[#171322]' : 'text-[#6b7280]'"
                 >
                   {{ step.label }}
                 </span>
@@ -391,9 +396,7 @@ onMounted(loadDashboard);
 
         <!-- SECTION 4 — Quick Actions -->
         <section>
-          <h2 class="mb-3 text-sm font-semibold text-[#171322]">
-            Aksi Cepat
-          </h2>
+          <h2 class="mb-3 text-sm font-semibold text-[#171322]">Aksi Cepat</h2>
           <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
             <RouterLink
               v-for="action in quickActions"
@@ -446,9 +449,7 @@ onMounted(loadDashboard);
           </div>
 
           <div
-            v-else-if="
-              !stats?.recentActivities?.length
-            "
+            v-else-if="!stats?.recentActivities?.length"
             class="rounded-lg bg-[#fbfaf8] px-4 py-8 text-center"
           >
             <PhClockCountdown
@@ -516,7 +517,9 @@ onMounted(loadDashboard);
             v-else-if="!stats?.enrollmentTrends?.length"
             class="rounded-lg bg-[#fbfaf8] px-3 py-5 text-center"
           >
-            <p class="text-xs text-[#6b7280]">Belum ada data distribusi kelas.</p>
+            <p class="text-xs text-[#6b7280]">
+              Belum ada data distribusi kelas.
+            </p>
           </div>
 
           <div v-else class="space-y-2.5">
@@ -533,7 +536,9 @@ onMounted(loadDashboard);
                   {{ trend.students }} siswa
                 </span>
               </div>
-              <div class="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-[#f3f4f6]">
+              <div
+                class="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-[#f3f4f6]"
+              >
                 <div
                   class="h-full rounded-full bg-[#4f46e5] transition-all"
                   :style="{
