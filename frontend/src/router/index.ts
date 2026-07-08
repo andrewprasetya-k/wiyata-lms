@@ -27,6 +27,7 @@ import TeacherActivity from "../pages/teacher/TeacherActivity.vue";
 import AdminDashboard from "../pages/admin/AdminDashboard.vue";
 import AdminAcademicYears from "../pages/admin/AdminAcademicYears.vue";
 import AdminClasses from "../pages/admin/AdminClasses.vue";
+import AdminClassDetail from "../pages/admin/AdminClassDetail.vue";
 import AdminEnrollments from "../pages/admin/AdminEnrollments.vue";
 import AdminSubjectClasses from "../pages/admin/AdminSubjectClasses.vue";
 import AdminUsers from "../pages/admin/AdminUsers.vue";
@@ -334,6 +335,12 @@ const router = createRouter({
           name: "admin-classes",
           component: AdminClasses,
           meta: { title: "Kelas" },
+        },
+        {
+          path: "classes/:classId",
+          name: "admin-class-detail",
+          component: AdminClassDetail,
+          meta: { title: "Detail Kelas" },
         },
         {
           path: "users",

@@ -1,5 +1,6 @@
 import { api } from "./api";
 import type {
+  AdminClassItem,
   AdminClassListResponse,
   CreateAdminClassPayload,
   GetAdminClassesParams,
@@ -26,5 +27,10 @@ export async function createAdminClass(payload: CreateAdminClassPayload) {
 
 export async function updateAdminClass(classId: string, payload: UpdateAdminClassPayload) {
   const { data } = await api.patch(`/classes/${classId}`, payload);
+  return data;
+}
+
+export async function getAdminClassById(classId: string) {
+  const { data } = await api.get<AdminClassItem>(`/classes/${classId}`);
   return data;
 }

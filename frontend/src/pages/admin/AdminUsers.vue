@@ -42,6 +42,7 @@ import type {
 } from "../../types/adminSchoolMemberInvitation";
 import { formatDateTime } from "../../utils/date";
 import { getApiError } from "../../utils/error";
+import PaginationBar from "../../components/common/PaginationBar.vue";
 
 const allowedRoleNames = ["student", "teacher", "admin"];
 const auth = useAuthStore();
@@ -66,6 +67,11 @@ const currentSchool = computed(() => {
 const members = ref<AdminSchoolMemberItem[]>([]);
 const roles = ref<RoleItem[]>([]);
 const memberRoleDrafts = ref<Record<string, string>>({});
+
+const membersPage = ref(1);
+const membersTotalPages = ref(1);
+const membersTotalItems = ref(0);
+const MEMBERS_LIMIT = 20;
 
 const membersLoading = ref(false);
 const rolesLoading = ref(false);
@@ -221,18 +227,21 @@ async function loadRoles() {
   }
 }
 
-async function loadMembers() {
+async function loadMembers(targetPage = membersPage.value) {
   if (!currentSchool.value.hasContext) return;
 
   membersLoading.value = true;
   membersError.value = "";
   try {
     const data = await getAdminSchoolMembers({
-      page: 1,
-      limit: 50,
+      page: targetPage,
+      limit: MEMBERS_LIMIT,
       search: memberSearch.value.trim(),
     });
     members.value = data.data ?? [];
+    membersPage.value = data.page ?? targetPage;
+    membersTotalPages.value = data.totalPages ?? 1;
+    membersTotalItems.value = Number(data.totalItems ?? 0);
     initializeRoleDrafts();
   } catch {
     membersError.value = "Warga sekolah belum bisa dimuat.";
@@ -250,16 +259,19 @@ watch(memberSearch, () => {
     const version = ++searchVersion;
     if (!currentSchool.value.hasContext) return;
 
+    membersPage.value = 1;
     membersLoading.value = true;
     membersError.value = "";
     try {
       const data = await getAdminSchoolMembers({
         page: 1,
-        limit: 50,
+        limit: MEMBERS_LIMIT,
         search: memberSearch.value.trim(),
       });
       if (version !== searchVersion) return;
       members.value = data.data ?? [];
+      membersTotalPages.value = data.totalPages ?? 1;
+      membersTotalItems.value = Number(data.totalItems ?? 0);
       initializeRoleDrafts();
     } catch {
       if (version !== searchVersion) return;
@@ -704,7 +716,7 @@ onMounted(async () => {
                 class="inline-flex shrink-0 items-center gap-2 self-start rounded-lg bg-[#eef2ff] px-3 py-2 text-xs font-medium text-[#4f46e5]"
               >
                 <PhUsers :size="16" weight="duotone" />
-                {{ members.length }} warga
+                {{ membersTotalItems || members.length }} warga
               </span>
             </div>
 
@@ -771,7 +783,8 @@ onMounted(async () => {
               </p>
             </div>
 
-            <div v-else class="divide-y divide-[#ebe7df]">
+            <div v-else class="flex flex-col gap-4">
+              <div class="divide-y divide-[#ebe7df]">
               <article
                 v-for="member in members"
                 :key="member.schoolUserId"
@@ -883,6 +896,14 @@ onMounted(async () => {
                   </div>
                 </div>
               </article>
+              </div>
+              <PaginationBar
+                :page="membersPage"
+                :total-pages="membersTotalPages"
+                :total-items="membersTotalItems"
+                :limit="MEMBERS_LIMIT"
+                @change="(p) => loadMembers(p)"
+              />
             </div>
           </div>
         </section>

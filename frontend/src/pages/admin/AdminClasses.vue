@@ -544,6 +544,13 @@ onMounted(async () => {
                   </dl>
 
                   <div class="mt-3 flex flex-wrap gap-2">
+                    <RouterLink
+                      :to="`/admin/classes/${classItem.classId}`"
+                      class="inline-flex items-center gap-1.5 rounded-lg border border-[#ebe7df] bg-[#eef2ff] px-3 py-1.5 text-xs font-medium text-[#4f46e5] transition hover:bg-[#e0e7ff]"
+                    >
+                      <PhArrowRight :size="13" weight="bold" />
+                      Lihat Detail
+                    </RouterLink>
                     <button
                       type="button"
                       class="inline-flex items-center gap-1.5 rounded-lg border border-[#ebe7df] bg-white px-3 py-1.5 text-xs font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60"

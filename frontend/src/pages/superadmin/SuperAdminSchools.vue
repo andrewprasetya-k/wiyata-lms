@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { onMounted, ref } from "vue";
 import {
   PhArrowClockwise,
   PhBuildings,
@@ -14,6 +14,7 @@ import {
 } from "@phosphor-icons/vue";
 import { useToastStore } from "../../stores/toast";
 import { getApiError } from "../../utils/error";
+import PaginationBar from "../../components/common/PaginationBar.vue";
 import {
   bootstrapSuperAdminSchool,
   getSuperAdminSchools,
@@ -28,6 +29,8 @@ import type {
 
 const toast = useToastStore();
 
+const SCHOOLS_LIMIT = 20;
+
 const schools = ref<SuperAdminSchoolItem[]>([]);
 const summary = ref<SuperAdminSchoolSummary | null>(null);
 const isLoading = ref(false);
@@ -36,6 +39,12 @@ const errorMessage = ref("");
 const summaryError = ref("");
 const searchQuery = ref("");
 const bootstrapResult = ref<SuperAdminSchoolBootstrapResponse | null>(null);
+const schoolsPage = ref(1);
+const schoolsTotalPages = ref(1);
+const schoolsTotalItems = ref(0);
+
+let searchVersion = 0;
+let searchTimer: ReturnType<typeof setTimeout> | null = null;
 
 const schoolForm = ref({
   schoolName: "",
@@ -56,21 +65,32 @@ const existingAdminForm = ref({
   userId: "",
 });
 
-const filteredSchools = computed(() => {
-  const query = searchQuery.value.trim().toLowerCase();
-  if (!query) return schools.value;
-
-  return schools.value.filter((school) => {
-    return [
-      school.schoolName,
-      school.schoolCode,
-      school.schoolEmail,
-      school.schoolPhone,
-    ]
-      .filter(Boolean)
-      .some((value) => value.toLowerCase().includes(query));
-  });
-});
+function onSearchInput() {
+  if (searchTimer) clearTimeout(searchTimer);
+  searchTimer = setTimeout(async () => {
+    const version = ++searchVersion;
+    schoolsPage.value = 1;
+    isLoading.value = true;
+    errorMessage.value = "";
+    try {
+      const response = await getSuperAdminSchools({
+        page: 1,
+        limit: SCHOOLS_LIMIT,
+        search: searchQuery.value.trim() || undefined,
+        status: "all",
+      });
+      if (version !== searchVersion) return;
+      schools.value = response.data ?? [];
+      schoolsTotalPages.value = response.totalPages ?? 1;
+      schoolsTotalItems.value = Number(response.totalItems ?? 0);
+    } catch (error) {
+      if (version !== searchVersion) return;
+      errorMessage.value = getApiError(error);
+    } finally {
+      if (version === searchVersion) isLoading.value = false;
+    }
+  }, 300);
+}
 
 function resetForm() {
   schoolForm.value = {
@@ -104,17 +124,21 @@ async function loadSummary() {
   }
 }
 
-async function loadSchools() {
+async function loadSchools(targetPage = schoolsPage.value) {
   isLoading.value = true;
   errorMessage.value = "";
 
   try {
     const response = await getSuperAdminSchools({
-      page: 1,
-      limit: 100,
+      page: targetPage,
+      limit: SCHOOLS_LIMIT,
+      search: searchQuery.value.trim() || undefined,
       status: "all",
     });
     schools.value = response.data ?? [];
+    schoolsPage.value = response.page ?? targetPage;
+    schoolsTotalPages.value = response.totalPages ?? 1;
+    schoolsTotalItems.value = Number(response.totalItems ?? 0);
   } catch (error) {
     schools.value = [];
     errorMessage.value = getApiError(error);
@@ -326,11 +350,12 @@ onMounted(() => {
                 type="search"
                 placeholder="Cari nama, kode, email..."
                 class="w-full rounded-lg border border-[#e5e7eb] bg-white py-2.5 pl-10 pr-3 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                @input="onSearchInput"
               />
             </label>
           </div>
 
-          <div class="mt-5 space-y-3">
+          <div class="mt-5 flex flex-col gap-4">
             <div v-if="isLoading" class="space-y-3">
               <div v-for="item in 3" :key="item" class="h-24 animate-pulse rounded-xl bg-[#fbfaf8]" />
             </div>
@@ -343,14 +368,14 @@ onMounted(() => {
               <button
                 type="button"
                 class="mt-3 inline-flex items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-3 py-2 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60"
-                @click="loadSchools"
+                @click="loadSchools(1)"
               >
                 Coba lagi
               </button>
             </div>
 
             <div
-              v-else-if="schools.length === 0"
+              v-else-if="schools.length === 0 && !searchQuery"
               class="rounded-lg bg-[#fbfaf8] px-5 py-8 text-center"
             >
               <PhBuildings
@@ -366,7 +391,7 @@ onMounted(() => {
             </div>
 
             <div
-              v-else-if="filteredSchools.length === 0"
+              v-else-if="schools.length === 0 && searchQuery"
               class="rounded-lg bg-[#fbfaf8] px-5 py-8 text-center"
             >
               <PhMagnifyingGlass
@@ -382,8 +407,9 @@ onMounted(() => {
             </div>
 
             <template v-else>
+              <div class="space-y-3">
               <article
-                v-for="school in filteredSchools"
+                v-for="school in schools"
                 :key="school.schoolId"
                 class="rounded-xl border border-[#ebe7df] bg-[#fcfbf8] p-4"
               >
@@ -450,6 +476,14 @@ onMounted(() => {
                   </p>
                 </div>
               </article>
+              </div>
+              <PaginationBar
+                :page="schoolsPage"
+                :total-pages="schoolsTotalPages"
+                :total-items="schoolsTotalItems"
+                :limit="SCHOOLS_LIMIT"
+                @change="(p) => loadSchools(p)"
+              />
             </template>
           </div>
         </section>
