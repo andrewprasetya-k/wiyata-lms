@@ -21,8 +21,7 @@ const (
 	maxChatMessageLimit = 50
 	maxChatContentLen   = 5000
 	maxChatAttachments  = 5
-	maxChatRoomNameLen  = 150
-	defaultSchoolRoom   = "Ruang sekolah"
+	maxChatRoomNameLen = 150
 )
 
 type ChatService interface {
@@ -142,25 +141,7 @@ func (s *chatService) OpenSchoolRoom(userID string, schoolID string) (*dto.ChatR
 
 	room, err := s.repo.GetSchoolRoom(schoolID)
 	if err != nil {
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, err
-		}
-		room = &domain.ChatRoom{
-			SchoolID:  schoolID,
-			Name:      defaultSchoolRoom,
-			Type:      chatRoomTypeGroup,
-			RefType:   chatRefTypeSchool,
-			RefID:     schoolID,
-			CreatedBy: userID,
-			CreatedAt: time.Now(),
-		}
-		if err := s.repo.CreateSchoolRoom(room); err != nil {
-			return nil, err
-		}
-		room, err = s.repo.GetSchoolRoom(schoolID)
-		if err != nil {
-			return nil, err
-		}
+		return nil, err
 	}
 
 	context, err := s.repo.GetRoomContext(room.ID, schoolID, userID)

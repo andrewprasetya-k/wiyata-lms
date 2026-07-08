@@ -15,11 +15,6 @@ import type {
   UpdateChatGroupPayload,
 } from '../types/chat'
 
-export async function openSchoolChatRoom() {
-  const { data } = await api.post<ChatRoomResponse>('/chat/school/open')
-  return data.room
-}
-
 export async function getChatRooms(search = '') {
   const { data } = await api.get<ChatRoomsResponse>('/chat/rooms', {
     params: {

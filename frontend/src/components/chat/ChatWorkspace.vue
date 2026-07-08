@@ -30,7 +30,6 @@ import {
   leaveChatGroup,
   markRoomRead,
   openDirectMessage,
-  openSchoolChatRoom,
   removeChatGroupMember,
   renameChatGroup,
   searchChatMembers,
@@ -134,6 +133,7 @@ const maxChatAttachmentSizeMb = 10;
 const authStore = useAuthStore();
 const socketStatus = ref<ChatSocketStatus>("disconnected");
 const showJumpToLatest = ref(false);
+const isChooserOpen = ref(false);
 
 const selectedRoomName = computed(() => roomDisplayName(selectedRoom.value));
 const selectedSchoolName = computed(
@@ -157,7 +157,7 @@ const roomInitial = computed(() => {
 });
 const currentUserId = computed(() => authStore.user?.id || "");
 const schoolRooms = computed(() =>
-  rooms.value.filter((room) => isSchoolRoom(room) && roomMatchesSearch(room)),
+  rooms.value.filter((room) => roomMatchesSearch(room)),
 );
 const groupRooms = computed(() =>
   rooms.value.filter(
@@ -221,11 +221,11 @@ async function bootstrapChat() {
   accessError.value = "";
   threadError.value = "";
   try {
-    const room = await openSchoolChatRoom();
     rooms.value = await getChatRooms(roomSearch.value.trim());
-    selectedRoom.value =
-      rooms.value.find((item) => item.roomId === room.roomId) ?? room;
-    await loadLatestMessages();
+    selectedRoom.value = rooms.value[0] ?? null;
+    if (selectedRoom.value) {
+      await loadLatestMessages();
+    }
   } catch (error) {
     accessError.value = resolveChatError(error);
   } finally {
@@ -579,8 +579,7 @@ async function leaveSelectedGroup() {
     isGroupInfoOpen.value = false;
     groupInfo.value = null;
     await refreshRooms();
-    selectedRoom.value =
-      rooms.value.find((room) => isSchoolRoom(room)) ?? rooms.value[0] ?? null;
+    selectedRoom.value = rooms.value[0] ?? null;
     messages.value = [];
     if (selectedRoom.value) {
       await loadLatestMessages();
@@ -1242,9 +1241,9 @@ function getInitials(value?: string | null) {
   );
 }
 
-function isSchoolRoom(room: ChatRoom) {
-  return room.roomRefType === "school";
-}
+// function isSchoolRoom(room: ChatRoom) {
+//   return room.roomRefType === "school";
+// }
 
 function isDirectMessageRoom(room: ChatRoom) {
   return room.roomType === "dm";
@@ -1256,18 +1255,16 @@ function isCustomGroupRoom(room: ChatRoom) {
 
 function roomDisplayName(room?: ChatRoom | null) {
   if (!room) return "Ruang Sekolah";
-  if (isSchoolRoom(room)) return "Ruang Sekolah";
   if (isDirectMessageRoom(room)) {
-    return room.dmTargetName || room.dmTargetEmail || "Pesan Langsung";
+    return room.dmTargetName || room.dmTargetEmail || "Direct Message";
   }
   return room.roomName || "Ruang Grup";
 }
 
 function roomSubtitle(room?: ChatRoom | null) {
   if (!room) return "Ruang sekolah";
-  if (isSchoolRoom(room)) return "Ruang sekolah";
   if (isDirectMessageRoom(room)) {
-    return room.dmTargetEmail || "Pesan langsung";
+    return room.dmTargetEmail || "Direct Message";
   }
   return "Grup";
 }
@@ -1587,22 +1584,13 @@ function formatDateTime(value?: string | null) {
                 <p class="text-sm font-semibold text-[#171322]">
                   Ruang Diskusi
                 </p>
-                <div class="flex items-center gap-2">
-                  <button
-                    type="button"
-                    class="rounded-lg border border-[#d8d2c8] px-2.5 py-1.5 text-xs font-semibold text-[#4f46e5] transition hover:border-[#4f46e5]"
-                    @click="openDirectMessageModal"
-                  >
-                    DM
-                  </button>
-                  <button
-                    type="button"
-                    class="rounded-lg bg-[#4f46e5] px-1 py-1 font-bold text-white transition hover:bg-[#4338ca]"
-                    @click="openCreateGroupModal"
-                  >
-                    <PhPlus :size="18" />
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  class="flex items-center gap-1.5 rounded-lg bg-[#4f46e5] px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-[#4338ca]"
+                  @click="isChooserOpen = true"
+                >
+                  <PhPlus :size="13" weight="bold" />
+                </button>
               </div>
             </div>
             <div class="flex gap-2 p-4">
@@ -1622,12 +1610,7 @@ function formatDateTime(value?: string | null) {
               </button>
             </div>
 
-            <div class="space-y-2 p-4">
-              <p
-                class="text-[10px] font-semibold uppercase tracking-[0.06em] text-[#9ca3af]"
-              >
-                Sekolah
-              </p>
+            <div class="space-y-2 px-4 pt-2 pb-4">
               <button
                 v-for="room in schoolRooms"
                 :key="room.roomId"
@@ -1683,9 +1666,8 @@ function formatDateTime(value?: string | null) {
                   </span>
                 </span>
               </button>
-
               <p
-                class="pt-3 text-[10px] font-semibold uppercase tracking-[0.06em] text-[#9ca3af]"
+                class="text-[10px] font-semibold uppercase tracking-[0.06em] text-[#9ca3af]"
               >
                 Grup
               </p>
@@ -1755,7 +1737,7 @@ function formatDateTime(value?: string | null) {
               <p
                 class="pt-3 text-[10px] font-semibold uppercase tracking-[0.06em] text-[#9ca3af]"
               >
-                Pesan Langsung
+                Direct Message
               </p>
               <button
                 v-for="room in directMessageRooms"
@@ -1847,480 +1829,579 @@ function formatDateTime(value?: string | null) {
             @drop="handleDropFiles"
           >
             <div
-              v-if="isDragActive"
-              class="pointer-events-none absolute inset-4 z-20 flex items-center justify-center rounded-2xl border-2 border-dashed border-[#4f46e5] bg-[#eef2ff]/80"
-            >
-              <div class="rounded-2xl bg-white px-5 py-4 text-center shadow-sm">
-                <p class="text-sm font-semibold text-[#171322]">
-                  Lepas file di sini
-                </p>
-                <p class="mt-1 text-xs text-[#6b7280]">
-                  Maksimal {{ maxChatAttachments }} file, masing-masing hingga
-                  {{ maxChatAttachmentSizeMb }}MB
-                </p>
-              </div>
-            </div>
-            <div
-              class="flex items-center gap-3 border-b border-[#ebe7df] bg-white px-4 py-3 sm:px-5"
+              v-if="!selectedRoom"
+              class="flex flex-1 flex-col items-center justify-center px-6 py-16 text-center"
             >
               <div
-                class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-[#4f46e5] text-sm font-semibold text-white"
+                class="flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
               >
-                {{ roomInitial }}
+                <PhChatCircleText class="h-6 w-6" weight="duotone" />
               </div>
-              <div class="min-w-0 flex-1">
-                <button
-                  v-if="selectedRoomIsGroup"
-                  type="button"
-                  class="block max-w-full truncate text-left text-sm font-semibold text-[#171322] transition hover:text-[#4f46e5]"
-                  @click="openGroupInfo"
-                >
-                  {{ roomDisplayName(selectedRoom) }}
-                </button>
-                <h2
-                  v-else
-                  class="truncate text-sm font-semibold text-[#171322]"
-                >
-                  {{ roomDisplayName(selectedRoom) }}
-                </h2>
-                <p class="truncate text-xs text-[#6b7280]">
-                  {{ selectedSchoolName }} · {{ roomSubtitle(selectedRoom) }}
-                </p>
-              </div>
-            </div>
-
-            <div
-              ref="messagesEl"
-              class="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-5"
-              @scroll="handleMessageScroll"
-            >
-              <div class="ml-auto mr-auto flex max-w-screen flex-col gap-3">
-                <button
-                  v-if="hasMore"
-                  type="button"
-                  class="mx-auto rounded-full border border-[#d8d2c8] bg-white px-4 py-2 text-xs font-semibold text-[#4f46e5] transition hover:border-[#4f46e5] disabled:opacity-60"
-                  :disabled="isLoadingOlder"
-                  @click="loadOlderMessages"
-                >
-                  {{ isLoadingOlder ? "Memuat..." : "Muat pesan sebelumnya" }}
-                </button>
-
-                <div v-if="isLoadingMessages" class="space-y-3">
-                  <div class="h-12 w-2/3 animate-pulse rounded-2xl bg-white" />
-                  <div
-                    class="ml-auto h-12 w-1/2 animate-pulse rounded-2xl bg-[#dfe3ff]"
-                  />
-                  <div class="h-16 w-3/4 animate-pulse rounded-2xl bg-white" />
-                </div>
-
-                <div
-                  v-else-if="threadError"
-                  class="rounded-2xl border border-red-100 bg-white px-4 py-6 text-center"
-                >
-                  <p class="text-sm font-semibold text-red-600">
-                    {{ threadError }}
-                  </p>
-                  <button
-                    type="button"
-                    class="mt-3 rounded-xl bg-[#4f46e5] px-4 py-2 text-sm font-semibold text-white"
-                    @click="loadLatestMessages"
-                  >
-                    Coba lagi
-                  </button>
-                </div>
-
-                <div
-                  v-else-if="messages.length === 0"
-                  class="flex min-h-80 flex-col items-center justify-center rounded-2xl px-6 text-center"
-                >
-                  <div
-                    class="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-[#eef2ff] text-[#4f46e5]"
-                  >
-                    <PhChatCircleText class="h-5 w-5" weight="duotone" />
-                  </div>
-                  <h3 class="text-sm font-semibold text-[#171322]">
-                    Belum ada pesan.
-                  </h3>
-                  <p class="mt-1 max-w-sm text-sm leading-6 text-[#6b7280]">
-                    {{
-                      selectedRoomIsDM
-                        ? "Mulai percakapan pertama di pesan langsung ini."
-                        : "Mulai percakapan pertama di ruang ini."
-                    }}
-                  </p>
-                </div>
-
-                <template v-else>
-                  <template
-                    v-for="(message, index) in messages"
-                    :key="message.messageId"
-                  >
-                    <div
-                      v-if="shouldShowDateDivider(message, index)"
-                      class="flex items-center gap-3 py-2"
-                    >
-                      <div class="h-px flex-1 bg-[#e7e1d7]" />
-                      <span
-                        class="shrink-0 rounded-full bg-white px-3 py-1 text-[11px] font-medium text-[#8b8592]"
-                      >
-                        {{ formatDateDivider(message.createdAt) }}
-                      </span>
-                      <div class="h-px flex-1 bg-[#e7e1d7]" />
-                    </div>
-
-                    <article
-                      class="flex gap-2"
-                      :class="[
-                        message.isMine ? 'justify-end' : 'justify-start',
-                        isGroupedWithPrevious(message, index) ? 'mt-1' : 'mt-3',
-                      ]"
-                    >
-                      <div
-                        class="flex max-w-[88%] flex-col gap-1 sm:max-w-[72%]"
-                        :class="message.isMine ? 'items-end' : 'items-start'"
-                      >
-                        <p
-                          v-if="shouldShowSender(message, index)"
-                          class="px-2 text-xs font-medium text-[#6b7280]"
-                        >
-                          {{ message.senderName }}
-                        </p>
-                        <div
-                          class="rounded-2xl px-4 py-2 text-sm leading-relaxed"
-                          :class="
-                            message.isMine
-                              ? [
-                                  isGroupedWithPrevious(message, index)
-                                    ? 'rounded-tr-lg'
-                                    : 'rounded-tr-2xl',
-                                  isGroupedWithNext(message, index)
-                                    ? 'rounded-br-lg'
-                                    : 'rounded-br-md',
-                                  'bg-[#4f46e5] text-white',
-                                ]
-                              : [
-                                  isGroupedWithPrevious(message, index)
-                                    ? 'rounded-tl-lg'
-                                    : 'rounded-tl-2xl',
-                                  isGroupedWithNext(message, index)
-                                    ? 'rounded-bl-lg'
-                                    : 'rounded-bl-md',
-                                  'border border-[#ebe7df] bg-white text-[#171322]',
-                                ]
-                          "
-                        >
-                          <p
-                            v-if="message.content"
-                            class="whitespace-pre-wrap wrap-break-word"
-                          >
-                            {{ message.content }}
-                          </p>
-                          <div
-                            v-if="message.attachments?.length"
-                            class="mt-2 grid gap-2"
-                            :class="
-                              message.attachments.length > 1
-                                ? 'sm:grid-cols-2'
-                                : ''
-                            "
-                          >
-                            <button
-                              v-for="attachment in message.attachments"
-                              :key="
-                                attachment.attachmentId ||
-                                attachment.mediaId ||
-                                attachment.fileName
-                              "
-                              type="button"
-                              class="group overflow-hidden rounded-xl text-left"
-                              :class="
-                                message.isMine
-                                  ? 'bg-white/10 text-white ring-1 ring-white/20'
-                                  : 'border border-[#ebe7df] bg-[#fbfaf8] text-[#171322]'
-                              "
-                              @click="openAttachment(attachment)"
-                              :aria-label="
-                                isSafeImageType(attachment.mimeType)
-                                  ? `Buka pratinjau ${attachment.fileName || 'gambar'}`
-                                  : `Buka ${attachment.fileName || 'file'}`
-                              "
-                            >
-                              <img
-                                v-if="
-                                  isSafeImageType(attachment.mimeType) &&
-                                  attachment.url
-                                "
-                                :src="attachment.url"
-                                :alt="attachment.fileName || 'Lampiran gambar'"
-                                class="max-h-64 w-full object-cover transition duration-200 group-hover:scale-[1.01]"
-                              />
-                              <div class="flex min-w-0 items-center gap-3 p-3">
-                                <span
-                                  class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
-                                  :class="
-                                    message.isMine
-                                      ? 'bg-white/15'
-                                      : 'bg-white text-[#4f46e5]'
-                                  "
-                                >
-                                  <component
-                                    :is="
-                                      filePreviewIcon(
-                                        attachment.mimeType,
-                                        attachment.fileName,
-                                      )
-                                    "
-                                    class="h-5 w-5"
-                                    weight="duotone"
-                                  />
-                                </span>
-                                <span class="min-w-0 flex-1">
-                                  <span
-                                    class="block truncate text-xs font-semibold"
-                                  >
-                                    {{ attachment.fileName || "Lampiran" }}
-                                  </span>
-                                  <span
-                                    class="mt-0.5 block truncate text-[11px]"
-                                    :class="
-                                      message.isMine
-                                        ? 'text-white/70'
-                                        : 'text-[#8b8592]'
-                                    "
-                                  >
-                                    {{
-                                      fileTypeLabel(
-                                        attachment.mimeType,
-                                        attachment.fileName,
-                                      )
-                                    }}
-                                    <template
-                                      v-if="
-                                        formatFileSize(attachment.sizeBytes)
-                                      "
-                                    >
-                                      ·
-                                      {{ formatFileSize(attachment.sizeBytes) }}
-                                    </template>
-                                  </span>
-                                </span>
-                                <span
-                                  class="inline-flex items-center gap-1 text-[11px] font-semibold"
-                                >
-                                  <PhDownloadSimple class="h-3.5 w-3.5" />
-                                  {{
-                                    isSafeImageType(attachment.mimeType)
-                                      ? "Lihat"
-                                      : "Buka"
-                                  }}
-                                </span>
-                              </div>
-                            </button>
-                          </div>
-                        </div>
-                        <p
-                          class="flex items-center gap-2 px-2 text-[11px] text-[#9ca3af]"
-                        >
-                          <span>{{ formatDateTime(message.createdAt) }}</span>
-                          <span
-                            v-if="message.deliveryStatus === 'uploading'"
-                            class="inline-flex items-center gap-1.5 font-medium text-[#9ca3af]"
-                          >
-                            <PhSpinnerGap class="h-3.5 w-3.5 animate-spin" />
-                            Mengunggah...
-                          </span>
-                          <span
-                            v-else-if="message.deliveryStatus === 'sending'"
-                            class="inline-flex items-center gap-1.5 font-medium text-[#9ca3af]"
-                          >
-                            <PhCheck
-                              :size="13"
-                              weight="bold"
-                              class="text-[#9ca3af]"
-                            />
-                          </span>
-                          <button
-                            v-else-if="message.deliveryStatus === 'failed'"
-                            type="button"
-                            class="inline-flex items-center gap-1 rounded-full bg-[#fef2f2] px-2 py-0.5 font-medium text-[#dc2626]"
-                            @click="retryFailedMessage(message)"
-                          >
-                            Gagal
-                            <span
-                              class="underline decoration-dotted underline-offset-2"
-                              >Coba lagi</span
-                            >
-                          </button>
-                          <span
-                            v-else-if="readIndicatorLabel(message)"
-                            class="inline-flex items-center gap-1 text-[#6b7280]"
-                            :title="readIndicatorLabel(message)"
-                            :aria-label="readIndicatorLabel(message)"
-                          >
-                            <PhChecks
-                              v-if="isReadByOthers(message)"
-                              :size="13"
-                              weight="bold"
-                              class="text-[#4f46e5]"
-                            />
-                            <PhCheck
-                              v-else
-                              :size="13"
-                              weight="bold"
-                              class="text-[#9ca3af]"
-                            />
-                            <span
-                              v-if="readIndicatorCount(message)"
-                              class="text-[10px] font-medium"
-                            >
-                              {{ readIndicatorCount(message) }}
-                            </span>
-                          </span>
-                        </p>
-                      </div>
-                    </article>
-                  </template>
-                </template>
-              </div>
-            </div>
-
-            <div
-              v-if="showJumpToLatest"
-              class="pointer-events-none absolute bottom-24 right-5 z-10 sm:right-6"
-            >
+              <h2 class="mt-4 text-base font-semibold text-[#171322]">
+                Belum ada percakapan
+              </h2>
+              <p class="mt-2 max-w-xs text-sm leading-6 text-[#6b7280]">
+                Mulailah dengan membuat ruang chat atau mengirim pesan langsung.
+              </p>
               <button
                 type="button"
-                class="pointer-events-auto inline-flex items-center gap-2 rounded-full border border-[#d7d1ff] bg-white px-3 py-2 text-xs font-semibold text-[#4f46e5] shadow-sm transition hover:border-[#4f46e5] hover:bg-[#eef2ff]"
-                aria-label="Lompat ke pesan terbaru"
-                @click="scrollToBottom"
+                class="mt-5 flex items-center gap-2 rounded-lg bg-[#4f46e5] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#4338ca]"
+                @click="isChooserOpen = true"
               >
-                <span class="text-sm leading-none">↓</span>
-                Pesan baru
+                <PhPlus :size="15" weight="bold" />
               </button>
             </div>
 
-            <form
-              class="shrink-0 px-4 py-3 sm:px-5"
-              @submit.prevent="submitMessage"
-            >
-              <p v-if="composerError" class="mb-2 text-sm text-red-600">
-                {{ composerError }}
-              </p>
+            <template v-else>
               <div
-                v-if="selectedFiles.length"
-                class="mb-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-3"
+                v-if="isDragActive"
+                class="pointer-events-none absolute inset-4 z-20 flex items-center justify-center rounded-2xl border-2 border-dashed border-[#4f46e5] bg-[#eef2ff]/80"
               >
                 <div
-                  v-for="(attachment, index) in selectedFiles"
-                  :key="attachment.id"
-                  class="min-w-0 overflow-hidden rounded-xl border border-[#ebe7df] bg-[#fbfaf8]"
+                  class="rounded-2xl bg-white px-5 py-4 text-center shadow-sm"
                 >
-                  <img
-                    v-if="attachment.previewUrl"
-                    :src="attachment.previewUrl"
-                    :alt="attachment.file.name"
-                    class="h-28 w-full object-cover"
-                  />
-                  <div class="flex min-w-0 items-center gap-3 p-3">
-                    <span
-                      class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-[#4f46e5]"
-                    >
-                      <component
-                        :is="
-                          filePreviewIcon(
-                            attachment.file.type,
-                            attachment.file.name,
-                          )
-                        "
-                        class="h-5 w-5"
-                        weight="duotone"
-                      />
-                    </span>
-                    <span class="min-w-0 flex-1">
-                      <span
-                        class="block truncate text-xs font-semibold text-[#171322]"
-                      >
-                        {{ attachment.file.name }}
-                      </span>
-                      <span
-                        class="mt-0.5 block truncate text-[11px] text-[#8b8592]"
-                      >
-                        {{
-                          fileTypeLabel(
-                            attachment.file.type,
-                            attachment.file.name,
-                          )
-                        }}
-                        · {{ formatFileSize(attachment.file.size) }}
-                      </span>
-                    </span>
-                    <button
-                      type="button"
-                      class="rounded-lg p-1.5 text-[#9ca3af] transition hover:bg-white hover:text-[#dc2626]"
-                      title="Hapus lampiran"
-                      aria-label="Hapus lampiran"
-                      @click="removeSelectedFile(index)"
-                    >
-                      <PhX class="h-4 w-4" />
-                    </button>
-                  </div>
+                  <p class="text-sm font-semibold text-[#171322]">
+                    Lepas file di sini
+                  </p>
+                  <p class="mt-1 text-xs text-[#6b7280]">
+                    Maksimal {{ maxChatAttachments }} file, masing-masing hingga
+                    {{ maxChatAttachmentSizeMb }}MB
+                  </p>
                 </div>
               </div>
-              <div class="flex items-end gap-2">
-                <input
-                  ref="fileInputEl"
-                  type="file"
-                  class="hidden"
-                  multiple
-                  @change="handleFileSelection"
-                />
+              <div
+                class="flex items-center gap-3 border-b border-[#ebe7df] bg-white px-4 py-3 sm:px-5"
+              >
+                <div
+                  class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-[#4f46e5] text-sm font-semibold text-white"
+                >
+                  {{ roomInitial }}
+                </div>
+                <div class="min-w-0 flex-1">
+                  <button
+                    v-if="selectedRoomIsGroup"
+                    type="button"
+                    class="block max-w-full truncate text-left text-sm font-semibold text-[#171322] transition hover:text-[#4f46e5]"
+                    @click="openGroupInfo"
+                  >
+                    {{ roomDisplayName(selectedRoom) }}
+                  </button>
+                  <h2
+                    v-else
+                    class="truncate text-sm font-semibold text-[#171322]"
+                  >
+                    {{ roomDisplayName(selectedRoom) }}
+                  </h2>
+                  <p class="truncate text-xs text-[#6b7280]">
+                    {{ selectedSchoolName }} · {{ roomSubtitle(selectedRoom) }}
+                  </p>
+                </div>
+              </div>
+
+              <div
+                ref="messagesEl"
+                class="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-5"
+                @scroll="handleMessageScroll"
+              >
+                <div class="ml-auto mr-auto flex max-w-screen flex-col gap-3">
+                  <button
+                    v-if="hasMore"
+                    type="button"
+                    class="mx-auto rounded-full border border-[#d8d2c8] bg-white px-4 py-2 text-xs font-semibold text-[#4f46e5] transition hover:border-[#4f46e5] disabled:opacity-60"
+                    :disabled="isLoadingOlder"
+                    @click="loadOlderMessages"
+                  >
+                    {{ isLoadingOlder ? "Memuat..." : "Muat pesan sebelumnya" }}
+                  </button>
+
+                  <div v-if="isLoadingMessages" class="space-y-3">
+                    <div
+                      class="h-12 w-2/3 animate-pulse rounded-2xl bg-white"
+                    />
+                    <div
+                      class="ml-auto h-12 w-1/2 animate-pulse rounded-2xl bg-[#dfe3ff]"
+                    />
+                    <div
+                      class="h-16 w-3/4 animate-pulse rounded-2xl bg-white"
+                    />
+                  </div>
+
+                  <div
+                    v-else-if="threadError"
+                    class="rounded-2xl border border-red-100 bg-white px-4 py-6 text-center"
+                  >
+                    <p class="text-sm font-semibold text-red-600">
+                      {{ threadError }}
+                    </p>
+                    <button
+                      type="button"
+                      class="mt-3 rounded-xl bg-[#4f46e5] px-4 py-2 text-sm font-semibold text-white"
+                      @click="loadLatestMessages"
+                    >
+                      Coba lagi
+                    </button>
+                  </div>
+
+                  <div
+                    v-else-if="messages.length === 0"
+                    class="flex min-h-80 flex-col items-center justify-center rounded-2xl px-6 text-center"
+                  >
+                    <div
+                      class="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-[#eef2ff] text-[#4f46e5]"
+                    >
+                      <PhChatCircleText class="h-5 w-5" weight="duotone" />
+                    </div>
+                    <h3 class="text-sm font-semibold text-[#171322]">
+                      Belum ada pesan.
+                    </h3>
+                    <p class="mt-1 max-w-sm text-sm leading-6 text-[#6b7280]">
+                      {{
+                        selectedRoomIsDM
+                          ? "Mulai percakapan pertama di pesan langsung ini."
+                          : "Mulai percakapan pertama di ruang ini."
+                      }}
+                    </p>
+                  </div>
+
+                  <template v-else>
+                    <template
+                      v-for="(message, index) in messages"
+                      :key="message.messageId"
+                    >
+                      <div
+                        v-if="shouldShowDateDivider(message, index)"
+                        class="flex items-center gap-3 py-2"
+                      >
+                        <div class="h-px flex-1 bg-[#e7e1d7]" />
+                        <span
+                          class="shrink-0 rounded-full bg-white px-3 py-1 text-[11px] font-medium text-[#8b8592]"
+                        >
+                          {{ formatDateDivider(message.createdAt) }}
+                        </span>
+                        <div class="h-px flex-1 bg-[#e7e1d7]" />
+                      </div>
+
+                      <article
+                        class="flex gap-2"
+                        :class="[
+                          message.isMine ? 'justify-end' : 'justify-start',
+                          isGroupedWithPrevious(message, index)
+                            ? 'mt-1'
+                            : 'mt-3',
+                        ]"
+                      >
+                        <div
+                          class="flex max-w-[88%] flex-col gap-1 sm:max-w-[72%]"
+                          :class="message.isMine ? 'items-end' : 'items-start'"
+                        >
+                          <p
+                            v-if="shouldShowSender(message, index)"
+                            class="px-2 text-xs font-medium text-[#6b7280]"
+                          >
+                            {{ message.senderName }}
+                          </p>
+                          <div
+                            class="rounded-2xl px-4 py-2 text-sm leading-relaxed"
+                            :class="
+                              message.isMine
+                                ? [
+                                    isGroupedWithPrevious(message, index)
+                                      ? 'rounded-tr-lg'
+                                      : 'rounded-tr-2xl',
+                                    isGroupedWithNext(message, index)
+                                      ? 'rounded-br-lg'
+                                      : 'rounded-br-md',
+                                    'bg-[#4f46e5] text-white',
+                                  ]
+                                : [
+                                    isGroupedWithPrevious(message, index)
+                                      ? 'rounded-tl-lg'
+                                      : 'rounded-tl-2xl',
+                                    isGroupedWithNext(message, index)
+                                      ? 'rounded-bl-lg'
+                                      : 'rounded-bl-md',
+                                    'border border-[#ebe7df] bg-white text-[#171322]',
+                                  ]
+                            "
+                          >
+                            <p
+                              v-if="message.content"
+                              class="whitespace-pre-wrap wrap-break-word"
+                            >
+                              {{ message.content }}
+                            </p>
+                            <div
+                              v-if="message.attachments?.length"
+                              class="mt-2 grid gap-2"
+                              :class="
+                                message.attachments.length > 1
+                                  ? 'sm:grid-cols-2'
+                                  : ''
+                              "
+                            >
+                              <button
+                                v-for="attachment in message.attachments"
+                                :key="
+                                  attachment.attachmentId ||
+                                  attachment.mediaId ||
+                                  attachment.fileName
+                                "
+                                type="button"
+                                class="group overflow-hidden rounded-xl text-left"
+                                :class="
+                                  message.isMine
+                                    ? 'bg-white/10 text-white ring-1 ring-white/20'
+                                    : 'border border-[#ebe7df] bg-[#fbfaf8] text-[#171322]'
+                                "
+                                @click="openAttachment(attachment)"
+                                :aria-label="
+                                  isSafeImageType(attachment.mimeType)
+                                    ? `Buka pratinjau ${attachment.fileName || 'gambar'}`
+                                    : `Buka ${attachment.fileName || 'file'}`
+                                "
+                              >
+                                <img
+                                  v-if="
+                                    isSafeImageType(attachment.mimeType) &&
+                                    attachment.url
+                                  "
+                                  :src="attachment.url"
+                                  :alt="
+                                    attachment.fileName || 'Lampiran gambar'
+                                  "
+                                  class="max-h-64 w-full object-cover transition duration-200 group-hover:scale-[1.01]"
+                                />
+                                <div
+                                  class="flex min-w-0 items-center gap-3 p-3"
+                                >
+                                  <span
+                                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+                                    :class="
+                                      message.isMine
+                                        ? 'bg-white/15'
+                                        : 'bg-white text-[#4f46e5]'
+                                    "
+                                  >
+                                    <component
+                                      :is="
+                                        filePreviewIcon(
+                                          attachment.mimeType,
+                                          attachment.fileName,
+                                        )
+                                      "
+                                      class="h-5 w-5"
+                                      weight="duotone"
+                                    />
+                                  </span>
+                                  <span class="min-w-0 flex-1">
+                                    <span
+                                      class="block truncate text-xs font-semibold"
+                                    >
+                                      {{ attachment.fileName || "Lampiran" }}
+                                    </span>
+                                    <span
+                                      class="mt-0.5 block truncate text-[11px]"
+                                      :class="
+                                        message.isMine
+                                          ? 'text-white/70'
+                                          : 'text-[#8b8592]'
+                                      "
+                                    >
+                                      {{
+                                        fileTypeLabel(
+                                          attachment.mimeType,
+                                          attachment.fileName,
+                                        )
+                                      }}
+                                      <template
+                                        v-if="
+                                          formatFileSize(attachment.sizeBytes)
+                                        "
+                                      >
+                                        ·
+                                        {{
+                                          formatFileSize(attachment.sizeBytes)
+                                        }}
+                                      </template>
+                                    </span>
+                                  </span>
+                                  <span
+                                    class="inline-flex items-center gap-1 text-[11px] font-semibold"
+                                  >
+                                    <PhDownloadSimple class="h-3.5 w-3.5" />
+                                    {{
+                                      isSafeImageType(attachment.mimeType)
+                                        ? "Lihat"
+                                        : "Buka"
+                                    }}
+                                  </span>
+                                </div>
+                              </button>
+                            </div>
+                          </div>
+                          <p
+                            class="flex items-center gap-2 px-2 text-[11px] text-[#9ca3af]"
+                          >
+                            <span>{{ formatDateTime(message.createdAt) }}</span>
+                            <span
+                              v-if="message.deliveryStatus === 'uploading'"
+                              class="inline-flex items-center gap-1.5 font-medium text-[#9ca3af]"
+                            >
+                              <PhSpinnerGap class="h-3.5 w-3.5 animate-spin" />
+                              Mengunggah...
+                            </span>
+                            <span
+                              v-else-if="message.deliveryStatus === 'sending'"
+                              class="inline-flex items-center gap-1.5 font-medium text-[#9ca3af]"
+                            >
+                              <PhCheck
+                                :size="13"
+                                weight="bold"
+                                class="text-[#9ca3af]"
+                              />
+                            </span>
+                            <button
+                              v-else-if="message.deliveryStatus === 'failed'"
+                              type="button"
+                              class="inline-flex items-center gap-1 rounded-full bg-[#fef2f2] px-2 py-0.5 font-medium text-[#dc2626]"
+                              @click="retryFailedMessage(message)"
+                            >
+                              Gagal
+                              <span
+                                class="underline decoration-dotted underline-offset-2"
+                                >Coba lagi</span
+                              >
+                            </button>
+                            <span
+                              v-else-if="readIndicatorLabel(message)"
+                              class="inline-flex items-center gap-1 text-[#6b7280]"
+                              :title="readIndicatorLabel(message)"
+                              :aria-label="readIndicatorLabel(message)"
+                            >
+                              <PhChecks
+                                v-if="isReadByOthers(message)"
+                                :size="13"
+                                weight="bold"
+                                class="text-[#4f46e5]"
+                              />
+                              <PhCheck
+                                v-else
+                                :size="13"
+                                weight="bold"
+                                class="text-[#9ca3af]"
+                              />
+                              <span
+                                v-if="readIndicatorCount(message)"
+                                class="text-[10px] font-medium"
+                              >
+                                {{ readIndicatorCount(message) }}
+                              </span>
+                            </span>
+                          </p>
+                        </div>
+                      </article>
+                    </template>
+                  </template>
+                </div>
+              </div>
+
+              <div
+                v-if="showJumpToLatest"
+                class="pointer-events-none absolute bottom-24 right-5 z-10 sm:right-6"
+              >
                 <button
                   type="button"
-                  class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#ebe7df] text-[#6b7280] transition hover:border-[#c7d2fe] hover:text-[#4f46e5] focus:outline-none focus:ring-2 focus:ring-[#4f46e5]/15 disabled:cursor-not-allowed disabled:opacity-60"
-                  :disabled="
-                    !selectedRoom?.canSend ||
-                    selectedFiles.length >= maxChatAttachments
-                  "
-                  title="Tambah lampiran"
-                  aria-label="Tambah lampiran"
-                  @click="openFilePicker"
+                  class="pointer-events-auto inline-flex items-center gap-2 rounded-full border border-[#d7d1ff] bg-white px-3 py-2 text-xs font-semibold text-[#4f46e5] shadow-sm transition hover:border-[#4f46e5] hover:bg-[#eef2ff]"
+                  aria-label="Lompat ke pesan terbaru"
+                  @click="scrollToBottom"
                 >
-                  <PhPaperclip class="h-5 w-5" />
-                </button>
-                <textarea
-                  v-model="draft"
-                  rows="1"
-                  class="max-h-32 min-h-11 flex-1 resize-none rounded-xl border border-transparent bg-[#f3f4f6] px-4 py-3 text-sm text-[#171322] outline-none transition placeholder:text-[#aaa29a] focus:border-[#c7d2fe] focus:bg-white focus:ring-2 focus:ring-[#4f46e5]/15"
-                  placeholder="Tulis pesan..."
-                  :disabled="!selectedRoom?.canSend"
-                  @keydown="handleComposerKeydown"
-                />
-                <button
-                  type="submit"
-                  class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#4f46e5] text-white transition hover:bg-[#4338ca] focus:outline-none focus:ring-2 focus:ring-[#4f46e5]/30 disabled:cursor-not-allowed disabled:bg-[#c7c3d7]"
-                  :disabled="!canSend"
-                  aria-label="Kirim pesan"
-                >
-                  <PhPaperPlaneTilt class="h-5 w-5" weight="fill" />
+                  <span class="text-sm leading-none">↓</span>
+                  Pesan baru
                 </button>
               </div>
-              <p
-                class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#9ca3af]"
+
+              <form
+                class="shrink-0 px-4 py-3 sm:px-5"
+                @submit.prevent="submitMessage"
               >
-                <span>Enter untuk kirim, Shift+Enter untuk baris baru.</span>
-                <span
-                  v-if="composerStatusLabel"
-                  class="inline-flex items-center gap-1.5 font-medium text-[#6b7280]"
+                <p v-if="composerError" class="mb-2 text-sm text-red-600">
+                  {{ composerError }}
+                </p>
+                <div
+                  v-if="selectedFiles.length"
+                  class="mb-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-3"
                 >
-                  <PhSpinnerGap class="h-3.5 w-3.5 animate-spin" />
-                  {{ composerStatusLabel }}
-                </span>
-              </p>
-            </form>
+                  <div
+                    v-for="(attachment, index) in selectedFiles"
+                    :key="attachment.id"
+                    class="min-w-0 overflow-hidden rounded-xl border border-[#ebe7df] bg-[#fbfaf8]"
+                  >
+                    <img
+                      v-if="attachment.previewUrl"
+                      :src="attachment.previewUrl"
+                      :alt="attachment.file.name"
+                      class="h-28 w-full object-cover"
+                    />
+                    <div class="flex min-w-0 items-center gap-3 p-3">
+                      <span
+                        class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-[#4f46e5]"
+                      >
+                        <component
+                          :is="
+                            filePreviewIcon(
+                              attachment.file.type,
+                              attachment.file.name,
+                            )
+                          "
+                          class="h-5 w-5"
+                          weight="duotone"
+                        />
+                      </span>
+                      <span class="min-w-0 flex-1">
+                        <span
+                          class="block truncate text-xs font-semibold text-[#171322]"
+                        >
+                          {{ attachment.file.name }}
+                        </span>
+                        <span
+                          class="mt-0.5 block truncate text-[11px] text-[#8b8592]"
+                        >
+                          {{
+                            fileTypeLabel(
+                              attachment.file.type,
+                              attachment.file.name,
+                            )
+                          }}
+                          · {{ formatFileSize(attachment.file.size) }}
+                        </span>
+                      </span>
+                      <button
+                        type="button"
+                        class="rounded-lg p-1.5 text-[#9ca3af] transition hover:bg-white hover:text-[#dc2626]"
+                        title="Hapus lampiran"
+                        aria-label="Hapus lampiran"
+                        @click="removeSelectedFile(index)"
+                      >
+                        <PhX class="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex items-end gap-2">
+                  <input
+                    ref="fileInputEl"
+                    type="file"
+                    class="hidden"
+                    multiple
+                    @change="handleFileSelection"
+                  />
+                  <button
+                    type="button"
+                    class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#ebe7df] text-[#6b7280] transition hover:border-[#c7d2fe] hover:text-[#4f46e5] focus:outline-none focus:ring-2 focus:ring-[#4f46e5]/15 disabled:cursor-not-allowed disabled:opacity-60"
+                    :disabled="
+                      !selectedRoom?.canSend ||
+                      selectedFiles.length >= maxChatAttachments
+                    "
+                    title="Tambah lampiran"
+                    aria-label="Tambah lampiran"
+                    @click="openFilePicker"
+                  >
+                    <PhPaperclip class="h-5 w-5" />
+                  </button>
+                  <textarea
+                    v-model="draft"
+                    rows="1"
+                    class="max-h-32 min-h-11 flex-1 resize-none rounded-xl border border-transparent bg-[#f3f4f6] px-4 py-3 text-sm text-[#171322] outline-none transition placeholder:text-[#aaa29a] focus:border-[#c7d2fe] focus:bg-white focus:ring-2 focus:ring-[#4f46e5]/15"
+                    placeholder="Tulis pesan..."
+                    :disabled="!selectedRoom?.canSend"
+                    @keydown="handleComposerKeydown"
+                  />
+                  <button
+                    type="submit"
+                    class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#4f46e5] text-white transition hover:bg-[#4338ca] focus:outline-none focus:ring-2 focus:ring-[#4f46e5]/30 disabled:cursor-not-allowed disabled:bg-[#c7c3d7]"
+                    :disabled="!canSend"
+                    aria-label="Kirim pesan"
+                  >
+                    <PhPaperPlaneTilt class="h-5 w-5" weight="fill" />
+                  </button>
+                </div>
+                <p
+                  class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#9ca3af]"
+                >
+                  <span>Enter untuk kirim, Shift+Enter untuk baris baru.</span>
+                  <span
+                    v-if="composerStatusLabel"
+                    class="inline-flex items-center gap-1.5 font-medium text-[#6b7280]"
+                  >
+                    <PhSpinnerGap class="h-3.5 w-3.5 animate-spin" />
+                    {{ composerStatusLabel }}
+                  </span>
+                </p>
+              </form>
+            </template>
           </section>
         </div>
       </div>
     </section>
+
+    <!-- Chooser: pilih jenis percakapan baru -->
+    <div
+      v-if="isChooserOpen"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4 py-6"
+      @click.self="isChooserOpen = false"
+    >
+      <div
+        class="w-full max-w-sm overflow-hidden rounded-xl bg-white shadow-xl"
+      >
+        <div class="border-b border-[#ebe7df] px-5 py-4">
+          <div class="flex items-center justify-between">
+            <button
+              type="button"
+              class="rounded-lg p-1.5 text-[#9ca3af] transition hover:bg-[#f3f4f6] hover:text-[#171322]"
+              aria-label="Tutup"
+              @click="isChooserOpen = false"
+            >
+              <PhX class="h-5 w-5" />
+            </button>
+          </div>
+          <p class="mt-1 text-sm text-[#6b7280]">
+            Pilih jenis percakapan yang ingin kamu mulai.
+          </p>
+        </div>
+        <div class="grid grid-cols-2 gap-3 p-5">
+          <button
+            type="button"
+            class="flex flex-col items-center gap-3 rounded-xl border border-[#ebe7df] bg-[#fbfaf8] px-4 py-5 text-center transition hover:border-[#4f46e5] hover:bg-[#eef2ff]"
+            @click="
+              isChooserOpen = false;
+              openCreateGroupModal();
+            "
+          >
+            <span class="text-2xl leading-none">👥</span>
+            <span class="text-sm font-semibold text-[#171322]">Ruang Chat</span>
+            <span class="text-xs leading-5 text-[#6b7280]"
+              >Buat grup diskusi dengan beberapa anggota</span
+            >
+          </button>
+          <button
+            type="button"
+            class="flex flex-col items-center gap-3 rounded-xl border border-[#ebe7df] bg-[#fbfaf8] px-4 py-5 text-center transition hover:border-[#4f46e5] hover:bg-[#eef2ff]"
+            @click="
+              isChooserOpen = false;
+              openDirectMessageModal();
+            "
+          >
+            <span class="text-2xl leading-none">👤</span>
+            <span class="text-sm font-semibold text-[#171322]"
+              >Pesan Langsung</span
+            >
+            <span class="text-xs leading-5 text-[#6b7280]"
+              >Kirim pesan privat ke satu warga sekolah</span
+            >
+          </button>
+        </div>
+      </div>
+    </div>
 
     <div
       v-if="isDirectMessageOpen"
