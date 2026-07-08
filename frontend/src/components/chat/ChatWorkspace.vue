@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, ref } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import {
   PhChatCircleText,
   PhCheck,
@@ -93,7 +93,8 @@ const roomListEl = ref<HTMLElement | null>(null);
 const fileInputEl = ref<HTMLInputElement | null>(null);
 const isLightboxOpen = ref(false);
 const lightboxImage = ref<{ url: string; name: string } | null>(null);
-const isCreateGroupOpen = ref(false);
+const isCreateConversationOpen = ref(false);
+const activeCreateTab = ref<"dm" | "group">("dm");
 const groupRoomName = ref("");
 const memberSearch = ref("");
 const memberResults = ref<ChatMember[]>([]);
@@ -101,7 +102,6 @@ const selectedMemberIds = ref<string[]>([]);
 const isLoadingMembers = ref(false);
 const isCreatingGroup = ref(false);
 const createGroupError = ref("");
-const isDirectMessageOpen = ref(false);
 const dmSearch = ref("");
 const dmResults = ref<ChatMember[]>([]);
 const selectedDMTargetId = ref("");
@@ -133,7 +133,6 @@ const maxChatAttachmentSizeMb = 10;
 const authStore = useAuthStore();
 const socketStatus = ref<ChatSocketStatus>("disconnected");
 const showJumpToLatest = ref(false);
-const isChooserOpen = ref(false);
 
 const selectedRoomName = computed(() => roomDisplayName(selectedRoom.value));
 const selectedSchoolName = computed(
@@ -156,18 +155,19 @@ const roomInitial = computed(() => {
   return getInitials(source);
 });
 const currentUserId = computed(() => authStore.user?.id || "");
-const schoolRooms = computed(() =>
-  rooms.value.filter((room) => roomMatchesSearch(room)),
-);
-const groupRooms = computed(() =>
-  rooms.value.filter(
-    (room) => isCustomGroupRoom(room) && roomMatchesSearch(room),
-  ),
-);
-const directMessageRooms = computed(() =>
-  rooms.value.filter(
-    (room) => isDirectMessageRoom(room) && roomMatchesSearch(room),
-  ),
+const conversationList = computed(() =>
+  rooms.value
+    .filter(
+      (room) =>
+        (isDirectMessageRoom(room) || isCustomGroupRoom(room)) &&
+        roomMatchesSearch(room),
+    )
+    .slice()
+    .sort((a, b) => {
+      const aTime = a.lastMessageAt ? new Date(a.lastMessageAt).getTime() : 0;
+      const bTime = b.lastMessageAt ? new Date(b.lastMessageAt).getTime() : 0;
+      return bTime - aTime;
+    }),
 );
 const selectedRoomIsGroup = computed(() =>
   selectedRoom.value ? isCustomGroupRoom(selectedRoom.value) : false,
@@ -351,22 +351,28 @@ async function searchRooms() {
   await refreshRooms();
 }
 
-async function openCreateGroupModal() {
-  isCreateGroupOpen.value = true;
-  createGroupError.value = "";
-  if (memberResults.value.length === 0) {
+async function openCreateConversation(tab: "dm" | "group" = "dm") {
+  activeCreateTab.value = tab;
+  isCreateConversationOpen.value = true;
+  if (tab === "group" && memberResults.value.length === 0) {
     await loadChatMembers();
-  }
-}
-
-async function openDirectMessageModal() {
-  isDirectMessageOpen.value = true;
-  directMessageError.value = "";
-  selectedDMTargetId.value = "";
-  if (dmResults.value.length === 0) {
+  } else if (tab === "dm" && dmResults.value.length === 0) {
+    directMessageError.value = "";
+    selectedDMTargetId.value = "";
     await loadDMTargets();
   }
 }
+
+watch(activeCreateTab, async (tab) => {
+  if (!isCreateConversationOpen.value) return;
+  if (tab === "group" && memberResults.value.length === 0) {
+    await loadChatMembers();
+  } else if (tab === "dm" && dmResults.value.length === 0) {
+    directMessageError.value = "";
+    selectedDMTargetId.value = "";
+    await loadDMTargets();
+  }
+});
 
 async function loadChatMembers() {
   isLoadingMembers.value = true;
@@ -428,7 +434,7 @@ async function submitCreateGroup() {
     groupRoomName.value = "";
     memberSearch.value = "";
     selectedMemberIds.value = [];
-    isCreateGroupOpen.value = false;
+    isCreateConversationOpen.value = false;
     await loadLatestMessages();
     toast.success("Ruang chat berhasil dibuat.");
   } catch (error) {
@@ -454,7 +460,7 @@ async function submitDirectMessage() {
     await refreshRooms();
     selectedRoom.value =
       rooms.value.find((item) => item.roomId === room.roomId) ?? room;
-    isDirectMessageOpen.value = false;
+    isCreateConversationOpen.value = false;
     dmSearch.value = "";
     selectedDMTargetId.value = "";
     await loadLatestMessages();
@@ -1581,15 +1587,14 @@ function formatDateTime(value?: string | null) {
           >
             <div class="px-4 py-4 sm:px-5">
               <div class="flex items-center justify-between gap-3">
-                <p class="text-sm font-semibold text-[#171322]">
-                  Ruang Diskusi
-                </p>
+                <p class="text-sm font-semibold text-[#171322]">Percakapan</p>
                 <button
                   type="button"
                   class="flex items-center gap-1.5 rounded-lg bg-[#4f46e5] px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-[#4338ca]"
-                  @click="isChooserOpen = true"
+                  @click="openCreateConversation('dm')"
                 >
                   <PhPlus :size="13" weight="bold" />
+                  Buat
                 </button>
               </div>
             </div>
@@ -1610,15 +1615,15 @@ function formatDateTime(value?: string | null) {
               </button>
             </div>
 
-            <div class="space-y-2 px-4 pt-2 pb-4">
+            <div class="space-y-1 px-4 pt-2 pb-4">
               <button
-                v-for="room in schoolRooms"
+                v-for="room in conversationList"
                 :key="room.roomId"
                 type="button"
                 class="flex w-full min-w-0 items-center gap-3 rounded-lg border px-3 py-3 text-left transition hover:bg-white"
                 :class="
                   selectedRoom?.roomId === room.roomId
-                    ? 'border-[#d7d1ff] bg-white '
+                    ? 'border-[#d7d1ff] bg-white'
                     : room.unreadCount > 0
                       ? 'border-[#c7d2fe] bg-white'
                       : 'border-[#ebe7df] bg-[#fbfaf8]'
@@ -1629,69 +1634,16 @@ function formatDateTime(value?: string | null) {
                 "
               >
                 <span
-                  class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-[#4f46e5] text-sm font-semibold text-white"
+                  class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-sm font-semibold text-white"
+                  :class="
+                    isDirectMessageRoom(room) ? 'bg-[#059669]' : 'bg-[#4f46e5]'
+                  "
                 >
-                  {{ getInitials(room.schoolName || room.roomName) }}
-                </span>
-                <span class="min-w-0 flex-1">
-                  <span
-                    class="block truncate text-sm text-[#171322]"
-                    :class="
-                      room.unreadCount > 0 ? 'font-bold' : 'font-semibold'
-                    "
-                  >
-                    {{ roomDisplayName(room) }}
-                  </span>
-                  <span
-                    class="mt-0.5 block truncate text-xs"
-                    :class="
-                      room.unreadCount > 0
-                        ? 'font-semibold text-[#3f3a4a]'
-                        : 'text-[#6b7280]'
-                    "
-                  >
-                    {{ roomPreview(room) }}
-                  </span>
-                </span>
-                <span class="flex shrink-0 flex-col items-end gap-1">
-                  <span class="text-[11px] text-[#9ca3af]">{{
-                    formatTime(room.lastMessageAt)
-                  }}</span>
-                  <span
-                    v-if="room.unreadCount > 0"
-                    class="rounded-full bg-[#4f46e5] px-2 py-0.5 text-[11px] font-semibold text-white"
-                    :aria-label="`${room.unreadCount} pesan belum dibaca`"
-                  >
-                    {{ room.unreadCount }}
-                  </span>
-                </span>
-              </button>
-              <p
-                class="text-[10px] font-semibold uppercase tracking-[0.06em] text-[#9ca3af]"
-              >
-                Grup
-              </p>
-              <button
-                v-for="room in groupRooms"
-                :key="room.roomId"
-                type="button"
-                class="flex w-full min-w-0 items-center gap-3 rounded-lg border px-3 py-3 text-left transition hover:bg-white"
-                :class="
-                  selectedRoom?.roomId === room.roomId
-                    ? 'border-[#d7d1ff] bg-white '
-                    : room.unreadCount > 0
-                      ? 'border-[#c7d2fe] bg-white'
-                      : 'border-[#ebe7df] bg-[#fbfaf8]'
-                "
-                @click="
-                  selectedRoom = room;
-                  loadLatestMessages();
-                "
-              >
-                <span
-                  class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-[#4f46e5] text-sm font-semibold text-white"
-                >
-                  {{ getInitials(room.roomName) }}
+                  {{
+                    isDirectMessageRoom(room)
+                      ? getInitials(room.dmTargetName || room.dmTargetEmail)
+                      : getInitials(room.roomName)
+                  }}
                 </span>
                 <span class="min-w-0 flex-1">
                   <span
@@ -1728,94 +1680,15 @@ function formatDateTime(value?: string | null) {
               </button>
 
               <div
-                v-if="groupRooms.length === 0"
-                class="rounded-lg bg-[#fbfaf8] p-3 text-sm leading-6 text-[#6b7280]"
-              >
-                Belum ada grup khusus.
-              </div>
-
-              <p
-                class="pt-3 text-[10px] font-semibold uppercase tracking-[0.06em] text-[#9ca3af]"
-              >
-                Direct Message
-              </p>
-              <button
-                v-for="room in directMessageRooms"
-                :key="room.roomId"
-                type="button"
-                class="flex w-full min-w-0 items-center gap-3 rounded-lg border px-3 py-3 text-left transition hover:bg-white"
-                :class="
-                  selectedRoom?.roomId === room.roomId
-                    ? 'border-[#d7d1ff] bg-white '
-                    : room.unreadCount > 0
-                      ? 'border-[#c7d2fe] bg-white'
-                      : 'border-[#ebe7df] bg-[#fbfaf8]'
-                "
-                @click="
-                  selectedRoom = room;
-                  loadLatestMessages();
-                "
-              >
-                <span
-                  class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-[#4f46e5] text-sm font-semibold text-white"
-                >
-                  {{ getInitials(room.dmTargetName || room.dmTargetEmail) }}
-                </span>
-                <span class="min-w-0 flex-1">
-                  <span
-                    class="block truncate text-sm text-[#171322]"
-                    :class="
-                      room.unreadCount > 0 ? 'font-bold' : 'font-semibold'
-                    "
-                  >
-                    {{ roomDisplayName(room) }}
-                  </span>
-                  <span
-                    class="mt-0.5 block truncate text-xs"
-                    :class="
-                      room.unreadCount > 0
-                        ? 'font-semibold text-[#3f3a4a]'
-                        : 'text-[#6b7280]'
-                    "
-                  >
-                    {{ roomPreview(room) }}
-                  </span>
-                </span>
-                <span class="flex shrink-0 flex-col items-end gap-1">
-                  <span class="text-[11px] text-[#9ca3af]">{{
-                    formatTime(room.lastMessageAt)
-                  }}</span>
-                  <span
-                    v-if="room.unreadCount > 0"
-                    class="rounded-full bg-[#4f46e5] px-2 py-0.5 text-[11px] font-semibold text-white"
-                    :aria-label="`${room.unreadCount} pesan belum dibaca`"
-                  >
-                    {{ room.unreadCount }}
-                  </span>
-                </span>
-              </button>
-
-              <div
-                v-if="directMessageRooms.length === 0"
-                class="rounded-lg bg-[#fbfaf8] p-3 text-sm leading-6 text-[#6b7280]"
-              >
-                Belum ada pesan langsung.
-              </div>
-
-              <div
-                v-if="rooms.length === 0"
-                class="rounded-lg bg-[#fbfaf8] px-5 py-8 text-center"
+                v-if="conversationList.length === 0"
+                class="rounded-lg bg-[#fbfaf8] px-4 py-8 text-center"
               >
                 <PhChatCircleText
                   class="mx-auto h-7 w-7 text-[#9ca3af]"
                   weight="duotone"
                 />
                 <p class="mt-3 text-sm font-semibold text-[#171322]">
-                  Belum ada percakapan.
-                </p>
-                <p class="mt-2 text-sm leading-6 text-[#6b7280]">
-                  Mulai percakapan melalui ruang sekolah, grup, atau pesan
-                  langsung.
+                  Belum ada percakapan
                 </p>
               </div>
             </div>
@@ -1846,9 +1719,10 @@ function formatDateTime(value?: string | null) {
               <button
                 type="button"
                 class="mt-5 flex items-center gap-2 rounded-lg bg-[#4f46e5] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#4338ca]"
-                @click="isChooserOpen = true"
+                @click="openCreateConversation('dm')"
               >
                 <PhPlus :size="15" weight="bold" />
+                Buat chat baru
               </button>
             </div>
 
@@ -2344,83 +2218,63 @@ function formatDateTime(value?: string | null) {
       </div>
     </section>
 
-    <!-- Chooser: pilih jenis percakapan baru -->
+    <!-- Unified Create Conversation Modal (DM + Grup tabs) -->
     <div
-      v-if="isChooserOpen"
+      v-if="isCreateConversationOpen"
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4 py-6"
-      @click.self="isChooserOpen = false"
-    >
-      <div
-        class="w-full max-w-sm overflow-hidden rounded-xl bg-white shadow-xl"
-      >
-        <div class="border-b border-[#ebe7df] px-5 py-4">
-          <div class="flex items-center justify-between">
-            <button
-              type="button"
-              class="rounded-lg p-1.5 text-[#9ca3af] transition hover:bg-[#f3f4f6] hover:text-[#171322]"
-              aria-label="Tutup"
-              @click="isChooserOpen = false"
-            >
-              <PhX class="h-5 w-5" />
-            </button>
-          </div>
-          <p class="mt-1 text-sm text-[#6b7280]">
-            Pilih jenis percakapan yang ingin kamu mulai.
-          </p>
-        </div>
-        <div class="grid grid-cols-2 gap-3 p-5">
-          <button
-            type="button"
-            class="flex flex-col items-center gap-3 rounded-xl border border-[#ebe7df] bg-[#fbfaf8] px-4 py-5 text-center transition hover:border-[#4f46e5] hover:bg-[#eef2ff]"
-            @click="
-              isChooserOpen = false;
-              openCreateGroupModal();
-            "
-          >
-            <span class="text-2xl leading-none">👥</span>
-            <span class="text-sm font-semibold text-[#171322]">Ruang Chat</span>
-            <span class="text-xs leading-5 text-[#6b7280]"
-              >Buat grup diskusi dengan beberapa anggota</span
-            >
-          </button>
-          <button
-            type="button"
-            class="flex flex-col items-center gap-3 rounded-xl border border-[#ebe7df] bg-[#fbfaf8] px-4 py-5 text-center transition hover:border-[#4f46e5] hover:bg-[#eef2ff]"
-            @click="
-              isChooserOpen = false;
-              openDirectMessageModal();
-            "
-          >
-            <span class="text-2xl leading-none">👤</span>
-            <span class="text-sm font-semibold text-[#171322]"
-              >Pesan Langsung</span
-            >
-            <span class="text-xs leading-5 text-[#6b7280]"
-              >Kirim pesan privat ke satu warga sekolah</span
-            >
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div
-      v-if="isDirectMessageOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4 py-6"
+      @click.self="isCreateConversationOpen = false"
     >
       <div
         class="max-h-[90vh] w-full max-w-xl overflow-hidden rounded-xl bg-white"
       >
-        <div class="border-b border-[#ebe7df] px-5 py-4">
-          <h2 class="text-base font-semibold text-[#171322]">
-            Mulai pesan langsung
-          </h2>
-          <p class="mt-1 text-sm text-[#6b7280]">
-            Pilih warga sekolah untuk memulai percakapan.
-          </p>
+        <!-- Header -->
+        <div class="px-5 py-4">
+          <div class="flex items-center justify-between">
+            <h2 class="text-base font-semibold text-[#171322]">
+              Buat Percakapan
+            </h2>
+            <button
+              type="button"
+              class="rounded-lg p-1.5 text-[#9ca3af] transition hover:bg-[#f3f4f6] hover:text-[#171322]"
+              aria-label="Tutup"
+              @click="isCreateConversationOpen = false"
+            >
+              <PhX class="h-5 w-5" />
+            </button>
+          </div>
+          <!-- Tab bar -->
+          <div class="mt-3 flex gap-1 rounded-lg bg-[#f3f4f6] p-1">
+            <button
+              type="button"
+              class="flex-1 rounded-md py-1.5 text-sm font-medium transition"
+              :class="
+                activeCreateTab === 'dm'
+                  ? 'bg-white text-[#171322] shadow-sm'
+                  : 'text-[#6b7280] hover:text-[#171322]'
+              "
+              @click="activeCreateTab = 'dm'"
+            >
+              Pesan Langsung
+            </button>
+            <button
+              type="button"
+              class="flex-1 rounded-md py-1.5 text-sm font-medium transition"
+              :class="
+                activeCreateTab === 'group'
+                  ? 'bg-white text-[#171322] shadow-sm'
+                  : 'text-[#6b7280] hover:text-[#171322]'
+              "
+              @click="activeCreateTab = 'group'"
+            >
+              Grup
+            </button>
+          </div>
         </div>
 
+        <!-- DM Panel -->
         <form
-          class="flex max-h-[calc(90vh-5rem)] flex-col"
+          v-if="activeCreateTab === 'dm'"
+          class="flex max-h-[calc(90vh-9rem)] flex-col"
           @submit.prevent="submitDirectMessage"
         >
           <div class="space-y-4 overflow-y-auto px-5 py-4">
@@ -2488,7 +2342,7 @@ function formatDateTime(value?: string | null) {
                     :value="member.userId"
                   />
                   <span
-                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#4f46e5] text-xs font-semibold text-white"
+                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#059669] text-xs font-semibold text-white"
                   >
                     {{ getInitials(member.fullName || member.email) }}
                   </span>
@@ -2507,14 +2361,12 @@ function formatDateTime(value?: string | null) {
             </div>
           </div>
 
-          <div
-            class="flex flex-col gap-2 border-t border-[#ebe7df] px-5 py-4 sm:flex-row sm:justify-end"
-          >
+          <div class="flex flex-col gap-2 px-5 py-4 sm:flex-row sm:justify-end">
             <button
               type="button"
               class="rounded-lg border border-[#d8d2c8] px-4 py-2 text-sm font-medium text-[#6b7280] transition hover:bg-[#fbfaf8]"
               :disabled="isOpeningDM"
-              @click="isDirectMessageOpen = false"
+              @click="isCreateConversationOpen = false"
             >
               Batal
             </button>
@@ -2527,56 +2379,11 @@ function formatDateTime(value?: string | null) {
             </button>
           </div>
         </form>
-      </div>
-    </div>
 
-    <div
-      v-if="isLightboxOpen && lightboxImage"
-      class="fixed inset-0 z-70 flex items-center justify-center bg-black/85 px-4 py-6"
-      @click="closeImageLightbox"
-    >
-      <div
-        class="relative flex max-h-full max-w-6xl flex-col items-center gap-3"
-        @click.stop
-      >
-        <button
-          type="button"
-          class="absolute right-0 top-0 inline-flex h-10 w-10 items-center justify-center rounded-full bg-black/45 text-white transition hover:bg-black/65"
-          aria-label="Tutup pratinjau gambar"
-          @click="closeImageLightbox"
-        >
-          <PhX class="h-5 w-5" />
-        </button>
-        <img
-          :src="lightboxImage.url"
-          :alt="lightboxImage.name"
-          class="max-h-[78vh] max-w-full rounded-2xl object-contain shadow-2xl"
-        />
-        <p class="max-w-full truncate px-12 text-sm text-white/85">
-          {{ lightboxImage.name }}
-        </p>
-      </div>
-    </div>
-
-    <div
-      v-if="isCreateGroupOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4 py-6"
-    >
-      <div
-        class="max-h-[90vh] w-full max-w-xl overflow-hidden rounded-xl bg-white"
-      >
-        <div class="border-b border-[#ebe7df] px-5 py-4">
-          <h2 class="text-base font-semibold text-[#171322]">
-            Buat ruang grup
-          </h2>
-          <p class="mt-1 text-sm text-[#6b7280]">
-            Pilih warga aktif dari sekolah ini untuk membuat ruang diskusi
-            khusus.
-          </p>
-        </div>
-
+        <!-- Group Panel -->
         <form
-          class="flex max-h-[calc(90vh-5rem)] flex-col"
+          v-else-if="activeCreateTab === 'group'"
+          class="flex max-h-[calc(90vh-9rem)] flex-col"
           @submit.prevent="submitCreateGroup"
         >
           <div class="space-y-4 overflow-y-auto px-5 py-4">
@@ -2685,7 +2492,7 @@ function formatDateTime(value?: string | null) {
               type="button"
               class="rounded-lg border border-[#d8d2c8] px-4 py-2 text-sm font-medium text-[#6b7280] transition hover:bg-[#fbfaf8]"
               :disabled="isCreatingGroup"
-              @click="isCreateGroupOpen = false"
+              @click="isCreateConversationOpen = false"
             >
               Batal
             </button>
@@ -2698,6 +2505,34 @@ function formatDateTime(value?: string | null) {
             </button>
           </div>
         </form>
+      </div>
+    </div>
+
+    <div
+      v-if="isLightboxOpen && lightboxImage"
+      class="fixed inset-0 z-70 flex items-center justify-center bg-black/85 px-4 py-6"
+      @click="closeImageLightbox"
+    >
+      <div
+        class="relative flex max-h-full max-w-6xl flex-col items-center gap-3"
+        @click.stop
+      >
+        <button
+          type="button"
+          class="absolute right-0 top-0 inline-flex h-10 w-10 items-center justify-center rounded-full bg-black/45 text-white transition hover:bg-black/65"
+          aria-label="Tutup pratinjau gambar"
+          @click="closeImageLightbox"
+        >
+          <PhX class="h-5 w-5" />
+        </button>
+        <img
+          :src="lightboxImage.url"
+          :alt="lightboxImage.name"
+          class="max-h-[78vh] max-w-full rounded-2xl object-contain shadow-2xl"
+        />
+        <p class="max-w-full truncate px-12 text-sm text-white/85">
+          {{ lightboxImage.name }}
+        </p>
       </div>
     </div>
 
