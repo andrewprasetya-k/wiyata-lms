@@ -277,7 +277,8 @@ export const useAuthStore = defineStore("auth", () => {
     // school is always the system school (code "000000"), guaranteed by CreateSuperAdmin.
     // Fall back to the system school UUID from memberships so the API interceptor
     // can include it in requests, restoring the pre-ab26e05 behaviour.
-    const superAdminSchoolId = import.meta.env.SUPERADMIN_SCHOOL_ID;
+    const superAdminSchoolId = import.meta.env.VITE_SUPERADMIN_SCHOOL_ID;
+    console.log("SUPERADMIN_SCHOOL_ID", superAdminSchoolId);
     const effectiveSchoolId =
       activeSchoolId.value ??
       memberships.value.find((m) => m.school.code === superAdminSchoolId)
