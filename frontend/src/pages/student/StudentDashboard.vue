@@ -48,6 +48,7 @@ import {
   parseActivityDate,
 } from "../../components/activity/activityView";
 import { getApiError } from "../../utils/error";
+import ContextSwitcher from "../../components/layout/ContextSwitcher.vue";
 
 const auth = useAuthStore();
 const activeClassStore = useActiveClassStore();
@@ -89,18 +90,8 @@ interface ClassContextLoadResult {
   activeClassId: string | null;
 }
 
-const activeMembership = computed(() => auth.activeMembership);
 const schoolUserId = computed(() => auth.activeSchoolUserId);
-const schoolName = computed(
-  () => activeMembership.value?.school.name ?? "Wiyata",
-);
 const firstName = computed(() => auth.user?.fullName?.split(" ")[0] ?? "Siswa");
-const activeClassTitle = computed(
-  () =>
-    activeClassStore.activeClassTitle ||
-    activeClassStore.activeClass?.classTitle ||
-    "",
-);
 const currentMonth = computed(() =>
   new Intl.DateTimeFormat("id-ID", { month: "long", year: "numeric" }).format(
     viewDate.value,
@@ -627,21 +618,7 @@ onMounted(() => {
               Mau belajar apa hari ini?
             </p>
           </div>
-          <div
-            class="inline-flex min-w-0 max-w-full items-center self-start rounded-lgbg-[#f9fafb] px-3 py-2 text-xs text-[#6b7280] lg:self-auto"
-          >
-            <span class="min-w-0 truncate font-medium text-[#171322]">
-              {{ schoolName }}
-            </span>
-            <span class="mx-2 shrink-0 text-[#d1d5db]">·</span>
-            <span class="min-w-0 truncate">
-              {{
-                activeClassTitle
-                  ? `Kelas ${activeClassTitle}`
-                  : "Tanpa kelas aktif"
-              }}
-            </span>
-          </div>
+          <ContextSwitcher />
         </div>
       </header>
 

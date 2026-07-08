@@ -18,8 +18,6 @@ interface SchoolContextGroup {
   options: SchoolContextOption[];
 }
 
-const props = defineProps<{ collapsed?: boolean }>();
-
 const roleLabels: Record<RoleName, string> = {
   admin: "Admin",
   teacher: "Guru",
@@ -202,41 +200,12 @@ function isSameContext(
 </script>
 
 <template>
-  <div ref="rootEl" class="relative mb-4">
-    <!-- ── Collapsed trigger: icon-only square button (original) -->
+  <div ref="rootEl" class="relative">
+    <!-- Trigger: context name + role row -->
     <button
-      v-if="props.collapsed"
       ref="triggerEl"
       type="button"
-      class="group relative mx-auto flex h-11 w-11 items-center justify-center rounded-xl border border-[#ebe7df] bg-[#fbfaf8] text-[#4f46e5] transition hover:border-[#d8d2c6] hover:bg-[#f3f1ec] focus:outline-none focus:ring-2 focus:ring-[#c7d2fe] focus:ring-offset-2 focus:ring-offset-white disabled:cursor-default disabled:opacity-80"
-      :class="isOpen ? 'border-[#c7d2fe] bg-[#eef2ff]' : ''"
-      :disabled="!hasMultipleContexts || isSwitching"
-      :aria-haspopup="hasMultipleContexts ? 'menu' : undefined"
-      :aria-expanded="hasMultipleContexts ? isOpen : undefined"
-      :aria-controls="hasMultipleContexts ? menuId : undefined"
-      :aria-label="`${activeDescription.ariaLabel}${hasMultipleContexts ? '. Buka pilihan konteks.' : ''}`"
-      :title="`${activeDescription.title} - ${activeDescription.subtitle}`"
-      @click="toggleMenu"
-    >
-      <span
-        class="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-[11px] font-semibold shadow-sm"
-      >
-        {{ activeDescription.initials }}
-      </span>
-      <PhCaretDown
-        v-if="hasMultipleContexts"
-        :size="11"
-        class="absolute -bottom-1 -right-1 rounded-full bg-white text-[#7c7789] shadow-sm transition"
-        :class="isOpen ? 'rotate-180' : ''"
-      />
-    </button>
-
-    <!-- ── Expanded trigger: full-width row with name + role -->
-    <button
-      v-else
-      ref="triggerEl"
-      type="button"
-      class="flex w-full items-center gap-2.5 rounded-xl border border-[#ebe7df] bg-[#fbfaf8] px-2.5 py-2 text-left transition hover:border-[#d8d2c6] hover:bg-[#f3f1ec] focus:outline-none focus:ring-2 focus:ring-[#c7d2fe] focus:ring-offset-2 focus:ring-offset-white disabled:cursor-default disabled:opacity-80"
+      class="flex items-center gap-2.5 rounded-xl border border-[#ebe7df] bg-[#fbfaf8] px-2.5 py-2 text-left transition hover:border-[#d8d2c6] hover:bg-[#f3f1ec] focus:outline-none focus:ring-2 focus:ring-[#c7d2fe] focus:ring-offset-2 focus:ring-offset-white disabled:cursor-default disabled:opacity-80"
       :class="isOpen ? 'border-[#c7d2fe] bg-[#eef2ff]' : ''"
       :disabled="!hasMultipleContexts || isSwitching"
       :aria-haspopup="hasMultipleContexts ? 'menu' : undefined"
@@ -245,11 +214,6 @@ function isSameContext(
       :aria-label="`${activeDescription.ariaLabel}${hasMultipleContexts ? '. Buka pilihan konteks.' : ''}`"
       @click="toggleMenu"
     >
-      <span
-        class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-[11px] font-semibold"
-      >
-        {{ activeDescription.initials }}
-      </span>
       <span class="min-w-0 flex-1">
         <span class="block truncate text-[13px] font-semibold text-[#2f2b3a]">
           {{ activeDescription.title }}
@@ -279,10 +243,7 @@ function isSameContext(
         v-if="isOpen"
         :id="menuId"
         role="menu"
-        class="absolute z-50 w-72 rounded-xl border border-[#ebe7df] bg-white p-2 text-left shadow-xl shadow-[#2f2b3a]/10"
-        :class="
-          props.collapsed ? 'left-full top-0 ml-3' : 'left-0 top-full mt-1.5'
-        "
+        class="absolute left-0 top-full z-50 mt-1.5 w-72 rounded-xl border border-[#ebe7df] bg-white p-2 text-left shadow-xl shadow-[#2f2b3a]/10"
         aria-label="Pilih konteks sekolah dan peran"
       >
         <div class="border-b border-[#ebe7df] px-3 py-2">

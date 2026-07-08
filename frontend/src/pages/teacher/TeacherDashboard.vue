@@ -21,6 +21,7 @@ import type { AcademicActivityItem } from "../../types/activity";
 import { resolveSubjectColor } from "../../utils/color";
 import LatestChatCard from "../../components/chat/LatestChatCard.vue";
 import AcademicActivityCard from "../../components/activity/AcademicActivityCard.vue";
+import ContextSwitcher from "../../components/layout/ContextSwitcher.vue";
 
 const auth = useAuthStore();
 
@@ -44,9 +45,6 @@ const schoolUserId = computed(
     activeMembership.value?.schoolUserId ?? auth.defaultContext?.schoolUserId ?? "",
 );
 
-const activeSchoolName = computed(
-  () => activeMembership.value?.school.name ?? "Sekolah aktif",
-);
 const teacherName = computed(() => auth.user?.fullName ?? "Guru");
 const firstName = computed(() => teacherName.value.split(" ")[0]);
 
@@ -191,11 +189,7 @@ onMounted(() => {
               Selamat mengajar, {{ firstName }}
             </h1>
           </div>
-          <div
-            class="min-w-0 rounded-lg border border-[#ebe7df] bg-[#f9fafb] px-3 py-2 text-sm"
-          >
-            <span class="font-medium text-[#171322]">{{ activeSchoolName }}</span>
-          </div>
+          <ContextSwitcher />
         </div>
       </header>
 

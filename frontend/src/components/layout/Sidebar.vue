@@ -4,7 +4,6 @@ import { PhSignOut, PhSidebarSimple } from "@phosphor-icons/vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "../../stores/auth";
 import type { NavItem } from "../../types/navigation";
-import ContextSwitcher from "./ContextSwitcher.vue";
 
 defineProps<{
   items: NavItem[];
@@ -77,11 +76,6 @@ function isActive(to: string) {
           :class="isCollapsed ? 'rotate-180' : ''"
         />
       </button>
-    </div>
-
-    <!-- ── Context switcher -->
-    <div class="shrink-0 px-2 pt-3">
-      <ContextSwitcher :collapsed="isCollapsed" />
     </div>
 
     <!-- ── Navigation -->

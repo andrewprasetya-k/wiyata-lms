@@ -23,6 +23,7 @@ import type { AdminDashboardSummary } from "../../types/adminDashboard";
 import type { AcademicYearItem, TermItem } from "../../types/adminAcademic";
 import { formatDateTime } from "../../utils/date";
 import LatestChatCard from "../../components/chat/LatestChatCard.vue";
+import ContextSwitcher from "../../components/layout/ContextSwitcher.vue";
 
 const auth = useAuthStore();
 
@@ -34,7 +35,6 @@ const activeTerm = ref<TermItem | null>(null);
 
 const schoolId = computed(() => auth.activeSchoolId ?? "");
 const schoolCode = computed(() => auth.activeMembership?.school.code ?? "");
-const schoolName = computed(() => auth.activeMembership?.school.name ?? "");
 const firstName = computed(() => auth.user?.fullName?.split(" ")[0] ?? "Admin");
 
 const setupSteps = computed(() => [
@@ -223,25 +223,7 @@ onMounted(loadDashboard);
               Halo, {{ firstName }}
             </h1>
           </div>
-          <div
-            class="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1.5 rounded-lg border border-[#ebe7df] bg-[#f9fafb] px-4 py-2.5 text-sm"
-          >
-            <span class="font-semibold text-[#171322]">{{ schoolName }}</span>
-            <span
-              v-if="activeYear"
-              class="flex items-center gap-1.5 text-[#6b7280]"
-            >
-              <span class="text-[#d1d5db]">·</span>
-              {{ activeYear.academicYearName }}
-            </span>
-            <span
-              v-if="activeTerm"
-              class="flex items-center gap-1.5 text-[#6b7280]"
-            >
-              <span class="text-[#d1d5db]">·</span>
-              {{ activeTerm.termName }}
-            </span>
-          </div>
+          <ContextSwitcher />
         </div>
       </header>
 
