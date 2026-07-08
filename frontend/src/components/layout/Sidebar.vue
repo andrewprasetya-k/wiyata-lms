@@ -42,7 +42,7 @@ function isActive(to: string) {
     <!-- ── Header: logo + brand + toggle -->
     <div
       class="flex shrink-0 items-center"
-      :class="isCollapsed ? 'flex-col gap-1.5 px-0 py-3' : 'gap-2.5 px-3 py-3'"
+      :class="isCollapsed ? 'flex-col gap-1.5 px-0 py-4' : 'gap-2.5 px-3 py-4'"
     >
       <img
         src="/logo_fix.svg"
@@ -60,7 +60,7 @@ function isActive(to: string) {
         "
         aria-hidden="true"
       >
-        Wiyata
+        Wiyata Workspace
       </span>
 
       <!-- Collapse / expand toggle -->
