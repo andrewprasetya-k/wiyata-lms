@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref } from "vue";
 import {
-  PhArrowClockwise,
   PhChatCircleText,
   PhCheck,
   PhChecks,
@@ -1888,17 +1887,6 @@ function formatDateTime(value?: string | null) {
                   {{ selectedSchoolName }} · {{ roomSubtitle(selectedRoom) }}
                 </p>
               </div>
-              <button
-                type="button"
-                class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-3 py-2 text-xs font-medium text-[#4f46e5] transition hover:border-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60"
-                :disabled="isRefreshing || !selectedRoom"
-                @click="refreshMessages()"
-              >
-                <PhArrowClockwise
-                  :class="['h-4 w-4', isRefreshing ? 'animate-spin' : '']"
-                />
-                Segarkan
-              </button>
             </div>
 
             <div
