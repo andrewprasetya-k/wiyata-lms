@@ -610,7 +610,7 @@ const screenshotSlots = [
         aria-hidden="true"
       />
       <div
-        class="pointer-events-none absolute left-0 top-1/2 h-80 w-80 -translate-x-1/3 -translate-y-1/2 rounded-full bg-[#f59e0b]/20 blur-3xl"
+        class="pointer-events-none absolute left-0 top-2/3 h-70 w-80 -translate-x-1/3 -translate-y-1/2 rounded-full bg-[#f59e0b]/20 blur-3xl"
         aria-hidden="true"
       />
 
