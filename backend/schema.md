@@ -150,7 +150,7 @@ indexes {
 
 Table roles {
 rol_id uuid [pk, default: `gen_random_uuid()`]
-rol_name varchar(50)
+rol_name varchar(50) [unique]
 created_at timestamptz [default: `now()`]
 }
 
@@ -215,7 +215,6 @@ cls_title varchar(150)
 cls_desc text
 created_by uuid [ref: > users.usr_id]
 is_active boolean [default: true]
-cls_chat_room_id uuid [ref: > chat_rooms.room_id] //NEW COLUMN TO SUPPORT CHAT FEATURE
 created_at timestamptz [default: `now()`]
 updated_at timestamptz [default: `now()`]
 deleted_at timestamptz
@@ -231,7 +230,6 @@ scl_id uuid [pk, default: `gen_random_uuid()`]
 scl_cls_id uuid [ref: > classes.cls_id]
 scl_sub_id uuid [ref: > subjects.sub_id]
 scl_scu_id uuid [ref: > school_users.scu_id]
-scl_chat_room_id uuid [ref: > chat_rooms.room_id] //NEW COLUMN TO SUPPORT CHAT FEATURE
 
 indexes {
 (scl_cls_id, scl_sub_id, scl_scu_id) [unique]
@@ -321,7 +319,7 @@ asg_asc_id uuid [ref: > assignment_categories.asc_id]
 asg_title varchar(150)
 asg_desc text
 asg_deadline timestamptz
-asg_allowed_late bool
+asg_allowed_late bool [default: true]
 created_by uuid [ref: > users.usr_id]
 created_at timestamptz [default: `now()`]
 updated_at timestamptz [default: `now()`]
