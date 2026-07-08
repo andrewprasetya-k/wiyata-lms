@@ -606,7 +606,7 @@ const screenshotSlots = [
     <section class="relative overflow-hidden bg-[#fbfaf8]">
       <!-- Backdrop blobs — exist in section behind the card so backdrop-blur has something to blur -->
       <div
-        class="pointer-events-none absolute right-0 top-1/4 h-50 w-lg -translate-y-1/2 translate-x-1/3 rounded-full bg-[#4f46e5]/22 blur-3xl"
+        class="pointer-events-none absolute right-0 top-2/7 h-40 w-lg -translate-y-1/2 translate-x-1/3 rounded-full bg-[#4f46e5]/22 blur-3xl"
         aria-hidden="true"
       />
       <div
