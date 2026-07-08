@@ -77,7 +77,7 @@ const quickActions = [
       >
         <div class="min-w-0">
           <p
-            class="text-xs font-semibold uppercase tracking-[0.18em] text-[#ea580c]"
+            class="eyebrow"
           >
             Super Admin
           </p>
@@ -107,7 +107,7 @@ const quickActions = [
           class="rounded-xl border border-[#ebe7df] bg-white p-5 shadow-sm"
         >
           <p
-            class="text-xs font-semibold uppercase tracking-[0.16em] text-[#ea580c]"
+            class="eyebrow"
           >
             Pusat platform
           </p>

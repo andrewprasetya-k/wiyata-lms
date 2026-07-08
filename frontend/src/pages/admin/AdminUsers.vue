@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import {
   PhCopy,
   PhDownloadSimple,
@@ -240,6 +240,35 @@ async function loadMembers() {
     membersLoading.value = false;
   }
 }
+
+let searchVersion = 0;
+let searchTimer: ReturnType<typeof setTimeout> | null = null;
+
+watch(memberSearch, () => {
+  if (searchTimer) clearTimeout(searchTimer);
+  searchTimer = setTimeout(async () => {
+    const version = ++searchVersion;
+    if (!currentSchool.value.hasContext) return;
+
+    membersLoading.value = true;
+    membersError.value = "";
+    try {
+      const data = await getAdminSchoolMembers({
+        page: 1,
+        limit: 50,
+        search: memberSearch.value.trim(),
+      });
+      if (version !== searchVersion) return;
+      members.value = data.data ?? [];
+      initializeRoleDrafts();
+    } catch {
+      if (version !== searchVersion) return;
+      membersError.value = "Warga sekolah belum bisa dimuat.";
+    } finally {
+      if (version === searchVersion) membersLoading.value = false;
+    }
+  }, 300);
+});
 
 async function syncRoleForMember(schoolUserId: string, roleId: string) {
   if (!roleId) {
@@ -660,7 +689,7 @@ onMounted(async () => {
             >
               <div>
                 <p
-                  class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#9ca3af]"
+                  class="eyebrow-muted"
                 >
                   Warga sekolah aktif
                 </p>
@@ -679,25 +708,18 @@ onMounted(async () => {
               </span>
             </div>
 
-            <form
-              class="flex min-w-0 flex-col gap-2 sm:flex-row"
-              @submit.prevent="loadMembers"
-            >
+            <div class="relative min-w-0">
+              <PhMagnifyingGlass
+                :size="17"
+                class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9ca3af]"
+              />
               <input
                 v-model="memberSearch"
                 type="search"
                 placeholder="Cari nama atau email warga sekolah"
-                class="min-w-0 flex-1 rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#4f46e5] focus:bg-white"
+                class="w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] py-2.5 pl-10 pr-3.5 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#4f46e5] focus:bg-white"
               />
-              <button
-                type="submit"
-                class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-[#171322] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#374151] disabled:cursor-not-allowed disabled:opacity-60"
-                :disabled="membersLoading || !currentSchool.hasContext"
-              >
-                <PhMagnifyingGlass :size="17" weight="duotone" />
-                Cari
-              </button>
-            </form>
+            </div>
           </div>
 
           <div class="p-5">
@@ -726,7 +748,7 @@ onMounted(async () => {
               </p>
               <button
                 type="button"
-                class="mt-4 inline-flex items-center justify-center gap-2 rounded-lg bg-[#171322] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#374151] disabled:cursor-not-allowed disabled:opacity-60"
+                class="mt-4 inline-flex items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60"
                 @click="rolesError ? loadRoles() : loadMembers()"
               >
                 Coba lagi
@@ -826,7 +848,7 @@ onMounted(async () => {
                     </label>
                     <button
                       type="button"
-                      class="mt-2.5 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#171322] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#374151] disabled:cursor-not-allowed disabled:opacity-60"
+                      class="mt-2.5 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#ea580c] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#c2410c] disabled:cursor-not-allowed disabled:opacity-60"
                       :disabled="
                         savingRolesSchoolUserId === member.schoolUserId ||
                         !memberRoleDrafts[member.schoolUserId]
@@ -872,7 +894,7 @@ onMounted(async () => {
             <div class="flex items-start justify-between gap-3">
               <div>
                 <p
-                  class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#9ca3af]"
+                  class="eyebrow-muted"
                 >
                   Tambah warga sekolah
                 </p>
@@ -979,7 +1001,7 @@ onMounted(async () => {
               </p>
               <button
                 type="submit"
-                class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#171322] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#374151] disabled:cursor-not-allowed disabled:opacity-60"
+                class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#ea580c] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#c2410c] disabled:cursor-not-allowed disabled:opacity-60"
                 :disabled="isInvitingMember"
               >
                 <PhEnvelopeSimple :size="17" weight="duotone" />
@@ -1077,7 +1099,7 @@ onMounted(async () => {
               </p>
               <button
                 type="submit"
-                class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#171322] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#374151] disabled:cursor-not-allowed disabled:opacity-60"
+                class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#ea580c] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#c2410c] disabled:cursor-not-allowed disabled:opacity-60"
                 :disabled="isCreatingMember"
               >
                 <PhPlusCircle :size="17" weight="duotone" />

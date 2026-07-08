@@ -234,7 +234,7 @@ onMounted(() => {
       >
         <div class="min-w-0">
           <p
-            class="text-xs font-semibold uppercase tracking-[0.18em] text-[#ea580c]"
+            class="eyebrow"
           >
             Super Admin
           </p>
@@ -304,7 +304,7 @@ onMounted(() => {
           >
             <div class="min-w-0">
               <p
-                class="text-xs font-semibold uppercase tracking-[0.16em] text-[#ea580c]"
+                class="eyebrow"
               >
                 Daftar tenant sekolah
               </p>
@@ -331,11 +331,8 @@ onMounted(() => {
           </div>
 
           <div class="mt-5 space-y-3">
-            <div
-              v-if="isLoading"
-              class="rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-4 py-5 text-sm text-[#6b7280]"
-            >
-              Memuat daftar sekolah...
+            <div v-if="isLoading" class="space-y-3">
+              <div v-for="item in 3" :key="item" class="h-24 animate-pulse rounded-xl bg-[#fbfaf8]" />
             </div>
 
             <div
@@ -465,7 +462,7 @@ onMounted(() => {
           <div class="flex items-start justify-between gap-4">
             <div>
               <p
-                class="text-xs font-semibold uppercase tracking-[0.16em] text-[#ea580c]"
+                class="eyebrow"
               >
                 Setup sekolah
               </p>
@@ -692,7 +689,7 @@ onMounted(() => {
 
             <button
               type="submit"
-              class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#171322] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#374151] disabled:cursor-not-allowed disabled:opacity-60"
+              class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#ea580c] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#c2410c] disabled:cursor-not-allowed disabled:opacity-60"
               :disabled="isBootstrapping || isLoading"
             >
               <PhPlusCircle :size="18" weight="duotone" />

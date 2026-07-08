@@ -677,7 +677,7 @@ watch(selectedWeightSubjectId, () => {
           <div class="flex items-start justify-between gap-4">
             <div class="min-w-0">
               <p
-                class="text-xs font-semibold uppercase tracking-[0.16em] text-[#ea580c]"
+                class="eyebrow"
               >
                 Tahun ajaran
               </p>
@@ -708,7 +708,7 @@ watch(selectedWeightSubjectId, () => {
             />
             <button
               type="submit"
-              class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#171322] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#374151] disabled:cursor-not-allowed disabled:opacity-60"
+              class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#ea580c] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#c2410c] disabled:cursor-not-allowed disabled:opacity-60"
               :disabled="
                 activeAction === 'academic-year-create' ||
                 !currentSchool.hasContext
@@ -720,12 +720,9 @@ watch(selectedWeightSubjectId, () => {
           </form>
 
           <div class="mt-5 space-y-3">
-            <p
-              v-if="academicYearsLoading"
-              class="rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-4 py-3 text-sm text-[#6b7280]"
-            >
-              Memuat tahun ajaran...
-            </p>
+            <div v-if="academicYearsLoading" class="space-y-3">
+              <div v-for="item in 2" :key="item" class="h-14 animate-pulse rounded-lg bg-[#fbfaf8]" />
+            </div>
             <p
               v-else-if="academicYearsError"
               class="rounded-lg border border-[#fecaca] bg-[#fff8f6] px-4 py-3 text-sm text-[#a8665d]"
@@ -792,7 +789,7 @@ watch(selectedWeightSubjectId, () => {
           <div class="flex items-start justify-between gap-4">
             <div class="min-w-0">
               <p
-                class="text-xs font-semibold uppercase tracking-[0.16em] text-[#ea580c]"
+                class="eyebrow"
               >
                 Semester
               </p>
@@ -840,7 +837,7 @@ watch(selectedWeightSubjectId, () => {
             />
             <button
               type="submit"
-              class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#171322] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#374151] disabled:cursor-not-allowed disabled:opacity-60"
+              class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#ea580c] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#c2410c] disabled:cursor-not-allowed disabled:opacity-60"
               :disabled="
                 activeAction === 'term-create' || !selectedAcademicYearId
               "
@@ -851,12 +848,9 @@ watch(selectedWeightSubjectId, () => {
           </form>
 
           <div class="mt-5 space-y-3">
-            <p
-              v-if="termsLoading"
-              class="rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-4 py-3 text-sm text-[#6b7280]"
-            >
-              Memuat semester...
-            </p>
+            <div v-if="termsLoading" class="space-y-3">
+              <div v-for="item in 2" :key="item" class="h-14 animate-pulse rounded-lg bg-[#fbfaf8]" />
+            </div>
             <p
               v-else-if="termsError"
               class="rounded-lg border border-[#fecaca] bg-[#fff8f6] px-4 py-3 text-sm text-[#a8665d]"
@@ -936,7 +930,7 @@ watch(selectedWeightSubjectId, () => {
         class="flex items-center justify-between gap-4 rounded-2xl border border-[#ebe7df] bg-white p-5 transition hover:border-[#4f46e5] hover:shadow-sm"
       >
         <div>
-          <p class="text-xs font-semibold uppercase tracking-[0.16em] text-[#ea580c]">
+          <p class="eyebrow">
             Langkah berikutnya
           </p>
           <p class="mt-1 text-base font-semibold text-[#171322]">Buat Kelas</p>
@@ -956,7 +950,7 @@ watch(selectedWeightSubjectId, () => {
           <div class="flex items-start justify-between gap-4">
             <div class="min-w-0">
               <p
-                class="text-xs font-semibold uppercase tracking-[0.16em] text-[#ea580c]"
+                class="eyebrow"
               >
                 Mata pelajaran
               </p>
@@ -1022,7 +1016,7 @@ watch(selectedWeightSubjectId, () => {
             </div>
             <button
               type="submit"
-              class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#171322] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#374151] disabled:cursor-not-allowed disabled:opacity-60 sm:col-span-2"
+              class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#ea580c] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#c2410c] disabled:cursor-not-allowed disabled:opacity-60 sm:col-span-2"
               :disabled="
                 activeAction === 'subject-create' ||
                 activeAction === `subject-update-${editingSubjectId}` ||
@@ -1048,12 +1042,9 @@ watch(selectedWeightSubjectId, () => {
           </form>
 
           <div class="mt-5 space-y-3">
-            <p
-              v-if="subjectsLoading"
-              class="rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-4 py-3 text-sm text-[#6b7280]"
-            >
-              Memuat mata pelajaran...
-            </p>
+            <div v-if="subjectsLoading" class="space-y-3">
+              <div v-for="item in 2" :key="item" class="h-14 animate-pulse rounded-lg bg-[#fbfaf8]" />
+            </div>
             <p
               v-else-if="subjectsError"
               class="rounded-lg border border-[#fecaca] bg-[#fff8f6] px-4 py-3 text-sm text-[#a8665d]"
@@ -1117,7 +1108,7 @@ watch(selectedWeightSubjectId, () => {
           <div class="flex items-start justify-between gap-4">
             <div class="min-w-0">
               <p
-                class="text-xs font-semibold uppercase tracking-[0.16em] text-[#ea580c]"
+                class="eyebrow"
               >
                 Kategori tugas
               </p>
@@ -1148,7 +1139,7 @@ watch(selectedWeightSubjectId, () => {
             />
             <button
               type="submit"
-              class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#171322] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#374151] disabled:cursor-not-allowed disabled:opacity-60"
+              class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#ea580c] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#c2410c] disabled:cursor-not-allowed disabled:opacity-60"
               :disabled="
                 activeAction === 'category-create' || !currentSchool.hasContext
               "
@@ -1159,12 +1150,9 @@ watch(selectedWeightSubjectId, () => {
           </form>
 
           <div class="mt-5 space-y-3">
-            <p
-              v-if="categoriesLoading"
-              class="rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-4 py-3 text-sm text-[#6b7280]"
-            >
-              Memuat kategori tugas...
-            </p>
+            <div v-if="categoriesLoading" class="space-y-3">
+              <div v-for="item in 2" :key="item" class="h-14 animate-pulse rounded-lg bg-[#fbfaf8]" />
+            </div>
             <p
               v-else-if="categoriesError"
               class="rounded-lg border border-[#fecaca] bg-[#fff8f6] px-4 py-3 text-sm text-[#a8665d]"
@@ -1204,7 +1192,7 @@ watch(selectedWeightSubjectId, () => {
         >
           <div class="max-w-3xl">
             <p
-              class="text-xs font-semibold uppercase tracking-[0.16em] text-[#ea580c]"
+              class="eyebrow"
             >
               Bobot penilaian
             </p>
@@ -1311,7 +1299,7 @@ watch(selectedWeightSubjectId, () => {
                 </p>
               </div>
               <button
-                class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#171322] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#374151] disabled:cursor-not-allowed disabled:opacity-60"
+                class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#ea580c] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#c2410c] disabled:cursor-not-allowed disabled:opacity-60"
                 type="submit"
                 :disabled="!canSubmitWeights"
               >

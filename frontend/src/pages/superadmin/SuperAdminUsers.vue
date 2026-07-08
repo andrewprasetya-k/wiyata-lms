@@ -126,7 +126,7 @@ onMounted(() => {
           >
             <div class="min-w-0">
               <p
-                class="text-xs font-semibold uppercase tracking-[0.16em] text-[#ea580c]"
+                class="eyebrow"
               >
                 Daftar akun login
               </p>
@@ -255,7 +255,7 @@ onMounted(() => {
           <div class="flex items-start justify-between gap-4">
             <div class="min-w-0">
               <p
-                class="text-xs font-semibold uppercase tracking-[0.16em] text-[#ea580c]"
+                class="eyebrow"
               >
                 Informasi akses
               </p>

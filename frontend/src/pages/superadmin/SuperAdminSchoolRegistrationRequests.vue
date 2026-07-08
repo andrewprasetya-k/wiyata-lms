@@ -248,7 +248,7 @@ onMounted(() => {
         class="flex min-w-0 flex-col gap-3 px-5 py-5 sm:px-6 lg:flex-row lg:items-end lg:justify-between lg:px-8"
       >
         <div class="min-w-0">
-          <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#ea580c]">
+          <p class="eyebrow">
             Super Admin
           </p>
           <h1 class="mt-2 text-2xl font-semibold text-[#171322] sm:text-3xl">
@@ -277,7 +277,7 @@ onMounted(() => {
       <section class="min-w-0 rounded-xl border border-[#ebe7df] bg-white p-5 shadow-sm">
         <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-[#ea580c]">
+            <p class="eyebrow">
               Antrian request
             </p>
             <h2 class="mt-2 text-xl font-semibold text-[#171322]">
@@ -306,11 +306,8 @@ onMounted(() => {
         </div>
 
         <div class="mt-5 space-y-3">
-          <div
-            v-if="isLoading"
-            class="rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-4 py-5 text-sm text-[#6b7280]"
-          >
-            Memuat permintaan pendaftaran...
+          <div v-if="isLoading" class="space-y-3">
+            <div v-for="item in 3" :key="item" class="h-20 animate-pulse rounded-xl bg-[#fbfaf8]" />
           </div>
 
           <div
@@ -410,7 +407,7 @@ onMounted(() => {
         <section class="rounded-xl border border-[#ebe7df] bg-white p-5 shadow-sm xl:sticky xl:top-6">
           <div class="flex items-start justify-between gap-4">
             <div>
-              <p class="text-xs font-semibold uppercase tracking-[0.16em] text-[#ea580c]">
+              <p class="eyebrow">
                 Detail request
               </p>
               <h2 class="mt-2 text-xl font-semibold text-[#171322]">
@@ -422,18 +419,17 @@ onMounted(() => {
             </span>
           </div>
 
-          <div
-            v-if="detailLoading"
-            class="mt-5 rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-4 py-5 text-sm text-[#6b7280]"
-          >
-            Memuat detail request...
+          <div v-if="detailLoading" class="mt-5 space-y-3">
+            <div v-for="item in 4" :key="item" class="h-8 animate-pulse rounded-lg bg-[#fbfaf8]" />
           </div>
 
           <div
             v-else-if="!selectedRequest"
-            class="mt-5 rounded-lg border border-dashed border-[#d1d5db] bg-[#fafafa] px-4 py-8 text-sm leading-6 text-[#6b7280]"
+            class="mt-5 rounded-lg border border-dashed border-[#d1d5db] bg-[#fafafa] px-4 py-8 text-center"
           >
-            Pilih salah satu request untuk melihat detail dan action.
+            <PhClipboardText class="mx-auto h-7 w-7 text-[#9ca3af]" weight="duotone" />
+            <p class="mt-3 text-sm font-semibold text-[#171322]">Belum ada request dipilih</p>
+            <p class="mt-1 text-sm text-[#6b7280]">Pilih salah satu request dari daftar untuk melihat detail dan tindakan.</p>
           </div>
 
           <div v-else class="mt-5 space-y-5">
