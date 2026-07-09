@@ -909,14 +909,14 @@ onMounted(() => {
               </p>
               <div class="flex items-center gap-2">
                 <RouterLink
-                  class="rounded-lg border border-[#ebe7df] bg-white px-3 py-1 text-xs font-medium text-[#4f46e5] transition hover:border-[#4f46e5] hover:bg-[#eef2ff]"
+                  class="rounded-lg border border-[#ebe7df] bg-white px-1 py-1 text-xs font-medium text-[#4f46e5] transition hover:border-[#4f46e5] hover:bg-[#eef2ff]"
                   to="/student/notifications"
                 >
                   Lihat semua
                 </RouterLink>
                 <button
                   v-if="notificationUnread.unreadCount.value > 0"
-                  class="rounded-lg bg-[#eef2ff] px-3 py-1 text-xs font-medium text-[#4f46e5] transition hover:bg-[#e0e7ff] disabled:cursor-not-allowed disabled:opacity-60"
+                  class="rounded-lg bg-[#eef2ff] px-1 py-1 text-xs font-medium text-[#4f46e5] transition hover:bg-[#e0e7ff] disabled:cursor-not-allowed disabled:opacity-60"
                   type="button"
                   :disabled="markingAllNotifications"
                   @click="markAllNotificationsRead"

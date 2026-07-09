@@ -94,7 +94,7 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
       </div>
     </div>
 
-    <div class="min-h-0 flex-1 overflow-hidden p-4">
+    <div class="min-h-0 flex-1 overflow-hidden p-3">
       <div
         v-show="activeTab === 'notifications'"
         id="updates-panel-notifications"

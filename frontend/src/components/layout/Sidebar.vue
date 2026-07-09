@@ -142,7 +142,7 @@ function isActive(to: string) {
             v-if="item.badgeCount"
             :key="item.badgeLabel || String(item.badgeCount)"
             class="absolute inline-flex min-w-[1.1rem] items-center justify-center rounded-full bg-[#4f46e5] px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white shadow-sm"
-            :class="isCollapsed ? '-right-1.5 -top-1 ' : '-right-2 top-0'"
+            :class="isCollapsed ? '-right-1.5 -top-1 ' : 'right-2'"
             :aria-label="
               item.badgeAriaLabel || `${item.badgeCount} chat belum dibaca`
             "
