@@ -735,10 +735,10 @@ onMounted(() => {
 
             <div
               v-else-if="subjects.length > 0"
-              class="grid gap-3 sm:grid-cols-2"
+              class="grid gap-3 sm:grid-cols-2 max-h-80 overflow-y-auto pr-1"
             >
               <RouterLink
-                v-for="subject in subjects.slice(0, 4)"
+                v-for="subject in subjects"
                 :key="subject.subjectClassId"
                 class="group min-w-0 overflow-hidden rounded-lg bg-[#fbfaf8] transition hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_18px_40px_rgba(66,55,40,0.08)]"
                 :to="`/student/subjects/${subject.subjectClassId}`"

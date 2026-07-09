@@ -315,7 +315,7 @@ onMounted(() => {
 
             <div
               v-else-if="summary?.classPerformance?.length"
-              class="grid gap-3 md:grid-cols-2"
+              class="grid gap-3 md:grid-cols-2 max-h-96 overflow-y-auto pr-1"
             >
               <article
                 v-for="item in summary.classPerformance"
