@@ -139,6 +139,7 @@ func (r *asgEnrRepoStub) HasTeacherSubjectClassAssignment(_, _, _ string) (bool,
 func (r *asgEnrRepoStub) GetStudentUserIDsByClass(_ string) ([]string, error)                         { return nil, nil }
 func (r *asgEnrRepoStub) GetMemberUserIDsByClass(_ string) ([]string, error)                          { return nil, nil }
 func (r *asgEnrRepoStub) UserEnrolledInClassAsRole(_, _, _, _ string) (bool, error)                   { return false, nil }
+func (r *asgEnrRepoStub) BulkCloseBySchoolUser(_ string, _ time.Time) error                           { return nil }
 
 // ─── Helper ───────────────────────────────────────────────────────────────────
 

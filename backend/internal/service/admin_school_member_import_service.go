@@ -10,6 +10,7 @@ import (
 	"io"
 	"net/mail"
 	"strings"
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -340,14 +341,22 @@ func (s *adminSchoolMemberImportService) AddMember(schoolID string, input dto.Ad
 }
 
 func (s *adminSchoolMemberImportService) RemoveMember(schoolID string, schoolUserID string) error {
-	result := s.db.Where("scu_id = ? AND scu_sch_id = ?", schoolUserID, schoolID).Delete(&domain.SchoolUser{})
-	if result.Error != nil {
-		return result.Error
-	}
-	if result.RowsAffected == 0 {
-		return gorm.ErrRecordNotFound
-	}
-	return nil
+	leftAt := time.Now()
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		result := tx.Unscoped().
+			Model(&domain.SchoolUser{}).
+			Where("scu_id = ? AND scu_sch_id = ? AND deleted_at IS NULL", schoolUserID, schoolID).
+			Update("deleted_at", leftAt)
+		if result.Error != nil {
+			return result.Error
+		}
+		if result.RowsAffected == 0 {
+			return gorm.ErrRecordNotFound
+		}
+		return tx.Model(&domain.Enrollment{}).
+			Where("enr_scu_id = ? AND left_at IS NULL", schoolUserID).
+			Update("left_at", leftAt).Error
+	})
 }
 
 func (s *adminSchoolMemberImportService) RestoreMember(schoolID string, schoolUserID string) error {

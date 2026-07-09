@@ -23,6 +23,7 @@ type EnrollmentRepository interface {
 	GetStudentUserIDsByClass(classID string) ([]string, error)
 	GetMemberUserIDsByClass(classID string) ([]string, error)
 	UserEnrolledInClassAsRole(userID string, schoolID string, classID string, role string) (bool, error)
+	BulkCloseBySchoolUser(schoolUserID string, leftAt time.Time) error
 }
 
 type enrollmentRepository struct {
@@ -167,6 +168,12 @@ func (r *enrollmentRepository) GetMemberUserIDsByClass(classID string) ([]string
 		Where("enrollments.enr_cls_id = ? AND enrollments.left_at IS NULL", classID).
 		Pluck("school_users.scu_usr_id", &userIDs).Error
 	return userIDs, err
+}
+
+func (r *enrollmentRepository) BulkCloseBySchoolUser(schoolUserID string, leftAt time.Time) error {
+	return r.db.Model(&domain.Enrollment{}).
+		Where("enr_scu_id = ? AND left_at IS NULL", schoolUserID).
+		Update("left_at", leftAt).Error
 }
 
 func (r *enrollmentRepository) UserEnrolledInClassAsRole(userID string, schoolID string, classID string, role string) (bool, error) {
