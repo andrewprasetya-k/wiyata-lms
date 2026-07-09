@@ -214,11 +214,6 @@ onMounted(loadDashboard);
           class="flex min-w-0 flex-col gap-3 px-5 py-5 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8"
         >
           <div class="min-w-0">
-            <p
-              class="text-xs font-semibold uppercase tracking-[0.06em] text-[#9ca3af]"
-            >
-              Admin Sekolah
-            </p>
             <h1 class="mt-1 text-2xl font-semibold text-[#171322] sm:text-3xl">
               Halo, {{ firstName }}
             </h1>
@@ -410,7 +405,9 @@ onMounted(loadDashboard);
         </section>
 
         <!-- SECTION 5 — Recent Activity -->
-        <section class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5">
+        <section
+          class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5"
+        >
           <div class="mb-4 flex items-center gap-2">
             <PhClockCountdown
               :size="17"
@@ -482,7 +479,9 @@ onMounted(loadDashboard);
         <LatestChatCard to="/admin/chat" :limit="5" />
 
         <!-- Enrollment distribution -->
-        <section class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-4">
+        <section
+          class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-4"
+        >
           <h3 class="mb-3 text-sm font-semibold text-[#171322]">
             Distribusi Kelas
           </h3>
