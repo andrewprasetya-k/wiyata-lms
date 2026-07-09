@@ -49,7 +49,7 @@ export function activityFilters(role: ActivityRole): ActivityFilter[] {
 
   return [
     { label: "Semua", value: "all", types: [] },
-    { label: "Tugas", value: "assignment_due", types: ["assignment_due"] },
+    { label: "Tugas", value: "assignment_due", types: ["assignment_due", "assignment_overdue"] },
     { label: "Materi", value: "material_created", types: ["material_created"] },
     { label: "Feed", value: "feed_posted", types: ["feed_posted"] },
     { label: "Nilai", value: "assignment_graded", types: ["assignment_graded"] },
@@ -69,6 +69,7 @@ export function activityTypeLabel(type: string, role: ActivityRole) {
 
   const labels: Record<string, string> = {
     assignment_due: "Tugas",
+    assignment_overdue: "Terlambat",
     material_created: "Materi",
     feed_posted: "Feed",
     assignment_graded: "Nilai",

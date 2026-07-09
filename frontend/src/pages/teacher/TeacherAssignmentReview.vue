@@ -50,7 +50,12 @@ async function loadData() {
     const data = await getAssignmentDetailWithSubmissions(assignmentId.value);
     assignment.value = data.assignment;
     submissions.value = data.submissions ?? [];
-    if (activeIndex.value >= submissions.value.length) {
+
+    const targetSubmissionId = route.query.submission as string | undefined;
+    if (targetSubmissionId) {
+      const idx = submissions.value.findIndex((s) => s.submissionId === targetSubmissionId);
+      activeIndex.value = idx >= 0 ? idx : 0;
+    } else if (activeIndex.value >= submissions.value.length) {
       activeIndex.value = Math.max(submissions.value.length - 1, 0);
     }
 

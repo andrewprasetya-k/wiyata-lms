@@ -8,6 +8,7 @@ import (
 
 type ActivityRepository interface {
 	GetStudentAssignmentDue(userID string, schoolID string, from time.Time, to time.Time) ([]ActivityRow, error)
+	GetStudentAssignmentOverdue(userID string, schoolID string, cutoff time.Time) ([]ActivityRow, error)
 	GetStudentMaterialCreated(userID string, schoolID string, from time.Time, to time.Time) ([]ActivityRow, error)
 	GetStudentFeedPosted(userID string, schoolID string, from time.Time, to time.Time) ([]ActivityRow, error)
 	GetStudentAssignmentGraded(userID string, schoolID string, from time.Time, to time.Time) ([]ActivityRow, error)
@@ -100,6 +101,56 @@ func (r *activityRepository) GetStudentAssignmentDue(userID string, schoolID str
 	return rows, err
 }
 
+func (r *activityRepository) GetStudentAssignmentOverdue(userID string, schoolID string, cutoff time.Time) ([]ActivityRow, error) {
+	var rows []ActivityRow
+	err := r.db.Raw(`
+		SELECT
+			a.asg_id AS source_id,
+			'assignment_overdue' AS activity_type,
+			COALESCE(a.asg_title, 'Tugas') AS title,
+			CONCAT('Tenggat terlewat · ', sub.sub_name, ' · ', c.cls_title) AS description,
+			a.asg_deadline AS event_at,
+			'high' AS priority,
+			sub.sub_id AS subject_id,
+			COALESCE(sub.sub_name, '') AS subject_name,
+			COALESCE(sub.sub_code, '') AS subject_code,
+			COALESCE(sub.sub_color, '') AS subject_color,
+			c.cls_id AS class_id,
+			COALESCE(c.cls_title, '') AS class_name,
+			COALESCE(c.cls_code, '') AS class_code,
+			CONCAT('/student/subjects/', sc.scl_id, '/assignments/', a.asg_id) AS link,
+			a.asg_id AS assignment_id,
+			sc.scl_id AS subject_class_id
+		FROM edv.assignments a
+		JOIN edv.subject_classes sc ON sc.scl_id = a.asg_scl_id
+		JOIN edv.subjects sub ON sub.sub_id = sc.scl_sub_id
+		JOIN edv.classes c ON c.cls_id = sc.scl_cls_id
+		JOIN edv.enrollments e ON e.enr_cls_id = c.cls_id
+		JOIN edv.school_users scu ON scu.scu_id = e.enr_scu_id AND scu.deleted_at IS NULL
+		WHERE a.asg_sch_id = ?
+			AND sub.sub_sch_id = ?
+			AND c.cls_sch_id = ?
+			AND scu.scu_usr_id = ?
+			AND scu.scu_sch_id = ?
+			AND e.enr_sch_id = ?
+			AND e.enr_role = 'student'
+			AND e.left_at IS NULL
+			AND a.deleted_at IS NULL
+			AND c.deleted_at IS NULL
+			AND a.asg_deadline < NOW()
+			AND a.asg_deadline >= ?
+			AND NOT EXISTS (
+				SELECT 1
+				FROM edv.submissions s
+				WHERE s.sbm_asg_id = a.asg_id
+					AND s.sbm_usr_id = ?
+					AND s.sbm_sch_id = ?
+					AND s.deleted_at IS NULL
+			)
+	`, schoolID, schoolID, schoolID, userID, schoolID, schoolID, cutoff, userID, schoolID).Scan(&rows).Error
+	return rows, err
+}
+
 func (r *activityRepository) GetStudentMaterialCreated(userID string, schoolID string, from time.Time, to time.Time) ([]ActivityRow, error) {
 	var rows []ActivityRow
 	err := r.db.Raw(`
@@ -155,7 +206,7 @@ func (r *activityRepository) GetStudentFeedPosted(userID string, schoolID string
 			c.cls_id AS class_id,
 			COALESCE(c.cls_title, '') AS class_name,
 			COALESCE(c.cls_code, '') AS class_code,
-			'/student/feed' AS link,
+			CONCAT('/student/feed?post=', f.fds_id) AS link,
 			f.fds_id AS feed_id
 		FROM edv.feeds f
 		JOIN edv.classes c ON c.cls_id = f.fds_cls_id
@@ -241,7 +292,7 @@ func (r *activityRepository) GetTeacherSubmissionReceived(userID string, schoolI
 			c.cls_id AS class_id,
 			COALESCE(c.cls_title, '') AS class_name,
 			COALESCE(c.cls_code, '') AS class_code,
-			CONCAT('/teacher/assignments/', a.asg_id, '/review') AS link,
+			CONCAT('/teacher/assignments/', a.asg_id, '/review?submission=', s.sbm_id) AS link,
 			a.asg_id AS assignment_id,
 			sc.scl_id AS subject_class_id,
 			s.sbm_id AS submission_id,
@@ -291,7 +342,7 @@ func (r *activityRepository) GetTeacherSubmissionPendingReview(userID string, sc
 			c.cls_id AS class_id,
 			COALESCE(c.cls_title, '') AS class_name,
 			COALESCE(c.cls_code, '') AS class_code,
-			CONCAT('/teacher/assignments/', a.asg_id, '/review') AS link,
+			CONCAT('/teacher/assignments/', a.asg_id, '/review?submission=', s.sbm_id) AS link,
 			a.asg_id AS assignment_id,
 			sc.scl_id AS subject_class_id,
 			s.sbm_id AS submission_id,
@@ -379,7 +430,7 @@ func (r *activityRepository) GetTeacherFeedComments(userID string, schoolID stri
 			c.cls_id AS class_id,
 			COALESCE(c.cls_title, '') AS class_name,
 			COALESCE(c.cls_code, '') AS class_code,
-			'/teacher/feed' AS link,
+			CONCAT('/teacher/feed?post=', f.fds_id) AS link,
 			f.fds_id AS feed_id,
 			cmn.cmn_id AS comment_id
 		FROM edv.comments cmn

@@ -113,6 +113,13 @@ func (s *activityService) studentActivity(userID string, schoolID string, from t
 		}
 		rows = append(rows, result...)
 	}
+
+	overdueRows, err := s.repo.GetStudentAssignmentOverdue(userID, schoolID, from.AddDate(0, 0, -30))
+	if err != nil {
+		return nil, fmt.Errorf("academic activity query failed: student assignment_overdue: %w", err)
+	}
+	rows = append(rows, overdueRows...)
+
 	return rows, nil
 }
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
-import { RouterLink } from "vue-router";
+import { computed, nextTick, onMounted, ref } from "vue";
+import { RouterLink, useRoute } from "vue-router";
 import {
   PhArrowLeft,
   PhChatCircleText,
@@ -20,6 +20,7 @@ import { useAuthStore } from "../../stores/auth";
 import type { FeedClassHeader, FeedPost } from "../../types/feed";
 import { formatDateTime } from "../../utils/date";
 
+const route = useRoute();
 const auth = useAuthStore();
 const activeClassStore = useActiveClassStore();
 const classHeader = ref<FeedClassHeader | null>(null);
@@ -65,6 +66,7 @@ async function loadContext() {
     classHeader.value = feed.class;
     posts.value = feed.data.data || [];
     void markCurrentFeedRead();
+    void scrollToLinkedPost();
   } catch {
     errorMessage.value =
       "Feed kelas belum bisa dimuat. Periksa koneksi atau coba lagi nanti.";
@@ -83,6 +85,18 @@ async function markCurrentFeedRead() {
   } catch {
     restoreFeedUnreadCount(previousUnreadCount);
     // Feed read marker should not block the feed page.
+  }
+}
+
+async function scrollToLinkedPost() {
+  const postId = route.query.post as string | undefined;
+  if (!postId) return;
+  await nextTick();
+  const el = document.getElementById(`post-${postId}`);
+  if (el) {
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    el.classList.add("ring-2", "ring-[#4f46e5]", "ring-offset-2");
+    setTimeout(() => el.classList.remove("ring-2", "ring-[#4f46e5]", "ring-offset-2"), 3000);
   }
 }
 
@@ -240,7 +254,8 @@ function getInitials(name?: string) {
           <article
             v-for="post in posts"
             :key="post.feedId"
-            class="min-w-0 rounded-xl border border-[#ebe7df] bg-white p-4 sm:p-5"
+            :id="`post-${post.feedId}`"
+            class="min-w-0 rounded-xl border border-[#ebe7df] bg-white p-4 sm:p-5 transition-shadow"
           >
             <div class="flex min-w-0 items-start gap-3">
               <div

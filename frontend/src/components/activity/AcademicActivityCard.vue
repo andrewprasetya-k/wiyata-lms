@@ -38,8 +38,8 @@ const visibleActivities = computed(() => sortedActivities.value);
 
 const emptyMessage = computed(() =>
   props.role === "teacher"
-    ? "Tidak ada aktivitas mengajar yang perlu ditindaklanjuti hari ini."
-    : "Tidak ada aktivitas akademik hari ini.",
+    ? "Tidak ada aktivitas mengajar yang perlu ditindaklanjuti minggu ini."
+    : "Tidak ada aktivitas akademik yang akan datang.",
 );
 
 const activityRoute = computed(() =>
@@ -69,6 +69,7 @@ function typeLabel(type: string) {
 
   const labels: Record<string, string> = {
     assignment_due: "Tugas",
+    assignment_overdue: "Terlambat",
     material_created: "Materi",
     feed_posted: "Pengumuman",
     assignment_graded: "Nilai",
@@ -141,7 +142,7 @@ function isInternalLink(link?: string | null) {
           id="academic-activity-title"
           class="text-sm font-semibold text-[#171322]"
         >
-          Hari Ini
+          Agenda Mendatang
         </h2>
       </div>
       <RouterLink
@@ -217,19 +218,28 @@ function isInternalLink(link?: string | null) {
           >
             <span
               class="mt-2 h-2 w-2 shrink-0 rounded-full"
-              :style="{ backgroundColor: subjectColor(activity) }"
+              :style="{ backgroundColor: activity.type === 'assignment_overdue' ? '#dc2626' : subjectColor(activity) }"
               aria-hidden="true"
             />
             <span class="min-w-0 flex-1">
               <span class="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-                <span class="text-[11px] font-medium text-[#4f46e5]">
+                <span
+                  class="text-[11px] font-medium"
+                  :class="activity.type === 'assignment_overdue' ? 'text-[#dc2626]' : 'text-[#4f46e5]'"
+                >
                   {{ typeLabel(activity.type) }}
                 </span>
                 <span class="text-[11px] text-[#9ca3af]">
                   {{ timelineLabel(activity) }}
                 </span>
                 <span
-                  v-if="activity.priority === 'high'"
+                  v-if="activity.type === 'assignment_overdue'"
+                  class="rounded-full bg-[#fef2f2] px-2 py-0.5 text-[10px] font-medium text-[#dc2626]"
+                >
+                  Tenggat terlewat
+                </span>
+                <span
+                  v-else-if="activity.priority === 'high'"
                   class="rounded-full bg-[#fff7ed] px-2 py-0.5 text-[10px] font-medium text-[#b45309]"
                 >
                   Prioritas
@@ -254,19 +264,28 @@ function isInternalLink(link?: string | null) {
           <div v-else class="flex min-w-0 gap-3">
             <span
               class="mt-2 h-2 w-2 shrink-0 rounded-full"
-              :style="{ backgroundColor: subjectColor(activity) }"
+              :style="{ backgroundColor: activity.type === 'assignment_overdue' ? '#dc2626' : subjectColor(activity) }"
               aria-hidden="true"
             />
             <div class="min-w-0 flex-1">
               <div class="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-                <span class="text-[11px] font-medium text-[#4f46e5]">
+                <span
+                  class="text-[11px] font-medium"
+                  :class="activity.type === 'assignment_overdue' ? 'text-[#dc2626]' : 'text-[#4f46e5]'"
+                >
                   {{ typeLabel(activity.type) }}
                 </span>
                 <span class="text-[11px] text-[#9ca3af]">
                   {{ timelineLabel(activity) }}
                 </span>
                 <span
-                  v-if="activity.priority === 'high'"
+                  v-if="activity.type === 'assignment_overdue'"
+                  class="rounded-full bg-[#fef2f2] px-2 py-0.5 text-[10px] font-medium text-[#dc2626]"
+                >
+                  Tenggat terlewat
+                </span>
+                <span
+                  v-else-if="activity.priority === 'high'"
                   class="rounded-full bg-[#fff7ed] px-2 py-0.5 text-[10px] font-medium text-[#b45309]"
                 >
                   Prioritas

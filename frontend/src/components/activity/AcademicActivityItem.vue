@@ -27,22 +27,34 @@ function ariaLabel() {
   <RouterLink
     v-if="isInternalActivityLink(activity.link)"
     :to="activity.link || ''"
-    class="group flex min-w-0 gap-3 rounded-lg border border-[#ebe7df] bg-white p-4 transition hover:border-[#c7d2fe] hover:bg-[#fbfaf8] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5] focus-visible:ring-offset-2"
+    class="group flex min-w-0 gap-3 rounded-lg border p-4 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5] focus-visible:ring-offset-2"
+    :class="activity.type === 'assignment_overdue'
+      ? 'border-[#fecaca] bg-[#fef2f2] hover:bg-[#fee2e2]'
+      : 'border-[#ebe7df] bg-white hover:border-[#c7d2fe] hover:bg-[#fbfaf8]'"
     :aria-label="ariaLabel()"
   >
     <span
       class="mt-2 h-2.5 w-2.5 shrink-0 rounded-full"
-      :style="{ backgroundColor: activitySubjectColor(activity) }"
+      :style="{ backgroundColor: activity.type === 'assignment_overdue' ? '#dc2626' : activitySubjectColor(activity) }"
       aria-hidden="true"
     />
     <span class="min-w-0 flex-1">
       <span class="flex min-w-0 flex-wrap items-center gap-2">
-        <ActivityTypeBadge :label="activityTypeLabel(activity.type, role)" />
+        <ActivityTypeBadge
+          :label="activityTypeLabel(activity.type, role)"
+          :overdue="activity.type === 'assignment_overdue'"
+        />
         <span class="text-[11px] text-[#8b8592]">
           {{ activityRelativeLabel(activity) }}
         </span>
         <span
-          v-if="activity.priority === 'high'"
+          v-if="activity.type === 'assignment_overdue'"
+          class="rounded-full bg-white px-2 py-0.5 text-[10px] font-medium text-[#dc2626]"
+        >
+          Tenggat terlewat
+        </span>
+        <span
+          v-else-if="activity.priority === 'high'"
           class="rounded-full bg-[#fff7ed] px-2 py-0.5 text-[10px] font-medium text-[#b45309]"
         >
           Prioritas
@@ -73,21 +85,33 @@ function ariaLabel() {
 
   <article
     v-else
-    class="flex min-w-0 gap-3 rounded-lg border border-[#ebe7df] bg-white p-4"
+    class="flex min-w-0 gap-3 rounded-lg border p-4"
+    :class="activity.type === 'assignment_overdue'
+      ? 'border-[#fecaca] bg-[#fef2f2]'
+      : 'border-[#ebe7df] bg-white'"
   >
     <span
       class="mt-2 h-2.5 w-2.5 shrink-0 rounded-full"
-      :style="{ backgroundColor: activitySubjectColor(activity) }"
+      :style="{ backgroundColor: activity.type === 'assignment_overdue' ? '#dc2626' : activitySubjectColor(activity) }"
       aria-hidden="true"
     />
     <div class="min-w-0 flex-1">
       <div class="flex min-w-0 flex-wrap items-center gap-2">
-        <ActivityTypeBadge :label="activityTypeLabel(activity.type, role)" />
+        <ActivityTypeBadge
+          :label="activityTypeLabel(activity.type, role)"
+          :overdue="activity.type === 'assignment_overdue'"
+        />
         <span class="text-[11px] text-[#8b8592]">
           {{ activityRelativeLabel(activity) }}
         </span>
         <span
-          v-if="activity.priority === 'high'"
+          v-if="activity.type === 'assignment_overdue'"
+          class="rounded-full bg-white px-2 py-0.5 text-[10px] font-medium text-[#dc2626]"
+        >
+          Tenggat terlewat
+        </span>
+        <span
+          v-else-if="activity.priority === 'high'"
           class="rounded-full bg-[#fff7ed] px-2 py-0.5 text-[10px] font-medium text-[#b45309]"
         >
           Prioritas

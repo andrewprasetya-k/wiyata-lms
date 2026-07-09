@@ -1,5 +1,6 @@
 export type ActivityType =
   | "assignment_due"
+  | "assignment_overdue"
   | "material_created"
   | "feed_posted"
   | "assignment_graded"

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, nextTick, onMounted, ref, watch } from "vue";
 import {
   PhArrowClockwise,
   PhChalkboardTeacher,
@@ -18,6 +18,7 @@ import {
   clearFeedUnreadOptimistically,
   restoreFeedUnreadCount,
 } from "../../composables/useFeedUnreadCount";
+import { useRoute } from "vue-router";
 import type { TeacherSubjectClass } from "../../types/teacherSubjects";
 import type { FeedClassHeader, FeedPost } from "../../types/feed";
 import { useAuthStore } from "../../stores/auth";
@@ -36,6 +37,7 @@ type LocalFeedPost = FeedPost & {
   optimisticStatus?: "pending";
 };
 
+const route = useRoute();
 const auth = useAuthStore();
 const toast = useToastStore();
 
@@ -138,6 +140,7 @@ async function loadFeed() {
     classHeader.value = response.class;
     posts.value = response.data.data ?? [];
     void markCurrentFeedRead();
+    void scrollToLinkedPost();
   } catch (error) {
     if (selectedClassId.value !== targetClassId) return;
     posts.value = [];
@@ -282,6 +285,18 @@ async function markCurrentFeedRead() {
   } catch {
     restoreFeedUnreadCount(previousUnreadCount);
     // Feed read marker should not block the feed page.
+  }
+}
+
+async function scrollToLinkedPost() {
+  const postId = route.query.post as string | undefined;
+  if (!postId) return;
+  await nextTick();
+  const el = document.getElementById(`post-${postId}`);
+  if (el) {
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    el.classList.add("ring-2", "ring-[#4f46e5]", "ring-offset-2");
+    setTimeout(() => el.classList.remove("ring-2", "ring-[#4f46e5]", "ring-offset-2"), 3000);
   }
 }
 
@@ -540,7 +555,8 @@ function updatePostCommentCount(feedId: string, count: number) {
             <article
               v-for="post in posts"
               :key="post.feedId"
-              class="min-w-0 rounded-xl border border-[#ebe7df] bg-white"
+              :id="`post-${post.feedId}`"
+              class="min-w-0 rounded-xl border border-[#ebe7df] bg-white transition-shadow"
               :class="isOptimisticFeed(post) ? 'opacity-80' : ''"
             >
               <div class="flex min-w-0 items-start gap-3 px-4 pt-4 sm:px-5">
