@@ -608,7 +608,7 @@ onMounted(() => {
           class="flex min-w-0 flex-col gap-3 px-5 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8"
         >
           <div class="min-w-0">
-            <h1 class="text-2xl font-semibold text-[#171322] sm:text-3xl">
+            <h1 class="mt-1 text-2xl font-semibold text-[#171322] sm:text-3xl">
               Selamat datang, {{ firstName }}
             </h1>
             <p class="mt-2 max-w-3xl text-sm leading-6 text-[#6b7280]">

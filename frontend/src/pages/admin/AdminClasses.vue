@@ -508,7 +508,7 @@ onMounted(async () => {
                     <div class="min-w-0">
                       <dt class="text-[#9ca3af]">Semester</dt>
                       <dd
-                        class="mt-0.5 wrap-break-word font-medium text-[#374151]"
+                        class="mt-0.5 wrap-break-word text-[#374151]"
                       >
                         {{ classItem.termName || selectedTerm?.termName || "-" }}
                       </dd>
@@ -516,7 +516,7 @@ onMounted(async () => {
                     <div class="min-w-0">
                       <dt class="text-[#9ca3af]">Tahun ajaran</dt>
                       <dd
-                        class="mt-0.5 wrap-break-word font-medium text-[#374151]"
+                        class="mt-0.5 wrap-break-word text-[#374151]"
                       >
                         {{
                           classItem.academicYearName ||
@@ -528,7 +528,7 @@ onMounted(async () => {
                     <div class="min-w-0">
                       <dt class="text-[#9ca3af]">Dibuat</dt>
                       <dd
-                        class="mt-0.5 wrap-break-word font-medium text-[#374151]"
+                        class="mt-0.5 wrap-break-word text-[#374151]"
                       >
                         {{ formatDateTime(classItem.createdAt) }}
                       </dd>
@@ -536,7 +536,7 @@ onMounted(async () => {
                     <div class="min-w-0">
                       <dt class="text-[#9ca3af]">Dibuat oleh</dt>
                       <dd
-                        class="mt-0.5 wrap-break-word font-medium text-[#374151]"
+                        class="mt-0.5 wrap-break-word text-[#374151]"
                       >
                         {{ classItem.creatorName || "Tidak tersedia" }}
                       </dd>

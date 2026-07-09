@@ -117,7 +117,7 @@ onMounted(loadInbox);
           class="mt-2 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
         >
           <div class="min-w-0">
-            <h1 class="text-2xl font-semibold text-[#171322] sm:text-3xl">
+            <h1 class="mt-1 text-2xl font-semibold text-[#171322] sm:text-3xl">
               Inbox Pengumpulan
             </h1>
             <p class="mt-2 max-w-2xl text-sm leading-6 text-[#6b6475]">
@@ -172,7 +172,9 @@ onMounted(loadInbox);
 
       <template v-else>
         <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <article class="rounded-xl border border-[#ebe7df] bg-white p-4">
+          <article
+            class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-4"
+          >
             <div class="flex items-center justify-between gap-3">
               <p class="text-sm text-[#6b6475]">Total pengumpulan</p>
               <PhClipboardText
@@ -185,7 +187,9 @@ onMounted(loadInbox);
               {{ summary.submissions }}
             </p>
           </article>
-          <article class="rounded-xl border border-[#ebe7df] bg-white p-4">
+          <article
+            class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-4"
+          >
             <div class="flex items-center justify-between gap-3">
               <p class="text-sm text-[#6b6475]">Perlu dinilai</p>
               <PhWarningCircle
@@ -198,7 +202,9 @@ onMounted(loadInbox);
               {{ summary.pending }}
             </p>
           </article>
-          <article class="rounded-xl border border-[#ebe7df] bg-white p-4">
+          <article
+            class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-4"
+          >
             <div class="flex items-center justify-between gap-3">
               <p class="text-sm text-[#6b6475]">Sudah dinilai</p>
               <PhCheckCircle
@@ -211,7 +217,9 @@ onMounted(loadInbox);
               {{ summary.graded }}
             </p>
           </article>
-          <article class="rounded-xl border border-[#ebe7df] bg-white p-4">
+          <article
+            class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-4"
+          >
             <div class="flex items-center justify-between gap-3">
               <p class="text-sm text-[#6b6475]">Terlambat</p>
               <PhClock :size="21" class="text-[#b889c9]" weight="duotone" />
