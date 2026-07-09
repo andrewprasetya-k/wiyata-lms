@@ -30,7 +30,9 @@ const { rooms, totalUnreadCount, loading, error } = useChatRoomSummary();
 const authStore = useAuthStore();
 const currentUserId = computed(() => authStore.user?.id || "");
 const isLoading = computed(() => loading.value && rooms.value.length === 0);
-const hasError = computed(() => Boolean(error.value) && rooms.value.length === 0);
+const hasError = computed(
+  () => Boolean(error.value) && rooms.value.length === 0,
+);
 
 const unreadRooms = computed(() =>
   [...rooms.value]
@@ -190,10 +192,7 @@ function formatTime(value?: string | null) {
       </RouterLink>
     </div>
 
-    <div
-      v-else
-      class="rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-4"
-    >
+    <div v-else class="rounded-lg p-4">
       <p class="text-sm font-semibold text-[#171322]">
         Tidak ada percakapan baru
       </p>
