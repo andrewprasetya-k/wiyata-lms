@@ -333,7 +333,7 @@ function responseStatus(error: unknown) {
 
           <div
             v-else-if="summaryError(attachment.mediaId)"
-            class="rounded-xl border border-[#f1d6d3] bg-[#fffaf9] p-4"
+            class="rounded-xl border border-[#fecaca] bg-[#fffaf9] p-4"
           >
             <p class="text-sm leading-6 text-[#8a463f]">
               {{ summaryError(attachment.mediaId) }}

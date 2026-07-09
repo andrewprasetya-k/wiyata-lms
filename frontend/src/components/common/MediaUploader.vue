@@ -209,7 +209,7 @@ function formatSize(bytes: number) {
           <button 
             type="button" 
             @click="removeFile(index)" 
-            class="rounded-lg p-1.5 text-[#8b8592] transition hover:bg-[#fff1f0] hover:text-[#dc2626] disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-[#dc2626]/15"
+            class="rounded-lg p-1.5 text-[#8b8592] transition hover:bg-[#fef2f2] hover:text-[#dc2626] disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-[#dc2626]/15"
             :disabled="isFileRemoving(file, index)"
             :title="isFileRemoving(file, index) ? 'Menghapus...' : 'Hapus'"
           >

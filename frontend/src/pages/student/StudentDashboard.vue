@@ -480,7 +480,6 @@ function assignmentStatusClasses(item: StudentAssignmentInboxItem) {
   return "bg-[#fff7ed] text-[#b45309]";
 }
 
-
 function notificationTitle(item: NotificationItem) {
   if (item.type === "assignment_created") return "Tugas baru";
   if (item.type === "feed_posted") return "Pengumuman kelas baru";
@@ -612,9 +611,7 @@ onMounted(() => {
             <h1 class="text-2xl font-semibold text-[#171322] sm:text-3xl">
               Selamat datang, {{ firstName }}
             </h1>
-            <p
-              class="mt-2 max-w-3xl text-sm leading-6 text-[#6b7280]"
-            >
+            <p class="mt-2 max-w-3xl text-sm leading-6 text-[#6b7280]">
               Mau belajar apa hari ini?
             </p>
           </div>
@@ -633,11 +630,11 @@ onMounted(() => {
 
         <section
           v-if="errorMessage"
-          class="rounded-xl border border-[#f1d6d3] bg-white p-5 sm:p-6"
+          class="rounded-xl border border-[#fecaca] bg-white p-5 sm:p-6"
         >
           <div class="flex items-start gap-3">
             <div
-              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fff1f0] text-[#dc2626]"
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fef2f2] text-[#dc2626]"
             >
               <PhWarningCircle :size="22" weight="duotone" />
             </div>
@@ -840,7 +837,9 @@ onMounted(() => {
               v-else-if="assignmentPreview.length === 0"
               class="shrink-0 rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-4"
             >
-              <p class="text-sm font-semibold text-[#171322]">Belum ada tugas</p>
+              <p class="text-sm font-semibold text-[#171322]">
+                Belum ada tugas
+              </p>
               <p class="mt-1 text-sm leading-6 text-[#6b7280]">
                 Tugas akan muncul setelah guru membuat tugas untuk mata
                 pelajaran di kelasmu.

@@ -319,7 +319,7 @@ onMounted(() => {
             v-if="
               comment.isMine && !comment.optimisticStatus && !comment.localOnly
             "
-            class="inline-flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-[#b42318] transition hover:bg-[#fff1f0] disabled:cursor-not-allowed disabled:opacity-60"
+            class="inline-flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-[#b42318] transition hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-60"
             type="button"
             :disabled="deletingCommentIds.has(comment.commentId)"
             @click="removeComment(comment)"

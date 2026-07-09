@@ -282,7 +282,7 @@ onMounted(async () => {
             {{ currentSchool.schoolName || "Sekolah belum tersedia" }}
           </span>
           <span
-            class="rounded-lg bg-[#f3f4f6] px-3 py-2 font-medium text-[#6b7280]"
+            class="rounded-lg bg-[#f3f1ec] px-3 py-2 font-medium text-[#6b7280]"
           >
             {{ currentSchool.schoolCode || "Kode belum tersedia" }}
           </span>
@@ -304,7 +304,7 @@ onMounted(async () => {
 
       <div class="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
         <section
-          class="order-2 min-w-0 rounded-2xl border border-[#ebe7df] bg-white lg:order-1"
+          class="order-2 min-w-0 rounded-xl border border-[#ebe7df] bg-white lg:order-1"
         >
           <div
             class="flex flex-col gap-3 border-b border-[#ebe7df] p-5 sm:flex-row sm:items-start sm:justify-between"
@@ -409,7 +409,7 @@ onMounted(async () => {
                 <template v-if="editingClassId === classItem.classId">
                   <div class="flex min-w-0 flex-wrap items-center gap-2">
                     <span
-                      class="rounded-lg bg-[#f3f4f6] px-2 py-1 text-[11px] font-medium text-[#6b7280]"
+                      class="rounded-lg bg-[#f3f1ec] px-2 py-1 text-[11px] font-medium text-[#6b7280]"
                     >
                       {{ classItem.classCode }}
                     </span>
@@ -417,8 +417,8 @@ onMounted(async () => {
                       class="rounded-lg px-2.5 py-1 text-[11px] font-medium"
                       :class="
                         classItem.isActive
-                          ? 'bg-[#ecfdf5] text-[#059669]'
-                          : 'bg-[#f3f4f6] text-[#6b7280]'
+                          ? 'bg-[#f0fdf4] text-[#059669]'
+                          : 'bg-[#f3f1ec] text-[#6b7280]'
                       "
                     >
                       {{ classItem.isActive ? "Aktif" : "Nonaktif" }}
@@ -477,7 +477,7 @@ onMounted(async () => {
                           {{ classItem.classTitle }}
                         </h3>
                         <span
-                          class="rounded-lg bg-[#f3f4f6] px-2 py-1 text-[11px] font-medium text-[#6b7280]"
+                          class="rounded-lg bg-[#f3f1ec] px-2 py-1 text-[11px] font-medium text-[#6b7280]"
                         >
                           {{ classItem.classCode }}
                         </span>
@@ -494,8 +494,8 @@ onMounted(async () => {
                       class="shrink-0 self-start rounded-lg px-2.5 py-1 text-[11px] font-medium"
                       :class="
                         classItem.isActive
-                          ? 'bg-[#ecfdf5] text-[#059669]'
-                          : 'bg-[#f3f4f6] text-[#6b7280]'
+                          ? 'bg-[#f0fdf4] text-[#059669]'
+                          : 'bg-[#f3f1ec] text-[#6b7280]'
                       "
                     >
                       {{ classItem.isActive ? "Aktif" : "Nonaktif" }}
@@ -593,7 +593,7 @@ onMounted(async () => {
 
         <aside class="order-1 min-w-0 lg:order-2">
           <div class="space-y-5 lg:sticky lg:top-6">
-            <section class="rounded-2xl border border-[#ebe7df] bg-white p-5">
+            <section class="rounded-xl border border-[#ebe7df] bg-white p-5">
               <div class="flex items-start justify-between gap-3">
                 <div>
                   <p
@@ -697,7 +697,7 @@ onMounted(async () => {
               </div>
             </section>
 
-            <section class="rounded-2xl border border-[#ebe7df] bg-white p-5">
+            <section class="rounded-xl border border-[#ebe7df] bg-white p-5">
               <div class="flex items-start justify-between gap-3">
                 <div>
                   <p
@@ -763,7 +763,7 @@ onMounted(async () => {
       <RouterLink
         v-if="classes.length > 0"
         to="/admin/enrollments"
-        class="mt-5 flex items-center justify-between gap-4 rounded-2xl border border-[#ebe7df] bg-white p-5 transition hover:border-[#4f46e5] hover:shadow-sm"
+        class="mt-5 flex items-center justify-between gap-4 rounded-xl border border-[#ebe7df] bg-white p-5 transition hover:border-[#4f46e5] hover:shadow-sm"
       >
         <div>
           <p class="eyebrow">

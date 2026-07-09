@@ -186,11 +186,11 @@ onMounted(loadAssignments);
         class="flex min-h-[55vh] items-center justify-center"
       >
         <article
-          class="w-full max-w-xl rounded-xl border border-[#f1d6d3] bg-white p-6"
+          class="w-full max-w-xl rounded-xl border border-[#fecaca] bg-white p-6"
         >
           <div class="flex items-start gap-3">
             <div
-              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fff1f0] text-[#dc2626]"
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fef2f2] text-[#dc2626]"
             >
               <PhWarningCircle :size="22" weight="duotone" />
             </div>
@@ -281,7 +281,7 @@ onMounted(loadAssignments);
                 :class="
                   activeFilter === tab.id
                     ? 'bg-[#4f46e5] text-white'
-                    : 'bg-[#f9fafb] text-[#6b7280] hover:bg-[#eef2ff] hover:text-[#4f46e5]'
+                    : 'bg-[#fbfaf8] text-[#6b7280] hover:bg-[#eef2ff] hover:text-[#4f46e5]'
                 "
                 @click="activeFilter = tab.id"
               >

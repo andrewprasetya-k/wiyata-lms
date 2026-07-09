@@ -225,7 +225,7 @@ onMounted(loadPage);
       class="soft-card mx-5 mt-5 max-w-3xl rounded-[22px] p-5 sm:mx-6 lg:mx-8"
     >
       <div
-        class="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-[#fff1f0] text-[#f2756a]"
+        class="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-[#fef2f2] text-[#f2756a]"
       >
         <PhWarningCircle :size="24" weight="duotone" />
       </div>
@@ -259,7 +259,7 @@ onMounted(loadPage);
             </span>
             <span
               v-if="material.materialType"
-              class="rounded-lg bg-[#f3f4f6] px-2.5 py-1 text-xs font-medium uppercase text-[#6b7280]"
+              class="rounded-lg bg-[#f3f1ec] px-2.5 py-1 text-xs font-medium uppercase text-[#6b7280]"
             >
               {{ material.materialType }}
             </span>
@@ -290,7 +290,7 @@ onMounted(loadPage);
                 </p>
               </div>
               <span
-                class="shrink-0 rounded-lg bg-[#f3f4f6] px-2.5 py-1 text-xs text-[#6b7280]"
+                class="shrink-0 rounded-lg bg-[#f3f1ec] px-2.5 py-1 text-xs text-[#6b7280]"
               >
                 {{ material.attachments?.length || 0 }} file
               </span>
@@ -331,7 +331,7 @@ onMounted(loadPage);
             :class="
               hasChanges
                 ? 'bg-[#fff7ed] text-[#b45309]'
-                : 'bg-[#ecfdf5] text-[#059669]'
+                : 'bg-[#f0fdf4] text-[#059669]'
             "
           >
             <PhClock v-if="hasChanges" :size="14" />
@@ -354,7 +354,7 @@ onMounted(loadPage);
 
           <p
             v-if="errorMessage"
-            class="mx-5 mb-3 rounded-xl bg-[#fff1f0] px-4 py-3 text-sm leading-6 text-[#b42318]"
+            class="mx-5 mb-3 rounded-xl bg-[#fef2f2] px-4 py-3 text-sm leading-6 text-[#b42318]"
           >
             {{ errorMessage }}
           </p>
@@ -379,7 +379,7 @@ onMounted(loadPage);
               <div class="flex flex-wrap items-center gap-2">
                 <button
                   v-if="note"
-                  class="inline-flex items-center gap-2 rounded-xl border border-[#ebe7df] bg-white px-3 py-2 text-xs font-medium text-[#b42318] transition hover:border-[#fda29b] hover:bg-[#fff1f0] disabled:cursor-not-allowed disabled:opacity-60"
+                  class="inline-flex items-center gap-2 rounded-xl border border-[#ebe7df] bg-white px-3 py-2 text-xs font-medium text-[#b42318] transition hover:border-[#fda29b] hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-60"
                   :disabled="isSaving || isDeleting"
                   type="button"
                   @click="deleteNote"

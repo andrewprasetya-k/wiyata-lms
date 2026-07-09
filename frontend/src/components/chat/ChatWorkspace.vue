@@ -1602,7 +1602,7 @@ function formatDateTime(value?: string | null) {
               <input
                 v-model="roomSearch"
                 type="search"
-                class="min-w-0 flex-1 rounded-lg border border-transparent bg-[#f3f4f6] px-3 py-2 text-xs text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#c7d2fe] focus:bg-white focus:ring-2 focus:ring-[#4f46e5]/15"
+                class="min-w-0 flex-1 rounded-lg border border-transparent bg-[#f3f1ec] px-3 py-2 text-xs text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#c7d2fe] focus:bg-white focus:ring-2 focus:ring-[#4f46e5]/15"
                 placeholder="Cari ruang..."
                 @keydown.enter.prevent="searchRooms"
               />
@@ -2185,7 +2185,7 @@ function formatDateTime(value?: string | null) {
                   <textarea
                     v-model="draft"
                     rows="1"
-                    class="max-h-32 min-h-11 flex-1 resize-none rounded-xl border border-transparent bg-[#f3f4f6] px-4 py-3 text-sm text-[#171322] outline-none transition placeholder:text-[#aaa29a] focus:border-[#c7d2fe] focus:bg-white focus:ring-2 focus:ring-[#4f46e5]/15"
+                    class="max-h-32 min-h-11 flex-1 resize-none rounded-xl border border-transparent bg-[#f3f1ec] px-4 py-3 text-sm text-[#171322] outline-none transition placeholder:text-[#aaa29a] focus:border-[#c7d2fe] focus:bg-white focus:ring-2 focus:ring-[#4f46e5]/15"
                     placeholder="Tulis pesan..."
                     :disabled="!selectedRoom?.canSend"
                     @keydown="handleComposerKeydown"
@@ -2235,7 +2235,7 @@ function formatDateTime(value?: string | null) {
             </h2>
             <button
               type="button"
-              class="rounded-lg p-1.5 text-[#9ca3af] transition hover:bg-[#f3f4f6] hover:text-[#171322]"
+              class="rounded-lg p-1.5 text-[#9ca3af] transition hover:bg-[#f3f1ec] hover:text-[#171322]"
               aria-label="Tutup"
               @click="isCreateConversationOpen = false"
             >
@@ -2243,7 +2243,7 @@ function formatDateTime(value?: string | null) {
             </button>
           </div>
           <!-- Tab bar -->
-          <div class="mt-3 flex gap-1 rounded-lg bg-[#f3f4f6] p-1">
+          <div class="mt-3 flex gap-1 rounded-lg bg-[#f3f1ec] p-1">
             <button
               type="button"
               class="flex-1 rounded-md py-1.5 text-sm font-medium transition"
@@ -2319,8 +2319,8 @@ function formatDateTime(value?: string | null) {
                 Warga sekolah
               </div>
               <div v-if="isLoadingDMTargets" class="space-y-2 p-3">
-                <div class="h-10 animate-pulse rounded-lg bg-[#f3f4f6]" />
-                <div class="h-10 animate-pulse rounded-lg bg-[#f3f4f6]" />
+                <div class="h-10 animate-pulse rounded-lg bg-[#f3f1ec]" />
+                <div class="h-10 animate-pulse rounded-lg bg-[#f3f1ec]" />
               </div>
               <div
                 v-else-if="dmResults.length === 0"
@@ -2444,8 +2444,8 @@ function formatDateTime(value?: string | null) {
                 Anggota
               </div>
               <div v-if="isLoadingMembers" class="space-y-2 p-3">
-                <div class="h-10 animate-pulse rounded-lg bg-[#f3f4f6]" />
-                <div class="h-10 animate-pulse rounded-lg bg-[#f3f4f6]" />
+                <div class="h-10 animate-pulse rounded-lg bg-[#f3f1ec]" />
+                <div class="h-10 animate-pulse rounded-lg bg-[#f3f1ec]" />
               </div>
               <div
                 v-else-if="memberResults.length === 0"
@@ -2571,9 +2571,9 @@ function formatDateTime(value?: string | null) {
 
         <div class="min-h-0 flex-1 overflow-y-auto px-5 py-4">
           <div v-if="isLoadingGroupInfo" class="space-y-3">
-            <div class="h-16 animate-pulse rounded-xl bg-[#f3f4f6]" />
-            <div class="h-32 animate-pulse rounded-xl bg-[#f3f4f6]" />
-            <div class="h-40 animate-pulse rounded-xl bg-[#f3f4f6]" />
+            <div class="h-16 animate-pulse rounded-xl bg-[#f3f1ec]" />
+            <div class="h-32 animate-pulse rounded-xl bg-[#f3f1ec]" />
+            <div class="h-40 animate-pulse rounded-xl bg-[#f3f1ec]" />
           </div>
 
           <div
@@ -2682,8 +2682,8 @@ function formatDateTime(value?: string | null) {
 
               <div class="mt-3 rounded-lg border border-[#ebe7df]">
                 <div v-if="isLoadingAddMembers" class="space-y-2 p-3">
-                  <div class="h-10 animate-pulse rounded-lg bg-[#f3f4f6]" />
-                  <div class="h-10 animate-pulse rounded-lg bg-[#f3f4f6]" />
+                  <div class="h-10 animate-pulse rounded-lg bg-[#f3f1ec]" />
+                  <div class="h-10 animate-pulse rounded-lg bg-[#f3f1ec]" />
                 </div>
                 <div
                   v-else-if="addMemberResults.length === 0"
@@ -2769,7 +2769,7 @@ function formatDateTime(value?: string | null) {
                     :class="
                       member.role === 'admin'
                         ? 'bg-[#eef2ff] text-[#4f46e5]'
-                        : 'bg-[#f3f4f6] text-[#6b7280]'
+                        : 'bg-[#f3f1ec] text-[#6b7280]'
                     "
                   >
                     {{ member.role === "admin" ? "Admin" : "Anggota" }}

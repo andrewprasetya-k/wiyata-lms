@@ -138,7 +138,7 @@ onMounted(loadMaterial)
 
       <section
         v-else-if="errorMessage"
-        class="mx-auto max-w-xl rounded-xl border border-[#f0d8d2] bg-white px-5 py-8 text-center"
+        class="mx-auto max-w-xl rounded-xl border border-[#fecaca] bg-white px-5 py-8 text-center"
       >
         <PhWarningCircle
           :size="30"
@@ -300,7 +300,7 @@ onMounted(loadMaterial)
                 </RouterLink>
                 <button
                   type="button"
-                  class="inline-flex items-center justify-center gap-2 rounded-lg border border-[#f1d6d3] bg-white px-4 py-2.5 text-sm font-medium text-[#dc2626] transition hover:bg-[#fef2f2] disabled:opacity-50"
+                  class="inline-flex items-center justify-center gap-2 rounded-lg border border-[#fecaca] bg-white px-4 py-2.5 text-sm font-medium text-[#dc2626] transition hover:bg-[#fef2f2] disabled:opacity-50"
                   :disabled="isDeleting"
                   @click="handleDelete"
                 >

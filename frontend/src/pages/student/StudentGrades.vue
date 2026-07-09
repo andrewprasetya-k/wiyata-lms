@@ -129,7 +129,7 @@ onMounted(loadGrades);
           <span class="text-[11px] text-[#9ca3af]">Kelas aktif</span>
           <div class="flex min-w-0 items-center gap-2">
             <div
-              class="flex min-w-0 items-center gap-2 rounded-lg border border-[#ebe7df] bg-[#f9fafb] px-3 py-2"
+              class="flex min-w-0 items-center gap-2 rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3 py-2"
             >
               <div
                 class="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-[#4f46e5] text-[10px] font-medium text-white"
@@ -195,11 +195,11 @@ onMounted(loadGrades);
         class="flex min-h-[55vh] items-center justify-center"
       >
         <article
-          class="w-full max-w-xl rounded-xl border border-[#f1d6d3] bg-white p-6"
+          class="w-full max-w-xl rounded-xl border border-[#fecaca] bg-white p-6"
         >
           <div class="flex items-start gap-3">
             <div
-              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fff1f0] text-[#dc2626]"
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fef2f2] text-[#dc2626]"
             >
               <PhWarningCircle :size="22" weight="duotone" />
             </div>

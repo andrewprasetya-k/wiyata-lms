@@ -84,7 +84,7 @@ function statusLabel(status: SchoolRegistrationStatus) {
 
 function statusClass(status: SchoolRegistrationStatus) {
   if (status === 'approved') return 'bg-[#ecfdf3] text-[#027a48]'
-  if (status === 'rejected') return 'bg-[#fff1f0] text-[#b42318]'
+  if (status === 'rejected') return 'bg-[#fef2f2] text-[#b42318]'
   return 'bg-[#fff7ed] text-[#b45309]'
 }
 
@@ -312,7 +312,7 @@ onMounted(() => {
 
           <div
             v-else-if="errorMessage"
-            class="rounded-lg border border-[#fecaca] bg-[#fff8f6] px-4 py-4"
+            class="rounded-lg border border-[#fecaca] bg-[#fef2f2] px-4 py-4"
           >
             <p class="text-sm leading-6 text-[#a8665d]">{{ errorMessage }}</p>
             <button
@@ -589,7 +589,7 @@ onMounted(() => {
 
             <form
               v-if="selectedIsPending && actionMode === 'reject'"
-              class="space-y-4 rounded-xl border border-[#fecaca] bg-[#fff8f6] p-4"
+              class="space-y-4 rounded-xl border border-[#fecaca] bg-[#fef2f2] p-4"
               @submit.prevent="submitReject"
             >
               <p class="text-sm font-semibold text-[#171322]">Reject request</p>

@@ -217,7 +217,7 @@ function selectRange(value: "today" | "7d" | "30d") {
 
         <section
           v-else-if="errorMessage"
-          class="rounded-xl border border-[#f1d6d3] bg-white p-5"
+          class="rounded-xl border border-[#fecaca] bg-white p-5"
         >
           <div
             class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"

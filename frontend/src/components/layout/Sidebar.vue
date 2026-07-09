@@ -91,7 +91,7 @@ function isActive(to: string) {
         :class="[
           isCollapsed ? 'mx-auto w-4 justify-center px-6' : 'w-full gap-3 px-3',
           isActive(item.to)
-            ? 'bg-[#f3f1ec] text-gray-900'
+            ? 'bg-[#f3f1ec] text-[#171322]'
             : item.emphasized
               ? 'text-[#575269]'
               : '',

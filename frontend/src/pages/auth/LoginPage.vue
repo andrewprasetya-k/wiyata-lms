@@ -128,7 +128,7 @@ async function submit() {
 
           <p
             v-if="errorMessage"
-            class="rounded-2xl bg-[#fff1f0] px-4 py-3 text-sm text-[#b42318]"
+            class="rounded-2xl bg-[#fef2f2] px-4 py-3 text-sm text-[#b42318]"
           >
             {{ errorMessage }}
           </p>

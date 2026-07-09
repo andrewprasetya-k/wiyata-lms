@@ -456,7 +456,7 @@ onMounted(async () => {
             {{ currentSchool.schoolName || "Sekolah belum tersedia" }}
           </span>
           <span
-            class="rounded-lg bg-[#f3f4f6] px-3 py-2 font-medium text-[#6b7280]"
+            class="rounded-lg bg-[#f3f1ec] px-3 py-2 font-medium text-[#6b7280]"
           >
             {{ currentSchool.schoolCode || "Kode belum tersedia" }}
           </span>
@@ -478,7 +478,7 @@ onMounted(async () => {
 
       <div class="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
         <section
-          class="order-2 min-w-0 rounded-2xl border border-[#ebe7df] bg-white lg:order-1"
+          class="order-2 min-w-0 rounded-xl border border-[#ebe7df] bg-white lg:order-1"
         >
           <div
             class="flex flex-col gap-3 border-b border-[#ebe7df] p-5 sm:flex-row sm:items-start sm:justify-between"
@@ -502,7 +502,7 @@ onMounted(async () => {
             </div>
             <div class="flex shrink-0 flex-wrap gap-2 text-xs font-medium">
               <span
-                class="inline-flex items-center gap-2 rounded-lg bg-[#ecfdf5] px-3 py-2 text-[#059669]"
+                class="inline-flex items-center gap-2 rounded-lg bg-[#f0fdf4] px-3 py-2 text-[#059669]"
               >
                 <PhStudent :size="16" weight="duotone" />
                 {{ studentEnrollmentCount }} siswa
@@ -598,7 +598,7 @@ onMounted(async () => {
                       :class="
                         enrollment.role === 'teacher'
                           ? 'bg-[#eef2ff] text-[#4f46e5]'
-                          : 'bg-[#ecfdf5] text-[#059669]'
+                          : 'bg-[#f0fdf4] text-[#059669]'
                       "
                     >
                       {{
@@ -617,7 +617,7 @@ onMounted(async () => {
                           :class="
                             enrollment.role === 'teacher'
                               ? 'bg-[#eef2ff] text-[#4f46e5]'
-                              : 'bg-[#ecfdf5] text-[#059669]'
+                              : 'bg-[#f0fdf4] text-[#059669]'
                           "
                         >
                           {{ classRoleLabel(enrollment.role) }}
@@ -681,7 +681,7 @@ onMounted(async () => {
 
         <aside class="order-1 min-w-0 lg:order-2">
           <div class="space-y-5 lg:sticky lg:top-6">
-            <section class="rounded-2xl border border-[#ebe7df] bg-white p-5">
+            <section class="rounded-xl border border-[#ebe7df] bg-white p-5">
               <div class="flex items-start justify-between gap-3">
                 <div>
                   <p
@@ -805,7 +805,7 @@ onMounted(async () => {
               </div>
             </section>
 
-            <section class="rounded-2xl border border-[#ebe7df] bg-white p-5">
+            <section class="rounded-xl border border-[#ebe7df] bg-white p-5">
               <div class="flex items-start justify-between gap-3">
                 <div>
                   <p
@@ -924,8 +924,8 @@ onMounted(async () => {
                           inferPlacementRole(member) === 'teacher'
                             ? 'bg-[#eef2ff] text-[#4f46e5]'
                             : inferPlacementRole(member) === 'student'
-                              ? 'bg-[#ecfdf5] text-[#059669]'
-                              : 'bg-[#f3f4f6] text-[#6b7280]'
+                              ? 'bg-[#f0fdf4] text-[#059669]'
+                              : 'bg-[#f3f1ec] text-[#6b7280]'
                         "
                       >
                         {{ placementRoleLabel(member) }}
@@ -957,7 +957,7 @@ onMounted(async () => {
       <RouterLink
         v-if="enrollments.length > 0"
         to="/admin/subject-classes"
-        class="mt-5 flex items-center justify-between gap-4 rounded-2xl border border-[#ebe7df] bg-white p-5 transition hover:border-[#4f46e5] hover:shadow-sm"
+        class="mt-5 flex items-center justify-between gap-4 rounded-xl border border-[#ebe7df] bg-white p-5 transition hover:border-[#4f46e5] hover:shadow-sm"
       >
         <div>
           <p class="eyebrow">

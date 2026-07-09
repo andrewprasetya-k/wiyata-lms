@@ -216,7 +216,7 @@ const schoolRows = computed(() => [
           >
             <div class="mb-4 flex min-w-0 items-center gap-3">
               <div
-                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#ecfdf5] text-[#059669]"
+                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#f0fdf4] text-[#059669]"
               >
                 <PhBuildings :size="21" weight="duotone" />
               </div>
@@ -287,7 +287,7 @@ const schoolRows = computed(() => [
                 </span>
                 <span
                   v-if="membership.isDefault"
-                  class="rounded-full bg-[#ecfdf5] px-2.5 py-1 text-xs font-medium text-[#059669]"
+                  class="rounded-full bg-[#f0fdf4] px-2.5 py-1 text-xs font-medium text-[#059669]"
                 >
                   Utama
                 </span>

@@ -669,7 +669,7 @@ onMounted(async () => {
             {{ currentSchool.schoolName || "Sekolah belum tersedia" }}
           </span>
           <span
-            class="rounded-lg bg-[#f3f4f6] px-3 py-2 font-medium text-[#6b7280]"
+            class="rounded-lg bg-[#f3f1ec] px-3 py-2 font-medium text-[#6b7280]"
           >
             {{ currentSchool.schoolCode || "Kode belum tersedia" }}
           </span>
@@ -691,7 +691,7 @@ onMounted(async () => {
 
       <div class="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
         <section
-          class="order-2 min-w-0 rounded-2xl border border-[#ebe7df] bg-white lg:order-1"
+          class="order-2 min-w-0 rounded-xl border border-[#ebe7df] bg-white lg:order-1"
         >
           <div
             class="flex flex-col gap-4 border-b border-[#ebe7df] p-5"
@@ -910,7 +910,7 @@ onMounted(async () => {
 
         <aside class="order-1 min-w-0 lg:order-2">
           <section
-            class="rounded-2xl border border-[#ebe7df] bg-white p-5 lg:sticky lg:top-6"
+            class="rounded-xl border border-[#ebe7df] bg-white p-5 lg:sticky lg:top-6"
           >
             <div class="flex items-start justify-between gap-3">
               <div>

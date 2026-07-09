@@ -105,7 +105,7 @@ const statCards = computed(() => [
     label: "Total Guru",
     value: stats.value?.totalTeachers ?? 0,
     icon: PhChalkboardTeacher,
-    color: "bg-[#ecfdf5] text-[#059669]",
+    color: "bg-[#f0fdf4] text-[#059669]",
   },
   {
     label: "Total Kelas",
@@ -135,7 +135,7 @@ const quickActions = [
     description: "Undang guru ke sekolah",
     icon: PhChalkboardTeacher,
     to: "/admin/users",
-    color: "bg-[#ecfdf5] text-[#059669]",
+    color: "bg-[#f0fdf4] text-[#059669]",
     border: "hover:border-[#bbf7d0]",
   },
   {
@@ -151,7 +151,7 @@ const quickActions = [
     description: "Masukkan siswa ke kelas",
     icon: PhClipboardText,
     to: "/admin/enrollments",
-    color: "bg-[#f3f4f6] text-[#6b7280]",
+    color: "bg-[#f3f1ec] text-[#6b7280]",
     border: "hover:border-[#d1d5db]",
   },
   {
@@ -231,7 +231,7 @@ onMounted(loadDashboard);
         <!-- Error state -->
         <section
           v-if="errorMessage && !loading"
-          class="rounded-xl border border-[#f1d6d3] bg-white p-5"
+          class="rounded-xl border border-[#fecaca] bg-white p-5"
         >
           <div class="flex items-start gap-3">
             <PhWarningCircle
@@ -303,7 +303,7 @@ onMounted(loadDashboard);
             </div>
             <span
               v-if="!loading && isSetupComplete"
-              class="shrink-0 rounded-full bg-[#ecfdf5] px-3 py-1 text-xs font-semibold text-[#059669]"
+              class="shrink-0 rounded-full bg-[#f0fdf4] px-3 py-1 text-xs font-semibold text-[#059669]"
             >
               Lengkap
             </span>
@@ -322,7 +322,7 @@ onMounted(loadDashboard);
             <div
               v-for="i in 6"
               :key="i"
-              class="h-9 animate-pulse rounded-lg bg-[#f3f4f6]"
+              class="h-9 animate-pulse rounded-lg bg-[#f3f1ec]"
             />
           </div>
 
@@ -364,7 +364,7 @@ onMounted(loadDashboard);
 
           <div
             v-if="!loading && isSetupComplete"
-            class="mt-4 rounded-lg bg-[#ecfdf5] px-4 py-3"
+            class="mt-4 rounded-lg bg-[#f0fdf4] px-4 py-3"
           >
             <p class="text-sm font-medium text-[#059669]">
               Sekolah siap digunakan.
@@ -426,7 +426,7 @@ onMounted(loadDashboard);
             <div
               v-for="i in 5"
               :key="i"
-              class="h-10 animate-pulse rounded-lg bg-[#f3f4f6]"
+              class="h-10 animate-pulse rounded-lg bg-[#f3f1ec]"
             />
           </div>
 
@@ -453,7 +453,7 @@ onMounted(loadDashboard);
               class="flex items-start gap-3 py-3 first:pt-0 last:pb-0"
             >
               <div
-                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#f3f4f6] text-[10px] font-semibold text-[#6b7280]"
+                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#f3f1ec] text-[10px] font-semibold text-[#6b7280]"
               >
                 {{ activity.userName?.charAt(0)?.toUpperCase() ?? "?" }}
               </div>
@@ -491,7 +491,7 @@ onMounted(loadDashboard);
             <div
               v-for="i in 4"
               :key="i"
-              class="h-8 animate-pulse rounded-lg bg-[#f3f4f6]"
+              class="h-8 animate-pulse rounded-lg bg-[#f3f1ec]"
             />
           </div>
 
@@ -519,7 +519,7 @@ onMounted(loadDashboard);
                 </span>
               </div>
               <div
-                class="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-[#f3f4f6]"
+                class="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-[#f3f1ec]"
               >
                 <div
                   class="h-full rounded-full bg-[#4f46e5] transition-all"

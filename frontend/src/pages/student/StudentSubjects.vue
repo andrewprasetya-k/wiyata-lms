@@ -98,7 +98,7 @@ onMounted(loadSubjects);
             </span>
             <div class="flex min-w-0 max-w-full items-center gap-2">
               <div
-                class="flex min-w-0 max-w-full items-center gap-2 rounded-lg border border-[#ebe7df] bg-[#f9fafb] px-3 py-2"
+                class="flex min-w-0 max-w-full items-center gap-2 rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3 py-2"
               >
                 <div
                   class="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-[#4f46e5] text-[10px] font-medium text-white"
@@ -163,11 +163,11 @@ onMounted(loadSubjects);
         class="flex min-h-[55vh] items-center justify-center"
       >
         <article
-          class="w-full max-w-xl rounded-xl border border-[#f1d6d3] bg-white p-6"
+          class="w-full max-w-xl rounded-xl border border-[#fecaca] bg-white p-6"
         >
           <div class="flex items-start gap-3">
             <div
-              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fff1f0] text-[#dc2626]"
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fef2f2] text-[#dc2626]"
             >
               <PhWarningCircle :size="22" weight="duotone" />
             </div>
@@ -323,7 +323,7 @@ onMounted(loadSubjects);
             v-for="item in classes"
             :key="item.enrollmentId"
             class="flex items-center gap-3 rounded-xl px-3 py-2"
-            :class="item.classId === activeClass?.classId ? 'bg-[#eef2ff]' : 'bg-[#f9fafb]'"
+            :class="item.classId === activeClass?.classId ? 'bg-[#eef2ff]' : 'bg-[#fbfaf8]'"
           >
             <div class="h-2 w-2 rounded-full bg-[#4f46e5]" />
             <div class="min-w-0 flex-1">

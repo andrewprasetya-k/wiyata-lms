@@ -160,7 +160,7 @@ onMounted(() => {
         class="flex min-w-0 flex-col gap-4 px-5 pb-5 sm:px-6 lg:flex-row lg:items-end lg:justify-between lg:px-8"
       >
         <div class="min-w-0">
-          <div v-if="classLoading" class="h-8 w-48 animate-pulse rounded-lg bg-[#f3f4f6]" />
+          <div v-if="classLoading" class="h-8 w-48 animate-pulse rounded-lg bg-[#f3f1ec]" />
           <template v-else-if="classInfo">
             <div class="flex min-w-0 flex-wrap items-center gap-2">
               <h1 class="text-2xl font-semibold text-[#171322] sm:text-3xl">
@@ -170,8 +170,8 @@ onMounted(() => {
                 class="rounded-lg px-2.5 py-1 text-xs font-medium"
                 :class="
                   classInfo.isActive
-                    ? 'bg-[#ecfdf5] text-[#059669]'
-                    : 'bg-[#f3f4f6] text-[#6b7280]'
+                    ? 'bg-[#f0fdf4] text-[#059669]'
+                    : 'bg-[#f3f1ec] text-[#6b7280]'
                 "
               >
                 {{ classInfo.isActive ? "Aktif" : "Nonaktif" }}
@@ -273,7 +273,7 @@ onMounted(() => {
             Anggota Kelas
             <span
               v-if="!enrollmentsLoading"
-              class="rounded-full bg-[#f3f4f6] px-2 py-0.5 text-[11px] font-semibold text-[#6b7280]"
+              class="rounded-full bg-[#f3f1ec] px-2 py-0.5 text-[11px] font-semibold text-[#6b7280]"
             >
               {{ enrollments.length }}
             </span>
@@ -294,7 +294,7 @@ onMounted(() => {
             Penugasan Mengajar
             <span
               v-if="!subjectClassesLoading"
-              class="rounded-full bg-[#f3f4f6] px-2 py-0.5 text-[11px] font-semibold text-[#6b7280]"
+              class="rounded-full bg-[#f3f1ec] px-2 py-0.5 text-[11px] font-semibold text-[#6b7280]"
             >
               {{ subjectClasses.length }}
             </span>
@@ -304,7 +304,7 @@ onMounted(() => {
 
       <!-- Tab: Anggota Kelas -->
       <template v-if="activeTab === 'members'">
-        <div class="mt-4 rounded-2xl border border-[#ebe7df] bg-white shadow-sm">
+        <div class="mt-4 rounded-xl border border-[#ebe7df] bg-white shadow-sm">
           <div class="flex flex-col gap-4 border-b border-[#ebe7df] p-5 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p class="eyebrow-muted">Anggota kelas</p>
@@ -433,7 +433,7 @@ onMounted(() => {
 
       <!-- Tab: Penugasan Mengajar -->
       <template v-if="activeTab === 'subjects'">
-        <div class="mt-4 rounded-2xl border border-[#ebe7df] bg-white shadow-sm">
+        <div class="mt-4 rounded-xl border border-[#ebe7df] bg-white shadow-sm">
           <div class="border-b border-[#ebe7df] p-5">
             <p class="eyebrow-muted">Penugasan mengajar</p>
             <h2 class="mt-1 text-base font-semibold text-[#171322]">
@@ -500,7 +500,7 @@ onMounted(() => {
                 </div>
                 <span
                   v-if="sc.subjectCode"
-                  class="rounded-lg bg-[#f3f4f6] px-2 py-1 text-[11px] font-medium text-[#6b7280]"
+                  class="rounded-lg bg-[#f3f1ec] px-2 py-1 text-[11px] font-medium text-[#6b7280]"
                 >
                   {{ sc.subjectCode }}
                 </span>

@@ -35,7 +35,7 @@ const overviewCards = [
     description:
       "Super Admin menjaga akses platform. Operasional akademik tetap berada di area Admin Sekolah.",
     icon: PhShieldCheck,
-    tone: "bg-[#f3f4f6] text-[#6b7280]",
+    tone: "bg-[#f3f1ec] text-[#6b7280]",
   },
 ];
 
@@ -219,7 +219,7 @@ const quickActions = [
               v-for="item in quickActions"
               :key="item.to"
               :to="item.to"
-              class="flex items-center gap-3 rounded-lg p-3 transition hover:bg-[#f9fafb]"
+              class="flex items-center gap-3 rounded-lg p-3 transition hover:bg-[#f3f1ec]"
             >
               <span
                 class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fff4ee] text-[#ea580c]"

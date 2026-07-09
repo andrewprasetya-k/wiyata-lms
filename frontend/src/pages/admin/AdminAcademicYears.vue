@@ -631,7 +631,7 @@ watch(selectedWeightSubjectId, () => {
             {{ currentSchool.schoolName || "Sekolah belum tersedia" }}
           </span>
           <span
-            class="rounded-lg bg-[#f3f4f6] px-3 py-2 font-medium text-[#6b7280]"
+            class="rounded-lg bg-[#f3f1ec] px-3 py-2 font-medium text-[#6b7280]"
           >
             {{ currentSchool.schoolCode || "Kode belum tersedia" }}
           </span>
@@ -644,7 +644,7 @@ watch(selectedWeightSubjectId, () => {
     >
       <div
         v-if="!currentSchool.hasContext"
-        class="rounded-xl border border-[#f0c5bf] bg-[#fff8f6] px-4 py-3 text-sm text-[#a8665d]"
+        class="rounded-xl border border-[#fecaca] bg-[#fef2f2] px-4 py-3 text-sm text-[#a8665d]"
       >
         Konteks sekolah aktif belum ditemukan. Pastikan akun admin sudah punya
         akses sekolah yang valid.
@@ -672,7 +672,7 @@ watch(selectedWeightSubjectId, () => {
       <template v-if="activeTab === 'periode'">
       <section class="grid gap-5 lg:grid-cols-2">
         <article
-          class="rounded-2xl border border-[#ebe7df] bg-white p-5"
+          class="rounded-xl border border-[#ebe7df] bg-white p-5"
         >
           <div class="flex items-start justify-between gap-4">
             <div class="min-w-0">
@@ -725,7 +725,7 @@ watch(selectedWeightSubjectId, () => {
             </div>
             <p
               v-else-if="academicYearsError"
-              class="rounded-lg border border-[#fecaca] bg-[#fff8f6] px-4 py-3 text-sm text-[#a8665d]"
+              class="rounded-lg border border-[#fecaca] bg-[#fef2f2] px-4 py-3 text-sm text-[#a8665d]"
             >
               {{ academicYearsError }}
             </p>
@@ -756,7 +756,7 @@ watch(selectedWeightSubjectId, () => {
                       :class="
                         year.isActive
                           ? 'bg-[#ecfdf3] text-[#027a48]'
-                          : 'bg-[#f3f4f6] text-[#6b7280]'
+                          : 'bg-[#f3f1ec] text-[#6b7280]'
                       "
                     >
                       {{ year.isActive ? "Aktif" : "Nonaktif" }}
@@ -784,7 +784,7 @@ watch(selectedWeightSubjectId, () => {
         </article>
 
         <article
-          class="rounded-2xl border border-[#ebe7df] bg-white p-5"
+          class="rounded-xl border border-[#ebe7df] bg-white p-5"
         >
           <div class="flex items-start justify-between gap-4">
             <div class="min-w-0">
@@ -853,7 +853,7 @@ watch(selectedWeightSubjectId, () => {
             </div>
             <p
               v-else-if="termsError"
-              class="rounded-lg border border-[#fecaca] bg-[#fff8f6] px-4 py-3 text-sm text-[#a8665d]"
+              class="rounded-lg border border-[#fecaca] bg-[#fef2f2] px-4 py-3 text-sm text-[#a8665d]"
             >
               {{ termsError }}
             </p>
@@ -892,7 +892,7 @@ watch(selectedWeightSubjectId, () => {
                       :class="
                         term.isActive
                           ? 'bg-[#ecfdf3] text-[#027a48]'
-                          : 'bg-[#f3f4f6] text-[#6b7280]'
+                          : 'bg-[#f3f1ec] text-[#6b7280]'
                       "
                     >
                       {{ term.isActive ? "Aktif" : "Nonaktif" }}
@@ -928,7 +928,7 @@ watch(selectedWeightSubjectId, () => {
       <RouterLink
         v-if="terms.length > 0"
         to="/admin/classes"
-        class="flex items-center justify-between gap-4 rounded-2xl border border-[#ebe7df] bg-white p-5 transition hover:border-[#4f46e5] hover:shadow-sm"
+        class="flex items-center justify-between gap-4 rounded-xl border border-[#ebe7df] bg-white p-5 transition hover:border-[#4f46e5] hover:shadow-sm"
       >
         <div>
           <p class="eyebrow">
@@ -946,7 +946,7 @@ watch(selectedWeightSubjectId, () => {
       <template v-if="activeTab === 'mapel'">
       <section class="grid gap-5 lg:grid-cols-2">
         <article
-          class="rounded-2xl border border-[#ebe7df] bg-white p-5"
+          class="rounded-xl border border-[#ebe7df] bg-white p-5"
         >
           <div class="flex items-start justify-between gap-4">
             <div class="min-w-0">
@@ -1048,7 +1048,7 @@ watch(selectedWeightSubjectId, () => {
             </div>
             <p
               v-else-if="subjectsError"
-              class="rounded-lg border border-[#fecaca] bg-[#fff8f6] px-4 py-3 text-sm text-[#a8665d]"
+              class="rounded-lg border border-[#fecaca] bg-[#fef2f2] px-4 py-3 text-sm text-[#a8665d]"
             >
               {{ subjectsError }}
             </p>
@@ -1104,7 +1104,7 @@ watch(selectedWeightSubjectId, () => {
         </article>
 
         <article
-          class="rounded-2xl border border-[#ebe7df] bg-white p-5"
+          class="rounded-xl border border-[#ebe7df] bg-white p-5"
         >
           <div class="flex items-start justify-between gap-4">
             <div class="min-w-0">
@@ -1156,7 +1156,7 @@ watch(selectedWeightSubjectId, () => {
             </div>
             <p
               v-else-if="categoriesError"
-              class="rounded-lg border border-[#fecaca] bg-[#fff8f6] px-4 py-3 text-sm text-[#a8665d]"
+              class="rounded-lg border border-[#fecaca] bg-[#fef2f2] px-4 py-3 text-sm text-[#a8665d]"
             >
               {{ categoriesError }}
             </p>
@@ -1186,7 +1186,7 @@ watch(selectedWeightSubjectId, () => {
       </section>
 
       <section
-        class="rounded-2xl border border-[#ebe7df] bg-white p-5"
+        class="rounded-xl border border-[#ebe7df] bg-white p-5"
       >
         <div
           class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"
@@ -1324,7 +1324,7 @@ watch(selectedWeightSubjectId, () => {
             <div v-else class="mt-4 space-y-3">
               <p
                 v-if="weightsError"
-                class="rounded-lg border border-[#fecaca] bg-[#fff8f6] px-4 py-3 text-sm leading-6 text-[#a8665d]"
+                class="rounded-lg border border-[#fecaca] bg-[#fef2f2] px-4 py-3 text-sm leading-6 text-[#a8665d]"
               >
                 {{ weightsError }}
               </p>
@@ -1363,7 +1363,7 @@ watch(selectedWeightSubjectId, () => {
 
               <p
                 v-if="hasInvalidWeight"
-                class="rounded-lg border border-[#fecaca] bg-[#fff8f6] px-4 py-3 text-sm leading-6 text-[#a8665d]"
+                class="rounded-lg border border-[#fecaca] bg-[#fef2f2] px-4 py-3 text-sm leading-6 text-[#a8665d]"
               >
                 Bobot harus berada di antara 0 sampai 100.
               </p>

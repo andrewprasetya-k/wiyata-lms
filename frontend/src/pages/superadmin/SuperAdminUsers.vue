@@ -174,7 +174,7 @@ onMounted(() => {
 
             <div
               v-else-if="errorMessage"
-              class="rounded-lg border border-[#fecaca] bg-[#fff8f6] px-4 py-4"
+              class="rounded-lg border border-[#fecaca] bg-[#fef2f2] px-4 py-4"
             >
               <p class="text-sm leading-6 text-[#a8665d]">{{ errorMessage }}</p>
               <button

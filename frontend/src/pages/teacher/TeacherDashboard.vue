@@ -66,7 +66,7 @@ const statCards = computed(() => [
     to: "/teacher/submissions",
     colorIcon: hasPendingReviews.value
       ? "bg-[#fff7ed] text-[#ea580c]"
-      : "bg-[#ecfdf5] text-[#059669]",
+      : "bg-[#f0fdf4] text-[#059669]",
     colorValue: hasPendingReviews.value ? "text-[#ea580c]" : "text-[#171322]",
     border: hasPendingReviews.value
       ? "border-[#fed7aa] hover:border-[#fb923c]"
@@ -110,7 +110,7 @@ const quickActions = [
     label: "Buat Tugas",
     icon: PhCalendarBlank,
     to: "/teacher/assignments",
-    color: "bg-[#ecfdf5] text-[#059669]",
+    color: "bg-[#f0fdf4] text-[#059669]",
     border: "hover:border-[#bbf7d0]",
   },
   {
@@ -124,7 +124,7 @@ const quickActions = [
     label: "Ruang Mengajar",
     icon: PhChalkboardTeacher,
     to: "/teacher/subjects",
-    color: "bg-[#f3f4f6] text-[#6b7280]",
+    color: "bg-[#f3f1ec] text-[#6b7280]",
     border: "hover:border-[#d1d5db]",
   },
 ];
@@ -296,7 +296,7 @@ onMounted(() => {
           <!-- Error state -->
           <section
             v-if="errorMessage"
-            class="rounded-xl border border-[#f1d6d3] bg-white p-5"
+            class="rounded-xl border border-[#fecaca] bg-white p-5"
           >
             <div class="flex items-start gap-3">
               <PhWarningCircle
@@ -346,7 +346,7 @@ onMounted(() => {
               <div
                 v-for="i in 4"
                 :key="i"
-                class="h-28 animate-pulse rounded-lg bg-[#f3f4f6]"
+                class="h-28 animate-pulse rounded-lg bg-[#f3f1ec]"
               />
             </div>
 

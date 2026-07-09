@@ -233,7 +233,7 @@ onMounted(loadSubject);
 
           <article
             v-else-if="errorMessage"
-            class="rounded-xl border border-[#f1d6d3] bg-white p-5"
+            class="rounded-xl border border-[#fecaca] bg-white p-5"
           >
             <div class="flex items-start gap-3">
               <PhWarningCircle
@@ -370,7 +370,7 @@ onMounted(loadSubject);
 
           <article
             v-else-if="errorMessage"
-            class="rounded-xl border border-[#f1d6d3] bg-white p-5"
+            class="rounded-xl border border-[#fecaca] bg-white p-5"
           >
             <div class="flex items-start gap-3">
               <PhWarningCircle
@@ -508,7 +508,7 @@ onMounted(loadSubject);
 
           <article
             v-else-if="notesError"
-            class="rounded-xl border border-[#f1d6d3] bg-white p-5"
+            class="rounded-xl border border-[#fecaca] bg-white p-5"
           >
             <div class="flex items-start gap-3">
               <PhWarningCircle

@@ -261,11 +261,11 @@ onMounted(loadWorkspace);
         class="flex min-h-[55vh] items-center justify-center"
       >
         <article
-          class="w-full max-w-xl rounded-xl border border-[#f1d6d3] bg-white p-6"
+          class="w-full max-w-xl rounded-xl border border-[#fecaca] bg-white p-6"
         >
           <div class="flex items-start gap-3">
             <div
-              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fff1f0] text-[#dc2626]"
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fef2f2] text-[#dc2626]"
             >
               <PhWarningCircle :size="22" weight="duotone" />
             </div>
@@ -587,7 +587,7 @@ onMounted(loadWorkspace);
                 <span class="rounded-lg bg-[#eef7f2] px-3 py-2 text-[#2f7d5c]">
                   {{ submissionSummary.gradedCount }} sudah dinilai
                 </span>
-                <span class="rounded-lg bg-[#fff7e8] px-3 py-2 text-[#9f6b1d]">
+                <span class="rounded-lg bg-[#fff7ed] px-3 py-2 text-[#9f6b1d]">
                   {{ submissionSummary.pendingCount }} perlu dinilai
                 </span>
                 <span class="rounded-lg bg-[#fff1ed] px-3 py-2 text-[#b86845]">
@@ -670,7 +670,7 @@ onMounted(loadWorkspace);
                         {{ group.gradedCount }} dinilai
                       </span>
                       <span
-                        class="rounded-lg bg-[#fff7e8] px-3 py-2 text-[#9f6b1d]"
+                        class="rounded-lg bg-[#fff7ed] px-3 py-2 text-[#9f6b1d]"
                       >
                         {{ group.pendingCount }} perlu dinilai
                       </span>
@@ -728,7 +728,7 @@ onMounted(loadWorkspace);
                         :class="
                           submission.assessment
                             ? 'bg-[#eef7f2] text-[#2f7d5c]'
-                            : 'bg-[#fff7e8] text-[#9f6b1d]'
+                            : 'bg-[#fff7ed] text-[#9f6b1d]'
                         "
                       >
                         {{

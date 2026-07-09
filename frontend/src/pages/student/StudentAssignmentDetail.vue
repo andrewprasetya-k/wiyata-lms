@@ -244,11 +244,11 @@ async function handleSubmit() {
       class="flex min-h-[calc(100vh-49px)] items-center justify-center px-5 py-10"
     >
       <article
-        class="w-full max-w-xl rounded-xl border border-[#f1d6d3] bg-white p-6"
+        class="w-full max-w-xl rounded-xl border border-[#fecaca] bg-white p-6"
       >
         <div class="flex items-start gap-3">
           <div
-            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fff1f0] text-[#dc2626]"
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fef2f2] text-[#dc2626]"
           >
             <PhWarningCircle :size="22" weight="duotone" />
           </div>
@@ -457,7 +457,7 @@ async function handleSubmit() {
 
           <div
             v-else-if="submissionError"
-            class="mt-4 rounded-xl bg-[#fff1f0] p-4"
+            class="mt-4 rounded-xl bg-[#fef2f2] p-4"
           >
             <p class="text-sm leading-6 text-[#b42318]">
               {{ submissionError }}
@@ -599,7 +599,7 @@ async function handleSubmit() {
                   </p>
                 </div>
                 <button
-                  class="shrink-0 rounded-lg p-2 text-[#dc2626] transition hover:bg-[#fff1f0]"
+                  class="shrink-0 rounded-lg p-2 text-[#dc2626] transition hover:bg-[#fef2f2]"
                   type="button"
                   title="Hapus file"
                   @click="removeFile(index)"
@@ -611,7 +611,7 @@ async function handleSubmit() {
 
             <p
               v-if="submitError"
-              class="mt-4 rounded-lg bg-[#fff1f0] p-3 text-sm leading-5 text-[#b42318]"
+              class="mt-4 rounded-lg bg-[#fef2f2] p-3 text-sm leading-5 text-[#b42318]"
             >
               {{ submitError }}
             </p>

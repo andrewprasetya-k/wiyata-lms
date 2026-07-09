@@ -420,7 +420,7 @@ onMounted(loadInitialData);
                 ? 'bg-[#eef2ff] text-[#4f46e5]'
                 : 'text-[#6b7280]',
               !isEditMode && activeTab !== 'material'
-                ? 'cursor-pointer hover:bg-[#f9fafb] hover:text-[#111827]'
+                ? 'cursor-pointer hover:bg-[#f3f1ec] hover:text-[#111827]'
                 : isEditMode && activeTab !== 'material'
                   ? 'cursor-not-allowed opacity-50'
                   : '',
@@ -439,7 +439,7 @@ onMounted(loadInitialData);
                 ? 'bg-[#eef2ff] text-[#4f46e5]'
                 : 'text-[#6b7280]',
               !isEditMode && activeTab !== 'assignment'
-                ? 'cursor-pointer hover:bg-[#f9fafb] hover:text-[#111827]'
+                ? 'cursor-pointer hover:bg-[#f3f1ec] hover:text-[#111827]'
                 : isEditMode && activeTab !== 'assignment'
                   ? 'cursor-not-allowed opacity-50'
                   : '',
@@ -525,7 +525,7 @@ onMounted(loadInitialData);
             >
               <div class="flex items-start gap-3">
                 <div
-                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#f3f4f6] text-[#6b7280]"
+                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#f3f1ec] text-[#6b7280]"
                 >
                   <PhFileText :size="20" weight="duotone" />
                 </div>
@@ -734,7 +734,7 @@ onMounted(loadInitialData);
                   </button>
                   <button
                     type="button"
-                    class="inline-flex w-full items-center justify-center rounded-lg border border-[#ebe7df] bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:bg-[#f9fafb]"
+                    class="inline-flex w-full items-center justify-center rounded-lg border border-[#ebe7df] bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:bg-[#f3f1ec]"
                     @click="router.back()"
                   >
                     Batal

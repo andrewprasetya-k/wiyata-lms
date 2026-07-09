@@ -135,13 +135,13 @@ function formatTime(value?: string | null) {
       <div
         v-for="item in 3"
         :key="item"
-        class="h-14 animate-pulse bg-[#f3f4f6]"
+        class="h-14 animate-pulse bg-[#f3f1ec]"
       />
     </div>
 
     <div
       v-else-if="hasError"
-      class="flex gap-3 rounded-lg border border-[#f1d6d3] bg-[#fffafa] p-3"
+      class="flex gap-3 rounded-lg border border-[#fecaca] bg-[#fffafa] p-3"
     >
       <PhWarningCircle :size="18" class="mt-0.5 shrink-0 text-[#dc2626]" />
       <p class="text-xs leading-5 text-[#7a7385]">

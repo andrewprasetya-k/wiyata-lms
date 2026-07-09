@@ -153,7 +153,7 @@ onMounted(loadAssignment);
 
       <section
         v-else-if="errorMessage"
-        class="mx-auto max-w-xl rounded-xl border border-[#f0d8d2] bg-white px-5 py-8 text-center"
+        class="mx-auto max-w-xl rounded-xl border border-[#fecaca] bg-white px-5 py-8 text-center"
       >
         <PhWarningCircle
           :size="30"

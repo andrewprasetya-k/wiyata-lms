@@ -148,7 +148,7 @@ onMounted(loadInbox);
 
       <section
         v-else-if="errorMessage"
-        class="rounded-xl border border-[#f0d8d2] bg-white px-5 py-8 text-center"
+        class="rounded-xl border border-[#fecaca] bg-white px-5 py-8 text-center"
       >
         <PhWarningCircle
           :size="30"
@@ -345,7 +345,7 @@ onMounted(loadInbox);
                     {{ item.submissionCount }}
                   </p>
                 </div>
-                <div class="rounded-lg bg-[#fff7e8] px-3 py-2.5">
+                <div class="rounded-lg bg-[#fff7ed] px-3 py-2.5">
                   <p class="text-xs text-[#9f6b1d]">Perlu dinilai</p>
                   <p class="mt-1 text-lg font-semibold text-[#171322]">
                     {{ item.pendingCount }}

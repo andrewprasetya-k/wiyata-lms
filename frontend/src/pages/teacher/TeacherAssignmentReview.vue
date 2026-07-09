@@ -187,7 +187,7 @@ onMounted(loadData);
         >
           <button
             type="button"
-            class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#ebe7df] bg-white text-[#6b7280] transition hover:bg-[#f9fafb] hover:text-[#171322] disabled:cursor-not-allowed disabled:opacity-30"
+            class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#ebe7df] bg-white text-[#6b7280] transition hover:bg-[#f3f1ec] hover:text-[#171322] disabled:cursor-not-allowed disabled:opacity-30"
             :disabled="activeIndex === 0"
             title="Siswa sebelumnya"
             @click="prevStudent"
@@ -202,7 +202,7 @@ onMounted(loadData);
           </span>
           <button
             type="button"
-            class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#ebe7df] bg-white text-[#6b7280] transition hover:bg-[#f9fafb] hover:text-[#171322] disabled:cursor-not-allowed disabled:opacity-30"
+            class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#ebe7df] bg-white text-[#6b7280] transition hover:bg-[#f3f1ec] hover:text-[#171322] disabled:cursor-not-allowed disabled:opacity-30"
             :disabled="
               submissions.length === 0 ||
               activeIndex === submissions.length - 1
@@ -235,10 +235,10 @@ onMounted(loadData);
 
       <section
         v-else-if="errorMessage"
-        class="mx-auto max-w-xl rounded-xl border border-[#f0d8d2] bg-white px-5 py-10 text-center"
+        class="mx-auto max-w-xl rounded-xl border border-[#fecaca] bg-white px-5 py-10 text-center"
       >
         <div
-          class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#fff1f0] text-[#dc2626]"
+          class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#fef2f2] text-[#dc2626]"
         >
           <PhFile :size="24" weight="duotone" />
         </div>
@@ -309,7 +309,7 @@ onMounted(loadData);
                   :class="
                     currentSubmission.isLate
                       ? 'bg-[#fef2f2] text-[#dc2626]'
-                      : 'bg-[#ecfdf5] text-[#059669]'
+                      : 'bg-[#f0fdf4] text-[#059669]'
                   "
                 >
                   {{
@@ -318,7 +318,7 @@ onMounted(loadData);
                 </span>
                 <span
                   v-if="currentSubmission.assessment"
-                  class="inline-flex items-center gap-1.5 rounded-lg bg-[#ecfdf5] px-2.5 py-1.5 text-[11px] font-medium text-[#059669]"
+                  class="inline-flex items-center gap-1.5 rounded-lg bg-[#f0fdf4] px-2.5 py-1.5 text-[11px] font-medium text-[#059669]"
                 >
                   <PhCheckCircle :size="14" weight="bold" />
                   Sudah dinilai
@@ -366,7 +366,7 @@ onMounted(loadData);
                 </div>
                 <span
                   v-if="currentSubmission.assessment"
-                  class="rounded-lg bg-[#ecfdf5] px-2.5 py-1 text-[11px] font-medium text-[#059669]"
+                  class="rounded-lg bg-[#f0fdf4] px-2.5 py-1 text-[11px] font-medium text-[#059669]"
                 >
                   Tersimpan
                 </span>
@@ -448,7 +448,7 @@ onMounted(loadData);
                   :class="
                     activeIndex === index
                       ? 'border-[#c7d2fe] bg-[#eef2ff]'
-                      : 'border-transparent hover:bg-[#f9fafb]'
+                      : 'border-transparent hover:bg-[#f3f1ec]'
                   "
                   @click="activeIndex = index"
                 >
