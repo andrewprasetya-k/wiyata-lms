@@ -464,7 +464,7 @@ router.beforeEach(async (to) => {
   if (to.meta.requiresAuth) {
     await auth.ensureUserContext();
     if (!auth.activeContext) {
-      return { name: "unauthorized" };
+      return { path: "/home" };
     }
   }
 

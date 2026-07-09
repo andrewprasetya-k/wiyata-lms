@@ -415,6 +415,6 @@ function sameNullableContext(a: ActiveContext | null, b: ActiveContext | null) {
 }
 
 function landingRouteForContext(context: ActiveContext | null) {
-  if (!context) return "/unauthorized";
+  if (!context) return "/home";
   return landingRouteByRole[context.role];
 }

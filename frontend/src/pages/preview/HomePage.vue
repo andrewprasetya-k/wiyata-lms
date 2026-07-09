@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import { RouterLink } from "vue-router";
+import { useAuthStore } from "../../stores/auth";
 import {
   PhList,
   PhX,
@@ -14,6 +15,9 @@ import {
   PhChatCircle,
 } from "@phosphor-icons/vue";
 import Lenis from "lenis";
+
+const auth = useAuthStore();
+const isSchoolless = computed(() => auth.isAuthenticated && !auth.activeContext);
 
 // ── Mobile menu state
 const mobileOpen = ref(false);
@@ -239,18 +243,32 @@ const screenshotSlots = [
         </nav>
 
         <div class="flex items-center gap-3">
-          <RouterLink
-            to="/school-registration"
-            class="hidden rounded-lg border border-[#e7e2da] bg-white px-4 py-2 text-sm font-medium text-[#5f5968] transition-colors hover:text-[#171322] sm:inline-flex"
-          >
-            Daftarkan Sekolah
-          </RouterLink>
-          <RouterLink
-            to="/login"
-            class="rounded-lg bg-[#4f46e5] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#4338ca]"
-          >
-            Masuk
-          </RouterLink>
+          <template v-if="isSchoolless">
+            <span class="hidden text-sm text-[#6b7280] sm:block">
+              {{ auth.user?.fullName?.split(" ")[0] }}
+            </span>
+            <button
+              type="button"
+              class="rounded-lg border border-[#e7e2da] bg-white px-4 py-2 text-sm font-medium text-[#5f5968] transition-colors hover:text-[#171322]"
+              @click="auth.logout()"
+            >
+              Keluar
+            </button>
+          </template>
+          <template v-else>
+            <RouterLink
+              to="/school-registration"
+              class="hidden rounded-lg border border-[#e7e2da] bg-white px-4 py-2 text-sm font-medium text-[#5f5968] transition-colors hover:text-[#171322] sm:inline-flex"
+            >
+              Daftarkan Sekolah
+            </RouterLink>
+            <RouterLink
+              to="/login"
+              class="rounded-lg bg-[#4f46e5] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#4338ca]"
+            >
+              Masuk
+            </RouterLink>
+          </template>
           <button
             id="nav-mobile-toggle"
             class="flex h-9 w-9 items-center justify-center rounded-lg border border-[#e7e2da] bg-white md:hidden"
@@ -300,6 +318,20 @@ const screenshotSlots = [
               "
               >Preview</a
             >
+            <template v-if="isSchoolless">
+              <div class="mt-2 border-t border-[#f0ece5] pt-2">
+                <p class="px-3 py-1.5 text-xs text-[#9ca3af]">
+                  {{ auth.user?.fullName }}
+                </p>
+                <button
+                  type="button"
+                  class="w-full rounded-md px-3 py-2.5 text-left text-sm text-[#6b7280] hover:bg-[#f8f7f4] hover:text-[#171322]"
+                  @click="auth.logout(); mobileOpen = false"
+                >
+                  Keluar
+                </button>
+              </div>
+            </template>
           </div>
         </nav>
       </Transition>
@@ -319,34 +351,62 @@ const screenshotSlots = [
         aria-hidden="true"
       />
 
-      <h1
-        class="mt-5 max-w-3xl text-5xl font-semibold leading-[1.1] tracking-tight text-[#171322] sm:text-6xl lg:text-[68px]"
-      >
-        Satu workspace untuk aktivitas akademik sekolah.
-      </h1>
-
-      <p class="mt-6 max-w-2xl text-lg leading-8 text-[#6b7280]">
-        Kelola materi, tugas, komunikasi, dan penilaian dalam satu workspace
-        bagi murid, guru, dan sekolah.
-      </p>
-
-      <!-- CTAs — three-tier hierarchy -->
-      <div class="mt-9 flex flex-wrap items-center gap-3">
-        <RouterLink
-          to="/school-registration"
-          id="hero-cta-daftar-sekolah"
-          class="inline-flex h-12 items-center justify-center rounded-lg bg-[#4f46e5] px-8 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#4338ca]"
+      <!-- School-less user: logged in but no school context -->
+      <template v-if="isSchoolless">
+        <h1
+          class="mt-5 max-w-3xl text-5xl font-semibold leading-[1.1] tracking-tight text-[#171322] sm:text-6xl lg:text-[68px]"
         >
-          Daftarkan Sekolah
-        </RouterLink>
-        <RouterLink
-          to="/login"
-          id="hero-cta-masuk"
-          class="inline-flex h-11 items-center justify-center rounded-lg border border-[#e7e2da] bg-white px-6 text-sm font-medium text-[#5f5968] transition-colors hover:bg-[#f8f7f4] hover:text-[#171322]"
+          Selamat datang di Wiyata
+        </h1>
+        <p class="mt-6 max-w-2xl text-lg leading-8 text-[#6b7280]">
+          Akunmu berhasil dibuat dan kamu sudah masuk ke Wiyata. Saat ini
+          akunmu belum terhubung ke sekolah mana pun. Setelah bergabung ke
+          sekolah, kamu dapat mengakses kelas, materi, tugas, nilai, dan
+          aktivitas akademik.
+        </p>
+        <div class="mt-9 flex flex-wrap items-center gap-4">
+          <RouterLink
+            to="/school-registration"
+            class="inline-flex h-12 items-center justify-center rounded-lg bg-[#4f46e5] px-8 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#4338ca]"
+          >
+            Daftarkan Sekolah
+          </RouterLink>
+          <p class="max-w-sm text-sm leading-6 text-[#9ca3af]">
+            Sudah mendapat undangan? Buka link undangan yang dikirim ke
+            emailmu untuk bergabung ke sekolah.
+          </p>
+        </div>
+      </template>
+
+      <!-- Visitor: not logged in -->
+      <template v-else>
+        <h1
+          class="mt-5 max-w-3xl text-5xl font-semibold leading-[1.1] tracking-tight text-[#171322] sm:text-6xl lg:text-[68px]"
         >
-          Masuk ke Wiyata
-        </RouterLink>
-      </div>
+          Satu workspace untuk aktivitas akademik sekolah.
+        </h1>
+        <p class="mt-6 max-w-2xl text-lg leading-8 text-[#6b7280]">
+          Kelola materi, tugas, komunikasi, dan penilaian dalam satu workspace
+          bagi murid, guru, dan sekolah.
+        </p>
+        <!-- CTAs — three-tier hierarchy -->
+        <div class="mt-9 flex flex-wrap items-center gap-3">
+          <RouterLink
+            to="/school-registration"
+            id="hero-cta-daftar-sekolah"
+            class="inline-flex h-12 items-center justify-center rounded-lg bg-[#4f46e5] px-8 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#4338ca]"
+          >
+            Daftarkan Sekolah
+          </RouterLink>
+          <RouterLink
+            to="/login"
+            id="hero-cta-masuk"
+            class="inline-flex h-11 items-center justify-center rounded-lg border border-[#e7e2da] bg-white px-6 text-sm font-medium text-[#5f5968] transition-colors hover:bg-[#f8f7f4] hover:text-[#171322]"
+          >
+            Masuk ke Wiyata
+          </RouterLink>
+        </div>
+      </template>
 
       <!-- ── Product mockup (dashboard UI) ── -->
       <div class="mt-16">
