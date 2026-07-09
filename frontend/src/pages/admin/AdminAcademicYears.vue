@@ -672,7 +672,7 @@ watch(selectedWeightSubjectId, () => {
       <template v-if="activeTab === 'periode'">
       <section class="grid gap-5 lg:grid-cols-2">
         <article
-          class="rounded-xl border border-[#ebe7df] bg-white p-5"
+          class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5"
         >
           <div class="flex items-start justify-between gap-4">
             <div class="min-w-0">
@@ -741,7 +741,7 @@ watch(selectedWeightSubjectId, () => {
             <article
               v-for="year in academicYears"
               :key="year.academicYearId"
-              class="rounded-lg border border-[#ebe7df] bg-[#fcfbf8] p-4"
+              class="rounded-lg bg-[#fbfaf8] p-4"
             >
               <div
                 class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
@@ -784,7 +784,7 @@ watch(selectedWeightSubjectId, () => {
         </article>
 
         <article
-          class="rounded-xl border border-[#ebe7df] bg-white p-5"
+          class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5"
         >
           <div class="flex items-start justify-between gap-4">
             <div class="min-w-0">
@@ -877,7 +877,7 @@ watch(selectedWeightSubjectId, () => {
             <article
               v-for="term in terms"
               :key="term.termId"
-              class="rounded-lg border border-[#ebe7df] bg-[#fcfbf8] p-4"
+              class="rounded-lg bg-[#fbfaf8] p-4"
             >
               <div
                 class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
@@ -928,7 +928,7 @@ watch(selectedWeightSubjectId, () => {
       <RouterLink
         v-if="terms.length > 0"
         to="/admin/classes"
-        class="flex items-center justify-between gap-4 rounded-xl border border-[#ebe7df] bg-white p-5 transition hover:border-[#4f46e5] hover:shadow-sm"
+        class="flex items-center justify-between gap-4 rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5 transition hover:border-[#4f46e5] hover:shadow-sm"
       >
         <div>
           <p class="eyebrow">
@@ -946,7 +946,7 @@ watch(selectedWeightSubjectId, () => {
       <template v-if="activeTab === 'mapel'">
       <section class="grid gap-5 lg:grid-cols-2">
         <article
-          class="rounded-xl border border-[#ebe7df] bg-white p-5"
+          class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5"
         >
           <div class="flex items-start justify-between gap-4">
             <div class="min-w-0">
@@ -1064,7 +1064,7 @@ watch(selectedWeightSubjectId, () => {
             <article
               v-for="subject in subjects"
               :key="subject.subjectId"
-              class="rounded-lg border border-[#ebe7df] bg-[#fcfbf8] p-4"
+              class="rounded-lg bg-[#fbfaf8] p-4"
             >
               <div class="flex min-w-0 items-start justify-between gap-3">
                 <div class="flex min-w-0 items-start gap-3">
@@ -1104,7 +1104,7 @@ watch(selectedWeightSubjectId, () => {
         </article>
 
         <article
-          class="rounded-xl border border-[#ebe7df] bg-white p-5"
+          class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5"
         >
           <div class="flex items-start justify-between gap-4">
             <div class="min-w-0">
@@ -1172,7 +1172,7 @@ watch(selectedWeightSubjectId, () => {
             <article
               v-for="category in categories"
               :key="category.categoryId"
-              class="rounded-lg border border-[#ebe7df] bg-[#fcfbf8] p-4"
+              class="rounded-lg bg-[#fbfaf8] p-4"
             >
               <h3 class="truncate text-base font-semibold text-[#171322]">
                 {{ category.categoryName }}
@@ -1186,7 +1186,7 @@ watch(selectedWeightSubjectId, () => {
       </section>
 
       <section
-        class="rounded-xl border border-[#ebe7df] bg-white p-5"
+        class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5"
       >
         <div
           class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"
@@ -1230,7 +1230,7 @@ watch(selectedWeightSubjectId, () => {
           v-else
           class="mt-5 grid gap-5 xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]"
         >
-          <div class="rounded-lg border border-[#ebe7df] bg-[#fcfbf8] p-4">
+          <div class="rounded-lg bg-[#fbfaf8] p-4">
             <label class="block text-sm font-medium text-[#3f3a4a]">
               Mata pelajaran
               <select
@@ -1285,7 +1285,7 @@ watch(selectedWeightSubjectId, () => {
           </div>
 
           <form
-            class="rounded-lg border border-[#ebe7df] bg-[#fcfbf8] p-4"
+            class="rounded-lg bg-[#fbfaf8] p-4"
             @submit.prevent="submitAssessmentWeights"
           >
             <div

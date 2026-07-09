@@ -691,7 +691,7 @@ onMounted(async () => {
 
       <div class="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
         <section
-          class="order-2 min-w-0 rounded-xl border border-[#ebe7df] bg-white lg:order-1"
+          class="order-2 min-w-0 rounded-xl border border-[#ebe7df] bg-white shadow-sm lg:order-1"
         >
           <div
             class="flex flex-col gap-4 border-b border-[#ebe7df] p-5"
@@ -910,7 +910,7 @@ onMounted(async () => {
 
         <aside class="order-1 min-w-0 lg:order-2">
           <section
-            class="rounded-xl border border-[#ebe7df] bg-white p-5 lg:sticky lg:top-6"
+            class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5 lg:sticky lg:top-6"
           >
             <div class="flex items-start justify-between gap-3">
               <div>
@@ -936,7 +936,7 @@ onMounted(async () => {
             </div>
 
             <div
-              class="mt-5 grid rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-1 text-xs font-medium text-[#6b7280] sm:grid-cols-2"
+              class="mt-5 grid rounded-lg bg-[#fbfaf8] p-1 text-xs font-medium text-[#6b7280] sm:grid-cols-2"
               role="tablist"
               aria-label="Mode tambah warga sekolah"
             >
@@ -1245,7 +1245,7 @@ onMounted(async () => {
 
               <div
                 v-if="importPreview"
-                class="rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-3"
+                class="rounded-lg bg-[#fbfaf8] p-3"
               >
                 <div class="flex flex-wrap gap-2 text-xs">
                   <span

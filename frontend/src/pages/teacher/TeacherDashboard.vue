@@ -200,7 +200,7 @@ onMounted(() => {
           class="flex min-h-[55vh] items-center justify-center"
         >
           <article
-            class="w-full max-w-xl rounded-xl border border-[#ebe7df] bg-white p-8 text-center"
+            class="w-full max-w-xl rounded-xl border border-[#ebe7df] bg-white shadow-sm p-8 text-center"
           >
             <div
               class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#fff7ed] text-[#ea580c]"
@@ -224,7 +224,7 @@ onMounted(() => {
               <div
                 v-for="i in 3"
                 :key="i"
-                class="h-28 animate-pulse rounded-xl border border-[#ebe7df] bg-white"
+                class="h-28 animate-pulse rounded-xl border border-[#ebe7df] bg-white shadow-sm"
               />
             </template>
             <template v-else>
@@ -233,10 +233,10 @@ onMounted(() => {
                 v-for="card in statCards"
                 :key="card.label"
                 v-bind="card.to ? { to: card.to } : {}"
-                class="group rounded-xl border bg-white p-4 transition"
+                class="group rounded-xl border bg-white shadow-sm p-4 transition"
                 :class="[
                   card.border,
-                  card.to ? 'hover:-translate-y-0.5 hover:shadow-sm' : '',
+                  card.to ? 'hover:-translate-y-0.5 hover:shadow-md' : '',
                 ]"
               >
                 <div class="flex items-start justify-between gap-3">
@@ -323,7 +323,7 @@ onMounted(() => {
           </section>
 
           <!-- Class performance -->
-          <section class="rounded-xl border border-[#ebe7df] bg-white p-5">
+          <section class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5">
             <div class="mb-4 flex items-center justify-between gap-3">
               <div>
                 <h2 class="text-sm font-semibold text-[#171322]">
@@ -357,7 +357,7 @@ onMounted(() => {
               <article
                 v-for="item in summary.classPerformance"
                 :key="`${item.classId}-${item.subjectName}`"
-                class="min-w-0 rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-4"
+                class="min-w-0 rounded-lg bg-[#fbfaf8] p-4"
               >
                 <div class="flex min-w-0 items-start gap-3">
                   <div
@@ -416,7 +416,7 @@ onMounted(() => {
 
             <div
               v-else
-              class="rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-4 py-8 text-center"
+              class="rounded-lg bg-[#fbfaf8] px-4 py-8 text-center"
             >
               <PhChalkboardTeacher
                 class="mx-auto h-7 w-7 text-[#d1d5db]"
@@ -442,7 +442,7 @@ onMounted(() => {
                 v-for="action in quickActions"
                 :key="action.label"
                 :to="action.to"
-                class="group flex items-center gap-3 rounded-xl border border-[#ebe7df] bg-white p-3.5 transition hover:-translate-y-0.5 hover:shadow-sm"
+                class="group flex items-center gap-3 rounded-xl border border-[#ebe7df] bg-white shadow-sm p-3.5 transition hover:-translate-y-0.5 hover:shadow-sm"
                 :class="action.border"
               >
                 <div

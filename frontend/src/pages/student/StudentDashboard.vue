@@ -661,14 +661,14 @@ onMounted(() => {
             <div
               v-for="item in 3"
               :key="item"
-              class="h-36 animate-pulse rounded-xl border border-[#ebe7df] bg-white"
+              class="h-36 animate-pulse rounded-xl border border-[#ebe7df] bg-white shadow-sm"
             />
           </div>
           <div class="grid gap-4 xl:grid-cols-2">
             <div
               v-for="item in 2"
               :key="`panel-${item}`"
-              class="h-64 animate-pulse rounded-xl border border-[#ebe7df] bg-white"
+              class="h-64 animate-pulse rounded-xl border border-[#ebe7df] bg-white shadow-sm"
             />
           </div>
         </section>
@@ -678,7 +678,7 @@ onMounted(() => {
           class="flex min-h-[50vh] items-center justify-center"
         >
           <article
-            class="w-full max-w-xl rounded-xl border border-[#ebe7df] bg-white p-8 text-center"
+            class="w-full max-w-xl rounded-xl border border-[#ebe7df] bg-white shadow-sm p-8 text-center"
           >
             <div
               class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
@@ -697,7 +697,7 @@ onMounted(() => {
 
         <section v-else class="grid min-w-0 gap-4 xl:grid-cols-[1.15fr_0.85fr]">
           <article
-            class="min-w-0 rounded-xl border border-[#ebe7df] bg-white p-4 sm:p-5"
+            class="min-w-0 rounded-xl border border-[#ebe7df] bg-white shadow-sm p-4 sm:p-5"
           >
             <div class="mb-4 flex min-w-0 items-center justify-between gap-3">
               <div class="min-w-0">
@@ -740,7 +740,7 @@ onMounted(() => {
               <RouterLink
                 v-for="subject in subjects.slice(0, 4)"
                 :key="subject.subjectClassId"
-                class="group min-w-0 overflow-hidden rounded-lg border border-[#ebe7df] bg-[#fbfaf8] transition hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_18px_40px_rgba(66,55,40,0.08)]"
+                class="group min-w-0 overflow-hidden rounded-lg bg-[#fbfaf8] transition hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_18px_40px_rgba(66,55,40,0.08)]"
                 :to="`/student/subjects/${subject.subjectClassId}`"
               >
                 <div
@@ -780,10 +780,7 @@ onMounted(() => {
               </RouterLink>
             </div>
 
-            <div
-              v-else
-              class="rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-5"
-            >
+            <div v-else class="rounded-lg bg-[#fbfaf8] p-5">
               <p class="text-sm font-medium text-[#171322]">
                 Belum ada mata pelajaran
               </p>
@@ -794,7 +791,7 @@ onMounted(() => {
           </article>
 
           <article
-            class="flex min-h-90 min-w-0 flex-col rounded-xl border border-[#ebe7df] bg-white p-4 sm:p-5 lg:max-h-130"
+            class="flex min-h-90 min-w-0 flex-col rounded-xl border border-[#ebe7df] bg-white shadow-sm p-4 sm:p-5 lg:max-h-130"
           >
             <div class="mb-4 flex shrink-0 items-center justify-between gap-3">
               <div class="flex min-w-0 items-start gap-3">
@@ -835,7 +832,7 @@ onMounted(() => {
 
             <div
               v-else-if="assignmentPreview.length === 0"
-              class="shrink-0 rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-4"
+              class="shrink-0 rounded-lg bg-[#fbfaf8] p-4"
             >
               <p class="text-sm font-semibold text-[#171322]">
                 Belum ada tugas
@@ -942,7 +939,7 @@ onMounted(() => {
             </div>
             <div
               v-else-if="notificationsError"
-              class="rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-4 text-sm leading-6 text-[#7a7385]"
+              class="rounded-lg bg-[#fbfaf8] p-4 text-sm leading-6 text-[#7a7385]"
             >
               <p>{{ notificationsError }}</p>
               <button
@@ -997,10 +994,7 @@ onMounted(() => {
                 </div>
               </button>
             </div>
-            <div
-              v-else
-              class="rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-4"
-            >
+            <div v-else class="rounded-lg bg-[#fbfaf8] p-4">
               <p class="text-sm font-semibold text-[#171322]">
                 Belum ada notifikasi terbaru
               </p>
@@ -1039,7 +1033,7 @@ onMounted(() => {
             </div>
             <div
               v-else-if="feedPreviewError"
-              class="rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-4 text-sm leading-6 text-[#7a7385]"
+              class="rounded-lg bg-[#fbfaf8] p-4 text-sm leading-6 text-[#7a7385]"
             >
               <p>{{ feedPreviewError }}</p>
               <button
@@ -1071,10 +1065,7 @@ onMounted(() => {
                 </p>
               </article>
             </div>
-            <div
-              v-else
-              class="rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-4"
-            >
+            <div v-else class="rounded-lg bg-[#fbfaf8] p-4">
               <p class="text-sm font-semibold text-[#171322]">
                 Belum ada pengumuman
               </p>
@@ -1238,7 +1229,7 @@ onMounted(() => {
 
                   <article
                     v-else
-                    class="flex min-w-0 items-start gap-2 rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-3"
+                    class="flex min-w-0 items-start gap-2 rounded-lg bg-[#fbfaf8] p-3"
                   >
                     <span
                       class="mt-1.5 h-2 w-2 shrink-0 rounded-full"

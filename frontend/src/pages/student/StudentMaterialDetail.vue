@@ -232,13 +232,13 @@ onMounted(loadMaterial);
           />
         </article>
 
-        <article class="rounded-xl border border-[#ebe7df] bg-white p-5">
+        <!-- <article class="rounded-xl border border-[#ebe7df] bg-white p-5">
           <h2 class="text-sm font-medium text-[#171322]">Progress materi</h2>
           <p class="mt-1 text-sm leading-6 text-[#7a7385]">
             Progress materi direncanakan setelah MVP sekolah. Membuka materi
             belum menandai progres selesai.
           </p>
-        </article>
+        </article> -->
 
         <DiscussionComments
           source-type="material"

@@ -122,7 +122,9 @@ async function toggleActive() {
     });
     const merged = { ...classInfo.value!, ...updated } as AdminClassItem;
     classInfo.value = merged;
-    toast.success(merged.isActive ? "Kelas diaktifkan." : "Kelas dinonaktifkan.");
+    toast.success(
+      merged.isActive ? "Kelas diaktifkan." : "Kelas dinonaktifkan.",
+    );
   } catch {
     toast.error("Status kelas belum bisa diubah.");
   } finally {
@@ -140,7 +142,10 @@ onMounted(() => {
     <!-- Header breadcrumb -->
     <header class="border-b border-[#ebe7df] bg-white">
       <div class="px-5 py-4 sm:px-6 lg:px-8">
-        <nav class="flex items-center gap-2 text-sm text-[#6b7280]" aria-label="Breadcrumb">
+        <nav
+          class="flex items-center gap-2 text-sm text-[#6b7280]"
+          aria-label="Breadcrumb"
+        >
           <button
             type="button"
             class="inline-flex items-center gap-1.5 font-medium transition hover:text-[#4f46e5]"
@@ -150,7 +155,7 @@ onMounted(() => {
             Kelas
           </button>
           <span class="text-[#d1ccd5]">/</span>
-          <span class="max-w-[200px] truncate font-medium text-[#171322]">
+          <span class="max-w-50 truncate font-medium text-[#171322]">
             {{ classInfo?.classTitle || classId }}
           </span>
         </nav>
@@ -160,7 +165,10 @@ onMounted(() => {
         class="flex min-w-0 flex-col gap-4 px-5 pb-5 sm:px-6 lg:flex-row lg:items-end lg:justify-between lg:px-8"
       >
         <div class="min-w-0">
-          <div v-if="classLoading" class="h-8 w-48 animate-pulse rounded-lg bg-[#f3f1ec]" />
+          <div
+            v-if="classLoading"
+            class="h-8 w-48 animate-pulse rounded-lg bg-[#f3f1ec]"
+          />
           <template v-else-if="classInfo">
             <div class="flex min-w-0 flex-wrap items-center gap-2">
               <h1 class="text-2xl font-semibold text-[#171322] sm:text-3xl">
@@ -177,7 +185,9 @@ onMounted(() => {
                 {{ classInfo.isActive ? "Aktif" : "Nonaktif" }}
               </span>
             </div>
-            <div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[#6b7280]">
+            <div
+              class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[#6b7280]"
+            >
               <span class="flex items-center gap-1.5">
                 <PhBookOpen :size="15" weight="duotone" />
                 {{ classInfo.classCode }}
@@ -227,25 +237,33 @@ onMounted(() => {
     <section class="px-5 py-6 sm:px-6 lg:px-8">
       <!-- Stat cards -->
       <div v-if="classInfo" class="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <article class="rounded-xl border border-[#ebe7df] bg-white p-4 shadow-sm">
+        <article
+          class="rounded-xl border border-[#ebe7df] bg-white p-4 shadow-sm"
+        >
           <p class="text-xs font-medium text-[#6b7280]">Siswa</p>
           <p class="mt-2 text-2xl font-semibold text-[#171322]">
             {{ enrollmentsLoading ? "–" : students.length }}
           </p>
         </article>
-        <article class="rounded-xl border border-[#ebe7df] bg-white p-4 shadow-sm">
+        <article
+          class="rounded-xl border border-[#ebe7df] bg-white p-4 shadow-sm"
+        >
           <p class="text-xs font-medium text-[#6b7280]">Guru</p>
           <p class="mt-2 text-2xl font-semibold text-[#171322]">
             {{ enrollmentsLoading ? "–" : teachers.length }}
           </p>
         </article>
-        <article class="rounded-xl border border-[#ebe7df] bg-white p-4 shadow-sm">
+        <article
+          class="rounded-xl border border-[#ebe7df] bg-white p-4 shadow-sm"
+        >
           <p class="text-xs font-medium text-[#6b7280]">Ruang mengajar</p>
           <p class="mt-2 text-2xl font-semibold text-[#171322]">
             {{ subjectClassesLoading ? "–" : subjectClasses.length }}
           </p>
         </article>
-        <article class="rounded-xl border border-[#ebe7df] bg-white p-4 shadow-sm">
+        <article
+          class="rounded-xl border border-[#ebe7df] bg-white p-4 shadow-sm"
+        >
           <p class="text-xs font-medium text-[#6b7280]">Dibuat oleh</p>
           <p class="mt-2 truncate text-sm font-semibold text-[#171322]">
             {{ classInfo.creatorName || "–" }}
@@ -257,7 +275,9 @@ onMounted(() => {
       </div>
 
       <!-- Tab switcher -->
-      <div class="mt-6 flex gap-1 rounded-xl border border-[#ebe7df] bg-white p-1 shadow-sm w-fit">
+      <div
+        class="mt-6 flex gap-1 rounded-xl border border-[#ebe7df] bg-white p-1 shadow-sm w-fit"
+      >
         <button
           type="button"
           class="rounded-lg px-4 py-2 text-sm font-medium transition"
@@ -305,7 +325,9 @@ onMounted(() => {
       <!-- Tab: Anggota Kelas -->
       <template v-if="activeTab === 'members'">
         <div class="mt-4 rounded-xl border border-[#ebe7df] bg-white shadow-sm">
-          <div class="flex flex-col gap-4 border-b border-[#ebe7df] p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div
+            class="flex flex-col gap-4 border-b border-[#ebe7df] p-5 sm:flex-row sm:items-center sm:justify-between"
+          >
             <div>
               <p class="eyebrow-muted">Anggota kelas</p>
               <h2 class="mt-1 text-base font-semibold text-[#171322]">
@@ -328,15 +350,25 @@ onMounted(() => {
 
           <div class="p-5">
             <div v-if="enrollmentsLoading" class="space-y-3">
-              <div v-for="i in 4" :key="i" class="h-14 animate-pulse rounded-lg bg-[#fbfaf8]" />
+              <div
+                v-for="i in 4"
+                :key="i"
+                class="h-14 animate-pulse rounded-lg bg-[#fbfaf8]"
+              />
             </div>
 
             <div
               v-else-if="enrollmentsError"
               class="rounded-lg border border-[#fecaca] bg-[#fef2f2] p-5 text-center"
             >
-              <PhWarningCircle :size="26" class="mx-auto text-[#dc2626]" weight="duotone" />
-              <h3 class="mt-3 text-sm font-semibold text-[#171322]">Gagal memuat anggota</h3>
+              <PhWarningCircle
+                :size="26"
+                class="mx-auto text-[#dc2626]"
+                weight="duotone"
+              />
+              <h3 class="mt-3 text-sm font-semibold text-[#171322]">
+                Gagal memuat anggota
+              </h3>
               <p class="mt-2 text-sm text-[#6b7280]">{{ enrollmentsError }}</p>
               <button
                 type="button"
@@ -347,9 +379,17 @@ onMounted(() => {
               </button>
             </div>
 
-            <div v-else-if="enrollments.length === 0" class="rounded-lg bg-[#fbfaf8] px-5 py-8 text-center">
-              <PhStudent class="mx-auto h-7 w-7 text-[#9ca3af]" weight="duotone" />
-              <h3 class="mt-3 text-sm font-semibold text-[#171322]">Belum ada anggota</h3>
+            <div
+              v-else-if="enrollments.length === 0"
+              class="rounded-lg bg-[#fbfaf8] px-5 py-8 text-center"
+            >
+              <PhStudent
+                class="mx-auto h-7 w-7 text-[#9ca3af]"
+                weight="duotone"
+              />
+              <h3 class="mt-3 text-sm font-semibold text-[#171322]">
+                Belum ada anggota
+              </h3>
               <p class="mt-2 text-sm text-[#6b7280]">
                 Tambahkan siswa dan guru melalui halaman Penempatan Kelas.
               </p>
@@ -358,7 +398,9 @@ onMounted(() => {
             <template v-else>
               <!-- Siswa -->
               <section v-if="filteredStudents.length > 0" class="mb-6">
-                <h3 class="eyebrow-muted mb-3">Siswa ({{ filteredStudents.length }})</h3>
+                <h3 class="eyebrow-muted mb-3">
+                  Siswa ({{ filteredStudents.length }})
+                </h3>
                 <div class="divide-y divide-[#f3f4f6]">
                   <div
                     v-for="member in filteredStudents"
@@ -378,7 +420,9 @@ onMounted(() => {
                         {{ member.userEmail || "–" }}
                       </p>
                     </div>
-                    <span class="rounded-lg bg-[#eef2ff] px-2 py-1 text-[11px] font-medium text-[#4f46e5]">
+                    <span
+                      class="rounded-lg bg-[#eef2ff] px-2 py-1 text-[11px] font-medium text-[#4f46e5]"
+                    >
                       Siswa
                     </span>
                   </div>
@@ -387,7 +431,9 @@ onMounted(() => {
 
               <!-- Guru -->
               <section v-if="filteredTeachers.length > 0">
-                <h3 class="eyebrow-muted mb-3">Guru ({{ filteredTeachers.length }})</h3>
+                <h3 class="eyebrow-muted mb-3">
+                  Guru ({{ filteredTeachers.length }})
+                </h3>
                 <div class="divide-y divide-[#f3f4f6]">
                   <div
                     v-for="member in filteredTeachers"
@@ -407,7 +453,9 @@ onMounted(() => {
                         {{ member.userEmail || "–" }}
                       </p>
                     </div>
-                    <span class="rounded-lg bg-[#fff4ee] px-2 py-1 text-[11px] font-medium text-[#ea580c]">
+                    <span
+                      class="rounded-lg bg-[#fff4ee] px-2 py-1 text-[11px] font-medium text-[#ea580c]"
+                    >
                       Guru
                     </span>
                   </div>
@@ -415,10 +463,17 @@ onMounted(() => {
               </section>
 
               <div
-                v-if="memberSearch && filteredStudents.length === 0 && filteredTeachers.length === 0"
+                v-if="
+                  memberSearch &&
+                  filteredStudents.length === 0 &&
+                  filteredTeachers.length === 0
+                "
                 class="rounded-lg bg-[#fbfaf8] px-5 py-8 text-center"
               >
-                <PhMagnifyingGlass class="mx-auto h-7 w-7 text-[#9ca3af]" weight="duotone" />
+                <PhMagnifyingGlass
+                  class="mx-auto h-7 w-7 text-[#9ca3af]"
+                  weight="duotone"
+                />
                 <h3 class="mt-3 text-sm font-semibold text-[#171322]">
                   Tidak ada anggota yang cocok
                 </h3>
@@ -443,16 +498,28 @@ onMounted(() => {
 
           <div class="p-5">
             <div v-if="subjectClassesLoading" class="space-y-3">
-              <div v-for="i in 3" :key="i" class="h-16 animate-pulse rounded-lg bg-[#fbfaf8]" />
+              <div
+                v-for="i in 3"
+                :key="i"
+                class="h-16 animate-pulse rounded-lg bg-[#fbfaf8]"
+              />
             </div>
 
             <div
               v-else-if="subjectClassesError"
               class="rounded-lg border border-[#fecaca] bg-[#fef2f2] p-5 text-center"
             >
-              <PhWarningCircle :size="26" class="mx-auto text-[#dc2626]" weight="duotone" />
-              <h3 class="mt-3 text-sm font-semibold text-[#171322]">Gagal memuat penugasan</h3>
-              <p class="mt-2 text-sm text-[#6b7280]">{{ subjectClassesError }}</p>
+              <PhWarningCircle
+                :size="26"
+                class="mx-auto text-[#dc2626]"
+                weight="duotone"
+              />
+              <h3 class="mt-3 text-sm font-semibold text-[#171322]">
+                Gagal memuat penugasan
+              </h3>
+              <p class="mt-2 text-sm text-[#6b7280]">
+                {{ subjectClassesError }}
+              </p>
               <button
                 type="button"
                 class="mt-4 inline-flex items-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-4 py-2 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5]"
@@ -466,12 +533,16 @@ onMounted(() => {
               v-else-if="subjectClasses.length === 0"
               class="rounded-lg bg-[#fbfaf8] px-5 py-8 text-center"
             >
-              <PhChalkboardTeacher class="mx-auto h-7 w-7 text-[#9ca3af]" weight="duotone" />
+              <PhChalkboardTeacher
+                class="mx-auto h-7 w-7 text-[#9ca3af]"
+                weight="duotone"
+              />
               <h3 class="mt-3 text-sm font-semibold text-[#171322]">
                 Belum ada penugasan mengajar
               </h3>
               <p class="mt-2 text-sm text-[#6b7280]">
-                Hubungkan guru ke mata pelajaran melalui halaman Penugasan Mengajar.
+                Hubungkan guru ke mata pelajaran melalui halaman Penugasan
+                Mengajar.
               </p>
             </div>
 
@@ -485,7 +556,11 @@ onMounted(() => {
                   class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-white text-xs font-bold"
                   :style="{ backgroundColor: resolveSubjectColor(sc) }"
                 >
-                  {{ (sc.subjectCode || sc.subjectName || "?").slice(0, 2).toUpperCase() }}
+                  {{
+                    (sc.subjectCode || sc.subjectName || "?")
+                      .slice(0, 2)
+                      .toUpperCase()
+                  }}
                 </div>
                 <div class="min-w-0 flex-1">
                   <p class="truncate text-sm font-semibold text-[#171322]">

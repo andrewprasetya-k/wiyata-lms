@@ -132,7 +132,7 @@ function isInternalLink(link?: string | null) {
 
 <template>
   <article
-    class="min-w-0 rounded-xl border border-[#ebe7df] bg-white p-4 sm:p-5"
+    class="min-w-0 rounded-xl border border-[#ebe7df] bg-white p-4 sm:p-5 shadow-sm"
     aria-labelledby="academic-activity-title"
   >
     <div class="mb-4 flex min-w-0 items-start justify-between gap-3">

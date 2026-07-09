@@ -304,7 +304,7 @@ onMounted(async () => {
 
       <div class="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
         <section
-          class="order-2 min-w-0 rounded-xl border border-[#ebe7df] bg-white lg:order-1"
+          class="order-2 min-w-0 rounded-xl border border-[#ebe7df] bg-white shadow-sm lg:order-1"
         >
           <div
             class="flex flex-col gap-3 border-b border-[#ebe7df] p-5 sm:flex-row sm:items-start sm:justify-between"
@@ -593,7 +593,7 @@ onMounted(async () => {
 
         <aside class="order-1 min-w-0 lg:order-2">
           <div class="space-y-5 lg:sticky lg:top-6">
-            <section class="rounded-xl border border-[#ebe7df] bg-white p-5">
+            <section class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5">
               <div class="flex items-start justify-between gap-3">
                 <div>
                   <p
@@ -697,7 +697,7 @@ onMounted(async () => {
               </div>
             </section>
 
-            <section class="rounded-xl border border-[#ebe7df] bg-white p-5">
+            <section class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5">
               <div class="flex items-start justify-between gap-3">
                 <div>
                   <p
@@ -763,7 +763,7 @@ onMounted(async () => {
       <RouterLink
         v-if="classes.length > 0"
         to="/admin/enrollments"
-        class="mt-5 flex items-center justify-between gap-4 rounded-xl border border-[#ebe7df] bg-white p-5 transition hover:border-[#4f46e5] hover:shadow-sm"
+        class="mt-5 flex items-center justify-between gap-4 rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5 transition hover:border-[#4f46e5] hover:shadow-sm"
       >
         <div>
           <p class="eyebrow">

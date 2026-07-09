@@ -263,14 +263,14 @@ onMounted(loadDashboard);
               <div
                 v-for="i in 4"
                 :key="i"
-                class="h-28 animate-pulse rounded-xl border border-[#ebe7df] bg-white"
+                class="h-28 animate-pulse rounded-xl border border-[#ebe7df] bg-white shadow-sm"
               />
             </template>
             <template v-else>
               <article
                 v-for="card in statCards"
                 :key="card.label"
-                class="rounded-xl border border-[#ebe7df] bg-white p-4"
+                class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-4"
               >
                 <div
                   class="flex h-10 w-10 items-center justify-center rounded-xl"
@@ -289,7 +289,7 @@ onMounted(loadDashboard);
 
         <!-- SECTION 3 — Setup Progress -->
         <section
-          class="rounded-xl border border-[#ebe7df] bg-white p-5"
+          class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5"
           :class="{ 'animate-pulse': loading }"
         >
           <div class="mb-4 flex items-center justify-between gap-3">
@@ -384,7 +384,7 @@ onMounted(loadDashboard);
               v-for="action in quickActions"
               :key="action.label"
               :to="action.to"
-              class="group flex flex-col gap-3 rounded-xl border border-[#ebe7df] bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-md"
+              class="group flex flex-col gap-3 rounded-xl border border-[#ebe7df] bg-white shadow-sm p-4 transition hover:-translate-y-0.5 hover:shadow-md"
               :class="action.border"
             >
               <div
@@ -410,7 +410,7 @@ onMounted(loadDashboard);
         </section>
 
         <!-- SECTION 5 — Recent Activity -->
-        <section class="rounded-xl border border-[#ebe7df] bg-white p-5">
+        <section class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5">
           <div class="mb-4 flex items-center gap-2">
             <PhClockCountdown
               :size="17"
@@ -482,7 +482,7 @@ onMounted(loadDashboard);
         <LatestChatCard to="/admin/chat" :limit="5" />
 
         <!-- Enrollment distribution -->
-        <section class="rounded-xl border border-[#ebe7df] bg-white p-4">
+        <section class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-4">
           <h3 class="mb-3 text-sm font-semibold text-[#171322]">
             Distribusi Kelas
           </h3>
