@@ -38,8 +38,8 @@ const visibleActivities = computed(() => sortedActivities.value);
 
 const emptyMessage = computed(() =>
   props.role === "teacher"
-    ? "Tidak ada aktivitas mengajar yang perlu ditindaklanjuti minggu ini."
-    : "Tidak ada aktivitas akademik yang akan datang.",
+    ? "Tidak ada aktivitas mengajar yang perlu ditindaklanjuti minggu ini"
+    : "Tidak ada aktivitas akademik yang akan datang",
 );
 
 const activityRoute = computed(() =>
@@ -193,6 +193,13 @@ function isInternalLink(link?: string | null) {
         Aktivitas akan muncul saat ada tenggat, materi, pengumuman, atau
         pengumpulan yang relevan.
       </p>
+      <RouterLink
+        :to="activityRoute"
+        class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-[#ebe7df] bg-white px-3 py-2 text-xs font-medium text-[#4f46e5] transition hover:border-[#4f46e5] hover:bg-[#eef2ff]"
+      >
+        Lihat semua aktivitas
+        <PhArrowRight :size="13" />
+      </RouterLink>
     </div>
 
     <div v-else>

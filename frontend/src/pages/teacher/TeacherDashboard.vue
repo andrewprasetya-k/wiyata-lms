@@ -4,11 +4,9 @@ import { RouterLink } from "vue-router";
 import {
   PhArrowRight,
   PhBookOpen,
-  PhCalendarBlank,
   PhChartLineUp,
   PhChalkboardTeacher,
   PhClipboardText,
-  PhMegaphone,
   PhUsers,
   PhWarningCircle,
 } from "@phosphor-icons/vue";
@@ -42,7 +40,9 @@ const activeMembership = computed<MembershipInfo | undefined>(() => {
 
 const schoolUserId = computed(
   () =>
-    activeMembership.value?.schoolUserId ?? auth.defaultContext?.schoolUserId ?? "",
+    activeMembership.value?.schoolUserId ??
+    auth.defaultContext?.schoolUserId ??
+    "",
 );
 
 const teacherName = computed(() => auth.user?.fullName ?? "Guru");
@@ -98,37 +98,6 @@ const statCards = computed(() => [
   },
 ]);
 
-const quickActions = [
-  {
-    label: "Nilai Pengumpulan",
-    icon: PhClipboardText,
-    to: "/teacher/submissions",
-    color: "bg-[#fff7ed] text-[#ea580c]",
-    border: "hover:border-[#fed7aa]",
-  },
-  {
-    label: "Buat Tugas",
-    icon: PhCalendarBlank,
-    to: "/teacher/assignments",
-    color: "bg-[#f0fdf4] text-[#059669]",
-    border: "hover:border-[#bbf7d0]",
-  },
-  {
-    label: "Feed Kelas",
-    icon: PhMegaphone,
-    to: "/teacher/feed",
-    color: "bg-[#eef2ff] text-[#4f46e5]",
-    border: "hover:border-[#c7d2fe]",
-  },
-  {
-    label: "Ruang Mengajar",
-    icon: PhChalkboardTeacher,
-    to: "/teacher/subjects",
-    color: "bg-[#f3f1ec] text-[#6b7280]",
-    border: "hover:border-[#d1d5db]",
-  },
-];
-
 async function loadDashboard() {
   if (!schoolUserId.value) {
     summary.value = null;
@@ -180,11 +149,6 @@ onMounted(() => {
           class="flex min-w-0 flex-col gap-3 px-5 py-5 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8"
         >
           <div class="min-w-0">
-            <p
-              class="text-xs font-semibold uppercase tracking-[0.06em] text-[#9ca3af]"
-            >
-              Guru
-            </p>
             <h1 class="mt-1 text-2xl font-semibold text-[#171322] sm:text-3xl">
               Selamat mengajar, {{ firstName }}
             </h1>
@@ -252,10 +216,7 @@ onMounted(() => {
                     class="mt-1 shrink-0 text-[#d1d5db] transition group-hover:translate-x-0.5 group-hover:text-[#4f46e5]"
                   />
                 </div>
-                <p
-                  class="mt-3 text-2xl font-semibold"
-                  :class="card.colorValue"
-                >
+                <p class="mt-3 text-2xl font-semibold" :class="card.colorValue">
                   {{ card.value }}
                 </p>
                 <p class="mt-0.5 text-sm font-medium text-[#171322]">
@@ -323,7 +284,9 @@ onMounted(() => {
           </section>
 
           <!-- Class performance -->
-          <section class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5">
+          <section
+            class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5"
+          >
             <div class="mb-4 flex items-center justify-between gap-3">
               <div>
                 <h2 class="text-sm font-semibold text-[#171322]">
@@ -382,7 +345,9 @@ onMounted(() => {
                   </div>
                 </div>
 
-                <dl class="mt-4 grid grid-cols-3 gap-2 border-t border-[#ebe7df] pt-3 text-xs">
+                <dl
+                  class="mt-4 grid grid-cols-3 gap-2 border-t border-[#ebe7df] pt-3 text-xs"
+                >
                   <div>
                     <dt class="text-[#9ca3af]">Siswa</dt>
                     <dd class="mt-1 font-semibold text-[#171322]">
@@ -414,10 +379,7 @@ onMounted(() => {
               </article>
             </div>
 
-            <div
-              v-else
-              class="rounded-lg bg-[#fbfaf8] px-4 py-8 text-center"
-            >
+            <div v-else class="rounded-lg bg-[#fbfaf8] px-4 py-8 text-center">
               <PhChalkboardTeacher
                 class="mx-auto h-7 w-7 text-[#d1d5db]"
                 weight="duotone"
@@ -426,38 +388,15 @@ onMounted(() => {
                 Belum ada ringkasan kelas
               </p>
               <p class="mt-1 text-xs leading-5 text-[#6b7280]">
-                Ringkasan akan tampil setelah data kelas dan aktivitas belajar
-                tersedia.
+                Ringkasan akan tampil setelah kamu dihubungkan ke kelas aktif
+                dan siswa mulai beraktivitas.
               </p>
-            </div>
-          </section>
-
-          <!-- Quick Actions -->
-          <section>
-            <h2 class="mb-3 text-sm font-semibold text-[#171322]">
-              Aksi Cepat
-            </h2>
-            <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
               <RouterLink
-                v-for="action in quickActions"
-                :key="action.label"
-                :to="action.to"
-                class="group flex items-center gap-3 rounded-xl border border-[#ebe7df] bg-white shadow-sm p-3.5 transition hover:-translate-y-0.5 hover:shadow-sm"
-                :class="action.border"
+                to="/teacher/subjects"
+                class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-[#ebe7df] bg-white px-3 py-2 text-xs font-medium text-[#4f46e5] transition hover:border-[#4f46e5] hover:bg-[#eef2ff]"
               >
-                <div
-                  class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
-                  :class="action.color"
-                >
-                  <component :is="action.icon" :size="18" weight="duotone" />
-                </div>
-                <span class="min-w-0 flex-1 text-sm font-medium text-[#171322]">
-                  {{ action.label }}
-                </span>
-                <PhArrowRight
-                  :size="14"
-                  class="shrink-0 text-[#d1d5db] transition group-hover:translate-x-0.5 group-hover:text-[#4f46e5]"
-                />
+                Lihat mata pelajaran
+                <PhArrowRight :size="13" />
               </RouterLink>
             </div>
           </section>

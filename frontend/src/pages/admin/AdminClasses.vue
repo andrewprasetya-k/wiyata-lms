@@ -660,12 +660,16 @@ onMounted(async () => {
                 <p v-else-if="yearsError" class="text-[#dc2626]">
                   {{ yearsError }}
                 </p>
-                <p
-                  v-else-if="academicYears.length === 0"
-                  class="text-[#6b7280]"
-                >
-                  Belum ada tahun ajaran. Buat melalui Struktur Akademik.
-                </p>
+                <div v-else-if="academicYears.length === 0" class="space-y-2">
+                  <p class="text-[#6b7280]">Belum ada tahun ajaran.</p>
+                  <RouterLink
+                    to="/admin/academic-years"
+                    class="inline-flex items-center gap-1.5 rounded-lg border border-[#ebe7df] bg-white px-3 py-2 text-xs font-medium text-[#4f46e5] transition hover:border-[#4f46e5] hover:bg-[#eef2ff]"
+                  >
+                    Buka Struktur Akademik
+                    <PhArrowRight :size="13" />
+                  </RouterLink>
+                </div>
                 <p v-if="termsLoading" class="text-[#6b7280]">
                   Memuat semester...
                 </p>

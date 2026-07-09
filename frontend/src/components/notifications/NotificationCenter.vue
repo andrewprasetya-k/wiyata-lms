@@ -52,7 +52,7 @@ const subtitle = computed(() =>
 );
 
 const emptyTitle = computed(() =>
-  unreadOnly.value ? "Semua notifikasi sudah dibaca." : "Belum ada notifikasi.",
+  unreadOnly.value ? "Semua notifikasi sudah dibaca" : "Belum ada notifikasi",
 );
 
 const emptyDescription = computed(() =>
@@ -324,7 +324,7 @@ onMounted(() => {
           </div>
           <div>
             <h2 class="text-sm font-semibold text-[#171322]">
-              Notifikasi belum bisa dimuat.
+              Notifikasi belum bisa dimuat
             </h2>
             <p class="mt-1 text-sm leading-6 text-[#7a7385]">
               {{ error }}

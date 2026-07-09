@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { RouterLink, useRoute, useRouter } from "vue-router";
 import {
   PhArrowLeft,
+  PhArrowRight,
   PhBookOpen,
   PhCalendarBlank,
   PhChalkboardTeacher,
@@ -393,6 +394,13 @@ onMounted(() => {
               <p class="mt-2 text-sm text-[#6b7280]">
                 Tambahkan siswa dan guru melalui halaman Penempatan Kelas.
               </p>
+              <RouterLink
+                to="/admin/enrollments"
+                class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-[#ebe7df] bg-white px-3 py-2 text-xs font-medium text-[#4f46e5] transition hover:border-[#4f46e5] hover:bg-[#eef2ff]"
+              >
+                Buka Penempatan Kelas
+                <PhArrowRight :size="13" />
+              </RouterLink>
             </div>
 
             <template v-else>
@@ -544,6 +552,13 @@ onMounted(() => {
                 Hubungkan guru ke mata pelajaran melalui halaman Penugasan
                 Mengajar.
               </p>
+              <RouterLink
+                to="/admin/subject-classes"
+                class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-[#ebe7df] bg-white px-3 py-2 text-xs font-medium text-[#4f46e5] transition hover:border-[#4f46e5] hover:bg-[#eef2ff]"
+              >
+                Buka Penugasan Mengajar
+                <PhArrowRight :size="13" />
+              </RouterLink>
             </div>
 
             <div v-else class="divide-y divide-[#f3f4f6]">
