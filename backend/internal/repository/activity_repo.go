@@ -206,7 +206,7 @@ func (r *activityRepository) GetStudentFeedPosted(userID string, schoolID string
 			c.cls_id AS class_id,
 			COALESCE(c.cls_title, '') AS class_name,
 			COALESCE(c.cls_code, '') AS class_code,
-			CONCAT('/student/feed?post=', f.fds_id) AS link,
+			CONCAT('/student/feed', CHR(63), 'post=', f.fds_id) AS link,
 			f.fds_id AS feed_id
 		FROM edv.feeds f
 		JOIN edv.classes c ON c.cls_id = f.fds_cls_id
@@ -292,7 +292,7 @@ func (r *activityRepository) GetTeacherSubmissionReceived(userID string, schoolI
 			c.cls_id AS class_id,
 			COALESCE(c.cls_title, '') AS class_name,
 			COALESCE(c.cls_code, '') AS class_code,
-			CONCAT('/teacher/assignments/', a.asg_id, '/review?submission=', s.sbm_id) AS link,
+			CONCAT('/teacher/assignments/', a.asg_id, '/review', CHR(63), 'submission=', s.sbm_id) AS link,
 			a.asg_id AS assignment_id,
 			sc.scl_id AS subject_class_id,
 			s.sbm_id AS submission_id,
@@ -342,7 +342,7 @@ func (r *activityRepository) GetTeacherSubmissionPendingReview(userID string, sc
 			c.cls_id AS class_id,
 			COALESCE(c.cls_title, '') AS class_name,
 			COALESCE(c.cls_code, '') AS class_code,
-			CONCAT('/teacher/assignments/', a.asg_id, '/review?submission=', s.sbm_id) AS link,
+			CONCAT('/teacher/assignments/', a.asg_id, '/review', CHR(63), 'submission=', s.sbm_id) AS link,
 			a.asg_id AS assignment_id,
 			sc.scl_id AS subject_class_id,
 			s.sbm_id AS submission_id,
@@ -430,7 +430,7 @@ func (r *activityRepository) GetTeacherFeedComments(userID string, schoolID stri
 			c.cls_id AS class_id,
 			COALESCE(c.cls_title, '') AS class_name,
 			COALESCE(c.cls_code, '') AS class_code,
-			CONCAT('/teacher/feed?post=', f.fds_id) AS link,
+			CONCAT('/teacher/feed', CHR(63), 'post=', f.fds_id) AS link,
 			f.fds_id AS feed_id,
 			cmn.cmn_id AS comment_id
 		FROM edv.comments cmn
