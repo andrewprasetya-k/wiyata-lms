@@ -170,9 +170,6 @@ function getInitials(name?: string) {
           class="h-48 animate-pulse rounded-xl border border-[#ebe7df] bg-white"
         />
       </div>
-      <!-- <div
-        class="h-52 animate-pulse rounded-xl border border-[#ebe7df] bg-white"
-      /> -->
     </section>
 
     <section
