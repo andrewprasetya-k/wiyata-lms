@@ -3,7 +3,6 @@ import { computed, nextTick, onMounted, ref } from "vue";
 import { RouterLink, useRoute } from "vue-router";
 import {
   PhArrowLeft,
-  PhChatCircleText,
   PhMegaphone,
   PhPaperclip,
   PhWarningCircle,
@@ -96,7 +95,10 @@ async function scrollToLinkedPost() {
   if (el) {
     el.scrollIntoView({ behavior: "smooth", block: "center" });
     el.classList.add("ring-2", "ring-[#4f46e5]", "ring-offset-2");
-    setTimeout(() => el.classList.remove("ring-2", "ring-[#4f46e5]", "ring-offset-2"), 3000);
+    setTimeout(
+      () => el.classList.remove("ring-2", "ring-[#4f46e5]", "ring-offset-2"),
+      3000,
+    );
   }
 }
 
@@ -120,7 +122,7 @@ function getInitials(name?: string) {
 </script>
 
 <template>
-  <main class="min-h-screen min-w-0 flex-1 bg-[#f8f7f4]">
+  <main class="min-h-screen max--screen flex-1 bg-[#f8f7f4]">
     <header class="border-b border-[#ebe7df] bg-white">
       <div class="px-5 py-5 sm:px-6 lg:px-8">
         <div class="flex min-w-0 items-center gap-2 text-xs text-[#6b7280]">
@@ -144,7 +146,9 @@ function getInitials(name?: string) {
             <PhMegaphone :size="21" weight="duotone" />
           </div>
           <div class="min-w-0">
-            <h1 class="truncate text-2xl font-semibold text-[#171322] sm:text-3xl">
+            <h1
+              class="truncate text-2xl font-semibold text-[#171322] sm:text-3xl"
+            >
               Feed Kelas
             </h1>
             <p class="mt-2 max-w-3xl text-sm leading-6 text-[#6b7280]">
@@ -157,7 +161,7 @@ function getInitials(name?: string) {
 
     <section
       v-if="isLoading || activeClassStore.isLoading"
-      class="mx-auto grid max-w-6xl gap-4 px-5 py-5 sm:px-6 lg:grid-cols-[minmax(0,1fr)_280px] lg:px-8 lg:py-6"
+      class="mx-auto max-w-screen gap-4 px-5 py-5 sm:px-6 lg:grid-cols-[minmax(0,1fr)_280px] lg:px-8 lg:py-6"
     >
       <div class="space-y-3">
         <div
@@ -166,9 +170,9 @@ function getInitials(name?: string) {
           class="h-48 animate-pulse rounded-xl border border-[#ebe7df] bg-white"
         />
       </div>
-      <div
+      <!-- <div
         class="h-52 animate-pulse rounded-xl border border-[#ebe7df] bg-white"
-      />
+      /> -->
     </section>
 
     <section
@@ -205,7 +209,7 @@ function getInitials(name?: string) {
 
     <section
       v-else-if="activeClass"
-      class="mx-auto grid max-w-screen min-w-0 gap-4 px-5 py-5 sm:px-6 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-start lg:px-8 lg:py-6"
+      class="mx-auto max-w-screen min-w-0 gap-4 px-5 py-5 sm:px-6 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-start lg:px-8 lg:py-6"
     >
       <div class="min-w-0">
         <div
@@ -319,7 +323,7 @@ function getInitials(name?: string) {
         </div>
       </div>
 
-      <aside class="min-w-0 space-y-3 lg:sticky lg:top-6">
+      <!-- <aside class="min-w-0 space-y-3 lg:sticky lg:top-6">
         <article class="rounded-xl border border-[#ebe7df] bg-white p-4">
           <div class="flex items-center gap-2">
             <PhMegaphone :size="17" class="text-[#4f46e5]" weight="duotone" />
@@ -343,7 +347,7 @@ function getInitials(name?: string) {
           </dl>
         </article>
 
-        <article class="rounded-xl border border-[#dfe3ff] bg-[#eef2ff] p-4">
+      <article class="rounded-xl border border-[#dfe3ff] bg-[#eef2ff] p-4">
           <div class="flex items-start gap-3">
             <PhChatCircleText
               :size="19"
@@ -361,7 +365,7 @@ function getInitials(name?: string) {
             </div>
           </div>
         </article>
-      </aside>
+      </aside> -->
     </section>
 
     <section
