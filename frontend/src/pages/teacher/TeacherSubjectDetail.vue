@@ -209,7 +209,7 @@ onMounted(loadWorkspace);
             </div>
             <div class="min-w-0">
               <h1
-                class="truncate text-xl font-medium text-[#171322] sm:text-2xl"
+                class="truncate text-xl font-semibold text-[#171322] sm:text-2xl"
               >
                 {{
                   subject?.subjectName ??
@@ -261,7 +261,7 @@ onMounted(loadWorkspace);
         class="flex min-h-[55vh] items-center justify-center"
       >
         <article
-          class="w-full max-w-xl rounded-xl border border-[#fecaca] bg-white p-6"
+          class="w-full max-w-xl rounded-xl border border-[#fecaca] bg-[#fef2f2] p-6"
         >
           <div class="flex items-start gap-3">
             <div
@@ -270,7 +270,7 @@ onMounted(loadWorkspace);
               <PhWarningCircle :size="22" weight="duotone" />
             </div>
             <div class="min-w-0">
-              <h2 class="text-base font-medium text-[#171322]">
+              <h2 class="text-base font-semibold text-[#171322]">
                 Ruang kerja tidak dapat dimuat
               </h2>
               <p class="mt-1 text-sm leading-6 text-[#7a7385]">
@@ -312,46 +312,46 @@ onMounted(loadWorkspace);
 
       <template v-else>
         <section class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <article class="rounded-xl border border-[#ebe7df] bg-white p-4">
+          <article class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-4">
             <PhUsersThree :size="21" class="text-[#059669]" weight="duotone" />
             <p class="mt-3 text-xs text-[#7a7385]">Siswa</p>
-            <p class="mt-1 text-2xl font-medium text-[#171322]">
+            <p class="mt-1 text-2xl font-semibold text-[#171322]">
               {{ subject.studentCount }}
             </p>
           </article>
-          <article class="rounded-xl border border-[#ebe7df] bg-white p-4">
+          <article class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-4">
             <PhFileText :size="21" class="text-[#4f8ef7]" weight="duotone" />
             <p class="mt-3 text-xs text-[#7a7385]">Materi</p>
-            <p class="mt-1 text-2xl font-medium text-[#171322]">
+            <p class="mt-1 text-2xl font-semibold text-[#171322]">
               {{ subject.materialCount }}
             </p>
           </article>
-          <article class="rounded-xl border border-[#ebe7df] bg-white p-4">
+          <article class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-4">
             <PhClipboardText
               :size="21"
               class="text-[#4f46e5]"
               weight="duotone"
             />
             <p class="mt-3 text-xs text-[#7a7385]">Tugas</p>
-            <p class="mt-1 text-2xl font-medium text-[#171322]">
+            <p class="mt-1 text-2xl font-semibold text-[#171322]">
               {{ subject.assignmentCount }}
             </p>
           </article>
-          <article class="rounded-xl border border-[#ebe7df] bg-white p-4">
+          <article class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-4">
             <PhWarningCircle
               :size="21"
               class="text-[#ea580c]"
               weight="duotone"
             />
             <p class="mt-3 text-xs text-[#7a7385]">Perlu dinilai</p>
-            <p class="mt-1 text-2xl font-medium text-[#171322]">
+            <p class="mt-1 text-2xl font-semibold text-[#171322]">
               {{ subject.pendingSubmissions }}
             </p>
           </article>
         </section>
 
         <section
-          class="mt-5 min-w-0 rounded-xl border border-[#ebe7df] bg-white p-4 sm:p-5"
+          class="mt-5 min-w-0 rounded-xl border border-[#ebe7df] bg-white shadow-sm p-4 sm:p-5"
         >
           <div
             class="flex min-w-0 gap-1 overflow-x-auto border-b border-[#ebe7df]"
@@ -606,7 +606,7 @@ onMounted(loadWorkspace);
                 v-else-if="submissionsError"
                 class="rounded-lg border border-[#ebe7df] bg-white p-5"
               >
-                <h2 class="text-lg font-medium text-[#171322]">
+                <h2 class="text-lg font-semibold text-[#171322]">
                   Pengumpulan gagal dimuat
                 </h2>
                 <p class="mt-2 text-sm leading-6 text-[#6b6475]">
@@ -647,7 +647,7 @@ onMounted(loadWorkspace);
                     >
                       {{ group.assignment.categoryName || "Tugas" }}
                     </p>
-                    <h2 class="mt-2 text-lg font-medium text-[#171322]">
+                    <h2 class="mt-2 text-lg font-semibold text-[#171322]">
                       {{ group.assignment.assignmentTitle }}
                     </h2>
                     <p
@@ -698,7 +698,7 @@ onMounted(loadWorkspace);
                     class="flex flex-col gap-3 rounded-lg border border-[#ebe7df] bg-[#faf8f4] px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
                   >
                     <div class="min-w-0">
-                      <h3 class="truncate text-sm font-medium text-[#171322]">
+                      <h3 class="truncate text-sm font-semibold text-[#171322]">
                         {{ submission.studentName }}
                       </h3>
                       <p class="mt-1 text-xs text-[#6b6475]">

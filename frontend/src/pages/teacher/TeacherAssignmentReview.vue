@@ -235,7 +235,7 @@ onMounted(loadData);
 
       <section
         v-else-if="errorMessage"
-        class="mx-auto max-w-xl rounded-xl border border-[#fecaca] bg-white px-5 py-10 text-center"
+        class="mx-auto max-w-xl rounded-xl border border-[#fecaca] bg-[#fef2f2] px-5 py-10 text-center"
       >
         <div
           class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#fef2f2] text-[#dc2626]"

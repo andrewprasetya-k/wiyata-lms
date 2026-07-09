@@ -153,7 +153,7 @@ onMounted(loadAssignment);
 
       <section
         v-else-if="errorMessage"
-        class="mx-auto max-w-xl rounded-xl border border-[#fecaca] bg-white px-5 py-8 text-center"
+        class="mx-auto max-w-xl rounded-xl border border-[#fecaca] bg-[#fef2f2] px-5 py-8 text-center"
       >
         <PhWarningCircle
           :size="30"
@@ -205,7 +205,7 @@ onMounted(loadAssignment);
         class="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_300px]"
       >
         <div class="min-w-0 space-y-5">
-          <article class="rounded-xl border border-[#ebe7df] bg-white p-5 sm:p-6">
+          <article class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5 sm:p-6">
             <div class="flex flex-wrap items-center gap-2">
               <span
                 v-if="assignment.categoryName"
@@ -232,7 +232,7 @@ onMounted(loadAssignment);
             </div>
 
             <div class="mt-5 border-t border-[#f0ede8] pt-5">
-              <h2 class="text-sm font-medium text-[#171322]">
+              <h2 class="text-sm font-semibold text-[#171322]">
                 Instruksi tugas
               </h2>
               <p
@@ -247,10 +247,10 @@ onMounted(loadAssignment);
             </div>
           </article>
 
-          <article class="rounded-xl border border-[#ebe7df] bg-white p-5 sm:p-6">
+          <article class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5 sm:p-6">
             <div class="flex items-center gap-2">
               <PhPaperclip :size="18" class="text-[#4f46e5]" />
-              <h2 class="text-sm font-medium text-[#171322]">
+              <h2 class="text-sm font-semibold text-[#171322]">
                 Lampiran tugas
               </h2>
             </div>
@@ -274,8 +274,8 @@ onMounted(loadAssignment);
         </div>
 
         <aside class="min-w-0 lg:sticky lg:top-6">
-          <article class="rounded-xl border border-[#ebe7df] bg-white p-5">
-            <p class="text-sm font-medium text-[#171322]">Ringkasan tugas</p>
+          <article class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5">
+            <p class="text-sm font-semibold text-[#171322]">Ringkasan tugas</p>
             <dl
               class="mt-4 divide-y divide-[#f0ede8] rounded-lg bg-[#fbfaf8] px-3"
             >

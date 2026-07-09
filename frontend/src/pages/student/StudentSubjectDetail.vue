@@ -152,7 +152,7 @@ onMounted(loadSubject);
             aria-hidden="true"
           />
           <div class="min-w-0">
-            <h1 class="truncate text-xl font-medium text-[#171322] sm:text-2xl">
+            <h1 class="truncate text-xl font-semibold text-[#171322] sm:text-2xl">
               {{ subjectTitle }}
             </h1>
             <p
@@ -198,7 +198,7 @@ onMounted(loadSubject);
             <component :is="currentTab.icon" :size="19" weight="duotone" />
           </div>
           <div>
-            <h2 class="text-base font-medium text-[#171322]">
+            <h2 class="text-base font-semibold text-[#171322]">
               {{
                 activeTab === "materials"
                   ? "Materi pembelajaran"
@@ -233,7 +233,7 @@ onMounted(loadSubject);
 
           <article
             v-else-if="errorMessage"
-            class="rounded-xl border border-[#fecaca] bg-white p-5"
+            class="rounded-xl border border-[#fecaca] bg-[#fef2f2] p-5"
           >
             <div class="flex items-start gap-3">
               <PhWarningCircle
@@ -242,7 +242,7 @@ onMounted(loadSubject);
                 weight="duotone"
               />
               <div>
-                <p class="text-sm font-medium text-[#171322]">
+                <p class="text-sm font-semibold text-[#171322]">
                   Tidak bisa memuat materi
                 </p>
                 <p class="mt-1 text-sm leading-6 text-[#7a7385]">
@@ -309,7 +309,7 @@ onMounted(loadSubject);
 
               <div class="mt-4 min-w-0 flex-1">
                 <h3
-                  class="line-clamp-2 text-sm font-medium leading-5 text-[#171322]"
+                  class="line-clamp-2 text-sm font-semibold leading-5 text-[#171322]"
                 >
                   {{ material.materialTitle }}
                 </h3>
@@ -370,7 +370,7 @@ onMounted(loadSubject);
 
           <article
             v-else-if="errorMessage"
-            class="rounded-xl border border-[#fecaca] bg-white p-5"
+            class="rounded-xl border border-[#fecaca] bg-[#fef2f2] p-5"
           >
             <div class="flex items-start gap-3">
               <PhWarningCircle
@@ -379,7 +379,7 @@ onMounted(loadSubject);
                 weight="duotone"
               />
               <div>
-                <p class="text-sm font-medium text-[#171322]">
+                <p class="text-sm font-semibold text-[#171322]">
                   Tidak bisa memuat tugas
                 </p>
                 <p class="mt-1 text-sm leading-6 text-[#7a7385]">
@@ -442,7 +442,7 @@ onMounted(loadSubject);
 
                 <div class="min-w-0 flex-1">
                   <div class="flex flex-wrap items-center gap-2">
-                    <h3 class="text-sm font-medium text-[#171322]">
+                    <h3 class="text-sm font-semibold text-[#171322]">
                       {{ assignment.assignmentTitle }}
                     </h3>
                     <span
@@ -508,7 +508,7 @@ onMounted(loadSubject);
 
           <article
             v-else-if="notesError"
-            class="rounded-xl border border-[#fecaca] bg-white p-5"
+            class="rounded-xl border border-[#fecaca] bg-[#fef2f2] p-5"
           >
             <div class="flex items-start gap-3">
               <PhWarningCircle
@@ -517,7 +517,7 @@ onMounted(loadSubject);
                 weight="duotone"
               />
               <div>
-                <p class="text-sm font-medium text-[#171322]">
+                <p class="text-sm font-semibold text-[#171322]">
                   Tidak bisa memuat catatan
                 </p>
                 <p class="mt-1 text-sm leading-6 text-[#7a7385]">
@@ -555,7 +555,7 @@ onMounted(loadSubject);
             <article
               v-for="note in notes"
               :key="note.noteId"
-              class="flex min-w-0 flex-col rounded-xl border border-[#ebe7df] bg-white p-4"
+              class="flex min-w-0 flex-col rounded-xl border border-[#ebe7df] bg-white shadow-sm p-4"
             >
               <div class="flex min-w-0 items-start gap-3">
                 <div
@@ -564,7 +564,7 @@ onMounted(loadSubject);
                   <PhNotebook :size="18" weight="duotone" />
                 </div>
                 <div class="min-w-0">
-                  <h3 class="truncate text-sm font-medium text-[#171322]">
+                  <h3 class="truncate text-sm font-semibold text-[#171322]">
                     {{ note.materialTitle }}
                   </h3>
                   <p class="mt-0.5 text-[11px] text-[#9ca3af]">

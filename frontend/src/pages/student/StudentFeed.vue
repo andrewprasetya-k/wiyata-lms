@@ -162,7 +162,7 @@ function getInitials(name?: string) {
       class="flex min-h-[calc(100vh-109px)] items-center justify-center px-5 py-10"
     >
       <article
-        class="w-full max-w-xl rounded-xl border border-[#fecaca] bg-white p-6"
+        class="w-full max-w-xl rounded-xl border border-[#fecaca] bg-[#fef2f2] p-6"
       >
         <div class="flex items-start gap-3">
           <div

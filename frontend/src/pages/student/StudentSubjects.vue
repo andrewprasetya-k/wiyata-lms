@@ -163,7 +163,7 @@ onMounted(loadSubjects);
         class="flex min-h-[55vh] items-center justify-center"
       >
         <article
-          class="w-full max-w-xl rounded-xl border border-[#fecaca] bg-white p-6"
+          class="w-full max-w-xl rounded-xl border border-[#fecaca] bg-[#fef2f2] p-6"
         >
           <div class="flex items-start gap-3">
             <div

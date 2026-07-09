@@ -148,7 +148,7 @@ onMounted(loadInbox);
 
       <section
         v-else-if="errorMessage"
-        class="rounded-xl border border-[#fecaca] bg-white px-5 py-8 text-center"
+        class="rounded-xl border border-[#fecaca] bg-[#fef2f2] px-5 py-8 text-center"
       >
         <PhWarningCircle
           :size="30"

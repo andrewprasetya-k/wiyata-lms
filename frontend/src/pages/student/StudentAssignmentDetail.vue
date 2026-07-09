@@ -244,7 +244,7 @@ async function handleSubmit() {
       class="flex min-h-[calc(100vh-49px)] items-center justify-center px-5 py-10"
     >
       <article
-        class="w-full max-w-xl rounded-xl border border-[#fecaca] bg-white p-6"
+        class="w-full max-w-xl rounded-xl border border-[#fecaca] bg-[#fef2f2] p-6"
       >
         <div class="flex items-start gap-3">
           <div
@@ -253,7 +253,7 @@ async function handleSubmit() {
             <PhWarningCircle :size="22" weight="duotone" />
           </div>
           <div>
-            <h1 class="text-base font-medium text-[#171322]">
+            <h1 class="text-base font-semibold text-[#171322]">
               Tidak bisa memuat tugas
             </h1>
             <p class="mt-1 text-sm leading-6 text-[#7a7385]">
@@ -283,7 +283,7 @@ async function handleSubmit() {
         >
           <PhClipboardText :size="22" weight="duotone" />
         </div>
-        <h1 class="mt-4 text-base font-medium text-[#171322]">
+        <h1 class="mt-4 text-base font-semibold text-[#171322]">
           Tugas tidak ditemukan
         </h1>
         <p class="mt-1 text-sm leading-6 text-[#7a7385]">
@@ -304,7 +304,7 @@ async function handleSubmit() {
       class="mx-auto grid max-w-screen min-w-0 gap-5 px-5 py-5 sm:px-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:px-8 lg:py-6"
     >
       <div class="min-w-0 space-y-4">
-        <article class="rounded-xl border border-[#ebe7df] bg-white p-5 sm:p-6">
+        <article class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5 sm:p-6">
           <div class="flex min-w-0 items-start gap-4">
             <div
               class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
@@ -327,7 +327,7 @@ async function handleSubmit() {
                 </span>
               </div>
               <h1
-                class="mt-3 wrap-break-word text-xl font-medium leading-7 text-[#171322] sm:text-2xl"
+                class="mt-3 wrap-break-word text-xl font-semibold leading-7 text-[#171322] sm:text-2xl"
               >
                 {{ assignment.assignmentTitle }}
               </h1>
@@ -354,7 +354,7 @@ async function handleSubmit() {
           </div>
 
           <div class="mt-6 border-t border-[#f0ede8] pt-5">
-            <h2 class="text-sm font-medium text-[#171322]">Instruksi tugas</h2>
+            <h2 class="text-sm font-semibold text-[#171322]">Instruksi tugas</h2>
             <p
               v-if="assignment.assignmentDescription"
               class="mt-3 whitespace-pre-line wrap-break-word text-sm leading-7 text-[#4a4356]"
@@ -367,10 +367,10 @@ async function handleSubmit() {
           </div>
         </article>
 
-        <article class="rounded-xl border border-[#ebe7df] bg-white p-5 sm:p-6">
+        <article class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5 sm:p-6">
           <div class="flex items-center gap-2">
             <PhPaperclip :size="18" class="text-[#4f46e5]" />
-            <h2 class="text-sm font-medium text-[#171322]">
+            <h2 class="text-sm font-semibold text-[#171322]">
               Lampiran dari guru
             </h2>
           </div>
@@ -394,10 +394,10 @@ async function handleSubmit() {
       </div>
 
       <aside class="min-w-0 lg:sticky lg:top-6">
-        <article class="rounded-xl border border-[#ebe7df] bg-white p-5">
+        <article class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5">
           <div class="flex items-start justify-between gap-3">
             <div>
-              <p class="text-sm font-medium text-[#171322]">
+              <p class="text-sm font-semibold text-[#171322]">
                 Pengumpulan tugas
               </p>
             </div>
@@ -486,7 +486,7 @@ async function handleSubmit() {
                   weight="duotone"
                 />
                 <div>
-                  <p class="text-sm font-medium text-[#171322]">
+                  <p class="text-sm font-semibold text-[#171322]">
                     {{
                       submissionStatus.status === "graded"
                         ? "Tugas sudah dinilai"

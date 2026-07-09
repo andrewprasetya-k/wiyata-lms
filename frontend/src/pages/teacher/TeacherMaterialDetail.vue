@@ -138,7 +138,7 @@ onMounted(loadMaterial)
 
       <section
         v-else-if="errorMessage"
-        class="mx-auto max-w-xl rounded-xl border border-[#fecaca] bg-white px-5 py-8 text-center"
+        class="mx-auto max-w-xl rounded-xl border border-[#fecaca] bg-[#fef2f2] px-5 py-8 text-center"
       >
         <PhWarningCircle
           :size="30"
@@ -190,7 +190,7 @@ onMounted(loadMaterial)
         class="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_300px]"
       >
         <div class="min-w-0 space-y-5">
-          <article class="rounded-xl border border-[#ebe7df] bg-white p-5 sm:p-6">
+          <article class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5 sm:p-6">
             <p
               class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#9ca3af]"
             >
@@ -210,7 +210,7 @@ onMounted(loadMaterial)
             </div>
           </article>
 
-          <article class="rounded-xl border border-[#ebe7df] bg-white p-5 sm:p-6">
+          <article class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5 sm:p-6">
             <div class="flex items-center justify-between gap-3">
               <div>
                 <h2 class="text-base font-semibold text-[#171322]">Lampiran</h2>
@@ -239,7 +239,7 @@ onMounted(loadMaterial)
 
         <aside class="min-w-0">
           <div class="space-y-4 lg:sticky lg:top-6">
-            <article class="rounded-xl border border-[#ebe7df] bg-white p-5">
+            <article class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5">
               <h2 class="text-sm font-semibold text-[#171322]">
                 Informasi materi
               </h2>

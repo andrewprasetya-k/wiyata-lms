@@ -630,7 +630,7 @@ onMounted(() => {
 
         <section
           v-if="errorMessage"
-          class="rounded-xl border border-[#fecaca] bg-white p-5 sm:p-6"
+          class="rounded-xl border border-[#fecaca] bg-[#fef2f2] p-5 sm:p-6"
         >
           <div class="flex items-start gap-3">
             <div
