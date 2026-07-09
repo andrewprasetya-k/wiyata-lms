@@ -13,6 +13,7 @@ import {
 } from "../../services/feed";
 import type { FeedComment, FeedPost } from "../../types/feed";
 import { formatDateTime } from "../../utils/date";
+import { useConfirmStore } from "../../stores/confirm";
 
 const props = defineProps<{
   post: FeedPost;
@@ -36,6 +37,7 @@ type LocalFeedComment = FeedComment & {
 
 const comments = ref<LocalFeedComment[]>([]);
 const deletingCommentIds = ref<Set<string>>(new Set());
+const confirm = useConfirmStore();
 
 const visibleCommentCount = computed(
   () => props.post.commentCount ?? comments.value.length,
@@ -187,6 +189,14 @@ async function removeComment(comment: FeedComment) {
   if (!comment.isMine || deletingCommentIds.value.has(comment.commentId)) {
     return;
   }
+
+  const ok = await confirm.confirm({
+    title: "Hapus komentar?",
+    description: "Komentar ini akan dihapus permanen.",
+    confirmLabel: "Hapus",
+    variant: "danger",
+  });
+  if (!ok) return;
 
   deletingCommentIds.value = new Set([
     ...deletingCommentIds.value,

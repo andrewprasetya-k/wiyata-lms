@@ -18,10 +18,12 @@ import { deleteMaterial } from '../../services/teacherMaterial'
 import type { MaterialItem } from '../../types/classWorkspace'
 import { formatDateTime } from '../../utils/date'
 import { useToastStore } from '../../stores/toast'
+import { useConfirmStore } from '../../stores/confirm'
 
 const route = useRoute()
 const router = useRouter()
 const toast = useToastStore()
+const confirm = useConfirmStore()
 const subjectClassId = computed(() => String(route.params.subjectClassId ?? ''))
 const materialId = computed(() => String(route.params.matId ?? ''))
 const material = ref<MaterialItem | null>(null)
@@ -52,7 +54,13 @@ async function loadMaterial() {
 }
 
 async function handleDelete() {
-  if (!window.confirm('Apakah anda yakin ingin menghapus materi ini? Tindakan ini tidak dapat dibatalkan.')) return
+  const ok = await confirm.confirm({
+    title: 'Hapus materi?',
+    description: 'Tindakan ini tidak dapat dibatalkan.',
+    confirmLabel: 'Hapus',
+    variant: 'danger',
+  })
+  if (!ok) return
   isDeleting.value = true
   try {
     await deleteMaterial(materialId.value)

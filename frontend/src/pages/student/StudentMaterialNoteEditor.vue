@@ -20,6 +20,7 @@ import {
 } from "../../services/studentNotes";
 import { useActiveClassStore } from "../../stores/activeClass";
 import { useToastStore } from "../../stores/toast";
+import { useConfirmStore } from "../../stores/confirm";
 import type { MaterialItem } from "../../types/classWorkspace";
 import type { StudentMaterialNote } from "../../types/studentNotes";
 import { formatDateTime } from "../../utils/date";
@@ -27,6 +28,7 @@ import { formatDateTime } from "../../utils/date";
 const maxLength = 10000;
 const route = useRoute();
 const toast = useToastStore();
+const confirm = useConfirmStore();
 const activeClassStore = useActiveClassStore();
 const subjectClassId = computed(() => String(route.params.sclId ?? ""));
 const materialId = computed(() => String(route.params.matId ?? ""));
@@ -149,7 +151,13 @@ async function saveNote() {
 
 async function deleteNote() {
   if (!note.value || isDeleting.value) return;
-  if (!window.confirm("Hapus catatan pribadi untuk materi ini?")) return;
+  const ok = await confirm.confirm({
+    title: "Hapus catatan?",
+    description: "Catatan pribadi untuk materi ini akan dihapus permanen.",
+    confirmLabel: "Hapus",
+    variant: "danger",
+  });
+  if (!ok) return;
 
   isDeleting.value = true;
   errorMessage.value = "";

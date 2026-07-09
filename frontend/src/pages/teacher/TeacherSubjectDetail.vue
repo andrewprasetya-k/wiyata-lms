@@ -33,11 +33,13 @@ import type { TeacherSubjectClass } from "../../types/teacherSubjects";
 import { resolveSubjectColor } from "../../utils/color";
 import { formatDate, formatDateTime } from "../../utils/date";
 import { useToastStore } from "../../stores/toast";
+import { useConfirmStore } from "../../stores/confirm";
 
 type WorkspaceTab = "materials" | "assignments" | "submissions";
 
 const route = useRoute();
 const toast = useToastStore();
+const confirm = useConfirmStore();
 const subjectClassId = computed(() =>
   String(route.params.subjectClassId ?? ""),
 );
@@ -146,12 +148,13 @@ function materialTypeLabel(type?: string) {
 }
 
 async function handleDeleteAssignment(id: string) {
-  if (
-    !window.confirm(
-      "Apakah anda yakin ingin menghapus tugas ini? Tugas dengan pengumpulan siswa tidak bisa dihapus.",
-    )
-  )
-    return;
+  const ok = await confirm.confirm({
+    title: "Hapus tugas?",
+    description: "Tugas dengan pengumpulan siswa tidak bisa dihapus.",
+    confirmLabel: "Hapus",
+    variant: "danger",
+  });
+  if (!ok) return;
   deletingAssignmentId.value = id;
   try {
     await deleteAssignment(id);

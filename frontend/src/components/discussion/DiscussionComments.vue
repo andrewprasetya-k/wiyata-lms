@@ -13,6 +13,7 @@ import {
 } from "../../services/comments";
 import type { CommentItem } from "../../types/comment";
 import { formatDateTime } from "../../utils/date";
+import { useConfirmStore } from "../../stores/confirm";
 
 type DiscussionSourceType = "material" | "assignment";
 type LocalComment = CommentItem & {
@@ -47,6 +48,7 @@ const submitErrorMessage = ref("");
 const commentText = ref("");
 const pendingSubmitCount = ref(0);
 const deletingCommentIds = ref(new Set<string>());
+const confirm = useConfirmStore();
 let loadRequestId = 0;
 
 const canSubmit = computed(() => commentText.value.trim().length > 0);
@@ -202,6 +204,14 @@ async function removeComment(comment: CommentItem) {
   if (!comment.isMine || deletingCommentIds.value.has(comment.commentId)) {
     return;
   }
+
+  const ok = await confirm.confirm({
+    title: "Hapus komentar?",
+    description: "Komentar ini akan dihapus permanen.",
+    confirmLabel: "Hapus",
+    variant: "danger",
+  });
+  if (!ok) return;
 
   deletingCommentIds.value = new Set([
     ...deletingCommentIds.value,

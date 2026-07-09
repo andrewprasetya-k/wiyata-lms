@@ -40,6 +40,7 @@ import { deleteMedia, uploadMediaFile } from "../../services/media";
 import type { ChatSocketStatus } from "../../services/chatSocket";
 import { useAuthStore } from "../../stores/auth";
 import { useToastStore } from "../../stores/toast";
+import { useConfirmStore } from "../../stores/confirm";
 import type {
   ChatAttachment,
   ChatGroupInfo,
@@ -64,6 +65,7 @@ defineProps<{
 }>();
 
 const toast = useToastStore();
+const confirm = useConfirmStore();
 
 interface PendingAttachmentItem {
   id: string;
@@ -572,10 +574,13 @@ async function submitAddMembers() {
 
 async function leaveSelectedGroup() {
   if (!selectedRoom.value || !isCustomGroupRoom(selectedRoom.value)) return;
-  const confirmed = window.confirm(
-    `Keluar dari ${roomDisplayName(selectedRoom.value)}? Kamu tidak akan bisa mengakses pesan grup ini lagi.`,
-  );
-  if (!confirmed) return;
+  const ok = await confirm.confirm({
+    title: `Keluar dari ${roomDisplayName(selectedRoom.value)}?`,
+    description: "Kamu tidak akan bisa mengakses pesan grup ini lagi.",
+    confirmLabel: "Keluar",
+    variant: "warning",
+  });
+  if (!ok) return;
 
   const previousRoomID = selectedRoom.value.roomId;
   isLeavingGroup.value = true;
@@ -600,10 +605,13 @@ async function leaveSelectedGroup() {
 
 async function removeMember(member: ChatGroupMember) {
   if (!selectedRoom.value) return;
-  const confirmed = window.confirm(
-    `Keluarkan ${member.fullName || member.email} dari grup ini?`,
-  );
-  if (!confirmed) return;
+  const ok = await confirm.confirm({
+    title: `Keluarkan ${member.fullName || member.email}?`,
+    description: "Anggota ini akan dihapus dari grup chat.",
+    confirmLabel: "Keluarkan",
+    variant: "danger",
+  });
+  if (!ok) return;
 
   removingMemberId.value = member.userId;
   groupActionError.value = "";

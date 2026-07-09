@@ -16,6 +16,7 @@ import {
 import * as XLSX from "xlsx";
 import { useAuthStore } from "../../stores/auth";
 import { useToastStore } from "../../stores/toast";
+import { useConfirmStore } from "../../stores/confirm";
 import { getRoles, syncUserRoles } from "../../services/adminUser";
 import {
   createAdminSchoolMember,
@@ -47,6 +48,7 @@ import PaginationBar from "../../components/common/PaginationBar.vue";
 const allowedRoleNames = ["student", "teacher", "admin"];
 const auth = useAuthStore();
 const toast = useToastStore();
+const confirm = useConfirmStore();
 
 const currentSchool = computed(() => {
   const activeId = auth.activeSchoolId ?? auth.defaultContext?.schoolId ?? null;
@@ -623,10 +625,14 @@ async function submitManualMember() {
 }
 
 async function removeMember(member: AdminSchoolMemberItem) {
-  const confirmed = window.confirm(
-    "Akun global tidak akan dihapus. Warga ini hanya dikeluarkan dari sekolah aktif. Lanjutkan?",
-  );
-  if (!confirmed) return;
+  const ok = await confirm.confirm({
+    title: "Keluarkan warga sekolah?",
+    description:
+      "Akun global tidak akan dihapus. Warga ini hanya dikeluarkan dari sekolah aktif.",
+    confirmLabel: "Keluarkan",
+    variant: "danger",
+  });
+  if (!ok) return;
 
   removingSchoolUserId.value = member.schoolUserId;
   try {
