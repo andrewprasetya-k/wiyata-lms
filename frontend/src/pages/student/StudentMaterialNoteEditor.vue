@@ -225,7 +225,7 @@ onMounted(loadPage);
       class="soft-card mx-5 mt-5 max-w-3xl rounded-[22px] p-5 sm:mx-6 lg:mx-8"
     >
       <div
-        class="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-[#fef2f2] text-[#f2756a]"
+        class="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-[#fef2f2] text-[#f2756a]"
       >
         <PhWarningCircle :size="24" weight="duotone" />
       </div>
@@ -234,7 +234,7 @@ onMounted(loadPage);
       </p>
       <p class="mt-2 text-sm leading-6 text-[#7a7385]">{{ errorMessage }}</p>
       <button
-        class="mt-5 rounded-2xl bg-[#4f46e5] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+        class="mt-5 rounded-xl bg-[#4f46e5] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
         type="button"
         @click="loadPage"
       >

@@ -231,7 +231,7 @@ onMounted(loadDashboard);
         <!-- Error state -->
         <section
           v-if="errorMessage && !loading"
-          class="rounded-xl border border-[#fecaca] bg-white p-5"
+          class="rounded-xl border border-[#fecaca] bg-[#fef2f2] p-5"
         >
           <div class="flex items-start gap-3">
             <PhWarningCircle

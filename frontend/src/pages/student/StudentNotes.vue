@@ -30,9 +30,7 @@ const isLoading = ref(true);
 const errorMessage = ref("");
 
 const sortedNotes = computed(() =>
-  [...notes.value].sort(
-    (a, b) => getTime(b.updatedAt) - getTime(a.updatedAt),
-  ),
+  [...notes.value].sort((a, b) => getTime(b.updatedAt) - getTime(a.updatedAt)),
 );
 
 const selectedNote = computed(
@@ -120,7 +118,9 @@ onMounted(loadNotes);
 
 <template>
   <main class="min-h-screen min-w-0 flex-1 bg-[#f8f7f4]">
-    <header class="border-b border-[#ebe7df] bg-white px-5 py-4 sm:px-6 lg:px-8">
+    <header
+      class="border-b border-[#ebe7df] bg-white px-5 py-4 sm:px-6 lg:px-8"
+    >
       <div
         class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
       >
@@ -128,17 +128,12 @@ onMounted(loadNotes);
           <p class="text-xs font-medium uppercase tracking-wide text-[#9ca3af]">
             Ruang belajar pribadi
           </p>
-          <h1 class="mt-1 text-2xl font-medium text-[#171322]">
-            Catatan Saya
-          </h1>
+          <h1 class="mt-1 text-2xl font-medium text-[#171322]">Catatan Saya</h1>
           <p class="mt-1 text-sm leading-6 text-[#6b6475]">
             Baca kembali catatan materi yang masih tersedia di kelas aktifmu.
           </p>
         </div>
-        <p
-          v-if="!isLoading && !errorMessage"
-          class="text-xs text-[#9ca3af]"
-        >
+        <p v-if="!isLoading && !errorMessage" class="text-xs text-[#9ca3af]">
           {{ notes.length }} catatan tersimpan
         </p>
       </div>
@@ -205,7 +200,7 @@ onMounted(loadNotes);
         class="w-full max-w-xl rounded-[22px] border border-[#ebe7df] bg-white p-8 text-center"
       >
         <div
-          class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#eef2ff] text-[#4f46e5]"
+          class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
         >
           <PhNotebook :size="24" weight="duotone" />
         </div>
@@ -213,8 +208,8 @@ onMounted(loadNotes);
           Belum ada catatan
         </h2>
         <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#6b6475]">
-          Belum ada catatan. Buka materi dan tulis catatan untuk mulai
-          membangun ruang belajarmu.
+          Belum ada catatan. Buka materi dan tulis catatan untuk mulai membangun
+          ruang belajarmu.
         </p>
         <RouterLink
           class="mt-5 inline-flex items-center gap-2 rounded-lg bg-[#4f46e5] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
@@ -233,9 +228,7 @@ onMounted(loadNotes);
       <aside
         class="min-w-0 border-b border-[#ebe7df] bg-white lg:border-b-0 lg:border-r"
       >
-        <div
-          class="flex items-center justify-between border-b border-[#ebe7df] px-4 py-3"
-        >
+        <div class="flex items-center justify-between px-4 py-3">
           <p class="text-sm font-medium text-[#171322]">Semua catatan</p>
           <span class="text-xs text-[#9ca3af]">{{ notes.length }}</span>
         </div>
@@ -320,7 +313,9 @@ onMounted(loadNotes);
               >
                 {{ selectedNote.materialTitle }}
               </h2>
-              <p class="mt-2 inline-flex items-center gap-2 text-xs text-[#9ca3af]">
+              <p
+                class="mt-2 inline-flex items-center gap-2 text-xs text-[#9ca3af]"
+              >
                 <PhClock :size="14" />
                 Diperbarui {{ formatDateTime(selectedNote.updatedAt) }}
               </p>

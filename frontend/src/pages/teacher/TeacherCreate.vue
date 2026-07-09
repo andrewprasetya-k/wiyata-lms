@@ -95,7 +95,7 @@ onMounted(loadSubjects);
             </div>
           </div>
           <button
-            class="rounded-2xl bg-[#171322] px-4 py-3 text-sm font-medium text-white"
+            class="rounded-xl bg-[#171322] px-4 py-3 text-sm font-medium text-white"
             type="button"
             @click="loadSubjects"
           >
@@ -110,7 +110,7 @@ onMounted(loadSubjects);
       >
         <div class="flex items-start gap-3">
           <div
-            class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#eef2ff] text-[#4f46e5]"
+            class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
           >
             <PhChalkboardTeacher :size="24" weight="duotone" />
           </div>
@@ -134,7 +134,7 @@ onMounted(loadSubjects);
         >
           <div class="flex items-start justify-between gap-4">
             <div
-              class="flex h-13 w-13 items-center justify-center rounded-2xl text-white"
+              class="flex h-13 w-13 items-center justify-center rounded-xl text-white"
               :style="{
                 backgroundColor: resolveSubjectColor(subject),
               }"
@@ -168,7 +168,7 @@ onMounted(loadSubjects);
 
           <RouterLink
             :to="createContentTarget(subject.subjectClassId)"
-            class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#171322] px-4 py-3 text-sm font-medium text-white transition hover:bg-[#2f2b3a]"
+            class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#171322] px-4 py-3 text-sm font-medium text-white transition hover:bg-[#2f2b3a]"
           >
             <PhPlusCircle :size="18" weight="duotone" />
             Buat Konten

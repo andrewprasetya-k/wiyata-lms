@@ -19,7 +19,7 @@ function logout() {
       tujuan.
     </p>
     <RouterLink
-      class="mt-7 inline-flex h-11 items-center justify-center rounded-2xl bg-[#4f46e5] px-5 text-sm font-medium text-white"
+      class="mt-7 inline-flex h-11 items-center justify-center rounded-xl bg-[#4f46e5] px-5 text-sm font-medium text-white"
       to="/login"
       @click.prevent="logout"
     >

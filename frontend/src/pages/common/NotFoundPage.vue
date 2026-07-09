@@ -32,7 +32,7 @@ function goBack() {
 <template>
   <section class="soft-card w-full max-w-screen rounded-[28px] p-8 text-center">
     <div
-      class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#eef2ff] text-[#4f46e5]"
+      class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
     >
       <PhCompassTool :size="22" weight="duotone" />
     </div>
@@ -45,14 +45,14 @@ function goBack() {
     </p>
     <div class="mt-7 flex flex-col items-center justify-center gap-3">
       <RouterLink
-        class="inline-flex h-11 items-center justify-center rounded-2xl bg-[#4f46e5] px-5 text-sm font-medium text-white"
+        class="inline-flex h-11 items-center justify-center rounded-xl bg-[#4f46e5] px-5 text-sm font-medium text-white"
         :to="primaryTarget"
       >
         {{ primaryLabel }}
       </RouterLink>
       <button
         type="button"
-        class="inline-flex h-11 items-center justify-center rounded-2xl border border-[#ddd6cb] bg-white px-5 text-sm font-medium text-[#171322] transition hover:bg-[#f8f7f4]"
+        class="inline-flex h-11 items-center justify-center rounded-xl border border-[#ddd6cb] bg-white px-5 text-sm font-medium text-[#171322] transition hover:bg-[#f8f7f4]"
         @click="goBack"
       >
         Kembali ke halaman sebelumnya

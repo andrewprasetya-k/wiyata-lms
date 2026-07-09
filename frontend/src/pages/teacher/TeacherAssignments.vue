@@ -194,7 +194,7 @@ onMounted(loadAssignments);
               <PhWarningCircle :size="22" weight="duotone" />
             </div>
             <div class="min-w-0">
-              <h2 class="text-base font-medium text-[#171322]">
+              <h2 class="text-base font-semibold text-[#171322]">
                 Tugas tidak dapat dimuat
               </h2>
               <p class="mt-1 text-sm leading-6 text-[#7a7385]">
@@ -214,7 +214,7 @@ onMounted(loadAssignments);
 
       <template v-else>
         <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <article class="rounded-xl border border-[#ebe7df] bg-white p-4">
+          <article class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-4">
             <PhClipboardText
               :size="21"
               class="text-[#4f46e5]"
@@ -225,7 +225,7 @@ onMounted(loadAssignments);
               {{ summary.totalAssignments }}
             </p>
           </article>
-          <article class="rounded-xl border border-[#ebe7df] bg-white p-4">
+          <article class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-4">
             <PhCalendarBlank
               :size="21"
               class="text-[#059669]"
@@ -236,7 +236,7 @@ onMounted(loadAssignments);
               {{ summary.activeAssignments }}
             </p>
           </article>
-          <article class="rounded-xl border border-[#ebe7df] bg-white p-4">
+          <article class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-4">
             <PhWarningCircle
               :size="21"
               class="text-[#ea580c]"
@@ -247,7 +247,7 @@ onMounted(loadAssignments);
               {{ summary.pendingReviewCount }}
             </p>
           </article>
-          <article class="rounded-xl border border-[#ebe7df] bg-white p-4">
+          <article class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-4">
             <PhCheckCircle :size="21" class="text-[#4f8ef7]" weight="duotone" />
             <p class="mt-3 text-xs text-[#7a7385]">Total pengumpulan</p>
             <p class="mt-1 text-2xl font-medium text-[#171322]">
@@ -257,13 +257,13 @@ onMounted(loadAssignments);
         </section>
 
         <section
-          class="mt-5 min-w-0 rounded-xl border border-[#ebe7df] bg-white p-4 sm:p-5"
+          class="mt-5 min-w-0 rounded-xl border border-[#ebe7df] bg-white shadow-sm p-4 sm:p-5"
         >
           <div
             class="flex flex-col gap-4 border-b border-[#ebe7df] pb-4 lg:flex-row lg:items-end lg:justify-between"
           >
             <div class="min-w-0">
-              <h2 class="text-sm font-medium text-[#171322]">Daftar tugas</h2>
+              <h2 class="text-sm font-semibold text-[#171322]">Daftar tugas</h2>
               <p class="mt-1 text-xs text-[#7a7385] sm:text-sm">
                 {{ assignments.length }} tugas dari mata pelajaran yang Anda
                 ajar.

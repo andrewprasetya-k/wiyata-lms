@@ -195,7 +195,7 @@ onMounted(loadAssignments);
               <PhWarningCircle :size="22" weight="duotone" />
             </div>
             <div class="min-w-0">
-              <h2 class="text-base font-medium text-[#171322]">
+              <h2 class="text-base font-semibold text-[#171322]">
                 Tugas tidak dapat dimuat
               </h2>
               <p class="mt-1 text-sm leading-6 text-[#7a7385]">
@@ -215,7 +215,7 @@ onMounted(loadAssignments);
 
       <template v-else>
         <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-          <article class="rounded-xl border border-[#ebe7df] bg-white p-4">
+          <article class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-4">
             <PhClipboardText
               :size="22"
               class="text-[#4f46e5]"
@@ -226,28 +226,28 @@ onMounted(loadAssignments);
               {{ summary.totalAssignments }}
             </p>
           </article>
-          <article class="rounded-xl border border-[#ebe7df] bg-white p-4">
+          <article class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-4">
             <PhClock :size="22" class="text-[#ea580c]" weight="duotone" />
             <p class="mt-3 text-xs text-[#8b8592]">Belum dikumpulkan</p>
             <p class="mt-1 text-2xl font-medium text-[#b45309]">
               {{ summary.notSubmittedCount }}
             </p>
           </article>
-          <article class="rounded-xl border border-[#ebe7df] bg-white p-4">
+          <article class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-4">
             <PhCheckCircle :size="22" class="text-[#4f46e5]" weight="duotone" />
             <p class="mt-3 text-xs text-[#8b8592]">Sudah dikumpulkan</p>
             <p class="mt-1 text-2xl font-medium text-[#4f46e5]">
               {{ summary.submittedCount }}
             </p>
           </article>
-          <article class="rounded-xl border border-[#ebe7df] bg-white p-4">
+          <article class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-4">
             <PhSealCheck :size="22" class="text-[#059669]" weight="duotone" />
             <p class="mt-3 text-xs text-[#8b8592]">Sudah dinilai</p>
             <p class="mt-1 text-2xl font-medium text-[#027a48]">
               {{ summary.gradedCount }}
             </p>
           </article>
-          <article class="rounded-xl border border-[#ebe7df] bg-white p-4">
+          <article class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-4">
             <PhWarningCircle
               :size="22"
               class="text-[#dc2626]"
@@ -261,13 +261,13 @@ onMounted(loadAssignments);
         </section>
 
         <section
-          class="mt-5 min-w-0 rounded-xl border border-[#ebe7df] bg-white p-4 sm:p-5"
+          class="mt-5 min-w-0 rounded-xl border border-[#ebe7df] bg-white shadow-sm p-4 sm:p-5"
         >
           <div
             class="flex flex-col gap-4 border-b border-[#ebe7df] pb-4 lg:flex-row lg:items-end lg:justify-between"
           >
             <div class="min-w-0">
-              <p class="text-sm font-medium text-[#171322]">Daftar tugas</p>
+              <p class="text-sm font-semibold text-[#171322]">Daftar tugas</p>
               <p class="mt-1 text-sm text-[#7a7385]">
                 {{ items.length }} tugas dari kelas aktif di sekolah ini.
               </p>
@@ -349,7 +349,7 @@ onMounted(loadAssignments);
                     </span>
                   </div>
 
-                  <h2 class="mt-4 text-lg font-medium text-[#171322]">
+                  <h2 class="mt-4 text-lg font-semibold text-[#171322]">
                     {{ item.assignmentTitle }}
                   </h2>
                   <p class="mt-2 text-sm text-[#7a7385]">

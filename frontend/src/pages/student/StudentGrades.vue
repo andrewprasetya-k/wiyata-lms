@@ -204,7 +204,7 @@ onMounted(loadGrades);
               <PhWarningCircle :size="22" weight="duotone" />
             </div>
             <div>
-              <h2 class="text-base font-medium text-[#171322]">
+              <h2 class="text-base font-semibold text-[#171322]">
                 Nilai tidak dapat dimuat
               </h2>
               <p class="mt-1 text-sm leading-6 text-[#7a7385]">
@@ -299,13 +299,13 @@ onMounted(loadGrades);
             </p>
           </article>
           <article
-            class="rounded-xl border border-[#ebe7df] bg-white px-4 py-3"
+            class="rounded-xl border border-[#ebe7df] bg-white shadow-sm px-4 py-3"
           >
             <div class="flex items-center justify-between gap-3">
               <p class="text-xs text-[#7a7385]">Menunggu nilai</p>
               <PhClock :size="17" class="text-[#b45309]" weight="duotone" />
             </div>
-            <p class="mt-2 text-2xl font-medium text-[#b45309]">
+            <p class="mt-2 text-2xl font-semibold text-[#b45309]">
               {{ gradebook?.summary.pendingAssessmentCount ?? 0 }}
             </p>
           </article>
@@ -333,7 +333,7 @@ onMounted(loadGrades);
           <article
             v-for="subject in subjects"
             :key="subject.subjectClassId"
-            class="overflow-hidden rounded-xl border border-[#ebe7df] bg-white"
+            class="overflow-hidden rounded-xl border border-[#ebe7df] bg-white shadow-sm"
           >
             <header
               class="flex min-w-0 flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between"
@@ -351,7 +351,7 @@ onMounted(loadGrades);
                   aria-hidden="true"
                 />
                 <div class="min-w-0">
-                  <h2 class="truncate text-sm font-medium text-[#171322]">
+                  <h2 class="truncate text-sm font-semibold text-[#171322]">
                     {{ subject.subjectName || "Mata pelajaran" }}
                   </h2>
                   <p class="mt-0.5 text-[11px] text-[#7a7385]">

@@ -420,7 +420,7 @@ onMounted(loadInitialData);
                 ? 'bg-[#eef2ff] text-[#4f46e5]'
                 : 'text-[#6b7280]',
               !isEditMode && activeTab !== 'material'
-                ? 'cursor-pointer hover:bg-[#f3f1ec] hover:text-[#111827]'
+                ? 'cursor-pointer hover:bg-[#f3f1ec] hover:text-[#171322]'
                 : isEditMode && activeTab !== 'material'
                   ? 'cursor-not-allowed opacity-50'
                   : '',
@@ -439,7 +439,7 @@ onMounted(loadInitialData);
                 ? 'bg-[#eef2ff] text-[#4f46e5]'
                 : 'text-[#6b7280]',
               !isEditMode && activeTab !== 'assignment'
-                ? 'cursor-pointer hover:bg-[#f3f1ec] hover:text-[#111827]'
+                ? 'cursor-pointer hover:bg-[#f3f1ec] hover:text-[#171322]'
                 : isEditMode && activeTab !== 'assignment'
                   ? 'cursor-not-allowed opacity-50'
                   : '',

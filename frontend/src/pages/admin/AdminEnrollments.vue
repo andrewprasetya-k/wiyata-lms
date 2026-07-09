@@ -478,7 +478,7 @@ onMounted(async () => {
 
       <div class="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
         <section
-          class="order-2 min-w-0 rounded-xl border border-[#ebe7df] bg-white lg:order-1"
+          class="order-2 min-w-0 rounded-xl border border-[#ebe7df] bg-white shadow-sm lg:order-1"
         >
           <div
             class="flex flex-col gap-3 border-b border-[#ebe7df] p-5 sm:flex-row sm:items-start sm:justify-between"
@@ -633,7 +633,7 @@ onMounted(async () => {
                   </div>
                   <button
                     type="button"
-                    class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-[#fecaca] bg-white px-3 py-2 text-sm font-medium text-[#dc2626] transition hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-60"
+                    class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-[#fecaca] bg-[#fef2f2] px-3 py-2 text-sm font-medium text-[#dc2626] transition hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-60"
                     :disabled="Boolean(unenrollingId)"
                     @click="requestUnenroll(enrollment)"
                   >
@@ -666,7 +666,7 @@ onMounted(async () => {
                     </button>
                     <button
                       type="button"
-                      class="inline-flex items-center justify-center gap-2 rounded-lg border border-[#fecaca] bg-white px-3 py-2 text-sm font-medium text-[#dc2626] transition hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-60"
+                      class="inline-flex items-center justify-center gap-2 rounded-lg border border-[#fecaca] bg-[#fef2f2] px-3 py-2 text-sm font-medium text-[#dc2626] transition hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-60"
                       :disabled="unenrollingId === enrollment.enrollmentId"
                       @click="cancelUnenroll"
                     >
@@ -681,7 +681,7 @@ onMounted(async () => {
 
         <aside class="order-1 min-w-0 lg:order-2">
           <div class="space-y-5 lg:sticky lg:top-6">
-            <section class="rounded-xl border border-[#ebe7df] bg-white p-5">
+            <section class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5">
               <div class="flex items-start justify-between gap-3">
                 <div>
                   <p
@@ -805,7 +805,7 @@ onMounted(async () => {
               </div>
             </section>
 
-            <section class="rounded-xl border border-[#ebe7df] bg-white p-5">
+            <section class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5">
               <div class="flex items-start justify-between gap-3">
                 <div>
                   <p

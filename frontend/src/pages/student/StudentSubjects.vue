@@ -172,7 +172,7 @@ onMounted(loadSubjects);
               <PhWarningCircle :size="22" weight="duotone" />
             </div>
             <div class="min-w-0">
-              <h2 class="text-base font-medium text-[#171322]">
+              <h2 class="text-base font-semibold text-[#171322]">
                 Mata pelajaran tidak dapat dimuat
               </h2>
               <p class="mt-1 text-sm leading-6 text-[#7a7385]">
@@ -236,7 +236,7 @@ onMounted(loadSubjects);
       <section v-else>
         <div class="mb-4 flex min-w-0 items-end justify-between gap-3">
           <div class="min-w-0">
-            <h2 class="text-sm font-medium text-[#171322]">
+            <h2 class="text-sm font-semibold text-[#171322]">
               Daftar mata pelajaran
             </h2>
             <p class="mt-1 truncate text-xs text-[#7a7385] sm:text-sm">

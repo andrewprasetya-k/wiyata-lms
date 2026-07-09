@@ -242,7 +242,7 @@ onMounted(loadData);
         >
           <PhFile :size="24" weight="duotone" />
         </div>
-        <h2 class="mt-3 text-lg font-semibold text-[#111827]">
+        <h2 class="mt-3 text-lg font-semibold text-[#171322]">
           Tinjauan belum tersedia
         </h2>
         <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#6b7280]">
@@ -266,7 +266,7 @@ onMounted(loadData);
         >
           <PhUser :size="24" weight="duotone" />
         </div>
-        <h2 class="mt-3 text-lg font-semibold text-[#111827]">
+        <h2 class="mt-3 text-lg font-semibold text-[#171322]">
           Belum ada pengumpulan
         </h2>
         <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#6b7280]">
@@ -280,7 +280,7 @@ onMounted(loadData);
         class="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_340px]"
       >
         <div class="min-w-0 space-y-5">
-          <article class="rounded-xl border border-[#ebe7df] bg-white p-5">
+          <article class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5">
             <div
               class="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
             >
@@ -291,7 +291,7 @@ onMounted(loadData);
                   {{ currentSubmission.studentName?.charAt(0) }}
                 </div>
                 <div class="min-w-0">
-                  <h2 class="truncate text-base font-semibold text-[#111827]">
+                  <h2 class="truncate text-base font-semibold text-[#171322]">
                     {{ currentSubmission.studentName }}
                   </h2>
                   <p
@@ -327,7 +327,7 @@ onMounted(loadData);
             </div>
           </article>
 
-          <article class="rounded-xl border border-[#ebe7df] bg-white p-5 sm:p-6">
+          <article class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5 sm:p-6">
             <div
               class="flex flex-col gap-2 border-b border-[#f3f1ec] pb-4 sm:flex-row sm:items-center sm:justify-between"
             >
@@ -352,7 +352,7 @@ onMounted(loadData);
 
         <aside class="min-w-0">
           <div class="space-y-4 lg:sticky lg:top-6">
-            <section class="rounded-xl border border-[#ebe7df] bg-white p-5">
+            <section class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5">
               <div class="flex items-center justify-between gap-3">
                 <div>
                   <p
@@ -386,7 +386,7 @@ onMounted(loadData);
                     type="number"
                     min="0"
                     max="100"
-                    class="w-24 rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3 py-2.5 text-center text-2xl font-semibold text-[#111827] outline-none transition focus:border-[#4f46e5] focus:bg-white"
+                    class="w-24 rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3 py-2.5 text-center text-2xl font-semibold text-[#171322] outline-none transition focus:border-[#4f46e5] focus:bg-white"
                     placeholder="0"
                   />
                   <span class="mb-2.5 text-sm text-[#9ca3af]">/ 100</span>
@@ -430,7 +430,7 @@ onMounted(loadData);
               </button>
             </section>
 
-            <section class="rounded-xl border border-[#ebe7df] bg-white p-4">
+            <section class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-4">
               <div class="flex items-center justify-between gap-3 px-1">
                 <h2 class="text-sm font-semibold text-[#171322]">
                   Daftar siswa
@@ -500,7 +500,7 @@ onMounted(loadData);
         v-else
         class="mx-auto max-w-xl rounded-xl border border-[#ebe7df] bg-white px-5 py-10 text-center"
       >
-        <h2 class="text-lg font-semibold text-[#111827]">
+        <h2 class="text-lg font-semibold text-[#171322]">
           Pengumpulan belum dipilih
         </h2>
         <p class="mt-2 text-sm leading-6 text-[#6b7280]">

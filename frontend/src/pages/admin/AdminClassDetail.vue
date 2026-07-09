@@ -212,7 +212,7 @@ onMounted(() => {
           class="inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-60"
           :class="
             classInfo.isActive
-              ? 'border-[#fecaca] bg-white text-[#dc2626] hover:bg-[#fef2f2]'
+              ? 'border-[#fecaca] bg-[#fef2f2] text-[#dc2626] hover:bg-[#fef2f2]'
               : 'border-[#bbf7d0] bg-white text-[#059669] hover:bg-[#f0fdf4]'
           "
           :disabled="togglingActive"
