@@ -30,6 +30,7 @@ import type {
   EnrollmentMemberItem,
 } from "../../types/adminEnrollment";
 import { formatDateTime } from "../../utils/date";
+import InlineFormError from "../../components/common/InlineFormError.vue";
 import { useToastStore } from "../../stores/toast";
 import { getApiError } from "../../utils/error";
 
@@ -78,6 +79,7 @@ const termsError = ref("");
 const classesError = ref("");
 const membersError = ref("");
 const enrollmentsError = ref("");
+const enrollmentFormError = ref("");
 
 const selectedAcademicYear = computed(
   () =>
@@ -329,6 +331,7 @@ async function handleClassChange() {
 }
 
 async function submitEnrollment() {
+  enrollmentFormError.value = "";
   if (!currentSchool.value.schoolId || !currentSchool.value.schoolCode) {
     toast.error("Konteks sekolah aktif belum tersedia.");
     return;
@@ -338,7 +341,7 @@ async function submitEnrollment() {
     return;
   }
   if (selectedSchoolUserIds.value.length === 0) {
-    toast.error("Pilih minimal satu warga sekolah.");
+    enrollmentFormError.value = "Pilih minimal satu warga sekolah.";
     return;
   }
   const grouped = selectedMembers.value.reduce(
@@ -357,7 +360,7 @@ async function submitEnrollment() {
     }));
 
   if (requests.length === 0) {
-    toast.error("Pilih warga sekolah dengan peran Siswa atau Guru.");
+    enrollmentFormError.value = "Pilih warga sekolah dengan peran Siswa atau Guru.";
     return;
   }
 
@@ -935,6 +938,7 @@ onMounted(async () => {
                 </div>
               </div>
 
+              <InlineFormError :message="enrollmentFormError" class="mt-3" />
               <button
                 type="button"
                 class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#ea580c] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#c2410c] disabled:cursor-not-allowed disabled:opacity-60"

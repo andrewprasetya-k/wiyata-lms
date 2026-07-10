@@ -25,6 +25,7 @@ import { useAuthStore } from "../../stores/auth";
 import { useToastStore } from "../../stores/toast";
 import { formatDateTime } from "../../utils/date";
 import { getApiError } from "../../utils/error";
+import InlineFormError from "../../components/common/InlineFormError.vue";
 
 interface TeacherFeedClass {
   classId: string;
@@ -53,6 +54,7 @@ const submitting = ref(false);
 const classesError = ref("");
 const feedError = ref("");
 const feedAccessMessage = ref("");
+const composeFormError = ref("");
 
 const activeSchoolId = computed(
   () => auth.activeSchoolId ?? auth.defaultContext?.schoolId ?? "",
@@ -159,6 +161,7 @@ async function loadFeed() {
 }
 
 async function submitFeed() {
+  composeFormError.value = "";
   if (!activeSchoolId.value) {
     toast.error("Konteks sekolah aktif belum tersedia.");
     return;
@@ -168,7 +171,7 @@ async function submitFeed() {
     return;
   }
   if (!content.value.trim()) {
-    toast.error("Isi pengumuman wajib diisi.");
+    composeFormError.value = "Isi pengumuman wajib diisi.";
     return;
   }
 
@@ -453,6 +456,7 @@ function updatePostCommentCount(feedId: string, count: number) {
                 Pengumuman ini akan terlihat oleh siswa aktif di kelas.
               </span>
             </p>
+            <InlineFormError :message="composeFormError" class="mt-2" />
             <button
               class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:opacity-60"
               type="button"

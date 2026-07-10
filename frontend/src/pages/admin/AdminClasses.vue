@@ -27,6 +27,7 @@ import {
 import type { AcademicYearItem, TermItem } from "../../types/adminAcademic";
 import type { AdminClassItem } from "../../types/adminClass";
 import { formatDateTime } from "../../utils/date";
+import InlineFormError from "../../components/common/InlineFormError.vue";
 
 const auth = useAuthStore();
 const toast = useToastStore();
@@ -60,6 +61,7 @@ const yearsError = ref("");
 const termsError = ref("");
 const classesError = ref("");
 const isCreating = ref(false);
+const classFormError = ref("");
 
 const classForm = ref({
   classCode: "",
@@ -70,6 +72,7 @@ const classForm = ref({
 const editingClassId = ref<string | null>(null);
 const editForm = ref({ classTitle: "", classDesc: "" });
 const isSavingEdit = ref(false);
+const editFormError = ref("");
 const togglingClassId = ref<string | null>(null);
 
 const selectedAcademicYear = computed(
@@ -163,6 +166,7 @@ async function handleTermChange() {
 }
 
 async function submitClass() {
+  classFormError.value = "";
   if (!currentSchool.value.schoolId || !currentSchool.value.schoolCode) {
     toast.error("Konteks sekolah aktif belum tersedia.");
     return;
@@ -172,7 +176,7 @@ async function submitClass() {
     return;
   }
   if (!classForm.value.classCode.trim() || !classForm.value.classTitle.trim()) {
-    toast.error("Kode dan nama kelas wajib diisi.");
+    classFormError.value = "Kode dan nama kelas wajib diisi.";
     return;
   }
 
@@ -201,16 +205,19 @@ function startEdit(classItem: AdminClassItem) {
     classTitle: classItem.classTitle,
     classDesc: classItem.classDesc,
   };
+  editFormError.value = "";
 }
 
 function cancelEdit() {
   editingClassId.value = null;
   editForm.value = { classTitle: "", classDesc: "" };
+  editFormError.value = "";
 }
 
 async function submitEdit(classItem: AdminClassItem) {
+  editFormError.value = "";
   if (!editForm.value.classTitle.trim()) {
-    toast.error("Nama kelas wajib diisi.");
+    editFormError.value = "Nama kelas wajib diisi.";
     return;
   }
   isSavingEdit.value = true;
@@ -441,6 +448,7 @@ onMounted(async () => {
                         class="mt-1.5 w-full resize-none rounded-lg border border-border bg-[#fbfaf8] px-3 py-2 text-sm leading-6 text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-brand focus:bg-white"
                       />
                     </label>
+                    <InlineFormError :message="editFormError" />
                     <div class="flex gap-2">
                       <button
                         type="button"
@@ -748,6 +756,7 @@ onMounted(async () => {
                     class="mt-2 w-full resize-none rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm leading-6 text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-brand focus:bg-white"
                   />
                 </label>
+                <InlineFormError :message="classFormError" />
                 <button
                   type="submit"
                   class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#ea580c] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#c2410c] disabled:cursor-not-allowed disabled:opacity-60"

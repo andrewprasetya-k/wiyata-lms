@@ -8,8 +8,10 @@ import (
 	"backend/internal/service"
 	"backend/internal/storage"
 	"fmt"
+	"log/slog"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -165,8 +167,22 @@ func main() {
 	// Initialize RBAC middleware
 	middleware.InitRBAC(rbacRepo)
 
+	// Shared per-tenant rate limiter: 20 req/s sustained, burst of 40, keyed
+	// by SchoolId header (falls back to client IP when no school context is
+	// available yet, e.g. login/register). See internal/middleware/rate_limit.go.
+	rateLimiterStore := middleware.NewInMemoryRateLimiterStore(20, 40, 10*time.Minute)
+
+	requestLogger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+
 	//router setup
-	r := gin.Default()
+	// gin.New() + Recovery() + RequestID() + StructuredLogger() replaces
+	// gin.Default()'s plain-text access log with structured (slog) request
+	// logging tagged with a request id (see internal/middleware/logging.go
+	// and request_id.go).
+	r := gin.New()
+	r.Use(gin.Recovery())
+	r.Use(middleware.RequestID())
+	r.Use(middleware.StructuredLogger(requestLogger))
 	r.Use(corsMiddleware())
 
 	r.GET("/ping", func(c *gin.Context) {
@@ -178,16 +194,25 @@ func main() {
 	api := r.Group("/api")
 	{
 		//public routes
-		api.POST("/login", authHandler.Login)
-		api.POST("/register", authHandler.Register)
-		api.POST("/school-registration-requests", schoolRegistrationRequestHandler.Create)
+		// Rate-limited by IP (no school context exists yet at this point) —
+		// these are classic brute-force/spam targets (login, registration).
+		api.POST("/login", middleware.RateLimitPerTenant(rateLimiterStore), authHandler.Login)
+		api.POST("/register", middleware.RateLimitPerTenant(rateLimiterStore), authHandler.Register)
+		api.POST("/school-registration-requests", middleware.RateLimitPerTenant(rateLimiterStore), schoolRegistrationRequestHandler.Create)
+		// Not rate-limited: token-gated (guessing is already infeasible given
+		// token length/hashing), low-frequency by nature.
 		api.GET("/invitations/:token", invitationHandler.GetMetadata)
 		api.POST("/invitations/:token/accept", invitationHandler.Accept)
+		// Not rate-limited: long-lived SSE/WebSocket connections — a
+		// per-request limiter does not apply meaningfully to a single
+		// persistent connection, and throttling the handshake would drop
+		// legitimate reconnects during network blips.
 		api.GET("/events/sidebar", sidebarStreamHandler.Stream)
 		api.GET("/ws/chat", chatWebSocketHandler.Chat)
 
 		//protected routes
 		api.Use(middleware.AuthRequired())
+		api.Use(middleware.RateLimitPerTenant(rateLimiterStore))
 
 		meAPI := api.Group("/me")
 		{

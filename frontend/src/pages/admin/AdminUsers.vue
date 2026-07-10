@@ -49,6 +49,7 @@ import {
   isExcelFile,
 } from "../../utils/schoolMemberImportFile";
 import PaginationBar from "../../components/common/PaginationBar.vue";
+import InlineFormError from "../../components/common/InlineFormError.vue";
 
 const allowedRoleNames = ["student", "teacher", "admin"];
 const auth = useAuthStore();
@@ -92,6 +93,7 @@ const removingSchoolUserId = ref("");
 const membersError = ref("");
 const rolesError = ref("");
 const importError = ref("");
+const memberFormError = ref("");
 
 const memberSearch = ref("");
 const memberEntryMode = ref<"invite" | "direct">("invite");
@@ -324,6 +326,7 @@ const inviteLink = computed(() => {
 
 function setMemberEntryMode(mode: "invite" | "direct") {
   memberEntryMode.value = mode;
+  memberFormError.value = "";
 }
 
 function resetInviteForm() {
@@ -346,12 +349,13 @@ async function submitInviteMember() {
         : undefined,
   };
 
+  memberFormError.value = "";
   if (!payload.fullName || !payload.email || !payload.role) {
-    toast.error("Nama, email, dan peran wajib diisi.");
+    memberFormError.value = "Nama, email, dan peran wajib diisi.";
     return;
   }
   if (payload.role === "student" && !payload.classCode) {
-    toast.error("Kode kelas wajib diisi untuk undangan siswa.");
+    memberFormError.value = "Kode kelas wajib diisi untuk undangan siswa.";
     return;
   }
 
@@ -408,21 +412,21 @@ async function handleImportFileChange(event: Event) {
 }
 
 async function submitImportCommit() {
+  importError.value = "";
   if (!importPreview.value || importPreview.value.rows.length === 0) {
-    toast.error("Preview import belum tersedia.");
+    importError.value = "Preview import belum tersedia.";
     return;
   }
   if (importPreview.value.invalidCount > 0) {
-    toast.error("Perbaiki baris yang tidak valid sebelum import.");
+    importError.value = "Perbaiki baris yang tidak valid sebelum import.";
     return;
   }
   if (!importDefaultPassword.value.trim()) {
-    toast.error("Password awal wajib diisi.");
+    importError.value = "Password awal wajib diisi.";
     return;
   }
 
   importCommitLoading.value = true;
-  importError.value = "";
   importResult.value = null;
   try {
     importResult.value = await commitSchoolMemberImport({
@@ -471,13 +475,14 @@ async function submitManualMember() {
         ? manualForm.value.classCode?.trim() || undefined
         : undefined,
   };
+  memberFormError.value = "";
   if (
     !payload.fullName ||
     !payload.email ||
     !payload.password ||
     !payload.role
   ) {
-    toast.error("Nama, email, password awal, dan peran wajib diisi.");
+    memberFormError.value = "Nama, email, password awal, dan peran wajib diisi.";
     return;
   }
 
@@ -897,6 +902,7 @@ onMounted(async () => {
                 sendiri. Jika email tidak terkirim, gunakan link manual setelah
                 undangan dibuat.
               </p>
+              <InlineFormError :message="memberFormError" />
               <button
                 type="submit"
                 class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#ea580c] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#c2410c] disabled:cursor-not-allowed disabled:opacity-60"
@@ -995,6 +1001,7 @@ onMounted(async () => {
                 memakai password yang sudah ada. Password tidak dikirim melalui
                 email.
               </p>
+              <InlineFormError :message="memberFormError" />
               <button
                 type="submit"
                 class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#ea580c] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#c2410c] disabled:cursor-not-allowed disabled:opacity-60"

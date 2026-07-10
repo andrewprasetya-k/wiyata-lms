@@ -35,6 +35,7 @@ import {
   toColorPickerValue,
 } from "../../utils/color";
 import { getApiError } from "../../utils/error";
+import InlineFormError from "../../components/common/InlineFormError.vue";
 import {
   PhArrowRight,
   PhBookOpen,
@@ -87,6 +88,10 @@ const categoriesError = ref("");
 const weightsLoading = ref(false);
 const weightsError = ref("");
 const weightsInfoMessage = ref("");
+const academicYearFormError = ref("");
+const termFormError = ref("");
+const subjectFormError = ref("");
+const categoryFormError = ref("");
 const activeAction = ref("");
 const activeTab = ref<'periode' | 'mapel'>('periode');
 const mapelLoaded = ref(false);
@@ -316,12 +321,13 @@ async function switchTab(tab: 'periode' | 'mapel') {
 }
 
 async function submitAcademicYear() {
+  academicYearFormError.value = "";
   if (!currentSchool.value.schoolId) {
     toast.error("Konteks sekolah aktif belum tersedia.");
     return;
   }
   if (!academicYearForm.value.academicYearName.trim()) {
-    toast.error("Nama tahun ajaran wajib diisi.");
+    academicYearFormError.value = "Nama tahun ajaran wajib diisi.";
     return;
   }
 
@@ -364,12 +370,13 @@ async function toggleAcademicYear(year: AcademicYearItem) {
 }
 
 async function submitTerm() {
+  termFormError.value = "";
   if (!selectedAcademicYearId.value) {
     toast.error("Pilih tahun ajaran terlebih dahulu.");
     return;
   }
   if (!termForm.value.termName.trim()) {
-    toast.error("Nama semester wajib diisi.");
+    termFormError.value = "Nama semester wajib diisi.";
     return;
   }
 
@@ -410,6 +417,7 @@ async function toggleTerm(term: TermItem) {
 }
 
 async function submitSubject() {
+  subjectFormError.value = "";
   if (!currentSchool.value.schoolId) {
     toast.error("Konteks sekolah aktif belum tersedia.");
     return;
@@ -418,12 +426,12 @@ async function submitSubject() {
     !subjectForm.value.subjectName.trim() ||
     !subjectForm.value.subjectCode.trim()
   ) {
-    toast.error("Nama dan kode mata pelajaran wajib diisi.");
+    subjectFormError.value = "Nama dan kode mata pelajaran wajib diisi.";
     return;
   }
   const color = normalizeSubjectColor(subjectForm.value.color);
   if (color && !isValidSubjectColor(color)) {
-    toast.error("Warna mata pelajaran harus berupa hex, contoh #4f46e5.");
+    subjectFormError.value = "Warna mata pelajaran harus berupa hex, contoh #4f46e5.";
     return;
   }
 
@@ -472,12 +480,13 @@ function resetSubjectForm() {
 }
 
 async function submitCategory() {
+  categoryFormError.value = "";
   if (!currentSchool.value.schoolId) {
     toast.error("Konteks sekolah aktif belum tersedia.");
     return;
   }
   if (!categoryForm.value.categoryName.trim()) {
-    toast.error("Nama kategori wajib diisi.");
+    categoryFormError.value = "Nama kategori wajib diisi.";
     return;
   }
 
@@ -699,6 +708,7 @@ watch(selectedWeightSubjectId, () => {
               Tambah
             </button>
           </form>
+          <InlineFormError :message="academicYearFormError" class="mt-2" />
 
           <div class="mt-5 space-y-3">
             <div v-if="academicYearsLoading" class="space-y-3">
@@ -827,6 +837,7 @@ watch(selectedWeightSubjectId, () => {
               Tambah
             </button>
           </form>
+          <InlineFormError :message="termFormError" class="mt-2" />
 
           <div class="mt-5 space-y-3">
             <div v-if="termsLoading" class="space-y-3">
@@ -1022,6 +1033,7 @@ watch(selectedWeightSubjectId, () => {
               Batalkan edit
             </button>
           </form>
+          <InlineFormError :message="subjectFormError" class="mt-2" />
 
           <div class="mt-5 space-y-3">
             <div v-if="subjectsLoading" class="space-y-3">
@@ -1130,6 +1142,7 @@ watch(selectedWeightSubjectId, () => {
               Tambah
             </button>
           </form>
+          <InlineFormError :message="categoryFormError" class="mt-2" />
 
           <div class="mt-5 space-y-3">
             <div v-if="categoriesLoading" class="space-y-3">

@@ -12,6 +12,7 @@ import {
   PhUser,
 } from "@phosphor-icons/vue";
 import AttachmentPreviewList from "../../components/common/AttachmentPreviewList.vue";
+import InlineFormError from "../../components/common/InlineFormError.vue";
 import {
   getAssignmentDetailWithSubmissions,
   assessSubmission,
@@ -33,6 +34,7 @@ const submissions = ref<TeacherSubmission[]>([]);
 const loading = ref(false);
 const submitting = ref(false);
 const errorMessage = ref("");
+const gradeFormError = ref("");
 const activeIndex = ref(0);
 
 const currentSubmission = computed<TeacherSubmission | null>(
@@ -78,6 +80,7 @@ function getLoadErrorMessage(error: unknown) {
 }
 
 function updateGradingForm() {
+  gradeFormError.value = "";
   if (currentSubmission.value?.assessment) {
     score.value = currentSubmission.value.assessment.score;
     feedback.value = currentSubmission.value.assessment.feedback;
@@ -109,8 +112,9 @@ function patchCurrentSubmissionAssessment(scoreValue: number, feedbackValue: str
 
 async function handleGrade() {
   if (!currentSubmission.value) return;
+  gradeFormError.value = "";
   if (score.value === "") {
-    toast.error("Nilai wajib diisi.");
+    gradeFormError.value = "Nilai wajib diisi.";
     return;
   }
 
@@ -414,6 +418,7 @@ onMounted(loadData);
                 />
               </div>
 
+              <InlineFormError :message="gradeFormError" class="mt-3" />
               <button
                 type="button"
                 class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#4338ca] disabled:opacity-50"

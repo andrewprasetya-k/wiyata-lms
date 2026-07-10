@@ -10,6 +10,8 @@ require (
 
 require github.com/DATA-DOG/go-sqlmock v1.5.2
 
+require golang.org/x/time v0.15.0
+
 require (
 	github.com/gorilla/websocket v1.5.3
 	github.com/jackc/pgpassfile v1.0.0 // indirect
