@@ -157,9 +157,19 @@ func (h *MediaHandler) RecordMetadata(c *gin.Context) {
 
 func (h *MediaHandler) GetByID(c *gin.Context) {
 	id := c.Param("id")
+	activeSchoolID, ok := getMediaActiveSchoolID(c)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
+
 	media, err := h.service.GetByID(id)
 	if err != nil {
 		HandleError(c, err)
+		return
+	}
+	if media.SchoolID != activeSchoolID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: media does not belong to active school"})
 		return
 	}
 	c.JSON(http.StatusOK, media)

@@ -347,7 +347,7 @@ func main() {
 		{
 			mediaAPI.POST("/upload", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "teacher", "student"), mediaHandler.Upload)
 			mediaAPI.POST("/metadata", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "teacher", "student"), mediaHandler.RecordMetadata)
-			mediaAPI.GET("/:id", mediaHandler.GetByID)
+			mediaAPI.GET("/:id", middleware.RequireSchoolMember(schoolService), mediaHandler.GetByID)
 			mediaAPI.DELETE("/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "teacher", "student"), mediaHandler.Delete)
 		}
 

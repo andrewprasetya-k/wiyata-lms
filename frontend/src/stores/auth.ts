@@ -275,7 +275,6 @@ export const useAuthStore = defineStore("auth", () => {
     // the backend if the user is a superadmin, so that the backend can set the active school id
     // to the superadmin school id if the user is a superadmin
     const superAdminSchoolId = import.meta.env.VITE_SUPERADMIN_SCHOOL_ID;
-    console.log("SUPERADMIN_SCHOOL_ID", superAdminSchoolId);
     const effectiveSchoolId =
       activeSchoolId.value ??
       memberships.value.find((m) => m.school.code === superAdminSchoolId)
