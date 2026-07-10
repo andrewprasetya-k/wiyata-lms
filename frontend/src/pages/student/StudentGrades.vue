@@ -95,9 +95,9 @@ function statusLabel(assignment: GradebookAssignment) {
 }
 
 function statusClasses(assignment: GradebookAssignment) {
-  if (assignment.status === "graded") return "bg-[#ecfdf3] text-[#027a48]";
-  if (assignment.status === "submitted") return "bg-[#eef2ff] text-brand";
-  return "bg-[#fff7ed] text-[#b45309]";
+  if (assignment.status === "graded") return "bg-success-soft text-success";
+  if (assignment.status === "submitted") return "bg-brand-soft text-brand";
+  return "bg-warning-soft text-warning";
 }
 
 function formatScore(value?: number | null) {
@@ -195,11 +195,11 @@ onMounted(loadGrades);
         class="flex min-h-[55vh] items-center justify-center"
       >
         <article
-          class="w-full max-w-xl rounded-xl border border-[#fecaca] bg-[#fef2f2] p-6"
+          class="w-full max-w-xl rounded-xl border border-danger-line bg-danger-soft p-6"
         >
           <div class="flex items-start gap-3">
             <div
-              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fef2f2] text-[#dc2626]"
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-danger-soft text-danger"
             >
               <PhWarningCircle :size="22" weight="duotone" />
             </div>
@@ -211,7 +211,7 @@ onMounted(loadGrades);
                 {{ errorMessage }}
               </p>
               <button
-                class="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+                class="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-hover"
                 type="button"
                 @click="loadGrades()"
               >
@@ -230,7 +230,7 @@ onMounted(loadGrades);
           class="w-full max-w-xl rounded-xl border border-border bg-white p-8 text-center"
         >
           <div
-            class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+            class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
           >
             <PhBookOpen class="h-6 w-6" weight="duotone" />
           </div>
@@ -251,7 +251,7 @@ onMounted(loadGrades);
           class="w-full max-w-xl rounded-xl border border-border bg-white p-8 text-center"
         >
           <div
-            class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+            class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
           >
             <PhChartBar class="h-6 w-6" weight="duotone" />
           </div>
@@ -279,9 +279,9 @@ onMounted(loadGrades);
           <article class="rounded-xl bg-white px-4 py-3">
             <div class="flex items-center justify-between gap-3">
               <p class="text-xs text-[#7a7385]">Sudah dinilai</p>
-              <PhSealCheck :size="17" class="text-[#027a48]" weight="duotone" />
+              <PhSealCheck :size="17" class="text-success" weight="duotone" />
             </div>
-            <p class="mt-2 text-2xl font-medium text-[#027a48]">
+            <p class="mt-2 text-2xl font-medium text-success">
               {{ gradebook?.summary.gradedAssignmentCount ?? 0 }}
             </p>
           </article>
@@ -303,9 +303,9 @@ onMounted(loadGrades);
           >
             <div class="flex items-center justify-between gap-3">
               <p class="text-xs text-[#7a7385]">Menunggu nilai</p>
-              <PhClock :size="17" class="text-[#b45309]" weight="duotone" />
+              <PhClock :size="17" class="text-warning" weight="duotone" />
             </div>
-            <p class="mt-2 text-2xl font-semibold text-[#b45309]">
+            <p class="mt-2 text-2xl font-semibold text-warning">
               {{ gradebook?.summary.pendingAssessmentCount ?? 0 }}
             </p>
           </article>
@@ -316,7 +316,7 @@ onMounted(loadGrades);
           class="rounded-xl border border-border bg-white p-6 text-center"
         >
           <div
-            class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+            class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
           >
             <PhChartBar class="h-6 w-6" weight="duotone" />
           </div>
@@ -374,7 +374,7 @@ onMounted(loadGrades);
                 </div>
                 <span
                   v-if="subject.letterGrade"
-                  class="rounded-full bg-[#eef2ff] px-3 py-1.5 text-xs font-medium text-brand"
+                  class="rounded-full bg-brand-soft px-3 py-1.5 text-xs font-medium text-brand"
                 >
                   {{ subject.letterGrade }}
                 </span>
@@ -384,7 +384,7 @@ onMounted(loadGrades);
             <div
               class="grid gap-2 border-y border-[#f0ede8] bg-[#fbfaf8] px-4 py-3 sm:grid-cols-3"
             >
-              <span class="text-xs text-[#027a48]">
+              <span class="text-xs text-success">
                 <strong class="font-medium">{{ subject.gradedCount }}</strong>
                 sudah dinilai
               </span>
@@ -394,7 +394,7 @@ onMounted(loadGrades);
                 }}</strong>
                 sudah dikumpulkan
               </span>
-              <span class="text-xs text-[#b45309]">
+              <span class="text-xs text-warning">
                 <strong class="font-medium">{{ subject.pendingCount }}</strong>
                 menunggu nilai
               </span>

@@ -92,11 +92,11 @@ onMounted(loadMaterial);
       class="flex min-h-[calc(100vh-49px)] items-center justify-center px-5 py-10"
     >
       <article
-        class="w-full max-w-xl rounded-xl border border-[#fecaca] bg-[#fef2f2] p-6"
+        class="w-full max-w-xl rounded-xl border border-danger-line bg-danger-soft p-6"
       >
         <div class="flex items-start gap-3">
           <div
-            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fef2f2] text-[#dc2626]"
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-danger-soft text-danger"
           >
             <PhWarningCircle :size="22" weight="duotone" />
           </div>
@@ -108,7 +108,7 @@ onMounted(loadMaterial);
               {{ errorMessage }}
             </p>
             <button
-              class="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+              class="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-hover"
               type="button"
               @click="loadMaterial"
             >
@@ -127,7 +127,7 @@ onMounted(loadMaterial);
         class="w-full max-w-xl rounded-xl border border-border bg-white p-8 text-center"
       >
         <div
-          class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+          class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
         >
           <PhBookOpen :size="24" weight="duotone" />
         </div>
@@ -138,7 +138,7 @@ onMounted(loadMaterial);
           Materi ini tidak tersedia atau sudah tidak dapat diakses.
         </p>
         <RouterLink
-          class="mt-5 inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+          class="mt-5 inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-hover"
           :to="`/student/subjects/${subjectClassId}`"
         >
           <PhArrowLeft :size="16" />
@@ -155,7 +155,7 @@ onMounted(loadMaterial);
         <article class="rounded-xl border border-border bg-white shadow-sm p-5 sm:p-6">
           <div class="flex min-w-0 items-start gap-4">
             <div
-              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand"
             >
               <PhBookOpen :size="22" weight="duotone" />
             </div>
@@ -163,7 +163,7 @@ onMounted(loadMaterial);
               <div class="flex flex-wrap items-center gap-2">
                 <span
                   v-if="material.materialType"
-                  class="rounded-full bg-[#eef2ff] px-2.5 py-1 text-[11px] font-medium uppercase text-brand"
+                  class="rounded-full bg-brand-soft px-2.5 py-1 text-[11px] font-medium uppercase text-brand"
                 >
                   {{ material.materialType }}
                 </span>

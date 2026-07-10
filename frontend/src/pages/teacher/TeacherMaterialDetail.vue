@@ -107,7 +107,7 @@ onMounted(loadMaterial)
       >
         <div class="flex min-w-0 items-start gap-3">
           <div
-            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand"
           >
             <PhBookOpen :size="21" weight="duotone" />
           </div>
@@ -124,7 +124,7 @@ onMounted(loadMaterial)
         </div>
         <span
           v-if="material.materialType"
-          class="inline-flex self-start rounded-lg bg-[#eef2ff] px-2.5 py-1.5 text-xs font-medium uppercase tracking-wide text-brand lg:self-auto"
+          class="inline-flex self-start rounded-lg bg-brand-soft px-2.5 py-1.5 text-xs font-medium uppercase tracking-wide text-brand lg:self-auto"
         >
           {{ material.materialType }}
         </span>
@@ -146,7 +146,7 @@ onMounted(loadMaterial)
 
       <section
         v-else-if="errorMessage"
-        class="mx-auto max-w-xl rounded-xl border border-[#fecaca] bg-[#fef2f2] px-5 py-8 text-center"
+        class="mx-auto max-w-xl rounded-xl border border-danger-line bg-danger-soft px-5 py-8 text-center"
       >
         <PhWarningCircle
           :size="30"
@@ -173,7 +173,7 @@ onMounted(loadMaterial)
         class="mx-auto max-w-xl rounded-xl border border-border bg-white px-5 py-10 text-center"
       >
         <div
-          class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+          class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
         >
           <PhBookOpen :size="24" weight="duotone" />
         </div>
@@ -186,7 +186,7 @@ onMounted(loadMaterial)
         </p>
         <RouterLink
           :to="`/teacher/subjects/${subjectClassId}`"
-          class="mt-5 inline-flex items-center gap-2 rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-brand transition hover:border-brand hover:bg-[#eef2ff]"
+          class="mt-5 inline-flex items-center gap-2 rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-brand transition hover:border-brand hover:bg-brand-soft"
         >
           <PhArrowLeft :size="16" />
           Kembali ke mata pelajaran
@@ -301,14 +301,14 @@ onMounted(loadMaterial)
               <div class="mt-3 grid gap-2">
                 <RouterLink
                   :to="`/teacher/subjects/${subjectClassId}/materials/${materialId}/edit`"
-                  class="inline-flex items-center justify-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+                  class="inline-flex items-center justify-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white transition hover:bg-brand-hover"
                 >
                   <PhPencilSimple :size="16" />
                   Edit materi
                 </RouterLink>
                 <button
                   type="button"
-                  class="inline-flex items-center justify-center gap-2 rounded-lg border border-[#fecaca] bg-white px-4 py-2.5 text-sm font-medium text-[#dc2626] transition hover:bg-[#fef2f2] disabled:opacity-50"
+                  class="inline-flex items-center justify-center gap-2 rounded-lg border border-danger-line bg-white px-4 py-2.5 text-sm font-medium text-danger transition hover:bg-danger-soft disabled:opacity-50"
                   :disabled="isDeleting"
                   @click="handleDelete"
                 >

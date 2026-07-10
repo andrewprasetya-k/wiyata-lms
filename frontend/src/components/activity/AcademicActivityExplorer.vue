@@ -165,7 +165,7 @@ function selectRange(value: "today" | "7d" | "30d") {
                 class="rounded-lg border px-3 py-1.5 text-xs font-medium transition disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
                 :class="
                   selectedRange === range.value
-                    ? 'border-brand bg-[#eef2ff] text-brand'
+                    ? 'border-brand bg-brand-soft text-brand'
                     : 'border-border bg-white text-muted hover:bg-[#fbfaf8]'
                 "
                 :aria-pressed="selectedRange === range.value"
@@ -185,7 +185,7 @@ function selectRange(value: "today" | "7d" | "30d") {
               class="rounded-full border px-3 py-1.5 text-xs font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
               :class="
                 selectedFilter === filter.value
-                  ? 'border-brand bg-[#eef2ff] text-brand'
+                  ? 'border-brand bg-brand-soft text-brand'
                   : 'border-border bg-white text-muted hover:bg-[#fbfaf8]'
               "
               :aria-pressed="selectedFilter === filter.value"
@@ -217,7 +217,7 @@ function selectRange(value: "today" | "7d" | "30d") {
 
         <section
           v-else-if="errorMessage"
-          class="rounded-xl border border-[#fecaca] bg-white p-5"
+          class="rounded-xl border border-danger-line bg-white p-5"
         >
           <div
             class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
@@ -225,7 +225,7 @@ function selectRange(value: "today" | "7d" | "30d") {
             <div class="flex min-w-0 gap-3">
               <PhWarningCircle
                 :size="22"
-                class="mt-0.5 shrink-0 text-[#dc2626]"
+                class="mt-0.5 shrink-0 text-danger"
                 weight="duotone"
               />
               <div class="min-w-0">
@@ -238,7 +238,7 @@ function selectRange(value: "today" | "7d" | "30d") {
               </div>
             </div>
             <button
-              class="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+              class="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
               type="button"
               :disabled="loading"
               @click="loadActivities"

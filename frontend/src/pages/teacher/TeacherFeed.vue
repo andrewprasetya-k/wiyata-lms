@@ -351,7 +351,7 @@ function updatePostCommentCount(feedId: string, count: number) {
 
       <section
         v-else-if="classesError"
-        class="mx-auto max-w-xl rounded-xl border border-[#fecaca] bg-[#fef2f2] px-5 py-8 text-center"
+        class="mx-auto max-w-xl rounded-xl border border-danger-line bg-danger-soft px-5 py-8 text-center"
       >
         <PhWarningCircle
           :size="30"
@@ -379,7 +379,7 @@ function updatePostCommentCount(feedId: string, count: number) {
         class="mx-auto max-w-xl rounded-xl border border-border bg-white px-5 py-10 text-center"
       >
         <div
-          class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+          class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
         >
           <PhChalkboardTeacher class="h-6 w-6" weight="duotone" />
         </div>
@@ -401,7 +401,7 @@ function updatePostCommentCount(feedId: string, count: number) {
           >
             <div class="flex items-start gap-3">
               <div
-                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand"
               >
                 <PhMegaphone :size="20" weight="duotone" />
               </div>
@@ -458,7 +458,7 @@ function updatePostCommentCount(feedId: string, count: number) {
             </p>
             <InlineFormError :message="composeFormError" class="mt-2" />
             <button
-              class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:opacity-60"
+              class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white transition hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-60"
               type="button"
               :disabled="!canSubmit"
               @click="submitFeed"
@@ -487,7 +487,7 @@ function updatePostCommentCount(feedId: string, count: number) {
               </p>
             </div>
             <button
-              class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-border px-3 py-2 text-xs font-medium text-brand transition hover:border-brand hover:bg-[#eef2ff] disabled:opacity-50"
+              class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-border px-3 py-2 text-xs font-medium text-brand transition hover:border-brand hover:bg-brand-soft disabled:opacity-50"
               type="button"
               :disabled="feedLoading"
               @click="loadFeed"
@@ -519,7 +519,7 @@ function updatePostCommentCount(feedId: string, count: number) {
 
           <div
             v-else-if="feedError"
-            class="mt-3 rounded-xl border border-[#fed7aa] bg-[#fff7ed] p-5"
+            class="mt-3 rounded-xl border border-[#fed7aa] bg-warning-soft p-5"
           >
             <h3 class="text-sm font-semibold text-[#9a3412]">
               Terjadi kendala
@@ -542,7 +542,7 @@ function updatePostCommentCount(feedId: string, count: number) {
             class="mt-3 rounded-xl border border-border bg-white px-5 py-10 text-center"
           >
             <div
-              class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+              class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
             >
               <PhMegaphone class="h-6 w-6" weight="duotone" />
             </div>
@@ -581,7 +581,7 @@ function updatePostCommentCount(feedId: string, count: number) {
                     </span>
                   </div>
                   <span
-                    class="mt-2 inline-flex rounded-lg bg-[#fff7ed] px-2 py-1 text-[10px] font-medium uppercase tracking-wide text-[#ea580c]"
+                    class="mt-2 inline-flex rounded-lg bg-warning-soft px-2 py-1 text-[10px] font-medium uppercase tracking-wide text-[#ea580c]"
                   >
                     Pengumuman
                   </span>

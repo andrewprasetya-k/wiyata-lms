@@ -269,7 +269,7 @@ function responseStatus(error: unknown) {
             </p>
             <p
               v-if="!isSafeURL(attachment.fileUrl)"
-              class="mt-1 text-xs text-[#b45309]"
+              class="mt-1 text-xs text-warning"
             >
               URL file tidak valid.
             </p>
@@ -301,7 +301,7 @@ function responseStatus(error: unknown) {
             </button>
             <a
               v-if="isSafeURL(attachment.fileUrl)"
-              class="inline-flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-xs font-medium text-brand transition hover:bg-[#eef2ff] focus:outline-none focus:ring-2 focus:ring-brand/30"
+              class="inline-flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-xs font-medium text-brand transition hover:bg-brand-soft focus:outline-none focus:ring-2 focus:ring-brand/30"
               :href="attachment.fileUrl"
               rel="noopener noreferrer"
               target="_blank"
@@ -333,7 +333,7 @@ function responseStatus(error: unknown) {
 
           <div
             v-else-if="summaryError(attachment.mediaId)"
-            class="rounded-xl border border-[#fecaca] bg-[#fffaf9] p-4"
+            class="rounded-xl border border-danger-line bg-[#fffaf9] p-4"
           >
             <p class="text-sm leading-6 text-[#8a463f]">
               {{ summaryError(attachment.mediaId) }}

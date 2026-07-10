@@ -334,7 +334,7 @@ watch(
               />
               <button
                 type="submit"
-                class="rounded-lg bg-brand px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:bg-[#c7c3d7]"
+                class="rounded-lg bg-brand px-3 py-2 text-sm font-semibold text-white transition hover:bg-brand-hover disabled:cursor-not-allowed disabled:bg-[#c7c3d7]"
                 :disabled="isRenamingGroup"
               >
                 {{ isRenamingGroup ? "Menyimpan..." : "Simpan" }}
@@ -416,7 +416,7 @@ watch(
               </p>
               <button
                 type="button"
-                class="rounded-lg bg-brand px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:bg-[#c7c3d7]"
+                class="rounded-lg bg-brand px-3 py-2 text-sm font-semibold text-white transition hover:bg-brand-hover disabled:cursor-not-allowed disabled:bg-[#c7c3d7]"
                 :disabled="isAddingMembers || selectedAddMemberIds.length === 0"
                 @click="submitAddMembers"
               >
@@ -454,7 +454,7 @@ watch(
                   class="rounded-full px-2 py-1 text-[11px] font-semibold"
                   :class="
                     member.role === 'admin'
-                      ? 'bg-[#eef2ff] text-brand'
+                      ? 'bg-brand-soft text-brand'
                       : 'bg-[#f3f1ec] text-muted'
                   "
                 >

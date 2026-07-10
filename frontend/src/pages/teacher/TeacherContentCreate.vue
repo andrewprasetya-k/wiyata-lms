@@ -373,8 +373,8 @@ onMounted(loadInitialData);
             class="inline-flex self-start rounded-lg px-2.5 py-1.5 text-xs font-medium lg:self-auto"
             :class="
               activeTab === 'material'
-                ? 'bg-[#eef2ff] text-brand'
-                : 'bg-[#fff7ed] text-[#ea580c]'
+                ? 'bg-brand-soft text-brand'
+                : 'bg-warning-soft text-[#ea580c]'
             "
           >
             {{ activeTab === "material" ? "Materi" : "Tugas" }}
@@ -386,7 +386,7 @@ onMounted(loadInitialData);
     <section class="px-5 py-5 sm:px-6 lg:px-8 lg:py-6">
       <section
         v-if="errorMessage"
-        class="mb-5 flex items-start gap-3 rounded-xl border border-[#fecaca] bg-[#fef2f2] p-4 text-sm leading-6 text-[#b42318]"
+        class="mb-5 flex items-start gap-3 rounded-xl border border-danger-line bg-danger-soft p-4 text-sm leading-6 text-[#b42318]"
       >
         <PhInfo :size="19" class="mt-0.5 shrink-0" weight="duotone" />
         <p>{{ errorMessage }}</p>
@@ -417,7 +417,7 @@ onMounted(loadInitialData);
             class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition sm:min-w-28"
             :class="[
               activeTab === 'material'
-                ? 'bg-[#eef2ff] text-brand'
+                ? 'bg-brand-soft text-brand'
                 : 'text-muted',
               !isEditMode && activeTab !== 'material'
                 ? 'cursor-pointer hover:bg-[#f3f1ec] hover:text-foreground'
@@ -436,7 +436,7 @@ onMounted(loadInitialData);
             class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition sm:min-w-28"
             :class="[
               activeTab === 'assignment'
-                ? 'bg-[#eef2ff] text-brand'
+                ? 'bg-brand-soft text-brand'
                 : 'text-muted',
               !isEditMode && activeTab !== 'assignment'
                 ? 'cursor-pointer hover:bg-[#f3f1ec] hover:text-foreground'
@@ -459,7 +459,7 @@ onMounted(loadInitialData);
             >
               <div class="flex items-start gap-3">
                 <div
-                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand"
                 >
                   <PhInfo :size="20" weight="duotone" />
                 </div>
@@ -553,20 +553,20 @@ onMounted(loadInitialData);
                 />
                 <p
                   v-else
-                  class="rounded-lg border border-[#fecaca] bg-[#fef2f2] p-4 text-sm leading-6 text-[#b42318]"
+                  class="rounded-lg border border-danger-line bg-danger-soft p-4 text-sm leading-6 text-[#b42318]"
                 >
                   Lampiran belum bisa diunggah sampai konteks sekolah dan mata
                   pelajaran tersedia.
                 </p>
                 <p
                   v-if="isUploadingMedia"
-                  class="mt-3 rounded-lg bg-[#eef2ff] p-4 text-sm leading-6 text-[#4338ca]"
+                  class="mt-3 rounded-lg bg-brand-soft p-4 text-sm leading-6 text-brand-hover"
                 >
                   Tunggu sampai upload selesai sebelum menerbitkan.
                 </p>
                 <p
                   v-if="hasMediaUploadError"
-                  class="mt-3 rounded-lg bg-[#fef2f2] p-4 text-sm leading-6 text-[#b42318]"
+                  class="mt-3 rounded-lg bg-danger-soft p-4 text-sm leading-6 text-[#b42318]"
                 >
                   Ada lampiran yang gagal diunggah. Hapus atau unggah ulang file
                   tersebut.
@@ -698,7 +698,7 @@ onMounted(loadInitialData);
               </section>
 
               <section
-                class="rounded-xl border border-[#fed7aa] bg-[#fff7ed] p-4"
+                class="rounded-xl border border-[#fed7aa] bg-warning-soft p-4"
               >
                 <p
                   class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#ea580c]"
@@ -715,7 +715,7 @@ onMounted(loadInitialData);
                 <div class="grid gap-2">
                   <button
                     type="button"
-                    class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:opacity-50"
+                    class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white transition hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-50"
                     :disabled="isSubmitDisabled"
                     @click="handleSubmit"
                   >

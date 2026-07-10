@@ -202,7 +202,7 @@ onMounted(() => {
               </span>
             </div>
           </template>
-          <p v-else-if="classError" class="text-sm text-[#dc2626]">
+          <p v-else-if="classError" class="text-sm text-danger">
             {{ classError }}
           </p>
         </div>
@@ -213,8 +213,8 @@ onMounted(() => {
           class="inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-60"
           :class="
             classInfo.isActive
-              ? 'border-[#fecaca] bg-[#fef2f2] text-[#dc2626] hover:bg-[#fef2f2]'
-              : 'border-[#bbf7d0] bg-white text-[#059669] hover:bg-[#f0fdf4]'
+              ? 'border-danger-line bg-danger-soft text-danger hover:bg-danger-soft'
+              : 'border-success-line bg-white text-[#059669] hover:bg-[#f0fdf4]'
           "
           :disabled="togglingActive"
           @click="toggleActive"
@@ -284,7 +284,7 @@ onMounted(() => {
           class="rounded-lg px-4 py-2 text-sm font-medium transition"
           :class="
             activeTab === 'members'
-              ? 'bg-[#eef2ff] text-brand'
+              ? 'bg-brand-soft text-brand'
               : 'text-muted hover:text-[#374151]'
           "
           @click="activeTab = 'members'"
@@ -305,7 +305,7 @@ onMounted(() => {
           class="rounded-lg px-4 py-2 text-sm font-medium transition"
           :class="
             activeTab === 'subjects'
-              ? 'bg-[#eef2ff] text-brand'
+              ? 'bg-brand-soft text-brand'
               : 'text-muted hover:text-[#374151]'
           "
           @click="activeTab = 'subjects'"
@@ -360,11 +360,11 @@ onMounted(() => {
 
             <div
               v-else-if="enrollmentsError"
-              class="rounded-lg border border-[#fecaca] bg-[#fef2f2] p-5 text-center"
+              class="rounded-lg border border-danger-line bg-danger-soft p-5 text-center"
             >
               <PhWarningCircle
                 :size="26"
-                class="mx-auto text-[#dc2626]"
+                class="mx-auto text-danger"
                 weight="duotone"
               />
               <h3 class="mt-3 text-sm font-semibold text-foreground">
@@ -396,7 +396,7 @@ onMounted(() => {
               </p>
               <RouterLink
                 to="/admin/enrollments"
-                class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-2 text-xs font-medium text-brand transition hover:border-brand hover:bg-[#eef2ff]"
+                class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-2 text-xs font-medium text-brand transition hover:border-brand hover:bg-brand-soft"
               >
                 Buka Penempatan Kelas
                 <PhArrowRight :size="13" />
@@ -416,7 +416,7 @@ onMounted(() => {
                     class="flex items-center gap-3 py-3 first:pt-0"
                   >
                     <div
-                      class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#eef2ff] text-xs font-semibold text-brand"
+                      class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-soft text-xs font-semibold text-brand"
                     >
                       {{ (member.userFullName || "S").charAt(0).toUpperCase() }}
                     </div>
@@ -429,7 +429,7 @@ onMounted(() => {
                       </p>
                     </div>
                     <span
-                      class="rounded-lg bg-[#eef2ff] px-2 py-1 text-[11px] font-medium text-brand"
+                      class="rounded-lg bg-brand-soft px-2 py-1 text-[11px] font-medium text-brand"
                     >
                       Siswa
                     </span>
@@ -515,11 +515,11 @@ onMounted(() => {
 
             <div
               v-else-if="subjectClassesError"
-              class="rounded-lg border border-[#fecaca] bg-[#fef2f2] p-5 text-center"
+              class="rounded-lg border border-danger-line bg-danger-soft p-5 text-center"
             >
               <PhWarningCircle
                 :size="26"
-                class="mx-auto text-[#dc2626]"
+                class="mx-auto text-danger"
                 weight="duotone"
               />
               <h3 class="mt-3 text-sm font-semibold text-foreground">
@@ -554,7 +554,7 @@ onMounted(() => {
               </p>
               <RouterLink
                 to="/admin/subject-classes"
-                class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-2 text-xs font-medium text-brand transition hover:border-brand hover:bg-[#eef2ff]"
+                class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-2 text-xs font-medium text-brand transition hover:border-brand hover:bg-brand-soft"
               >
                 Buka Penugasan Mengajar
                 <PhArrowRight :size="13" />

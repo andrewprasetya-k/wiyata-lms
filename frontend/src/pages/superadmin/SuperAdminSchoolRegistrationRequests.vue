@@ -83,9 +83,9 @@ function statusLabel(status: SchoolRegistrationStatus) {
 }
 
 function statusClass(status: SchoolRegistrationStatus) {
-  if (status === 'approved') return 'bg-[#ecfdf3] text-[#027a48]'
-  if (status === 'rejected') return 'bg-[#fef2f2] text-[#b42318]'
-  return 'bg-[#fff7ed] text-[#b45309]'
+  if (status === 'approved') return 'bg-success-soft text-success'
+  if (status === 'rejected') return 'bg-danger-soft text-[#b42318]'
+  return 'bg-warning-soft text-warning'
 }
 
 function resetForms() {
@@ -295,7 +295,7 @@ onMounted(() => {
               class="rounded-lg border px-3 py-2 text-sm font-semibold transition"
               :class="
                 activeStatus === tab.value
-                  ? 'border-[#ea580c] bg-[#fff7ed] text-[#c2410c]'
+                  ? 'border-[#ea580c] bg-warning-soft text-[#c2410c]'
                   : 'border-[#e5e7eb] bg-white text-muted hover:text-foreground'
               "
               @click="selectStatus(tab.value)"
@@ -312,7 +312,7 @@ onMounted(() => {
 
           <div
             v-else-if="errorMessage"
-            class="rounded-lg border border-[#fecaca] bg-[#fef2f2] px-4 py-4"
+            class="rounded-lg border border-danger-line bg-danger-soft px-4 py-4"
           >
             <p class="text-sm leading-6 text-[#a8665d]">{{ errorMessage }}</p>
             <button
@@ -486,10 +486,10 @@ onMounted(() => {
 
             <div
               v-if="approveResult"
-              class="rounded-xl border border-[#bbf7d0] bg-[#f0fdf4] p-4"
+              class="rounded-xl border border-success-line bg-[#f0fdf4] p-4"
             >
               <div class="flex items-start gap-3">
-                <PhCheckCircle :size="22" class="mt-0.5 shrink-0 text-[#027a48]" weight="duotone" />
+                <PhCheckCircle :size="22" class="mt-0.5 shrink-0 text-success" weight="duotone" />
                 <div class="min-w-0">
                   <p class="text-sm font-semibold text-[#166534]">
                     Request disetujui
@@ -499,7 +499,7 @@ onMounted(() => {
                   </p>
                 </div>
               </div>
-              <div class="mt-4 rounded-lg border border-[#bbf7d0] bg-white p-3">
+              <div class="mt-4 rounded-lg border border-success-line bg-white p-3">
                 <p class="break-all text-xs leading-5 text-[#166534]">
                   {{ invitationLink }}
                 </p>
@@ -525,7 +525,7 @@ onMounted(() => {
               </button>
               <button
                 type="button"
-                class="inline-flex items-center justify-center gap-2 rounded-lg border border-[#fecaca] bg-white px-3 py-2 text-sm font-medium text-[#dc2626] transition hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-60"
+                class="inline-flex items-center justify-center gap-2 rounded-lg border border-danger-line bg-white px-3 py-2 text-sm font-medium text-danger transition hover:bg-danger-soft disabled:cursor-not-allowed disabled:opacity-60"
                 @click="actionMode = actionMode === 'reject' ? null : 'reject'"
               >
                 <PhXCircle :size="16" weight="bold" />
@@ -535,7 +535,7 @@ onMounted(() => {
 
             <form
               v-if="selectedIsPending && actionMode === 'approve'"
-              class="space-y-4 rounded-xl border border-[#bbf7d0] bg-[#f6fef9] p-4"
+              class="space-y-4 rounded-xl border border-success-line bg-[#f6fef9] p-4"
               @submit.prevent="submitApprove"
             >
               <p class="text-sm font-semibold text-foreground">Approve request</p>
@@ -543,7 +543,7 @@ onMounted(() => {
                 Kode sekolah
                 <input
                   v-model="approveForm.schoolCode"
-                  class="mt-2 w-full rounded-lg border border-[#d1d5db] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#027a48]"
+                  class="mt-2 w-full rounded-lg border border-[#d1d5db] bg-white px-3 py-2.5 text-sm outline-none focus:border-success"
                   placeholder="SMWM"
                 />
               </label>
@@ -551,14 +551,14 @@ onMounted(() => {
                 Nama sekolah
                 <input
                   v-model="approveForm.schoolName"
-                  class="mt-2 w-full rounded-lg border border-[#d1d5db] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#027a48]"
+                  class="mt-2 w-full rounded-lg border border-[#d1d5db] bg-white px-3 py-2.5 text-sm outline-none focus:border-success"
                 />
               </label>
               <label class="block text-sm font-medium text-[#374151]">
                 Nama admin
                 <input
                   v-model="approveForm.adminName"
-                  class="mt-2 w-full rounded-lg border border-[#d1d5db] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#027a48]"
+                  class="mt-2 w-full rounded-lg border border-[#d1d5db] bg-white px-3 py-2.5 text-sm outline-none focus:border-success"
                 />
               </label>
               <label class="block text-sm font-medium text-[#374151]">
@@ -566,7 +566,7 @@ onMounted(() => {
                 <input
                   v-model="approveForm.adminEmail"
                   type="email"
-                  class="mt-2 w-full rounded-lg border border-[#d1d5db] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#027a48]"
+                  class="mt-2 w-full rounded-lg border border-[#d1d5db] bg-white px-3 py-2.5 text-sm outline-none focus:border-success"
                 />
               </label>
               <label class="block text-sm font-medium text-[#374151]">
@@ -574,7 +574,7 @@ onMounted(() => {
                 <textarea
                   v-model="approveForm.note"
                   rows="3"
-                  class="mt-2 w-full resize-none rounded-lg border border-[#d1d5db] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#027a48]"
+                  class="mt-2 w-full resize-none rounded-lg border border-[#d1d5db] bg-white px-3 py-2.5 text-sm outline-none focus:border-success"
                   placeholder="Opsional"
                 />
               </label>
@@ -589,7 +589,7 @@ onMounted(() => {
 
             <form
               v-if="selectedIsPending && actionMode === 'reject'"
-              class="space-y-4 rounded-xl border border-[#fecaca] bg-[#fef2f2] p-4"
+              class="space-y-4 rounded-xl border border-danger-line bg-danger-soft p-4"
               @submit.prevent="submitReject"
             >
               <p class="text-sm font-semibold text-foreground">Reject request</p>
@@ -598,13 +598,13 @@ onMounted(() => {
                 <textarea
                   v-model="rejectForm.reason"
                   rows="4"
-                  class="mt-2 w-full resize-none rounded-lg border border-[#fecaca] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#b42318]"
+                  class="mt-2 w-full resize-none rounded-lg border border-danger-line bg-white px-3 py-2.5 text-sm outline-none focus:border-[#b42318]"
                   placeholder="Opsional"
                 />
               </label>
               <button
                 type="submit"
-                class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#dc2626] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#b91c1c] disabled:cursor-not-allowed disabled:opacity-60"
+                class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-danger px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#b91c1c] disabled:cursor-not-allowed disabled:opacity-60"
                 :disabled="actionLoading"
               >
                 {{ actionLoading ? 'Memproses...' : 'Reject request' }}

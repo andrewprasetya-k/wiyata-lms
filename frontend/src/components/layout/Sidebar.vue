@@ -189,7 +189,7 @@ function isActive(to: string) {
         "
       >
         <span
-          class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand text-[11px] font-medium text-white transition hover:bg-[#4338ca]"
+          class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand text-[11px] font-medium text-white transition hover:bg-brand-hover"
           :class="
             isActive(profileTo)
               ? 'ring-2 ring-[#c7d2fe] ring-offset-2 ring-offset-white'

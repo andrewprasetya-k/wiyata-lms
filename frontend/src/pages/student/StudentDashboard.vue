@@ -5,8 +5,6 @@ import {
   PhArrowClockwise,
   PhArrowRight,
   PhBookOpen,
-  PhCaretLeft,
-  PhCaretRight,
   PhClipboardText,
   PhWarningCircle,
 } from "@phosphor-icons/vue";
@@ -28,27 +26,27 @@ import type { FeedPost } from "../../types/feed";
 import type { NotificationItem } from "../../types/dashboard";
 import type { StudentAssignmentInboxItem } from "../../types/assignment";
 import type { AcademicActivityItem } from "../../types/activity";
-import {
-  formatDate,
-  formatDateTime,
-  parseBackendTimestamp,
-} from "../../utils/date";
+import { formatDate, formatDateTime } from "../../utils/date";
 import { getSubjectColor, resolveSubjectColor } from "../../utils/color";
 import { useToastStore } from "../../stores/toast";
 import LatestChatCard from "../../components/chat/LatestChatCard.vue";
 import AcademicActivityCard from "../../components/activity/AcademicActivityCard.vue";
 import DashboardUpdatesPanel from "../../components/dashboard/DashboardUpdatesPanel.vue";
-import {
-  activitySubjectColor,
-  activityTypeLabel,
-  compareActivities,
-  formatActivityDate,
-  formatApiDate,
-  isInternalActivityLink,
-  parseActivityDate,
-} from "../../components/activity/activityView";
+import StudentActivityCalendarCard from "../../components/dashboard/StudentActivityCalendarCard.vue";
 import { getApiError } from "../../utils/error";
 import ContextSwitcher from "../../components/layout/ContextSwitcher.vue";
+import {
+  compareAssignments,
+  assignmentStatusClasses,
+  assignmentStatusLabel,
+} from "../../utils/studentAssignmentPreview";
+import {
+  isInternalNotificationLink,
+  notificationAriaLabel,
+  notificationBadge,
+  notificationMessage,
+  notificationTitle,
+} from "../../utils/studentNotificationPreview";
 
 const auth = useAuthStore();
 const activeClassStore = useActiveClassStore();
@@ -73,15 +71,10 @@ const feedPreviewError = ref("");
 const activities = ref<AcademicActivityItem[]>([]);
 const activitiesLoading = ref(false);
 const activitiesError = ref("");
-const calendarActivityCache = ref<Record<string, AcademicActivityItem[]>>({});
-const calendarActivitiesLoading = ref(false);
-const calendarActivitiesError = ref("");
-const selectedDate = ref(formatApiDate(new Date()));
 const chatPanelUnreadCount = ref(0);
 const markingNotificationIds = ref<Set<string>>(new Set());
 const markingAllNotifications = ref(false);
 const errorMessage = ref("");
-const viewDate = ref(new Date());
 let subjectPreviewRequestId = 0;
 let feedPreviewRequestId = 0;
 
@@ -92,38 +85,9 @@ interface ClassContextLoadResult {
 
 const schoolUserId = computed(() => auth.activeSchoolUserId);
 const firstName = computed(() => auth.user?.fullName?.split(" ")[0] ?? "Siswa");
-const currentMonth = computed(() =>
-  new Intl.DateTimeFormat("id-ID", { month: "long", year: "numeric" }).format(
-    viewDate.value,
-  ),
-);
-const calendarDays = computed(() => buildCalendarDays(viewDate.value));
-const currentMonthKey = computed(() => monthKey(viewDate.value));
-const calendarActivities = computed(
-  () => calendarActivityCache.value[currentMonthKey.value] ?? [],
-);
-const selectedDateActivities = computed(() =>
-  calendarActivities.value
-    .filter((item) => item.date === selectedDate.value)
-    .sort(compareActivities),
-);
-const selectedDateDeadlineActivities = computed(() =>
-  selectedDateActivities.value.filter((item) => item.type === "assignment_due"),
-);
-const selectedDatePreview = computed(() =>
-  selectedDateDeadlineActivities.value.slice(0, 3),
-);
 const assignmentPreview = computed(() =>
   [...assignmentPreviewItems.value].sort(compareAssignments),
 );
-
-function changeMonth(step: number) {
-  const newDate = new Date(viewDate.value);
-  newDate.setMonth(newDate.getMonth() + step);
-  viewDate.value = newDate;
-  selectedDate.value = defaultSelectedDateForMonth(newDate);
-  loadCalendarActivities();
-}
 
 async function loadDashboard(selectedClassId?: string) {
   const classContext = await loadClassContext(selectedClassId);
@@ -295,142 +259,6 @@ async function loadActivities() {
   }
 }
 
-async function loadCalendarActivities() {
-  const key = currentMonthKey.value;
-  if (calendarActivityCache.value[key]) {
-    calendarActivitiesError.value = "";
-    return;
-  }
-
-  calendarActivitiesLoading.value = true;
-  calendarActivitiesError.value = "";
-
-  const from = new Date(
-    viewDate.value.getFullYear(),
-    viewDate.value.getMonth(),
-    1,
-  );
-  const to = new Date(
-    viewDate.value.getFullYear(),
-    viewDate.value.getMonth() + 1,
-    0,
-  );
-
-  try {
-    const response = await getAcademicActivities({
-      from: formatApiDate(from),
-      to: formatApiDate(to),
-    });
-    calendarActivityCache.value = {
-      ...calendarActivityCache.value,
-      [key]: response.items ?? [],
-    };
-  } catch {
-    calendarActivitiesError.value = "Tidak dapat memuat deadline tugas.";
-  } finally {
-    calendarActivitiesLoading.value = false;
-  }
-}
-
-function initials(value: string) {
-  return value
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join("")
-    .toUpperCase();
-}
-
-function buildCalendarDays(date: Date) {
-  const year = date.getFullYear();
-  const month = date.getMonth();
-  const firstDay = new Date(year, month, 1);
-  const startOffset = firstDay.getDay();
-  const calendarStart = new Date(year, month, 1 - startOffset);
-  const days = [];
-
-  const realToday = new Date();
-
-  for (let index = 0; index < 42; index += 1) {
-    const currentDate = new Date(
-      calendarStart.getFullYear(),
-      calendarStart.getMonth(),
-      calendarStart.getDate() + index,
-    );
-    const dateKey = formatApiDate(currentDate);
-    const dayActivities = activitiesForDate(dateKey);
-    const isCurrentMonth =
-      currentDate.getMonth() === month && currentDate.getFullYear() === year;
-    days.push({
-      key: dateKey,
-      label: String(currentDate.getDate()),
-      isCurrentMonth,
-      isToday:
-        currentDate.getFullYear() === realToday.getFullYear() &&
-        currentDate.getMonth() === realToday.getMonth() &&
-        currentDate.getDate() === realToday.getDate(),
-      dateKey,
-      activities: dayActivities.slice(0, 3),
-      extraCount: Math.max(0, dayActivities.length - 3),
-    });
-  }
-
-  return days;
-}
-
-function activitiesForDate(dateKey: string) {
-  return calendarActivities.value
-    .filter((item) => item.type === "assignment_due")
-    .filter((item) => item.date === dateKey)
-    .sort(compareActivities);
-}
-
-function monthKey(date: Date) {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
-}
-
-function defaultSelectedDateForMonth(date: Date) {
-  const today = new Date();
-  if (
-    today.getFullYear() === date.getFullYear() &&
-    today.getMonth() === date.getMonth()
-  ) {
-    return formatApiDate(today);
-  }
-  return formatApiDate(new Date(date.getFullYear(), date.getMonth(), 1));
-}
-
-function selectCalendarDate(dateKey: string) {
-  if (!dateKey) return;
-  selectedDate.value = dateKey;
-}
-
-function calendarDateAriaLabel(day: {
-  label: string;
-  dateKey: string;
-  isCurrentMonth?: boolean;
-  activities: AcademicActivityItem[];
-  extraCount: number;
-}) {
-  if (!day.dateKey) return "Tanggal kosong";
-  const date = parseActivityDate(day.dateKey);
-  const label = date
-    ? new Intl.DateTimeFormat("id-ID", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      }).format(date)
-    : day.label;
-  const count = day.activities.length + day.extraCount;
-  const monthContext = day.isCurrentMonth ? "" : ", di luar bulan ini";
-  return `${label}${monthContext}, ${count} aktivitas`;
-}
-
-function calendarActivityTime(activity: AcademicActivityItem) {
-  return activity.time || "Sepanjang hari";
-}
-
 function updateChatPanelUnreadCount(count: number) {
   chatPanelUnreadCount.value = Math.max(0, count);
 }
@@ -439,74 +267,6 @@ function retryFeedPreview() {
   const activeClassId = activeClassStore.activeClassId;
   if (!activeClassId) return;
   void loadFeedPreview(activeClassId);
-}
-
-function compareAssignments(
-  a: StudentAssignmentInboxItem,
-  b: StudentAssignmentInboxItem,
-) {
-  const overdueNotSubmittedDiff =
-    Number(b.isOverdue && !b.isSubmitted) -
-    Number(a.isOverdue && !a.isSubmitted);
-  if (overdueNotSubmittedDiff !== 0) return overdueNotSubmittedDiff;
-
-  const notSubmittedDiff = Number(!b.isSubmitted) - Number(!a.isSubmitted);
-  if (notSubmittedDiff !== 0) return notSubmittedDiff;
-
-  const deadlineDiff =
-    getDeadlineTime(a.deadline) - getDeadlineTime(b.deadline);
-  if (deadlineDiff !== 0) return deadlineDiff;
-
-  return (a.assignmentTitle || "").localeCompare(b.assignmentTitle || "");
-}
-
-function getDeadlineTime(deadline?: string | null) {
-  if (!deadline) return Number.MAX_SAFE_INTEGER;
-  const value = parseBackendTimestamp(deadline)?.getTime() ?? Number.NaN;
-  return Number.isNaN(value) ? Number.MAX_SAFE_INTEGER : value;
-}
-
-function assignmentStatusLabel(item: StudentAssignmentInboxItem) {
-  if (item.isGraded) return "Sudah dinilai";
-  if (item.isSubmitted) return "Sudah dikumpulkan";
-  if (item.isOverdue) return "Lewat deadline";
-  return "Belum dikumpulkan";
-}
-
-function assignmentStatusClasses(item: StudentAssignmentInboxItem) {
-  if (item.isGraded) return "bg-[#ecfdf3] text-[#027a48]";
-  if (item.isSubmitted) return "bg-[#eef2ff] text-brand";
-  if (item.isOverdue) return "bg-[#fef2f2] text-[#dc2626]";
-  return "bg-[#fff7ed] text-[#b45309]";
-}
-
-function notificationTitle(item: NotificationItem) {
-  if (item.type === "assignment_created") return "Tugas baru";
-  if (item.type === "feed_posted") return "Pengumuman kelas baru";
-  if (item.type === "assignment_graded") return "Tugas sudah dinilai";
-  if (item.type === "material_added") return "Materi baru";
-  return item.title || "Notifikasi";
-}
-
-function notificationBadge(item: NotificationItem) {
-  if (item.type === "assignment_created") return "TB";
-  if (item.type === "feed_posted") return "PG";
-  if (item.type === "assignment_graded") return "AG";
-  if (item.type === "material_added") return "MT";
-  return initials(notificationTitle(item));
-}
-
-function notificationMessage(item: NotificationItem) {
-  return item.message || "Buka notifikasi untuk melihat informasi terbaru.";
-}
-
-function notificationAriaLabel(item: NotificationItem) {
-  const action = item.link ? "Buka notifikasi" : "Tandai notifikasi dibaca";
-  return `${action}: ${notificationTitle(item)}`;
-}
-
-function isInternalNotificationLink(link?: string) {
-  return Boolean(link && link.startsWith("/") && !link.startsWith("//"));
 }
 
 function markNotificationRead(item: NotificationItem) {
@@ -594,7 +354,6 @@ function markAllNotificationsRead() {
 onMounted(() => {
   loadDashboard();
   loadActivities();
-  loadCalendarActivities();
 });
 </script>
 
@@ -630,11 +389,11 @@ onMounted(() => {
 
         <section
           v-if="errorMessage"
-          class="rounded-xl border border-[#fecaca] bg-[#fef2f2] p-5 sm:p-6"
+          class="rounded-xl border border-danger-line bg-danger-soft p-5 sm:p-6"
         >
           <div class="flex items-start gap-3">
             <div
-              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fef2f2] text-[#dc2626]"
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-danger-soft text-danger"
             >
               <PhWarningCircle :size="22" weight="duotone" />
             </div>
@@ -646,7 +405,7 @@ onMounted(() => {
                 {{ errorMessage }}
               </p>
               <button
-                class="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+                class="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-hover"
                 type="button"
                 @click="loadDashboard()"
               >
@@ -681,7 +440,7 @@ onMounted(() => {
             class="w-full max-w-xl rounded-xl border border-border bg-white shadow-sm p-8 text-center"
           >
             <div
-              class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+              class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
             >
               <PhBookOpen :size="25" weight="duotone" />
             </div>
@@ -709,7 +468,7 @@ onMounted(() => {
                 </p>
               </div>
               <RouterLink
-                class="shrink-0 text-xs font-medium text-brand transition hover:text-[#4338ca] sm:text-sm"
+                class="shrink-0 text-xs font-medium text-brand transition hover:text-brand-hover sm:text-sm"
                 to="/student/subjects"
               >
                 Lihat semua
@@ -796,7 +555,7 @@ onMounted(() => {
             <div class="mb-4 flex shrink-0 items-center justify-between gap-3">
               <div class="flex min-w-0 items-start gap-3">
                 <div
-                  class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#eef2ff] text-brand"
+                  class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-soft text-brand"
                 >
                   <PhClipboardText :size="19" weight="duotone" />
                 </div>
@@ -809,7 +568,7 @@ onMounted(() => {
               </div>
               <RouterLink
                 to="/student/assignments"
-                class="shrink-0 text-xs font-medium text-brand transition hover:text-[#4338ca] sm:text-sm"
+                class="shrink-0 text-xs font-medium text-brand transition hover:text-brand-hover sm:text-sm"
               >
                 Lihat semua
               </RouterLink>
@@ -909,14 +668,14 @@ onMounted(() => {
               </p>
               <div class="flex items-center gap-2">
                 <RouterLink
-                  class="rounded-lg border border-border bg-white px-1 py-1 text-xs font-medium text-brand transition hover:border-brand hover:bg-[#eef2ff]"
+                  class="rounded-lg border border-border bg-white px-1 py-1 text-xs font-medium text-brand transition hover:border-brand hover:bg-brand-soft"
                   to="/student/notifications"
                 >
                   Lihat semua
                 </RouterLink>
                 <button
                   v-if="notificationUnread.unreadCount.value > 0"
-                  class="rounded-lg bg-[#eef2ff] px-1 py-1 text-xs font-medium text-brand transition hover:bg-[#e0e7ff] disabled:cursor-not-allowed disabled:opacity-60"
+                  class="rounded-lg bg-brand-soft px-1 py-1 text-xs font-medium text-brand transition hover:bg-[#e0e7ff] disabled:cursor-not-allowed disabled:opacity-60"
                   type="button"
                   :disabled="markingAllNotifications"
                   @click="markAllNotificationsRead"
@@ -944,7 +703,7 @@ onMounted(() => {
               <p>{{ notificationsError }}</p>
               <button
                 type="button"
-                class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-medium text-brand transition hover:border-brand hover:bg-[#eef2ff] disabled:cursor-not-allowed disabled:opacity-60"
+                class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-medium text-brand transition hover:border-brand hover:bg-brand-soft disabled:cursor-not-allowed disabled:opacity-60"
                 :disabled="notificationsLoading"
                 @click="loadNotifications"
               >
@@ -1016,7 +775,7 @@ onMounted(() => {
           <template #feed>
             <div class="mb-3 flex items-center justify-between gap-3">
               <RouterLink
-                class="shrink-0 text-xs font-medium text-brand transition hover:text-[#4338ca] inline-flex gap-1 pt-1"
+                class="shrink-0 text-xs font-medium text-brand transition hover:text-brand-hover inline-flex gap-1 pt-1"
                 to="/student/feed"
               >
                 Buka feed
@@ -1039,7 +798,7 @@ onMounted(() => {
               <button
                 v-if="activeClassStore.activeClassId"
                 type="button"
-                class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-medium text-brand transition hover:border-brand hover:bg-[#eef2ff] disabled:cursor-not-allowed disabled:opacity-60"
+                class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-medium text-brand transition hover:border-brand hover:bg-brand-soft disabled:cursor-not-allowed disabled:opacity-60"
                 :disabled="feedPreviewLoading"
                 @click="retryFeedPreview"
               >
@@ -1076,207 +835,7 @@ onMounted(() => {
           </template>
         </DashboardUpdatesPanel>
 
-        <section class="shrink-0 rounded-xl bg-white p-3">
-          <div class="mb-2 flex items-center justify-between">
-            <p class="text-sm font-medium text-foreground">{{ currentMonth }}</p>
-            <div class="flex gap-1">
-              <button
-                class="rounded-lg border border-border p-1.5 text-[#7a7385] transition hover:bg-[#fbfaf8]"
-                type="button"
-                @click="changeMonth(-1)"
-              >
-                <PhCaretLeft :size="14" />
-              </button>
-              <button
-                class="rounded-lg border border-border p-1.5 text-[#7a7385] transition hover:bg-[#fbfaf8]"
-                type="button"
-                @click="changeMonth(1)"
-              >
-                <PhCaretRight :size="14" />
-              </button>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-7 gap-1 text-center">
-            <span
-              v-for="day in ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']"
-              :key="day"
-              class="py-0.5 text-[10px] text-[#a09aa8]"
-            >
-              {{ day }}
-            </span>
-            <span v-for="day in calendarDays" :key="day.key" class="min-h-8">
-              <button
-                v-if="day.dateKey"
-                type="button"
-                class="flex h-full min-h-8 w-full flex-col items-center justify-center rounded-lg px-1 py-0.5 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
-                :class="[
-                  day.isToday
-                    ? 'bg-brand font-medium text-white'
-                    : day.isCurrentMonth
-                      ? 'text-[#4a4356] hover:bg-[#fbfaf8]'
-                      : 'text-[#c0bac8] hover:bg-[#fbfaf8]',
-                  selectedDate === day.dateKey
-                    ? 'ring-2 ring-brand ring-offset-1'
-                    : '',
-                ]"
-                :aria-label="calendarDateAriaLabel(day)"
-                :aria-pressed="selectedDate === day.dateKey"
-                @click="selectCalendarDate(day.dateKey)"
-              >
-                <span>{{ day.label }}</span>
-                <span
-                  v-if="day.activities.length || day.extraCount"
-                  class="mt-0.5 flex h-2 items-center justify-center gap-0.5"
-                  aria-hidden="true"
-                >
-                  <span
-                    v-for="activity in day.activities"
-                    :key="activity.id"
-                    class="h-1.5 w-1.5 rounded-full"
-                    :style="{
-                      backgroundColor: activity.subject
-                        ? activitySubjectColor(activity)
-                        : '#a09aa8',
-                    }"
-                  />
-                  <span
-                    v-if="day.extraCount"
-                    class="ml-0.5 text-[9px] font-medium"
-                    :class="day.isToday ? 'text-white' : 'text-[#7a7385]'"
-                  >
-                    +{{ day.extraCount }}
-                  </span>
-                </span>
-              </button>
-              <span v-else class="block min-h-8" />
-            </span>
-          </div>
-
-          <div class="mt-3 border-t border-border pt-3">
-            <div class="mb-2 flex items-center justify-between gap-3">
-              <p class="text-sm font-medium text-foreground">Deadline Tugas</p>
-              <p class="shrink-0 text-xs text-[#8b8592]">
-                {{ formatActivityDate(selectedDate) }}
-              </p>
-            </div>
-
-            <div class="h-32 overflow-y-auto pr-1">
-              <div
-                v-if="calendarActivitiesLoading"
-                class="rounded-lg bg-[#fbfaf8] p-3 text-xs leading-5 text-[#7a7385]"
-              >
-                Memuat deadline...
-              </div>
-
-              <div
-                v-else-if="calendarActivitiesError"
-                class="rounded-lg bg-[#fbfaf8] p-3 text-xs leading-5 text-[#7a7385]"
-              >
-                {{ calendarActivitiesError }}
-              </div>
-
-              <div
-                v-else-if="selectedDatePreview.length === 0"
-                class="border-b border-border bg-[#fbfaf8] p-3 text-xs leading-5 text-[#7a7385]"
-              >
-                Tidak ada deadline tugas pada tanggal ini.
-              </div>
-
-              <ul
-                v-else
-                class="space-y-2"
-                aria-label="Deadline tugas pada tanggal ini"
-              >
-                <li
-                  v-for="activity in selectedDatePreview"
-                  :key="activity.id"
-                  class="min-w-0"
-                >
-                  <RouterLink
-                    v-if="isInternalActivityLink(activity.link)"
-                    :to="activity.link || ''"
-                    class="group flex min-w-0 items-start gap-2 border-b border-border bg-[#fbfaf8] p-3 transition hover:border-[#c7d2fe] hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
-                    :aria-label="`${activityTypeLabel(activity.type, 'student')}: ${activity.title}`"
-                  >
-                    <span
-                      class="mt-1.5 h-2 w-2 shrink-0 rounded-full"
-                      :style="{
-                        backgroundColor: activity.subject
-                          ? activitySubjectColor(activity)
-                          : '#a09aa8',
-                      }"
-                      aria-hidden="true"
-                    />
-                    <span class="min-w-0 flex-1">
-                      <span
-                        class="flex min-w-0 items-center justify-between gap-2"
-                      >
-                        <span class="text-[11px] font-medium text-brand">
-                          {{ activityTypeLabel(activity.type, "student") }}
-                        </span>
-                        <span class="shrink-0 text-[10px] text-[#9ca3af]">
-                          {{ calendarActivityTime(activity) }}
-                        </span>
-                      </span>
-                      <span
-                        class="mt-1 block truncate text-xs font-medium text-foreground transition group-hover:text-brand"
-                      >
-                        {{ activity.title }}
-                      </span>
-                    </span>
-                  </RouterLink>
-
-                  <article
-                    v-else
-                    class="flex min-w-0 items-start gap-2 rounded-lg bg-[#fbfaf8] p-3"
-                  >
-                    <span
-                      class="mt-1.5 h-2 w-2 shrink-0 rounded-full"
-                      :style="{
-                        backgroundColor: activity.subject
-                          ? activitySubjectColor(activity)
-                          : '#a09aa8',
-                      }"
-                      aria-hidden="true"
-                    />
-                    <div class="min-w-0 flex-1">
-                      <div
-                        class="flex min-w-0 items-center justify-between gap-2"
-                      >
-                        <span class="text-[11px] font-medium text-brand">
-                          {{ activityTypeLabel(activity.type, "student") }}
-                        </span>
-                        <span class="shrink-0 text-[10px] text-[#9ca3af]">
-                          {{ calendarActivityTime(activity) }}
-                        </span>
-                      </div>
-                      <p
-                        class="mt-1 truncate text-xs font-medium text-foreground"
-                      >
-                        {{ activity.title }}
-                      </p>
-                    </div>
-                  </article>
-                </li>
-              </ul>
-
-              <p
-                v-if="
-                  selectedDateDeadlineActivities.length >
-                  selectedDatePreview.length
-                "
-                class="mt-3 text-xs text-[#8b8592]"
-              >
-                +{{
-                  selectedDateDeadlineActivities.length -
-                  selectedDatePreview.length
-                }}
-                deadline lainnya
-              </p>
-            </div>
-          </div>
-        </section>
+        <StudentActivityCalendarCard />
       </div>
     </aside>
   </main>

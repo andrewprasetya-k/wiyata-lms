@@ -308,7 +308,7 @@ watch(activeCreateTab, (tab) => {
           </button>
           <button
             type="submit"
-            class="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:bg-[#c7c3d7]"
+            class="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-hover disabled:cursor-not-allowed disabled:bg-[#c7c3d7]"
             :disabled="isOpeningDM"
           >
             {{ isOpeningDM ? "Membuka..." : "Buka percakapan" }}
@@ -434,7 +434,7 @@ watch(activeCreateTab, (tab) => {
           </button>
           <button
             type="submit"
-            class="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:bg-[#c7c3d7]"
+            class="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-hover disabled:cursor-not-allowed disabled:bg-[#c7c3d7]"
             :disabled="isCreatingGroup"
           >
             {{ isCreatingGroup ? "Membuat..." : "Buat ruang" }}

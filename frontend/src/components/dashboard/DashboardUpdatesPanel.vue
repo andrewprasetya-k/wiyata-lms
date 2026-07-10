@@ -85,7 +85,7 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
           {{ tab.label }}
           <span
             v-if="tab.badge > 0"
-            class="inline-flex min-w-[1.1rem] items-center justify-center rounded-full bg-[#eef2ff] px-1.5 py-0.5 text-[10px] font-semibold leading-none text-brand"
+            class="inline-flex min-w-[1.1rem] items-center justify-center rounded-full bg-brand-soft px-1.5 py-0.5 text-[10px] font-semibold leading-none text-brand"
             :aria-label="`${tab.badge} update belum dibaca`"
           >
             {{ badgeLabel(tab.badge) }}

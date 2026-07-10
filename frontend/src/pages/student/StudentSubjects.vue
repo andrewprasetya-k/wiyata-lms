@@ -163,11 +163,11 @@ onMounted(loadSubjects);
         class="flex min-h-[55vh] items-center justify-center"
       >
         <article
-          class="w-full max-w-xl rounded-xl border border-[#fecaca] bg-[#fef2f2] p-6"
+          class="w-full max-w-xl rounded-xl border border-danger-line bg-danger-soft p-6"
         >
           <div class="flex items-start gap-3">
             <div
-              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fef2f2] text-[#dc2626]"
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-danger-soft text-danger"
             >
               <PhWarningCircle :size="22" weight="duotone" />
             </div>
@@ -179,7 +179,7 @@ onMounted(loadSubjects);
                 {{ errorMessage }}
               </p>
               <button
-                class="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+                class="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-hover"
                 type="button"
                 @click="loadSubjects"
               >
@@ -198,7 +198,7 @@ onMounted(loadSubjects);
           class="w-full max-w-xl rounded-xl border border-border bg-white p-8 text-center"
         >
           <div
-            class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+            class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
           >
             <PhBooks class="h-6 w-6" weight="duotone" />
           </div>
@@ -220,7 +220,7 @@ onMounted(loadSubjects);
           class="w-full max-w-xl rounded-xl border border-border bg-white p-8 text-center"
         >
           <div
-            class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+            class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
           >
             <PhBooks class="h-6 w-6" weight="duotone" />
           </div>
@@ -300,12 +300,12 @@ onMounted(loadSubjects);
                     Materi
                   </span>
                   <span
-                    class="rounded-full bg-[#fff7ed] px-2 py-1 text-[11px] text-[#b45309]"
+                    class="rounded-full bg-warning-soft px-2 py-1 text-[11px] text-warning"
                   >
                     Tugas
                   </span>
                   <span
-                    class="rounded-full bg-[#eef2ff] px-2 py-1 text-[11px] text-brand"
+                    class="rounded-full bg-brand-soft px-2 py-1 text-[11px] text-brand"
                   >
                     Catatan
                   </span>
@@ -323,7 +323,7 @@ onMounted(loadSubjects);
             v-for="item in classes"
             :key="item.enrollmentId"
             class="flex items-center gap-3 rounded-xl px-3 py-2"
-            :class="item.classId === activeClass?.classId ? 'bg-[#eef2ff]' : 'bg-[#fbfaf8]'"
+            :class="item.classId === activeClass?.classId ? 'bg-brand-soft' : 'bg-[#fbfaf8]'"
           >
             <div class="h-2 w-2 rounded-full bg-brand" />
             <div class="min-w-0 flex-1">

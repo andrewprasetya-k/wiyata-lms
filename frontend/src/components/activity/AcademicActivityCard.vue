@@ -147,7 +147,7 @@ function isInternalLink(link?: string | null) {
       </div>
       <RouterLink
         :to="activityRoute"
-        class="inline-flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-brand transition hover:bg-[#eef2ff] hover:text-[#4338ca] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+        class="inline-flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-brand transition hover:bg-brand-soft hover:text-brand-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
         aria-label="Lihat semua aktivitas akademik"
       >
         Lihat semua aktivitas
@@ -182,7 +182,7 @@ function isInternalLink(link?: string | null) {
       class="rounded-lg border border-border bg-[#fbfaf8] p-4"
     >
       <div
-        class="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-[#eef2ff] text-brand"
+        class="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-brand-soft text-brand"
       >
         <PhCalendarCheck class="h-5 w-5" weight="duotone" />
       </div>
@@ -195,7 +195,7 @@ function isInternalLink(link?: string | null) {
       </p>
       <RouterLink
         :to="activityRoute"
-        class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-2 text-xs font-medium text-brand transition hover:border-brand hover:bg-[#eef2ff]"
+        class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-2 text-xs font-medium text-brand transition hover:border-brand hover:bg-brand-soft"
       >
         Lihat semua aktivitas
         <PhArrowRight :size="13" />
@@ -232,7 +232,7 @@ function isInternalLink(link?: string | null) {
               <span class="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
                 <span
                   class="text-[11px] font-medium"
-                  :class="activity.type === 'assignment_overdue' ? 'text-[#dc2626]' : 'text-brand'"
+                  :class="activity.type === 'assignment_overdue' ? 'text-danger' : 'text-brand'"
                 >
                   {{ typeLabel(activity.type) }}
                 </span>
@@ -241,13 +241,13 @@ function isInternalLink(link?: string | null) {
                 </span>
                 <span
                   v-if="activity.type === 'assignment_overdue'"
-                  class="rounded-full bg-[#fef2f2] px-2 py-0.5 text-[10px] font-medium text-[#dc2626]"
+                  class="rounded-full bg-danger-soft px-2 py-0.5 text-[10px] font-medium text-danger"
                 >
                   Tenggat terlewat
                 </span>
                 <span
                   v-else-if="activity.priority === 'high'"
-                  class="rounded-full bg-[#fff7ed] px-2 py-0.5 text-[10px] font-medium text-[#b45309]"
+                  class="rounded-full bg-warning-soft px-2 py-0.5 text-[10px] font-medium text-warning"
                 >
                   Prioritas
                 </span>
@@ -278,7 +278,7 @@ function isInternalLink(link?: string | null) {
               <div class="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
                 <span
                   class="text-[11px] font-medium"
-                  :class="activity.type === 'assignment_overdue' ? 'text-[#dc2626]' : 'text-brand'"
+                  :class="activity.type === 'assignment_overdue' ? 'text-danger' : 'text-brand'"
                 >
                   {{ typeLabel(activity.type) }}
                 </span>
@@ -287,13 +287,13 @@ function isInternalLink(link?: string | null) {
                 </span>
                 <span
                   v-if="activity.type === 'assignment_overdue'"
-                  class="rounded-full bg-[#fef2f2] px-2 py-0.5 text-[10px] font-medium text-[#dc2626]"
+                  class="rounded-full bg-danger-soft px-2 py-0.5 text-[10px] font-medium text-danger"
                 >
                   Tenggat terlewat
                 </span>
                 <span
                   v-else-if="activity.priority === 'high'"
-                  class="rounded-full bg-[#fff7ed] px-2 py-0.5 text-[10px] font-medium text-[#b45309]"
+                  class="rounded-full bg-warning-soft px-2 py-0.5 text-[10px] font-medium text-warning"
                 >
                   Prioritas
                 </span>

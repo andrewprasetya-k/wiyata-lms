@@ -126,7 +126,7 @@ function formatTime(value?: string | null) {
     <div class="mb-4 flex items-center justify-between gap-3">
       <RouterLink
         :to="to"
-        class="inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-brand transition hover:text-[#4338ca] pt-1"
+        class="inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-brand transition hover:text-brand-hover pt-1"
       >
         Buka chat
         <PhArrowRight :size="14" />
@@ -143,9 +143,9 @@ function formatTime(value?: string | null) {
 
     <div
       v-else-if="hasError"
-      class="flex gap-3 rounded-lg border border-[#fecaca] bg-[#fffafa] p-3"
+      class="flex gap-3 rounded-lg border border-danger-line bg-[#fffafa] p-3"
     >
-      <PhWarningCircle :size="18" class="mt-0.5 shrink-0 text-[#dc2626]" />
+      <PhWarningCircle :size="18" class="mt-0.5 shrink-0 text-danger" />
       <p class="text-xs leading-5 text-[#7a7385]">
         Ringkasan chat belum bisa dimuat. Halaman lain tetap dapat digunakan.
       </p>

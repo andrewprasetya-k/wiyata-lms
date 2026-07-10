@@ -32,7 +32,7 @@ function goBack() {
 <template>
   <section class="soft-card w-full max-w-screen rounded-[28px] p-8 text-center">
     <div
-      class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+      class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
     >
       <PhCompassTool :size="22" weight="duotone" />
     </div>

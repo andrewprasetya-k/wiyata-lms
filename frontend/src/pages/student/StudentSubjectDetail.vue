@@ -193,7 +193,7 @@ onMounted(loadSubject);
       <div class="mx-auto max-w-7xl">
         <div class="mb-4 flex items-center gap-3">
           <div
-            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#eef2ff] text-brand"
+            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-soft text-brand"
           >
             <component :is="currentTab.icon" :size="19" weight="duotone" />
           </div>
@@ -233,12 +233,12 @@ onMounted(loadSubject);
 
           <article
             v-else-if="errorMessage"
-            class="rounded-xl border border-[#fecaca] bg-[#fef2f2] p-5"
+            class="rounded-xl border border-danger-line bg-danger-soft p-5"
           >
             <div class="flex items-start gap-3">
               <PhWarningCircle
                 :size="22"
-                class="mt-0.5 shrink-0 text-[#dc2626]"
+                class="mt-0.5 shrink-0 text-danger"
                 weight="duotone"
               />
               <div>
@@ -249,7 +249,7 @@ onMounted(loadSubject);
                   {{ errorMessage }}
                 </p>
                 <button
-                  class="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+                  class="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-hover"
                   type="button"
                   @click="loadSubject"
                 >
@@ -264,7 +264,7 @@ onMounted(loadSubject);
             class="rounded-xl border border-border bg-white p-6 text-center"
           >
             <div
-              class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+              class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
             >
               <PhBookOpen class="h-6 w-6" weight="duotone" />
             </div>
@@ -296,7 +296,7 @@ onMounted(loadSubject);
             >
               <div class="flex items-start justify-between gap-3">
                 <div
-                  class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#eef2ff] text-brand"
+                  class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-soft text-brand"
                 >
                   <PhFileText :size="19" weight="duotone" />
                 </div>
@@ -370,12 +370,12 @@ onMounted(loadSubject);
 
           <article
             v-else-if="errorMessage"
-            class="rounded-xl border border-[#fecaca] bg-[#fef2f2] p-5"
+            class="rounded-xl border border-danger-line bg-danger-soft p-5"
           >
             <div class="flex items-start gap-3">
               <PhWarningCircle
                 :size="22"
-                class="mt-0.5 shrink-0 text-[#dc2626]"
+                class="mt-0.5 shrink-0 text-danger"
                 weight="duotone"
               />
               <div>
@@ -386,7 +386,7 @@ onMounted(loadSubject);
                   {{ errorMessage }}
                 </p>
                 <button
-                  class="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+                  class="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-hover"
                   type="button"
                   @click="loadSubject"
                 >
@@ -401,7 +401,7 @@ onMounted(loadSubject);
             class="rounded-xl border border-border bg-white p-6 text-center"
           >
             <div
-              class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+              class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
             >
               <PhClipboardText class="h-6 w-6" weight="duotone" />
             </div>
@@ -435,7 +435,7 @@ onMounted(loadSubject);
                 class="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center"
               >
                 <div
-                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#eef2ff] text-brand"
+                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-soft text-brand"
                 >
                   <PhClipboardText :size="20" weight="duotone" />
                 </div>
@@ -486,7 +486,7 @@ onMounted(loadSubject);
                     Status tersedia di detail
                   </span>
                   <span
-                    class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[#ddd8e4] text-brand transition group-hover:border-brand group-hover:bg-[#eef2ff]"
+                    class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[#ddd8e4] text-brand transition group-hover:border-brand group-hover:bg-brand-soft"
                     title="Buka tugas"
                   >
                     <PhArrowRight :size="16" />
@@ -508,12 +508,12 @@ onMounted(loadSubject);
 
           <article
             v-else-if="notesError"
-            class="rounded-xl border border-[#fecaca] bg-[#fef2f2] p-5"
+            class="rounded-xl border border-danger-line bg-danger-soft p-5"
           >
             <div class="flex items-start gap-3">
               <PhWarningCircle
                 :size="22"
-                class="mt-0.5 shrink-0 text-[#dc2626]"
+                class="mt-0.5 shrink-0 text-danger"
                 weight="duotone"
               />
               <div>
@@ -524,7 +524,7 @@ onMounted(loadSubject);
                   {{ notesError }}
                 </p>
                 <button
-                  class="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+                  class="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-hover"
                   type="button"
                   @click="loadNotes(true)"
                 >
@@ -539,7 +539,7 @@ onMounted(loadSubject);
             class="rounded-xl border border-border bg-white p-6 text-center"
           >
             <div
-              class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+              class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
             >
               <PhNotebook class="h-6 w-6" weight="duotone" />
             </div>
@@ -594,7 +594,7 @@ onMounted(loadSubject);
                   Lihat materi
                 </button>
                 <button
-                  class="inline-flex items-center gap-2 rounded-lg bg-brand px-3 py-2 text-xs font-medium text-white transition hover:bg-[#4338ca]"
+                  class="inline-flex items-center gap-2 rounded-lg bg-brand px-3 py-2 text-xs font-medium text-white transition hover:bg-brand-hover"
                   type="button"
                   @click="
                     router.push(

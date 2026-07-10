@@ -127,7 +127,7 @@ onMounted(loadInvitation);
           </div>
           <RouterLink
             to="/login"
-            class="inline-flex h-10 items-center justify-center rounded-lg bg-brand px-5 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+            class="inline-flex h-10 items-center justify-center rounded-lg bg-brand px-5 text-sm font-medium text-white transition hover:bg-brand-hover"
           >
             Login ke Wiyata
           </RouterLink>
@@ -244,7 +244,7 @@ onMounted(loadInvitation);
             <button
               type="submit"
               :disabled="submitting || !canSubmit"
-              class="flex h-11 w-full items-center justify-center rounded-lg bg-brand px-5 text-sm font-medium text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:bg-[#bab7d8]"
+              class="flex h-11 w-full items-center justify-center rounded-lg bg-brand px-5 text-sm font-medium text-white transition hover:bg-brand-hover disabled:cursor-not-allowed disabled:bg-[#bab7d8]"
             >
               {{ submitting ? "Memproses..." : "Terima undangan" }}
             </button>

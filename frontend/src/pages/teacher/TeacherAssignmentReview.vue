@@ -244,10 +244,10 @@ onMounted(loadData);
 
       <section
         v-else-if="errorMessage"
-        class="mx-auto max-w-xl rounded-xl border border-[#fecaca] bg-[#fef2f2] px-5 py-10 text-center"
+        class="mx-auto max-w-xl rounded-xl border border-danger-line bg-danger-soft px-5 py-10 text-center"
       >
         <div
-          class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#fef2f2] text-[#dc2626]"
+          class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-danger-soft text-danger"
         >
           <PhFile :size="24" weight="duotone" />
         </div>
@@ -271,7 +271,7 @@ onMounted(loadData);
         class="mx-auto max-w-xl rounded-xl border border-border bg-white px-5 py-10 text-center"
       >
         <div
-          class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+          class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
         >
           <PhUser :size="24" weight="duotone" />
         </div>
@@ -317,7 +317,7 @@ onMounted(loadData);
                   class="rounded-lg px-2.5 py-1.5 text-[11px] font-medium"
                   :class="
                     currentSubmission.isLate
-                      ? 'bg-[#fef2f2] text-[#dc2626]'
+                      ? 'bg-danger-soft text-danger'
                       : 'bg-[#f0fdf4] text-[#059669]'
                   "
                 >
@@ -421,7 +421,7 @@ onMounted(loadData);
               <InlineFormError :message="gradeFormError" class="mt-3" />
               <button
                 type="button"
-                class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#4338ca] disabled:opacity-50"
+                class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white transition hover:bg-brand-hover disabled:opacity-50"
                 :disabled="submitting"
                 @click="handleGrade"
               >
@@ -457,7 +457,7 @@ onMounted(loadData);
                   class="flex w-full min-w-0 items-center justify-between gap-3 rounded-lg border p-3 text-left transition"
                   :class="
                     activeIndex === index
-                      ? 'border-[#c7d2fe] bg-[#eef2ff]'
+                      ? 'border-[#c7d2fe] bg-brand-soft'
                       : 'border-transparent hover:bg-[#f3f1ec]'
                   "
                   @click="activeIndex = index"

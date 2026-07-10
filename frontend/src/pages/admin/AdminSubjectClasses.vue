@@ -446,7 +446,7 @@ onMounted(async () => {
     <section class="px-5 py-5 sm:px-6 lg:px-8 lg:py-6">
       <div
         v-if="!currentSchool.hasContext"
-        class="mb-5 flex items-start gap-3 rounded-xl border border-[#fecaca] bg-[#fef2f2] p-4 text-sm leading-6 text-[#dc2626]"
+        class="mb-5 flex items-start gap-3 rounded-xl border border-danger-line bg-danger-soft p-4 text-sm leading-6 text-danger"
       >
         <PhWarningCircle :size="20" class="mt-0.5 shrink-0" weight="duotone" />
         <p>
@@ -481,7 +481,7 @@ onMounted(async () => {
             </div>
             <div class="flex shrink-0 flex-wrap gap-2 text-xs font-medium">
               <span
-                class="inline-flex items-center gap-2 rounded-lg bg-[#eef2ff] px-3 py-2 text-brand"
+                class="inline-flex items-center gap-2 rounded-lg bg-brand-soft px-3 py-2 text-brand"
               >
                 <PhBookOpen :size="16" weight="duotone" />
                 {{ subjectClasses.length }} mata pelajaran
@@ -506,11 +506,11 @@ onMounted(async () => {
 
             <div
               v-else-if="subjectClassesError"
-              class="rounded-lg border border-[#fecaca] bg-[#fef2f2] p-5 text-center"
+              class="rounded-lg border border-danger-line bg-danger-soft p-5 text-center"
             >
               <PhWarningCircle
                 :size="26"
-                class="mx-auto text-[#dc2626]"
+                class="mx-auto text-danger"
                 weight="duotone"
               />
               <h3 class="mt-3 text-sm font-semibold text-foreground">
@@ -609,7 +609,7 @@ onMounted(async () => {
                   </div>
                   <button
                     type="button"
-                    class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-[#fecaca] bg-[#fef2f2] px-3 py-2 text-sm font-medium text-[#dc2626] transition hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-60"
+                    class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-danger-line bg-danger-soft px-3 py-2 text-sm font-medium text-danger transition hover:bg-danger-soft disabled:cursor-not-allowed disabled:opacity-60"
                     :disabled="Boolean(unassigningId)"
                     @click="requestUnassign(subjectClass)"
                   >
@@ -623,7 +623,7 @@ onMounted(async () => {
                     pendingUnassign?.subjectClassId ===
                     subjectClass.subjectClassId
                   "
-                  class="mt-3 rounded-lg border border-[#fecaca] bg-[#fef2f2] p-3"
+                  class="mt-3 rounded-lg border border-danger-line bg-danger-soft p-3"
                 >
                   <p class="text-xs leading-5 text-[#991b1b]">
                     Penugasan ini akan dilepas. Guru tidak lagi melihat ruang
@@ -633,7 +633,7 @@ onMounted(async () => {
                   <div class="mt-3 flex flex-wrap gap-2">
                     <button
                       type="button"
-                      class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#dc2626] px-3 py-2 text-sm font-medium text-white transition hover:bg-[#b91c1c] disabled:cursor-not-allowed disabled:opacity-60"
+                      class="inline-flex items-center justify-center gap-2 rounded-lg bg-danger px-3 py-2 text-sm font-medium text-white transition hover:bg-[#b91c1c] disabled:cursor-not-allowed disabled:opacity-60"
                       :disabled="unassigningId === subjectClass.subjectClassId"
                       @click="confirmUnassign(subjectClass)"
                     >
@@ -645,7 +645,7 @@ onMounted(async () => {
                     </button>
                     <button
                       type="button"
-                      class="inline-flex items-center justify-center gap-2 rounded-lg border border-[#fecaca] bg-[#fef2f2] px-3 py-2 text-sm font-medium text-[#dc2626] transition hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-60"
+                      class="inline-flex items-center justify-center gap-2 rounded-lg border border-danger-line bg-danger-soft px-3 py-2 text-sm font-medium text-danger transition hover:bg-danger-soft disabled:cursor-not-allowed disabled:opacity-60"
                       :disabled="unassigningId === subjectClass.subjectClassId"
                       @click="cancelUnassign"
                     >
@@ -746,7 +746,7 @@ onMounted(async () => {
                 </p>
                 <div
                   v-else-if="yearsError || termsError || classesError"
-                  class="rounded-lg bg-[#fef2f2] px-3 py-2 text-[#dc2626]"
+                  class="rounded-lg bg-danger-soft px-3 py-2 text-danger"
                 >
                   <p>{{ yearsError || termsError || classesError }}</p>
                   <button
@@ -800,7 +800,7 @@ onMounted(async () => {
                   </p>
                 </div>
                 <span
-                  class="shrink-0 rounded-lg bg-[#eef2ff] px-2.5 py-1.5 text-xs font-medium text-brand"
+                  class="shrink-0 rounded-lg bg-brand-soft px-2.5 py-1.5 text-xs font-medium text-brand"
                 >
                   {{ teacherCandidates.length }} guru
                 </span>
@@ -885,7 +885,7 @@ onMounted(async () => {
                   </p>
                   <div
                     v-else-if="subjectsError"
-                    class="rounded-lg bg-[#fef2f2] px-3 py-2 text-[#dc2626]"
+                    class="rounded-lg bg-danger-soft px-3 py-2 text-danger"
                   >
                     <p>{{ subjectsError }}</p>
                     <button
@@ -918,7 +918,7 @@ onMounted(async () => {
                   </p>
                   <div
                     v-else-if="membersError || enrollmentsError"
-                    class="rounded-lg bg-[#fef2f2] px-3 py-2 text-[#dc2626]"
+                    class="rounded-lg bg-danger-soft px-3 py-2 text-danger"
                   >
                     <p>{{ membersError || enrollmentsError }}</p>
                     <button
@@ -933,7 +933,7 @@ onMounted(async () => {
                     v-else-if="
                       selectedClassId && teacherCandidates.length === 0
                     "
-                    class="rounded-lg bg-[#fff7ed] px-3 py-2 text-[#92400e]"
+                    class="rounded-lg bg-warning-soft px-3 py-2 text-[#92400e]"
                   >
                     Belum ada guru aktif yang dapat ditugaskan pada kelas ini.
                   </p>
@@ -961,7 +961,7 @@ onMounted(async () => {
 
       <div
         v-if="subjectClasses.length > 0"
-        class="mt-5 flex items-center gap-4 rounded-xl border border-[#bbf7d0] bg-[#f0fdf4] p-5"
+        class="mt-5 flex items-center gap-4 rounded-xl border border-success-line bg-[#f0fdf4] p-5"
       >
         <span
           class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#dcfce7] text-[#059669]"

@@ -233,7 +233,7 @@ onMounted(loadPage);
       class="soft-card mx-5 mt-5 max-w-3xl rounded-[22px] p-5 sm:mx-6 lg:mx-8"
     >
       <div
-        class="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-[#fef2f2] text-[#f2756a]"
+        class="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-danger-soft text-[#f2756a]"
       >
         <PhWarningCircle :size="24" weight="duotone" />
       </div>
@@ -242,7 +242,7 @@ onMounted(loadPage);
       </p>
       <p class="mt-2 text-sm leading-6 text-[#7a7385]">{{ errorMessage }}</p>
       <button
-        class="mt-5 rounded-xl bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+        class="mt-5 rounded-xl bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-hover"
         type="button"
         @click="loadPage"
       >
@@ -260,7 +260,7 @@ onMounted(loadPage);
         <header class="border-b border-border px-5 py-4 sm:px-6">
           <div class="flex flex-wrap items-center gap-2">
             <span
-              class="inline-flex items-center gap-1.5 rounded-lg bg-[#eef2ff] px-2.5 py-1 text-xs font-medium text-brand"
+              class="inline-flex items-center gap-1.5 rounded-lg bg-brand-soft px-2.5 py-1 text-xs font-medium text-brand"
             >
               <PhBookOpen :size="14" weight="duotone" />
               {{ material.subjectName || "Materi kelas" }}
@@ -320,7 +320,7 @@ onMounted(loadPage);
         >
           <div class="flex min-w-0 items-start gap-3">
             <div
-              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand"
             >
               <PhNotebook :size="18" weight="duotone" />
             </div>
@@ -338,7 +338,7 @@ onMounted(loadPage);
             class="inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium"
             :class="
               hasChanges
-                ? 'bg-[#fff7ed] text-[#b45309]'
+                ? 'bg-warning-soft text-warning'
                 : 'bg-[#f0fdf4] text-[#059669]'
             "
           >
@@ -362,7 +362,7 @@ onMounted(loadPage);
 
           <p
             v-if="errorMessage"
-            class="mx-5 mb-3 rounded-xl bg-[#fef2f2] px-4 py-3 text-sm leading-6 text-[#b42318]"
+            class="mx-5 mb-3 rounded-xl bg-danger-soft px-4 py-3 text-sm leading-6 text-[#b42318]"
           >
             {{ errorMessage }}
           </p>
@@ -387,7 +387,7 @@ onMounted(loadPage);
               <div class="flex flex-wrap items-center gap-2">
                 <button
                   v-if="note"
-                  class="inline-flex items-center gap-2 rounded-xl border border-border bg-white px-3 py-2 text-xs font-medium text-[#b42318] transition hover:border-[#fda29b] hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-60"
+                  class="inline-flex items-center gap-2 rounded-xl border border-border bg-white px-3 py-2 text-xs font-medium text-[#b42318] transition hover:border-[#fda29b] hover:bg-danger-soft disabled:cursor-not-allowed disabled:opacity-60"
                   :disabled="isSaving || isDeleting"
                   type="button"
                   @click="deleteNote"
@@ -399,7 +399,7 @@ onMounted(loadPage);
                 <button
                   class="inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium text-white transition disabled:cursor-not-allowed disabled:bg-[#d8d5dd]"
                   :class="
-                    canSave ? 'bg-brand hover:bg-[#4338ca]' : 'bg-[#d8d5dd]'
+                    canSave ? 'bg-brand hover:bg-brand-hover' : 'bg-[#d8d5dd]'
                   "
                   :disabled="!canSave"
                   type="submit"

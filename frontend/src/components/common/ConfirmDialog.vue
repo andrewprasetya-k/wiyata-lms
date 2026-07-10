@@ -13,25 +13,25 @@ const variantConfig = computed(() => {
   if (v === "danger")
     return {
       icon: PhWarningCircle,
-      iconBg: "bg-[#fef2f2]",
-      iconColor: "text-[#dc2626]",
+      iconBg: "bg-danger-soft",
+      iconColor: "text-danger",
       confirmClass:
-        "bg-[#dc2626] text-white hover:bg-[#b91c1c] focus-visible:ring-[#dc2626]",
+        "bg-danger text-white hover:bg-[#b91c1c] focus-visible:ring-danger",
     };
   if (v === "warning")
     return {
       icon: PhWarning,
-      iconBg: "bg-[#fff7ed]",
+      iconBg: "bg-warning-soft",
       iconColor: "text-[#ea580c]",
       confirmClass:
-        "bg-brand text-white hover:bg-[#4338ca] focus-visible:ring-brand",
+        "bg-brand text-white hover:bg-brand-hover focus-visible:ring-brand",
     };
   return {
     icon: PhInfo,
-    iconBg: "bg-[#eef2ff]",
+    iconBg: "bg-brand-soft",
     iconColor: "text-brand",
     confirmClass:
-      "bg-brand text-white hover:bg-[#4338ca] focus-visible:ring-brand",
+      "bg-brand text-white hover:bg-brand-hover focus-visible:ring-brand",
   };
 });
 

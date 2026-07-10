@@ -130,7 +130,7 @@ watch(
       </p>
 
       <RouterLink
-        class="mt-5 inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-2xl bg-brand px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#4338ca] lg:mt-auto"
+        class="mt-5 inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-2xl bg-brand px-4 py-2.5 text-sm font-medium text-white transition hover:bg-brand-hover lg:mt-auto"
         :to="{
           name: 'student-material-note',
           params: {

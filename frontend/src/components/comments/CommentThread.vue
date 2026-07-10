@@ -288,7 +288,7 @@ onMounted(() => {
 <template>
   <div v-if="isFeedVariant" class="mt-4 border-t border-border pt-3">
     <button
-      class="inline-flex items-center gap-2 rounded-2xl px-3 py-2 text-xs font-medium text-brand transition hover:bg-[#eef2ff] focus:outline-none focus:ring-2 focus:ring-brand/25"
+      class="inline-flex items-center gap-2 rounded-2xl px-3 py-2 text-xs font-medium text-brand transition hover:bg-brand-soft focus:outline-none focus:ring-2 focus:ring-brand/25"
       type="button"
       @click="toggleComments"
     >
@@ -318,7 +318,7 @@ onMounted(() => {
         </div>
       </div>
 
-      <div v-else-if="errorMessage" class="rounded-2xl bg-[#fff7ed] p-3">
+      <div v-else-if="errorMessage" class="rounded-2xl bg-warning-soft p-3">
         <p class="text-xs leading-5 text-[#9a3412]">{{ errorMessage }}</p>
         <button
           class="mt-3 inline-flex items-center gap-2 rounded-2xl border border-[#fed7aa] px-3 py-2 text-xs font-medium text-[#9a3412] transition hover:bg-[#ffedd5]"
@@ -359,7 +359,7 @@ onMounted(() => {
                 !comment.optimisticStatus &&
                 !comment.localOnly
               "
-              class="inline-flex shrink-0 items-center gap-1 rounded-xl px-2 py-1 text-[11px] font-medium text-[#b42318] transition hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-60"
+              class="inline-flex shrink-0 items-center gap-1 rounded-xl px-2 py-1 text-[11px] font-medium text-[#b42318] transition hover:bg-danger-soft disabled:cursor-not-allowed disabled:opacity-60"
               type="button"
               :disabled="deletingCommentIds.has(comment.commentId)"
               @click="removeComment(comment)"
@@ -396,7 +396,7 @@ onMounted(() => {
             Komentar hanya untuk feed kelas.
           </p>
           <button
-            class="inline-flex items-center gap-2 rounded-2xl bg-brand px-3 py-2 text-xs font-medium text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:opacity-60"
+            class="inline-flex items-center gap-2 rounded-2xl bg-brand px-3 py-2 text-xs font-medium text-white transition hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-60"
             type="submit"
             :disabled="!commentText.trim()"
           >
@@ -444,7 +444,7 @@ onMounted(() => {
       </div>
     </div>
 
-    <div v-else-if="errorMessage" class="mt-4 rounded-xl bg-[#fff7ed] p-4">
+    <div v-else-if="errorMessage" class="mt-4 rounded-xl bg-warning-soft p-4">
       <p class="text-sm leading-6 text-[#9a3412]">{{ errorMessage }}</p>
       <button
         class="mt-3 inline-flex items-center gap-2 rounded-lg border border-[#fed7aa] px-3 py-2 text-xs font-medium text-[#9a3412] transition hover:bg-[#ffedd5]"
@@ -483,7 +483,7 @@ onMounted(() => {
             v-if="
               comment.isMine && !comment.optimisticStatus && !comment.localOnly
             "
-            class="inline-flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-[#b42318] transition hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-60"
+            class="inline-flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-[#b42318] transition hover:bg-danger-soft disabled:cursor-not-allowed disabled:opacity-60"
             type="button"
             :disabled="deletingCommentIds.has(comment.commentId)"
             @click="removeComment(comment)"
@@ -517,7 +517,7 @@ onMounted(() => {
           Diskusi terlihat oleh peserta yang memiliki akses ke konten ini.
         </p>
         <button
-          class="inline-flex shrink-0 items-center gap-2 rounded-lg bg-brand px-3 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:opacity-60"
+          class="inline-flex shrink-0 items-center gap-2 rounded-lg bg-brand px-3 py-2 text-sm font-medium text-white transition hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-60"
           type="submit"
           :disabled="!canSubmit"
         >

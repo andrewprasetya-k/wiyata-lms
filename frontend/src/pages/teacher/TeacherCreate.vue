@@ -110,7 +110,7 @@ onMounted(loadSubjects);
       >
         <div class="flex items-start gap-3">
           <div
-            class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+            class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand"
           >
             <PhChalkboardTeacher :size="24" weight="duotone" />
           </div>
@@ -143,7 +143,7 @@ onMounted(loadSubjects);
             </div>
             <span
               v-if="subject.subjectCode"
-              class="rounded-full bg-[#eef2ff] px-3 py-1 text-xs font-medium text-brand"
+              class="rounded-full bg-brand-soft px-3 py-1 text-xs font-medium text-brand"
             >
               {{ subject.subjectCode }}
             </span>

@@ -131,10 +131,10 @@ function statusLabel(item: StudentAssignmentInboxItem) {
 }
 
 function statusClasses(item: StudentAssignmentInboxItem) {
-  if (item.isGraded) return "bg-[#ecfdf3] text-[#027a48]";
-  if (item.isSubmitted) return "bg-[#eef2ff] text-brand";
-  if (item.isOverdue) return "bg-[#fef2f2] text-[#dc2626]";
-  return "bg-[#fff7ed] text-[#b45309]";
+  if (item.isGraded) return "bg-success-soft text-success";
+  if (item.isSubmitted) return "bg-brand-soft text-brand";
+  if (item.isOverdue) return "bg-danger-soft text-danger";
+  return "bg-warning-soft text-warning";
 }
 
 function formatScore(value?: number | null) {
@@ -186,11 +186,11 @@ onMounted(loadAssignments);
         class="flex min-h-[55vh] items-center justify-center"
       >
         <article
-          class="w-full max-w-xl rounded-xl border border-[#fecaca] bg-[#fef2f2] p-6"
+          class="w-full max-w-xl rounded-xl border border-danger-line bg-danger-soft p-6"
         >
           <div class="flex items-start gap-3">
             <div
-              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fef2f2] text-[#dc2626]"
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-danger-soft text-danger"
             >
               <PhWarningCircle :size="22" weight="duotone" />
             </div>
@@ -202,7 +202,7 @@ onMounted(loadAssignments);
                 {{ errorMessage }}
               </p>
               <button
-                class="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+                class="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-hover"
                 type="button"
                 @click="loadAssignments"
               >
@@ -229,7 +229,7 @@ onMounted(loadAssignments);
           <article class="rounded-xl border border-border bg-white shadow-sm p-4">
             <PhClock :size="22" class="text-[#ea580c]" weight="duotone" />
             <p class="mt-3 text-xs text-[#8b8592]">Belum dikumpulkan</p>
-            <p class="mt-1 text-2xl font-medium text-[#b45309]">
+            <p class="mt-1 text-2xl font-medium text-warning">
               {{ summary.notSubmittedCount }}
             </p>
           </article>
@@ -243,18 +243,18 @@ onMounted(loadAssignments);
           <article class="rounded-xl border border-border bg-white shadow-sm p-4">
             <PhSealCheck :size="22" class="text-[#059669]" weight="duotone" />
             <p class="mt-3 text-xs text-[#8b8592]">Sudah dinilai</p>
-            <p class="mt-1 text-2xl font-medium text-[#027a48]">
+            <p class="mt-1 text-2xl font-medium text-success">
               {{ summary.gradedCount }}
             </p>
           </article>
           <article class="rounded-xl border border-border bg-white shadow-sm p-4">
             <PhWarningCircle
               :size="22"
-              class="text-[#dc2626]"
+              class="text-danger"
               weight="duotone"
             />
             <p class="mt-3 text-xs text-[#8b8592]">Lewat deadline</p>
-            <p class="mt-1 text-2xl font-medium text-[#dc2626]">
+            <p class="mt-1 text-2xl font-medium text-danger">
               {{ summary.overdueCount }}
             </p>
           </article>
@@ -281,7 +281,7 @@ onMounted(loadAssignments);
                 :class="
                   activeFilter === tab.id
                     ? 'bg-brand text-white'
-                    : 'bg-[#fbfaf8] text-muted hover:bg-[#eef2ff] hover:text-brand'
+                    : 'bg-[#fbfaf8] text-muted hover:bg-brand-soft hover:text-brand'
                 "
                 @click="activeFilter = tab.id"
               >
@@ -293,7 +293,7 @@ onMounted(loadAssignments);
 
           <div v-if="items.length === 0" class="py-12 text-center">
             <div
-              class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+              class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
             >
               <PhClipboardText class="h-6 w-6" weight="duotone" />
             </div>
@@ -308,7 +308,7 @@ onMounted(loadAssignments);
 
           <div v-else-if="filteredItems.length === 0" class="py-12 text-center">
             <div
-              class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+              class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
             >
               <PhCheckCircle class="h-6 w-6" weight="duotone" />
             </div>
@@ -332,7 +332,7 @@ onMounted(loadAssignments);
                 <div class="min-w-0">
                   <div class="flex flex-wrap gap-2 text-xs font-medium">
                     <span
-                      class="rounded-full bg-[#eef2ff] px-3 py-1.5 text-brand"
+                      class="rounded-full bg-brand-soft px-3 py-1.5 text-brand"
                     >
                       {{ item.subjectName || "Mata pelajaran" }}
                     </span>
@@ -374,13 +374,13 @@ onMounted(loadAssignments);
                     </span>
                     <span
                       v-if="item.isSubmittedLate"
-                      class="rounded-full bg-[#fff7ed] px-3 py-1.5 text-xs font-medium text-[#b45309]"
+                      class="rounded-full bg-warning-soft px-3 py-1.5 text-xs font-medium text-warning"
                     >
                       Dikumpulkan terlambat
                     </span>
                     <span
                       v-if="item.isGraded"
-                      class="rounded-full bg-[#ecfdf3] px-3 py-1.5 text-xs font-medium text-[#027a48]"
+                      class="rounded-full bg-success-soft px-3 py-1.5 text-xs font-medium text-success"
                     >
                       Nilai {{ formatScore(item.score) }}
                     </span>
@@ -402,7 +402,7 @@ onMounted(loadAssignments);
                       asgId: item.assignmentId,
                     },
                   }"
-                  class="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#4338ca] sm:w-auto"
+                  class="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white transition hover:bg-brand-hover sm:w-auto"
                 >
                   Buka tugas
                   <PhArrowRight :size="16" />

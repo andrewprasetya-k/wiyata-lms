@@ -1252,7 +1252,7 @@ function formatDateTime(value?: string | null) {
           class="flex min-h-105 flex-col items-center justify-center rounded-xl bg-white px-6 py-12 text-center"
         >
           <div
-            class="flex h-12 w-12 items-center justify-center rounded-lg bg-[#fef2f2] text-[#dc2626]"
+            class="flex h-12 w-12 items-center justify-center rounded-lg bg-danger-soft text-danger"
           >
             <PhWarningCircle :size="24" weight="duotone" />
           </div>
@@ -1284,7 +1284,7 @@ function formatDateTime(value?: string | null) {
                 <p class="text-sm font-semibold text-foreground">Percakapan</p>
                 <button
                   type="button"
-                  class="flex items-center gap-1.5 rounded-lg bg-brand px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-[#4338ca]"
+                  class="flex items-center gap-1.5 rounded-lg bg-brand px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-brand-hover"
                   @click="openCreateConversation('dm')"
                 >
                   <PhPlus :size="13" weight="bold" />
@@ -1400,7 +1400,7 @@ function formatDateTime(value?: string | null) {
               class="flex flex-1 flex-col items-center justify-center px-6 py-16 text-center"
             >
               <div
-                class="flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+                class="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
               >
                 <PhChatCircleText class="h-6 w-6" weight="duotone" />
               </div>
@@ -1412,7 +1412,7 @@ function formatDateTime(value?: string | null) {
               </p>
               <button
                 type="button"
-                class="mt-5 flex items-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#4338ca]"
+                class="mt-5 flex items-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-hover"
                 @click="openCreateConversation('dm')"
               >
                 <PhPlus :size="15" weight="bold" />
@@ -1423,7 +1423,7 @@ function formatDateTime(value?: string | null) {
             <template v-else>
               <div
                 v-if="isDragActive"
-                class="pointer-events-none absolute inset-4 z-20 flex items-center justify-center rounded-2xl border-2 border-dashed border-brand bg-[#eef2ff]/80"
+                class="pointer-events-none absolute inset-4 z-20 flex items-center justify-center rounded-2xl border-2 border-dashed border-brand bg-brand-soft/80"
               >
                 <div
                   class="rounded-2xl bg-white px-5 py-4 text-center shadow-sm"
@@ -1515,7 +1515,7 @@ function formatDateTime(value?: string | null) {
                     class="flex min-h-80 flex-col items-center justify-center rounded-2xl px-6 text-center"
                   >
                     <div
-                      class="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-[#eef2ff] text-brand"
+                      class="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-brand-soft text-brand"
                     >
                       <PhChatCircleText class="h-5 w-5" weight="duotone" />
                     </div>
@@ -1731,7 +1731,7 @@ function formatDateTime(value?: string | null) {
                             <button
                               v-else-if="message.deliveryStatus === 'failed'"
                               type="button"
-                              class="inline-flex items-center gap-1 rounded-full bg-[#fef2f2] px-2 py-0.5 font-medium text-[#dc2626]"
+                              class="inline-flex items-center gap-1 rounded-full bg-danger-soft px-2 py-0.5 font-medium text-danger"
                               @click="retryFailedMessage(message)"
                             >
                               Gagal
@@ -1779,7 +1779,7 @@ function formatDateTime(value?: string | null) {
               >
                 <button
                   type="button"
-                  class="pointer-events-auto inline-flex items-center gap-2 rounded-full border border-[#d7d1ff] bg-white px-3 py-2 text-xs font-semibold text-brand shadow-sm transition hover:border-brand hover:bg-[#eef2ff]"
+                  class="pointer-events-auto inline-flex items-center gap-2 rounded-full border border-[#d7d1ff] bg-white px-3 py-2 text-xs font-semibold text-brand shadow-sm transition hover:border-brand hover:bg-brand-soft"
                   aria-label="Lompat ke pesan terbaru"
                   @click="scrollToBottom"
                 >
@@ -1845,7 +1845,7 @@ function formatDateTime(value?: string | null) {
                       </span>
                       <button
                         type="button"
-                        class="rounded-lg p-1.5 text-[#9ca3af] transition hover:bg-white hover:text-[#dc2626]"
+                        class="rounded-lg p-1.5 text-[#9ca3af] transition hover:bg-white hover:text-danger"
                         title="Hapus lampiran"
                         aria-label="Hapus lampiran"
                         @click="removeSelectedFile(index)"
@@ -1886,7 +1886,7 @@ function formatDateTime(value?: string | null) {
                   />
                   <button
                     type="submit"
-                    class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand text-white transition hover:bg-[#4338ca] focus:outline-none focus:ring-2 focus:ring-brand/30 disabled:cursor-not-allowed disabled:bg-[#c7c3d7]"
+                    class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand text-white transition hover:bg-brand-hover focus:outline-none focus:ring-2 focus:ring-brand/30 disabled:cursor-not-allowed disabled:bg-[#c7c3d7]"
                     :disabled="!canSend"
                     aria-label="Kirim pesan"
                   >

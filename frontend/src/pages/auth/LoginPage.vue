@@ -37,7 +37,7 @@ async function submit() {
   <main class="fixed inset-0 grid overflow-hidden md:grid-cols-[1fr_1fr]">
     <!-- Left Side: Branding/Intro -->
     <section
-      class="hidden flex-col justify-between bg-[#eef2ff] px-8 py-8 sm:px-12 md:flex md:px-16 lg:px-20"
+      class="hidden flex-col justify-between bg-brand-soft px-8 py-8 sm:px-12 md:flex md:px-16 lg:px-20"
     >
       <div class="flex items-center gap-3">
         <div class="flex h-14 w-14 items-center justify-center rounded-2xl">
@@ -128,13 +128,13 @@ async function submit() {
 
           <p
             v-if="errorMessage"
-            class="rounded-2xl bg-[#fef2f2] px-4 py-3 text-sm text-[#b42318]"
+            class="rounded-2xl bg-danger-soft px-4 py-3 text-sm text-[#b42318]"
           >
             {{ errorMessage }}
           </p>
 
           <button
-            class="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-brand text-sm font-medium text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:bg-[#bab7d8]"
+            class="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-brand text-sm font-medium text-white transition hover:bg-brand-hover disabled:cursor-not-allowed disabled:bg-[#bab7d8]"
             type="submit"
             :disabled="!canSubmit || isSubmitting"
           >

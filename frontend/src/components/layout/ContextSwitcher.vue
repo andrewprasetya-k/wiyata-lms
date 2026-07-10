@@ -206,7 +206,7 @@ function isSameContext(
       ref="triggerEl"
       type="button"
       class="flex items-center gap-2.5 rounded-xl border border-border bg-[#fbfaf8] px-2.5 py-2 text-left transition hover:border-[#d8d2c6] hover:bg-[#f3f1ec] focus:outline-none focus:ring-2 focus:ring-[#c7d2fe] focus:ring-offset-2 focus:ring-offset-white disabled:cursor-default disabled:opacity-80"
-      :class="isOpen ? 'border-[#c7d2fe] bg-[#eef2ff]' : ''"
+      :class="isOpen ? 'border-[#c7d2fe] bg-brand-soft' : ''"
       :disabled="!hasMultipleContexts || isSwitching"
       :aria-haspopup="hasMultipleContexts ? 'menu' : undefined"
       :aria-expanded="hasMultipleContexts ? isOpen : undefined"
@@ -274,7 +274,7 @@ function isSameContext(
                 :key="`${option.context.schoolUserId}-${option.context.role}`"
                 type="button"
                 role="menuitem"
-                class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition hover:bg-[#f8f7f4] focus:bg-[#f8f7f4] focus:outline-none disabled:cursor-default disabled:bg-[#eef2ff]"
+                class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition hover:bg-[#f8f7f4] focus:bg-[#f8f7f4] focus:outline-none disabled:cursor-default disabled:bg-brand-soft"
                 :disabled="option.isActive || isSwitching"
                 :aria-current="option.isActive ? 'true' : undefined"
                 @click="selectContext(option.context)"
@@ -316,13 +316,13 @@ function isSameContext(
             <button
               type="button"
               role="menuitem"
-              class="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition hover:bg-[#f8f7f4] focus:bg-[#f8f7f4] focus:outline-none disabled:cursor-default disabled:bg-[#eef2ff]"
+              class="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition hover:bg-[#f8f7f4] focus:bg-[#f8f7f4] focus:outline-none disabled:cursor-default disabled:bg-brand-soft"
               :disabled="isPlatformActive || isSwitching"
               :aria-current="isPlatformActive ? 'true' : undefined"
               @click="selectContext(platformContext)"
             >
               <span
-                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#eef2ff] text-brand"
+                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-soft text-brand"
               >
                 <PhBuildings :size="17" />
               </span>

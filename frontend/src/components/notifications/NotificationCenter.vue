@@ -250,7 +250,7 @@ onMounted(() => {
 
           <button
             type="button"
-            class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-border bg-[#fbfaf8] px-3 py-2 text-sm font-medium text-brand transition hover:border-brand hover:bg-[#eef2ff] disabled:cursor-not-allowed disabled:opacity-60"
+            class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-border bg-[#fbfaf8] px-3 py-2 text-sm font-medium text-brand transition hover:border-brand hover:bg-brand-soft disabled:cursor-not-allowed disabled:opacity-60"
             :disabled="markingAll || notificationUnread.unreadCount.value <= 0"
             @click="markAllRead"
           >
@@ -318,7 +318,7 @@ onMounted(() => {
           class="flex flex-col items-center gap-3 px-5 py-14 text-center"
         >
           <div
-            class="flex h-11 w-11 items-center justify-center rounded-full bg-[#fff7ed] text-[#b45309]"
+            class="flex h-11 w-11 items-center justify-center rounded-full bg-warning-soft text-warning"
           >
             <PhWarningCircle :size="23" weight="duotone" />
           </div>
@@ -332,7 +332,7 @@ onMounted(() => {
           </div>
           <button
             type="button"
-            class="inline-flex items-center gap-2 rounded-lg border border-border bg-white px-3 py-2 text-sm font-medium text-brand transition hover:border-brand hover:bg-[#eef2ff]"
+            class="inline-flex items-center gap-2 rounded-lg border border-border bg-white px-3 py-2 text-sm font-medium text-brand transition hover:border-brand hover:bg-brand-soft"
             @click="loadNotifications(true)"
           >
             <PhArrowClockwise :size="16" />
@@ -345,7 +345,7 @@ onMounted(() => {
           class="flex flex-col items-center px-5 py-14 text-center"
         >
           <div
-            class="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-[#eef2ff] text-brand"
+            class="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-brand-soft text-brand"
           >
             <PhBell class="h-5 w-5" weight="duotone" />
           </div>
@@ -428,7 +428,7 @@ onMounted(() => {
           <button
             v-if="hasMore"
             type="button"
-            class="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-white px-3 py-2 text-sm font-medium text-brand transition hover:border-brand hover:bg-[#eef2ff] disabled:cursor-wait disabled:opacity-60"
+            class="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-white px-3 py-2 text-sm font-medium text-brand transition hover:border-brand hover:bg-brand-soft disabled:cursor-wait disabled:opacity-60"
             :disabled="loadingMore"
             @click="loadNotifications(false)"
           >

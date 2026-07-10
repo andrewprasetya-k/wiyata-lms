@@ -21,14 +21,14 @@ const overviewCards = [
     description:
       "Pantau identitas pengguna lintas sekolah dan siapkan akun awal untuk kebutuhan platform.",
     icon: PhUsers,
-    tone: "bg-[#eef2ff] text-brand",
+    tone: "bg-brand-soft text-brand",
   },
   {
     title: "Pengaturan Tenant",
     description:
       "Bantu proses awal agar sekolah punya admin sekolah yang dapat melanjutkan pengaturan akademik.",
     icon: PhCompass,
-    tone: "bg-[#ecfdf3] text-[#027a48]",
+    tone: "bg-success-soft text-success",
   },
   {
     title: "Peran Platform",
@@ -194,7 +194,7 @@ const quickActions = [
               area Admin Sekolah.
             </p>
             <div
-              class="mt-4 rounded-lg border border-[#fed7aa] bg-[#fff7ed] px-4 py-3"
+              class="mt-4 rounded-lg border border-[#fed7aa] bg-warning-soft px-4 py-3"
             >
               <p class="text-xs leading-5 text-[#9a3412]">
                 Halaman sekolah dan akun global masih menggunakan navigasi yang
@@ -260,7 +260,7 @@ const quickActions = [
               </p>
             </div>
             <div class="flex gap-3">
-              <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-[#027a48]" />
+              <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-success" />
               <p class="text-xs leading-5 text-muted">
                 Tindakan destruktif platform tidak ditampilkan pada ringkasan
                 ini.

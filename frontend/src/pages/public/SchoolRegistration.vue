@@ -233,7 +233,7 @@ async function submit() {
           <button
             type="submit"
             :disabled="loading || !canSubmit"
-            class="flex h-11 w-full items-center justify-center rounded-lg bg-brand px-5 text-sm font-medium text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:bg-[#bab7d8]"
+            class="flex h-11 w-full items-center justify-center rounded-lg bg-brand px-5 text-sm font-medium text-white transition hover:bg-brand-hover disabled:cursor-not-allowed disabled:bg-[#bab7d8]"
           >
             {{ loading ? "Mengirim request..." : "Kirim request pendaftaran" }}
           </button>

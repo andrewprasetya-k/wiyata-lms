@@ -65,11 +65,11 @@ onMounted(loadSubjects);
         class="flex min-h-[55vh] items-center justify-center"
       >
         <article
-          class="w-full max-w-xl rounded-xl border border-[#fecaca] bg-[#fef2f2] p-6"
+          class="w-full max-w-xl rounded-xl border border-danger-line bg-danger-soft p-6"
         >
           <div class="flex items-start gap-3">
             <div
-              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fef2f2] text-[#dc2626]"
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-danger-soft text-danger"
             >
               <PhWarningCircle :size="22" weight="duotone" />
             </div>
@@ -81,7 +81,7 @@ onMounted(loadSubjects);
                 {{ errorMessage }}
               </p>
               <button
-                class="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+                class="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-hover"
                 type="button"
                 @click="loadSubjects"
               >
@@ -100,7 +100,7 @@ onMounted(loadSubjects);
           class="w-full max-w-xl rounded-xl border border-border bg-white p-8 text-center"
         >
           <div
-            class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+            class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
           >
             <PhBookOpen class="h-6 w-6" weight="duotone" />
           </div>
@@ -201,12 +201,12 @@ onMounted(loadSubjects);
                     {{ subject.assignmentCount }}
                   </dd>
                 </div>
-                <div class="rounded-lg bg-[#fff7ed] p-3">
-                  <dt class="flex items-center gap-1.5 text-[#b45309]">
+                <div class="rounded-lg bg-warning-soft p-3">
+                  <dt class="flex items-center gap-1.5 text-warning">
                     <PhWarningCircle :size="15" weight="duotone" />
                     Perlu dinilai
                   </dt>
-                  <dd class="mt-1 text-base font-medium text-[#b45309]">
+                  <dd class="mt-1 text-base font-medium text-warning">
                     {{ subject.pendingSubmissions }}
                   </dd>
                 </div>

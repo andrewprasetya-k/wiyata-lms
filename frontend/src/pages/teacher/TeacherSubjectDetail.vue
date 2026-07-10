@@ -234,7 +234,7 @@ onMounted(loadWorkspace);
           <RouterLink
             v-if="subject"
             :to="`/teacher/subjects/${subjectClassId}/create`"
-            class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#4338ca] sm:w-auto"
+            class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white transition hover:bg-brand-hover sm:w-auto"
           >
             <PhPlusCircle :size="17" weight="duotone" />
             Post di kelas ini
@@ -264,11 +264,11 @@ onMounted(loadWorkspace);
         class="flex min-h-[55vh] items-center justify-center"
       >
         <article
-          class="w-full max-w-xl rounded-xl border border-[#fecaca] bg-[#fef2f2] p-6"
+          class="w-full max-w-xl rounded-xl border border-danger-line bg-danger-soft p-6"
         >
           <div class="flex items-start gap-3">
             <div
-              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fef2f2] text-[#dc2626]"
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-danger-soft text-danger"
             >
               <PhWarningCircle :size="22" weight="duotone" />
             </div>
@@ -281,7 +281,7 @@ onMounted(loadWorkspace);
               </p>
               <button
                 type="button"
-                class="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+                class="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-hover"
                 @click="loadWorkspace"
               >
                 Coba lagi
@@ -299,7 +299,7 @@ onMounted(loadWorkspace);
           class="w-full max-w-xl rounded-xl border border-border bg-white p-8 text-center"
         >
           <div
-            class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+            class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
           >
             <PhBookOpen class="h-6 w-6" weight="duotone" />
           </div>
@@ -382,7 +382,7 @@ onMounted(loadWorkspace);
                 class="rounded-lg border border-border bg-[#fbfaf8] p-8 text-center"
               >
                 <div
-                  class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+                  class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
                 >
                   <PhFileText class="h-6 w-6" weight="duotone" />
                 </div>
@@ -458,7 +458,7 @@ onMounted(loadWorkspace);
                 class="rounded-lg border border-border bg-[#fbfaf8] p-8 text-center"
               >
                 <div
-                  class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+                  class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
                 >
                   <PhClipboardText class="h-6 w-6" weight="duotone" />
                 </div>
@@ -554,7 +554,7 @@ onMounted(loadWorkspace);
                       :disabled="
                         deletingAssignmentId === assignment.assignmentId
                       "
-                      class="inline-flex items-center justify-center rounded-lg border border-border bg-white p-2 text-muted transition hover:border-[#dc2626] hover:text-[#dc2626] disabled:opacity-50"
+                      class="inline-flex items-center justify-center rounded-lg border border-border bg-white p-2 text-muted transition hover:border-danger hover:text-danger disabled:opacity-50"
                       title="Hapus Tugas"
                     >
                       <PhTrash :size="16" weight="bold" />
@@ -564,7 +564,7 @@ onMounted(loadWorkspace);
                         name: 'teacher-assignment-review',
                         params: { assignmentId: assignment.assignmentId },
                       }"
-                      class="inline-flex items-center gap-1.5 rounded-lg bg-brand px-4 py-2 text-xs font-medium text-white transition hover:bg-[#4338ca]"
+                      class="inline-flex items-center gap-1.5 rounded-lg bg-brand px-4 py-2 text-xs font-medium text-white transition hover:bg-brand-hover"
                     >
                       Nilai pengumpulan
                     </RouterLink>
@@ -590,7 +590,7 @@ onMounted(loadWorkspace);
                 <span class="rounded-lg bg-[#eef7f2] px-3 py-2 text-[#2f7d5c]">
                   {{ submissionSummary.gradedCount }} sudah dinilai
                 </span>
-                <span class="rounded-lg bg-[#fff7ed] px-3 py-2 text-[#9f6b1d]">
+                <span class="rounded-lg bg-warning-soft px-3 py-2 text-[#9f6b1d]">
                   {{ submissionSummary.pendingCount }} perlu dinilai
                 </span>
                 <span class="rounded-lg bg-[#fff1ed] px-3 py-2 text-[#b86845]">
@@ -622,7 +622,7 @@ onMounted(loadWorkspace);
                 class="rounded-lg border border-border bg-white p-8 text-center"
               >
                 <div
-                  class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+                  class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
                 >
                   <PhCheckCircle class="h-6 w-6" weight="duotone" />
                 </div>
@@ -673,7 +673,7 @@ onMounted(loadWorkspace);
                         {{ group.gradedCount }} dinilai
                       </span>
                       <span
-                        class="rounded-lg bg-[#fff7ed] px-3 py-2 text-[#9f6b1d]"
+                        class="rounded-lg bg-warning-soft px-3 py-2 text-[#9f6b1d]"
                       >
                         {{ group.pendingCount }} perlu dinilai
                       </span>
@@ -731,7 +731,7 @@ onMounted(loadWorkspace);
                         :class="
                           submission.assessment
                             ? 'bg-[#eef7f2] text-[#2f7d5c]'
-                            : 'bg-[#fff7ed] text-[#9f6b1d]'
+                            : 'bg-warning-soft text-[#9f6b1d]'
                         "
                       >
                         {{

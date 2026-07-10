@@ -174,7 +174,7 @@ onMounted(() => {
 
             <div
               v-else-if="errorMessage"
-              class="rounded-lg border border-[#fecaca] bg-[#fef2f2] px-4 py-4"
+              class="rounded-lg border border-danger-line bg-danger-soft px-4 py-4"
             >
               <p class="text-sm leading-6 text-[#a8665d]">{{ errorMessage }}</p>
               <button
@@ -236,8 +236,8 @@ onMounted(() => {
                           class="rounded-full px-2.5 py-1 text-xs font-semibold"
                           :class="
                             user.isActive
-                              ? 'bg-[#ecfdf3] text-[#027a48]'
-                              : 'bg-[#fff7ed] text-[#b45309]'
+                              ? 'bg-success-soft text-success'
+                              : 'bg-warning-soft text-warning'
                           "
                         >
                           {{ user.isActive ? "Aktif" : "Nonaktif" }}
@@ -334,7 +334,7 @@ onMounted(() => {
             </article>
 
             <article
-              class="rounded-lg border border-[#fed7aa] bg-[#fff7ed] p-4"
+              class="rounded-lg border border-[#fed7aa] bg-warning-soft p-4"
             >
               <p class="text-xs leading-5 text-[#9a3412]">
                 Operasional akademik setiap sekolah tetap dikelola oleh Admin

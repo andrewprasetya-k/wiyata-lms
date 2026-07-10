@@ -141,7 +141,7 @@ function getInitials(name?: string) {
 
         <div class="mt-4 flex min-w-0 items-start gap-3">
           <div
-            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand"
           >
             <PhMegaphone :size="21" weight="duotone" />
           </div>
@@ -177,11 +177,11 @@ function getInitials(name?: string) {
       class="flex min-h-[calc(100vh-109px)] items-center justify-center px-5 py-10"
     >
       <article
-        class="w-full max-w-xl rounded-xl border border-[#fecaca] bg-[#fef2f2] p-6"
+        class="w-full max-w-xl rounded-xl border border-danger-line bg-danger-soft p-6"
       >
         <div class="flex items-start gap-3">
           <div
-            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fef2f2] text-[#dc2626]"
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-danger-soft text-danger"
           >
             <PhWarningCircle :size="22" weight="duotone" />
           </div>
@@ -193,7 +193,7 @@ function getInitials(name?: string) {
               {{ errorMessage }}
             </p>
             <button
-              class="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+              class="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-hover"
               type="button"
               @click="loadContext"
             >
@@ -227,7 +227,7 @@ function getInitials(name?: string) {
             </div>
           </div>
           <span
-            class="shrink-0 rounded-full bg-[#eef2ff] px-2.5 py-1 text-[10px] font-medium text-brand"
+            class="shrink-0 rounded-full bg-brand-soft px-2.5 py-1 text-[10px] font-medium text-brand"
           >
             {{ posts.length }} post
           </span>
@@ -238,7 +238,7 @@ function getInitials(name?: string) {
           class="rounded-xl border border-border bg-white p-8 text-center"
         >
           <div
-            class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+            class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
           >
             <PhMegaphone class="h-6 w-6" weight="duotone" />
           </div>
@@ -346,7 +346,7 @@ function getInitials(name?: string) {
           </dl>
         </article>
 
-      <article class="rounded-xl border border-[#dfe3ff] bg-[#eef2ff] p-4">
+      <article class="rounded-xl border border-[#dfe3ff] bg-brand-soft p-4">
           <div class="flex items-start gap-3">
             <PhChatCircleText
               :size="19"
@@ -375,7 +375,7 @@ function getInitials(name?: string) {
         class="w-full max-w-xl rounded-xl border border-border bg-white p-8 text-center"
       >
         <div
-          class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+          class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
         >
           <PhMegaphone class="h-6 w-6" weight="duotone" />
         </div>
@@ -386,7 +386,7 @@ function getInitials(name?: string) {
           Feed kelas akan tersedia setelah kamu ditempatkan pada kelas aktif.
         </p>
         <RouterLink
-          class="mt-5 inline-flex items-center gap-2 rounded-lg border border-[#ddd8e4] px-4 py-2 text-sm font-medium text-brand transition hover:bg-[#eef2ff]"
+          class="mt-5 inline-flex items-center gap-2 rounded-lg border border-[#ddd8e4] px-4 py-2 text-sm font-medium text-brand transition hover:bg-brand-soft"
           to="/student/subjects"
         >
           Lihat mata pelajaran

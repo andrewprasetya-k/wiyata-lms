@@ -470,7 +470,7 @@ onMounted(async () => {
     <section class="px-5 py-5 sm:px-6 lg:px-8 lg:py-6">
       <div
         v-if="!currentSchool.hasContext"
-        class="mb-5 flex items-start gap-3 rounded-xl border border-[#fecaca] bg-[#fef2f2] p-4 text-sm leading-6 text-[#dc2626]"
+        class="mb-5 flex items-start gap-3 rounded-xl border border-danger-line bg-danger-soft p-4 text-sm leading-6 text-danger"
       >
         <PhWarningCircle :size="20" class="mt-0.5 shrink-0" weight="duotone" />
         <p>
@@ -511,7 +511,7 @@ onMounted(async () => {
                 {{ studentEnrollmentCount }} siswa
               </span>
               <span
-                class="inline-flex items-center gap-2 rounded-lg bg-[#eef2ff] px-3 py-2 text-brand"
+                class="inline-flex items-center gap-2 rounded-lg bg-brand-soft px-3 py-2 text-brand"
               >
                 <PhChalkboardTeacher :size="16" weight="duotone" />
                 {{ teacherEnrollmentCount }} guru
@@ -530,11 +530,11 @@ onMounted(async () => {
 
             <div
               v-else-if="enrollmentsError"
-              class="rounded-lg border border-[#fecaca] bg-[#fef2f2] p-5 text-center"
+              class="rounded-lg border border-danger-line bg-danger-soft p-5 text-center"
             >
               <PhWarningCircle
                 :size="26"
-                class="mx-auto text-[#dc2626]"
+                class="mx-auto text-danger"
                 weight="duotone"
               />
               <h3 class="mt-3 text-sm font-semibold text-foreground">
@@ -600,7 +600,7 @@ onMounted(async () => {
                       class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-xs font-semibold"
                       :class="
                         enrollment.role === 'teacher'
-                          ? 'bg-[#eef2ff] text-brand'
+                          ? 'bg-brand-soft text-brand'
                           : 'bg-[#f0fdf4] text-[#059669]'
                       "
                     >
@@ -619,7 +619,7 @@ onMounted(async () => {
                           class="rounded-lg px-2 py-1 text-[11px] font-medium"
                           :class="
                             enrollment.role === 'teacher'
-                              ? 'bg-[#eef2ff] text-brand'
+                              ? 'bg-brand-soft text-brand'
                               : 'bg-[#f0fdf4] text-[#059669]'
                           "
                         >
@@ -636,7 +636,7 @@ onMounted(async () => {
                   </div>
                   <button
                     type="button"
-                    class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-[#fecaca] bg-[#fef2f2] px-3 py-2 text-sm font-medium text-[#dc2626] transition hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-60"
+                    class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-danger-line bg-danger-soft px-3 py-2 text-sm font-medium text-danger transition hover:bg-danger-soft disabled:cursor-not-allowed disabled:opacity-60"
                     :disabled="Boolean(unenrollingId)"
                     @click="requestUnenroll(enrollment)"
                   >
@@ -649,7 +649,7 @@ onMounted(async () => {
                   v-if="
                     pendingUnenroll?.enrollmentId === enrollment.enrollmentId
                   "
-                  class="mt-3 rounded-lg border border-[#fecaca] bg-[#fef2f2] p-3"
+                  class="mt-3 rounded-lg border border-danger-line bg-danger-soft p-3"
                 >
                   <p class="text-xs leading-5 text-[#991b1b]">
                     {{ unenrollConfirmationCopy(enrollment) }}
@@ -657,7 +657,7 @@ onMounted(async () => {
                   <div class="mt-3 flex flex-wrap gap-2">
                     <button
                       type="button"
-                      class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#dc2626] px-3 py-2 text-sm font-medium text-white transition hover:bg-[#b91c1c] disabled:cursor-not-allowed disabled:opacity-60"
+                      class="inline-flex items-center justify-center gap-2 rounded-lg bg-danger px-3 py-2 text-sm font-medium text-white transition hover:bg-[#b91c1c] disabled:cursor-not-allowed disabled:opacity-60"
                       :disabled="unenrollingId === enrollment.enrollmentId"
                       @click="confirmUnenroll(enrollment)"
                     >
@@ -669,7 +669,7 @@ onMounted(async () => {
                     </button>
                     <button
                       type="button"
-                      class="inline-flex items-center justify-center gap-2 rounded-lg border border-[#fecaca] bg-[#fef2f2] px-3 py-2 text-sm font-medium text-[#dc2626] transition hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-60"
+                      class="inline-flex items-center justify-center gap-2 rounded-lg border border-danger-line bg-danger-soft px-3 py-2 text-sm font-medium text-danger transition hover:bg-danger-soft disabled:cursor-not-allowed disabled:opacity-60"
                       :disabled="unenrollingId === enrollment.enrollmentId"
                       @click="cancelUnenroll"
                     >
@@ -770,7 +770,7 @@ onMounted(async () => {
                 </p>
                 <div
                   v-else-if="yearsError || termsError || classesError"
-                  class="rounded-lg bg-[#fef2f2] px-3 py-2 text-[#dc2626]"
+                  class="rounded-lg bg-danger-soft px-3 py-2 text-danger"
                 >
                   <p>{{ yearsError || termsError || classesError }}</p>
                   <button
@@ -824,7 +824,7 @@ onMounted(async () => {
                   </p>
                 </div>
                 <span
-                  class="shrink-0 rounded-lg bg-[#eef2ff] px-2.5 py-1.5 text-xs font-medium text-brand"
+                  class="shrink-0 rounded-lg bg-brand-soft px-2.5 py-1.5 text-xs font-medium text-brand"
                 >
                   {{ selectedMembers.length }} dipilih
                 </span>
@@ -862,7 +862,7 @@ onMounted(async () => {
                 </div>
                 <div
                   v-else-if="membersError"
-                  class="rounded-lg bg-[#fef2f2] p-3 text-xs leading-5 text-[#dc2626]"
+                  class="rounded-lg bg-danger-soft p-3 text-xs leading-5 text-danger"
                 >
                   <p>{{ membersError }}</p>
                   <button
@@ -925,7 +925,7 @@ onMounted(async () => {
                         class="ml-2 mt-2 inline-flex rounded-lg px-2 py-1 text-[11px] font-medium"
                         :class="
                           inferPlacementRole(member) === 'teacher'
-                            ? 'bg-[#eef2ff] text-brand'
+                            ? 'bg-brand-soft text-brand'
                             : inferPlacementRole(member) === 'student'
                               ? 'bg-[#f0fdf4] text-[#059669]'
                               : 'bg-[#f3f1ec] text-muted'

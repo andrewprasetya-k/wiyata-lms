@@ -204,12 +204,12 @@ function formatSize(bytes: number) {
         <div class="flex shrink-0 items-center gap-3">
           <span v-if="file.status === 'uploading'" class="max-w-28 animate-pulse truncate text-xs text-brand">Mengunggah...</span>
           <span v-else-if="isFileRemoving(file, index)" class="max-w-28 animate-pulse truncate text-xs text-brand">Menghapus...</span>
-          <span v-else-if="file.status === 'error'" class="max-w-36 truncate text-xs text-[#dc2626]">{{ file.errorMessage }}</span>
+          <span v-else-if="file.status === 'error'" class="max-w-36 truncate text-xs text-danger">{{ file.errorMessage }}</span>
           
           <button 
             type="button" 
             @click="removeFile(index)" 
-            class="rounded-lg p-1.5 text-[#8b8592] transition hover:bg-[#fef2f2] hover:text-[#dc2626] disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-[#dc2626]/15"
+            class="rounded-lg p-1.5 text-[#8b8592] transition hover:bg-danger-soft hover:text-danger disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-danger/15"
             :disabled="isFileRemoving(file, index)"
             :title="isFileRemoving(file, index) ? 'Menghapus...' : 'Hapus'"
           >

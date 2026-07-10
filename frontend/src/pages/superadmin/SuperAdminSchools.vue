@@ -299,7 +299,7 @@ onMounted(() => {
             class="rounded-xl border border-border bg-white p-4 shadow-sm"
           >
             <p class="text-xs font-medium text-muted">Aktif</p>
-            <p class="mt-2 text-2xl font-semibold text-[#027a48]">
+            <p class="mt-2 text-2xl font-semibold text-success">
               {{ summary ? summary.totalActive : "-" }}
             </p>
           </article>
@@ -307,7 +307,7 @@ onMounted(() => {
             class="rounded-xl border border-border bg-white p-4 shadow-sm"
           >
             <p class="text-xs font-medium text-muted">Diarsipkan</p>
-            <p class="mt-2 text-2xl font-semibold text-[#b45309]">
+            <p class="mt-2 text-2xl font-semibold text-warning">
               {{ summary ? summary.totalDeleted : "-" }}
             </p>
           </article>
@@ -315,7 +315,7 @@ onMounted(() => {
 
         <p
           v-if="summaryError"
-          class="rounded-lg border border-[#fed7aa] bg-[#fff7ed] px-4 py-3 text-sm leading-6 text-[#9a3412]"
+          class="rounded-lg border border-[#fed7aa] bg-warning-soft px-4 py-3 text-sm leading-6 text-[#9a3412]"
         >
           {{ summaryError }}
         </p>
@@ -362,7 +362,7 @@ onMounted(() => {
 
             <div
               v-else-if="errorMessage"
-              class="rounded-lg border border-[#fecaca] bg-[#fef2f2] px-4 py-4"
+              class="rounded-lg border border-danger-line bg-danger-soft px-4 py-4"
             >
               <p class="text-sm leading-6 text-[#a8665d]">{{ errorMessage }}</p>
               <button
@@ -427,8 +427,8 @@ onMounted(() => {
                         class="rounded-full px-2.5 py-1 text-xs font-semibold"
                         :class="
                           school.isDeleted
-                            ? 'bg-[#fff7ed] text-[#b45309]'
-                            : 'bg-[#ecfdf3] text-[#027a48]'
+                            ? 'bg-warning-soft text-warning'
+                            : 'bg-success-soft text-success'
                         "
                       >
                         {{ school.isDeleted ? "Diarsipkan" : "Aktif" }}
@@ -517,12 +517,12 @@ onMounted(() => {
 
           <div
             v-if="bootstrapResult"
-            class="mt-5 rounded-xl border border-[#bbf7d0] bg-[#f0fdf4] p-4"
+            class="mt-5 rounded-xl border border-success-line bg-[#f0fdf4] p-4"
           >
             <div class="flex items-start gap-3">
               <PhCheckCircle
                 :size="22"
-                class="mt-0.5 shrink-0 text-[#027a48]"
+                class="mt-0.5 shrink-0 text-success"
                 weight="duotone"
               />
               <div class="min-w-0">
@@ -624,7 +624,7 @@ onMounted(() => {
                   class="flex cursor-pointer items-start gap-3 rounded-lg border p-3 text-sm transition"
                   :class="
                     adminMode === 'new'
-                      ? 'border-[#ea580c] bg-[#fff7ed]'
+                      ? 'border-[#ea580c] bg-warning-soft'
                       : 'border-[#e5e7eb] bg-white hover:bg-[#fafafa]'
                   "
                 >
@@ -648,7 +648,7 @@ onMounted(() => {
                   class="flex cursor-pointer items-start gap-3 rounded-lg border p-3 text-sm transition"
                   :class="
                     adminMode === 'existing'
-                      ? 'border-[#ea580c] bg-[#fff7ed]'
+                      ? 'border-[#ea580c] bg-warning-soft'
                       : 'border-[#e5e7eb] bg-white hover:bg-[#fafafa]'
                   "
                 >

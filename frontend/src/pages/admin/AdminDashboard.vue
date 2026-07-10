@@ -99,7 +99,7 @@ const statCards = computed(() => [
     label: "Total Siswa",
     value: stats.value?.totalStudents ?? 0,
     icon: PhUsers,
-    color: "bg-[#eef2ff] text-brand",
+    color: "bg-brand-soft text-brand",
   },
   {
     label: "Total Guru",
@@ -111,7 +111,7 @@ const statCards = computed(() => [
     label: "Total Kelas",
     value: stats.value?.totalClasses ?? 0,
     icon: PhBookOpen,
-    color: "bg-[#fff7ed] text-[#ea580c]",
+    color: "bg-warning-soft text-[#ea580c]",
   },
   {
     label: "Kelas Aktif",
@@ -127,7 +127,7 @@ const quickActions = [
     description: "Undang atau impor siswa baru",
     icon: PhUsers,
     to: "/admin/users",
-    color: "bg-[#eef2ff] text-brand",
+    color: "bg-brand-soft text-brand",
     border: "hover:border-[#c7d2fe]",
   },
   {
@@ -136,14 +136,14 @@ const quickActions = [
     icon: PhChalkboardTeacher,
     to: "/admin/users",
     color: "bg-[#f0fdf4] text-[#059669]",
-    border: "hover:border-[#bbf7d0]",
+    border: "hover:border-success-line",
   },
   {
     label: "Buat Kelas",
     description: "Tambahkan kelas baru",
     icon: PhBookOpen,
     to: "/admin/classes",
-    color: "bg-[#fff7ed] text-[#ea580c]",
+    color: "bg-warning-soft text-[#ea580c]",
     border: "hover:border-[#fed7aa]",
   },
   {
@@ -226,11 +226,11 @@ onMounted(loadDashboard);
         <!-- Error state -->
         <section
           v-if="errorMessage && !loading"
-          class="rounded-xl border border-[#fecaca] bg-[#fef2f2] p-5"
+          class="rounded-xl border border-danger-line bg-danger-soft p-5"
         >
           <div class="flex items-start gap-3">
             <PhWarningCircle
-              class="mt-0.5 h-5 w-5 shrink-0 text-[#dc2626]"
+              class="mt-0.5 h-5 w-5 shrink-0 text-danger"
               weight="duotone"
             />
             <div class="min-w-0">
@@ -241,7 +241,7 @@ onMounted(loadDashboard);
                 {{ errorMessage }}
               </p>
               <button
-                class="mt-3 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+                class="mt-3 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-hover"
                 type="button"
                 @click="loadDashboard"
               >
@@ -304,7 +304,7 @@ onMounted(loadDashboard);
             </span>
             <span
               v-else-if="!loading"
-              class="shrink-0 rounded-full bg-[#fff7ed] px-3 py-1 text-xs font-semibold text-[#ea580c]"
+              class="shrink-0 rounded-full bg-warning-soft px-3 py-1 text-xs font-semibold text-[#ea580c]"
             >
               {{ setupSteps.filter((s) => s.done).length }}/{{
                 setupSteps.length

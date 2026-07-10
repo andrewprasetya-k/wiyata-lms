@@ -90,7 +90,7 @@ onMounted(loadAssignment);
       >
         <div class="flex min-w-0 items-start gap-3">
           <div
-            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand"
           >
             <PhClipboardText :size="21" weight="duotone" />
           </div>
@@ -119,7 +119,7 @@ onMounted(loadAssignment);
                 asgId: assignment.assignmentId,
               },
             }"
-            class="inline-flex items-center gap-2 rounded-lg border border-border bg-white px-3 py-2 text-xs font-medium text-brand transition hover:border-brand hover:bg-[#eef2ff]"
+            class="inline-flex items-center gap-2 rounded-lg border border-border bg-white px-3 py-2 text-xs font-medium text-brand transition hover:border-brand hover:bg-brand-soft"
           >
             <PhPencilSimple :size="15" weight="bold" />
             Edit tugas
@@ -129,7 +129,7 @@ onMounted(loadAssignment);
               name: 'teacher-assignment-review',
               params: { assignmentId: assignment.assignmentId },
             }"
-            class="inline-flex items-center gap-2 rounded-lg bg-brand px-3 py-2 text-xs font-medium text-white transition hover:bg-[#4338ca]"
+            class="inline-flex items-center gap-2 rounded-lg bg-brand px-3 py-2 text-xs font-medium text-white transition hover:bg-brand-hover"
           >
             <PhUsersThree :size="15" weight="duotone" />
             Nilai pengumpulan
@@ -153,7 +153,7 @@ onMounted(loadAssignment);
 
       <section
         v-else-if="errorMessage"
-        class="mx-auto max-w-xl rounded-xl border border-[#fecaca] bg-[#fef2f2] px-5 py-8 text-center"
+        class="mx-auto max-w-xl rounded-xl border border-danger-line bg-danger-soft px-5 py-8 text-center"
       >
         <PhWarningCircle
           :size="30"
@@ -180,7 +180,7 @@ onMounted(loadAssignment);
         class="mx-auto max-w-xl rounded-xl border border-border bg-white px-5 py-10 text-center"
       >
         <div
-          class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+          class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
         >
           <PhClipboardText :size="24" weight="duotone" />
         </div>
@@ -193,7 +193,7 @@ onMounted(loadAssignment);
         </p>
         <RouterLink
           :to="`/teacher/subjects/${subjectClassId}`"
-          class="mt-5 inline-flex items-center gap-2 rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-brand transition hover:border-brand hover:bg-[#eef2ff]"
+          class="mt-5 inline-flex items-center gap-2 rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-brand transition hover:border-brand hover:bg-brand-soft"
         >
           <PhArrowLeft :size="16" />
           Kembali ke ruang mengajar
@@ -209,7 +209,7 @@ onMounted(loadAssignment);
             <div class="flex flex-wrap items-center gap-2">
               <span
                 v-if="assignment.categoryName"
-                class="rounded-full bg-[#eef2ff] px-2.5 py-1 text-[11px] font-medium text-brand"
+                class="rounded-full bg-brand-soft px-2.5 py-1 text-[11px] font-medium text-brand"
               >
                 {{ assignment.categoryName }}
               </span>

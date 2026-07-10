@@ -165,12 +165,12 @@ onMounted(loadNotes);
       class="flex min-h-[calc(100vh-116px)] items-center justify-center px-5 py-10"
     >
       <article
-        class="w-full max-w-xl rounded-[22px] border border-[#fecaca] bg-[#fef2f2] p-6"
+        class="w-full max-w-xl rounded-[22px] border border-danger-line bg-danger-soft p-6"
       >
         <div class="flex items-start gap-3">
           <PhWarningCircle
             :size="24"
-            class="mt-0.5 shrink-0 text-[#dc2626]"
+            class="mt-0.5 shrink-0 text-danger"
             weight="duotone"
           />
           <div>
@@ -181,7 +181,7 @@ onMounted(loadNotes);
               {{ errorMessage }}
             </p>
             <button
-              class="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+              class="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-hover"
               type="button"
               @click="loadNotes"
             >
@@ -200,7 +200,7 @@ onMounted(loadNotes);
         class="w-full max-w-xl rounded-[22px] border border-border bg-white p-8 text-center"
       >
         <div
-          class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+          class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
         >
           <PhNotebook :size="24" weight="duotone" />
         </div>
@@ -212,7 +212,7 @@ onMounted(loadNotes);
           ruang belajarmu.
         </p>
         <RouterLink
-          class="mt-5 inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+          class="mt-5 inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-hover"
           to="/student/subjects"
         >
           Buka mata pelajaran
@@ -256,7 +256,7 @@ onMounted(loadNotes);
                 class="w-full rounded-xl p-3 text-left transition"
                 :class="
                   selectedNote?.noteId === note.noteId
-                    ? 'bg-[#eef2ff]'
+                    ? 'bg-brand-soft'
                     : 'hover:bg-[#f8f7f4]'
                 "
                 type="button"
@@ -322,7 +322,7 @@ onMounted(loadNotes);
             </div>
 
             <RouterLink
-              class="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-brand px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+              class="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-brand px-4 py-2.5 text-sm font-medium text-white transition hover:bg-brand-hover"
               :to="`/student/subjects/${selectedNote.subjectClassId}/materials/${selectedNote.materialId}/note`"
             >
               Buka catatan
@@ -331,7 +331,7 @@ onMounted(loadNotes);
           </header>
 
           <RouterLink
-            class="mt-5 flex items-center gap-3 rounded-xl border border-[#dfe3ff] bg-[#eef2ff] p-4 transition hover:border-[#aeb8ff]"
+            class="mt-5 flex items-center gap-3 rounded-xl border border-[#dfe3ff] bg-brand-soft p-4 transition hover:border-[#aeb8ff]"
             :to="`/student/subjects/${selectedNote.subjectClassId}/materials/${selectedNote.materialId}`"
           >
             <span
@@ -373,7 +373,7 @@ onMounted(loadNotes);
               </template>
             </span>
             <RouterLink
-              class="inline-flex items-center gap-2 font-medium text-brand transition hover:text-[#4338ca]"
+              class="inline-flex items-center gap-2 font-medium text-brand transition hover:text-brand-hover"
               :to="`/student/subjects/${selectedNote.subjectClassId}/materials/${selectedNote.materialId}`"
             >
               <PhBookOpen :size="15" />

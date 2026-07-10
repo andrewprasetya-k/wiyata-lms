@@ -264,7 +264,7 @@ const screenshotSlots = [
             </RouterLink>
             <RouterLink
               to="/login"
-              class="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#4338ca]"
+              class="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-hover"
             >
               Masuk
             </RouterLink>
@@ -367,7 +367,7 @@ const screenshotSlots = [
         <div class="mt-9 flex flex-wrap items-center gap-4">
           <RouterLink
             to="/school-registration"
-            class="inline-flex h-12 items-center justify-center rounded-lg bg-brand px-8 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#4338ca]"
+            class="inline-flex h-12 items-center justify-center rounded-lg bg-brand px-8 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-hover"
           >
             Daftarkan Sekolah
           </RouterLink>
@@ -394,7 +394,7 @@ const screenshotSlots = [
           <RouterLink
             to="/school-registration"
             id="hero-cta-daftar-sekolah"
-            class="inline-flex h-12 items-center justify-center rounded-lg bg-brand px-8 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#4338ca]"
+            class="inline-flex h-12 items-center justify-center rounded-lg bg-brand px-8 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-hover"
           >
             Daftarkan Sekolah
           </RouterLink>
@@ -693,7 +693,7 @@ const screenshotSlots = [
               <RouterLink
                 to="/school-registration"
                 id="final-cta-daftar-sekolah"
-                class="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-brand px-8 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#4338ca]"
+                class="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-brand px-8 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-hover"
               >
                 Daftarkan Sekolah
                 <PhArrowRight :size="15" />

@@ -244,11 +244,11 @@ async function handleSubmit() {
       class="flex min-h-[calc(100vh-49px)] items-center justify-center px-5 py-10"
     >
       <article
-        class="w-full max-w-xl rounded-xl border border-[#fecaca] bg-[#fef2f2] p-6"
+        class="w-full max-w-xl rounded-xl border border-danger-line bg-danger-soft p-6"
       >
         <div class="flex items-start gap-3">
           <div
-            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fef2f2] text-[#dc2626]"
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-danger-soft text-danger"
           >
             <PhWarningCircle :size="22" weight="duotone" />
           </div>
@@ -260,7 +260,7 @@ async function handleSubmit() {
               {{ errorMessage }}
             </p>
             <button
-              class="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+              class="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-hover"
               type="button"
               @click="loadAssignment"
             >
@@ -279,7 +279,7 @@ async function handleSubmit() {
         class="w-full max-w-xl rounded-xl border border-border bg-white p-6 text-center"
       >
         <div
-          class="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+          class="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-brand-soft text-brand"
         >
           <PhClipboardText :size="22" weight="duotone" />
         </div>
@@ -290,7 +290,7 @@ async function handleSubmit() {
           Tugas ini tidak tersedia atau sudah tidak dapat diakses.
         </p>
         <RouterLink
-          class="mt-5 inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+          class="mt-5 inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-hover"
           :to="`/student/subjects/${subjectClassId}`"
         >
           <PhArrowLeft :size="16" />
@@ -307,7 +307,7 @@ async function handleSubmit() {
         <article class="rounded-xl border border-border bg-white shadow-sm p-5 sm:p-6">
           <div class="flex min-w-0 items-start gap-4">
             <div
-              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand"
             >
               <PhClipboardText :size="22" weight="duotone" />
             </div>
@@ -315,7 +315,7 @@ async function handleSubmit() {
               <div class="flex flex-wrap items-center gap-2">
                 <span
                   v-if="assignment.categoryName"
-                  class="rounded-full bg-[#eef2ff] px-2.5 py-1 text-[11px] font-medium text-brand"
+                  class="rounded-full bg-brand-soft px-2.5 py-1 text-[11px] font-medium text-brand"
                 >
                   {{ assignment.categoryName }}
                 </span>
@@ -410,10 +410,10 @@ async function handleSubmit() {
               class="shrink-0 rounded-full px-2.5 py-1 text-[10px] font-medium"
               :class="
                 submissionStatus.status === 'graded'
-                  ? 'bg-[#eef2ff] text-brand'
+                  ? 'bg-brand-soft text-brand'
                   : submissionStatus.status === 'submitted'
-                    ? 'bg-[#ecfdf3] text-[#027a48]'
-                    : 'bg-[#fff7ed] text-[#ea580c]'
+                    ? 'bg-success-soft text-success'
+                    : 'bg-warning-soft text-[#ea580c]'
               "
             >
               {{
@@ -457,13 +457,13 @@ async function handleSubmit() {
 
           <div
             v-else-if="submissionError"
-            class="mt-4 rounded-xl bg-[#fef2f2] p-4"
+            class="mt-4 rounded-xl bg-danger-soft p-4"
           >
             <p class="text-sm leading-6 text-[#b42318]">
               {{ submissionError }}
             </p>
             <button
-              class="mt-3 rounded-lg bg-white px-3 py-2 text-xs font-medium text-brand transition hover:bg-[#eef2ff]"
+              class="mt-3 rounded-lg bg-white px-3 py-2 text-xs font-medium text-brand transition hover:bg-brand-soft"
               type="button"
               @click="loadMySubmissionStatus"
             >
@@ -478,11 +478,11 @@ async function handleSubmit() {
             "
             class="mt-4 space-y-4"
           >
-            <div class="rounded-xl border border-[#d1fae5] bg-[#ecfdf3] p-4">
+            <div class="rounded-xl border border-[#d1fae5] bg-success-soft p-4">
               <div class="flex items-start gap-3">
                 <PhCheckCircle
                   :size="20"
-                  class="mt-0.5 shrink-0 text-[#027a48]"
+                  class="mt-0.5 shrink-0 text-success"
                   weight="duotone"
                 />
                 <div>
@@ -513,7 +513,7 @@ async function handleSubmit() {
                 submissionStatus.status === 'graded' &&
                 submissionStatus.submission?.assessment
               "
-              class="rounded-xl border border-[#c7d2fe] bg-[#eef2ff] p-4"
+              class="rounded-xl border border-[#c7d2fe] bg-brand-soft p-4"
             >
               <p class="text-xs font-medium text-brand">
                 Nilai dan feedback
@@ -571,7 +571,7 @@ async function handleSubmit() {
                 Kamu dapat memilih lebih dari satu file.
               </p>
               <label
-                class="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-lg border border-[#ddd8e4] bg-white px-3 py-2 text-xs font-medium text-brand transition hover:bg-[#eef2ff]"
+                class="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-lg border border-[#ddd8e4] bg-white px-3 py-2 text-xs font-medium text-brand transition hover:bg-brand-soft"
               >
                 <PhPaperclip :size="16" />
                 Pilih file
@@ -599,7 +599,7 @@ async function handleSubmit() {
                   </p>
                 </div>
                 <button
-                  class="shrink-0 rounded-lg p-2 text-[#dc2626] transition hover:bg-[#fef2f2]"
+                  class="shrink-0 rounded-lg p-2 text-danger transition hover:bg-danger-soft"
                   type="button"
                   title="Hapus file"
                   @click="removeFile(index)"
@@ -611,7 +611,7 @@ async function handleSubmit() {
 
             <p
               v-if="submitError"
-              class="mt-4 rounded-lg bg-[#fef2f2] p-3 text-sm leading-5 text-[#b42318]"
+              class="mt-4 rounded-lg bg-danger-soft p-3 text-sm leading-5 text-[#b42318]"
             >
               {{ submitError }}
             </p>
@@ -621,7 +621,7 @@ async function handleSubmit() {
               :class="
                 isSubmitting || selectedFiles.length === 0
                   ? 'cursor-not-allowed bg-[#d8d5dd]'
-                  : 'bg-brand hover:bg-[#4338ca]'
+                  : 'bg-brand hover:bg-brand-hover'
               "
               :disabled="isSubmitting || selectedFiles.length === 0"
               type="button"

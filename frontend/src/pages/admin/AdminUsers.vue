@@ -562,7 +562,7 @@ onMounted(async () => {
     <section class="px-5 py-5 sm:px-6 lg:px-8 lg:py-6">
       <div
         v-if="!currentSchool.hasContext"
-        class="mb-5 flex items-start gap-3 rounded-xl border border-[#fecaca] bg-[#fef2f2] p-4 text-sm leading-6 text-[#dc2626]"
+        class="mb-5 flex items-start gap-3 rounded-xl border border-danger-line bg-danger-soft p-4 text-sm leading-6 text-danger"
       >
         <PhWarningCircle :size="20" class="mt-0.5 shrink-0" weight="duotone" />
         <p>
@@ -595,7 +595,7 @@ onMounted(async () => {
                 </p>
               </div>
               <span
-                class="inline-flex shrink-0 items-center gap-2 self-start rounded-lg bg-[#eef2ff] px-3 py-2 text-xs font-medium text-brand"
+                class="inline-flex shrink-0 items-center gap-2 self-start rounded-lg bg-brand-soft px-3 py-2 text-xs font-medium text-brand"
               >
                 <PhUsers :size="16" weight="duotone" />
                 {{ membersTotalItems || members.length }} warga
@@ -627,11 +627,11 @@ onMounted(async () => {
 
             <div
               v-else-if="rolesError || membersError"
-              class="rounded-lg border border-[#fecaca] bg-[#fef2f2] p-5 text-center"
+              class="rounded-lg border border-danger-line bg-danger-soft p-5 text-center"
             >
               <PhWarningCircle
                 :size="26"
-                class="mx-auto text-[#dc2626]"
+                class="mx-auto text-danger"
                 weight="duotone"
               />
               <h3 class="mt-3 text-sm font-semibold text-foreground">
@@ -690,7 +690,7 @@ onMounted(async () => {
                         </h3>
                         <span
                           v-if="primaryRoleName(member)"
-                          class="rounded-lg bg-[#eef2ff] px-2 py-1 text-[11px] font-medium text-brand"
+                          class="rounded-lg bg-brand-soft px-2 py-1 text-[11px] font-medium text-brand"
                         >
                           {{ roleLabel(primaryRoleName(member)) }}
                         </span>
@@ -709,7 +709,7 @@ onMounted(async () => {
                       </p>
                       <p
                         v-if="hasMultipleAllowedRoles(member)"
-                        class="mt-2 rounded-lg border border-[#fde68a] bg-[#fff7ed] px-3 py-2 text-xs leading-5 text-[#92400e]"
+                        class="mt-2 rounded-lg border border-[#fde68a] bg-warning-soft px-3 py-2 text-xs leading-5 text-[#92400e]"
                       >
                         Data lama memiliki lebih dari satu peran. Saat
                         diperbarui, satu peran utama akan disimpan.
@@ -764,7 +764,7 @@ onMounted(async () => {
                     </button>
                     <button
                       type="button"
-                      class="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[#fecaca] bg-white px-3 py-2 text-sm font-medium text-[#dc2626] transition hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-60"
+                      class="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-danger-line bg-white px-3 py-2 text-sm font-medium text-danger transition hover:bg-danger-soft disabled:cursor-not-allowed disabled:opacity-60"
                       :disabled="removingSchoolUserId === member.schoolUserId"
                       @click="removeMember(member)"
                     >
@@ -916,7 +916,7 @@ onMounted(async () => {
 
               <div
                 v-if="inviteResult"
-                class="rounded-lg border border-[#bbf7d0] bg-[#f0fdf4] p-3 text-xs leading-5 text-[#166534]"
+                class="rounded-lg border border-success-line bg-[#f0fdf4] p-3 text-xs leading-5 text-[#166534]"
               >
                 <p class="font-semibold">Undangan berhasil dibuat.</p>
                 <p class="mt-1">
@@ -994,7 +994,7 @@ onMounted(async () => {
                 />
               </label>
               <p
-                class="rounded-lg border border-[#fed7aa] bg-[#fff7ed] px-3 py-2 text-xs leading-5 text-[#92400e]"
+                class="rounded-lg border border-[#fed7aa] bg-warning-soft px-3 py-2 text-xs leading-5 text-[#92400e]"
               >
                 Password awal hanya dipakai untuk akun baru. Jika email sudah
                 terdaftar, password tidak akan diubah dan pengguna login
@@ -1072,7 +1072,7 @@ onMounted(async () => {
                 </label>
 
                 <p
-                  class="rounded-lg border border-[#fed7aa] bg-[#fff7ed] px-3 py-2 text-xs leading-5 text-[#92400e]"
+                  class="rounded-lg border border-[#fed7aa] bg-warning-soft px-3 py-2 text-xs leading-5 text-[#92400e]"
                 >
                   Password awal hanya dipakai untuk akun baru. Jika email sudah
                   terdaftar, password tidak akan diubah dan pengguna login
@@ -1110,7 +1110,7 @@ onMounted(async () => {
             <div class="mt-4 space-y-3">
               <p
                 v-if="importError"
-                class="rounded-lg bg-[#fef2f2] px-3 py-2 text-xs leading-5 text-[#dc2626]"
+                class="rounded-lg bg-danger-soft px-3 py-2 text-xs leading-5 text-danger"
               >
                 {{ importError }}
               </p>
@@ -1133,12 +1133,12 @@ onMounted(async () => {
               >
                 <div class="flex flex-wrap gap-2 text-xs">
                   <span
-                    class="rounded-lg bg-[#ecfdf3] px-2.5 py-1 font-semibold text-[#027a48]"
+                    class="rounded-lg bg-success-soft px-2.5 py-1 font-semibold text-success"
                   >
                     {{ importPreview.validCount }} valid
                   </span>
                   <span
-                    class="rounded-lg bg-[#fef2f2] px-2.5 py-1 font-semibold text-[#dc2626]"
+                    class="rounded-lg bg-danger-soft px-2.5 py-1 font-semibold text-danger"
                   >
                     {{ importPreview.invalidCount }} invalid
                   </span>
@@ -1151,8 +1151,8 @@ onMounted(async () => {
                     class="rounded-lg border bg-white p-3"
                     :class="
                       row.status === 'valid'
-                        ? 'border-[#bbf7d0]'
-                        : 'border-[#fecaca]'
+                        ? 'border-success-line'
+                        : 'border-danger-line'
                     "
                   >
                     <div class="flex items-start justify-between gap-2">
@@ -1175,8 +1175,8 @@ onMounted(async () => {
                         class="shrink-0 rounded-full px-2 py-1 text-[10px] font-semibold"
                         :class="
                           row.status === 'valid'
-                            ? 'bg-[#ecfdf3] text-[#027a48]'
-                            : 'bg-[#fef2f2] text-[#dc2626]'
+                            ? 'bg-success-soft text-success'
+                            : 'bg-danger-soft text-danger'
                         "
                       >
                         {{ row.status === "valid" ? "Valid" : "Invalid" }}
@@ -1184,7 +1184,7 @@ onMounted(async () => {
                     </div>
                     <ul
                       v-if="row.errors.length > 0"
-                      class="mt-2 list-disc space-y-1 pl-4 text-xs leading-5 text-[#dc2626]"
+                      class="mt-2 list-disc space-y-1 pl-4 text-xs leading-5 text-danger"
                     >
                       <li v-for="error in row.errors" :key="error">
                         {{ error }}
@@ -1196,7 +1196,7 @@ onMounted(async () => {
 
               <div
                 v-if="importResult"
-                class="rounded-lg border border-[#bbf7d0] bg-[#f0fdf4] p-3 text-xs leading-5 text-[#166534]"
+                class="rounded-lg border border-success-line bg-[#f0fdf4] p-3 text-xs leading-5 text-[#166534]"
               >
                 <p class="font-semibold">Import selesai</p>
                 <p class="mt-1">
@@ -1211,7 +1211,7 @@ onMounted(async () => {
                   <article
                     v-for="result in importResult.results"
                     :key="`${result.rowNumber}-${result.email}`"
-                    class="rounded-md border border-[#bbf7d0] bg-white/70 px-3 py-2"
+                    class="rounded-md border border-success-line bg-white/70 px-3 py-2"
                   >
                     <div class="flex items-start justify-between gap-3">
                       <div class="min-w-0">

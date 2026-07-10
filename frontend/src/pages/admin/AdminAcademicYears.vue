@@ -634,7 +634,7 @@ watch(selectedWeightSubjectId, () => {
     >
       <div
         v-if="!currentSchool.hasContext"
-        class="rounded-xl border border-[#fecaca] bg-[#fef2f2] px-4 py-3 text-sm text-[#a8665d]"
+        class="rounded-xl border border-danger-line bg-danger-soft px-4 py-3 text-sm text-[#a8665d]"
       >
         Konteks sekolah aktif belum ditemukan. Pastikan akun admin sudah punya
         akses sekolah yang valid.
@@ -716,7 +716,7 @@ watch(selectedWeightSubjectId, () => {
             </div>
             <p
               v-else-if="academicYearsError"
-              class="rounded-lg border border-[#fecaca] bg-[#fef2f2] px-4 py-3 text-sm text-[#a8665d]"
+              class="rounded-lg border border-danger-line bg-danger-soft px-4 py-3 text-sm text-[#a8665d]"
             >
               {{ academicYearsError }}
             </p>
@@ -746,7 +746,7 @@ watch(selectedWeightSubjectId, () => {
                       class="rounded-full px-2.5 py-1 text-xs font-semibold"
                       :class="
                         year.isActive
-                          ? 'bg-[#ecfdf3] text-[#027a48]'
+                          ? 'bg-success-soft text-success'
                           : 'bg-[#f3f1ec] text-muted'
                       "
                     >
@@ -792,7 +792,7 @@ watch(selectedWeightSubjectId, () => {
               </p>
             </div>
             <span
-              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#ecfdf3] text-[#027a48]"
+              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-success-soft text-success"
             >
               <PhCalendarBlank :size="22" weight="duotone" />
             </span>
@@ -845,7 +845,7 @@ watch(selectedWeightSubjectId, () => {
             </div>
             <p
               v-else-if="termsError"
-              class="rounded-lg border border-[#fecaca] bg-[#fef2f2] px-4 py-3 text-sm text-[#a8665d]"
+              class="rounded-lg border border-danger-line bg-danger-soft px-4 py-3 text-sm text-[#a8665d]"
             >
               {{ termsError }}
             </p>
@@ -883,7 +883,7 @@ watch(selectedWeightSubjectId, () => {
                       class="rounded-full px-2.5 py-1 text-xs font-semibold"
                       :class="
                         term.isActive
-                          ? 'bg-[#ecfdf3] text-[#027a48]'
+                          ? 'bg-success-soft text-success'
                           : 'bg-[#f3f1ec] text-muted'
                       "
                     >
@@ -1041,7 +1041,7 @@ watch(selectedWeightSubjectId, () => {
             </div>
             <p
               v-else-if="subjectsError"
-              class="rounded-lg border border-[#fecaca] bg-[#fef2f2] px-4 py-3 text-sm text-[#a8665d]"
+              class="rounded-lg border border-danger-line bg-danger-soft px-4 py-3 text-sm text-[#a8665d]"
             >
               {{ subjectsError }}
             </p>
@@ -1115,7 +1115,7 @@ watch(selectedWeightSubjectId, () => {
               </p>
             </div>
             <span
-              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#fef2f2] text-[#dc2626]"
+              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-danger-soft text-danger"
             >
               <PhTag :size="22" weight="duotone" />
             </span>
@@ -1150,7 +1150,7 @@ watch(selectedWeightSubjectId, () => {
             </div>
             <p
               v-else-if="categoriesError"
-              class="rounded-lg border border-[#fecaca] bg-[#fef2f2] px-4 py-3 text-sm text-[#a8665d]"
+              class="rounded-lg border border-danger-line bg-danger-soft px-4 py-3 text-sm text-[#a8665d]"
             >
               {{ categoriesError }}
             </p>
@@ -1248,7 +1248,7 @@ watch(selectedWeightSubjectId, () => {
                 <p
                   class="text-3xl font-semibold"
                   :class="
-                    isWeightTotalValid ? 'text-[#027a48]' : 'text-[#b45309]'
+                    isWeightTotalValid ? 'text-success' : 'text-warning'
                   "
                 >
                   {{ formatWeight(totalWeight) }}%
@@ -1257,8 +1257,8 @@ watch(selectedWeightSubjectId, () => {
                   class="rounded-full px-3 py-1 text-xs font-semibold"
                   :class="
                     isWeightTotalValid
-                      ? 'bg-[#ecfdf3] text-[#027a48]'
-                      : 'bg-[#fff7ed] text-[#b45309]'
+                      ? 'bg-success-soft text-success'
+                      : 'bg-warning-soft text-warning'
                   "
                 >
                   {{ isWeightTotalValid ? "Valid" : "Harus 100%" }}
@@ -1271,7 +1271,7 @@ watch(selectedWeightSubjectId, () => {
 
             <p
               v-if="selectedWeightSubject"
-              class="mt-4 rounded-lg border border-[#fed7aa] bg-[#fff7ed] px-4 py-3 text-xs leading-5 text-[#9a3412]"
+              class="mt-4 rounded-lg border border-[#fed7aa] bg-warning-soft px-4 py-3 text-xs leading-5 text-[#9a3412]"
             >
               Bobot yang disimpan akan berlaku untuk semua kelas pada mata
               pelajaran {{ selectedWeightSubject.subjectName }}.
@@ -1318,13 +1318,13 @@ watch(selectedWeightSubjectId, () => {
             <div v-else class="mt-4 space-y-3">
               <p
                 v-if="weightsError"
-                class="rounded-lg border border-[#fecaca] bg-[#fef2f2] px-4 py-3 text-sm leading-6 text-[#a8665d]"
+                class="rounded-lg border border-danger-line bg-danger-soft px-4 py-3 text-sm leading-6 text-[#a8665d]"
               >
                 {{ weightsError }}
               </p>
               <p
                 v-else-if="weightsInfoMessage"
-                class="rounded-lg border border-[#fed7aa] bg-[#fff7ed] px-4 py-3 text-sm leading-6 text-[#9a3412]"
+                class="rounded-lg border border-[#fed7aa] bg-warning-soft px-4 py-3 text-sm leading-6 text-[#9a3412]"
               >
                 {{ weightsInfoMessage }}
               </p>
@@ -1357,13 +1357,13 @@ watch(selectedWeightSubjectId, () => {
 
               <p
                 v-if="hasInvalidWeight"
-                class="rounded-lg border border-[#fecaca] bg-[#fef2f2] px-4 py-3 text-sm leading-6 text-[#a8665d]"
+                class="rounded-lg border border-danger-line bg-danger-soft px-4 py-3 text-sm leading-6 text-[#a8665d]"
               >
                 Bobot harus berada di antara 0 sampai 100.
               </p>
               <p
                 v-else-if="!isWeightTotalValid"
-                class="rounded-lg border border-[#fed7aa] bg-[#fff7ed] px-4 py-3 text-sm leading-6 text-[#b45309]"
+                class="rounded-lg border border-[#fed7aa] bg-warning-soft px-4 py-3 text-sm leading-6 text-warning"
               >
                 Total bobot harus 100%.
               </p>

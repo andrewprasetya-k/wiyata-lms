@@ -119,6 +119,6 @@ func (r *termRepository) CheckDuplicateName(acyID string, name string, excludeID
 func (r *termRepository) HasClasses(id string) (bool, error) {
 	var count int64
 	// cek tabel edv.classes
-	err := r.db.Table("edv.classes").Where("cls_trm_id = ?", id).Count(&count).Error
+	err := r.db.Table("edv.classes").Where("cls_trm_id = ? AND deleted_at IS NULL", id).Count(&count).Error
 	return count > 0, err
 }

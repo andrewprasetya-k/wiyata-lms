@@ -141,10 +141,10 @@ function statusLabel(item: TeacherAssignmentRow) {
 }
 
 function statusClasses(item: TeacherAssignmentRow) {
-  if (item.pendingCount > 0) return "bg-[#fff7ed] text-[#b45309]";
-  if (item.submissionCount > 0) return "bg-[#ecfdf3] text-[#027a48]";
-  if (item.isOverdue) return "bg-[#fef2f2] text-[#dc2626]";
-  return "bg-[#eef2ff] text-brand";
+  if (item.pendingCount > 0) return "bg-warning-soft text-warning";
+  if (item.submissionCount > 0) return "bg-success-soft text-success";
+  if (item.isOverdue) return "bg-danger-soft text-danger";
+  return "bg-brand-soft text-brand";
 }
 
 onMounted(loadAssignments);
@@ -185,11 +185,11 @@ onMounted(loadAssignments);
         class="flex min-h-[55vh] items-center justify-center"
       >
         <article
-          class="w-full max-w-xl rounded-xl border border-[#fecaca] bg-[#fef2f2] p-6"
+          class="w-full max-w-xl rounded-xl border border-danger-line bg-danger-soft p-6"
         >
           <div class="flex items-start gap-3">
             <div
-              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fef2f2] text-[#dc2626]"
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-danger-soft text-danger"
             >
               <PhWarningCircle :size="22" weight="duotone" />
             </div>
@@ -202,7 +202,7 @@ onMounted(loadAssignments);
               </p>
               <button
                 type="button"
-                class="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+                class="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-hover"
                 @click="loadAssignments"
               >
                 Coba lagi
@@ -278,7 +278,7 @@ onMounted(loadAssignments);
                 :class="
                   activeFilter === tab.id
                     ? 'bg-brand text-white'
-                    : 'bg-[#fbfaf8] text-muted hover:bg-[#eef2ff] hover:text-brand'
+                    : 'bg-[#fbfaf8] text-muted hover:bg-brand-soft hover:text-brand'
                 "
                 @click="activeFilter = tab.id"
               >
@@ -290,7 +290,7 @@ onMounted(loadAssignments);
 
           <div v-if="assignments.length === 0" class="py-12 text-center">
             <div
-              class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+              class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
             >
               <PhClipboardText class="h-6 w-6" weight="duotone" />
             </div>
@@ -303,7 +303,7 @@ onMounted(loadAssignments);
             </p>
             <RouterLink
               to="/teacher/create?type=assignment"
-              class="mt-5 inline-flex items-center justify-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+              class="mt-5 inline-flex items-center justify-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white transition hover:bg-brand-hover"
             >
               Pilih mata pelajaran
               <PhArrowRight :size="16" />
@@ -315,7 +315,7 @@ onMounted(loadAssignments);
             class="py-12 text-center"
           >
             <div
-              class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+              class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
             >
               <PhCheckCircle class="h-6 w-6" weight="duotone" />
             </div>
@@ -393,15 +393,15 @@ onMounted(loadAssignments);
                     {{ item.submissionCount }}
                   </dd>
                 </div>
-                <div class="rounded-lg bg-[#fff7ed] p-3">
-                  <dt class="text-[#b45309]">Perlu dinilai</dt>
-                  <dd class="mt-1 text-base font-medium text-[#b45309]">
+                <div class="rounded-lg bg-warning-soft p-3">
+                  <dt class="text-warning">Perlu dinilai</dt>
+                  <dd class="mt-1 text-base font-medium text-warning">
                     {{ item.pendingCount }}
                   </dd>
                 </div>
                 <div class="rounded-lg bg-[#f0fdf4] p-3">
-                  <dt class="text-[#027a48]">Sudah dinilai</dt>
-                  <dd class="mt-1 text-base font-medium text-[#027a48]">
+                  <dt class="text-success">Sudah dinilai</dt>
+                  <dd class="mt-1 text-base font-medium text-success">
                     {{ item.gradedCount }}
                   </dd>
                 </div>
@@ -413,7 +413,7 @@ onMounted(loadAssignments);
                     name: 'teacher-assignment-review',
                     params: { assignmentId: item.item.assignmentId },
                   }"
-                  class="inline-flex items-center justify-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+                  class="inline-flex items-center justify-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white transition hover:bg-brand-hover"
                 >
                   nilai pengumpulan
                   <PhArrowRight :size="16" />

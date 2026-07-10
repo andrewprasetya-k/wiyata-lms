@@ -29,7 +29,7 @@ function ariaLabel() {
     :to="activity.link || ''"
     class="group flex min-w-0 gap-3 rounded-lg border p-4 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
     :class="activity.type === 'assignment_overdue'
-      ? 'border-[#fecaca] bg-[#fef2f2] hover:bg-[#fee2e2]'
+      ? 'border-danger-line bg-danger-soft hover:bg-[#fee2e2]'
       : 'border-border bg-white hover:border-[#c7d2fe] hover:bg-[#fbfaf8]'"
     :aria-label="ariaLabel()"
   >
@@ -49,13 +49,13 @@ function ariaLabel() {
         </span>
         <span
           v-if="activity.type === 'assignment_overdue'"
-          class="rounded-full bg-white px-2 py-0.5 text-[10px] font-medium text-[#dc2626]"
+          class="rounded-full bg-white px-2 py-0.5 text-[10px] font-medium text-danger"
         >
           Tenggat terlewat
         </span>
         <span
           v-else-if="activity.priority === 'high'"
-          class="rounded-full bg-[#fff7ed] px-2 py-0.5 text-[10px] font-medium text-[#b45309]"
+          class="rounded-full bg-warning-soft px-2 py-0.5 text-[10px] font-medium text-warning"
         >
           Prioritas
         </span>
@@ -87,7 +87,7 @@ function ariaLabel() {
     v-else
     class="flex min-w-0 gap-3 rounded-lg border p-4"
     :class="activity.type === 'assignment_overdue'
-      ? 'border-[#fecaca] bg-[#fef2f2]'
+      ? 'border-danger-line bg-danger-soft'
       : 'border-border bg-white'"
   >
     <span
@@ -106,13 +106,13 @@ function ariaLabel() {
         </span>
         <span
           v-if="activity.type === 'assignment_overdue'"
-          class="rounded-full bg-white px-2 py-0.5 text-[10px] font-medium text-[#dc2626]"
+          class="rounded-full bg-white px-2 py-0.5 text-[10px] font-medium text-danger"
         >
           Tenggat terlewat
         </span>
         <span
           v-else-if="activity.priority === 'high'"
-          class="rounded-full bg-[#fff7ed] px-2 py-0.5 text-[10px] font-medium text-[#b45309]"
+          class="rounded-full bg-warning-soft px-2 py-0.5 text-[10px] font-medium text-warning"
         >
           Prioritas
         </span>

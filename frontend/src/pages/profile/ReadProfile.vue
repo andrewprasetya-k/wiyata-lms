@@ -123,7 +123,7 @@ const schoolRows = computed(() => [
         class="w-full max-w-xl rounded-xl border border-border bg-white p-8 text-center"
       >
         <div
-          class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
+          class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
         >
           <PhUserCircle :size="25" weight="duotone" />
         </div>
@@ -158,7 +158,7 @@ const schoolRows = computed(() => [
             {{ auth.user.email || "Email tidak tersedia" }}
           </p>
 
-          <div class="mt-5 rounded-lg bg-[#eef2ff] p-4">
+          <div class="mt-5 rounded-lg bg-brand-soft p-4">
             <div class="flex items-start gap-3">
               <PhShieldCheck
                 :size="20"
@@ -181,7 +181,7 @@ const schoolRows = computed(() => [
           >
             <div class="mb-4 flex min-w-0 items-center gap-3">
               <div
-                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#eef2ff] text-brand"
+                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-soft text-brand"
               >
                 <PhIdentificationCard :size="21" weight="duotone" />
               </div>
@@ -253,7 +253,7 @@ const schoolRows = computed(() => [
         >
           <div class="flex min-w-0 items-center gap-3">
             <div
-              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#fff7ed] text-[#ea580c]"
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-warning-soft text-[#ea580c]"
             >
               <PhUserCircle :size="21" weight="duotone" />
             </div>
@@ -281,7 +281,7 @@ const schoolRows = computed(() => [
                 <span
                   v-for="role in membership.roles"
                   :key="role"
-                  class="rounded-full bg-[#eef2ff] px-2.5 py-1 text-xs font-medium text-brand"
+                  class="rounded-full bg-brand-soft px-2.5 py-1 text-xs font-medium text-brand"
                 >
                   {{ roleLabels[role] ?? role }}
                 </span>

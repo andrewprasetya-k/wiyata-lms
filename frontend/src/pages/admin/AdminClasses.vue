@@ -300,7 +300,7 @@ onMounted(async () => {
     <section class="px-5 py-5 sm:px-6 lg:px-8 lg:py-6">
       <div
         v-if="!currentSchool.hasContext"
-        class="mb-5 flex items-start gap-3 rounded-xl border border-[#fecaca] bg-[#fef2f2] p-4 text-sm leading-6 text-[#dc2626]"
+        class="mb-5 flex items-start gap-3 rounded-xl border border-danger-line bg-danger-soft p-4 text-sm leading-6 text-danger"
       >
         <PhWarningCircle :size="20" class="mt-0.5 shrink-0" weight="duotone" />
         <p>
@@ -334,7 +334,7 @@ onMounted(async () => {
               </p>
             </div>
             <span
-              class="inline-flex shrink-0 items-center gap-2 self-start rounded-lg bg-[#eef2ff] px-3 py-2 text-xs font-medium text-brand"
+              class="inline-flex shrink-0 items-center gap-2 self-start rounded-lg bg-brand-soft px-3 py-2 text-xs font-medium text-brand"
             >
               <PhBookOpen :size="16" weight="duotone" />
               {{ classes.length }} kelas
@@ -352,11 +352,11 @@ onMounted(async () => {
 
             <div
               v-else-if="classesError"
-              class="rounded-lg border border-[#fecaca] bg-[#fef2f2] p-5 text-center"
+              class="rounded-lg border border-danger-line bg-danger-soft p-5 text-center"
             >
               <PhWarningCircle
                 :size="26"
-                class="mx-auto text-[#dc2626]"
+                class="mx-auto text-danger"
                 weight="duotone"
               />
               <h3 class="mt-3 text-sm font-semibold text-foreground">
@@ -461,7 +461,7 @@ onMounted(async () => {
                       </button>
                       <button
                         type="button"
-                        class="inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-2 text-xs font-medium text-[#374151] transition hover:border-[#dc2626] hover:text-[#dc2626] disabled:cursor-not-allowed disabled:opacity-60"
+                        class="inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-2 text-xs font-medium text-[#374151] transition hover:border-danger hover:text-danger disabled:cursor-not-allowed disabled:opacity-60"
                         :disabled="isSavingEdit"
                         @click="cancelEdit"
                       >
@@ -554,7 +554,7 @@ onMounted(async () => {
                   <div class="mt-3 flex flex-wrap gap-2">
                     <RouterLink
                       :to="`/admin/classes/${classItem.classId}`"
-                      class="inline-flex items-center gap-1.5 rounded-lg border border-border bg-[#eef2ff] px-3 py-1.5 text-xs font-medium text-brand transition hover:bg-[#e0e7ff]"
+                      class="inline-flex items-center gap-1.5 rounded-lg border border-border bg-brand-soft px-3 py-1.5 text-xs font-medium text-brand transition hover:bg-[#e0e7ff]"
                     >
                       <PhArrowRight :size="13" weight="bold" />
                       Lihat Detail
@@ -573,8 +573,8 @@ onMounted(async () => {
                       class="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition disabled:cursor-not-allowed disabled:opacity-60"
                       :class="
                         classItem.isActive
-                          ? 'border-[#fecaca] bg-white text-[#dc2626] hover:bg-[#fef2f2]'
-                          : 'border-[#bbf7d0] bg-white text-[#059669] hover:bg-[#f0fdf4]'
+                          ? 'border-danger-line bg-white text-danger hover:bg-danger-soft'
+                          : 'border-success-line bg-white text-[#059669] hover:bg-[#f0fdf4]'
                       "
                       :disabled="togglingClassId === classItem.classId"
                       @click="toggleActive(classItem)"
@@ -665,14 +665,14 @@ onMounted(async () => {
                 <p v-if="yearsLoading" class="text-muted">
                   Memuat tahun ajaran...
                 </p>
-                <p v-else-if="yearsError" class="text-[#dc2626]">
+                <p v-else-if="yearsError" class="text-danger">
                   {{ yearsError }}
                 </p>
                 <div v-else-if="academicYears.length === 0" class="space-y-2">
                   <p class="text-muted">Belum ada tahun ajaran.</p>
                   <RouterLink
                     to="/admin/academic-years"
-                    class="inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-2 text-xs font-medium text-brand transition hover:border-brand hover:bg-[#eef2ff]"
+                    class="inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-2 text-xs font-medium text-brand transition hover:border-brand hover:bg-brand-soft"
                   >
                     Buka Struktur Akademik
                     <PhArrowRight :size="13" />
@@ -681,7 +681,7 @@ onMounted(async () => {
                 <p v-if="termsLoading" class="text-muted">
                   Memuat semester...
                 </p>
-                <p v-else-if="termsError" class="text-[#dc2626]">
+                <p v-else-if="termsError" class="text-danger">
                   {{ termsError }}
                 </p>
                 <p

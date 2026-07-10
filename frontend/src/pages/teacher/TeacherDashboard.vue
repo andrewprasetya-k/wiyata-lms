@@ -65,12 +65,12 @@ const statCards = computed(() => [
     urgent: hasPendingReviews.value,
     to: "/teacher/submissions",
     colorIcon: hasPendingReviews.value
-      ? "bg-[#fff7ed] text-[#ea580c]"
+      ? "bg-warning-soft text-[#ea580c]"
       : "bg-[#f0fdf4] text-[#059669]",
     colorValue: hasPendingReviews.value ? "text-[#ea580c]" : "text-foreground",
     border: hasPendingReviews.value
       ? "border-[#fed7aa] hover:border-[#fb923c]"
-      : "border-border hover:border-[#bbf7d0]",
+      : "border-border hover:border-success-line",
   },
   {
     label: "Total Siswa",
@@ -79,7 +79,7 @@ const statCards = computed(() => [
     icon: PhUsers,
     urgent: false,
     to: null,
-    colorIcon: "bg-[#eef2ff] text-brand",
+    colorIcon: "bg-brand-soft text-brand",
     colorValue: "text-foreground",
     border: "border-border",
   },
@@ -167,7 +167,7 @@ onMounted(() => {
             class="w-full max-w-xl rounded-xl border border-border bg-white shadow-sm p-8 text-center"
           >
             <div
-              class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#fff7ed] text-[#ea580c]"
+              class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-warning-soft text-[#ea580c]"
             >
               <PhWarningCircle :size="24" weight="duotone" />
             </div>
@@ -233,7 +233,7 @@ onMounted(() => {
           <RouterLink
             v-if="!loading && hasPendingReviews"
             to="/teacher/submissions"
-            class="group flex items-center gap-4 rounded-xl border border-[#fed7aa] bg-[#fff7ed] px-5 py-4 transition hover:border-[#fb923c] hover:bg-[#ffedd5]"
+            class="group flex items-center gap-4 rounded-xl border border-[#fed7aa] bg-warning-soft px-5 py-4 transition hover:border-[#fb923c] hover:bg-[#ffedd5]"
           >
             <div
               class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#ea580c] text-white"
@@ -257,12 +257,12 @@ onMounted(() => {
           <!-- Error state -->
           <section
             v-if="errorMessage"
-            class="rounded-xl border border-[#fecaca] bg-[#fef2f2] p-5"
+            class="rounded-xl border border-danger-line bg-danger-soft p-5"
           >
             <div class="flex items-start gap-3">
               <PhWarningCircle
                 :size="20"
-                class="mt-0.5 shrink-0 text-[#dc2626]"
+                class="mt-0.5 shrink-0 text-danger"
                 weight="duotone"
               />
               <div>
@@ -273,7 +273,7 @@ onMounted(() => {
                   {{ errorMessage }}
                 </p>
                 <button
-                  class="mt-3 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+                  class="mt-3 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-hover"
                   type="button"
                   @click="loadDashboard"
                 >
@@ -298,7 +298,7 @@ onMounted(() => {
               </div>
               <RouterLink
                 to="/teacher/subjects"
-                class="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-brand transition hover:text-[#4338ca]"
+                class="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-brand transition hover:text-brand-hover"
               >
                 Lihat semua
                 <PhArrowRight :size="13" />
@@ -363,7 +363,7 @@ onMounted(() => {
                           ? 'text-[#059669]'
                           : item.submissionRate >= 50
                             ? 'text-[#ea580c]'
-                            : 'text-[#dc2626]'
+                            : 'text-danger'
                       "
                     >
                       {{ formatPercentage(item.submissionRate) }}
@@ -393,7 +393,7 @@ onMounted(() => {
               </p>
               <RouterLink
                 to="/teacher/subjects"
-                class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-2 text-xs font-medium text-brand transition hover:border-brand hover:bg-[#eef2ff]"
+                class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-2 text-xs font-medium text-brand transition hover:border-brand hover:bg-brand-soft"
               >
                 Lihat mata pelajaran
                 <PhArrowRight :size="13" />
