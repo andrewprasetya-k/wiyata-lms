@@ -9,7 +9,7 @@ import {
   PhWarningCircle,
 } from "@phosphor-icons/vue";
 import AttachmentPreviewList from "../../components/common/AttachmentPreviewList.vue";
-import DiscussionComments from "../../components/discussion/DiscussionComments.vue";
+import CommentThread from "../../components/comments/CommentThread.vue";
 import StudentNoteCard from "../../components/student/StudentNoteCard.vue";
 import { getMaterialById } from "../../services/classWorkspace";
 import type { MaterialItem } from "../../types/classWorkspace";
@@ -240,7 +240,7 @@ onMounted(loadMaterial);
           </p>
         </article> -->
 
-        <DiscussionComments
+        <CommentThread
           source-type="material"
           :source-id="material.materialId"
           title="Diskusi materi"

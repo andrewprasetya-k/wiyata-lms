@@ -7,7 +7,7 @@ import {
   PhPaperPlaneTilt,
   PhWarningCircle,
 } from "@phosphor-icons/vue";
-import FeedComments from "../../components/feed/FeedComments.vue";
+import CommentThread from "../../components/comments/CommentThread.vue";
 import { getMyTeachingSubjectClasses } from "../../services/teacherSubjects";
 import {
   createClassFeed,
@@ -589,10 +589,12 @@ function updatePostCommentCount(feedId: string, count: number) {
                 {{ post.content }}
               </p>
               <div class="border-t border-[#f3f1ec] px-4 pb-4 sm:px-5">
-                <FeedComments
+                <CommentThread
                   v-if="!isOptimisticFeed(post)"
-                  :post="post"
-                  @comment-count-change="updatePostCommentCount"
+                  source-type="feed"
+                  :source-id="post.feedId"
+                  :initial-count="post.commentCount"
+                  @count-change="(count) => updatePostCommentCount(post.feedId, count)"
                 />
                 <p v-else class="py-3 text-xs leading-5 text-[#8b8592]">
                   Komentar tersedia setelah pengumuman tersimpan.

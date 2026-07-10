@@ -8,7 +8,7 @@ import {
   PhWarningCircle,
 } from "@phosphor-icons/vue";
 import AttachmentPreviewList from "../../components/common/AttachmentPreviewList.vue";
-import FeedComments from "../../components/feed/FeedComments.vue";
+import CommentThread from "../../components/comments/CommentThread.vue";
 import { getClassFeed, markFeedNotificationsRead } from "../../services/feed";
 import {
   clearFeedUnreadOptimistically,
@@ -310,9 +310,11 @@ function getInitials(name?: string) {
                   />
                 </div>
 
-                <FeedComments
-                  :post="post"
-                  @comment-count-change="updatePostCommentCount"
+                <CommentThread
+                  source-type="feed"
+                  :source-id="post.feedId"
+                  :initial-count="post.commentCount"
+                  @count-change="(count) => updatePostCommentCount(post.feedId, count)"
                 />
               </div>
             </div>

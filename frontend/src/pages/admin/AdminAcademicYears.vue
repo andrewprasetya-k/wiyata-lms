@@ -27,7 +27,13 @@ import type {
   TermItem,
 } from "../../types/adminAcademic";
 import { formatDateTime } from "../../utils/date";
-import { getSubjectColor } from "../../utils/color";
+import {
+  getSubjectColor,
+  isValidSubjectColor,
+  normalizeSubjectColor,
+  subjectDisplayColor,
+  toColorPickerValue,
+} from "../../utils/color";
 import { getApiError } from "../../utils/error";
 import {
   PhArrowRight,
@@ -147,31 +153,6 @@ const canSubmitWeights = computed(
     categories.value.length > 0 &&
     activeAction.value !== "weights-save",
 );
-
-function normalizeSubjectColor(color?: string | null) {
-  return color?.trim() ?? "";
-}
-
-function isValidSubjectColor(color: string) {
-  return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(color);
-}
-
-function toColorPickerValue(color: string) {
-  const normalized = normalizeSubjectColor(color);
-  if (/^#[0-9a-fA-F]{6}$/.test(normalized)) return normalized;
-  if (/^#[0-9a-fA-F]{3}$/.test(normalized)) {
-    const [, r, g, b] = normalized;
-    return `#${r}${r}${g}${g}${b}${b}`;
-  }
-  if (/^#[0-9a-fA-F]{8}$/.test(normalized)) {
-    return normalized.slice(0, 7);
-  }
-  return "#4f46e5";
-}
-
-function subjectDisplayColor(subject: SubjectItem) {
-  return subject.color || getSubjectColor(subject.subjectId || subject.subjectName);
-}
 
 function normalizeWeightInput(value: WeightInputValue) {
   if (value === undefined || value === null) {

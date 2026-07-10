@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, ref } from "vue";
 import {
   PhChatCircleText,
   PhCheck,
@@ -21,18 +21,10 @@ import {
   PhPlus,
 } from "@phosphor-icons/vue";
 import {
-  addChatGroupMembers,
-  createChatGroup,
   getChatRooms,
-  getChatGroupInfo,
   getMessages,
   getRoomReadSummary,
-  leaveChatGroup,
   markRoomRead,
-  openDirectMessage,
-  removeChatGroupMember,
-  renameChatGroup,
-  searchChatMembers,
   sendMessage,
 } from "../../services/chat";
 import { connectChatSocket } from "../../services/chatSocket";
@@ -40,12 +32,8 @@ import { deleteMedia, uploadMediaFile } from "../../services/media";
 import type { ChatSocketStatus } from "../../services/chatSocket";
 import { useAuthStore } from "../../stores/auth";
 import { useToastStore } from "../../stores/toast";
-import { useConfirmStore } from "../../stores/confirm";
 import type {
   ChatAttachment,
-  ChatGroupInfo,
-  ChatGroupMember,
-  ChatMember,
   ChatMessage,
   ChatSocketEvent,
   MessageReadEvent,
@@ -59,13 +47,21 @@ import {
   formatTime as formatBackendTime,
   parseBackendTimestamp,
 } from "../../utils/date";
+import {
+  getInitials,
+  isCustomGroupRoom,
+  isDirectMessageRoom,
+  resolveChatError,
+  roomDisplayName,
+} from "../../utils/chatDisplay";
+import ChatCreateConversationModal from "./ChatCreateConversationModal.vue";
+import ChatGroupInfoModal from "./ChatGroupInfoModal.vue";
 
 defineProps<{
   audience: "student" | "teacher" | "admin";
 }>();
 
 const toast = useToastStore();
-const confirm = useConfirmStore();
 
 interface PendingAttachmentItem {
   id: string;
@@ -96,35 +92,9 @@ const fileInputEl = ref<HTMLInputElement | null>(null);
 const isLightboxOpen = ref(false);
 const lightboxImage = ref<{ url: string; name: string } | null>(null);
 const isCreateConversationOpen = ref(false);
-const activeCreateTab = ref<"dm" | "group">("dm");
-const groupRoomName = ref("");
-const memberSearch = ref("");
-const memberResults = ref<ChatMember[]>([]);
-const selectedMemberIds = ref<string[]>([]);
-const isLoadingMembers = ref(false);
-const isCreatingGroup = ref(false);
-const createGroupError = ref("");
-const dmSearch = ref("");
-const dmResults = ref<ChatMember[]>([]);
-const selectedDMTargetId = ref("");
-const isLoadingDMTargets = ref(false);
-const isOpeningDM = ref(false);
-const directMessageError = ref("");
+const createConversationInitialTab = ref<"dm" | "group">("dm");
 const roomSearch = ref("");
 const isGroupInfoOpen = ref(false);
-const groupInfo = ref<ChatGroupInfo | null>(null);
-const isLoadingGroupInfo = ref(false);
-const groupInfoError = ref("");
-const groupActionError = ref("");
-const renameRoomName = ref("");
-const isRenamingGroup = ref(false);
-const addMemberSearch = ref("");
-const addMemberResults = ref<ChatMember[]>([]);
-const selectedAddMemberIds = ref<string[]>([]);
-const isLoadingAddMembers = ref(false);
-const isAddingMembers = ref(false);
-const isLeavingGroup = ref(false);
-const removingMemberId = ref<string | null>(null);
 let pollTimeout: number | undefined;
 let roomRefreshTimer: number | undefined;
 let readSummaryRefreshTimer: number | undefined;
@@ -176,18 +146,6 @@ const selectedRoomIsGroup = computed(() =>
 );
 const selectedRoomIsDM = computed(() =>
   selectedRoom.value ? isDirectMessageRoom(selectedRoom.value) : false,
-);
-const currentUserIsGroupAdmin = computed(() =>
-  Boolean(
-    groupInfo.value?.admins.some(
-      (member) => member.userId === currentUserId.value,
-    ),
-  ),
-);
-const selectedAddMembers = computed(() =>
-  addMemberResults.value.filter((member) =>
-    selectedAddMemberIds.value.includes(member.userId),
-  ),
 );
 const messageGroupGapMs = 5 * 60 * 1000;
 
@@ -353,277 +311,48 @@ async function searchRooms() {
   await refreshRooms();
 }
 
-async function openCreateConversation(tab: "dm" | "group" = "dm") {
-  activeCreateTab.value = tab;
+function openCreateConversation(tab: "dm" | "group" = "dm") {
+  createConversationInitialTab.value = tab;
   isCreateConversationOpen.value = true;
-  if (tab === "group" && memberResults.value.length === 0) {
-    await loadChatMembers();
-  } else if (tab === "dm" && dmResults.value.length === 0) {
-    directMessageError.value = "";
-    selectedDMTargetId.value = "";
-    await loadDMTargets();
-  }
 }
 
-watch(activeCreateTab, async (tab) => {
-  if (!isCreateConversationOpen.value) return;
-  if (tab === "group" && memberResults.value.length === 0) {
-    await loadChatMembers();
-  } else if (tab === "dm" && dmResults.value.length === 0) {
-    directMessageError.value = "";
-    selectedDMTargetId.value = "";
-    await loadDMTargets();
-  }
-});
-
-async function loadChatMembers() {
-  isLoadingMembers.value = true;
-  createGroupError.value = "";
-  try {
-    memberResults.value = await searchChatMembers(memberSearch.value.trim());
-  } catch (error) {
-    createGroupError.value = resolveChatError(error);
-  } finally {
-    isLoadingMembers.value = false;
-  }
+async function handleDmOpened(room: ChatRoom) {
+  await refreshRooms();
+  selectedRoom.value =
+    rooms.value.find((item) => item.roomId === room.roomId) ?? room;
+  isCreateConversationOpen.value = false;
+  await loadLatestMessages();
 }
 
-async function loadDMTargets() {
-  isLoadingDMTargets.value = true;
-  directMessageError.value = "";
-  try {
-    const members = await searchChatMembers(dmSearch.value.trim());
-    dmResults.value = members.filter(
-      (member) => member.userId !== currentUserId.value,
-    );
-  } catch (error) {
-    directMessageError.value = resolveChatError(error);
-  } finally {
-    isLoadingDMTargets.value = false;
-  }
+async function handleGroupCreated(room: ChatRoom) {
+  await refreshRooms();
+  selectedRoom.value = room;
+  isCreateConversationOpen.value = false;
+  await loadLatestMessages();
+  toast.success("Ruang chat berhasil dibuat.");
 }
 
-function toggleMember(userId: string) {
-  if (selectedMemberIds.value.includes(userId)) {
-    selectedMemberIds.value = selectedMemberIds.value.filter(
-      (id) => id !== userId,
-    );
-    return;
-  }
-  selectedMemberIds.value = [...selectedMemberIds.value, userId];
-}
-
-async function submitCreateGroup() {
-  const roomName = groupRoomName.value.trim();
-  if (!roomName) {
-    createGroupError.value = "Nama ruang wajib diisi.";
-    return;
-  }
-  if (selectedMemberIds.value.length === 0) {
-    createGroupError.value = "Pilih minimal satu anggota ruang.";
-    return;
-  }
-
-  isCreatingGroup.value = true;
-  createGroupError.value = "";
-  try {
-    const room = await createChatGroup({
-      roomName,
-      memberUserIds: selectedMemberIds.value,
-    });
-    await refreshRooms();
-    selectedRoom.value = room;
-    groupRoomName.value = "";
-    memberSearch.value = "";
-    selectedMemberIds.value = [];
-    isCreateConversationOpen.value = false;
-    await loadLatestMessages();
-    toast.success("Ruang chat berhasil dibuat.");
-  } catch (error) {
-    createGroupError.value = resolveChatError(error);
-  } finally {
-    isCreatingGroup.value = false;
-  }
-}
-
-async function submitDirectMessage() {
-  if (!selectedDMTargetId.value) {
-    directMessageError.value =
-      "Pilih satu warga sekolah untuk memulai percakapan.";
-    return;
-  }
-
-  isOpeningDM.value = true;
-  directMessageError.value = "";
-  try {
-    const room = await openDirectMessage({
-      targetUserId: selectedDMTargetId.value,
-    });
-    await refreshRooms();
-    selectedRoom.value =
-      rooms.value.find((item) => item.roomId === room.roomId) ?? room;
-    isCreateConversationOpen.value = false;
-    dmSearch.value = "";
-    selectedDMTargetId.value = "";
-    await loadLatestMessages();
-  } catch (error) {
-    directMessageError.value = resolveChatError(error);
-  } finally {
-    isOpeningDM.value = false;
-  }
-}
-
-async function openGroupInfo() {
+function openGroupInfo() {
   if (!selectedRoom.value || !isCustomGroupRoom(selectedRoom.value)) return;
   isGroupInfoOpen.value = true;
-  await loadGroupInfo();
 }
 
-async function loadGroupInfo() {
-  if (!selectedRoom.value || !isCustomGroupRoom(selectedRoom.value)) return;
-  isLoadingGroupInfo.value = true;
-  groupInfoError.value = "";
-  groupActionError.value = "";
-  try {
-    groupInfo.value = await getChatGroupInfo(selectedRoom.value.roomId);
-    renameRoomName.value = groupInfo.value.roomName;
-    if (
-      groupInfo.value.admins.some(
-        (member) => member.userId === currentUserId.value,
-      )
-    ) {
-      await loadEligibleMembers();
-    }
-  } catch (error) {
-    groupInfoError.value = resolveChatError(error);
-  } finally {
-    isLoadingGroupInfo.value = false;
-  }
+async function handleGroupRenamed(room: ChatRoom) {
+  selectedRoom.value = room;
+  await refreshRooms();
 }
 
-async function submitRenameGroup() {
-  if (!selectedRoom.value || !groupInfo.value) return;
-  const roomName = renameRoomName.value.trim();
-  if (roomName.length < 3) {
-    groupActionError.value = "Nama ruang minimal 3 karakter.";
-    return;
-  }
-  isRenamingGroup.value = true;
-  groupActionError.value = "";
-  try {
-    const room = await renameChatGroup(selectedRoom.value.roomId, { roomName });
-    selectedRoom.value = room;
-    groupInfo.value = { ...groupInfo.value, roomName: room.roomName };
-    await refreshRooms();
-    toast.success("Nama ruang chat berhasil diperbarui.");
-  } catch (error) {
-    groupActionError.value = resolveChatError(error);
-  } finally {
-    isRenamingGroup.value = false;
-  }
+async function handleGroupMembersChanged() {
+  await refreshRooms();
 }
 
-async function loadEligibleMembers() {
-  if (!selectedRoom.value || !isCustomGroupRoom(selectedRoom.value)) return;
-  isLoadingAddMembers.value = true;
-  groupActionError.value = "";
-  try {
-    addMemberResults.value = await searchChatMembers(
-      addMemberSearch.value.trim(),
-      selectedRoom.value.roomId,
-    );
-  } catch (error) {
-    groupActionError.value = resolveChatError(error);
-  } finally {
-    isLoadingAddMembers.value = false;
-  }
-}
-
-function toggleAddMember(userId: string) {
-  if (selectedAddMemberIds.value.includes(userId)) {
-    selectedAddMemberIds.value = selectedAddMemberIds.value.filter(
-      (id) => id !== userId,
-    );
-    return;
-  }
-  selectedAddMemberIds.value = [...selectedAddMemberIds.value, userId];
-}
-
-async function submitAddMembers() {
-  if (!selectedRoom.value || selectedAddMemberIds.value.length === 0) {
-    groupActionError.value = "Pilih minimal satu anggota.";
-    return;
-  }
-  isAddingMembers.value = true;
-  groupActionError.value = "";
-  try {
-    await addChatGroupMembers(selectedRoom.value.roomId, {
-      memberUserIds: selectedAddMemberIds.value,
-    });
-    selectedAddMemberIds.value = [];
-    addMemberSearch.value = "";
-    await loadGroupInfo();
-    await refreshRooms();
-    toast.success("Anggota berhasil ditambahkan.");
-  } catch (error) {
-    groupActionError.value = resolveChatError(error);
-  } finally {
-    isAddingMembers.value = false;
-  }
-}
-
-async function leaveSelectedGroup() {
-  if (!selectedRoom.value || !isCustomGroupRoom(selectedRoom.value)) return;
-  const ok = await confirm.confirm({
-    title: `Keluar dari ${roomDisplayName(selectedRoom.value)}?`,
-    description: "Kamu tidak akan bisa mengakses pesan grup ini lagi.",
-    confirmLabel: "Keluar",
-    variant: "warning",
-  });
-  if (!ok) return;
-
-  const previousRoomID = selectedRoom.value.roomId;
-  isLeavingGroup.value = true;
-  groupActionError.value = "";
-  try {
-    await leaveChatGroup(previousRoomID);
-    isGroupInfoOpen.value = false;
-    groupInfo.value = null;
-    await refreshRooms();
-    selectedRoom.value = rooms.value[0] ?? null;
-    messages.value = [];
-    if (selectedRoom.value) {
-      await loadLatestMessages();
-    }
-    toast.success("Kamu berhasil keluar dari ruang chat.");
-  } catch (error) {
-    groupActionError.value = resolveChatError(error);
-  } finally {
-    isLeavingGroup.value = false;
-  }
-}
-
-async function removeMember(member: ChatGroupMember) {
-  if (!selectedRoom.value) return;
-  const ok = await confirm.confirm({
-    title: `Keluarkan ${member.fullName || member.email}?`,
-    description: "Anggota ini akan dihapus dari grup chat.",
-    confirmLabel: "Keluarkan",
-    variant: "danger",
-  });
-  if (!ok) return;
-
-  removingMemberId.value = member.userId;
-  groupActionError.value = "";
-  try {
-    await removeChatGroupMember(selectedRoom.value.roomId, member.userId);
-    await loadGroupInfo();
-    await refreshRooms();
-    toast.success("Anggota berhasil dikeluarkan.");
-  } catch (error) {
-    groupActionError.value = resolveChatError(error);
-  } finally {
-    removingMemberId.value = null;
+async function handleGroupLeft() {
+  isGroupInfoOpen.value = false;
+  await refreshRooms();
+  selectedRoom.value = rooms.value[0] ?? null;
+  messages.value = [];
+  if (selectedRoom.value) {
+    await loadLatestMessages();
   }
 }
 
@@ -1244,36 +973,9 @@ function readByOtherCount(message: ChatMessage) {
   }).length;
 }
 
-function getInitials(value?: string | null) {
-  return (
-    value
-      ?.split(/\s+/)
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((word) => word.charAt(0).toUpperCase())
-      .join("") || "RS"
-  );
-}
-
 // function isSchoolRoom(room: ChatRoom) {
 //   return room.roomRefType === "school";
 // }
-
-function isDirectMessageRoom(room: ChatRoom) {
-  return room.roomType === "dm";
-}
-
-function isCustomGroupRoom(room: ChatRoom) {
-  return room.roomType === "group" && room.roomRefType == null;
-}
-
-function roomDisplayName(room?: ChatRoom | null) {
-  if (!room) return "Ruang Sekolah";
-  if (isDirectMessageRoom(room)) {
-    return room.dmTargetName || room.dmTargetEmail || "Direct Message";
-  }
-  return room.roomName || "Ruang Grup";
-}
 
 function roomSubtitle(room?: ChatRoom | null) {
   if (!room) return "Ruang sekolah";
@@ -1501,22 +1203,6 @@ function revokePendingAttachmentUrls() {
       URL.revokeObjectURL(attachment.previewUrl);
     }
   }
-}
-
-function resolveChatError(error: unknown) {
-  if (error instanceof Error && error.message) {
-    return error.message;
-  }
-  const maybeError = error as {
-    response?: { status?: number; data?: { error?: string } };
-  };
-  if (
-    maybeError.response?.status === 401 ||
-    maybeError.response?.status === 403
-  ) {
-    return "Kamu tidak memiliki akses ke chat sekolah ini.";
-  }
-  return maybeError.response?.data?.error || "Gagal memuat chat. Coba lagi.";
 }
 
 function formatTime(value?: string | null) {
@@ -2226,295 +1912,14 @@ function formatDateTime(value?: string | null) {
       </div>
     </section>
 
-    <!-- Unified Create Conversation Modal (DM + Grup tabs) -->
-    <div
-      v-if="isCreateConversationOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4 py-6"
-      @click.self="isCreateConversationOpen = false"
-    >
-      <div
-        class="max-h-[90vh] w-full max-w-xl overflow-hidden rounded-xl bg-white"
-      >
-        <!-- Header -->
-        <div class="px-5 py-4">
-          <div class="flex items-center justify-between">
-            <h2 class="text-base font-semibold text-foreground">
-              Buat Percakapan
-            </h2>
-            <button
-              type="button"
-              class="rounded-lg p-1.5 text-[#9ca3af] transition hover:bg-[#f3f1ec] hover:text-foreground"
-              aria-label="Tutup"
-              @click="isCreateConversationOpen = false"
-            >
-              <PhX class="h-5 w-5" />
-            </button>
-          </div>
-          <!-- Tab bar -->
-          <div class="mt-3 flex gap-1 rounded-lg bg-[#f3f1ec] p-1">
-            <button
-              type="button"
-              class="flex-1 rounded-md py-1.5 text-sm font-medium transition"
-              :class="
-                activeCreateTab === 'dm'
-                  ? 'bg-white text-foreground shadow-sm'
-                  : 'text-muted hover:text-foreground'
-              "
-              @click="activeCreateTab = 'dm'"
-            >
-              Pesan Langsung
-            </button>
-            <button
-              type="button"
-              class="flex-1 rounded-md py-1.5 text-sm font-medium transition"
-              :class="
-                activeCreateTab === 'group'
-                  ? 'bg-white text-foreground shadow-sm'
-                  : 'text-muted hover:text-foreground'
-              "
-              @click="activeCreateTab = 'group'"
-            >
-              Grup
-            </button>
-          </div>
-        </div>
-
-        <!-- DM Panel -->
-        <form
-          v-if="activeCreateTab === 'dm'"
-          class="flex max-h-[calc(90vh-9rem)] flex-col"
-          @submit.prevent="submitDirectMessage"
-        >
-          <div class="space-y-4 overflow-y-auto px-5 py-4">
-            <div>
-              <label
-                class="text-sm font-medium text-foreground"
-                for="chat-dm-search"
-              >
-                Cari warga sekolah
-              </label>
-              <div class="mt-1 flex gap-2">
-                <input
-                  id="chat-dm-search"
-                  v-model="dmSearch"
-                  type="text"
-                  class="min-w-0 flex-1 rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm text-foreground outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/15"
-                  placeholder="Cari warga sekolah..."
-                  @keydown.enter.prevent="loadDMTargets"
-                />
-                <button
-                  type="button"
-                  class="rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm font-medium text-brand transition hover:border-brand disabled:opacity-60"
-                  :disabled="isLoadingDMTargets"
-                  @click="loadDMTargets"
-                >
-                  Cari
-                </button>
-              </div>
-            </div>
-
-            <p
-              v-if="directMessageError"
-              class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600"
-            >
-              {{ directMessageError }}
-            </p>
-
-            <div class="rounded-lg border border-border">
-              <div
-                class="border-b border-border bg-[#fbfaf8] px-3 py-2 text-xs font-semibold uppercase tracking-[0.06em] text-[#9ca3af]"
-              >
-                Warga sekolah
-              </div>
-              <div v-if="isLoadingDMTargets" class="space-y-2 p-3">
-                <div class="h-10 animate-pulse rounded-lg bg-[#f3f1ec]" />
-                <div class="h-10 animate-pulse rounded-lg bg-[#f3f1ec]" />
-              </div>
-              <div
-                v-else-if="dmResults.length === 0"
-                class="rounded-lg bg-[#fbfaf8] p-3 text-sm leading-6 text-muted"
-              >
-                Tidak ada warga sekolah yang cocok.
-              </div>
-              <div v-else class="max-h-64 overflow-y-auto p-2">
-                <label
-                  v-for="member in dmResults"
-                  :key="member.userId"
-                  class="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 hover:bg-[#fbfaf8]"
-                >
-                  <input
-                    v-model="selectedDMTargetId"
-                    type="radio"
-                    name="dm-target"
-                    class="h-4 w-4 border-[#d8d2c8] text-brand"
-                    :value="member.userId"
-                  />
-                  <span
-                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#059669] text-xs font-semibold text-white"
-                  >
-                    {{ getInitials(member.fullName || member.email) }}
-                  </span>
-                  <span class="min-w-0 flex-1">
-                    <span
-                      class="block truncate text-sm font-medium text-foreground"
-                    >
-                      {{ member.fullName || member.email }}
-                    </span>
-                    <span class="block truncate text-xs text-muted">
-                      {{ member.email }}
-                    </span>
-                  </span>
-                </label>
-              </div>
-            </div>
-          </div>
-
-          <div class="flex flex-col gap-2 px-5 py-4 sm:flex-row sm:justify-end">
-            <button
-              type="button"
-              class="rounded-lg border border-[#d8d2c8] px-4 py-2 text-sm font-medium text-muted transition hover:bg-[#fbfaf8]"
-              :disabled="isOpeningDM"
-              @click="isCreateConversationOpen = false"
-            >
-              Batal
-            </button>
-            <button
-              type="submit"
-              class="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:bg-[#c7c3d7]"
-              :disabled="isOpeningDM"
-            >
-              {{ isOpeningDM ? "Membuka..." : "Buka percakapan" }}
-            </button>
-          </div>
-        </form>
-
-        <!-- Group Panel -->
-        <form
-          v-else-if="activeCreateTab === 'group'"
-          class="flex max-h-[calc(90vh-9rem)] flex-col"
-          @submit.prevent="submitCreateGroup"
-        >
-          <div class="space-y-4 overflow-y-auto px-5 py-4">
-            <div>
-              <label
-                class="text-sm font-medium text-foreground"
-                for="chat-group-name"
-              >
-                Nama ruang
-              </label>
-              <input
-                id="chat-group-name"
-                v-model="groupRoomName"
-                type="text"
-                class="mt-1 w-full rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm text-foreground outline-none transition focus:border-blue focus:ring-1 focus:ring-brand"
-                placeholder="Contoh: Grup Belajar Fisika"
-              />
-            </div>
-
-            <div>
-              <label
-                class="text-sm font-medium text-foreground"
-                for="chat-member-search"
-              >
-                Cari warga sekolah
-              </label>
-              <div class="mt-1 flex gap-2">
-                <input
-                  id="chat-member-search"
-                  v-model="memberSearch"
-                  type="text"
-                  class="min-w-0 flex-1 rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm text-foreground outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/15"
-                  placeholder="Cari nama atau email..."
-                  @keydown.enter.prevent="loadChatMembers"
-                />
-                <button
-                  type="button"
-                  class="rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm font-medium text-brand transition hover:border-brand disabled:opacity-60"
-                  :disabled="isLoadingMembers"
-                  @click="loadChatMembers"
-                >
-                  Cari
-                </button>
-              </div>
-            </div>
-
-            <p
-              v-if="createGroupError"
-              class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600"
-            >
-              {{ createGroupError }}
-            </p>
-
-            <div class="rounded-lg border border-border">
-              <div
-                class="border-b border-border bg-[#fbfaf8] px-3 py-2 text-xs font-semibold uppercase tracking-[0.06em] text-[#9ca3af]"
-              >
-                Anggota
-              </div>
-              <div v-if="isLoadingMembers" class="space-y-2 p-3">
-                <div class="h-10 animate-pulse rounded-lg bg-[#f3f1ec]" />
-                <div class="h-10 animate-pulse rounded-lg bg-[#f3f1ec]" />
-              </div>
-              <div
-                v-else-if="memberResults.length === 0"
-                class="rounded-lg bg-[#fbfaf8] p-3 text-sm leading-6 text-muted"
-              >
-                Tidak ada warga yang cocok.
-              </div>
-              <div v-else class="max-h-64 overflow-y-auto p-2">
-                <label
-                  v-for="member in memberResults"
-                  :key="member.userId"
-                  class="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 hover:bg-[#fbfaf8]"
-                >
-                  <input
-                    type="checkbox"
-                    class="h-4 w-4 rounded border-[#d8d2c8] text-brand"
-                    :checked="selectedMemberIds.includes(member.userId)"
-                    @change="toggleMember(member.userId)"
-                  />
-                  <span
-                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand text-xs font-semibold text-white"
-                  >
-                    {{ getInitials(member.fullName || member.email) }}
-                  </span>
-                  <span class="min-w-0 flex-1">
-                    <span
-                      class="block truncate text-sm font-medium text-foreground"
-                    >
-                      {{ member.fullName || member.email }}
-                    </span>
-                    <span class="block truncate text-xs text-muted">
-                      {{ member.email }}
-                    </span>
-                  </span>
-                </label>
-              </div>
-            </div>
-          </div>
-
-          <div
-            class="flex flex-col gap-2 border-t border-border px-5 py-4 sm:flex-row sm:justify-end"
-          >
-            <button
-              type="button"
-              class="rounded-lg border border-[#d8d2c8] px-4 py-2 text-sm font-medium text-muted transition hover:bg-[#fbfaf8]"
-              :disabled="isCreatingGroup"
-              @click="isCreateConversationOpen = false"
-            >
-              Batal
-            </button>
-            <button
-              type="submit"
-              class="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:bg-[#c7c3d7]"
-              :disabled="isCreatingGroup"
-            >
-              {{ isCreatingGroup ? "Membuat..." : "Buat ruang" }}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+    <ChatCreateConversationModal
+      :open="isCreateConversationOpen"
+      :initial-tab="createConversationInitialTab"
+      :current-user-id="currentUserId"
+      @update:open="isCreateConversationOpen = $event"
+      @dm-opened="handleDmOpened"
+      @group-created="handleGroupCreated"
+    />
 
     <div
       v-if="isLightboxOpen && lightboxImage"
@@ -2544,276 +1949,14 @@ function formatDateTime(value?: string | null) {
       </div>
     </div>
 
-    <div
-      v-if="isGroupInfoOpen"
-      class="fixed inset-0 z-50 flex justify-end bg-black/30"
-    >
-      <div
-        class="flex h-full w-full max-w-lg flex-col overflow-hidden bg-white"
-      >
-        <div class="border-b border-border px-5 py-4">
-          <div class="flex items-start justify-between gap-4">
-            <div class="min-w-0">
-              <p
-                class="text-xs font-semibold uppercase tracking-[0.06em] text-[#9ca3af]"
-              >
-                Info grup
-              </p>
-              <h2 class="mt-1 truncate text-lg font-semibold text-foreground">
-                {{ groupInfo?.roomName || roomDisplayName(selectedRoom) }}
-              </h2>
-              <p class="mt-1 text-sm text-muted">
-                {{ groupInfo?.memberCount || 0 }} anggota ·
-                {{ groupInfo?.schoolName || selectedSchoolName }}
-              </p>
-            </div>
-            <button
-              type="button"
-              class="rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm font-medium text-muted transition hover:bg-[#fbfaf8]"
-              @click="isGroupInfoOpen = false"
-            >
-              Tutup
-            </button>
-          </div>
-        </div>
-
-        <div class="min-h-0 flex-1 overflow-y-auto px-5 py-4">
-          <div v-if="isLoadingGroupInfo" class="space-y-3">
-            <div class="h-16 animate-pulse rounded-xl bg-[#f3f1ec]" />
-            <div class="h-32 animate-pulse rounded-xl bg-[#f3f1ec]" />
-            <div class="h-40 animate-pulse rounded-xl bg-[#f3f1ec]" />
-          </div>
-
-          <div
-            v-else-if="groupInfoError"
-            class="rounded-xl border border-red-100 bg-red-50 px-4 py-5 text-sm text-red-600"
-          >
-            <p>{{ groupInfoError }}</p>
-            <button
-              type="button"
-              class="mt-3 rounded-lg bg-brand px-3 py-2 text-xs font-semibold text-white"
-              @click="loadGroupInfo"
-            >
-              Coba lagi
-            </button>
-          </div>
-
-          <template v-else>
-            <p
-              v-if="groupActionError"
-              class="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600"
-            >
-              {{ groupActionError }}
-            </p>
-
-            <section
-              class="rounded-xl border border-border bg-[#fbfaf8] p-4"
-            >
-              <p class="text-sm font-semibold text-foreground">Dibuat oleh</p>
-              <div class="mt-3 flex items-center gap-3">
-                <span
-                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand text-xs font-semibold text-white"
-                >
-                  {{
-                    getInitials(
-                      groupInfo?.creator?.fullName || groupInfo?.creator?.email,
-                    )
-                  }}
-                </span>
-                <span class="min-w-0">
-                  <span
-                    class="block truncate text-sm font-medium text-foreground"
-                  >
-                    {{
-                      groupInfo?.creator?.fullName ||
-                      groupInfo?.creator?.email ||
-                      "Tidak tersedia"
-                    }}
-                  </span>
-                  <span class="block truncate text-xs text-muted">
-                    {{ groupInfo?.creator?.email }}
-                  </span>
-                </span>
-              </div>
-              <p class="mt-3 text-xs text-[#9ca3af]">
-                Dibuat {{ formatDateTime(groupInfo?.createdAt) }}
-              </p>
-            </section>
-
-            <section
-              v-if="currentUserIsGroupAdmin"
-              class="mt-4 rounded-xl border border-border bg-white p-4"
-            >
-              <p class="text-sm font-semibold text-foreground">Ubah nama grup</p>
-              <form class="mt-3 flex gap-2" @submit.prevent="submitRenameGroup">
-                <input
-                  v-model="renameRoomName"
-                  type="text"
-                  class="min-w-0 flex-1 rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm text-foreground outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/15"
-                  placeholder="Nama ruang grup"
-                />
-                <button
-                  type="submit"
-                  class="rounded-lg bg-brand px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:bg-[#c7c3d7]"
-                  :disabled="isRenamingGroup"
-                >
-                  {{ isRenamingGroup ? "Menyimpan..." : "Simpan" }}
-                </button>
-              </form>
-            </section>
-
-            <section
-              v-if="currentUserIsGroupAdmin"
-              class="mt-4 rounded-xl border border-border bg-white p-4"
-            >
-              <p class="text-sm font-semibold text-foreground">Tambah anggota</p>
-              <p class="mt-1 text-xs text-muted">
-                Hanya warga aktif sekolah yang belum ada di grup ini.
-              </p>
-              <div class="mt-3 flex gap-2">
-                <input
-                  v-model="addMemberSearch"
-                  type="search"
-                  class="min-w-0 flex-1 rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm text-foreground outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/15"
-                  placeholder="Cari nama atau email..."
-                  @keydown.enter.prevent="loadEligibleMembers"
-                />
-                <button
-                  type="button"
-                  class="rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm font-medium text-brand transition hover:border-brand disabled:opacity-60"
-                  :disabled="isLoadingAddMembers"
-                  @click="loadEligibleMembers"
-                >
-                  Cari
-                </button>
-              </div>
-
-              <div class="mt-3 rounded-lg border border-border">
-                <div v-if="isLoadingAddMembers" class="space-y-2 p-3">
-                  <div class="h-10 animate-pulse rounded-lg bg-[#f3f1ec]" />
-                  <div class="h-10 animate-pulse rounded-lg bg-[#f3f1ec]" />
-                </div>
-                <div
-                  v-else-if="addMemberResults.length === 0"
-                  class="rounded-lg bg-[#fbfaf8] p-3 text-sm leading-6 text-muted"
-                >
-                  Tidak ada warga yang bisa ditambahkan.
-                </div>
-                <div v-else class="max-h-52 overflow-y-auto p-2">
-                  <label
-                    v-for="member in addMemberResults"
-                    :key="member.userId"
-                    class="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 hover:bg-[#fbfaf8]"
-                  >
-                    <input
-                      type="checkbox"
-                      class="h-4 w-4 rounded border-[#d8d2c8] text-brand"
-                      :checked="selectedAddMemberIds.includes(member.userId)"
-                      @change="toggleAddMember(member.userId)"
-                    />
-                    <span
-                      class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand text-xs font-semibold text-white"
-                    >
-                      {{ getInitials(member.fullName || member.email) }}
-                    </span>
-                    <span class="min-w-0 flex-1">
-                      <span
-                        class="block truncate text-sm font-medium text-foreground"
-                      >
-                        {{ member.fullName || member.email }}
-                      </span>
-                      <span class="block truncate text-xs text-muted">
-                        {{ member.email }}
-                      </span>
-                    </span>
-                  </label>
-                </div>
-              </div>
-
-              <div class="mt-3 flex items-center justify-between gap-3">
-                <p class="text-xs text-muted">
-                  {{ selectedAddMembers.length }} anggota dipilih
-                </p>
-                <button
-                  type="button"
-                  class="rounded-lg bg-brand px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:bg-[#c7c3d7]"
-                  :disabled="
-                    isAddingMembers || selectedAddMemberIds.length === 0
-                  "
-                  @click="submitAddMembers"
-                >
-                  {{ isAddingMembers ? "Menambahkan..." : "Tambah anggota" }}
-                </button>
-              </div>
-            </section>
-
-            <section class="mt-4 rounded-xl border border-border bg-white">
-              <div class="border-b border-border px-4 py-3">
-                <p class="text-sm font-semibold text-foreground">Anggota</p>
-              </div>
-              <div class="divide-y divide-border">
-                <div
-                  v-for="member in groupInfo?.members || []"
-                  :key="member.userId"
-                  class="flex items-center gap-3 px-4 py-3"
-                >
-                  <span
-                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand text-xs font-semibold text-white"
-                  >
-                    {{ getInitials(member.fullName || member.email) }}
-                  </span>
-                  <span class="min-w-0 flex-1">
-                    <span
-                      class="block truncate text-sm font-medium text-foreground"
-                    >
-                      {{ member.fullName || member.email }}
-                    </span>
-                    <span class="block truncate text-xs text-muted">
-                      {{ member.email }}
-                    </span>
-                  </span>
-                  <span
-                    class="rounded-full px-2 py-1 text-[11px] font-semibold"
-                    :class="
-                      member.role === 'admin'
-                        ? 'bg-[#eef2ff] text-brand'
-                        : 'bg-[#f3f1ec] text-muted'
-                    "
-                  >
-                    {{ member.role === "admin" ? "Admin" : "Anggota" }}
-                  </span>
-                  <button
-                    v-if="
-                      currentUserIsGroupAdmin && member.userId !== currentUserId
-                    "
-                    type="button"
-                    class="rounded-lg border border-red-100 px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-60"
-                    :disabled="removingMemberId === member.userId"
-                    @click="removeMember(member)"
-                  >
-                    {{
-                      removingMemberId === member.userId
-                        ? "Menghapus..."
-                        : "Keluarkan"
-                    }}
-                  </button>
-                </div>
-              </div>
-            </section>
-          </template>
-        </div>
-
-        <div class="border-t border-border px-5 py-4">
-          <button
-            type="button"
-            class="w-full rounded-lg border border-red-100 px-4 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-60"
-            :disabled="isLeavingGroup"
-            @click="leaveSelectedGroup"
-          >
-            {{ isLeavingGroup ? "Keluar..." : "Keluar grup" }}
-          </button>
-        </div>
-      </div>
-    </div>
+    <ChatGroupInfoModal
+      :open="isGroupInfoOpen"
+      :room="selectedRoom"
+      :current-user-id="currentUserId"
+      @update:open="isGroupInfoOpen = $event"
+      @renamed="handleGroupRenamed"
+      @members-changed="handleGroupMembersChanged"
+      @left="handleGroupLeft"
+    />
   </main>
 </template>

@@ -25,19 +25,3 @@ export interface CreateFeedPayload {
   classId: string
   content: string
 }
-
-export interface FeedComment {
-  commentId: string
-  sourceType: string
-  sourceId: string
-  content: string
-  creatorName?: string
-  createdAt: string
-  isMine?: boolean
-}
-
-export interface CreateFeedCommentPayload {
-  sourceType: 'feed'
-  sourceId: string
-  content: string
-}

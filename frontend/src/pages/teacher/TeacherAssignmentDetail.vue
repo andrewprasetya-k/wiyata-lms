@@ -11,7 +11,7 @@ import {
   PhWarningCircle,
 } from "@phosphor-icons/vue";
 import AttachmentPreviewList from "../../components/common/AttachmentPreviewList.vue";
-import DiscussionComments from "../../components/discussion/DiscussionComments.vue";
+import CommentThread from "../../components/comments/CommentThread.vue";
 import { getSubjectAssignmentDetail } from "../../services/assignment";
 import type {
   AssignmentItem,
@@ -264,7 +264,7 @@ onMounted(loadAssignment);
             />
           </article>
 
-          <DiscussionComments
+          <CommentThread
             source-type="assignment"
             :source-id="assignment.assignmentId"
             title="Diskusi tugas"

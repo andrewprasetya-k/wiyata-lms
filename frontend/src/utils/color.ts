@@ -43,3 +43,34 @@ function hashString(value: string) {
   }
   return hash;
 }
+
+export function normalizeSubjectColor(color?: string | null) {
+  return color?.trim() ?? "";
+}
+
+export function isValidSubjectColor(color: string) {
+  return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(color);
+}
+
+export function toColorPickerValue(color: string) {
+  const normalized = normalizeSubjectColor(color);
+  if (/^#[0-9a-fA-F]{6}$/.test(normalized)) return normalized;
+  if (/^#[0-9a-fA-F]{3}$/.test(normalized)) {
+    const [, r, g, b] = normalized;
+    return `#${r}${r}${g}${g}${b}${b}`;
+  }
+  if (/^#[0-9a-fA-F]{8}$/.test(normalized)) {
+    return normalized.slice(0, 7);
+  }
+  return "#4f46e5";
+}
+
+export function subjectDisplayColor(subject: {
+  color?: string | null;
+  subjectId?: string | null;
+  subjectName?: string | null;
+}) {
+  return (
+    subject.color || getSubjectColor(subject.subjectId || subject.subjectName)
+  );
+}

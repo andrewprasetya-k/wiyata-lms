@@ -11,7 +11,7 @@ import {
   PhWarningCircle,
 } from "@phosphor-icons/vue";
 import AttachmentPreviewList from "../../components/common/AttachmentPreviewList.vue";
-import DiscussionComments from "../../components/discussion/DiscussionComments.vue";
+import CommentThread from "../../components/comments/CommentThread.vue";
 import { useAuthStore } from "../../stores/auth";
 import { useToastStore } from "../../stores/toast";
 import {
@@ -384,7 +384,7 @@ async function handleSubmit() {
           />
         </article>
 
-        <DiscussionComments
+        <CommentThread
           source-type="assignment"
           :source-id="assignment.assignmentId"
           title="Diskusi tugas"
