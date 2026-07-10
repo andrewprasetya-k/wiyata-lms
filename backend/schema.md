@@ -191,6 +191,10 @@ att_source_id uuid
 att_source_type source_type
 att_med_id uuid [ref: > medias.med_id]
 created_at timestamptz [default: `now()`]
+
+indexes {
+(att_source_type, att_source_id)
+}
 }
 
 Table subjects {
@@ -298,6 +302,10 @@ cmn_usr_id uuid [ref: > users.usr_id]
 cmn_content text
 created_at timestamptz [default: `now()`]
 deleted_at timestamptz
+
+indexes {
+(cmn_source_type, cmn_source_id)
+}
 }
 
 Table assignment_categories {

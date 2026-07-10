@@ -12,6 +12,9 @@ type AttachmentRepository interface {
 	Delete(id string) error
 	DeleteBySource(sourceType domain.SourceType, sourceID string) error
 	ReplaceBySource(schoolID string, sourceType domain.SourceType, sourceID string, mediaIDs []string) error
+	// WithTx returns a repository instance bound to an existing transaction, so
+	// callers can compose multiple repository operations into one atomic unit.
+	WithTx(tx *gorm.DB) AttachmentRepository
 }
 
 type attachmentRepository struct {
@@ -20,6 +23,10 @@ type attachmentRepository struct {
 
 func NewAttachmentRepository(db *gorm.DB) AttachmentRepository {
 	return &attachmentRepository{db: db}
+}
+
+func (r *attachmentRepository) WithTx(tx *gorm.DB) AttachmentRepository {
+	return &attachmentRepository{db: tx}
 }
 
 func (r *attachmentRepository) Create(att *domain.Attachment) error {

@@ -18,6 +18,9 @@ type rbacTestRepoStub struct {
 	roles map[string][]string
 	// key: userID -> is super admin
 	superAdmins map[string]bool
+	// number of times GetUserRoleNamesInSchool was called, for asserting that
+	// RequireRole reuses roles already fetched by RequireSchoolMember.
+	roleQueryCount int
 }
 
 func newRBACTestRepoStub() *rbacTestRepoStub {
@@ -40,6 +43,7 @@ func (s *rbacTestRepoStub) GetUserRoles(string) ([]*domain.UserRole, error)     
 func (s *rbacTestRepoStub) SyncUserRoles(string, []string) error                   { return nil }
 
 func (s *rbacTestRepoStub) GetUserRoleNamesInSchool(userID, schoolID string) ([]string, error) {
+	s.roleQueryCount++
 	return s.roles[userID+":"+schoolID], nil
 }
 
@@ -144,6 +148,35 @@ func TestRequireSchoolMemberSuperAdminBypass(t *testing.T) {
 			t.Fatalf("status = %d, want 403, body = %q", rec.Code, rec.Body.String())
 		}
 	})
+}
+
+// TestRequireRoleReusesCachedRolesFromRequireSchoolMember is a regression test for
+// the Sprint 3 RBAC optimization: when RequireSchoolMember already resolved the
+// user's role names in this school (the Active-Role header path), a chained
+// RequireRole must reuse that result instead of querying the database again.
+func TestRequireRoleReusesCachedRolesFromRequireSchoolMember(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	repo := newRBACTestRepoStub()
+	repo.membership["user-1"] = map[string]bool{"school-a": true}
+	repo.roles["user-1:school-a"] = []string{"teacher"}
+	InitRBAC(repo)
+
+	router := gin.New()
+	router.GET(
+		"/protected",
+		withAuthenticatedUser("user-1"),
+		RequireSchoolMember(rbacTestSchoolServiceStub{}),
+		RequireRole(rbacTestSchoolServiceStub{}, "teacher"),
+		func(c *gin.Context) { c.String(http.StatusOK, "ok") },
+	)
+
+	rec := doRequest(router, "school-a", "teacher")
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200, body = %q", rec.Code, rec.Body.String())
+	}
+	if repo.roleQueryCount != 1 {
+		t.Fatalf("GetUserRoleNamesInSchool called %d times, want exactly 1 (RequireRole should reuse RequireSchoolMember's result)", repo.roleQueryCount)
+	}
 }
 
 func TestRequireRole(t *testing.T) {

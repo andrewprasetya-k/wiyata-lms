@@ -127,20 +127,22 @@ func (s *materialService) Create(ctx context.Context, mat *domain.Material, medi
 	}
 
 	// Best-effort: notify students in the class
-	if classID, err := s.sclRepo.GetClassIDBySubjectClass(mat.SubjectClassID); err == nil && classID != "" {
-		if userIDs, err := s.enrRepo.GetStudentUserIDsByClass(classID); err == nil {
-			for _, uid := range userIDs {
-				_ = s.notifService.Create(&dto.CreateNotificationDTO{
-					UserID:    uid,
-					Type:      domain.NotifMaterialAdded,
-					Title:     "Materi baru",
-					Message:   mat.Title,
-					Link:      fmt.Sprintf("/student/subjects/%s/materials/%s", mat.SubjectClassID, mat.ID),
-					RelatedID: mat.ID,
-				})
+	runAsync(func() {
+		if classID, err := s.sclRepo.GetClassIDBySubjectClass(mat.SubjectClassID); err == nil && classID != "" {
+			if userIDs, err := s.enrRepo.GetStudentUserIDsByClass(classID); err == nil {
+				for _, uid := range userIDs {
+					_ = s.notifService.Create(&dto.CreateNotificationDTO{
+						UserID:    uid,
+						Type:      domain.NotifMaterialAdded,
+						Title:     "Materi baru",
+						Message:   mat.Title,
+						Link:      fmt.Sprintf("/student/subjects/%s/materials/%s", mat.SubjectClassID, mat.ID),
+						RelatedID: mat.ID,
+					})
+				}
 			}
 		}
-	}
+	})
 
 	return nil
 }

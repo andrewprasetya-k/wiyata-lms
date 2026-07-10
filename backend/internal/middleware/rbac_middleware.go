@@ -111,6 +111,9 @@ func RequireSchoolMember(schoolService interface {
 				c.Abort()
 				return
 			}
+			// Cache the role names so a subsequent RequireRole in the same chain
+			// can reuse them instead of querying the same data again.
+			c.Set("school_role_names", roles)
 			if !slices.Contains(roles, activeRole) {
 				c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: active role is not assigned in this school"})
 				c.Abort()
@@ -177,11 +180,24 @@ func RequireRole(schoolService interface {
 			return
 		}
 
-		roles, err := rbacRepo.GetUserRoleNamesInSchool(userID, schoolID)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify roles"})
-			c.Abort()
-			return
+		// Reuse the role names already fetched by RequireSchoolMember earlier in
+		// the chain, if present, instead of querying the same data again.
+		var roles []string
+		haveCachedRoles := false
+		if cached, exists := c.Get("school_role_names"); exists {
+			if cachedRoles, ok := cached.([]string); ok {
+				roles = cachedRoles
+				haveCachedRoles = true
+			}
+		}
+		if !haveCachedRoles {
+			var err error
+			roles, err = rbacRepo.GetUserRoleNamesInSchool(userID, schoolID)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify roles"})
+				c.Abort()
+				return
+			}
 		}
 
 		if hasActiveRole {

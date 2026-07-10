@@ -3,9 +3,14 @@ package service
 import (
 	"backend/internal/domain"
 	"backend/internal/dto"
+	"backend/internal/repository"
 	"strings"
 	"testing"
 	"time"
+
+	sqlmock "github.com/DATA-DOG/go-sqlmock"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 // ─── AssignmentRepository stub ────────────────────────────────────────────────
@@ -77,6 +82,7 @@ func (r *asgRepoStub) GetWeightsBySubject(_ string) ([]*domain.AssessmentWeight,
 }
 func (r *asgRepoStub) DeleteBySubject(_ string) error                    { return nil }
 func (r *asgRepoStub) GetTotalWeightBySubject(_ string) (float64, error) { return 0, nil }
+func (r *asgRepoStub) WithTx(_ *gorm.DB) repository.AssignmentRepository { return r }
 
 // ─── AttachmentService stub ───────────────────────────────────────────────────
 
@@ -90,6 +96,7 @@ func (r *asgAttServiceStub) GetBySources(_ string, _ []string) (map[string][]*do
 func (r *asgAttServiceStub) Unlink(_ string) error                                          { return nil }
 func (r *asgAttServiceStub) UnlinkBySource(_, _ string) error                               { return nil }
 func (r *asgAttServiceStub) ReplaceBySource(_, _, _ string, _ []string) error               { return nil }
+func (r *asgAttServiceStub) WithTx(_ *gorm.DB) AttachmentService                            { return r }
 
 // ─── MediaRepository stub ─────────────────────────────────────────────────────
 
@@ -143,14 +150,29 @@ func (r *asgEnrRepoStub) BulkCloseBySchoolUser(_ string, _ time.Time) error     
 
 // ─── Helper ───────────────────────────────────────────────────────────────────
 
-func newAssignmentTestService(repo *asgRepoStub) AssignmentService {
-	return NewAssignmentService(
+func newAssignmentTestService(t *testing.T, repo *asgRepoStub) (AssignmentService, sqlmock.Sqlmock) {
+	t.Helper()
+
+	sqlDB, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("failed to open sqlmock: %v", err)
+	}
+	t.Cleanup(func() { sqlDB.Close() })
+
+	gormDB, err := gorm.Open(postgres.New(postgres.Config{Conn: sqlDB}), &gorm.Config{})
+	if err != nil {
+		t.Fatalf("failed to open gorm on top of sqlmock: %v", err)
+	}
+
+	svc := NewAssignmentService(
 		repo,
 		&asgAttServiceStub{},
 		&asgMediaRepoStub{},
 		&asgNotifServiceStub{},
 		&asgEnrRepoStub{},
+		gormDB,
 	)
+	return svc, mock
 }
 
 func pastTime() *time.Time {
@@ -173,7 +195,7 @@ func TestAssignmentSubmitRejectsPastDeadlineWhenLateNotAllowed(t *testing.T) {
 			Deadline:            pastTime(),
 		},
 	}
-	svc := newAssignmentTestService(repo)
+	svc, _ := newAssignmentTestService(t, repo)
 
 	sbm := &domain.Submission{AssignmentID: "asg-1", UserID: "user-1", SchoolID: "school-1"}
 	err := svc.Submit(sbm, nil, "user-1", false)
@@ -190,7 +212,9 @@ func TestAssignmentSubmitAllowsPastDeadlineWhenLateAllowed(t *testing.T) {
 			Deadline:            pastTime(),
 		},
 	}
-	svc := newAssignmentTestService(repo)
+	svc, mock := newAssignmentTestService(t, repo)
+	mock.ExpectBegin()
+	mock.ExpectCommit()
 
 	sbm := &domain.Submission{AssignmentID: "asg-1", UserID: "user-1", SchoolID: "school-1"}
 	if err := svc.Submit(sbm, nil, "user-1", false); err != nil {
@@ -206,7 +230,9 @@ func TestAssignmentSubmitAllowsSubmissionBeforeDeadline(t *testing.T) {
 			Deadline:            futureTime(),
 		},
 	}
-	svc := newAssignmentTestService(repo)
+	svc, mock := newAssignmentTestService(t, repo)
+	mock.ExpectBegin()
+	mock.ExpectCommit()
 
 	sbm := &domain.Submission{AssignmentID: "asg-1", UserID: "user-1", SchoolID: "school-1"}
 	if err := svc.Submit(sbm, nil, "user-1", false); err != nil {
@@ -222,7 +248,9 @@ func TestAssignmentSubmitAllowsSubmissionWithNoDeadline(t *testing.T) {
 			Deadline:            nil,
 		},
 	}
-	svc := newAssignmentTestService(repo)
+	svc, mock := newAssignmentTestService(t, repo)
+	mock.ExpectBegin()
+	mock.ExpectCommit()
 
 	sbm := &domain.Submission{AssignmentID: "asg-1", UserID: "user-1", SchoolID: "school-1"}
 	if err := svc.Submit(sbm, nil, "user-1", false); err != nil {
@@ -236,7 +264,7 @@ func TestAssignmentDeleteRejectsWhenSubmissionsExist(t *testing.T) {
 			{ID: "sbm-1", AssignmentID: "asg-1"},
 		},
 	}
-	svc := newAssignmentTestService(repo)
+	svc, _ := newAssignmentTestService(t, repo)
 
 	err := svc.DeleteAssignment("asg-1")
 	if err == nil || !strings.Contains(err.Error(), "cannot be deleted") {
@@ -246,7 +274,9 @@ func TestAssignmentDeleteRejectsWhenSubmissionsExist(t *testing.T) {
 
 func TestAssignmentDeleteSucceedsWhenNoSubmissions(t *testing.T) {
 	repo := &asgRepoStub{submissions: []*domain.Submission{}}
-	svc := newAssignmentTestService(repo)
+	svc, mock := newAssignmentTestService(t, repo)
+	mock.ExpectBegin()
+	mock.ExpectCommit()
 
 	if err := svc.DeleteAssignment("asg-1"); err != nil {
 		t.Fatalf("expected success for assignment with no submissions, got %v", err)

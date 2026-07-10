@@ -139,7 +139,7 @@ func main() {
 	chatHandler := handler.NewChatHandler(chatService, chatHub)
 	chatWebSocketHandler := realtime.NewWebSocketHandler(chatHub, chatService)
 
-	assignmentService := service.NewAssignmentService(assignmentRepo, attachmentService, mediaRepo, notificationService, enrollmentRepo)
+	assignmentService := service.NewAssignmentService(assignmentRepo, attachmentService, mediaRepo, notificationService, enrollmentRepo, db)
 	assignmentHandler := handler.NewAssignmentHandler(assignmentService, schoolService, subjectClassService)
 
 	gradeHandler := handler.NewGradeHandler(service.NewGradeService(

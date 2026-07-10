@@ -48,6 +48,10 @@ type AssignmentRepository interface {
 	GetWeightsBySubject(subID string) ([]*domain.AssessmentWeight, error)
 	DeleteBySubject(subID string) error
 	GetTotalWeightBySubject(subID string) (float64, error)
+
+	// WithTx returns a repository instance bound to an existing transaction, so
+	// callers can compose multiple repository operations into one atomic unit.
+	WithTx(tx *gorm.DB) AssignmentRepository
 }
 
 type assignmentRepository struct {
@@ -56,6 +60,10 @@ type assignmentRepository struct {
 
 func NewAssignmentRepository(db *gorm.DB) AssignmentRepository {
 	return &assignmentRepository{db: db}
+}
+
+func (r *assignmentRepository) WithTx(tx *gorm.DB) AssignmentRepository {
+	return &assignmentRepository{db: tx}
 }
 
 func (r *assignmentRepository) CreateCategory(cat *domain.AssignmentCategory) error {

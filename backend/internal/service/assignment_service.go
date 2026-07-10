@@ -49,15 +49,17 @@ type assignmentService struct {
 	mediaRepo    repository.MediaRepository
 	notifService NotificationService
 	enrRepo      repository.EnrollmentRepository
+	db           *gorm.DB
 }
 
-func NewAssignmentService(repo repository.AssignmentRepository, attService AttachmentService, mediaRepo repository.MediaRepository, notifService NotificationService, enrRepo repository.EnrollmentRepository) AssignmentService {
+func NewAssignmentService(repo repository.AssignmentRepository, attService AttachmentService, mediaRepo repository.MediaRepository, notifService NotificationService, enrRepo repository.EnrollmentRepository, db *gorm.DB) AssignmentService {
 	return &assignmentService{
 		repo:         repo,
 		attService:   attService,
 		mediaRepo:    mediaRepo,
 		notifService: notifService,
 		enrRepo:      enrRepo,
+		db:           db,
 	}
 }
 
@@ -78,29 +80,32 @@ func (s *assignmentService) CreateAssignment(asg *domain.Assignment, mediaIDs []
 		return err
 	}
 
-	if err := s.repo.CreateAssignment(asg); err != nil {
-		return err
-	}
-
-	if err := replaceSourceAttachments(s.attService, asg.SchoolID, domain.SourceAssignment, asg.ID, attachmentMediaIDs); err != nil {
+	if err := s.db.Transaction(func(tx *gorm.DB) error {
+		if err := s.repo.WithTx(tx).CreateAssignment(asg); err != nil {
+			return err
+		}
+		return replaceSourceAttachments(s.attService.WithTx(tx), asg.SchoolID, domain.SourceAssignment, asg.ID, attachmentMediaIDs)
+	}); err != nil {
 		return err
 	}
 
 	// Best-effort: notify students in the class
-	if classID, err := s.repo.GetClassIDBySubjectClass(asg.SubjectClassID); err == nil && classID != "" {
-		if userIDs, err := s.enrRepo.GetStudentUserIDsByClass(classID); err == nil {
-			for _, uid := range userIDs {
-				_ = s.notifService.Create(&dto.CreateNotificationDTO{
-					UserID:    uid,
-					Type:      domain.NotifAssignmentCreated,
-					Title:     "Tugas baru",
-					Message:   asg.Title,
-					Link:      fmt.Sprintf("/student/subjects/%s/assignments/%s", asg.SubjectClassID, asg.ID),
-					RelatedID: asg.ID,
-				})
+	runAsync(func() {
+		if classID, err := s.repo.GetClassIDBySubjectClass(asg.SubjectClassID); err == nil && classID != "" {
+			if userIDs, err := s.enrRepo.GetStudentUserIDsByClass(classID); err == nil {
+				for _, uid := range userIDs {
+					_ = s.notifService.Create(&dto.CreateNotificationDTO{
+						UserID:    uid,
+						Type:      domain.NotifAssignmentCreated,
+						Title:     "Tugas baru",
+						Message:   asg.Title,
+						Link:      fmt.Sprintf("/student/subjects/%s/assignments/%s", asg.SubjectClassID, asg.ID),
+						RelatedID: asg.ID,
+					})
+				}
 			}
 		}
-	}
+	})
 
 	return nil
 }
@@ -344,17 +349,17 @@ func (s *assignmentService) UpdateAssignment(id string, asg *domain.Assignment, 
 		}
 	}
 
-	err := s.repo.UpdateAssignment(asg)
-	if err != nil {
-		return err
-	}
-
-	if mediaIDs != nil {
-		if err := replaceSourceAttachments(s.attService, asg.SchoolID, domain.SourceAssignment, id, attachmentMediaIDs); err != nil {
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		if err := s.repo.WithTx(tx).UpdateAssignment(asg); err != nil {
 			return err
 		}
-	}
-	return nil
+		if mediaIDs != nil {
+			if err := replaceSourceAttachments(s.attService.WithTx(tx), asg.SchoolID, domain.SourceAssignment, id, attachmentMediaIDs); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 }
 
 func (s *assignmentService) DeleteAssignment(id string) error {
@@ -366,8 +371,12 @@ func (s *assignmentService) DeleteAssignment(id string) error {
 		return fmt.Errorf("assignment cannot be deleted because it already has student submissions")
 	}
 
-	s.attService.UnlinkBySource(string(domain.SourceAssignment), id)
-	return s.repo.DeleteAssignment(id)
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		if err := s.attService.WithTx(tx).UnlinkBySource(string(domain.SourceAssignment), id); err != nil {
+			return err
+		}
+		return s.repo.WithTx(tx).DeleteAssignment(id)
+	})
 }
 
 func (s *assignmentService) Submit(sbm *domain.Submission, mediaIDs []string, actorUserID string, isAdmin bool) error {
@@ -388,14 +397,12 @@ func (s *assignmentService) Submit(sbm *domain.Submission, mediaIDs []string, ac
 		return err
 	}
 
-	if err = s.repo.UpsertSubmission(sbm); err != nil {
-		return err
-	}
-
-	if err := replaceSourceAttachments(s.attService, sbm.SchoolID, domain.SourceSubmission, sbm.ID, attachmentMediaIDs); err != nil {
-		return err
-	}
-	return nil
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		if err := s.repo.WithTx(tx).UpsertSubmission(sbm); err != nil {
+			return err
+		}
+		return replaceSourceAttachments(s.attService.WithTx(tx), sbm.SchoolID, domain.SourceSubmission, sbm.ID, attachmentMediaIDs)
+	})
 }
 
 func (s *assignmentService) GetSubmissions(asgID string) ([]*domain.Submission, error) {
@@ -477,22 +484,27 @@ func (s *assignmentService) UpdateSubmission(id string, mediaIDs []string, actor
 	}
 
 	sbm.SubmittedAt = time.Now()
-	err = s.repo.UpdateSubmission(sbm)
-	if err != nil {
-		return err
-	}
 
-	if mediaIDs != nil {
-		if err := replaceSourceAttachments(s.attService, sbm.SchoolID, domain.SourceSubmission, id, attachmentMediaIDs); err != nil {
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		if err := s.repo.WithTx(tx).UpdateSubmission(sbm); err != nil {
 			return err
 		}
-	}
-	return nil
+		if mediaIDs != nil {
+			if err := replaceSourceAttachments(s.attService.WithTx(tx), sbm.SchoolID, domain.SourceSubmission, id, attachmentMediaIDs); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 }
 
 func (s *assignmentService) DeleteSubmission(id string) error {
-	s.attService.UnlinkBySource(string(domain.SourceSubmission), id)
-	return s.repo.DeleteSubmission(id)
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		if err := s.attService.WithTx(tx).UnlinkBySource(string(domain.SourceSubmission), id); err != nil {
+			return err
+		}
+		return s.repo.WithTx(tx).DeleteSubmission(id)
+	})
 }
 
 func (s *assignmentService) UpdateAssessment(submissionID string, asm *domain.Assessment) error {

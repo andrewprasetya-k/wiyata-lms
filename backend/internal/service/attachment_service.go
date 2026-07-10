@@ -3,6 +3,8 @@ package service
 import (
 	"backend/internal/domain"
 	"backend/internal/repository"
+
+	"gorm.io/gorm"
 )
 
 type AttachmentService interface {
@@ -12,6 +14,10 @@ type AttachmentService interface {
 	Unlink(id string) error
 	UnlinkBySource(sourceType string, sourceID string) error
 	ReplaceBySource(schoolID string, sourceType string, sourceID string, mediaIDs []string) error
+	// WithTx returns a service instance bound to an existing transaction, so
+	// callers can compose attachment operations with other repository writes
+	// into one atomic unit.
+	WithTx(tx *gorm.DB) AttachmentService
 }
 
 type attachmentService struct {
@@ -20,6 +26,10 @@ type attachmentService struct {
 
 func NewAttachmentService(repo repository.AttachmentRepository) AttachmentService {
 	return &attachmentService{repo: repo}
+}
+
+func (s *attachmentService) WithTx(tx *gorm.DB) AttachmentService {
+	return &attachmentService{repo: s.repo.WithTx(tx)}
 }
 
 func (s *attachmentService) Link(att *domain.Attachment) error {

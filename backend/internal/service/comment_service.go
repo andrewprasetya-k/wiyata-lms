@@ -57,7 +57,9 @@ func (s *commentService) Create(comment *domain.Comment, schoolID string, userID
 		return err
 	}
 
-	s.notifyCommentRecipients(comment, schoolID, roles)
+	runAsync(func() {
+		s.notifyCommentRecipients(comment, schoolID, roles)
+	})
 
 	return nil
 }

@@ -7,6 +7,8 @@ import (
 	"errors"
 	"io"
 	"testing"
+
+	"gorm.io/gorm"
 )
 
 type materialSummaryAttachmentServiceStub struct {
@@ -35,6 +37,10 @@ func (s *materialSummaryAttachmentServiceStub) UnlinkBySource(string, string) er
 
 func (s *materialSummaryAttachmentServiceStub) ReplaceBySource(string, string, string, []string) error {
 	return nil
+}
+
+func (s *materialSummaryAttachmentServiceStub) WithTx(*gorm.DB) AttachmentService {
+	return s
 }
 
 type materialSummaryStorageStub struct {
