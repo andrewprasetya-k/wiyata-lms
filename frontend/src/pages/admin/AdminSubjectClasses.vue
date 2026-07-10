@@ -415,15 +415,15 @@ onMounted(async () => {
 
 <template>
   <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
-    <header class="border-b border-[#ebe7df] bg-white">
+    <header class="border-b border-border bg-white">
       <div
         class="flex min-w-0 flex-col gap-3 px-5 py-5 sm:px-6 lg:flex-row lg:items-end lg:justify-between lg:px-8"
       >
         <div class="min-w-0">
-          <h1 class="mt-1 text-2xl font-semibold text-[#171322] sm:text-3xl">
+          <h1 class="mt-1 text-2xl font-semibold text-foreground sm:text-3xl">
             Penugasan Mengajar
           </h1>
-          <p class="mt-2 max-w-3xl text-sm leading-6 text-[#6b7280]">
+          <p class="mt-2 max-w-3xl text-sm leading-6 text-muted">
             Hubungkan guru, kelas, dan mata pelajaran untuk menyiapkan ruang
             mengajar yang dapat digunakan.
           </p>
@@ -435,7 +435,7 @@ onMounted(async () => {
             {{ currentSchool.schoolName || "Sekolah belum tersedia" }}
           </span>
           <span
-            class="rounded-lg bg-[#f3f1ec] px-3 py-2 font-medium text-[#6b7280]"
+            class="rounded-lg bg-[#f3f1ec] px-3 py-2 font-medium text-muted"
           >
             {{ currentSchool.schoolCode || "Kode belum tersedia" }}
           </span>
@@ -457,10 +457,10 @@ onMounted(async () => {
 
       <div class="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
         <section
-          class="order-2 min-w-0 rounded-xl border border-[#ebe7df] bg-white shadow-sm lg:order-1"
+          class="order-2 min-w-0 rounded-xl border border-border bg-white shadow-sm lg:order-1"
         >
           <div
-            class="flex flex-col gap-3 border-b border-[#ebe7df] p-5 sm:flex-row sm:items-start sm:justify-between"
+            class="flex flex-col gap-3 border-b border-border p-5 sm:flex-row sm:items-start sm:justify-between"
           >
             <div class="min-w-0">
               <p
@@ -468,10 +468,10 @@ onMounted(async () => {
               >
                 Penugasan aktif
               </p>
-              <h2 class="mt-1 text-base font-semibold text-[#171322]">
+              <h2 class="mt-1 text-base font-semibold text-foreground">
                 {{ selectedClass?.classTitle || "Pilih kelas" }}
               </h2>
-              <p class="mt-1 text-sm leading-6 text-[#6b7280]">
+              <p class="mt-1 text-sm leading-6 text-muted">
                 {{
                   selectedClass
                     ? `${selectedTerm?.termName || "Semester"} · ${selectedAcademicYear?.academicYearName || "Tahun ajaran"}`
@@ -481,7 +481,7 @@ onMounted(async () => {
             </div>
             <div class="flex shrink-0 flex-wrap gap-2 text-xs font-medium">
               <span
-                class="inline-flex items-center gap-2 rounded-lg bg-[#eef2ff] px-3 py-2 text-[#4f46e5]"
+                class="inline-flex items-center gap-2 rounded-lg bg-[#eef2ff] px-3 py-2 text-brand"
               >
                 <PhBookOpen :size="16" weight="duotone" />
                 {{ subjectClasses.length }} mata pelajaran
@@ -513,15 +513,15 @@ onMounted(async () => {
                 class="mx-auto text-[#dc2626]"
                 weight="duotone"
               />
-              <h3 class="mt-3 text-sm font-semibold text-[#171322]">
+              <h3 class="mt-3 text-sm font-semibold text-foreground">
                 Penugasan belum bisa dimuat
               </h3>
-              <p class="mt-2 text-sm leading-6 text-[#6b7280]">
+              <p class="mt-2 text-sm leading-6 text-muted">
                 {{ subjectClassesError }}
               </p>
               <button
                 type="button"
-                class="mt-4 inline-flex items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60"
+                class="mt-4 inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
                 @click="loadClassContext"
               >
                 Coba lagi
@@ -537,10 +537,10 @@ onMounted(async () => {
                 class="mx-auto text-[#9ca3af]"
                 weight="duotone"
               />
-              <h3 class="mt-3 text-sm font-semibold text-[#171322]">
+              <h3 class="mt-3 text-sm font-semibold text-foreground">
                 Belum ada kelas dipilih
               </h3>
-              <p class="mt-2 text-sm leading-6 text-[#6b7280]">
+              <p class="mt-2 text-sm leading-6 text-muted">
                 Pilih tahun ajaran, semester, dan kelas untuk mengatur guru
                 pengampu.
               </p>
@@ -555,15 +555,15 @@ onMounted(async () => {
                 class="mx-auto text-[#9ca3af]"
                 weight="duotone"
               />
-              <h3 class="mt-3 text-sm font-semibold text-[#171322]">
+              <h3 class="mt-3 text-sm font-semibold text-foreground">
                 Belum ada penugasan mengajar
               </h3>
-              <p class="mt-2 text-sm leading-6 text-[#6b7280]">
+              <p class="mt-2 text-sm leading-6 text-muted">
                 Pilih mata pelajaran dan guru melalui panel penugasan.
               </p>
             </div>
 
-            <div v-else class="divide-y divide-[#ebe7df]">
+            <div v-else class="divide-y divide-border">
               <article
                 v-for="subjectClass in subjectClasses"
                 :key="subjectClass.subjectClassId"
@@ -582,7 +582,7 @@ onMounted(async () => {
                     <div class="min-w-0">
                       <div class="flex min-w-0 flex-wrap items-center gap-2">
                         <h3
-                          class="wrap-break-word text-sm font-semibold text-[#171322]"
+                          class="wrap-break-word text-sm font-semibold text-foreground"
                         >
                           {{
                             subjectClass.subjectName ||
@@ -590,14 +590,14 @@ onMounted(async () => {
                           }}
                         </h3>
                         <span
-                          class="rounded-lg bg-[#f3f1ec] px-2 py-1 text-[11px] font-medium text-[#6b7280]"
+                          class="rounded-lg bg-[#f3f1ec] px-2 py-1 text-[11px] font-medium text-muted"
                         >
                           {{
                             subjectClass.subjectCode || "Kode tidak tersedia"
                           }}
                         </span>
                       </div>
-                      <p class="mt-1 text-xs text-[#6b7280]">
+                      <p class="mt-1 text-xs text-muted">
                         Guru:
                         <span class="font-medium text-[#374151]">
                           {{
@@ -660,7 +660,7 @@ onMounted(async () => {
 
         <aside class="order-1 min-w-0 lg:order-2">
           <div class="space-y-5 lg:sticky lg:top-6">
-            <section class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5">
+            <section class="rounded-xl border border-border bg-white shadow-sm p-5">
               <div class="flex items-start justify-between gap-3">
                 <div>
                   <p
@@ -668,7 +668,7 @@ onMounted(async () => {
                   >
                     Konteks kelas
                   </p>
-                  <h2 class="mt-1 text-base font-semibold text-[#171322]">
+                  <h2 class="mt-1 text-base font-semibold text-foreground">
                     Pilih periode dan kelas
                   </h2>
                 </div>
@@ -680,11 +680,11 @@ onMounted(async () => {
               </div>
 
               <div class="mt-5 space-y-3">
-                <label class="block text-xs font-medium text-[#6b7280]">
+                <label class="block text-xs font-medium text-muted">
                   Tahun ajaran
                   <select
                     v-model="selectedAcademicYearId"
-                    class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition focus:border-[#4f46e5] focus:bg-white"
+                    class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-brand focus:bg-white"
                     :disabled="yearsLoading || academicYears.length === 0"
                     @change="handleAcademicYearChange"
                   >
@@ -699,11 +699,11 @@ onMounted(async () => {
                     </option>
                   </select>
                 </label>
-                <label class="block text-xs font-medium text-[#6b7280]">
+                <label class="block text-xs font-medium text-muted">
                   Semester
                   <select
                     v-model="selectedTermId"
-                    class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition focus:border-[#4f46e5] focus:bg-white"
+                    class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-brand focus:bg-white"
                     :disabled="termsLoading || terms.length === 0"
                     @change="handleTermChange"
                   >
@@ -717,11 +717,11 @@ onMounted(async () => {
                     </option>
                   </select>
                 </label>
-                <label class="block text-xs font-medium text-[#6b7280]">
+                <label class="block text-xs font-medium text-muted">
                   Kelas
                   <select
                     v-model="selectedClassId"
-                    class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition focus:border-[#4f46e5] focus:bg-white"
+                    class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-brand focus:bg-white"
                     :disabled="classesLoading || classes.length === 0"
                     @change="handleClassChange"
                   >
@@ -740,7 +740,7 @@ onMounted(async () => {
               <div class="mt-4 space-y-2 text-xs leading-5">
                 <p
                   v-if="yearsLoading || termsLoading || classesLoading"
-                  class="text-[#6b7280]"
+                  class="text-muted"
                 >
                   Memuat konteks kelas...
                 </p>
@@ -765,26 +765,26 @@ onMounted(async () => {
                 </div>
                 <p
                   v-else-if="academicYears.length === 0"
-                  class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-[#6b7280]"
+                  class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-muted"
                 >
                   Belum ada tahun ajaran.
                 </p>
                 <p
                   v-else-if="selectedAcademicYearId && terms.length === 0"
-                  class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-[#6b7280]"
+                  class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-muted"
                 >
                   Belum ada semester untuk tahun ajaran ini.
                 </p>
                 <p
                   v-else-if="selectedTermId && classes.length === 0"
-                  class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-[#6b7280]"
+                  class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-muted"
                 >
                   Belum ada kelas untuk semester ini.
                 </p>
               </div>
             </section>
 
-            <section class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5">
+            <section class="rounded-xl border border-border bg-white shadow-sm p-5">
               <div class="flex items-start justify-between gap-3">
                 <div>
                   <p
@@ -792,26 +792,26 @@ onMounted(async () => {
                   >
                     Tambah penugasan
                   </p>
-                  <h2 class="mt-1 text-base font-semibold text-[#171322]">
+                  <h2 class="mt-1 text-base font-semibold text-foreground">
                     Hubungkan guru dan mata pelajaran
                   </h2>
-                  <p class="mt-1 text-xs leading-5 text-[#6b7280]">
+                  <p class="mt-1 text-xs leading-5 text-muted">
                     Guru harus sudah ditempatkan aktif pada kelas terpilih.
                   </p>
                 </div>
                 <span
-                  class="shrink-0 rounded-lg bg-[#eef2ff] px-2.5 py-1.5 text-xs font-medium text-[#4f46e5]"
+                  class="shrink-0 rounded-lg bg-[#eef2ff] px-2.5 py-1.5 text-xs font-medium text-brand"
                 >
                   {{ teacherCandidates.length }} guru
                 </span>
               </div>
 
               <form class="mt-5 space-y-3" @submit.prevent="submitSubjectClass">
-                <label class="block text-xs font-medium text-[#6b7280]">
+                <label class="block text-xs font-medium text-muted">
                   Mata pelajaran
                   <select
                     v-model="selectedSubjectId"
-                    class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition focus:border-[#4f46e5] focus:bg-white"
+                    class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-brand focus:bg-white"
                     :disabled="
                       subjectsLoading || availableSubjects.length === 0
                     "
@@ -827,11 +827,11 @@ onMounted(async () => {
                   </select>
                 </label>
 
-                <label class="block text-xs font-medium text-[#6b7280]">
+                <label class="block text-xs font-medium text-muted">
                   Guru pengampu
                   <select
                     v-model="selectedTeacherSchoolUserId"
-                    class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition focus:border-[#4f46e5] focus:bg-white"
+                    class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-brand focus:bg-white"
                     :disabled="
                       enrollmentsLoading ||
                       membersLoading ||
@@ -861,17 +861,17 @@ onMounted(async () => {
                   </p>
                   <dl class="mt-2 space-y-2 text-xs">
                     <div class="flex items-start justify-between gap-3">
-                      <dt class="text-[#6b7280]">Mata pelajaran</dt>
+                      <dt class="text-muted">Mata pelajaran</dt>
                       <dd
-                        class="max-w-[65%] text-right font-medium text-[#171322]"
+                        class="max-w-[65%] text-right font-medium text-foreground"
                       >
                         {{ selectedSubject?.subjectName || "Belum dipilih" }}
                       </dd>
                     </div>
                     <div class="flex items-start justify-between gap-3">
-                      <dt class="text-[#6b7280]">Guru</dt>
+                      <dt class="text-muted">Guru</dt>
                       <dd
-                        class="max-w-[65%] text-right font-medium text-[#171322]"
+                        class="max-w-[65%] text-right font-medium text-foreground"
                       >
                         {{ selectedTeacher?.fullName || "Belum dipilih" }}
                       </dd>
@@ -880,7 +880,7 @@ onMounted(async () => {
                 </div>
 
                 <div class="space-y-2 text-xs leading-5">
-                  <p v-if="subjectsLoading" class="text-[#6b7280]">
+                  <p v-if="subjectsLoading" class="text-muted">
                     Memuat mata pelajaran...
                   </p>
                   <div
@@ -898,7 +898,7 @@ onMounted(async () => {
                   </div>
                   <p
                     v-else-if="subjects.length === 0"
-                    class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-[#6b7280]"
+                    class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-muted"
                   >
                     Belum ada mata pelajaran pada Struktur Akademik.
                   </p>
@@ -906,13 +906,13 @@ onMounted(async () => {
                     v-else-if="
                       selectedClassId && availableSubjects.length === 0
                     "
-                    class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-[#6b7280]"
+                    class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-muted"
                   >
                     Semua mata pelajaran sudah ditugaskan untuk kelas ini.
                   </p>
                   <p
                     v-if="membersLoading || enrollmentsLoading"
-                    class="text-[#6b7280]"
+                    class="text-muted"
                   >
                     Memuat guru yang tersedia...
                   </p>
@@ -970,10 +970,10 @@ onMounted(async () => {
         </span>
         <div class="min-w-0">
           <p class="eyebrow" style="color: #059669">Setup sekolah selesai</p>
-          <p class="mt-1 text-base font-semibold text-[#171322]">
+          <p class="mt-1 text-base font-semibold text-foreground">
             Ruang mengajar sudah terkonfigurasi
           </p>
-          <p class="mt-1 text-sm text-[#6b7280]">
+          <p class="mt-1 text-sm text-muted">
             Guru sudah terhubung ke kelas dan mata pelajaran. Siswa dapat memulai aktivitas belajar.
           </p>
         </div>

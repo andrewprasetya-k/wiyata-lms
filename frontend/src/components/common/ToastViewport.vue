@@ -24,7 +24,7 @@ const variantMeta = computed(() => ({
   info: {
     icon: PhInfo,
     className: "border-[#C7D2FE] bg-[#EEF2FF] text-[#3730A3]",
-    iconClass: "text-[#4F46E5]",
+    iconClass: "text-brand",
   },
 }));
 

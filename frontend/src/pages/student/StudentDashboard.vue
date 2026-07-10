@@ -475,7 +475,7 @@ function assignmentStatusLabel(item: StudentAssignmentInboxItem) {
 
 function assignmentStatusClasses(item: StudentAssignmentInboxItem) {
   if (item.isGraded) return "bg-[#ecfdf3] text-[#027a48]";
-  if (item.isSubmitted) return "bg-[#eef2ff] text-[#4f46e5]";
+  if (item.isSubmitted) return "bg-[#eef2ff] text-brand";
   if (item.isOverdue) return "bg-[#fef2f2] text-[#dc2626]";
   return "bg-[#fff7ed] text-[#b45309]";
 }
@@ -603,15 +603,15 @@ onMounted(() => {
     class="grid min-h-screen min-w-0 flex-1 grid-cols-1 overflow-x-hidden bg-[#f8f7f4] lg:grid-cols-[minmax(0,1fr)_320px]"
   >
     <section class="min-w-0">
-      <header class="border-b border-[#ebe7df] bg-white">
+      <header class="border-b border-border bg-white">
         <div
           class="flex min-w-0 flex-col gap-3 px-5 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8"
         >
           <div class="min-w-0">
-            <h1 class="mt-1 text-2xl font-semibold text-[#171322] sm:text-3xl">
+            <h1 class="mt-1 text-2xl font-semibold text-foreground sm:text-3xl">
               Selamat datang, {{ firstName }}
             </h1>
-            <p class="mt-2 max-w-3xl text-sm leading-6 text-[#6b7280]">
+            <p class="mt-2 max-w-3xl text-sm leading-6 text-muted">
               Mau belajar apa hari ini?
             </p>
           </div>
@@ -639,14 +639,14 @@ onMounted(() => {
               <PhWarningCircle :size="22" weight="duotone" />
             </div>
             <div class="min-w-0">
-              <h2 class="text-base font-medium text-[#171322]">
+              <h2 class="text-base font-medium text-foreground">
                 Dashboard tidak dapat dimuat
               </h2>
               <p class="mt-1 text-sm leading-6 text-[#7a7385]">
                 {{ errorMessage }}
               </p>
               <button
-                class="mt-4 rounded-lg bg-[#4f46e5] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+                class="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
                 type="button"
                 @click="loadDashboard()"
               >
@@ -661,14 +661,14 @@ onMounted(() => {
             <div
               v-for="item in 3"
               :key="item"
-              class="h-36 animate-pulse rounded-xl border border-[#ebe7df] bg-white shadow-sm"
+              class="h-36 animate-pulse rounded-xl border border-border bg-white shadow-sm"
             />
           </div>
           <div class="grid gap-4 xl:grid-cols-2">
             <div
               v-for="item in 2"
               :key="`panel-${item}`"
-              class="h-64 animate-pulse rounded-xl border border-[#ebe7df] bg-white shadow-sm"
+              class="h-64 animate-pulse rounded-xl border border-border bg-white shadow-sm"
             />
           </div>
         </section>
@@ -678,14 +678,14 @@ onMounted(() => {
           class="flex min-h-[50vh] items-center justify-center"
         >
           <article
-            class="w-full max-w-xl rounded-xl border border-[#ebe7df] bg-white shadow-sm p-8 text-center"
+            class="w-full max-w-xl rounded-xl border border-border bg-white shadow-sm p-8 text-center"
           >
             <div
-              class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
+              class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
             >
               <PhBookOpen :size="25" weight="duotone" />
             </div>
-            <h2 class="mt-3 text-lg font-medium text-[#171322]">
+            <h2 class="mt-3 text-lg font-medium text-foreground">
               Belum ada kelas aktif
             </h2>
             <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#7a7385]">
@@ -697,11 +697,11 @@ onMounted(() => {
 
         <section v-else class="grid min-w-0 gap-4 xl:grid-cols-[1.15fr_0.85fr]">
           <article
-            class="min-w-0 rounded-xl border border-[#ebe7df] bg-white shadow-sm p-4 sm:p-5"
+            class="min-w-0 rounded-xl border border-border bg-white shadow-sm p-4 sm:p-5"
           >
             <div class="mb-4 flex min-w-0 items-center justify-between gap-3">
               <div class="min-w-0">
-                <p class="text-sm font-medium text-[#171322]">
+                <p class="text-sm font-medium text-foreground">
                   Daftar mata pelajaran
                 </p>
                 <p class="mt-1 text-xs text-[#8b8592]">
@@ -709,7 +709,7 @@ onMounted(() => {
                 </p>
               </div>
               <RouterLink
-                class="shrink-0 text-xs font-medium text-[#4f46e5] transition hover:text-[#4338ca] sm:text-sm"
+                class="shrink-0 text-xs font-medium text-brand transition hover:text-[#4338ca] sm:text-sm"
                 to="/student/subjects"
               >
                 Lihat semua
@@ -760,7 +760,7 @@ onMounted(() => {
                   </div>
                   <div class="min-w-0 flex-1">
                     <p
-                      class="line-clamp-2 wrap-break-word text-sm font-medium text-[#171322]"
+                      class="line-clamp-2 wrap-break-word text-sm font-medium text-foreground"
                     >
                       {{
                         subject.subjectName ||
@@ -774,14 +774,14 @@ onMounted(() => {
                   </div>
                   <PhArrowRight
                     :size="15"
-                    class="mt-1 shrink-0 text-[#a09aa8] transition group-hover:translate-x-0.5 group-hover:text-[#4f46e5]"
+                    class="mt-1 shrink-0 text-[#a09aa8] transition group-hover:translate-x-0.5 group-hover:text-brand"
                   />
                 </div>
               </RouterLink>
             </div>
 
             <div v-else class="rounded-lg bg-[#fbfaf8] p-5">
-              <p class="text-sm font-medium text-[#171322]">
+              <p class="text-sm font-medium text-foreground">
                 Belum ada mata pelajaran
               </p>
               <p class="mt-2 text-sm leading-6 text-[#7a7385]">
@@ -791,17 +791,17 @@ onMounted(() => {
           </article>
 
           <article
-            class="flex min-h-90 min-w-0 flex-col rounded-xl border border-[#ebe7df] bg-white shadow-sm p-4 sm:p-5 lg:max-h-130"
+            class="flex min-h-90 min-w-0 flex-col rounded-xl border border-border bg-white shadow-sm p-4 sm:p-5 lg:max-h-130"
           >
             <div class="mb-4 flex shrink-0 items-center justify-between gap-3">
               <div class="flex min-w-0 items-start gap-3">
                 <div
-                  class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#eef2ff] text-[#4f46e5]"
+                  class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#eef2ff] text-brand"
                 >
                   <PhClipboardText :size="19" weight="duotone" />
                 </div>
                 <div class="min-w-0">
-                  <p class="text-sm font-medium text-[#171322]">Tugas Saya</p>
+                  <p class="text-sm font-medium text-foreground">Tugas Saya</p>
                   <p class="mt-1 text-xs text-[#8b8592]">
                     Prioritas tugas dari semua mata pelajaran.
                   </p>
@@ -809,7 +809,7 @@ onMounted(() => {
               </div>
               <RouterLink
                 to="/student/assignments"
-                class="shrink-0 text-xs font-medium text-[#4f46e5] transition hover:text-[#4338ca] sm:text-sm"
+                class="shrink-0 text-xs font-medium text-brand transition hover:text-[#4338ca] sm:text-sm"
               >
                 Lihat semua
               </RouterLink>
@@ -834,10 +834,10 @@ onMounted(() => {
               v-else-if="assignmentPreview.length === 0"
               class="shrink-0 rounded-lg bg-[#fbfaf8] p-4"
             >
-              <p class="text-sm font-semibold text-[#171322]">
+              <p class="text-sm font-semibold text-foreground">
                 Belum ada tugas
               </p>
-              <p class="mt-1 text-sm leading-6 text-[#6b7280]">
+              <p class="mt-1 text-sm leading-6 text-muted">
                 Tugas akan muncul setelah guru membuat tugas untuk mata
                 pelajaran di kelasmu.
               </p>
@@ -845,7 +845,7 @@ onMounted(() => {
 
             <div
               v-else
-              class="min-h-0 flex-1 divide-y divide-[#ebe7df] overflow-y-auto pr-1"
+              class="min-h-0 flex-1 divide-y divide-border overflow-y-auto pr-1"
             >
               <RouterLink
                 v-for="assignment in assignmentPreview"
@@ -856,7 +856,7 @@ onMounted(() => {
                 <div class="flex min-w-0 items-start justify-between gap-3">
                   <div class="min-w-0 flex-1">
                     <p
-                      class="truncate text-sm font-medium text-[#171322] transition group-hover:text-[#4f46e5]"
+                      class="truncate text-sm font-medium text-foreground transition group-hover:text-brand"
                     >
                       {{ assignment.assignmentTitle }}
                     </p>
@@ -879,7 +879,7 @@ onMounted(() => {
                     </span>
                     <PhArrowRight
                       :size="14"
-                      class="text-[#a09aa8] transition group-hover:translate-x-0.5 group-hover:text-[#4f46e5]"
+                      class="text-[#a09aa8] transition group-hover:translate-x-0.5 group-hover:text-brand"
                     />
                   </div>
                 </div>
@@ -891,7 +891,7 @@ onMounted(() => {
     </section>
 
     <aside
-      class="min-w-0 border-t border-[#ebe7df] bg-white lg:sticky lg:top-0 lg:h-dvh lg:min-h-0 lg:overflow-hidden lg:border-l lg:border-t-0"
+      class="min-w-0 border-t border-border bg-white lg:sticky lg:top-0 lg:h-dvh lg:min-h-0 lg:overflow-hidden lg:border-l lg:border-t-0"
     >
       <div
         class="flex flex-col gap-3 p-4 lg:h-full lg:min-h-0 lg:overflow-hidden"
@@ -909,14 +909,14 @@ onMounted(() => {
               </p>
               <div class="flex items-center gap-2">
                 <RouterLink
-                  class="rounded-lg border border-[#ebe7df] bg-white px-1 py-1 text-xs font-medium text-[#4f46e5] transition hover:border-[#4f46e5] hover:bg-[#eef2ff]"
+                  class="rounded-lg border border-border bg-white px-1 py-1 text-xs font-medium text-brand transition hover:border-brand hover:bg-[#eef2ff]"
                   to="/student/notifications"
                 >
                   Lihat semua
                 </RouterLink>
                 <button
                   v-if="notificationUnread.unreadCount.value > 0"
-                  class="rounded-lg bg-[#eef2ff] px-1 py-1 text-xs font-medium text-[#4f46e5] transition hover:bg-[#e0e7ff] disabled:cursor-not-allowed disabled:opacity-60"
+                  class="rounded-lg bg-[#eef2ff] px-1 py-1 text-xs font-medium text-brand transition hover:bg-[#e0e7ff] disabled:cursor-not-allowed disabled:opacity-60"
                   type="button"
                   :disabled="markingAllNotifications"
                   @click="markAllNotificationsRead"
@@ -944,7 +944,7 @@ onMounted(() => {
               <p>{{ notificationsError }}</p>
               <button
                 type="button"
-                class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-[#ebe7df] bg-white px-3 py-1.5 text-xs font-medium text-[#4f46e5] transition hover:border-[#4f46e5] hover:bg-[#eef2ff] disabled:cursor-not-allowed disabled:opacity-60"
+                class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-medium text-brand transition hover:border-brand hover:bg-[#eef2ff] disabled:cursor-not-allowed disabled:opacity-60"
                 :disabled="notificationsLoading"
                 @click="loadNotifications"
               >
@@ -956,7 +956,7 @@ onMounted(() => {
               <button
                 v-for="item in notifications"
                 :key="item.notificationId"
-                class="flex min-w-0 w-full gap-3 p-3 text-left transition hover:bg-[#f8f7f4] disabled:cursor-wait disabled:opacity-75 border-b border-[#ebe7df]"
+                class="flex min-w-0 w-full gap-3 p-3 text-left transition hover:bg-[#f8f7f4] disabled:cursor-wait disabled:opacity-75 border-b border-border"
                 :class="!item.isRead ? 'bg-[#f5f7ff]' : ''"
                 type="button"
                 :disabled="markingNotificationIds.has(item.notificationId)"
@@ -975,7 +975,7 @@ onMounted(() => {
                 </div>
                 <div class="min-w-0 flex-1">
                   <div class="flex items-baseline justify-between gap-2">
-                    <p class="line-clamp-1 text-sm font-medium text-[#171322]">
+                    <p class="line-clamp-1 text-sm font-medium text-foreground">
                       {{ notificationTitle(item) }}
                     </p>
                     <span class="shrink-0 text-[10px] text-[#a09aa8]">{{
@@ -987,7 +987,7 @@ onMounted(() => {
                   </p>
                   <span
                     v-if="!item.isRead"
-                    class="mt-1 inline-flex rounded-full bg-[#4f46e5] px-2 py-0.5 text-[10px] font-medium text-white"
+                    class="mt-1 inline-flex rounded-full bg-brand px-2 py-0.5 text-[10px] font-medium text-white"
                   >
                     baru
                   </span>
@@ -995,10 +995,10 @@ onMounted(() => {
               </button>
             </div>
             <div v-else class="rounded-lg bg-[#fbfaf8] p-4">
-              <p class="text-sm font-semibold text-[#171322]">
+              <p class="text-sm font-semibold text-foreground">
                 Belum ada notifikasi terbaru
               </p>
-              <p class="mt-1 text-sm leading-6 text-[#6b7280]">
+              <p class="mt-1 text-sm leading-6 text-muted">
                 Notifikasi baru dari kelas aktif akan tampil di sini.
               </p>
             </div>
@@ -1016,7 +1016,7 @@ onMounted(() => {
           <template #feed>
             <div class="mb-3 flex items-center justify-between gap-3">
               <RouterLink
-                class="shrink-0 text-xs font-medium text-[#4f46e5] transition hover:text-[#4338ca] inline-flex gap-1 pt-1"
+                class="shrink-0 text-xs font-medium text-brand transition hover:text-[#4338ca] inline-flex gap-1 pt-1"
                 to="/student/feed"
               >
                 Buka feed
@@ -1039,7 +1039,7 @@ onMounted(() => {
               <button
                 v-if="activeClassStore.activeClassId"
                 type="button"
-                class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-[#ebe7df] bg-white px-3 py-1.5 text-xs font-medium text-[#4f46e5] transition hover:border-[#4f46e5] hover:bg-[#eef2ff] disabled:cursor-not-allowed disabled:opacity-60"
+                class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-medium text-brand transition hover:border-brand hover:bg-[#eef2ff] disabled:cursor-not-allowed disabled:opacity-60"
                 :disabled="feedPreviewLoading"
                 @click="retryFeedPreview"
               >
@@ -1049,7 +1049,7 @@ onMounted(() => {
             </div>
             <div
               v-else-if="feedPosts.length > 0"
-              class="divide-y divide-[#ebe7df]"
+              class="divide-y divide-border"
             >
               <article
                 v-for="post in feedPosts.slice(0, 5)"
@@ -1066,10 +1066,10 @@ onMounted(() => {
               </article>
             </div>
             <div v-else class="rounded-lg bg-[#fbfaf8] p-4">
-              <p class="text-sm font-semibold text-[#171322]">
+              <p class="text-sm font-semibold text-foreground">
                 Belum ada pengumuman
               </p>
-              <p class="mt-1 text-sm leading-6 text-[#6b7280]">
+              <p class="mt-1 text-sm leading-6 text-muted">
                 Pengumuman untuk kelas aktif akan tampil di sini.
               </p>
             </div>
@@ -1078,17 +1078,17 @@ onMounted(() => {
 
         <section class="shrink-0 rounded-xl bg-white p-3">
           <div class="mb-2 flex items-center justify-between">
-            <p class="text-sm font-medium text-[#171322]">{{ currentMonth }}</p>
+            <p class="text-sm font-medium text-foreground">{{ currentMonth }}</p>
             <div class="flex gap-1">
               <button
-                class="rounded-lg border border-[#ebe7df] p-1.5 text-[#7a7385] transition hover:bg-[#fbfaf8]"
+                class="rounded-lg border border-border p-1.5 text-[#7a7385] transition hover:bg-[#fbfaf8]"
                 type="button"
                 @click="changeMonth(-1)"
               >
                 <PhCaretLeft :size="14" />
               </button>
               <button
-                class="rounded-lg border border-[#ebe7df] p-1.5 text-[#7a7385] transition hover:bg-[#fbfaf8]"
+                class="rounded-lg border border-border p-1.5 text-[#7a7385] transition hover:bg-[#fbfaf8]"
                 type="button"
                 @click="changeMonth(1)"
               >
@@ -1109,15 +1109,15 @@ onMounted(() => {
               <button
                 v-if="day.dateKey"
                 type="button"
-                class="flex h-full min-h-8 w-full flex-col items-center justify-center rounded-lg px-1 py-0.5 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5] focus-visible:ring-offset-2"
+                class="flex h-full min-h-8 w-full flex-col items-center justify-center rounded-lg px-1 py-0.5 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
                 :class="[
                   day.isToday
-                    ? 'bg-[#4f46e5] font-medium text-white'
+                    ? 'bg-brand font-medium text-white'
                     : day.isCurrentMonth
                       ? 'text-[#4a4356] hover:bg-[#fbfaf8]'
                       : 'text-[#c0bac8] hover:bg-[#fbfaf8]',
                   selectedDate === day.dateKey
-                    ? 'ring-2 ring-[#4f46e5] ring-offset-1'
+                    ? 'ring-2 ring-brand ring-offset-1'
                     : '',
                 ]"
                 :aria-label="calendarDateAriaLabel(day)"
@@ -1153,9 +1153,9 @@ onMounted(() => {
             </span>
           </div>
 
-          <div class="mt-3 border-t border-[#ebe7df] pt-3">
+          <div class="mt-3 border-t border-border pt-3">
             <div class="mb-2 flex items-center justify-between gap-3">
-              <p class="text-sm font-medium text-[#171322]">Deadline Tugas</p>
+              <p class="text-sm font-medium text-foreground">Deadline Tugas</p>
               <p class="shrink-0 text-xs text-[#8b8592]">
                 {{ formatActivityDate(selectedDate) }}
               </p>
@@ -1178,7 +1178,7 @@ onMounted(() => {
 
               <div
                 v-else-if="selectedDatePreview.length === 0"
-                class="border-b border-[#ebe7df] bg-[#fbfaf8] p-3 text-xs leading-5 text-[#7a7385]"
+                class="border-b border-border bg-[#fbfaf8] p-3 text-xs leading-5 text-[#7a7385]"
               >
                 Tidak ada deadline tugas pada tanggal ini.
               </div>
@@ -1196,7 +1196,7 @@ onMounted(() => {
                   <RouterLink
                     v-if="isInternalActivityLink(activity.link)"
                     :to="activity.link || ''"
-                    class="group flex min-w-0 items-start gap-2 border-b border-[#ebe7df] bg-[#fbfaf8] p-3 transition hover:border-[#c7d2fe] hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5] focus-visible:ring-offset-2"
+                    class="group flex min-w-0 items-start gap-2 border-b border-border bg-[#fbfaf8] p-3 transition hover:border-[#c7d2fe] hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
                     :aria-label="`${activityTypeLabel(activity.type, 'student')}: ${activity.title}`"
                   >
                     <span
@@ -1212,7 +1212,7 @@ onMounted(() => {
                       <span
                         class="flex min-w-0 items-center justify-between gap-2"
                       >
-                        <span class="text-[11px] font-medium text-[#4f46e5]">
+                        <span class="text-[11px] font-medium text-brand">
                           {{ activityTypeLabel(activity.type, "student") }}
                         </span>
                         <span class="shrink-0 text-[10px] text-[#9ca3af]">
@@ -1220,7 +1220,7 @@ onMounted(() => {
                         </span>
                       </span>
                       <span
-                        class="mt-1 block truncate text-xs font-medium text-[#171322] transition group-hover:text-[#4f46e5]"
+                        class="mt-1 block truncate text-xs font-medium text-foreground transition group-hover:text-brand"
                       >
                         {{ activity.title }}
                       </span>
@@ -1244,7 +1244,7 @@ onMounted(() => {
                       <div
                         class="flex min-w-0 items-center justify-between gap-2"
                       >
-                        <span class="text-[11px] font-medium text-[#4f46e5]">
+                        <span class="text-[11px] font-medium text-brand">
                           {{ activityTypeLabel(activity.type, "student") }}
                         </span>
                         <span class="shrink-0 text-[10px] text-[#9ca3af]">
@@ -1252,7 +1252,7 @@ onMounted(() => {
                         </span>
                       </div>
                       <p
-                        class="mt-1 truncate text-xs font-medium text-[#171322]"
+                        class="mt-1 truncate text-xs font-medium text-foreground"
                       >
                         {{ activity.title }}
                       </p>

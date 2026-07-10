@@ -37,12 +37,12 @@ onMounted(loadSubjects);
 
 <template>
   <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
-    <header class="border-b border-[#ebe7df] bg-white">
+    <header class="border-b border-border bg-white">
       <div class="px-5 py-5 sm:px-6 lg:px-8">
-        <h1 class="text-2xl font-semibold text-[#171322] sm:text-3xl">
+        <h1 class="text-2xl font-semibold text-foreground sm:text-3xl">
           Mata Pelajaran yang Diajar
         </h1>
-        <p class="mt-2 max-w-3xl text-sm leading-6 text-[#6b7280]">
+        <p class="mt-2 max-w-3xl text-sm leading-6 text-muted">
           Pilih mata pelajaran untuk mengelola materi, tugas, dan pengumpulan
           siswa.
         </p>
@@ -56,7 +56,7 @@ onMounted(loadSubjects);
         <div
           v-for="item in 6"
           :key="item"
-          class="h-56 animate-pulse rounded-xl border border-[#ebe7df] bg-white"
+          class="h-56 animate-pulse rounded-xl border border-border bg-white"
         />
       </section>
 
@@ -74,14 +74,14 @@ onMounted(loadSubjects);
               <PhWarningCircle :size="22" weight="duotone" />
             </div>
             <div class="min-w-0">
-              <h2 class="text-base font-semibold text-[#171322]">
+              <h2 class="text-base font-semibold text-foreground">
                 Mata pelajaran tidak dapat dimuat
               </h2>
               <p class="mt-1 text-sm leading-6 text-[#7a7385]">
                 {{ errorMessage }}
               </p>
               <button
-                class="mt-4 rounded-lg bg-[#4f46e5] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+                class="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
                 type="button"
                 @click="loadSubjects"
               >
@@ -97,17 +97,17 @@ onMounted(loadSubjects);
         class="flex min-h-[55vh] items-center justify-center"
       >
         <article
-          class="w-full max-w-xl rounded-xl border border-[#ebe7df] bg-white p-8 text-center"
+          class="w-full max-w-xl rounded-xl border border-border bg-white p-8 text-center"
         >
           <div
-            class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
+            class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
           >
             <PhBookOpen class="h-6 w-6" weight="duotone" />
           </div>
-          <h2 class="mt-3 text-base font-semibold text-[#171322]">
+          <h2 class="mt-3 text-base font-semibold text-foreground">
             Belum ada mata pelajaran yang diajar
           </h2>
-          <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#6b7280]">
+          <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-muted">
             Admin sekolah perlu menugaskan guru ke mata pelajaran dan kelas
             aktif terlebih dahulu.
           </p>
@@ -116,7 +116,7 @@ onMounted(loadSubjects);
 
       <section v-else>
         <div class="mb-4 min-w-0">
-          <h2 class="text-sm font-semibold text-[#171322]">
+          <h2 class="text-sm font-semibold text-foreground">
             Daftar mata pelajaran
           </h2>
           <p class="mt-1 text-xs text-[#7a7385] sm:text-sm">
@@ -129,7 +129,7 @@ onMounted(loadSubjects);
             v-for="subject in subjects"
             :key="subject.subjectClassId"
             :to="`/teacher/subjects/${subject.subjectClassId}`"
-            class="group min-w-0 overflow-hidden rounded-xl border border-[#ebe7df] bg-white transition hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(66,55,40,0.08)]"
+            class="group min-w-0 overflow-hidden rounded-xl border border-border bg-white transition hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(66,55,40,0.08)]"
           >
             <div
               class="h-1.5 w-full"
@@ -152,7 +152,7 @@ onMounted(loadSubjects);
                     {{ subject.className || subject.classCode || "Kelas" }}
                   </p>
                   <h2
-                    class="mt-1 line-clamp-2 wrap-break-word text-base font-medium text-[#171322]"
+                    class="mt-1 line-clamp-2 wrap-break-word text-base font-medium text-foreground"
                   >
                     {{ subject.subjectName || "Mata pelajaran" }}
                   </h2>
@@ -169,7 +169,7 @@ onMounted(loadSubjects);
                 </div>
                 <PhArrowRight
                   :size="17"
-                  class="mt-1 shrink-0 text-[#a09aa8] transition group-hover:translate-x-0.5 group-hover:text-[#4f46e5]"
+                  class="mt-1 shrink-0 text-[#a09aa8] transition group-hover:translate-x-0.5 group-hover:text-brand"
                 />
               </div>
 
@@ -179,7 +179,7 @@ onMounted(loadSubjects);
                     <PhUsersThree :size="15" weight="duotone" />
                     Siswa
                   </dt>
-                  <dd class="mt-1 text-base font-medium text-[#171322]">
+                  <dd class="mt-1 text-base font-medium text-foreground">
                     {{ subject.studentCount }}
                   </dd>
                 </div>
@@ -188,7 +188,7 @@ onMounted(loadSubjects);
                     <PhFileText :size="15" weight="duotone" />
                     Materi
                   </dt>
-                  <dd class="mt-1 text-base font-medium text-[#171322]">
+                  <dd class="mt-1 text-base font-medium text-foreground">
                     {{ subject.materialCount }}
                   </dd>
                 </div>
@@ -197,7 +197,7 @@ onMounted(loadSubjects);
                     <PhClipboardText :size="15" weight="duotone" />
                     Tugas
                   </dt>
-                  <dd class="mt-1 text-base font-medium text-[#171322]">
+                  <dd class="mt-1 text-base font-medium text-foreground">
                     {{ subject.assignmentCount }}
                   </dd>
                 </div>

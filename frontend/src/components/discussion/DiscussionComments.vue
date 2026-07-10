@@ -254,12 +254,12 @@ onMounted(() => {
 </script>
 
 <template>
-  <article class="rounded-xl border border-[#ebe7df] bg-white p-5 sm:p-6">
+  <article class="rounded-xl border border-border bg-white p-5 sm:p-6">
     <div class="flex items-start justify-between gap-3">
       <div class="min-w-0">
         <div class="flex items-center gap-2">
-          <PhChatsCircle :size="18" class="text-[#4f46e5]" weight="duotone" />
-          <h2 class="text-sm font-medium text-[#171322]">{{ title }}</h2>
+          <PhChatsCircle :size="18" class="text-brand" weight="duotone" />
+          <h2 class="text-sm font-medium text-foreground">{{ title }}</h2>
         </div>
         <p class="mt-1 text-xs leading-5 text-[#7a7385]">
           Ajukan pertanyaan atau lanjutkan pembahasan terkait konten ini.
@@ -267,7 +267,7 @@ onMounted(() => {
       </div>
       <span
         v-if="hasLoaded"
-        class="shrink-0 rounded-full bg-[#f8f7f4] px-2.5 py-1 text-[11px] text-[#6b7280]"
+        class="shrink-0 rounded-full bg-[#f8f7f4] px-2.5 py-1 text-[11px] text-muted"
       >
         {{ comments.length }} komentar
       </span>
@@ -275,7 +275,7 @@ onMounted(() => {
 
     <div
       v-if="isLoading"
-      class="mt-4 space-y-3 rounded-xl border border-[#ebe7df] bg-[#fbfaf8] p-3"
+      class="mt-4 space-y-3 rounded-xl border border-border bg-[#fbfaf8] p-3"
       aria-label="Memuat diskusi"
     >
       <div v-for="item in 2" :key="item" class="flex animate-pulse gap-3">
@@ -304,7 +304,7 @@ onMounted(() => {
 
     <div v-else class="mt-4 space-y-3">
       <div v-if="comments.length === 0" class="rounded-lg bg-[#fbfaf8] p-3">
-        <p class="text-sm leading-6 text-[#6b7280]">{{ emptyText }}</p>
+        <p class="text-sm leading-6 text-muted">{{ emptyText }}</p>
       </div>
 
       <div
@@ -314,7 +314,7 @@ onMounted(() => {
       >
         <div class="flex items-start justify-between gap-3">
           <div class="min-w-0">
-            <p class="truncate text-sm font-medium text-[#171322]">
+            <p class="truncate text-sm font-medium text-foreground">
               {{ comment.creatorName || "Pengirim tidak tersedia" }}
             </p>
             <p class="mt-0.5 text-xs text-[#a09aa8]">
@@ -351,7 +351,7 @@ onMounted(() => {
       <textarea
         :id="discussionId"
         v-model="commentText"
-        class="min-h-24 w-full resize-y rounded-xl border border-[#ebe7df] bg-white px-3 py-2 text-sm leading-6 text-[#171322] outline-none transition placeholder:text-[#a09aa8] focus:border-[#4f46e5]"
+        class="min-h-24 w-full resize-y rounded-xl border border-border bg-white px-3 py-2 text-sm leading-6 text-foreground outline-none transition placeholder:text-[#a09aa8] focus:border-brand"
         maxlength="800"
         :placeholder="placeholder"
       />
@@ -363,7 +363,7 @@ onMounted(() => {
           Diskusi terlihat oleh peserta yang memiliki akses ke konten ini.
         </p>
         <button
-          class="inline-flex shrink-0 items-center gap-2 rounded-lg bg-[#4f46e5] px-3 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:opacity-60"
+          class="inline-flex shrink-0 items-center gap-2 rounded-lg bg-brand px-3 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:opacity-60"
           type="submit"
           :disabled="!canSubmit"
         >

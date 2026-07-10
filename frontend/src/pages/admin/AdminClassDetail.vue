@@ -141,22 +141,22 @@ onMounted(() => {
 <template>
   <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
     <!-- Header breadcrumb -->
-    <header class="border-b border-[#ebe7df] bg-white">
+    <header class="border-b border-border bg-white">
       <div class="px-5 py-4 sm:px-6 lg:px-8">
         <nav
-          class="flex items-center gap-2 text-sm text-[#6b7280]"
+          class="flex items-center gap-2 text-sm text-muted"
           aria-label="Breadcrumb"
         >
           <button
             type="button"
-            class="inline-flex items-center gap-1.5 font-medium transition hover:text-[#4f46e5]"
+            class="inline-flex items-center gap-1.5 font-medium transition hover:text-brand"
             @click="router.back()"
           >
             <PhArrowLeft :size="15" />
             Kelas
           </button>
           <span class="text-[#d1ccd5]">/</span>
-          <span class="max-w-50 truncate font-medium text-[#171322]">
+          <span class="max-w-50 truncate font-medium text-foreground">
             {{ classInfo?.classTitle || classId }}
           </span>
         </nav>
@@ -172,7 +172,7 @@ onMounted(() => {
           />
           <template v-else-if="classInfo">
             <div class="flex min-w-0 flex-wrap items-center gap-2">
-              <h1 class="text-2xl font-semibold text-[#171322] sm:text-3xl">
+              <h1 class="text-2xl font-semibold text-foreground sm:text-3xl">
                 {{ classInfo.classTitle }}
               </h1>
               <span
@@ -180,14 +180,14 @@ onMounted(() => {
                 :class="
                   classInfo.isActive
                     ? 'bg-[#f0fdf4] text-[#059669]'
-                    : 'bg-[#f3f1ec] text-[#6b7280]'
+                    : 'bg-[#f3f1ec] text-muted'
                 "
               >
                 {{ classInfo.isActive ? "Aktif" : "Nonaktif" }}
               </span>
             </div>
             <div
-              class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[#6b7280]"
+              class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted"
             >
               <span class="flex items-center gap-1.5">
                 <PhBookOpen :size="15" weight="duotone" />
@@ -239,34 +239,34 @@ onMounted(() => {
       <!-- Stat cards -->
       <div v-if="classInfo" class="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <article
-          class="rounded-xl border border-[#ebe7df] bg-white p-4 shadow-sm"
+          class="rounded-xl border border-border bg-white p-4 shadow-sm"
         >
-          <p class="text-xs font-medium text-[#6b7280]">Siswa</p>
-          <p class="mt-2 text-2xl font-semibold text-[#171322]">
+          <p class="text-xs font-medium text-muted">Siswa</p>
+          <p class="mt-2 text-2xl font-semibold text-foreground">
             {{ enrollmentsLoading ? "–" : students.length }}
           </p>
         </article>
         <article
-          class="rounded-xl border border-[#ebe7df] bg-white p-4 shadow-sm"
+          class="rounded-xl border border-border bg-white p-4 shadow-sm"
         >
-          <p class="text-xs font-medium text-[#6b7280]">Guru</p>
-          <p class="mt-2 text-2xl font-semibold text-[#171322]">
+          <p class="text-xs font-medium text-muted">Guru</p>
+          <p class="mt-2 text-2xl font-semibold text-foreground">
             {{ enrollmentsLoading ? "–" : teachers.length }}
           </p>
         </article>
         <article
-          class="rounded-xl border border-[#ebe7df] bg-white p-4 shadow-sm"
+          class="rounded-xl border border-border bg-white p-4 shadow-sm"
         >
-          <p class="text-xs font-medium text-[#6b7280]">Ruang mengajar</p>
-          <p class="mt-2 text-2xl font-semibold text-[#171322]">
+          <p class="text-xs font-medium text-muted">Ruang mengajar</p>
+          <p class="mt-2 text-2xl font-semibold text-foreground">
             {{ subjectClassesLoading ? "–" : subjectClasses.length }}
           </p>
         </article>
         <article
-          class="rounded-xl border border-[#ebe7df] bg-white p-4 shadow-sm"
+          class="rounded-xl border border-border bg-white p-4 shadow-sm"
         >
-          <p class="text-xs font-medium text-[#6b7280]">Dibuat oleh</p>
-          <p class="mt-2 truncate text-sm font-semibold text-[#171322]">
+          <p class="text-xs font-medium text-muted">Dibuat oleh</p>
+          <p class="mt-2 truncate text-sm font-semibold text-foreground">
             {{ classInfo.creatorName || "–" }}
           </p>
           <p class="mt-0.5 text-[11px] text-[#9ca3af]">
@@ -277,15 +277,15 @@ onMounted(() => {
 
       <!-- Tab switcher -->
       <div
-        class="mt-6 flex gap-1 rounded-xl border border-[#ebe7df] bg-white p-1 shadow-sm w-fit"
+        class="mt-6 flex gap-1 rounded-xl border border-border bg-white p-1 shadow-sm w-fit"
       >
         <button
           type="button"
           class="rounded-lg px-4 py-2 text-sm font-medium transition"
           :class="
             activeTab === 'members'
-              ? 'bg-[#eef2ff] text-[#4f46e5]'
-              : 'text-[#6b7280] hover:text-[#374151]'
+              ? 'bg-[#eef2ff] text-brand'
+              : 'text-muted hover:text-[#374151]'
           "
           @click="activeTab = 'members'"
         >
@@ -294,7 +294,7 @@ onMounted(() => {
             Anggota Kelas
             <span
               v-if="!enrollmentsLoading"
-              class="rounded-full bg-[#f3f1ec] px-2 py-0.5 text-[11px] font-semibold text-[#6b7280]"
+              class="rounded-full bg-[#f3f1ec] px-2 py-0.5 text-[11px] font-semibold text-muted"
             >
               {{ enrollments.length }}
             </span>
@@ -305,8 +305,8 @@ onMounted(() => {
           class="rounded-lg px-4 py-2 text-sm font-medium transition"
           :class="
             activeTab === 'subjects'
-              ? 'bg-[#eef2ff] text-[#4f46e5]'
-              : 'text-[#6b7280] hover:text-[#374151]'
+              ? 'bg-[#eef2ff] text-brand'
+              : 'text-muted hover:text-[#374151]'
           "
           @click="activeTab = 'subjects'"
         >
@@ -315,7 +315,7 @@ onMounted(() => {
             Penugasan Mengajar
             <span
               v-if="!subjectClassesLoading"
-              class="rounded-full bg-[#f3f1ec] px-2 py-0.5 text-[11px] font-semibold text-[#6b7280]"
+              class="rounded-full bg-[#f3f1ec] px-2 py-0.5 text-[11px] font-semibold text-muted"
             >
               {{ subjectClasses.length }}
             </span>
@@ -325,13 +325,13 @@ onMounted(() => {
 
       <!-- Tab: Anggota Kelas -->
       <template v-if="activeTab === 'members'">
-        <div class="mt-4 rounded-xl border border-[#ebe7df] bg-white shadow-sm">
+        <div class="mt-4 rounded-xl border border-border bg-white shadow-sm">
           <div
-            class="flex flex-col gap-4 border-b border-[#ebe7df] p-5 sm:flex-row sm:items-center sm:justify-between"
+            class="flex flex-col gap-4 border-b border-border p-5 sm:flex-row sm:items-center sm:justify-between"
           >
             <div>
               <p class="eyebrow-muted">Anggota kelas</p>
-              <h2 class="mt-1 text-base font-semibold text-[#171322]">
+              <h2 class="mt-1 text-base font-semibold text-foreground">
                 Siswa dan guru di kelas ini
               </h2>
             </div>
@@ -344,7 +344,7 @@ onMounted(() => {
                 v-model="memberSearch"
                 type="search"
                 placeholder="Cari nama atau email..."
-                class="w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] py-2 pl-9 pr-3 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#4f46e5] focus:bg-white"
+                class="w-full rounded-lg border border-border bg-[#fbfaf8] py-2 pl-9 pr-3 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-brand focus:bg-white"
               />
             </label>
           </div>
@@ -367,13 +367,13 @@ onMounted(() => {
                 class="mx-auto text-[#dc2626]"
                 weight="duotone"
               />
-              <h3 class="mt-3 text-sm font-semibold text-[#171322]">
+              <h3 class="mt-3 text-sm font-semibold text-foreground">
                 Gagal memuat anggota
               </h3>
-              <p class="mt-2 text-sm text-[#6b7280]">{{ enrollmentsError }}</p>
+              <p class="mt-2 text-sm text-muted">{{ enrollmentsError }}</p>
               <button
                 type="button"
-                class="mt-4 inline-flex items-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-4 py-2 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5]"
+                class="mt-4 inline-flex items-center gap-2 rounded-lg border border-border bg-white px-4 py-2 text-sm font-medium text-[#374151] transition hover:border-brand hover:text-brand"
                 @click="loadEnrollments"
               >
                 Coba lagi
@@ -388,15 +388,15 @@ onMounted(() => {
                 class="mx-auto h-7 w-7 text-[#9ca3af]"
                 weight="duotone"
               />
-              <h3 class="mt-3 text-sm font-semibold text-[#171322]">
+              <h3 class="mt-3 text-sm font-semibold text-foreground">
                 Belum ada anggota
               </h3>
-              <p class="mt-2 text-sm text-[#6b7280]">
+              <p class="mt-2 text-sm text-muted">
                 Tambahkan siswa dan guru melalui halaman Penempatan Kelas.
               </p>
               <RouterLink
                 to="/admin/enrollments"
-                class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-[#ebe7df] bg-white px-3 py-2 text-xs font-medium text-[#4f46e5] transition hover:border-[#4f46e5] hover:bg-[#eef2ff]"
+                class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-2 text-xs font-medium text-brand transition hover:border-brand hover:bg-[#eef2ff]"
               >
                 Buka Penempatan Kelas
                 <PhArrowRight :size="13" />
@@ -416,12 +416,12 @@ onMounted(() => {
                     class="flex items-center gap-3 py-3 first:pt-0"
                   >
                     <div
-                      class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#eef2ff] text-xs font-semibold text-[#4f46e5]"
+                      class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#eef2ff] text-xs font-semibold text-brand"
                     >
                       {{ (member.userFullName || "S").charAt(0).toUpperCase() }}
                     </div>
                     <div class="min-w-0 flex-1">
-                      <p class="truncate text-sm font-medium text-[#171322]">
+                      <p class="truncate text-sm font-medium text-foreground">
                         {{ member.userFullName || "Nama tidak tersedia" }}
                       </p>
                       <p class="truncate text-xs text-[#9ca3af]">
@@ -429,7 +429,7 @@ onMounted(() => {
                       </p>
                     </div>
                     <span
-                      class="rounded-lg bg-[#eef2ff] px-2 py-1 text-[11px] font-medium text-[#4f46e5]"
+                      class="rounded-lg bg-[#eef2ff] px-2 py-1 text-[11px] font-medium text-brand"
                     >
                       Siswa
                     </span>
@@ -454,7 +454,7 @@ onMounted(() => {
                       {{ (member.userFullName || "G").charAt(0).toUpperCase() }}
                     </div>
                     <div class="min-w-0 flex-1">
-                      <p class="truncate text-sm font-medium text-[#171322]">
+                      <p class="truncate text-sm font-medium text-foreground">
                         {{ member.userFullName || "Nama tidak tersedia" }}
                       </p>
                       <p class="truncate text-xs text-[#9ca3af]">
@@ -482,10 +482,10 @@ onMounted(() => {
                   class="mx-auto h-7 w-7 text-[#9ca3af]"
                   weight="duotone"
                 />
-                <h3 class="mt-3 text-sm font-semibold text-[#171322]">
+                <h3 class="mt-3 text-sm font-semibold text-foreground">
                   Tidak ada anggota yang cocok
                 </h3>
-                <p class="mt-2 text-sm text-[#6b7280]">
+                <p class="mt-2 text-sm text-muted">
                   Ubah kata kunci pencarian.
                 </p>
               </div>
@@ -496,10 +496,10 @@ onMounted(() => {
 
       <!-- Tab: Penugasan Mengajar -->
       <template v-if="activeTab === 'subjects'">
-        <div class="mt-4 rounded-xl border border-[#ebe7df] bg-white shadow-sm">
-          <div class="border-b border-[#ebe7df] p-5">
+        <div class="mt-4 rounded-xl border border-border bg-white shadow-sm">
+          <div class="border-b border-border p-5">
             <p class="eyebrow-muted">Penugasan mengajar</p>
-            <h2 class="mt-1 text-base font-semibold text-[#171322]">
+            <h2 class="mt-1 text-base font-semibold text-foreground">
               Ruang mengajar yang terdaftar di kelas ini
             </h2>
           </div>
@@ -522,15 +522,15 @@ onMounted(() => {
                 class="mx-auto text-[#dc2626]"
                 weight="duotone"
               />
-              <h3 class="mt-3 text-sm font-semibold text-[#171322]">
+              <h3 class="mt-3 text-sm font-semibold text-foreground">
                 Gagal memuat penugasan
               </h3>
-              <p class="mt-2 text-sm text-[#6b7280]">
+              <p class="mt-2 text-sm text-muted">
                 {{ subjectClassesError }}
               </p>
               <button
                 type="button"
-                class="mt-4 inline-flex items-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-4 py-2 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5]"
+                class="mt-4 inline-flex items-center gap-2 rounded-lg border border-border bg-white px-4 py-2 text-sm font-medium text-[#374151] transition hover:border-brand hover:text-brand"
                 @click="loadSubjectClasses"
               >
                 Coba lagi
@@ -545,16 +545,16 @@ onMounted(() => {
                 class="mx-auto h-7 w-7 text-[#9ca3af]"
                 weight="duotone"
               />
-              <h3 class="mt-3 text-sm font-semibold text-[#171322]">
+              <h3 class="mt-3 text-sm font-semibold text-foreground">
                 Belum ada penugasan mengajar
               </h3>
-              <p class="mt-2 text-sm text-[#6b7280]">
+              <p class="mt-2 text-sm text-muted">
                 Hubungkan guru ke mata pelajaran melalui halaman Penugasan
                 Mengajar.
               </p>
               <RouterLink
                 to="/admin/subject-classes"
-                class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-[#ebe7df] bg-white px-3 py-2 text-xs font-medium text-[#4f46e5] transition hover:border-[#4f46e5] hover:bg-[#eef2ff]"
+                class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-2 text-xs font-medium text-brand transition hover:border-brand hover:bg-[#eef2ff]"
               >
                 Buka Penugasan Mengajar
                 <PhArrowRight :size="13" />
@@ -578,10 +578,10 @@ onMounted(() => {
                   }}
                 </div>
                 <div class="min-w-0 flex-1">
-                  <p class="truncate text-sm font-semibold text-[#171322]">
+                  <p class="truncate text-sm font-semibold text-foreground">
                     {{ sc.subjectName || sc.subjectCode || "Mata pelajaran" }}
                   </p>
-                  <p class="truncate text-xs text-[#6b7280]">
+                  <p class="truncate text-xs text-muted">
                     <span class="flex items-center gap-1">
                       <PhChalkboardTeacher :size="12" />
                       {{ sc.teacherName || "Guru belum ditentukan" }}
@@ -590,7 +590,7 @@ onMounted(() => {
                 </div>
                 <span
                   v-if="sc.subjectCode"
-                  class="rounded-lg bg-[#f3f1ec] px-2 py-1 text-[11px] font-medium text-[#6b7280]"
+                  class="rounded-lg bg-[#f3f1ec] px-2 py-1 text-[11px] font-medium text-muted"
                 >
                   {{ sc.subjectCode }}
                 </span>

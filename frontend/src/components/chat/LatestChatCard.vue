@@ -120,13 +120,13 @@ function formatTime(value?: string | null) {
     :class="
       embedded
         ? 'bg-transparent'
-        : 'border border-[#ebe7df] bg-white p-4 sm:p-5'
+        : 'border border-border bg-white p-4 sm:p-5'
     "
   >
     <div class="mb-4 flex items-center justify-between gap-3">
       <RouterLink
         :to="to"
-        class="inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-[#4f46e5] transition hover:text-[#4338ca] pt-1"
+        class="inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-brand transition hover:text-[#4338ca] pt-1"
       >
         Buka chat
         <PhArrowRight :size="14" />
@@ -156,11 +156,11 @@ function formatTime(value?: string | null) {
         v-for="room in visibleRooms"
         :key="room.roomId"
         :to="to"
-        class="flex h-16 min-w-0 max-w-full overflow-hidden items-center gap-1 border-b border-[#ebe7df] bg-[#fbfaf8] transition hover:border-[#c7d2fe] hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5] focus-visible:ring-offset-2"
+        class="flex h-16 min-w-0 max-w-full overflow-hidden items-center gap-1 border-b border-border bg-[#fbfaf8] transition hover:border-[#c7d2fe] hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
       >
         <span class="min-w-0 flex-1 overflow-hidden">
           <span
-            class="block w-full overflow-hidden text-ellipsis whitespace-nowrap text-sm text-[#171322]"
+            class="block w-full overflow-hidden text-ellipsis whitespace-nowrap text-sm text-foreground"
             :class="room.unreadCount > 0 ? 'font-bold' : 'font-semibold'"
           >
             {{ roomDisplayName(room) }}
@@ -184,7 +184,7 @@ function formatTime(value?: string | null) {
           </span>
           <span
             v-if="room.unreadCount > 0"
-            class="max-w-full rounded-full bg-[#4f46e5] px-2 py-0.5 text-[10px] font-semibold text-white"
+            class="max-w-full rounded-full bg-brand px-2 py-0.5 text-[10px] font-semibold text-white"
           >
             {{ room.unreadCount }}
           </span>
@@ -193,10 +193,10 @@ function formatTime(value?: string | null) {
     </div>
 
     <div v-else class="rounded-lg p-4">
-      <p class="text-sm font-semibold text-[#171322]">
+      <p class="text-sm font-semibold text-foreground">
         Tidak ada percakapan baru
       </p>
-      <p class="mt-1 text-sm leading-6 text-[#6b7280]">
+      <p class="mt-1 text-sm leading-6 text-muted">
         Percakapan yang belum dibaca akan tampil di sini.
       </p>
     </div>

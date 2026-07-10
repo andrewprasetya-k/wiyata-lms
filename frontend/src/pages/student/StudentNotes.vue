@@ -119,7 +119,7 @@ onMounted(loadNotes);
 <template>
   <main class="min-h-screen min-w-0 flex-1 bg-[#f8f7f4]">
     <header
-      class="border-b border-[#ebe7df] bg-white px-5 py-4 sm:px-6 lg:px-8"
+      class="border-b border-border bg-white px-5 py-4 sm:px-6 lg:px-8"
     >
       <div
         class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
@@ -128,7 +128,7 @@ onMounted(loadNotes);
           <p class="text-xs font-medium uppercase tracking-wide text-[#9ca3af]">
             Ruang belajar pribadi
           </p>
-          <h1 class="mt-1 text-2xl font-medium text-[#171322]">Catatan Saya</h1>
+          <h1 class="mt-1 text-2xl font-medium text-foreground">Catatan Saya</h1>
           <p class="mt-1 text-sm leading-6 text-[#6b6475]">
             Baca kembali catatan materi yang masih tersedia di kelas aktifmu.
           </p>
@@ -143,7 +143,7 @@ onMounted(loadNotes);
       v-if="isLoading"
       class="grid min-h-[calc(100vh-116px)] lg:grid-cols-[300px_minmax(0,1fr)]"
     >
-      <div class="border-r border-[#ebe7df] bg-white p-4">
+      <div class="border-r border-border bg-white p-4">
         <div class="h-5 w-28 animate-pulse rounded bg-[#f1efeb]" />
         <div class="mt-5 space-y-3">
           <div
@@ -155,7 +155,7 @@ onMounted(loadNotes);
       </div>
       <div class="p-5 sm:p-6 lg:p-8">
         <div
-          class="mx-auto h-full min-h-120 max-w-4xl animate-pulse rounded-[22px] border border-[#ebe7df] bg-white"
+          class="mx-auto h-full min-h-120 max-w-4xl animate-pulse rounded-[22px] border border-border bg-white"
         />
       </div>
     </section>
@@ -174,14 +174,14 @@ onMounted(loadNotes);
             weight="duotone"
           />
           <div>
-            <h2 class="text-base font-medium text-[#171322]">
+            <h2 class="text-base font-medium text-foreground">
               Catatan tidak dapat dimuat
             </h2>
             <p class="mt-1 text-sm leading-6 text-[#6b6475]">
               {{ errorMessage }}
             </p>
             <button
-              class="mt-4 rounded-lg bg-[#4f46e5] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+              class="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
               type="button"
               @click="loadNotes"
             >
@@ -197,14 +197,14 @@ onMounted(loadNotes);
       class="flex min-h-[calc(100vh-116px)] items-center justify-center px-5 py-10"
     >
       <article
-        class="w-full max-w-xl rounded-[22px] border border-[#ebe7df] bg-white p-8 text-center"
+        class="w-full max-w-xl rounded-[22px] border border-border bg-white p-8 text-center"
       >
         <div
-          class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
+          class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
         >
           <PhNotebook :size="24" weight="duotone" />
         </div>
-        <h2 class="mt-4 text-base font-medium text-[#171322]">
+        <h2 class="mt-4 text-base font-medium text-foreground">
           Belum ada catatan
         </h2>
         <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#6b6475]">
@@ -212,7 +212,7 @@ onMounted(loadNotes);
           ruang belajarmu.
         </p>
         <RouterLink
-          class="mt-5 inline-flex items-center gap-2 rounded-lg bg-[#4f46e5] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+          class="mt-5 inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
           to="/student/subjects"
         >
           Buka mata pelajaran
@@ -226,10 +226,10 @@ onMounted(loadNotes);
       class="grid min-h-[calc(100vh-116px)] lg:h-[calc(100vh-116px)] lg:grid-cols-[300px_minmax(0,1fr)] lg:overflow-hidden"
     >
       <aside
-        class="min-w-0 border-b border-[#ebe7df] bg-white lg:border-b-0 lg:border-r"
+        class="min-w-0 border-b border-border bg-white lg:border-b-0 lg:border-r"
       >
         <div class="flex items-center justify-between px-4 py-3">
-          <p class="text-sm font-medium text-[#171322]">Semua catatan</p>
+          <p class="text-sm font-medium text-foreground">Semua catatan</p>
           <span class="text-xs text-[#9ca3af]">{{ notes.length }}</span>
         </div>
 
@@ -275,7 +275,7 @@ onMounted(loadNotes);
                     {{ note.subjectName || "Mata pelajaran" }}
                   </span>
                 </div>
-                <p class="mt-2 truncate text-sm font-medium text-[#171322]">
+                <p class="mt-2 truncate text-sm font-medium text-foreground">
                   {{ note.materialTitle }}
                 </p>
                 <p
@@ -298,7 +298,7 @@ onMounted(loadNotes);
       >
         <div class="mx-auto flex min-h-full w-full max-w-4xl flex-col">
           <header
-            class="flex flex-col gap-4 border-b border-[#ebe7df] pb-5 sm:flex-row sm:items-start sm:justify-between"
+            class="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-start sm:justify-between"
           >
             <div class="min-w-0">
               <div
@@ -309,7 +309,7 @@ onMounted(loadNotes);
                 <span>{{ selectedNote.className || "Kelas" }}</span>
               </div>
               <h2
-                class="mt-3 wrap-break-word text-2xl font-medium text-[#171322]"
+                class="mt-3 wrap-break-word text-2xl font-medium text-foreground"
               >
                 {{ selectedNote.materialTitle }}
               </h2>
@@ -322,7 +322,7 @@ onMounted(loadNotes);
             </div>
 
             <RouterLink
-              class="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#4f46e5] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+              class="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-brand px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#4338ca]"
               :to="`/student/subjects/${selectedNote.subjectClassId}/materials/${selectedNote.materialId}/note`"
             >
               Buka catatan
@@ -335,12 +335,12 @@ onMounted(loadNotes);
             :to="`/student/subjects/${selectedNote.subjectClassId}/materials/${selectedNote.materialId}`"
           >
             <span
-              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-[#4f46e5]"
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-brand"
             >
               <PhFileText :size="20" weight="duotone" />
             </span>
             <span class="min-w-0 flex-1">
-              <span class="block text-xs font-medium text-[#4f46e5]">
+              <span class="block text-xs font-medium text-brand">
                 Materi terkait
               </span>
               <span class="mt-1 block truncate text-sm text-[#3f3a4a]">
@@ -350,11 +350,11 @@ onMounted(loadNotes);
                 </template>
               </span>
             </span>
-            <PhArrowRight :size="16" class="shrink-0 text-[#4f46e5]" />
+            <PhArrowRight :size="16" class="shrink-0 text-brand" />
           </RouterLink>
 
           <div
-            class="mt-5 min-h-64 flex-1 rounded-[18px] border border-[#ebe7df] bg-white p-5 sm:p-6"
+            class="mt-5 min-h-64 flex-1 rounded-[18px] border border-border bg-white p-5 sm:p-6"
           >
             <p
               class="whitespace-pre-wrap wrap-break-word text-sm leading-7 text-[#3f3a4a]"
@@ -373,7 +373,7 @@ onMounted(loadNotes);
               </template>
             </span>
             <RouterLink
-              class="inline-flex items-center gap-2 font-medium text-[#4f46e5] transition hover:text-[#4338ca]"
+              class="inline-flex items-center gap-2 font-medium text-brand transition hover:text-[#4338ca]"
               :to="`/student/subjects/${selectedNote.subjectClassId}/materials/${selectedNote.materialId}`"
             >
               <PhBookOpen :size="15" />

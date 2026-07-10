@@ -24,14 +24,14 @@ const variantConfig = computed(() => {
       iconBg: "bg-[#fff7ed]",
       iconColor: "text-[#ea580c]",
       confirmClass:
-        "bg-[#4f46e5] text-white hover:bg-[#4338ca] focus-visible:ring-[#4f46e5]",
+        "bg-brand text-white hover:bg-[#4338ca] focus-visible:ring-brand",
     };
   return {
     icon: PhInfo,
     iconBg: "bg-[#eef2ff]",
-    iconColor: "text-[#4f46e5]",
+    iconColor: "text-brand",
     confirmClass:
-      "bg-[#4f46e5] text-white hover:bg-[#4338ca] focus-visible:ring-[#4f46e5]",
+      "bg-brand text-white hover:bg-[#4338ca] focus-visible:ring-brand",
   };
 });
 
@@ -137,7 +137,7 @@ onUnmounted(() => window.removeEventListener("keydown", handleKeydown));
             <!-- Title -->
             <h2
               id="confirm-dialog-title"
-              class="mt-4 text-center text-base font-semibold text-[#171322]"
+              class="mt-4 text-center text-base font-semibold text-foreground"
             >
               {{ store.options.title }}
             </h2>
@@ -146,7 +146,7 @@ onUnmounted(() => window.removeEventListener("keydown", handleKeydown));
             <p
               v-if="store.options.description"
               id="confirm-dialog-desc"
-              class="mt-2 text-center text-sm leading-6 text-[#6b7280]"
+              class="mt-2 text-center text-sm leading-6 text-muted"
             >
               {{ store.options.description }}
             </p>
@@ -158,7 +158,7 @@ onUnmounted(() => window.removeEventListener("keydown", handleKeydown));
               <button
                 ref="cancelRef"
                 type="button"
-                class="flex-1 rounded-xl border border-[#ebe7df] bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-[#d1d5db] hover:bg-[#f9f8f7] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5] focus-visible:ring-offset-2 sm:flex-none sm:min-w-22"
+                class="flex-1 rounded-xl border border-border bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-[#d1d5db] hover:bg-[#f9f8f7] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 sm:flex-none sm:min-w-22"
                 @click="store.dismiss()"
               >
                 {{ store.options.cancelLabel ?? "Batal" }}

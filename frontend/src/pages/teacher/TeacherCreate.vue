@@ -56,7 +56,7 @@ onMounted(loadSubjects);
         class="rounded-[22px] bg-[#f0e9dd] px-5 py-5 shadow-sm ring-1 ring-black/5 md:px-6"
       >
         <p class="text-sm font-medium text-[#8a6d3b]">Buat konten</p>
-        <h1 class="mt-3 text-3xl font-medium text-[#171322] md:text-4xl">
+        <h1 class="mt-3 text-3xl font-medium text-foreground md:text-4xl">
           Pilih mata pelajaran terlebih dahulu
         </h1>
         <p class="mt-3 max-w-2xl text-sm leading-6 text-[#6b6475]">
@@ -86,7 +86,7 @@ onMounted(loadSubjects);
               weight="duotone"
             />
             <div>
-              <h2 class="text-lg font-medium text-[#171322]">
+              <h2 class="text-lg font-medium text-foreground">
                 Gagal memuat mata pelajaran
               </h2>
               <p class="mt-2 text-sm leading-6 text-[#6b6475]">
@@ -95,7 +95,7 @@ onMounted(loadSubjects);
             </div>
           </div>
           <button
-            class="rounded-xl bg-[#171322] px-4 py-3 text-sm font-medium text-white"
+            class="rounded-xl bg-foreground px-4 py-3 text-sm font-medium text-white"
             type="button"
             @click="loadSubjects"
           >
@@ -110,12 +110,12 @@ onMounted(loadSubjects);
       >
         <div class="flex items-start gap-3">
           <div
-            class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
+            class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
           >
             <PhChalkboardTeacher :size="24" weight="duotone" />
           </div>
           <div>
-            <h2 class="text-lg font-medium text-[#171322]">
+            <h2 class="text-lg font-medium text-foreground">
               Belum ada mata pelajaran yang diajar
             </h2>
             <p class="mt-2 max-w-2xl text-sm leading-6 text-[#6b6475]">
@@ -143,7 +143,7 @@ onMounted(loadSubjects);
             </div>
             <span
               v-if="subject.subjectCode"
-              class="rounded-full bg-[#eef2ff] px-3 py-1 text-xs font-medium text-[#4f46e5]"
+              class="rounded-full bg-[#eef2ff] px-3 py-1 text-xs font-medium text-brand"
             >
               {{ subject.subjectCode }}
             </span>
@@ -152,7 +152,7 @@ onMounted(loadSubjects);
           <p class="mt-5 text-sm text-[#8a8494]">
             {{ subject.className || subject.classCode || "Kelas" }}
           </p>
-          <h2 class="mt-1 text-2xl font-medium text-[#171322]">
+          <h2 class="mt-1 text-2xl font-medium text-foreground">
             {{ subject.subjectName || "Mata pelajaran" }}
           </h2>
           <p
@@ -168,7 +168,7 @@ onMounted(loadSubjects);
 
           <RouterLink
             :to="createContentTarget(subject.subjectClassId)"
-            class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#171322] px-4 py-3 text-sm font-medium text-white transition hover:bg-[#2f2b3a]"
+            class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-foreground px-4 py-3 text-sm font-medium text-white transition hover:bg-[#2f2b3a]"
           >
             <PhPlusCircle :size="18" weight="duotone" />
             Buat Konten

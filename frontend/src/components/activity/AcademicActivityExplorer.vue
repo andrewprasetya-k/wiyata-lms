@@ -130,13 +130,13 @@ function selectRange(value: "today" | "7d" | "30d") {
 
 <template>
   <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
-    <header class="border-b border-[#ebe7df] bg-white">
+    <header class="border-b border-border bg-white">
       <div class="px-5 py-5 sm:px-6 lg:px-8">
         <div class="max-w-5xl">
-          <h1 class="mt-2 text-xl font-medium text-[#171322] sm:text-2xl">
+          <h1 class="mt-2 text-xl font-medium text-foreground sm:text-2xl">
             Aktivitas Akademik
           </h1>
-          <p class="mt-1 max-w-2xl text-sm leading-6 text-[#6b7280]">
+          <p class="mt-1 max-w-2xl text-sm leading-6 text-muted">
             {{ helperText }}
           </p>
         </div>
@@ -147,12 +147,12 @@ function selectRange(value: "today" | "7d" | "30d") {
       class="grid gap-4 px-5 py-5 sm:px-6 lg:px-8 lg:py-6 xl:grid-cols-[minmax(0,1fr)_300px]"
     >
       <div class="min-w-0 space-y-4">
-        <section class="rounded-xl border border-[#ebe7df] bg-white p-4 sm:p-5">
+        <section class="rounded-xl border border-border bg-white p-4 sm:p-5">
           <div
             class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"
           >
             <div class="min-w-0">
-              <p class="text-sm font-medium text-[#171322]">Filter aktivitas</p>
+              <p class="text-sm font-medium text-foreground">Filter aktivitas</p>
               <p class="mt-1 text-xs leading-5 text-[#8b8592]">
                 Pilih jenis aktivitas dan rentang waktu yang ingin dilihat.
               </p>
@@ -162,11 +162,11 @@ function selectRange(value: "today" | "7d" | "30d") {
                 v-for="range in rangeOptions"
                 :key="range.value"
                 type="button"
-                class="rounded-lg border px-3 py-1.5 text-xs font-medium transition disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5] focus-visible:ring-offset-2"
+                class="rounded-lg border px-3 py-1.5 text-xs font-medium transition disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
                 :class="
                   selectedRange === range.value
-                    ? 'border-[#4f46e5] bg-[#eef2ff] text-[#4f46e5]'
-                    : 'border-[#ebe7df] bg-white text-[#6b7280] hover:bg-[#fbfaf8]'
+                    ? 'border-brand bg-[#eef2ff] text-brand'
+                    : 'border-border bg-white text-muted hover:bg-[#fbfaf8]'
                 "
                 :aria-pressed="selectedRange === range.value"
                 :disabled="loading"
@@ -182,11 +182,11 @@ function selectRange(value: "today" | "7d" | "30d") {
               v-for="filter in filters"
               :key="filter.value"
               type="button"
-              class="rounded-full border px-3 py-1.5 text-xs font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5] focus-visible:ring-offset-2"
+              class="rounded-full border px-3 py-1.5 text-xs font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
               :class="
                 selectedFilter === filter.value
-                  ? 'border-[#4f46e5] bg-[#eef2ff] text-[#4f46e5]'
-                  : 'border-[#ebe7df] bg-white text-[#6b7280] hover:bg-[#fbfaf8]'
+                  ? 'border-brand bg-[#eef2ff] text-brand'
+                  : 'border-border bg-white text-muted hover:bg-[#fbfaf8]'
               "
               :aria-pressed="selectedFilter === filter.value"
               @click="selectedFilter = filter.value"
@@ -198,13 +198,13 @@ function selectRange(value: "today" | "7d" | "30d") {
 
         <section
           v-if="loading"
-          class="space-y-3 rounded-xl border border-[#ebe7df] bg-white p-4 sm:p-5"
+          class="space-y-3 rounded-xl border border-border bg-white p-4 sm:p-5"
           aria-label="Memuat aktivitas akademik"
         >
           <div
             v-for="item in 5"
             :key="item"
-            class="flex gap-3 rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-4"
+            class="flex gap-3 rounded-lg border border-border bg-[#fbfaf8] p-4"
           >
             <div class="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-[#e5e7eb]" />
             <div class="min-w-0 flex-1 space-y-2">
@@ -229,7 +229,7 @@ function selectRange(value: "today" | "7d" | "30d") {
                 weight="duotone"
               />
               <div class="min-w-0">
-                <h2 class="text-sm font-medium text-[#171322]">
+                <h2 class="text-sm font-medium text-foreground">
                   Aktivitas tidak dapat dimuat
                 </h2>
                 <p class="mt-1 text-sm leading-6 text-[#7a7385]">
@@ -238,7 +238,7 @@ function selectRange(value: "today" | "7d" | "30d") {
               </div>
             </div>
             <button
-              class="rounded-lg bg-[#4f46e5] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5] focus-visible:ring-offset-2"
+              class="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
               type="button"
               :disabled="loading"
               @click="loadActivities"
@@ -256,10 +256,10 @@ function selectRange(value: "today" | "7d" | "30d") {
             class="mx-auto h-7 w-7 text-[#9ca3af]"
             weight="duotone"
           />
-          <h2 class="mt-3 text-sm font-semibold text-[#171322]">
+          <h2 class="mt-3 text-sm font-semibold text-foreground">
             {{ emptyMessage }}
           </h2>
-          <p class="mt-2 text-sm leading-6 text-[#6b7280]">
+          <p class="mt-2 text-sm leading-6 text-muted">
             Coba ubah rentang waktu atau filter untuk melihat aktivitas lain.
           </p>
         </section>
@@ -268,24 +268,24 @@ function selectRange(value: "today" | "7d" | "30d") {
       </div>
 
       <aside class="min-w-0 space-y-3">
-        <section class="rounded-xl border border-[#ebe7df] bg-white p-4 sm:p-5">
-          <h2 class="text-sm font-medium text-[#171322]">Ringkasan</h2>
+        <section class="rounded-xl border border-border bg-white p-4 sm:p-5">
+          <h2 class="text-sm font-medium text-foreground">Ringkasan</h2>
           <dl class="mt-4 space-y-3 text-sm">
             <div class="flex items-center justify-between gap-3">
               <dt class="text-[#7a7385]">Total aktivitas</dt>
-              <dd class="font-medium text-[#171322]">
+              <dd class="font-medium text-foreground">
                 {{ filteredActivities.length }}
               </dd>
             </div>
             <div class="flex items-center justify-between gap-3">
               <dt class="text-[#7a7385]">Prioritas</dt>
-              <dd class="font-medium text-[#171322]">
+              <dd class="font-medium text-foreground">
                 {{ highPriorityCount }}
               </dd>
             </div>
-            <div class="border-t border-[#ebe7df] pt-3">
+            <div class="border-t border-border pt-3">
               <dt class="text-xs text-[#8b8592]">Rentang</dt>
-              <dd class="mt-1 text-sm font-medium text-[#171322]">
+              <dd class="mt-1 text-sm font-medium text-foreground">
                 {{ dateRange.label }}
               </dd>
             </div>

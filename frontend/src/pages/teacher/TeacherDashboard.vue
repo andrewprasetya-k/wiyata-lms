@@ -67,10 +67,10 @@ const statCards = computed(() => [
     colorIcon: hasPendingReviews.value
       ? "bg-[#fff7ed] text-[#ea580c]"
       : "bg-[#f0fdf4] text-[#059669]",
-    colorValue: hasPendingReviews.value ? "text-[#ea580c]" : "text-[#171322]",
+    colorValue: hasPendingReviews.value ? "text-[#ea580c]" : "text-foreground",
     border: hasPendingReviews.value
       ? "border-[#fed7aa] hover:border-[#fb923c]"
-      : "border-[#ebe7df] hover:border-[#bbf7d0]",
+      : "border-border hover:border-[#bbf7d0]",
   },
   {
     label: "Total Siswa",
@@ -79,9 +79,9 @@ const statCards = computed(() => [
     icon: PhUsers,
     urgent: false,
     to: null,
-    colorIcon: "bg-[#eef2ff] text-[#4f46e5]",
-    colorValue: "text-[#171322]",
-    border: "border-[#ebe7df]",
+    colorIcon: "bg-[#eef2ff] text-brand",
+    colorValue: "text-foreground",
+    border: "border-border",
   },
   {
     label: "Pengumpulan Tugas",
@@ -93,8 +93,8 @@ const statCards = computed(() => [
     urgent: false,
     to: null,
     colorIcon: "bg-[#f0fdf4] text-[#16a34a]",
-    colorValue: "text-[#171322]",
-    border: "border-[#ebe7df]",
+    colorValue: "text-foreground",
+    border: "border-border",
   },
 ]);
 
@@ -144,12 +144,12 @@ onMounted(() => {
     <!-- Main content -->
     <section class="min-w-0">
       <!-- Header -->
-      <header class="border-b border-[#ebe7df] bg-white">
+      <header class="border-b border-border bg-white">
         <div
           class="flex min-w-0 flex-col gap-3 px-5 py-5 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8"
         >
           <div class="min-w-0">
-            <h1 class="mt-1 text-2xl font-semibold text-[#171322] sm:text-3xl">
+            <h1 class="mt-1 text-2xl font-semibold text-foreground sm:text-3xl">
               Selamat mengajar, {{ firstName }}
             </h1>
           </div>
@@ -164,14 +164,14 @@ onMounted(() => {
           class="flex min-h-[55vh] items-center justify-center"
         >
           <article
-            class="w-full max-w-xl rounded-xl border border-[#ebe7df] bg-white shadow-sm p-8 text-center"
+            class="w-full max-w-xl rounded-xl border border-border bg-white shadow-sm p-8 text-center"
           >
             <div
               class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#fff7ed] text-[#ea580c]"
             >
               <PhWarningCircle :size="24" weight="duotone" />
             </div>
-            <h2 class="mt-3 text-lg font-medium text-[#171322]">
+            <h2 class="mt-3 text-lg font-medium text-foreground">
               Konteks guru belum tersedia
             </h2>
             <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#7a7385]">
@@ -188,7 +188,7 @@ onMounted(() => {
               <div
                 v-for="i in 3"
                 :key="i"
-                class="h-28 animate-pulse rounded-xl border border-[#ebe7df] bg-white shadow-sm"
+                class="h-28 animate-pulse rounded-xl border border-border bg-white shadow-sm"
               />
             </template>
             <template v-else>
@@ -213,13 +213,13 @@ onMounted(() => {
                   <PhArrowRight
                     v-if="card.to"
                     :size="15"
-                    class="mt-1 shrink-0 text-[#d1d5db] transition group-hover:translate-x-0.5 group-hover:text-[#4f46e5]"
+                    class="mt-1 shrink-0 text-[#d1d5db] transition group-hover:translate-x-0.5 group-hover:text-brand"
                   />
                 </div>
                 <p class="mt-3 text-2xl font-semibold" :class="card.colorValue">
                   {{ card.value }}
                 </p>
-                <p class="mt-0.5 text-sm font-medium text-[#171322]">
+                <p class="mt-0.5 text-sm font-medium text-foreground">
                   {{ card.label }}
                 </p>
                 <p class="mt-1 text-xs leading-5 text-[#8a8494]">
@@ -266,14 +266,14 @@ onMounted(() => {
                 weight="duotone"
               />
               <div>
-                <p class="text-sm font-medium text-[#171322]">
+                <p class="text-sm font-medium text-foreground">
                   Dashboard tidak dapat dimuat
                 </p>
                 <p class="mt-1 text-sm leading-6 text-[#7a7385]">
                   {{ errorMessage }}
                 </p>
                 <button
-                  class="mt-3 rounded-lg bg-[#4f46e5] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+                  class="mt-3 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
                   type="button"
                   @click="loadDashboard"
                 >
@@ -285,20 +285,20 @@ onMounted(() => {
 
           <!-- Class performance -->
           <section
-            class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5"
+            class="rounded-xl border border-border bg-white shadow-sm p-5"
           >
             <div class="mb-4 flex items-center justify-between gap-3">
               <div>
-                <h2 class="text-sm font-semibold text-[#171322]">
+                <h2 class="text-sm font-semibold text-foreground">
                   Kelas dan Mata Pelajaran
                 </h2>
-                <p class="mt-0.5 text-xs text-[#6b7280]">
+                <p class="mt-0.5 text-xs text-muted">
                   Performa dari kelas yang sedang Anda ajar.
                 </p>
               </div>
               <RouterLink
                 to="/teacher/subjects"
-                class="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-[#4f46e5] transition hover:text-[#4338ca]"
+                class="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-brand transition hover:text-[#4338ca]"
               >
                 Lihat semua
                 <PhArrowRight :size="13" />
@@ -336,21 +336,21 @@ onMounted(() => {
                     <PhBookOpen :size="18" weight="duotone" />
                   </div>
                   <div class="min-w-0 flex-1">
-                    <p class="truncate text-sm font-semibold text-[#171322]">
+                    <p class="truncate text-sm font-semibold text-foreground">
                       {{ item.subjectName }}
                     </p>
-                    <p class="mt-0.5 truncate text-xs text-[#6b7280]">
+                    <p class="mt-0.5 truncate text-xs text-muted">
                       {{ item.className }}
                     </p>
                   </div>
                 </div>
 
                 <dl
-                  class="mt-4 grid grid-cols-3 gap-2 border-t border-[#ebe7df] pt-3 text-xs"
+                  class="mt-4 grid grid-cols-3 gap-2 border-t border-border pt-3 text-xs"
                 >
                   <div>
                     <dt class="text-[#9ca3af]">Siswa</dt>
-                    <dd class="mt-1 font-semibold text-[#171322]">
+                    <dd class="mt-1 font-semibold text-foreground">
                       {{ item.totalStudents }}
                     </dd>
                   </div>
@@ -371,7 +371,7 @@ onMounted(() => {
                   </div>
                   <div>
                     <dt class="text-[#9ca3af]">Rata-rata</dt>
-                    <dd class="mt-1 font-semibold text-[#171322]">
+                    <dd class="mt-1 font-semibold text-foreground">
                       {{ item.averageScore.toFixed(1) }}
                     </dd>
                   </div>
@@ -384,16 +384,16 @@ onMounted(() => {
                 class="mx-auto h-7 w-7 text-[#d1d5db]"
                 weight="duotone"
               />
-              <p class="mt-3 text-sm font-semibold text-[#171322]">
+              <p class="mt-3 text-sm font-semibold text-foreground">
                 Belum ada ringkasan kelas
               </p>
-              <p class="mt-1 text-xs leading-5 text-[#6b7280]">
+              <p class="mt-1 text-xs leading-5 text-muted">
                 Ringkasan akan tampil setelah kamu dihubungkan ke kelas aktif
                 dan siswa mulai beraktivitas.
               </p>
               <RouterLink
                 to="/teacher/subjects"
-                class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-[#ebe7df] bg-white px-3 py-2 text-xs font-medium text-[#4f46e5] transition hover:border-[#4f46e5] hover:bg-[#eef2ff]"
+                class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-2 text-xs font-medium text-brand transition hover:border-brand hover:bg-[#eef2ff]"
               >
                 Lihat mata pelajaran
                 <PhArrowRight :size="13" />
@@ -406,7 +406,7 @@ onMounted(() => {
 
     <!-- Right sidebar -->
     <aside
-      class="min-w-0 border-t border-[#ebe7df] bg-[#f8f7f4] xl:sticky xl:top-0 xl:h-dvh xl:min-h-0 xl:overflow-y-auto xl:border-l xl:border-t-0 xl:bg-white"
+      class="min-w-0 border-t border-border bg-[#f8f7f4] xl:sticky xl:top-0 xl:h-dvh xl:min-h-0 xl:overflow-y-auto xl:border-l xl:border-t-0 xl:bg-white"
     >
       <div class="flex flex-col gap-4 p-5">
         <AcademicActivityCard

@@ -205,7 +205,7 @@ function isSameContext(
     <button
       ref="triggerEl"
       type="button"
-      class="flex items-center gap-2.5 rounded-xl border border-[#ebe7df] bg-[#fbfaf8] px-2.5 py-2 text-left transition hover:border-[#d8d2c6] hover:bg-[#f3f1ec] focus:outline-none focus:ring-2 focus:ring-[#c7d2fe] focus:ring-offset-2 focus:ring-offset-white disabled:cursor-default disabled:opacity-80"
+      class="flex items-center gap-2.5 rounded-xl border border-border bg-[#fbfaf8] px-2.5 py-2 text-left transition hover:border-[#d8d2c6] hover:bg-[#f3f1ec] focus:outline-none focus:ring-2 focus:ring-[#c7d2fe] focus:ring-offset-2 focus:ring-offset-white disabled:cursor-default disabled:opacity-80"
       :class="isOpen ? 'border-[#c7d2fe] bg-[#eef2ff]' : ''"
       :disabled="!hasMultipleContexts || isSwitching"
       :aria-haspopup="hasMultipleContexts ? 'menu' : undefined"
@@ -243,10 +243,10 @@ function isSameContext(
         v-if="isOpen"
         :id="menuId"
         role="menu"
-        class="absolute left-0 top-full z-50 mt-1.5 w-72 rounded-xl border border-[#ebe7df] bg-white p-2 text-left shadow-xl shadow-[#2f2b3a]/10"
+        class="absolute left-0 top-full z-50 mt-1.5 w-72 rounded-xl border border-border bg-white p-2 text-left shadow-xl shadow-[#2f2b3a]/10"
         aria-label="Pilih konteks sekolah dan peran"
       >
-        <div class="border-b border-[#ebe7df] px-3 py-2">
+        <div class="border-b border-border px-3 py-2">
           <p
             class="truncate text-sm font-semibold text-[#2f2b3a]"
             :title="activeDescription.title"
@@ -298,7 +298,7 @@ function isSameContext(
                 <PhCheck
                   v-if="option.isActive"
                   :size="16"
-                  class="shrink-0 text-[#4f46e5]"
+                  class="shrink-0 text-brand"
                 />
               </button>
             </div>
@@ -306,7 +306,7 @@ function isSameContext(
 
           <section
             v-if="platformContext"
-            class="mt-2 border-t border-[#ebe7df] pt-2"
+            class="mt-2 border-t border-border pt-2"
           >
             <p
               class="px-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#9b9589]"
@@ -322,7 +322,7 @@ function isSameContext(
               @click="selectContext(platformContext)"
             >
               <span
-                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#eef2ff] text-[#4f46e5]"
+                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#eef2ff] text-brand"
               >
                 <PhBuildings :size="17" />
               </span>
@@ -335,7 +335,7 @@ function isSameContext(
               <PhCheck
                 v-if="isPlatformActive"
                 :size="16"
-                class="shrink-0 text-[#4f46e5]"
+                class="shrink-0 text-brand"
               />
             </button>
           </section>

@@ -21,7 +21,7 @@ const overviewCards = [
     description:
       "Pantau identitas pengguna lintas sekolah dan siapkan akun awal untuk kebutuhan platform.",
     icon: PhUsers,
-    tone: "bg-[#eef2ff] text-[#4f46e5]",
+    tone: "bg-[#eef2ff] text-brand",
   },
   {
     title: "Pengaturan Tenant",
@@ -35,7 +35,7 @@ const overviewCards = [
     description:
       "Super Admin menjaga akses platform. Operasional akademik tetap berada di area Admin Sekolah.",
     icon: PhShieldCheck,
-    tone: "bg-[#f3f1ec] text-[#6b7280]",
+    tone: "bg-[#f3f1ec] text-muted",
   },
 ];
 
@@ -71,7 +71,7 @@ const quickActions = [
 
 <template>
   <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
-    <header class="border-b border-[#ebe7df] bg-white">
+    <header class="border-b border-border bg-white">
       <div
         class="flex min-w-0 flex-col gap-3 px-5 py-5 sm:px-6 lg:flex-row lg:items-end lg:justify-between lg:px-8"
       >
@@ -81,10 +81,10 @@ const quickActions = [
           >
             Super Admin
           </p>
-          <h1 class="mt-2 text-2xl font-semibold text-[#171322] sm:text-3xl">
+          <h1 class="mt-2 text-2xl font-semibold text-foreground sm:text-3xl">
             Pusat Platform Wiyata
           </h1>
-          <p class="mt-2 max-w-3xl text-sm leading-6 text-[#6b7280]">
+          <p class="mt-2 max-w-3xl text-sm leading-6 text-muted">
             Kelola kesiapan tenant sekolah dan akun global. Pengaturan akademik,
             kelas, konten, dan penilaian tetap berada di area Admin Sekolah.
           </p>
@@ -104,17 +104,17 @@ const quickActions = [
     >
       <div class="flex min-w-0 flex-col gap-6">
         <section
-          class="rounded-xl border border-[#ebe7df] bg-white p-5 shadow-sm"
+          class="rounded-xl border border-border bg-white p-5 shadow-sm"
         >
           <p
             class="eyebrow"
           >
             Pusat platform
           </p>
-          <h2 class="mt-2 text-xl font-semibold text-[#171322]">
+          <h2 class="mt-2 text-xl font-semibold text-foreground">
             Ruang kerja tingkat platform
           </h2>
-          <p class="mt-2 max-w-3xl text-sm leading-6 text-[#6b7280]">
+          <p class="mt-2 max-w-3xl text-sm leading-6 text-muted">
             Halaman ini adalah ringkasan statis untuk orientasi Super Admin.
             Tidak ada statistik tanpa sumber data operasional yang ditampilkan.
           </p>
@@ -124,7 +124,7 @@ const quickActions = [
           <article
             v-for="item in overviewCards"
             :key="item.title"
-            class="rounded-xl border border-[#ebe7df] bg-white p-4 shadow-sm"
+            class="rounded-xl border border-border bg-white p-4 shadow-sm"
           >
             <div
               class="flex h-10 w-10 items-center justify-center rounded-xl"
@@ -132,10 +132,10 @@ const quickActions = [
             >
               <component :is="item.icon" :size="20" weight="duotone" />
             </div>
-            <h3 class="mt-4 text-sm font-semibold text-[#171322]">
+            <h3 class="mt-4 text-sm font-semibold text-foreground">
               {{ item.title }}
             </h3>
-            <p class="mt-2 text-xs leading-5 text-[#6b7280]">
+            <p class="mt-2 text-xs leading-5 text-muted">
               {{ item.description }}
             </p>
           </article>
@@ -145,14 +145,14 @@ const quickActions = [
           class="grid gap-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]"
         >
           <article
-            class="rounded-xl border border-[#ebe7df] bg-white p-5 shadow-sm"
+            class="rounded-xl border border-border bg-white p-5 shadow-sm"
           >
             <div class="flex items-start justify-between gap-4">
               <div class="min-w-0">
-                <p class="text-sm font-semibold text-[#171322]">
+                <p class="text-sm font-semibold text-foreground">
                   Alur pengaturan awal tenant
                 </p>
-                <p class="mt-1 text-xs leading-5 text-[#6b7280]">
+                <p class="mt-1 text-xs leading-5 text-muted">
                   Urutan kerja aman sebelum Admin Sekolah mulai mengelola data
                   akademik.
                 </p>
@@ -183,12 +183,12 @@ const quickActions = [
           </article>
 
           <article
-            class="rounded-xl border border-[#ebe7df] bg-white p-5 shadow-sm"
+            class="rounded-xl border border-border bg-white p-5 shadow-sm"
           >
-            <p class="text-sm font-semibold text-[#171322]">
+            <p class="text-sm font-semibold text-foreground">
               Batas tanggung jawab
             </p>
-            <p class="mt-2 text-sm leading-6 text-[#6b7280]">
+            <p class="mt-2 text-sm leading-6 text-muted">
               Super Admin mengatur platform, tenant sekolah, dan akun global.
               Pengaturan dan operasional akademik setiap sekolah tetap berada di
               area Admin Sekolah.
@@ -207,10 +207,10 @@ const quickActions = [
 
       <aside class="flex min-w-0 flex-col gap-5">
         <section
-          class="rounded-xl border border-[#ebe7df] bg-white p-5 shadow-sm"
+          class="rounded-xl border border-border bg-white p-5 shadow-sm"
         >
-          <p class="text-sm font-semibold text-[#171322]">Aksi cepat</p>
-          <p class="mt-1 text-xs leading-5 text-[#6b7280]">
+          <p class="text-sm font-semibold text-foreground">Aksi cepat</p>
+          <p class="mt-1 text-xs leading-5 text-muted">
             Semua tautan memakai halaman Super Admin yang sudah tersedia.
           </p>
 
@@ -227,10 +227,10 @@ const quickActions = [
                 <component :is="item.icon" :size="20" weight="duotone" />
               </span>
               <span class="min-w-0 flex-1">
-                <span class="block text-sm font-semibold text-[#171322]">
+                <span class="block text-sm font-semibold text-foreground">
                   {{ item.title }}
                 </span>
-                <span class="mt-1 block text-xs leading-5 text-[#6b7280]">
+                <span class="mt-1 block text-xs leading-5 text-muted">
                   {{ item.description }}
                 </span>
               </span>
@@ -240,28 +240,28 @@ const quickActions = [
         </section>
 
         <section
-          class="rounded-xl border border-[#ebe7df] bg-white p-5 shadow-sm"
+          class="rounded-xl border border-border bg-white p-5 shadow-sm"
         >
-          <p class="text-sm font-semibold text-[#171322]">
+          <p class="text-sm font-semibold text-foreground">
             Prinsip akses platform
           </p>
           <div class="mt-4 space-y-3">
             <div class="flex gap-3">
               <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-[#ea580c]" />
-              <p class="text-xs leading-5 text-[#6b7280]">
+              <p class="text-xs leading-5 text-muted">
                 Tidak ada operasi akademik sekolah dari dashboard ini.
               </p>
             </div>
             <div class="flex gap-3">
-              <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-[#4f46e5]" />
-              <p class="text-xs leading-5 text-[#6b7280]">
+              <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-brand" />
+              <p class="text-xs leading-5 text-muted">
                 Tidak ada angka atau status langsung yang dibuat tanpa sumber
                 data nyata.
               </p>
             </div>
             <div class="flex gap-3">
               <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-[#027a48]" />
-              <p class="text-xs leading-5 text-[#6b7280]">
+              <p class="text-xs leading-5 text-muted">
                 Tindakan destruktif platform tidak ditampilkan pada ringkasan
                 ini.
               </p>

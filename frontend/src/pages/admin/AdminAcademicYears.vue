@@ -610,15 +610,15 @@ watch(selectedWeightSubjectId, () => {
 
 <template>
   <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
-    <header class="border-b border-[#ebe7df] bg-white">
+    <header class="border-b border-border bg-white">
       <div
         class="flex min-w-0 flex-col gap-3 px-5 py-5 sm:px-6 lg:flex-row lg:items-end lg:justify-between lg:px-8"
       >
         <div class="min-w-0">
-          <h1 class="mt-2 text-2xl font-semibold text-[#171322] sm:text-3xl">
+          <h1 class="mt-2 text-2xl font-semibold text-foreground sm:text-3xl">
             Struktur Akademik
           </h1>
-          <p class="mt-2 max-w-3xl text-sm leading-6 text-[#6b7280]">
+          <p class="mt-2 max-w-3xl text-sm leading-6 text-muted">
             Kelola tahun ajaran, semester, mata pelajaran, kategori tugas, dan
             bobot penilaian sebagai dasar operasional akademik sekolah.
           </p>
@@ -631,7 +631,7 @@ watch(selectedWeightSubjectId, () => {
             {{ currentSchool.schoolName || "Sekolah belum tersedia" }}
           </span>
           <span
-            class="rounded-lg bg-[#f3f1ec] px-3 py-2 font-medium text-[#6b7280]"
+            class="rounded-lg bg-[#f3f1ec] px-3 py-2 font-medium text-muted"
           >
             {{ currentSchool.schoolCode || "Kode belum tersedia" }}
           </span>
@@ -650,11 +650,11 @@ watch(selectedWeightSubjectId, () => {
         akses sekolah yang valid.
       </div>
 
-      <div class="flex gap-1 self-start rounded-xl border border-[#ebe7df] bg-[#f3f1ec] p-1">
+      <div class="flex gap-1 self-start rounded-xl border border-border bg-[#f3f1ec] p-1">
         <button
           type="button"
           class="rounded-lg px-4 py-2 text-sm font-medium transition"
-          :class="activeTab === 'periode' ? 'bg-white text-[#171322] shadow-sm' : 'text-[#6b7280] hover:text-[#374151]'"
+          :class="activeTab === 'periode' ? 'bg-white text-foreground shadow-sm' : 'text-muted hover:text-[#374151]'"
           @click="switchTab('periode')"
         >
           Periode Akademik
@@ -662,7 +662,7 @@ watch(selectedWeightSubjectId, () => {
         <button
           type="button"
           class="rounded-lg px-4 py-2 text-sm font-medium transition"
-          :class="activeTab === 'mapel' ? 'bg-white text-[#171322] shadow-sm' : 'text-[#6b7280] hover:text-[#374151]'"
+          :class="activeTab === 'mapel' ? 'bg-white text-foreground shadow-sm' : 'text-muted hover:text-[#374151]'"
           @click="switchTab('mapel')"
         >
           Mata Pelajaran
@@ -672,7 +672,7 @@ watch(selectedWeightSubjectId, () => {
       <template v-if="activeTab === 'periode'">
       <section class="grid gap-5 lg:grid-cols-2">
         <article
-          class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5"
+          class="rounded-xl border border-border bg-white shadow-sm p-5"
         >
           <div class="flex items-start justify-between gap-4">
             <div class="min-w-0">
@@ -681,10 +681,10 @@ watch(selectedWeightSubjectId, () => {
               >
                 Tahun ajaran
               </p>
-              <h2 class="mt-2 text-xl font-semibold text-[#171322]">
+              <h2 class="mt-2 text-xl font-semibold text-foreground">
                 Tahun ajaran
               </h2>
-              <p class="mt-2 text-sm leading-6 text-[#6b7280]">
+              <p class="mt-2 text-sm leading-6 text-muted">
                 Buka atau tutup periode akademik yang digunakan oleh semester
                 dan kelas.
               </p>
@@ -704,7 +704,7 @@ watch(selectedWeightSubjectId, () => {
               v-model="academicYearForm.academicYearName"
               type="text"
               placeholder="Contoh: 2026/2027"
-              class="min-w-0 flex-1 rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+              class="min-w-0 flex-1 rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
             />
             <button
               type="submit"
@@ -734,8 +734,8 @@ watch(selectedWeightSubjectId, () => {
               class="rounded-lg border border-dashed border-[#d1d5db] bg-[#fafafa] px-4 py-8 text-center"
             >
               <PhCalendarBlank class="mx-auto h-7 w-7 text-[#9ca3af]" weight="duotone" />
-              <p class="mt-3 text-sm font-semibold text-[#171322]">Belum ada tahun ajaran</p>
-              <p class="mt-1 text-sm text-[#6b7280]">Buat tahun ajaran pertama menggunakan form di atas.</p>
+              <p class="mt-3 text-sm font-semibold text-foreground">Belum ada tahun ajaran</p>
+              <p class="mt-1 text-sm text-muted">Buat tahun ajaran pertama menggunakan form di atas.</p>
             </div>
 
             <article
@@ -748,7 +748,7 @@ watch(selectedWeightSubjectId, () => {
               >
                 <div class="min-w-0">
                   <div class="flex flex-wrap items-center gap-2">
-                    <h3 class="truncate text-base font-semibold text-[#171322]">
+                    <h3 class="truncate text-base font-semibold text-foreground">
                       {{ year.academicYearName }}
                     </h3>
                     <span
@@ -756,13 +756,13 @@ watch(selectedWeightSubjectId, () => {
                       :class="
                         year.isActive
                           ? 'bg-[#ecfdf3] text-[#027a48]'
-                          : 'bg-[#f3f1ec] text-[#6b7280]'
+                          : 'bg-[#f3f1ec] text-muted'
                       "
                     >
                       {{ year.isActive ? "Aktif" : "Nonaktif" }}
                     </span>
                   </div>
-                  <p class="mt-2 text-sm text-[#6b7280]">
+                  <p class="mt-2 text-sm text-muted">
                     {{ year.schoolCode || currentSchool.schoolCode }} • dibuat
                     {{ formatDateTime(year.createdAt) }}
                   </p>
@@ -770,7 +770,7 @@ watch(selectedWeightSubjectId, () => {
 
                 <button
                   type="button"
-                  class="inline-flex items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60"
+                  class="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
                   :disabled="isAcademicYearActionPending(year.academicYearId)"
                   @click="toggleAcademicYear(year)"
                 >
@@ -784,7 +784,7 @@ watch(selectedWeightSubjectId, () => {
         </article>
 
         <article
-          class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5"
+          class="rounded-xl border border-border bg-white shadow-sm p-5"
         >
           <div class="flex items-start justify-between gap-4">
             <div class="min-w-0">
@@ -793,10 +793,10 @@ watch(selectedWeightSubjectId, () => {
               >
                 Semester
               </p>
-              <h2 class="mt-2 text-xl font-semibold text-[#171322]">
+              <h2 class="mt-2 text-xl font-semibold text-foreground">
                 Semester
               </h2>
-              <p class="mt-2 text-sm leading-6 text-[#6b7280]">
+              <p class="mt-2 text-sm leading-6 text-muted">
                 Pilih tahun ajaran, lalu buat atau aktifkan semester.
               </p>
             </div>
@@ -811,7 +811,7 @@ watch(selectedWeightSubjectId, () => {
             Tahun ajaran
             <select
               v-model="selectedAcademicYearId"
-              class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-[#171322] outline-none transition focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+              class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-foreground outline-none transition focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
               @change="loadTerms"
             >
               <option value="" disabled>Pilih tahun ajaran</option>
@@ -833,7 +833,7 @@ watch(selectedWeightSubjectId, () => {
               v-model="termForm.termName"
               type="text"
               placeholder="Contoh: Semester Ganjil"
-              class="min-w-0 flex-1 rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+              class="min-w-0 flex-1 rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
             />
             <button
               type="submit"
@@ -862,16 +862,16 @@ watch(selectedWeightSubjectId, () => {
               class="rounded-lg border border-dashed border-[#d1d5db] bg-[#fafafa] px-4 py-8 text-center"
             >
               <PhCalendarBlank class="mx-auto h-7 w-7 text-[#9ca3af]" weight="duotone" />
-              <p class="mt-3 text-sm font-semibold text-[#171322]">Pilih tahun ajaran</p>
-              <p class="mt-1 text-sm text-[#6b7280]">Pilih tahun ajaran di atas untuk melihat dan mengelola semester.</p>
+              <p class="mt-3 text-sm font-semibold text-foreground">Pilih tahun ajaran</p>
+              <p class="mt-1 text-sm text-muted">Pilih tahun ajaran di atas untuk melihat dan mengelola semester.</p>
             </div>
             <div
               v-else-if="terms.length === 0"
               class="rounded-lg border border-dashed border-[#d1d5db] bg-[#fafafa] px-4 py-8 text-center"
             >
               <PhCalendarBlank class="mx-auto h-7 w-7 text-[#9ca3af]" weight="duotone" />
-              <p class="mt-3 text-sm font-semibold text-[#171322]">Belum ada semester</p>
-              <p class="mt-1 text-sm text-[#6b7280]">Buat semester pertama untuk tahun ajaran ini menggunakan form di atas.</p>
+              <p class="mt-3 text-sm font-semibold text-foreground">Belum ada semester</p>
+              <p class="mt-1 text-sm text-muted">Buat semester pertama untuk tahun ajaran ini menggunakan form di atas.</p>
             </div>
 
             <article
@@ -884,7 +884,7 @@ watch(selectedWeightSubjectId, () => {
               >
                 <div class="min-w-0">
                   <div class="flex flex-wrap items-center gap-2">
-                    <h3 class="truncate text-base font-semibold text-[#171322]">
+                    <h3 class="truncate text-base font-semibold text-foreground">
                       {{ term.termName }}
                     </h3>
                     <span
@@ -892,13 +892,13 @@ watch(selectedWeightSubjectId, () => {
                       :class="
                         term.isActive
                           ? 'bg-[#ecfdf3] text-[#027a48]'
-                          : 'bg-[#f3f1ec] text-[#6b7280]'
+                          : 'bg-[#f3f1ec] text-muted'
                       "
                     >
                       {{ term.isActive ? "Aktif" : "Nonaktif" }}
                     </span>
                   </div>
-                  <p class="mt-2 text-sm text-[#6b7280]">
+                  <p class="mt-2 text-sm text-muted">
                     {{
                       term.academicYearName ||
                       selectedAcademicYear?.academicYearName ||
@@ -911,7 +911,7 @@ watch(selectedWeightSubjectId, () => {
 
                 <button
                   type="button"
-                  class="inline-flex items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60"
+                  class="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
                   :disabled="isTermActionPending(term.termId)"
                   @click="toggleTerm(term)"
                 >
@@ -928,25 +928,25 @@ watch(selectedWeightSubjectId, () => {
       <RouterLink
         v-if="terms.length > 0"
         to="/admin/classes"
-        class="flex items-center justify-between gap-4 rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5 transition hover:border-[#4f46e5] hover:shadow-sm"
+        class="flex items-center justify-between gap-4 rounded-xl border border-border bg-white shadow-sm p-5 transition hover:border-brand hover:shadow-sm"
       >
         <div>
           <p class="eyebrow">
             Langkah berikutnya
           </p>
-          <p class="mt-1 text-base font-semibold text-[#171322]">Buat Kelas</p>
-          <p class="mt-1 text-sm text-[#6b7280]">
+          <p class="mt-1 text-base font-semibold text-foreground">Buat Kelas</p>
+          <p class="mt-1 text-sm text-muted">
             Semester sudah siap — buat kelas untuk tiap tingkat dan semester.
           </p>
         </div>
-        <PhArrowRight :size="20" class="shrink-0 text-[#4f46e5]" weight="bold" />
+        <PhArrowRight :size="20" class="shrink-0 text-brand" weight="bold" />
       </RouterLink>
       </template>
 
       <template v-if="activeTab === 'mapel'">
       <section class="grid gap-5 lg:grid-cols-2">
         <article
-          class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5"
+          class="rounded-xl border border-border bg-white shadow-sm p-5"
         >
           <div class="flex items-start justify-between gap-4">
             <div class="min-w-0">
@@ -955,10 +955,10 @@ watch(selectedWeightSubjectId, () => {
               >
                 Mata pelajaran
               </p>
-              <h2 class="mt-2 text-xl font-semibold text-[#171322]">
+              <h2 class="mt-2 text-xl font-semibold text-foreground">
                 Mata pelajaran
               </h2>
-              <p class="mt-2 text-sm leading-6 text-[#6b7280]">
+              <p class="mt-2 text-sm leading-6 text-muted">
                 Daftarkan mata pelajaran yang akan dipakai pada penugasan
                 mengajar dan konten belajar.
               </p>
@@ -978,16 +978,16 @@ watch(selectedWeightSubjectId, () => {
               v-model="subjectForm.subjectName"
               type="text"
               placeholder="Nama mata pelajaran"
-              class="min-w-0 rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+              class="min-w-0 rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
             />
             <input
               v-model="subjectForm.subjectCode"
               type="text"
               placeholder="Kode"
-              class="min-w-0 rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+              class="min-w-0 rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
             />
             <div class="sm:col-span-2">
-              <label class="text-xs font-semibold text-[#6b7280]">
+              <label class="text-xs font-semibold text-muted">
                 Warna mata pelajaran
               </label>
               <div class="mt-2 grid gap-3 sm:grid-cols-[auto_minmax(0,1fr)]">
@@ -999,7 +999,7 @@ watch(selectedWeightSubjectId, () => {
                 />
                 <div class="flex min-w-0 items-center gap-3">
                   <span
-                    class="h-8 w-8 shrink-0 rounded-full border border-[#ebe7df]"
+                    class="h-8 w-8 shrink-0 rounded-full border border-border"
                     :style="{ backgroundColor: subjectColorPreview }"
                     aria-hidden="true"
                   />
@@ -1007,7 +1007,7 @@ watch(selectedWeightSubjectId, () => {
                     v-model="subjectForm.color"
                     type="text"
                     placeholder="#4f46e5"
-                    class="min-w-0 flex-1 rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                    class="min-w-0 flex-1 rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
                   />
                 </div>
               </div>
@@ -1034,7 +1034,7 @@ watch(selectedWeightSubjectId, () => {
             <button
               v-if="editingSubjectId"
               type="button"
-              class="inline-flex items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60 sm:col-span-2"
+              class="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60 sm:col-span-2"
               @click="resetSubjectForm"
             >
               <PhX :size="18" weight="duotone" />
@@ -1057,8 +1057,8 @@ watch(selectedWeightSubjectId, () => {
               class="rounded-lg border border-dashed border-[#d1d5db] bg-[#fafafa] px-4 py-8 text-center"
             >
               <PhBookOpen class="mx-auto h-7 w-7 text-[#9ca3af]" weight="duotone" />
-              <p class="mt-3 text-sm font-semibold text-[#171322]">Belum ada mata pelajaran</p>
-              <p class="mt-1 text-sm text-[#6b7280]">Tambah mata pelajaran pertama menggunakan form di atas.</p>
+              <p class="mt-3 text-sm font-semibold text-foreground">Belum ada mata pelajaran</p>
+              <p class="mt-1 text-sm text-muted">Tambah mata pelajaran pertama menggunakan form di atas.</p>
             </div>
 
             <article
@@ -1074,10 +1074,10 @@ watch(selectedWeightSubjectId, () => {
                     aria-hidden="true"
                   />
                   <div class="min-w-0">
-                    <h3 class="truncate text-base font-semibold text-[#171322]">
+                    <h3 class="truncate text-base font-semibold text-foreground">
                       {{ subject.subjectName }}
                     </h3>
-                    <p class="mt-2 text-sm text-[#6b7280]">
+                    <p class="mt-2 text-sm text-muted">
                       {{ subject.subjectCode }} •
                       {{ subject.schoolCode || currentSchool.schoolCode }} •
                       dibuat {{ formatDateTime(subject.createdAt) }}
@@ -1092,7 +1092,7 @@ watch(selectedWeightSubjectId, () => {
                 </div>
                 <button
                   type="button"
-                  class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-3 py-2 text-xs font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60"
+                  class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-border bg-white px-3 py-2 text-xs font-medium text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
                   @click="editSubject(subject)"
                 >
                   <PhPencilSimple :size="16" weight="duotone" />
@@ -1104,7 +1104,7 @@ watch(selectedWeightSubjectId, () => {
         </article>
 
         <article
-          class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5"
+          class="rounded-xl border border-border bg-white shadow-sm p-5"
         >
           <div class="flex items-start justify-between gap-4">
             <div class="min-w-0">
@@ -1113,10 +1113,10 @@ watch(selectedWeightSubjectId, () => {
               >
                 Kategori tugas
               </p>
-              <h2 class="mt-2 text-xl font-semibold text-[#171322]">
+              <h2 class="mt-2 text-xl font-semibold text-foreground">
                 Kategori tugas
               </h2>
-              <p class="mt-2 text-sm leading-6 text-[#6b7280]">
+              <p class="mt-2 text-sm leading-6 text-muted">
                 Siapkan kategori yang digunakan saat guru membuat tugas dan
                 admin mengatur bobot penilaian.
               </p>
@@ -1136,7 +1136,7 @@ watch(selectedWeightSubjectId, () => {
               v-model="categoryForm.categoryName"
               type="text"
               placeholder="Contoh: Kuis"
-              class="min-w-0 flex-1 rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+              class="min-w-0 flex-1 rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
             />
             <button
               type="submit"
@@ -1165,8 +1165,8 @@ watch(selectedWeightSubjectId, () => {
               class="rounded-lg border border-dashed border-[#d1d5db] bg-[#fafafa] px-4 py-8 text-center"
             >
               <PhTag class="mx-auto h-7 w-7 text-[#9ca3af]" weight="duotone" />
-              <p class="mt-3 text-sm font-semibold text-[#171322]">Belum ada kategori tugas</p>
-              <p class="mt-1 text-sm text-[#6b7280]">Tambah kategori seperti "Kuis" atau "UTS" untuk dipakai di bobot penilaian.</p>
+              <p class="mt-3 text-sm font-semibold text-foreground">Belum ada kategori tugas</p>
+              <p class="mt-1 text-sm text-muted">Tambah kategori seperti "Kuis" atau "UTS" untuk dipakai di bobot penilaian.</p>
             </div>
 
             <article
@@ -1174,10 +1174,10 @@ watch(selectedWeightSubjectId, () => {
               :key="category.categoryId"
               class="rounded-lg bg-[#fbfaf8] p-4"
             >
-              <h3 class="truncate text-base font-semibold text-[#171322]">
+              <h3 class="truncate text-base font-semibold text-foreground">
                 {{ category.categoryName }}
               </h3>
-              <p class="mt-2 text-sm text-[#6b7280]">
+              <p class="mt-2 text-sm text-muted">
                 Dibuat {{ formatDateTime(category.createdAt) }}
               </p>
             </article>
@@ -1186,7 +1186,7 @@ watch(selectedWeightSubjectId, () => {
       </section>
 
       <section
-        class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5"
+        class="rounded-xl border border-border bg-white shadow-sm p-5"
       >
         <div
           class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"
@@ -1197,10 +1197,10 @@ watch(selectedWeightSubjectId, () => {
             >
               Bobot penilaian
             </p>
-            <h2 class="mt-2 text-xl font-semibold text-[#171322]">
+            <h2 class="mt-2 text-xl font-semibold text-foreground">
               Bobot penilaian
             </h2>
-            <p class="mt-2 text-sm leading-6 text-[#6b7280]">
+            <p class="mt-2 text-sm leading-6 text-muted">
               Bobot berlaku per mata pelajaran dan digunakan untuk menghitung
               rata-rata berbobot sementara. Ini bukan nilai rapor final resmi.
             </p>
@@ -1214,14 +1214,14 @@ watch(selectedWeightSubjectId, () => {
 
         <div
           v-if="subjects.length === 0"
-          class="mt-5 rounded-lg border border-dashed border-[#d1d5db] bg-[#fafafa] p-4 text-sm leading-6 text-[#6b7280]"
+          class="mt-5 rounded-lg border border-dashed border-[#d1d5db] bg-[#fafafa] p-4 text-sm leading-6 text-muted"
         >
           Tambahkan mata pelajaran terlebih dahulu sebelum mengatur bobot nilai.
         </div>
 
         <div
           v-else-if="categories.length === 0"
-          class="mt-5 rounded-lg border border-dashed border-[#d1d5db] bg-[#fafafa] p-4 text-sm leading-6 text-[#6b7280]"
+          class="mt-5 rounded-lg border border-dashed border-[#d1d5db] bg-[#fafafa] p-4 text-sm leading-6 text-muted"
         >
           Tambahkan kategori tugas terlebih dahulu sebelum mengatur bobot nilai.
         </div>
@@ -1235,7 +1235,7 @@ watch(selectedWeightSubjectId, () => {
               Mata pelajaran
               <select
                 v-model="selectedWeightSubjectId"
-                class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-[#171322] outline-none transition focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-foreground outline-none transition focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
               >
                 <option value="" disabled>Pilih mata pelajaran</option>
                 <option
@@ -1248,8 +1248,8 @@ watch(selectedWeightSubjectId, () => {
               </select>
             </label>
 
-            <div class="mt-4 rounded-lg border border-[#ebe7df] bg-white p-4">
-              <p class="text-xs font-medium text-[#6b7280]">Total bobot</p>
+            <div class="mt-4 rounded-lg border border-border bg-white p-4">
+              <p class="text-xs font-medium text-muted">Total bobot</p>
               <div class="mt-2 flex flex-wrap items-end justify-between gap-3">
                 <p
                   class="text-3xl font-semibold"
@@ -1270,7 +1270,7 @@ watch(selectedWeightSubjectId, () => {
                   {{ isWeightTotalValid ? "Valid" : "Harus 100%" }}
                 </span>
               </div>
-              <p class="mt-3 text-xs leading-5 text-[#6b7280]">
+              <p class="mt-3 text-xs leading-5 text-muted">
                 Total bobot harus 100% sebelum disimpan.
               </p>
             </div>
@@ -1289,13 +1289,13 @@ watch(selectedWeightSubjectId, () => {
             @submit.prevent="submitAssessmentWeights"
           >
             <div
-              class="flex flex-col gap-3 border-b border-[#ebe7df] pb-4 sm:flex-row sm:items-start sm:justify-between"
+              class="flex flex-col gap-3 border-b border-border pb-4 sm:flex-row sm:items-start sm:justify-between"
             >
               <div>
-                <p class="text-sm font-semibold text-[#171322]">
+                <p class="text-sm font-semibold text-foreground">
                   Kategori dan bobot
                 </p>
-                <p class="mt-1 text-xs leading-5 text-[#6b7280]">
+                <p class="mt-1 text-xs leading-5 text-muted">
                   Kosong dianggap 0. Setiap kategori hanya muncul satu kali.
                 </p>
               </div>
@@ -1338,17 +1338,17 @@ watch(selectedWeightSubjectId, () => {
               <div
                 v-for="category in categories"
                 :key="category.categoryId"
-                class="grid gap-3 rounded-lg border border-[#ebe7df] bg-white p-4 sm:grid-cols-[minmax(0,1fr)_140px]"
+                class="grid gap-3 rounded-lg border border-border bg-white p-4 sm:grid-cols-[minmax(0,1fr)_140px]"
               >
                 <div class="min-w-0">
-                  <p class="truncate text-sm font-semibold text-[#171322]">
+                  <p class="truncate text-sm font-semibold text-foreground">
                     {{ category.categoryName }}
                   </p>
-                  <p class="mt-1 text-xs text-[#6b7280]">
+                  <p class="mt-1 text-xs text-muted">
                     Kategori tugas sekolah aktif
                   </p>
                 </div>
-                <label class="text-xs font-medium text-[#6b7280]">
+                <label class="text-xs font-medium text-muted">
                   Bobot (%)
                   <input
                     v-model="weightInputs[category.categoryId]"
@@ -1356,7 +1356,7 @@ watch(selectedWeightSubjectId, () => {
                     min="0"
                     max="100"
                     step="0.01"
-                    class="mt-1 w-full rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-3 py-2 text-right text-sm text-[#171322] outline-none transition focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                    class="mt-1 w-full rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-3 py-2 text-right text-sm text-foreground outline-none transition focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
                   />
                 </label>
               </div>

@@ -71,16 +71,16 @@ onMounted(loadSubjects);
 
 <template>
   <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
-    <header class="border-b border-[#ebe7df] bg-white">
+    <header class="border-b border-border bg-white">
       <div class="flex min-w-0 flex-col gap-1 px-5 py-5 sm:px-6 lg:px-8">
-        <h1 class="text-2xl font-semibold text-[#171322] sm:text-3xl">
+        <h1 class="text-2xl font-semibold text-foreground sm:text-3xl">
           Mata pelajaran
         </h1>
-        <p class="mt-2 max-w-3xl text-sm leading-6 text-[#6b7280]">
+        <p class="mt-2 max-w-3xl text-sm leading-6 text-muted">
           Buka materi, tugas, dan catatan dari kelas aktifmu.
         </p>
         <RouterLink
-          class="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-3 py-2 text-xs font-medium text-[#3f3a4a] transition hover:border-[#4f46e5] hover:text-[#4f46e5] sm:w-auto"
+          class="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-lg border border-border bg-white px-3 py-2 text-xs font-medium text-[#3f3a4a] transition hover:border-brand hover:text-brand sm:w-auto"
           to="/student/feed"
         >
           <PhMegaphone :size="16" />
@@ -98,10 +98,10 @@ onMounted(loadSubjects);
             </span>
             <div class="flex min-w-0 max-w-full items-center gap-2">
               <div
-                class="flex min-w-0 max-w-full items-center gap-2 rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3 py-2"
+                class="flex min-w-0 max-w-full items-center gap-2 rounded-lg border border-border bg-[#fbfaf8] px-3 py-2"
               >
                 <div
-                  class="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-[#4f46e5] text-[10px] font-medium text-white"
+                  class="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-brand text-[10px] font-medium text-white"
                 >
                   {{
                     activeClass?.classTitle?.slice(0, 2).toUpperCase() || "EV"
@@ -109,7 +109,7 @@ onMounted(loadSubjects);
                 </div>
                 <div class="min-w-0">
                   <p
-                    class="max-w-[12rem] truncate text-xs font-medium text-[#171322] sm:max-w-[16rem]"
+                    class="max-w-[12rem] truncate text-xs font-medium text-foreground sm:max-w-[16rem]"
                   >
                     {{ activeClass?.classTitle || "Belum ada kelas aktif" }}
                   </p>
@@ -123,7 +123,7 @@ onMounted(loadSubjects);
               </div>
               <select
                 v-if="classes.length > 1"
-                class="min-w-0 max-w-full rounded-lg border border-[#ebe7df] bg-white px-3 py-2 text-xs text-[#3f3a4a] outline-none transition focus:border-[#4f46e5]"
+                class="min-w-0 max-w-full rounded-lg border border-border bg-white px-3 py-2 text-xs text-[#3f3a4a] outline-none transition focus:border-brand"
                 :value="activeClassStore.activeClassId ?? ''"
                 aria-label="Pilih kelas aktif"
                 @change="
@@ -154,7 +154,7 @@ onMounted(loadSubjects);
         <div
           v-for="item in 6"
           :key="item"
-          class="h-44 animate-pulse rounded-xl border border-[#ebe7df] bg-white"
+          class="h-44 animate-pulse rounded-xl border border-border bg-white"
         />
       </section>
 
@@ -172,14 +172,14 @@ onMounted(loadSubjects);
               <PhWarningCircle :size="22" weight="duotone" />
             </div>
             <div class="min-w-0">
-              <h2 class="text-base font-semibold text-[#171322]">
+              <h2 class="text-base font-semibold text-foreground">
                 Mata pelajaran tidak dapat dimuat
               </h2>
               <p class="mt-1 text-sm leading-6 text-[#7a7385]">
                 {{ errorMessage }}
               </p>
               <button
-                class="mt-4 rounded-lg bg-[#4f46e5] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+                class="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
                 type="button"
                 @click="loadSubjects"
               >
@@ -195,17 +195,17 @@ onMounted(loadSubjects);
         class="flex min-h-[55vh] items-center justify-center"
       >
         <article
-          class="w-full max-w-xl rounded-xl border border-[#ebe7df] bg-white p-8 text-center"
+          class="w-full max-w-xl rounded-xl border border-border bg-white p-8 text-center"
         >
           <div
-            class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
+            class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
           >
             <PhBooks class="h-6 w-6" weight="duotone" />
           </div>
-          <h2 class="mt-3 text-base font-semibold text-[#171322]">
+          <h2 class="mt-3 text-base font-semibold text-foreground">
             Belum ada kelas aktif
           </h2>
-          <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#6b7280]">
+          <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-muted">
             Mata pelajaran akan tampil setelah akunmu terdaftar pada kelas di
             sekolah aktif.
           </p>
@@ -217,17 +217,17 @@ onMounted(loadSubjects);
         class="flex min-h-[55vh] items-center justify-center"
       >
         <article
-          class="w-full max-w-xl rounded-xl border border-[#ebe7df] bg-white p-8 text-center"
+          class="w-full max-w-xl rounded-xl border border-border bg-white p-8 text-center"
         >
           <div
-            class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
+            class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
           >
             <PhBooks class="h-6 w-6" weight="duotone" />
           </div>
-          <h2 class="mt-3 text-base font-semibold text-[#171322]">
+          <h2 class="mt-3 text-base font-semibold text-foreground">
             Mata pelajaran belum tersedia
           </h2>
-          <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#6b7280]">
+          <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-muted">
             Kelas aktif belum memiliki mata pelajaran yang bisa ditampilkan.
           </p>
         </article>
@@ -236,7 +236,7 @@ onMounted(loadSubjects);
       <section v-else>
         <div class="mb-4 flex min-w-0 items-end justify-between gap-3">
           <div class="min-w-0">
-            <h2 class="text-sm font-semibold text-[#171322]">
+            <h2 class="text-sm font-semibold text-foreground">
               Daftar mata pelajaran
             </h2>
             <p class="mt-1 truncate text-xs text-[#7a7385] sm:text-sm">
@@ -252,7 +252,7 @@ onMounted(loadSubjects);
           <article
             v-for="subject in subjects"
             :key="subject.subjectClassId"
-            class="group min-w-0 overflow-hidden rounded-xl border border-[#ebe7df] bg-white transition hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(66,55,40,0.08)]"
+            class="group min-w-0 overflow-hidden rounded-xl border border-border bg-white transition hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(66,55,40,0.08)]"
           >
             <button
               class="block w-full min-w-0 text-left"
@@ -288,7 +288,7 @@ onMounted(loadSubjects);
                   </div>
                   <PhArrowRight
                     :size="18"
-                    class="text-[#a09aa8] transition group-hover:translate-x-0.5 group-hover:text-[#4f46e5]"
+                    class="text-[#a09aa8] transition group-hover:translate-x-0.5 group-hover:text-brand"
                   />
                 </div>
                 <div
@@ -305,7 +305,7 @@ onMounted(loadSubjects);
                     Tugas
                   </span>
                   <span
-                    class="rounded-full bg-[#eef2ff] px-2 py-1 text-[11px] text-[#4f46e5]"
+                    class="rounded-full bg-[#eef2ff] px-2 py-1 text-[11px] text-brand"
                   >
                     Catatan
                   </span>
@@ -316,7 +316,7 @@ onMounted(loadSubjects);
         </div>
       </section>
 
-      <!-- <section v-if="classes.length > 1" class="mt-6 rounded-2xl border border-[#ebe7df] bg-white p-4">
+      <!-- <section v-if="classes.length > 1" class="mt-6 rounded-2xl border border-border bg-white p-4">
         <p class="text-xs font-medium uppercase tracking-[0.08em] text-[#9a95a3]">Class context</p>
         <div class="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
           <div
@@ -325,12 +325,12 @@ onMounted(loadSubjects);
             class="flex items-center gap-3 rounded-xl px-3 py-2"
             :class="item.classId === activeClass?.classId ? 'bg-[#eef2ff]' : 'bg-[#fbfaf8]'"
           >
-            <div class="h-2 w-2 rounded-full bg-[#4f46e5]" />
+            <div class="h-2 w-2 rounded-full bg-brand" />
             <div class="min-w-0 flex-1">
-              <p class="truncate text-xs font-medium text-[#171322]">{{ item.classTitle || 'Kelas' }}</p>
+              <p class="truncate text-xs font-medium text-foreground">{{ item.classTitle || 'Kelas' }}</p>
               <p class="text-[11px] text-[#7a7385]">Dipakai sebagai konteks akademik aktif</p>
             </div>
-            <PhCheck v-if="item.classId === activeClass?.classId" :size="15" class="text-[#4f46e5]" />
+            <PhCheck v-if="item.classId === activeClass?.classId" :size="15" class="text-brand" />
           </div>
         </div>
       </section> -->

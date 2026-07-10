@@ -233,14 +233,14 @@ onMounted(() => {
   <main class="min-h-full bg-[#f8f7f4] px-4 py-6 sm:px-6 lg:px-8">
     <section class="mx-auto flex w-full max-w-5xl flex-col gap-5">
       <header
-        class="rounded-xl border border-[#ebe7df] bg-white px-5 py-5 sm:px-6"
+        class="rounded-xl border border-border bg-white px-5 py-5 sm:px-6"
       >
         <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div class="min-w-0">
             <p class="text-xs font-medium uppercase tracking-[0.16em] text-[#a09aa8]">
               Pusat notifikasi
             </p>
-            <h1 class="mt-2 text-2xl font-semibold text-[#171322]">
+            <h1 class="mt-2 text-2xl font-semibold text-foreground">
               Notifikasi
             </h1>
             <p class="mt-2 max-w-2xl text-sm leading-6 text-[#7a7385]">
@@ -250,7 +250,7 @@ onMounted(() => {
 
           <button
             type="button"
-            class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3 py-2 text-sm font-medium text-[#4f46e5] transition hover:border-[#4f46e5] hover:bg-[#eef2ff] disabled:cursor-not-allowed disabled:opacity-60"
+            class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-border bg-[#fbfaf8] px-3 py-2 text-sm font-medium text-brand transition hover:border-brand hover:bg-[#eef2ff] disabled:cursor-not-allowed disabled:opacity-60"
             :disabled="markingAll || notificationUnread.unreadCount.value <= 0"
             @click="markAllRead"
           >
@@ -260,9 +260,9 @@ onMounted(() => {
         </div>
       </header>
 
-      <section class="rounded-xl border border-[#ebe7df] bg-white">
+      <section class="rounded-xl border border-border bg-white">
         <div
-          class="flex flex-col gap-3 border-b border-[#ebe7df] px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5"
+          class="flex flex-col gap-3 border-b border-border px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5"
         >
           <div
             class="inline-flex w-full rounded-lg bg-[#f8f7f4] p-1 sm:w-auto"
@@ -274,8 +274,8 @@ onMounted(() => {
               class="flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition sm:flex-none"
               :class="
                 activeFilter === 'all'
-                  ? 'bg-white text-[#171322] shadow-sm'
-                  : 'text-[#7a7385] hover:text-[#171322]'
+                  ? 'bg-white text-foreground shadow-sm'
+                  : 'text-[#7a7385] hover:text-foreground'
               "
               :aria-pressed="activeFilter === 'all'"
               @click="selectFilter('all')"
@@ -287,8 +287,8 @@ onMounted(() => {
               class="flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition sm:flex-none"
               :class="
                 activeFilter === 'unread'
-                  ? 'bg-white text-[#171322] shadow-sm'
-                  : 'text-[#7a7385] hover:text-[#171322]'
+                  ? 'bg-white text-foreground shadow-sm'
+                  : 'text-[#7a7385] hover:text-foreground'
               "
               :aria-pressed="activeFilter === 'unread'"
               @click="selectFilter('unread')"
@@ -302,7 +302,7 @@ onMounted(() => {
           </p>
         </div>
 
-        <div v-if="loading" class="space-y-0 divide-y divide-[#ebe7df]">
+        <div v-if="loading" class="space-y-0 divide-y divide-border">
           <div v-for="item in 5" :key="item" class="flex gap-3 px-4 py-4 sm:px-5">
             <div class="h-10 w-10 shrink-0 animate-pulse rounded-full bg-[#f0ede8]" />
             <div class="min-w-0 flex-1 space-y-2">
@@ -323,7 +323,7 @@ onMounted(() => {
             <PhWarningCircle :size="23" weight="duotone" />
           </div>
           <div>
-            <h2 class="text-sm font-semibold text-[#171322]">
+            <h2 class="text-sm font-semibold text-foreground">
               Notifikasi belum bisa dimuat
             </h2>
             <p class="mt-1 text-sm leading-6 text-[#7a7385]">
@@ -332,7 +332,7 @@ onMounted(() => {
           </div>
           <button
             type="button"
-            class="inline-flex items-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-3 py-2 text-sm font-medium text-[#4f46e5] transition hover:border-[#4f46e5] hover:bg-[#eef2ff]"
+            class="inline-flex items-center gap-2 rounded-lg border border-border bg-white px-3 py-2 text-sm font-medium text-brand transition hover:border-brand hover:bg-[#eef2ff]"
             @click="loadNotifications(true)"
           >
             <PhArrowClockwise :size="16" />
@@ -345,33 +345,33 @@ onMounted(() => {
           class="flex flex-col items-center px-5 py-14 text-center"
         >
           <div
-            class="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-[#eef2ff] text-[#4f46e5]"
+            class="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-[#eef2ff] text-brand"
           >
             <PhBell class="h-5 w-5" weight="duotone" />
           </div>
           <div>
-            <h2 class="text-sm font-semibold text-[#171322]">
+            <h2 class="text-sm font-semibold text-foreground">
               {{ emptyTitle }}
             </h2>
-            <p class="mt-1 max-w-md text-sm leading-6 text-[#6b7280]">
+            <p class="mt-1 max-w-md text-sm leading-6 text-muted">
               {{ emptyDescription }}
             </p>
           </div>
         </div>
 
-        <div v-else class="divide-y divide-[#ebe7df]">
+        <div v-else class="divide-y divide-border">
           <button
             v-for="item in notifications"
             :key="item.notificationId"
             type="button"
-            class="flex w-full min-w-0 gap-3 px-4 py-4 text-left transition hover:bg-[#f8f7f4] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5] focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-75 sm:px-5"
+            class="flex w-full min-w-0 gap-3 px-4 py-4 text-left transition hover:bg-[#f8f7f4] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-75 sm:px-5"
             :class="!item.isRead ? 'bg-[#f5f7ff]' : 'bg-white'"
             :disabled="markingNotificationIds.has(item.notificationId)"
             :aria-label="`${item.isRead ? 'Buka' : 'Buka dan tandai dibaca'} ${notificationTitle(item)}`"
             @click="openNotification(item)"
           >
             <div
-              class="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#ebe7df] bg-[#fbfaf8] text-[#4f46e5]"
+              class="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-[#fbfaf8] text-brand"
               aria-hidden="true"
             >
               <PhBell :size="18" weight="duotone" />
@@ -386,7 +386,7 @@ onMounted(() => {
                 </span>
                 <span
                   v-if="!item.isRead"
-                  class="rounded-full bg-[#4f46e5] px-2 py-0.5 text-[11px] font-medium text-white"
+                  class="rounded-full bg-brand px-2 py-0.5 text-[11px] font-medium text-white"
                 >
                   baru
                 </span>
@@ -398,7 +398,7 @@ onMounted(() => {
               <div class="mt-1 flex min-w-0 items-start gap-3">
                 <div class="min-w-0 flex-1">
                   <h2
-                    class="line-clamp-1 text-sm font-semibold text-[#171322]"
+                    class="line-clamp-1 text-sm font-semibold text-foreground"
                   >
                     {{ notificationTitle(item) }}
                   </h2>
@@ -419,7 +419,7 @@ onMounted(() => {
 
         <div
           v-if="!loading && !error && notifications.length > 0"
-          class="flex flex-col gap-2 border-t border-[#ebe7df] px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5"
+          class="flex flex-col gap-2 border-t border-border px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5"
         >
           <p class="text-xs text-[#a09aa8]">
             Menampilkan {{ notifications.length }} dari {{ totalItems }}
@@ -428,7 +428,7 @@ onMounted(() => {
           <button
             v-if="hasMore"
             type="button"
-            class="inline-flex items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-3 py-2 text-sm font-medium text-[#4f46e5] transition hover:border-[#4f46e5] hover:bg-[#eef2ff] disabled:cursor-wait disabled:opacity-60"
+            class="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-white px-3 py-2 text-sm font-medium text-brand transition hover:border-brand hover:bg-[#eef2ff] disabled:cursor-wait disabled:opacity-60"
             :disabled="loadingMore"
             @click="loadNotifications(false)"
           >

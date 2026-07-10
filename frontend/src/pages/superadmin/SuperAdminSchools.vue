@@ -252,7 +252,7 @@ onMounted(() => {
 
 <template>
   <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
-    <header class="border-b border-[#ebe7df] bg-white">
+    <header class="border-b border-border bg-white">
       <div
         class="flex min-w-0 flex-col gap-3 px-5 py-5 sm:px-6 lg:flex-row lg:items-end lg:justify-between lg:px-8"
       >
@@ -262,17 +262,17 @@ onMounted(() => {
           >
             Super Admin
           </p>
-          <h1 class="mt-2 text-2xl font-semibold text-[#171322] sm:text-3xl">
+          <h1 class="mt-2 text-2xl font-semibold text-foreground sm:text-3xl">
             Sekolah
           </h1>
-          <p class="mt-2 max-w-3xl text-sm leading-6 text-[#6b7280]">
+          <p class="mt-2 max-w-3xl text-sm leading-6 text-muted">
             Kelola tenant sekolah Wiyata dari tingkat platform. Operasional
             akademik tetap berada di area Admin Sekolah.
           </p>
         </div>
         <button
           type="button"
-          class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+          class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
           :disabled="isLoading || isBootstrapping"
           @click="refreshPage"
         >
@@ -288,25 +288,25 @@ onMounted(() => {
       <div class="flex min-w-0 flex-col gap-6">
         <section class="grid gap-3 sm:grid-cols-3">
           <article
-            class="rounded-xl border border-[#ebe7df] bg-white p-4 shadow-sm"
+            class="rounded-xl border border-border bg-white p-4 shadow-sm"
           >
-            <p class="text-xs font-medium text-[#6b7280]">Total sekolah</p>
-            <p class="mt-2 text-2xl font-semibold text-[#171322]">
+            <p class="text-xs font-medium text-muted">Total sekolah</p>
+            <p class="mt-2 text-2xl font-semibold text-foreground">
               {{ summary ? summary.totalSchools : "-" }}
             </p>
           </article>
           <article
-            class="rounded-xl border border-[#ebe7df] bg-white p-4 shadow-sm"
+            class="rounded-xl border border-border bg-white p-4 shadow-sm"
           >
-            <p class="text-xs font-medium text-[#6b7280]">Aktif</p>
+            <p class="text-xs font-medium text-muted">Aktif</p>
             <p class="mt-2 text-2xl font-semibold text-[#027a48]">
               {{ summary ? summary.totalActive : "-" }}
             </p>
           </article>
           <article
-            class="rounded-xl border border-[#ebe7df] bg-white p-4 shadow-sm"
+            class="rounded-xl border border-border bg-white p-4 shadow-sm"
           >
-            <p class="text-xs font-medium text-[#6b7280]">Diarsipkan</p>
+            <p class="text-xs font-medium text-muted">Diarsipkan</p>
             <p class="mt-2 text-2xl font-semibold text-[#b45309]">
               {{ summary ? summary.totalDeleted : "-" }}
             </p>
@@ -321,7 +321,7 @@ onMounted(() => {
         </p>
 
         <section
-          class="rounded-xl border border-[#ebe7df] bg-white p-5 shadow-sm"
+          class="rounded-xl border border-border bg-white p-5 shadow-sm"
         >
           <div
             class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"
@@ -332,10 +332,10 @@ onMounted(() => {
               >
                 Daftar tenant sekolah
               </p>
-              <h2 class="mt-2 text-xl font-semibold text-[#171322]">
+              <h2 class="mt-2 text-xl font-semibold text-foreground">
                 Sekolah platform
               </h2>
-              <p class="mt-2 text-sm leading-6 text-[#6b7280]">
+              <p class="mt-2 text-sm leading-6 text-muted">
                 Daftar ini hanya mengelola identitas tenant sekolah. Operasional
                 akademik tetap dikelola oleh Admin Sekolah.
               </p>
@@ -349,7 +349,7 @@ onMounted(() => {
                 v-model="searchQuery"
                 type="search"
                 placeholder="Cari nama, kode, email..."
-                class="w-full rounded-lg border border-[#e5e7eb] bg-white py-2.5 pl-10 pr-3 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                class="w-full rounded-lg border border-[#e5e7eb] bg-white py-2.5 pl-10 pr-3 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
                 @input="onSearchInput"
               />
             </label>
@@ -367,7 +367,7 @@ onMounted(() => {
               <p class="text-sm leading-6 text-[#a8665d]">{{ errorMessage }}</p>
               <button
                 type="button"
-                class="mt-3 inline-flex items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-3 py-2 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60"
+                class="mt-3 inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-white px-3 py-2 text-sm font-medium text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
                 @click="loadSchools(1)"
               >
                 Coba lagi
@@ -382,10 +382,10 @@ onMounted(() => {
                 class="mx-auto h-7 w-7 text-[#9ca3af]"
                 weight="duotone"
               />
-              <h3 class="mt-3 text-sm font-semibold text-[#171322]">
+              <h3 class="mt-3 text-sm font-semibold text-foreground">
                 Belum ada sekolah
               </h3>
-              <p class="mt-2 text-sm leading-6 text-[#6b7280]">
+              <p class="mt-2 text-sm leading-6 text-muted">
                 Tambahkan sekolah pertama dari panel di kanan.
               </p>
             </div>
@@ -398,10 +398,10 @@ onMounted(() => {
                 class="mx-auto h-7 w-7 text-[#9ca3af]"
                 weight="duotone"
               />
-              <h3 class="mt-3 text-sm font-semibold text-[#171322]">
+              <h3 class="mt-3 text-sm font-semibold text-foreground">
                 Tidak ada sekolah yang cocok
               </h3>
-              <p class="mt-2 text-sm leading-6 text-[#6b7280]">
+              <p class="mt-2 text-sm leading-6 text-muted">
                 Ubah kata kunci pencarian untuk melihat sekolah lain.
               </p>
             </div>
@@ -411,7 +411,7 @@ onMounted(() => {
               <article
                 v-for="school in schools"
                 :key="school.schoolId"
-                class="rounded-xl border border-[#ebe7df] bg-[#fcfbf8] p-4"
+                class="rounded-xl border border-border bg-[#fcfbf8] p-4"
               >
                 <div
                   class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"
@@ -419,7 +419,7 @@ onMounted(() => {
                   <div class="min-w-0">
                     <div class="flex min-w-0 flex-wrap items-center gap-2">
                       <h3
-                        class="truncate text-base font-semibold text-[#171322]"
+                        class="truncate text-base font-semibold text-foreground"
                       >
                         {{ school.schoolName }}
                       </h3>
@@ -434,13 +434,13 @@ onMounted(() => {
                         {{ school.isDeleted ? "Diarsipkan" : "Aktif" }}
                       </span>
                       <span
-                        class="rounded-full bg-[#f3f1ec] px-2.5 py-1 text-xs font-semibold text-[#6b7280]"
+                        class="rounded-full bg-[#f3f1ec] px-2.5 py-1 text-xs font-semibold text-muted"
                       >
                         {{ school.schoolCode || "Kode otomatis" }}
                       </span>
                     </div>
                     <div
-                      class="mt-3 grid gap-2 text-sm leading-6 text-[#6b7280] md:grid-cols-2"
+                      class="mt-3 grid gap-2 text-sm leading-6 text-muted md:grid-cols-2"
                     >
                       <p class="flex min-w-0 items-center gap-2">
                         <PhEnvelopeSimple :size="16" class="shrink-0" />
@@ -491,7 +491,7 @@ onMounted(() => {
 
       <aside class="min-w-0">
         <section
-          class="rounded-xl border border-[#ebe7df] bg-white p-5 shadow-sm xl:sticky xl:top-6"
+          class="rounded-xl border border-border bg-white p-5 shadow-sm xl:sticky xl:top-6"
         >
           <div class="flex items-start justify-between gap-4">
             <div>
@@ -500,10 +500,10 @@ onMounted(() => {
               >
                 Setup sekolah
               </p>
-              <h2 class="mt-2 text-xl font-semibold text-[#171322]">
+              <h2 class="mt-2 text-xl font-semibold text-foreground">
                 Sekolah + admin awal
               </h2>
-              <p class="mt-2 text-sm leading-6 text-[#6b7280]">
+              <p class="mt-2 text-sm leading-6 text-muted">
                 Buat tenant sekolah dan beri akses Admin Sekolah dalam satu
                 proses atomik.
               </p>
@@ -541,10 +541,10 @@ onMounted(() => {
           <form class="mt-5 space-y-5" @submit.prevent="submitBootstrap">
             <section class="space-y-4">
               <div>
-                <p class="text-sm font-semibold text-[#171322]">
+                <p class="text-sm font-semibold text-foreground">
                   Identitas sekolah
                 </p>
-                <p class="mt-1 text-xs leading-5 text-[#6b7280]">
+                <p class="mt-1 text-xs leading-5 text-muted">
                   Data ini membuat tenant sekolah platform, bukan pengaturan
                   akademik.
                 </p>
@@ -555,7 +555,7 @@ onMounted(() => {
                 <input
                   v-model="schoolForm.schoolName"
                   type="text"
-                  class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                  class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
                   placeholder="Contoh: SMA Wiyata"
                 />
               </label>
@@ -565,7 +565,7 @@ onMounted(() => {
                 <input
                   v-model="schoolForm.schoolCode"
                   type="text"
-                  class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                  class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
                   placeholder="Kosongkan untuk kode otomatis"
                 />
               </label>
@@ -575,7 +575,7 @@ onMounted(() => {
                 <input
                   v-model="schoolForm.schoolEmail"
                   type="email"
-                  class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                  class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
                   placeholder="admin@sekolah.sch.id"
                 />
               </label>
@@ -585,7 +585,7 @@ onMounted(() => {
                 <input
                   v-model="schoolForm.schoolPhone"
                   type="tel"
-                  class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                  class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
                   placeholder="081234567890"
                 />
               </label>
@@ -595,7 +595,7 @@ onMounted(() => {
                 <input
                   v-model="schoolForm.schoolWebsite"
                   type="url"
-                  class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                  class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
                   placeholder="https://sekolah.sch.id"
                 />
               </label>
@@ -605,16 +605,16 @@ onMounted(() => {
                 <textarea
                   v-model="schoolForm.schoolAddress"
                   rows="4"
-                  class="mt-2 w-full resize-none rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                  class="mt-2 w-full resize-none rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
                   placeholder="Alamat lengkap sekolah"
                 />
               </label>
             </section>
 
-            <section class="space-y-4 border-t border-[#ebe7df] pt-5">
+            <section class="space-y-4 border-t border-border pt-5">
               <div>
-                <p class="text-sm font-semibold text-[#171322]">Admin awal</p>
-                <p class="mt-1 text-xs leading-5 text-[#6b7280]">
+                <p class="text-sm font-semibold text-foreground">Admin awal</p>
+                <p class="mt-1 text-xs leading-5 text-muted">
                   Akun ini akan menjadi Admin Sekolah untuk tenant baru.
                 </p>
               </div>
@@ -635,10 +635,10 @@ onMounted(() => {
                     class="mt-1"
                   />
                   <span>
-                    <span class="block font-semibold text-[#171322]">
+                    <span class="block font-semibold text-foreground">
                       Akun admin baru
                     </span>
-                    <span class="mt-1 block text-xs leading-5 text-[#6b7280]">
+                    <span class="mt-1 block text-xs leading-5 text-muted">
                       Buat user global baru.
                     </span>
                   </span>
@@ -659,10 +659,10 @@ onMounted(() => {
                     class="mt-1"
                   />
                   <span>
-                    <span class="block font-semibold text-[#171322]">
+                    <span class="block font-semibold text-foreground">
                       Gunakan akun global
                     </span>
-                    <span class="mt-1 block text-xs leading-5 text-[#6b7280]">
+                    <span class="mt-1 block text-xs leading-5 text-muted">
                       Pakai user ID yang sudah ada.
                     </span>
                   </span>
@@ -675,7 +675,7 @@ onMounted(() => {
                   <input
                     v-model="newAdminForm.fullName"
                     type="text"
-                    class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                    class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
                     placeholder="Admin Sekolah"
                   />
                 </label>
@@ -685,7 +685,7 @@ onMounted(() => {
                   <input
                     v-model="newAdminForm.email"
                     type="email"
-                    class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                    class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
                     placeholder="admin@sma.sch.id"
                   />
                 </label>
@@ -695,7 +695,7 @@ onMounted(() => {
                   <input
                     v-model="newAdminForm.password"
                     type="password"
-                    class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                    class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
                     placeholder="Minimal 6 karakter"
                   />
                 </label>
@@ -707,12 +707,12 @@ onMounted(() => {
                   <input
                     v-model="existingAdminForm.userId"
                     type="text"
-                    class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                    class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
                     placeholder="UUID user global"
                   />
                 </label>
                 <p
-                  class="rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-3 py-2 text-xs leading-5 text-[#6b7280]"
+                  class="rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-3 py-2 text-xs leading-5 text-muted"
                 >
                   Ambil User ID dari data akun global yang sudah ada. Setelah
                   submit, akun tersebut mendapat role admin sekolah untuk
@@ -731,14 +731,14 @@ onMounted(() => {
             </button>
 
             <div
-              class="flex gap-3 rounded-lg border border-[#ebe7df] bg-[#fcfbf8] p-3"
+              class="flex gap-3 rounded-lg border border-border bg-[#fcfbf8] p-3"
             >
               <PhIdentificationBadge
                 :size="20"
                 class="mt-0.5 shrink-0 text-[#ea580c]"
                 weight="duotone"
               />
-              <p class="text-xs leading-5 text-[#6b7280]">
+              <p class="text-xs leading-5 text-muted">
                 Flow ini hanya membuat tenant sekolah dan akses Admin Sekolah
                 awal. Tahun ajaran, kelas, dan penempatan tetap dikelola dari
                 area Admin Sekolah.

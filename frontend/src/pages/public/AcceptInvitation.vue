@@ -86,7 +86,7 @@ onMounted(loadInvitation);
 </script>
 
 <template>
-  <main class="min-h-screen bg-[#fbfaf8] px-6 py-8 text-[#171322]">
+  <main class="min-h-screen bg-[#fbfaf8] px-6 py-8 text-foreground">
     <div class="mx-auto flex w-full max-w-4xl items-center justify-between">
       <RouterLink to="/home" class="flex items-center gap-3">
         <img src="/logo_fix.svg" alt="Wiyata" class="h-9 w-9 rounded-lg" />
@@ -94,7 +94,7 @@ onMounted(loadInvitation);
       </RouterLink>
       <RouterLink
         to="/login"
-        class="rounded-lg border border-[#ebe7df] bg-white px-4 py-2 text-sm font-medium text-[#5f5968] transition hover:text-[#171322]"
+        class="rounded-lg border border-border bg-white px-4 py-2 text-sm font-medium text-[#5f5968] transition hover:text-foreground"
       >
         Masuk
       </RouterLink>
@@ -102,11 +102,11 @@ onMounted(loadInvitation);
 
     <section class="mx-auto mt-12 max-w-4xl">
       <div
-        class="rounded-xl border border-[#ebe7df] bg-white p-6 shadow-sm md:p-8"
+        class="rounded-xl border border-border bg-white p-6 shadow-sm md:p-8"
       >
         <div v-if="loading" class="space-y-5">
-          <div class="h-5 w-36 animate-pulse rounded bg-[#ebe7df]" />
-          <div class="h-9 w-2/3 animate-pulse rounded bg-[#ebe7df]" />
+          <div class="h-5 w-36 animate-pulse rounded bg-border" />
+          <div class="h-9 w-2/3 animate-pulse rounded bg-border" />
           <div class="space-y-3">
             <div class="h-4 w-full animate-pulse rounded bg-[#f0ece5]" />
             <div class="h-4 w-4/5 animate-pulse rounded bg-[#f0ece5]" />
@@ -127,7 +127,7 @@ onMounted(loadInvitation);
           </div>
           <RouterLink
             to="/login"
-            class="inline-flex h-10 items-center justify-center rounded-lg bg-[#4f46e5] px-5 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+            class="inline-flex h-10 items-center justify-center rounded-lg bg-brand px-5 text-sm font-medium text-white transition hover:bg-[#4338ca]"
           >
             Login ke Wiyata
           </RouterLink>
@@ -144,7 +144,7 @@ onMounted(loadInvitation);
           </div>
           <RouterLink
             to="/home"
-            class="inline-flex h-10 items-center justify-center rounded-lg border border-[#ebe7df] px-4 text-sm font-medium text-[#5f5968] transition hover:text-[#171322]"
+            class="inline-flex h-10 items-center justify-center rounded-lg border border-border px-4 text-sm font-medium text-[#5f5968] transition hover:text-foreground"
           >
             Kembali ke beranda
           </RouterLink>
@@ -155,7 +155,7 @@ onMounted(loadInvitation);
           class="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]"
         >
           <div>
-            <p class="text-sm font-medium text-[#4f46e5]">Undangan sekolah</p>
+            <p class="text-sm font-medium text-brand">Undangan sekolah</p>
             <h1 class="mt-3 text-3xl font-semibold leading-tight">
               Selesaikan akun admin sekolah.
             </h1>
@@ -165,29 +165,29 @@ onMounted(loadInvitation);
             </p>
 
             <dl
-              class="mt-6 space-y-4 rounded-xl border border-[#ebe7df] bg-[#fbfaf8] p-5 text-sm"
+              class="mt-6 space-y-4 rounded-xl border border-border bg-[#fbfaf8] p-5 text-sm"
             >
               <div>
                 <dt class="text-[#8a8394]">Sekolah</dt>
-                <dd class="mt-1 font-medium text-[#171322]">
+                <dd class="mt-1 font-medium text-foreground">
                   {{ invitation.school.schoolName }}
                 </dd>
               </div>
               <div>
                 <dt class="text-[#8a8394]">Email undangan</dt>
-                <dd class="mt-1 font-medium text-[#171322]">
+                <dd class="mt-1 font-medium text-foreground">
                   {{ invitation.email }}
                 </dd>
               </div>
               <div>
                 <dt class="text-[#8a8394]">Role</dt>
-                <dd class="mt-1 font-medium capitalize text-[#171322]">
+                <dd class="mt-1 font-medium capitalize text-foreground">
                   {{ invitation.role }}
                 </dd>
               </div>
               <div>
                 <dt class="text-[#8a8394]">Berlaku sampai</dt>
-                <dd class="mt-1 font-medium text-[#171322]">
+                <dd class="mt-1 font-medium text-foreground">
                   {{ formatDateTime(invitation.expiresAt) }}
                 </dd>
               </div>
@@ -201,7 +201,7 @@ onMounted(loadInvitation);
               </span>
               <input
                 v-model="form.name"
-                class="h-11 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3 text-sm outline-none transition focus:border-[#4f46e5] focus:bg-white"
+                class="h-11 w-full rounded-lg border border-border bg-[#fbfaf8] px-3 text-sm outline-none transition focus:border-brand focus:bg-white"
                 type="text"
                 autocomplete="name"
                 placeholder="Budi Santoso"
@@ -214,7 +214,7 @@ onMounted(loadInvitation);
               </span>
               <input
                 v-model="form.password"
-                class="h-11 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3 text-sm outline-none transition focus:border-[#4f46e5] focus:bg-white"
+                class="h-11 w-full rounded-lg border border-border bg-[#fbfaf8] px-3 text-sm outline-none transition focus:border-brand focus:bg-white"
                 type="password"
                 autocomplete="new-password"
                 placeholder="Minimal 6 karakter"
@@ -227,7 +227,7 @@ onMounted(loadInvitation);
               </span>
               <input
                 v-model="form.confirmPassword"
-                class="h-11 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3 text-sm outline-none transition focus:border-[#4f46e5] focus:bg-white"
+                class="h-11 w-full rounded-lg border border-border bg-[#fbfaf8] px-3 text-sm outline-none transition focus:border-brand focus:bg-white"
                 type="password"
                 autocomplete="new-password"
                 placeholder="Ulangi password"
@@ -244,7 +244,7 @@ onMounted(loadInvitation);
             <button
               type="submit"
               :disabled="submitting || !canSubmit"
-              class="flex h-11 w-full items-center justify-center rounded-lg bg-[#4f46e5] px-5 text-sm font-medium text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:bg-[#bab7d8]"
+              class="flex h-11 w-full items-center justify-center rounded-lg bg-brand px-5 text-sm font-medium text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:bg-[#bab7d8]"
             >
               {{ submitting ? "Memproses..." : "Terima undangan" }}
             </button>

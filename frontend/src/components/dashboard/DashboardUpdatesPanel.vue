@@ -56,7 +56,7 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
     aria-labelledby="updates-panel-title"
   >
     <div class="shrink-0 px-2">
-      <!-- <h2 id="updates-panel-title" class="text-sm font-medium text-[#171322]">
+      <!-- <h2 id="updates-panel-title" class="text-sm font-medium text-foreground">
         Updates
       </h2> -->
       <div
@@ -70,11 +70,11 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
           :key="tab.key"
           type="button"
           role="tab"
-          class="inline-flex shrink-0 items-center gap-1.5 border-b-2 px-2 py-2 text-xs font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5] focus-visible:ring-offset-2"
+          class="inline-flex shrink-0 items-center gap-1.5 border-b-2 px-2 py-2 text-xs font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
           :class="
             activeTab === tab.key
-              ? 'border-[#4f46e5] text-[#4f46e5]'
-              : 'border-transparent text-[#7a7385] hover:text-[#171322]'
+              ? 'border-brand text-brand'
+              : 'border-transparent text-[#7a7385] hover:text-foreground'
           "
           :aria-selected="activeTab === tab.key"
           :aria-controls="`updates-panel-${tab.key}`"
@@ -85,7 +85,7 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
           {{ tab.label }}
           <span
             v-if="tab.badge > 0"
-            class="inline-flex min-w-[1.1rem] items-center justify-center rounded-full bg-[#eef2ff] px-1.5 py-0.5 text-[10px] font-semibold leading-none text-[#4f46e5]"
+            class="inline-flex min-w-[1.1rem] items-center justify-center rounded-full bg-[#eef2ff] px-1.5 py-0.5 text-[10px] font-semibold leading-none text-brand"
             :aria-label="`${tab.badge} update belum dibaca`"
           >
             {{ badgeLabel(tab.badge) }}

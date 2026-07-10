@@ -177,12 +177,12 @@ const screenshotSlots = [
 </script>
 
 <template>
-  <main class="relative isolate overflow-x-hidden bg-[#fbfaf8] text-[#171322]">
+  <main class="relative isolate overflow-x-hidden bg-[#fbfaf8] text-foreground">
     <!-- ── Global decorative background -->
     <div class="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
       <!-- Indigo glow — hero anchor -->
       <div
-        class="absolute left-1/2 top-0 h-130 w-225 -translate-x-1/2 rounded-full bg-[#4f46e5]/18 blur-3xl"
+        class="absolute left-1/2 top-0 h-130 w-225 -translate-x-1/2 rounded-full bg-brand/18 blur-3xl"
         aria-hidden="true"
       />
       <!-- Warm amber glow — mid-page -->
@@ -216,27 +216,27 @@ const screenshotSlots = [
             alt="Wiyata"
             class="h-7 w-7 rounded-lg object-contain"
           />
-          <span class="text-[15px] font-semibold tracking-tight text-[#171322]">
+          <span class="text-[15px] font-semibold tracking-tight text-foreground">
             Wiyata Academic Workspace
           </span>
         </RouterLink>
 
-        <nav class="hidden items-center gap-8 text-sm text-[#6b7280] md:flex">
+        <nav class="hidden items-center gap-8 text-sm text-muted md:flex">
           <a
             href="#fitur"
-            class="transition-colors hover:text-[#171322]"
+            class="transition-colors hover:text-foreground"
             @click="handleAnchorClick($event, '#fitur')"
             >Fitur</a
           >
           <a
             href="#peran"
-            class="transition-colors hover:text-[#171322]"
+            class="transition-colors hover:text-foreground"
             @click="handleAnchorClick($event, '#peran')"
             >Untuk Siapa</a
           >
           <a
             href="#preview"
-            class="transition-colors hover:text-[#171322]"
+            class="transition-colors hover:text-foreground"
             @click="handleAnchorClick($event, '#preview')"
             >Preview</a
           >
@@ -244,12 +244,12 @@ const screenshotSlots = [
 
         <div class="flex items-center gap-3">
           <template v-if="isSchoolless">
-            <span class="hidden text-sm text-[#6b7280] sm:block">
+            <span class="hidden text-sm text-muted sm:block">
               {{ auth.user?.fullName?.split(" ")[0] }}
             </span>
             <button
               type="button"
-              class="rounded-lg border border-[#e7e2da] bg-white px-4 py-2 text-sm font-medium text-[#5f5968] transition-colors hover:text-[#171322]"
+              class="rounded-lg border border-[#e7e2da] bg-white px-4 py-2 text-sm font-medium text-[#5f5968] transition-colors hover:text-foreground"
               @click="auth.logout()"
             >
               Keluar
@@ -258,13 +258,13 @@ const screenshotSlots = [
           <template v-else>
             <RouterLink
               to="/school-registration"
-              class="hidden rounded-lg border border-[#e7e2da] bg-white px-4 py-2 text-sm font-medium text-[#5f5968] transition-colors hover:text-[#171322] sm:inline-flex"
+              class="hidden rounded-lg border border-[#e7e2da] bg-white px-4 py-2 text-sm font-medium text-[#5f5968] transition-colors hover:text-foreground sm:inline-flex"
             >
               Daftarkan Sekolah
             </RouterLink>
             <RouterLink
               to="/login"
-              class="rounded-lg bg-[#4f46e5] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#4338ca]"
+              class="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#4338ca]"
             >
               Masuk
             </RouterLink>
@@ -275,8 +275,8 @@ const screenshotSlots = [
             aria-label="Buka menu"
             @click="mobileOpen = !mobileOpen"
           >
-            <PhList v-if="!mobileOpen" :size="18" class="text-[#6b7280]" />
-            <PhX v-else :size="18" class="text-[#6b7280]" />
+            <PhList v-if="!mobileOpen" :size="18" class="text-muted" />
+            <PhX v-else :size="18" class="text-muted" />
           </button>
         </div>
       </div>
@@ -293,7 +293,7 @@ const screenshotSlots = [
           <div class="flex flex-col gap-1 px-6 py-4">
             <a
               href="#fitur"
-              class="rounded-md px-3 py-2.5 text-sm text-[#6b7280] hover:bg-[#f8f7f4] hover:text-[#171322]"
+              class="rounded-md px-3 py-2.5 text-sm text-muted hover:bg-[#f8f7f4] hover:text-foreground"
               @click="
                 mobileOpen = false;
                 handleAnchorClick($event, '#fitur');
@@ -302,7 +302,7 @@ const screenshotSlots = [
             >
             <a
               href="#peran"
-              class="rounded-md px-3 py-2.5 text-sm text-[#6b7280] hover:bg-[#f8f7f4] hover:text-[#171322]"
+              class="rounded-md px-3 py-2.5 text-sm text-muted hover:bg-[#f8f7f4] hover:text-foreground"
               @click="
                 mobileOpen = false;
                 handleAnchorClick($event, '#peran');
@@ -311,7 +311,7 @@ const screenshotSlots = [
             >
             <a
               href="#preview"
-              class="rounded-md px-3 py-2.5 text-sm text-[#6b7280] hover:bg-[#f8f7f4] hover:text-[#171322]"
+              class="rounded-md px-3 py-2.5 text-sm text-muted hover:bg-[#f8f7f4] hover:text-foreground"
               @click="
                 mobileOpen = false;
                 handleAnchorClick($event, '#preview');
@@ -325,7 +325,7 @@ const screenshotSlots = [
                 </p>
                 <button
                   type="button"
-                  class="w-full rounded-md px-3 py-2.5 text-left text-sm text-[#6b7280] hover:bg-[#f8f7f4] hover:text-[#171322]"
+                  class="w-full rounded-md px-3 py-2.5 text-left text-sm text-muted hover:bg-[#f8f7f4] hover:text-foreground"
                   @click="auth.logout(); mobileOpen = false"
                 >
                   Keluar
@@ -343,7 +343,7 @@ const screenshotSlots = [
     >
       <!-- Hero-local blobs -->
       <div
-        class="pointer-events-none absolute -left-30 top-16 -z-10 h-72 w-72 rounded-full bg-[#4f46e5]/20 blur-3xl"
+        class="pointer-events-none absolute -left-30 top-16 -z-10 h-72 w-72 rounded-full bg-brand/20 blur-3xl"
         aria-hidden="true"
       />
       <div
@@ -354,11 +354,11 @@ const screenshotSlots = [
       <!-- School-less user: logged in but no school context -->
       <template v-if="isSchoolless">
         <h1
-          class="mt-5 max-w-3xl text-5xl font-semibold leading-[1.1] tracking-tight text-[#171322] sm:text-6xl lg:text-[68px]"
+          class="mt-5 max-w-3xl text-5xl font-semibold leading-[1.1] tracking-tight text-foreground sm:text-6xl lg:text-[68px]"
         >
           Selamat datang di Wiyata
         </h1>
-        <p class="mt-6 max-w-2xl text-lg leading-8 text-[#6b7280]">
+        <p class="mt-6 max-w-2xl text-lg leading-8 text-muted">
           Akunmu berhasil dibuat dan kamu sudah masuk ke Wiyata. Saat ini
           akunmu belum terhubung ke sekolah mana pun. Setelah bergabung ke
           sekolah, kamu dapat mengakses kelas, materi, tugas, nilai, dan
@@ -367,7 +367,7 @@ const screenshotSlots = [
         <div class="mt-9 flex flex-wrap items-center gap-4">
           <RouterLink
             to="/school-registration"
-            class="inline-flex h-12 items-center justify-center rounded-lg bg-[#4f46e5] px-8 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#4338ca]"
+            class="inline-flex h-12 items-center justify-center rounded-lg bg-brand px-8 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#4338ca]"
           >
             Daftarkan Sekolah
           </RouterLink>
@@ -381,11 +381,11 @@ const screenshotSlots = [
       <!-- Visitor: not logged in -->
       <template v-else>
         <h1
-          class="mt-5 max-w-3xl text-5xl font-semibold leading-[1.1] tracking-tight text-[#171322] sm:text-6xl lg:text-[68px]"
+          class="mt-5 max-w-3xl text-5xl font-semibold leading-[1.1] tracking-tight text-foreground sm:text-6xl lg:text-[68px]"
         >
           Satu workspace untuk aktivitas akademik sekolah.
         </h1>
-        <p class="mt-6 max-w-2xl text-lg leading-8 text-[#6b7280]">
+        <p class="mt-6 max-w-2xl text-lg leading-8 text-muted">
           Kelola materi, tugas, komunikasi, dan penilaian dalam satu workspace
           bagi murid, guru, dan sekolah.
         </p>
@@ -394,14 +394,14 @@ const screenshotSlots = [
           <RouterLink
             to="/school-registration"
             id="hero-cta-daftar-sekolah"
-            class="inline-flex h-12 items-center justify-center rounded-lg bg-[#4f46e5] px-8 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#4338ca]"
+            class="inline-flex h-12 items-center justify-center rounded-lg bg-brand px-8 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#4338ca]"
           >
             Daftarkan Sekolah
           </RouterLink>
           <RouterLink
             to="/login"
             id="hero-cta-masuk"
-            class="inline-flex h-11 items-center justify-center rounded-lg border border-[#e7e2da] bg-white px-6 text-sm font-medium text-[#5f5968] transition-colors hover:bg-[#f8f7f4] hover:text-[#171322]"
+            class="inline-flex h-11 items-center justify-center rounded-lg border border-[#e7e2da] bg-white px-6 text-sm font-medium text-[#5f5968] transition-colors hover:bg-[#f8f7f4] hover:text-foreground"
           >
             Masuk ke Wiyata
           </RouterLink>
@@ -435,10 +435,10 @@ const screenshotSlots = [
             <div
               class="flex h-14 w-14 items-center justify-center rounded-xl border border-[#e7e2da] bg-white shadow-sm"
             >
-              <PhMonitor :size="26" class="text-[#4f46e5]" />
+              <PhMonitor :size="26" class="text-brand" />
             </div>
             <div>
-              <p class="text-base font-medium text-[#171322]">Preview Wiyata</p>
+              <p class="text-base font-medium text-foreground">Preview Wiyata</p>
               <p class="mt-1.5 max-w-sm text-sm leading-relaxed text-[#9ca3af]">
                 Screenshot dashboard Wiyata akan segera ditambahkan.
               </p>
@@ -464,13 +464,13 @@ const screenshotSlots = [
       class="relative mx-auto max-w-7xl scroll-mt-24 border-t border-[#e7e2da] px-6 py-32 lg:px-8"
     >
       <div class="max-w-2xl">
-        <p class="text-sm font-medium text-[#4f46e5]">Fitur utama</p>
+        <p class="text-sm font-medium text-brand">Fitur utama</p>
         <h2
-          class="mt-4 text-4xl font-semibold tracking-tight text-[#171322] sm:text-5xl"
+          class="mt-4 text-4xl font-semibold tracking-tight text-foreground sm:text-5xl"
         >
           Semua yang dibutuhkan sekolah dalam satu tempat.
         </h2>
-        <p class="mt-5 text-lg leading-8 text-[#6b7280]">
+        <p class="mt-5 text-lg leading-8 text-muted">
           Wiyata tidak mencoba menjadi segalanya. Platform ini fokus pada alur
           kerja akademik yang paling sering dijalankan sekolah setiap hari.
         </p>
@@ -484,27 +484,27 @@ const screenshotSlots = [
         >
           <div class="flex flex-col justify-start pt-0.5">
             <span
-              class="mb-2 text-xs font-semibold uppercase tracking-widest text-[#4f46e5]"
+              class="mb-2 text-xs font-semibold uppercase tracking-widest text-brand"
             >
               {{ String(i + 1).padStart(2, "0") }}
             </span>
-            <h3 class="text-xl font-semibold text-[#171322]">
+            <h3 class="text-xl font-semibold text-foreground">
               {{ feature.title }}
             </h3>
           </div>
           <div class="flex flex-col justify-center">
-            <p class="text-base leading-8 text-[#6b7280]">
+            <p class="text-base leading-8 text-muted">
               {{ feature.description }}
             </p>
             <ul class="mt-5 space-y-2">
               <li
                 v-for="point in feature.points"
                 :key="point"
-                class="flex items-start gap-2.5 text-sm text-[#6b7280]"
+                class="flex items-start gap-2.5 text-sm text-muted"
               >
                 <PhCheckCircle
                   :size="16"
-                  class="mt-0.5 shrink-0 text-[#4f46e5]"
+                  class="mt-0.5 shrink-0 text-brand"
                 />
                 {{ point }}
               </li>
@@ -522,13 +522,13 @@ const screenshotSlots = [
       />
       <div class="relative mx-auto max-w-7xl px-6 py-32 lg:px-8">
         <div class="max-w-2xl">
-          <p class="text-sm font-medium text-[#4f46e5]">Untuk setiap peran</p>
+          <p class="text-sm font-medium text-brand">Untuk setiap peran</p>
           <h2
-            class="mt-4 text-4xl font-semibold tracking-tight text-[#171322] sm:text-5xl"
+            class="mt-4 text-4xl font-semibold tracking-tight text-foreground sm:text-5xl"
           >
             Satu workspace. Perspektif berbeda untuk tiap pengguna.
           </h2>
-          <p class="mt-5 text-lg leading-8 text-[#6b7280]">
+          <p class="mt-5 text-lg leading-8 text-muted">
             Wiyata mengenali bahwa siswa, guru, dan admin punya ritme kerja yang
             berbeda. Setiap peran mendapat tampilan dan akses yang relevan.
           </p>
@@ -543,23 +543,23 @@ const screenshotSlots = [
             class="rounded-2xl border border-[#e7e2da] bg-white px-8 py-9 transition hover:border-[#c7c3d7] hover:shadow-md"
           >
             <p
-              class="text-xs font-semibold uppercase tracking-widest text-[#4f46e5]"
+              class="text-xs font-semibold uppercase tracking-widest text-brand"
             >
               {{ role.eyebrow }}
             </p>
-            <h3 class="mt-4 text-xl font-semibold text-[#171322]">
+            <h3 class="mt-4 text-xl font-semibold text-foreground">
               {{ role.title }}
             </h3>
-            <p class="mt-3 text-sm leading-7 text-[#6b7280]">
+            <p class="mt-3 text-sm leading-7 text-muted">
               {{ role.description }}
             </p>
             <ul class="mt-6 space-y-2">
               <li
                 v-for="point in role.points"
                 :key="point"
-                class="flex items-start gap-2 text-sm text-[#6b7280]"
+                class="flex items-start gap-2 text-sm text-muted"
               >
-                <PhDot :size="16" class="mt-1 shrink-0 text-[#4f46e5]" />
+                <PhDot :size="16" class="mt-1 shrink-0 text-brand" />
                 {{ point }}
               </li>
             </ul>
@@ -576,13 +576,13 @@ const screenshotSlots = [
       />
       <div class="relative mx-auto max-w-7xl px-6 py-32 lg:px-8">
         <div class="mx-auto max-w-2xl text-center">
-          <p class="text-sm font-medium text-[#4f46e5]">Demo produk</p>
+          <p class="text-sm font-medium text-brand">Demo produk</p>
           <h2
-            class="mt-4 text-4xl font-semibold tracking-tight text-[#171322] sm:text-5xl"
+            class="mt-4 text-4xl font-semibold tracking-tight text-foreground sm:text-5xl"
           >
             Preview fitur Wiyata sedang disiapkan.
           </h2>
-          <p class="mt-5 text-lg leading-8 text-[#6b7280]">
+          <p class="mt-5 text-lg leading-8 text-muted">
             Video showcase dan screenshot fitur utama Wiyata akan segera
             ditambahkan.
           </p>
@@ -656,7 +656,7 @@ const screenshotSlots = [
     <section class="relative overflow-hidden bg-[#fbfaf8]">
       <!-- Backdrop blobs — exist in section behind the card so backdrop-blur has something to blur -->
       <div
-        class="pointer-events-none absolute right-0 top-2/7 h-40 w-lg -translate-y-1/2 translate-x-1/3 rounded-full bg-[#4f46e5]/22 blur-3xl"
+        class="pointer-events-none absolute right-0 top-2/7 h-40 w-lg -translate-y-1/2 translate-x-1/3 rounded-full bg-brand/22 blur-3xl"
         aria-hidden="true"
       />
       <div
@@ -671,15 +671,15 @@ const screenshotSlots = [
         >
           <div class="grid gap-10 lg:grid-cols-[1fr_auto] lg:items-center">
             <div class="max-w-2xl">
-              <p class="text-sm font-medium text-[#4f46e5]">
+              <p class="text-sm font-medium text-brand">
                 Wiyata Academic Workspace
               </p>
               <h2
-                class="mt-4 text-4xl font-semibold tracking-tight text-[#171322] sm:text-5xl"
+                class="mt-4 text-4xl font-semibold tracking-tight text-foreground sm:text-5xl"
               >
                 Workspace sekolah yang sudah siap dipakai.
               </h2>
-              <p class="mt-5 text-lg leading-8 text-[#6b7280]">
+              <p class="mt-5 text-lg leading-8 text-muted">
                 Gunakan akun Wiyata yang sudah terdaftar untuk melanjutkan
                 aktivitas belajar, mengajar, atau operasional sekolah dari satu
                 tempat yang sama.
@@ -693,7 +693,7 @@ const screenshotSlots = [
               <RouterLink
                 to="/school-registration"
                 id="final-cta-daftar-sekolah"
-                class="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-[#4f46e5] px-8 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#4338ca]"
+                class="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-brand px-8 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#4338ca]"
               >
                 Daftarkan Sekolah
                 <PhArrowRight :size="15" />
@@ -701,7 +701,7 @@ const screenshotSlots = [
               <RouterLink
                 to="/login"
                 id="final-cta-masuk"
-                class="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-[#e0daf7] bg-white/70 px-7 text-sm font-medium text-[#6b7280] transition-colors hover:border-[#c7c3d7] hover:text-[#171322]"
+                class="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-[#e0daf7] bg-white/70 px-7 text-sm font-medium text-muted transition-colors hover:border-[#c7c3d7] hover:text-foreground"
               >
                 Masuk ke Wiyata
                 <PhArrowRight :size="15" />
@@ -724,32 +724,32 @@ const screenshotSlots = [
               alt="Wiyata"
               class="h-6 w-6 rounded-md object-contain"
             />
-            <span class="text-sm font-semibold text-[#171322]">Wiyata</span>
+            <span class="text-sm font-semibold text-foreground">Wiyata</span>
           </div>
 
           <nav class="flex flex-wrap gap-x-7 gap-y-2 text-sm text-[#9ca3af]">
             <a
               href="#fitur"
-              class="hover:text-[#6b7280]"
+              class="hover:text-muted"
               @click="handleAnchorClick($event, '#fitur')"
               >Fitur</a
             >
             <a
               href="#peran"
-              class="hover:text-[#6b7280]"
+              class="hover:text-muted"
               @click="handleAnchorClick($event, '#peran')"
               >Untuk Siapa</a
             >
             <a
               href="#preview"
-              class="hover:text-[#6b7280]"
+              class="hover:text-muted"
               @click="handleAnchorClick($event, '#preview')"
               >Preview</a
             >
-            <RouterLink to="/login" class="hover:text-[#6b7280]"
+            <RouterLink to="/login" class="hover:text-muted"
               >Masuk</RouterLink
             >
-            <RouterLink to="/school-registration" class="hover:text-[#6b7280]">
+            <RouterLink to="/school-registration" class="hover:text-muted">
               Daftarkan Sekolah
             </RouterLink>
           </nav>

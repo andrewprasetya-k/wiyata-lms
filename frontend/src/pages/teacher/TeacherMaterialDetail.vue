@@ -79,13 +79,13 @@ onMounted(loadMaterial)
 
 <template>
   <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
-    <header class="border-b border-[#ebe7df] bg-white">
+    <header class="border-b border-border bg-white">
       <div
-        class="flex min-w-0 items-center gap-2 px-5 py-3 text-xs text-[#6b7280] sm:px-6 lg:px-8"
+        class="flex min-w-0 items-center gap-2 px-5 py-3 text-xs text-muted sm:px-6 lg:px-8"
       >
         <RouterLink
           :to="`/teacher/subjects/${subjectClassId}`"
-          class="inline-flex shrink-0 items-center gap-1.5 transition hover:text-[#4f46e5]"
+          class="inline-flex shrink-0 items-center gap-1.5 transition hover:text-brand"
         >
           <PhArrowLeft :size="15" />
           Mata pelajaran
@@ -93,7 +93,7 @@ onMounted(loadMaterial)
         <span class="text-[#d1d5db]">/</span>
         <span class="shrink-0">Materi</span>
         <span class="text-[#d1d5db]">/</span>
-        <span class="min-w-0 truncate font-medium text-[#171322]">
+        <span class="min-w-0 truncate font-medium text-foreground">
           {{
             material?.materialTitle ??
             (isLoading ? 'Memuat...' : 'Detail materi')
@@ -107,24 +107,24 @@ onMounted(loadMaterial)
       >
         <div class="flex min-w-0 items-start gap-3">
           <div
-            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
           >
             <PhBookOpen :size="21" weight="duotone" />
           </div>
           <div class="min-w-0">
             <h1
-              class="wrap-break-word text-xl font-semibold text-[#171322] sm:text-2xl"
+              class="wrap-break-word text-xl font-semibold text-foreground sm:text-2xl"
             >
               {{ material.materialTitle }}
             </h1>
-            <p class="mt-1 text-sm text-[#6b7280]">
+            <p class="mt-1 text-sm text-muted">
               {{ material.subjectName || 'Materi mata pelajaran' }}
             </p>
           </div>
         </div>
         <span
           v-if="material.materialType"
-          class="inline-flex self-start rounded-lg bg-[#eef2ff] px-2.5 py-1.5 text-xs font-medium uppercase tracking-wide text-[#4f46e5] lg:self-auto"
+          class="inline-flex self-start rounded-lg bg-[#eef2ff] px-2.5 py-1.5 text-xs font-medium uppercase tracking-wide text-brand lg:self-auto"
         >
           {{ material.materialType }}
         </span>
@@ -137,10 +137,10 @@ onMounted(loadMaterial)
         class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]"
       >
         <div
-          class="h-80 animate-pulse rounded-xl border border-[#ebe7df] bg-white"
+          class="h-80 animate-pulse rounded-xl border border-border bg-white"
         />
         <div
-          class="h-64 animate-pulse rounded-xl border border-[#ebe7df] bg-white"
+          class="h-64 animate-pulse rounded-xl border border-border bg-white"
         />
       </section>
 
@@ -153,14 +153,14 @@ onMounted(loadMaterial)
           class="mx-auto text-[#d97757]"
           weight="duotone"
         />
-        <h2 class="mt-3 text-lg font-semibold text-[#171322]">
+        <h2 class="mt-3 text-lg font-semibold text-foreground">
           Materi belum bisa dimuat
         </h2>
         <p class="mt-2 text-sm leading-6 text-[#6b6475]">
           {{ errorMessage }}
         </p>
         <button
-          class="mt-5 rounded-lg bg-[#171322] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#2f2b3a]"
+          class="mt-5 rounded-lg bg-foreground px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#2f2b3a]"
           type="button"
           @click="loadMaterial"
         >
@@ -170,14 +170,14 @@ onMounted(loadMaterial)
 
       <section
         v-else-if="didLoad && !material"
-        class="mx-auto max-w-xl rounded-xl border border-[#ebe7df] bg-white px-5 py-10 text-center"
+        class="mx-auto max-w-xl rounded-xl border border-border bg-white px-5 py-10 text-center"
       >
         <div
-          class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
+          class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
         >
           <PhBookOpen :size="24" weight="duotone" />
         </div>
-        <h2 class="mt-3 text-lg font-semibold text-[#171322]">
+        <h2 class="mt-3 text-lg font-semibold text-foreground">
           Materi tidak ditemukan
         </h2>
         <p class="mt-2 text-sm leading-6 text-[#6b6475]">
@@ -186,7 +186,7 @@ onMounted(loadMaterial)
         </p>
         <RouterLink
           :to="`/teacher/subjects/${subjectClassId}`"
-          class="mt-5 inline-flex items-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-4 py-2.5 text-sm font-medium text-[#4f46e5] transition hover:border-[#4f46e5] hover:bg-[#eef2ff]"
+          class="mt-5 inline-flex items-center gap-2 rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-brand transition hover:border-brand hover:bg-[#eef2ff]"
         >
           <PhArrowLeft :size="16" />
           Kembali ke mata pelajaran
@@ -198,7 +198,7 @@ onMounted(loadMaterial)
         class="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_300px]"
       >
         <div class="min-w-0 space-y-5">
-          <article class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5 sm:p-6">
+          <article class="rounded-xl border border-border bg-white shadow-sm p-5 sm:p-6">
             <p
               class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#9ca3af]"
             >
@@ -218,15 +218,15 @@ onMounted(loadMaterial)
             </div>
           </article>
 
-          <article class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5 sm:p-6">
+          <article class="rounded-xl border border-border bg-white shadow-sm p-5 sm:p-6">
             <div class="flex items-center justify-between gap-3">
               <div>
-                <h2 class="text-base font-semibold text-[#171322]">Lampiran</h2>
+                <h2 class="text-base font-semibold text-foreground">Lampiran</h2>
                 <p class="mt-1 text-xs text-[#8a8494]">
                   {{ material.attachments?.length ?? 0 }} lampiran terhubung
                 </p>
               </div>
-              <PhPaperclip :size="20" class="text-[#4f46e5]" weight="duotone" />
+              <PhPaperclip :size="20" class="text-brand" weight="duotone" />
             </div>
             <AttachmentPreviewList
               class="mt-4"
@@ -247,8 +247,8 @@ onMounted(loadMaterial)
 
         <aside class="min-w-0">
           <div class="space-y-4 lg:sticky lg:top-6">
-            <article class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5">
-              <h2 class="text-sm font-semibold text-[#171322]">
+            <article class="rounded-xl border border-border bg-white shadow-sm p-5">
+              <h2 class="text-sm font-semibold text-foreground">
                 Informasi materi
               </h2>
               <dl class="mt-4 space-y-4">
@@ -294,14 +294,14 @@ onMounted(loadMaterial)
               </dl>
             </article>
 
-            <article class="rounded-xl border border-[#ebe7df] bg-white p-4">
+            <article class="rounded-xl border border-border bg-white p-4">
               <p class="text-xs font-medium uppercase tracking-wide text-[#9ca3af]">
                 Kelola materi
               </p>
               <div class="mt-3 grid gap-2">
                 <RouterLink
                   :to="`/teacher/subjects/${subjectClassId}/materials/${materialId}/edit`"
-                  class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#4f46e5] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+                  class="inline-flex items-center justify-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#4338ca]"
                 >
                   <PhPencilSimple :size="16" />
                   Edit materi

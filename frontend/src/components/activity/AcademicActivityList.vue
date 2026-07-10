@@ -23,7 +23,7 @@ defineProps<{
       <div class="mb-3 flex items-center justify-between gap-3">
         <h2
           :id="`activity-group-${group.label}`"
-          class="text-sm font-medium text-[#171322]"
+          class="text-sm font-medium text-foreground"
         >
           {{ group.label }}
         </h2>

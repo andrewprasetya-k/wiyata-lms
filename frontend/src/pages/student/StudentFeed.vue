@@ -94,9 +94,9 @@ async function scrollToLinkedPost() {
   const el = document.getElementById(`post-${postId}`);
   if (el) {
     el.scrollIntoView({ behavior: "smooth", block: "center" });
-    el.classList.add("ring-2", "ring-[#4f46e5]", "ring-offset-2");
+    el.classList.add("ring-2", "ring-brand", "ring-offset-2");
     setTimeout(
-      () => el.classList.remove("ring-2", "ring-[#4f46e5]", "ring-offset-2"),
+      () => el.classList.remove("ring-2", "ring-brand", "ring-offset-2"),
       3000,
     );
   }
@@ -123,35 +123,35 @@ function getInitials(name?: string) {
 
 <template>
   <main class="min-h-screen max--screen flex-1 bg-[#f8f7f4]">
-    <header class="border-b border-[#ebe7df] bg-white">
+    <header class="border-b border-border bg-white">
       <div class="px-5 py-5 sm:px-6 lg:px-8">
-        <div class="flex min-w-0 items-center gap-2 text-xs text-[#6b7280]">
+        <div class="flex min-w-0 items-center gap-2 text-xs text-muted">
           <RouterLink
-            class="inline-flex shrink-0 items-center gap-1.5 transition hover:text-[#4f46e5]"
+            class="inline-flex shrink-0 items-center gap-1.5 transition hover:text-brand"
             to="/student/subjects"
           >
             <PhArrowLeft :size="15" />
             Mata pelajaran
           </RouterLink>
           <span class="text-[#d1d5db]">/</span>
-          <span class="min-w-0 truncate font-medium text-[#171322]">
+          <span class="min-w-0 truncate font-medium text-foreground">
             Pengumuman kelas
           </span>
         </div>
 
         <div class="mt-4 flex min-w-0 items-start gap-3">
           <div
-            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
           >
             <PhMegaphone :size="21" weight="duotone" />
           </div>
           <div class="min-w-0">
             <h1
-              class="truncate text-2xl font-semibold text-[#171322] sm:text-3xl"
+              class="truncate text-2xl font-semibold text-foreground sm:text-3xl"
             >
               Feed Kelas
             </h1>
-            <p class="mt-2 max-w-3xl text-sm leading-6 text-[#6b7280]">
+            <p class="mt-2 max-w-3xl text-sm leading-6 text-muted">
               Pengumuman dari teacher dan admin untuk kelas aktifmu.
             </p>
           </div>
@@ -167,7 +167,7 @@ function getInitials(name?: string) {
         <div
           v-for="item in 3"
           :key="item"
-          class="h-48 animate-pulse rounded-xl border border-[#ebe7df] bg-white"
+          class="h-48 animate-pulse rounded-xl border border-border bg-white"
         />
       </div>
     </section>
@@ -186,14 +186,14 @@ function getInitials(name?: string) {
             <PhWarningCircle :size="22" weight="duotone" />
           </div>
           <div>
-            <h2 class="text-base font-medium text-[#171322]">
+            <h2 class="text-base font-medium text-foreground">
               Feed kelas tidak dapat dimuat
             </h2>
             <p class="mt-1 text-sm leading-6 text-[#7a7385]">
               {{ errorMessage }}
             </p>
             <button
-              class="mt-4 rounded-lg bg-[#4f46e5] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+              class="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
               type="button"
               @click="loadContext"
             >
@@ -210,7 +210,7 @@ function getInitials(name?: string) {
     >
       <div class="min-w-0">
         <div
-          class="mb-4 flex min-w-0 items-center justify-between gap-3 rounded-xl border border-[#ebe7df] bg-white px-4 py-3"
+          class="mb-4 flex min-w-0 items-center justify-between gap-3 rounded-xl border border-border bg-white px-4 py-3"
         >
           <div class="flex min-w-0 items-center gap-3">
             <span
@@ -218,7 +218,7 @@ function getInitials(name?: string) {
               aria-hidden="true"
             />
             <div class="min-w-0">
-              <p class="truncate text-sm font-medium text-[#171322]">
+              <p class="truncate text-sm font-medium text-foreground">
                 {{ classTitle }}
               </p>
               <p class="mt-0.5 text-[11px] text-[#9ca3af]">
@@ -227,7 +227,7 @@ function getInitials(name?: string) {
             </div>
           </div>
           <span
-            class="shrink-0 rounded-full bg-[#eef2ff] px-2.5 py-1 text-[10px] font-medium text-[#4f46e5]"
+            class="shrink-0 rounded-full bg-[#eef2ff] px-2.5 py-1 text-[10px] font-medium text-brand"
           >
             {{ posts.length }} post
           </span>
@@ -235,17 +235,17 @@ function getInitials(name?: string) {
 
         <article
           v-if="posts.length === 0"
-          class="rounded-xl border border-[#ebe7df] bg-white p-8 text-center"
+          class="rounded-xl border border-border bg-white p-8 text-center"
         >
           <div
-            class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
+            class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
           >
             <PhMegaphone class="h-6 w-6" weight="duotone" />
           </div>
-          <h2 class="mt-3 text-base font-semibold text-[#171322]">
+          <h2 class="mt-3 text-base font-semibold text-foreground">
             Belum ada pengumuman
           </h2>
-          <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#6b7280]">
+          <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-muted">
             Pengumuman akan tampil setelah teacher atau admin membagikan
             informasi untuk kelas ini.
           </p>
@@ -256,7 +256,7 @@ function getInitials(name?: string) {
             v-for="post in posts"
             :key="post.feedId"
             :id="`post-${post.feedId}`"
-            class="min-w-0 rounded-xl border border-[#ebe7df] bg-white p-4 sm:p-5 transition-shadow"
+            class="min-w-0 rounded-xl border border-border bg-white p-4 sm:p-5 transition-shadow"
           >
             <div class="flex min-w-0 items-start gap-3">
               <div
@@ -270,7 +270,7 @@ function getInitials(name?: string) {
                   class="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between"
                 >
                   <div class="min-w-0">
-                    <p class="truncate text-sm font-medium text-[#171322]">
+                    <p class="truncate text-sm font-medium text-foreground">
                       {{ post.creatorName || "Pengirim tidak tersedia" }}
                     </p>
                     <p class="mt-0.5 text-[11px] text-[#9ca3af]">
@@ -291,13 +291,13 @@ function getInitials(name?: string) {
 
                 <div
                   v-if="post.attachments?.length"
-                  class="mt-4 rounded-xl border border-[#ebe7df] bg-[#fbfaf8] p-3"
+                  class="mt-4 rounded-xl border border-border bg-[#fbfaf8] p-3"
                 >
                   <div class="flex items-center justify-between gap-3">
                     <p
                       class="inline-flex items-center gap-1.5 text-xs font-medium text-[#374151]"
                     >
-                      <PhPaperclip :size="15" class="text-[#4f46e5]" />
+                      <PhPaperclip :size="15" class="text-brand" />
                       Lampiran
                     </p>
                     <span class="text-[11px] text-[#9ca3af]">
@@ -321,23 +321,23 @@ function getInitials(name?: string) {
       </div>
 
       <!-- <aside class="min-w-0 space-y-3 lg:sticky lg:top-6">
-        <article class="rounded-xl border border-[#ebe7df] bg-white p-4">
+        <article class="rounded-xl border border-border bg-white p-4">
           <div class="flex items-center gap-2">
-            <PhMegaphone :size="17" class="text-[#4f46e5]" weight="duotone" />
-            <h2 class="text-sm font-medium text-[#171322]">Info kelas</h2>
+            <PhMegaphone :size="17" class="text-brand" weight="duotone" />
+            <h2 class="text-sm font-medium text-foreground">Info kelas</h2>
           </div>
           <dl class="mt-3 divide-y divide-[#f0ede8]">
             <div class="flex items-start justify-between gap-4 py-3">
               <dt class="text-xs text-[#7a7385]">Kelas aktif</dt>
               <dd
-                class="max-w-[58%] text-right text-xs font-medium text-[#171322]"
+                class="max-w-[58%] text-right text-xs font-medium text-foreground"
               >
                 {{ classTitle }}
               </dd>
             </div>
             <div class="flex items-start justify-between gap-4 py-3">
               <dt class="text-xs text-[#7a7385]">Pengumuman</dt>
-              <dd class="text-right text-xs font-medium text-[#171322]">
+              <dd class="text-right text-xs font-medium text-foreground">
                 {{ posts.length }} post
               </dd>
             </div>
@@ -348,7 +348,7 @@ function getInitials(name?: string) {
           <div class="flex items-start gap-3">
             <PhChatCircleText
               :size="19"
-              class="mt-0.5 shrink-0 text-[#4f46e5]"
+              class="mt-0.5 shrink-0 text-brand"
               weight="duotone"
             />
             <div>
@@ -370,21 +370,21 @@ function getInitials(name?: string) {
       class="flex min-h-[calc(100vh-109px)] items-center justify-center px-5 py-10"
     >
       <article
-        class="w-full max-w-xl rounded-xl border border-[#ebe7df] bg-white p-8 text-center"
+        class="w-full max-w-xl rounded-xl border border-border bg-white p-8 text-center"
       >
         <div
-          class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
+          class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
         >
           <PhMegaphone class="h-6 w-6" weight="duotone" />
         </div>
-        <h2 class="mt-3 text-base font-semibold text-[#171322]">
+        <h2 class="mt-3 text-base font-semibold text-foreground">
           Belum ada kelas aktif
         </h2>
-        <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#6b7280]">
+        <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-muted">
           Feed kelas akan tersedia setelah kamu ditempatkan pada kelas aktif.
         </p>
         <RouterLink
-          class="mt-5 inline-flex items-center gap-2 rounded-lg border border-[#ddd8e4] px-4 py-2 text-sm font-medium text-[#4f46e5] transition hover:bg-[#eef2ff]"
+          class="mt-5 inline-flex items-center gap-2 rounded-lg border border-[#ddd8e4] px-4 py-2 text-sm font-medium text-brand transition hover:bg-[#eef2ff]"
           to="/student/subjects"
         >
           Lihat mata pelajaran

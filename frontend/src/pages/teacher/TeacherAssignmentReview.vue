@@ -150,13 +150,13 @@ onMounted(loadData);
 
 <template>
   <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
-    <header class="border-b border-[#ebe7df] bg-white">
+    <header class="border-b border-border bg-white">
       <div
-        class="flex min-w-0 items-center gap-2 px-5 py-3 text-xs text-[#6b7280] sm:px-6 lg:px-8"
+        class="flex min-w-0 items-center gap-2 px-5 py-3 text-xs text-muted sm:px-6 lg:px-8"
       >
         <button
           type="button"
-          class="inline-flex shrink-0 items-center gap-1.5 transition hover:text-[#4f46e5]"
+          class="inline-flex shrink-0 items-center gap-1.5 transition hover:text-brand"
           @click="router.back()"
         >
           <PhArrowLeft :size="15" />
@@ -165,7 +165,7 @@ onMounted(loadData);
         <span class="text-[#d1d5db]">/</span>
         <span class="shrink-0">Tugas</span>
         <span class="text-[#d1d5db]">/</span>
-        <span class="min-w-0 truncate font-medium text-[#171322]">
+        <span class="min-w-0 truncate font-medium text-foreground">
           Nilai pengumpulan
         </span>
       </div>
@@ -178,11 +178,11 @@ onMounted(loadData);
             Nilai pengumpulan
           </p>
           <h1
-            class="mt-1 wrap-break-word text-xl font-semibold text-[#171322] sm:text-2xl"
+            class="mt-1 wrap-break-word text-xl font-semibold text-foreground sm:text-2xl"
           >
             {{ assignment?.assignmentTitle || "Memuat tugas..." }}
           </h1>
-          <p class="mt-1 text-sm text-[#6b7280]">
+          <p class="mt-1 text-sm text-muted">
             Periksa jawaban siswa dan simpan nilai serta umpan balik.
           </p>
         </div>
@@ -192,7 +192,7 @@ onMounted(loadData);
         >
           <button
             type="button"
-            class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#ebe7df] bg-white text-[#6b7280] transition hover:bg-[#f3f1ec] hover:text-[#171322] disabled:cursor-not-allowed disabled:opacity-30"
+            class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-white text-muted transition hover:bg-[#f3f1ec] hover:text-foreground disabled:cursor-not-allowed disabled:opacity-30"
             :disabled="activeIndex === 0"
             title="Siswa sebelumnya"
             @click="prevStudent"
@@ -207,7 +207,7 @@ onMounted(loadData);
           </span>
           <button
             type="button"
-            class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#ebe7df] bg-white text-[#6b7280] transition hover:bg-[#f3f1ec] hover:text-[#171322] disabled:cursor-not-allowed disabled:opacity-30"
+            class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-white text-muted transition hover:bg-[#f3f1ec] hover:text-foreground disabled:cursor-not-allowed disabled:opacity-30"
             :disabled="
               submissions.length === 0 ||
               activeIndex === submissions.length - 1
@@ -226,14 +226,14 @@ onMounted(loadData);
         <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
           <div class="space-y-4">
             <div
-              class="h-28 animate-pulse rounded-xl border border-[#ebe7df] bg-white"
+              class="h-28 animate-pulse rounded-xl border border-border bg-white"
             />
             <div
-              class="h-80 animate-pulse rounded-xl border border-[#ebe7df] bg-white"
+              class="h-80 animate-pulse rounded-xl border border-border bg-white"
             />
           </div>
           <div
-            class="h-96 animate-pulse rounded-xl border border-[#ebe7df] bg-white"
+            class="h-96 animate-pulse rounded-xl border border-border bg-white"
           />
         </div>
       </template>
@@ -247,15 +247,15 @@ onMounted(loadData);
         >
           <PhFile :size="24" weight="duotone" />
         </div>
-        <h2 class="mt-3 text-lg font-semibold text-[#171322]">
+        <h2 class="mt-3 text-lg font-semibold text-foreground">
           Tinjauan belum tersedia
         </h2>
-        <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#6b7280]">
+        <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-muted">
           {{ errorMessage }}
         </p>
         <button
           type="button"
-          class="mt-5 rounded-lg bg-[#171322] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#2f2b3a]"
+          class="mt-5 rounded-lg bg-foreground px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#2f2b3a]"
           @click="loadData"
         >
           Coba lagi
@@ -264,17 +264,17 @@ onMounted(loadData);
 
       <section
         v-else-if="submissions.length === 0"
-        class="mx-auto max-w-xl rounded-xl border border-[#ebe7df] bg-white px-5 py-10 text-center"
+        class="mx-auto max-w-xl rounded-xl border border-border bg-white px-5 py-10 text-center"
       >
         <div
-          class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
+          class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
         >
           <PhUser :size="24" weight="duotone" />
         </div>
-        <h2 class="mt-3 text-lg font-semibold text-[#171322]">
+        <h2 class="mt-3 text-lg font-semibold text-foreground">
           Belum ada pengumpulan
         </h2>
-        <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#6b7280]">
+        <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-muted">
           Belum ada siswa yang mengumpulkan tugas ini. Daftar pengumpulan akan
           muncul setelah siswa mengirim jawaban.
         </p>
@@ -285,22 +285,22 @@ onMounted(loadData);
         class="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_340px]"
       >
         <div class="min-w-0 space-y-5">
-          <article class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5">
+          <article class="rounded-xl border border-border bg-white shadow-sm p-5">
             <div
               class="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
             >
               <div class="flex min-w-0 items-center gap-3">
                 <div
-                  class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#4f46e5] text-sm font-semibold text-white"
+                  class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand text-sm font-semibold text-white"
                 >
                   {{ currentSubmission.studentName?.charAt(0) }}
                 </div>
                 <div class="min-w-0">
-                  <h2 class="truncate text-base font-semibold text-[#171322]">
+                  <h2 class="truncate text-base font-semibold text-foreground">
                     {{ currentSubmission.studentName }}
                   </h2>
                   <p
-                    class="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-[#6b7280]"
+                    class="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-muted"
                   >
                     <PhClock :size="14" weight="duotone" />
                     Dikumpulkan
@@ -332,12 +332,12 @@ onMounted(loadData);
             </div>
           </article>
 
-          <article class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5 sm:p-6">
+          <article class="rounded-xl border border-border bg-white shadow-sm p-5 sm:p-6">
             <div
               class="flex flex-col gap-2 border-b border-[#f3f1ec] pb-4 sm:flex-row sm:items-center sm:justify-between"
             >
               <div>
-                <h2 class="text-base font-semibold text-[#171322]">
+                <h2 class="text-base font-semibold text-foreground">
                   Lampiran jawaban
                 </h2>
                 <p class="mt-1 text-xs text-[#8a8494]">
@@ -345,7 +345,7 @@ onMounted(loadData);
                   dikirim siswa
                 </p>
               </div>
-              <PhFile :size="20" class="text-[#4f46e5]" weight="duotone" />
+              <PhFile :size="20" class="text-brand" weight="duotone" />
             </div>
             <AttachmentPreviewList
               class="mt-4"
@@ -357,7 +357,7 @@ onMounted(loadData);
 
         <aside class="min-w-0">
           <div class="space-y-4 lg:sticky lg:top-6">
-            <section class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5">
+            <section class="rounded-xl border border-border bg-white shadow-sm p-5">
               <div class="flex items-center justify-between gap-3">
                 <div>
                   <p
@@ -365,7 +365,7 @@ onMounted(loadData);
                   >
                     Penilaian
                   </p>
-                  <h2 class="mt-1 text-base font-semibold text-[#171322]">
+                  <h2 class="mt-1 text-base font-semibold text-foreground">
                     Nilai dan umpan balik
                   </h2>
                 </div>
@@ -379,7 +379,7 @@ onMounted(loadData);
 
               <div class="mt-5">
                 <label
-                  class="block text-xs font-medium text-[#6b7280]"
+                  class="block text-xs font-medium text-muted"
                   for="submission-score"
                 >
                   Nilai (0–100)
@@ -391,7 +391,7 @@ onMounted(loadData);
                     type="number"
                     min="0"
                     max="100"
-                    class="w-24 rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3 py-2.5 text-center text-2xl font-semibold text-[#171322] outline-none transition focus:border-[#4f46e5] focus:bg-white"
+                    class="w-24 rounded-lg border border-border bg-[#fbfaf8] px-3 py-2.5 text-center text-2xl font-semibold text-foreground outline-none transition focus:border-brand focus:bg-white"
                     placeholder="0"
                   />
                   <span class="mb-2.5 text-sm text-[#9ca3af]">/ 100</span>
@@ -400,7 +400,7 @@ onMounted(loadData);
 
               <div class="mt-5">
                 <label
-                  class="block text-xs font-medium text-[#6b7280]"
+                  class="block text-xs font-medium text-muted"
                   for="submission-feedback"
                 >
                   Umpan balik untuk siswa
@@ -409,14 +409,14 @@ onMounted(loadData);
                   id="submission-feedback"
                   v-model="feedback"
                   rows="6"
-                  class="mt-2 w-full resize-none rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-3 text-sm leading-6 text-[#374151] outline-none transition placeholder:text-[#a09aa8] focus:border-[#4f46e5] focus:bg-white"
+                  class="mt-2 w-full resize-none rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-3 text-sm leading-6 text-[#374151] outline-none transition placeholder:text-[#a09aa8] focus:border-brand focus:bg-white"
                   placeholder="Tuliskan masukan untuk siswa..."
                 />
               </div>
 
               <button
                 type="button"
-                class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#4f46e5] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#4338ca] disabled:opacity-50"
+                class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#4338ca] disabled:opacity-50"
                 :disabled="submitting"
                 @click="handleGrade"
               >
@@ -435,9 +435,9 @@ onMounted(loadData);
               </button>
             </section>
 
-            <section class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-4">
+            <section class="rounded-xl border border-border bg-white shadow-sm p-4">
               <div class="flex items-center justify-between gap-3 px-1">
-                <h2 class="text-sm font-semibold text-[#171322]">
+                <h2 class="text-sm font-semibold text-foreground">
                   Daftar siswa
                 </h2>
                 <span class="text-xs text-[#8a8494]">
@@ -462,7 +462,7 @@ onMounted(loadData);
                       class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold text-white"
                       :class="
                         activeIndex === index
-                          ? 'bg-[#4f46e5]'
+                          ? 'bg-brand'
                           : 'bg-[#9ca3af]'
                       "
                     >
@@ -473,7 +473,7 @@ onMounted(loadData);
                         class="truncate text-xs font-medium"
                         :class="
                           activeIndex === index
-                            ? 'text-[#4f46e5]'
+                            ? 'text-brand'
                             : 'text-[#374151]'
                         "
                       >
@@ -503,12 +503,12 @@ onMounted(loadData);
 
       <section
         v-else
-        class="mx-auto max-w-xl rounded-xl border border-[#ebe7df] bg-white px-5 py-10 text-center"
+        class="mx-auto max-w-xl rounded-xl border border-border bg-white px-5 py-10 text-center"
       >
-        <h2 class="text-lg font-semibold text-[#171322]">
+        <h2 class="text-lg font-semibold text-foreground">
           Pengumpulan belum dipilih
         </h2>
-        <p class="mt-2 text-sm leading-6 text-[#6b7280]">
+        <p class="mt-2 text-sm leading-6 text-muted">
           Pilih siswa dari daftar pengumpulan untuk mulai meninjau jawaban.
         </p>
       </section>

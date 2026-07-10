@@ -101,15 +101,15 @@ const schoolRows = computed(() => [
 
 <template>
   <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
-    <header class="border-b border-[#ebe7df] bg-white">
+    <header class="border-b border-border bg-white">
       <div class="px-5 py-4 sm:px-6 lg:px-8">
-        <p class="text-[11px] font-medium text-[#4f46e5]">
+        <p class="text-[11px] font-medium text-brand">
           {{ pageEyebrow }}
         </p>
-        <h1 class="mt-1 text-xl font-medium text-[#171322] sm:text-2xl">
+        <h1 class="mt-1 text-xl font-medium text-foreground sm:text-2xl">
           {{ pageTitle }}
         </h1>
-        <p class="mt-1 max-w-2xl text-xs leading-5 text-[#6b7280] sm:text-sm">
+        <p class="mt-1 max-w-2xl text-xs leading-5 text-muted sm:text-sm">
           {{ pageHelper }}
         </p>
       </div>
@@ -120,14 +120,14 @@ const schoolRows = computed(() => [
       class="flex min-h-[65vh] items-center justify-center px-5 py-10 sm:px-6 lg:px-8"
     >
       <article
-        class="w-full max-w-xl rounded-xl border border-[#ebe7df] bg-white p-8 text-center"
+        class="w-full max-w-xl rounded-xl border border-border bg-white p-8 text-center"
       >
         <div
-          class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
+          class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
         >
           <PhUserCircle :size="25" weight="duotone" />
         </div>
-        <h2 class="mt-3 text-lg font-medium text-[#171322]">
+        <h2 class="mt-3 text-lg font-medium text-foreground">
           Data profil belum tersedia
         </h2>
         <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#7a7385]">
@@ -143,15 +143,15 @@ const schoolRows = computed(() => [
     >
       <aside class="min-w-0">
         <article
-          class="rounded-xl border border-[#ebe7df] bg-white p-5 lg:sticky lg:top-6"
+          class="rounded-xl border border-border bg-white p-5 lg:sticky lg:top-6"
         >
           <div
-            class="flex h-14 w-14 items-center justify-center rounded-xl bg-[#4f46e5] text-base font-medium text-white"
+            class="flex h-14 w-14 items-center justify-center rounded-xl bg-brand text-base font-medium text-white"
           >
             {{ initials }}
           </div>
           <p class="mt-4 text-xs text-[#8a8494]">Akun Wiyata</p>
-          <h2 class="mt-1 wrap-break-word text-xl font-medium text-[#171322]">
+          <h2 class="mt-1 wrap-break-word text-xl font-medium text-foreground">
             {{ auth.user.fullName || "Nama tidak tersedia" }}
           </h2>
           <p class="mt-1 break-all text-sm leading-6 text-[#6b6475]">
@@ -162,7 +162,7 @@ const schoolRows = computed(() => [
             <div class="flex items-start gap-3">
               <PhShieldCheck
                 :size="20"
-                class="mt-0.5 shrink-0 text-[#4f46e5]"
+                class="mt-0.5 shrink-0 text-brand"
                 weight="duotone"
               />
               <p class="text-sm leading-6 text-[#5f5a70]">
@@ -177,16 +177,16 @@ const schoolRows = computed(() => [
       <div class="min-w-0 space-y-5">
         <section class="grid min-w-0 gap-5 xl:grid-cols-2">
           <article
-            class="min-w-0 rounded-xl border border-[#ebe7df] bg-white p-5"
+            class="min-w-0 rounded-xl border border-border bg-white p-5"
           >
             <div class="mb-4 flex min-w-0 items-center gap-3">
               <div
-                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#eef2ff] text-[#4f46e5]"
+                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#eef2ff] text-brand"
               >
                 <PhIdentificationCard :size="21" weight="duotone" />
               </div>
               <div class="min-w-0">
-                <h2 class="text-sm font-medium text-[#171322]">
+                <h2 class="text-sm font-medium text-foreground">
                   Identitas akun
                 </h2>
                 <p class="mt-1 text-xs text-[#8a8494]">
@@ -195,7 +195,7 @@ const schoolRows = computed(() => [
               </div>
             </div>
 
-            <dl class="divide-y divide-[#ebe7df]">
+            <dl class="divide-y divide-border">
               <div
                 v-for="row in profileRows"
                 :key="row.label"
@@ -203,7 +203,7 @@ const schoolRows = computed(() => [
               >
                 <dt class="text-xs text-[#8a8494]">{{ row.label }}</dt>
                 <dd
-                  class="wrap-break-word text-sm font-medium text-[#171322] sm:text-right"
+                  class="wrap-break-word text-sm font-medium text-foreground sm:text-right"
                 >
                   {{ row.value }}
                 </dd>
@@ -212,7 +212,7 @@ const schoolRows = computed(() => [
           </article>
 
           <article
-            class="min-w-0 rounded-xl border border-[#ebe7df] bg-white p-5"
+            class="min-w-0 rounded-xl border border-border bg-white p-5"
           >
             <div class="mb-4 flex min-w-0 items-center gap-3">
               <div
@@ -221,7 +221,7 @@ const schoolRows = computed(() => [
                 <PhBuildings :size="21" weight="duotone" />
               </div>
               <div class="min-w-0">
-                <h2 class="text-sm font-medium text-[#171322]">
+                <h2 class="text-sm font-medium text-foreground">
                   Konteks sekolah
                 </h2>
                 <p class="mt-1 text-xs text-[#8a8494]">
@@ -230,7 +230,7 @@ const schoolRows = computed(() => [
               </div>
             </div>
 
-            <dl class="divide-y divide-[#ebe7df]">
+            <dl class="divide-y divide-border">
               <div
                 v-for="row in schoolRows"
                 :key="row.label"
@@ -238,7 +238,7 @@ const schoolRows = computed(() => [
               >
                 <dt class="text-xs text-[#8a8494]">{{ row.label }}</dt>
                 <dd
-                  class="wrap-break-word text-sm font-medium text-[#171322] sm:text-right"
+                  class="wrap-break-word text-sm font-medium text-foreground sm:text-right"
                 >
                   {{ row.value }}
                 </dd>
@@ -249,7 +249,7 @@ const schoolRows = computed(() => [
 
         <section
           v-if="auth.memberships.length > 0"
-          class="min-w-0 rounded-xl border border-[#ebe7df] bg-white p-5"
+          class="min-w-0 rounded-xl border border-border bg-white p-5"
         >
           <div class="flex min-w-0 items-center gap-3">
             <div
@@ -258,7 +258,7 @@ const schoolRows = computed(() => [
               <PhUserCircle :size="21" weight="duotone" />
             </div>
             <div class="min-w-0">
-              <h2 class="text-sm font-medium text-[#171322]">Akses sekolah</h2>
+              <h2 class="text-sm font-medium text-foreground">Akses sekolah</h2>
               <p class="mt-1 text-xs text-[#8a8494]">
                 Sekolah dan peran yang tersedia untuk akun ini.
               </p>
@@ -269,9 +269,9 @@ const schoolRows = computed(() => [
             <article
               v-for="membership in auth.memberships"
               :key="membership.schoolUserId"
-              class="min-w-0 rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-4"
+              class="min-w-0 rounded-lg border border-border bg-[#fbfaf8] p-4"
             >
-              <p class="truncate text-sm font-medium text-[#171322]">
+              <p class="truncate text-sm font-medium text-foreground">
                 {{ membership.school.name || "Sekolah tidak tersedia" }}
               </p>
               <p class="mt-1 truncate text-xs text-[#8a8494]">
@@ -281,7 +281,7 @@ const schoolRows = computed(() => [
                 <span
                   v-for="role in membership.roles"
                   :key="role"
-                  class="rounded-full bg-[#eef2ff] px-2.5 py-1 text-xs font-medium text-[#4f46e5]"
+                  class="rounded-full bg-[#eef2ff] px-2.5 py-1 text-xs font-medium text-brand"
                 >
                   {{ roleLabels[role] ?? role }}
                 </span>
@@ -298,9 +298,9 @@ const schoolRows = computed(() => [
 
         <section
           v-else
-          class="rounded-xl border border-[#ebe7df] bg-white p-6 text-center"
+          class="rounded-xl border border-border bg-white p-6 text-center"
         >
-          <h2 class="text-sm font-medium text-[#171322]">
+          <h2 class="text-sm font-medium text-foreground">
             Akses sekolah belum tersedia
           </h2>
           <p class="mt-2 text-sm leading-6 text-[#7a7385]">

@@ -99,7 +99,7 @@ const statCards = computed(() => [
     label: "Total Siswa",
     value: stats.value?.totalStudents ?? 0,
     icon: PhUsers,
-    color: "bg-[#eef2ff] text-[#4f46e5]",
+    color: "bg-[#eef2ff] text-brand",
   },
   {
     label: "Total Guru",
@@ -127,7 +127,7 @@ const quickActions = [
     description: "Undang atau impor siswa baru",
     icon: PhUsers,
     to: "/admin/users",
-    color: "bg-[#eef2ff] text-[#4f46e5]",
+    color: "bg-[#eef2ff] text-brand",
     border: "hover:border-[#c7d2fe]",
   },
   {
@@ -151,7 +151,7 @@ const quickActions = [
     description: "Masukkan siswa ke kelas",
     icon: PhClipboardText,
     to: "/admin/enrollments",
-    color: "bg-[#f3f1ec] text-[#6b7280]",
+    color: "bg-[#f3f1ec] text-muted",
     border: "hover:border-[#d1d5db]",
   },
   {
@@ -209,12 +209,12 @@ onMounted(loadDashboard);
     <!-- Main content -->
     <section class="min-w-0">
       <!-- SECTION 1 — Greeting header -->
-      <header class="border-b border-[#ebe7df] bg-white">
+      <header class="border-b border-border bg-white">
         <div
           class="flex min-w-0 flex-col gap-3 px-5 py-5 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8"
         >
           <div class="min-w-0">
-            <h1 class="mt-1 text-2xl font-semibold text-[#171322] sm:text-3xl">
+            <h1 class="mt-1 text-2xl font-semibold text-foreground sm:text-3xl">
               Halo, {{ firstName }}
             </h1>
           </div>
@@ -234,14 +234,14 @@ onMounted(loadDashboard);
               weight="duotone"
             />
             <div class="min-w-0">
-              <p class="text-sm font-medium text-[#171322]">
+              <p class="text-sm font-medium text-foreground">
                 Dashboard tidak dapat dimuat
               </p>
               <p class="mt-1 text-sm leading-6 text-[#7a7385]">
                 {{ errorMessage }}
               </p>
               <button
-                class="mt-3 rounded-lg bg-[#4f46e5] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+                class="mt-3 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
                 type="button"
                 @click="loadDashboard"
               >
@@ -258,14 +258,14 @@ onMounted(loadDashboard);
               <div
                 v-for="i in 4"
                 :key="i"
-                class="h-28 animate-pulse rounded-xl border border-[#ebe7df] bg-white shadow-sm"
+                class="h-28 animate-pulse rounded-xl border border-border bg-white shadow-sm"
               />
             </template>
             <template v-else>
               <article
                 v-for="card in statCards"
                 :key="card.label"
-                class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-4"
+                class="rounded-xl border border-border bg-white shadow-sm p-4"
               >
                 <div
                   class="flex h-10 w-10 items-center justify-center rounded-xl"
@@ -273,10 +273,10 @@ onMounted(loadDashboard);
                 >
                   <component :is="card.icon" :size="20" weight="duotone" />
                 </div>
-                <p class="mt-4 text-2xl font-semibold text-[#171322]">
+                <p class="mt-4 text-2xl font-semibold text-foreground">
                   {{ card.value }}
                 </p>
-                <p class="mt-1 text-xs text-[#6b7280]">{{ card.label }}</p>
+                <p class="mt-1 text-xs text-muted">{{ card.label }}</p>
               </article>
             </template>
           </div>
@@ -284,15 +284,15 @@ onMounted(loadDashboard);
 
         <!-- SECTION 3 — Setup Progress -->
         <section
-          class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5"
+          class="rounded-xl border border-border bg-white shadow-sm p-5"
           :class="{ 'animate-pulse': loading }"
         >
           <div class="mb-4 flex items-center justify-between gap-3">
             <div>
-              <h2 class="text-sm font-semibold text-[#171322]">
+              <h2 class="text-sm font-semibold text-foreground">
                 Setup Sekolah
               </h2>
-              <p class="mt-0.5 text-xs text-[#6b7280]">
+              <p class="mt-0.5 text-xs text-muted">
                 Kelengkapan konfigurasi awal sebelum pembelajaran dimulai.
               </p>
             </div>
@@ -342,7 +342,7 @@ onMounted(loadDashboard);
               <span class="min-w-0 flex-1">
                 <span
                   class="block text-sm font-medium"
-                  :class="step.done ? 'text-[#171322]' : 'text-[#6b7280]'"
+                  :class="step.done ? 'text-foreground' : 'text-muted'"
                 >
                   {{ step.label }}
                 </span>
@@ -352,7 +352,7 @@ onMounted(loadDashboard);
               </span>
               <PhArrowRight
                 :size="14"
-                class="shrink-0 text-[#d1d5db] transition group-hover:text-[#4f46e5]"
+                class="shrink-0 text-[#d1d5db] transition group-hover:text-brand"
               />
             </RouterLink>
           </div>
@@ -373,13 +373,13 @@ onMounted(loadDashboard);
 
         <!-- SECTION 4 — Quick Actions -->
         <section>
-          <h2 class="mb-3 text-sm font-semibold text-[#171322]">Aksi Cepat</h2>
+          <h2 class="mb-3 text-sm font-semibold text-foreground">Aksi Cepat</h2>
           <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
             <RouterLink
               v-for="action in quickActions"
               :key="action.label"
               :to="action.to"
-              class="group flex flex-col gap-3 rounded-xl border border-[#ebe7df] bg-white shadow-sm p-4 transition hover:-translate-y-0.5 hover:shadow-md"
+              class="group flex flex-col gap-3 rounded-xl border border-border bg-white shadow-sm p-4 transition hover:-translate-y-0.5 hover:shadow-md"
               :class="action.border"
             >
               <div
@@ -389,16 +389,16 @@ onMounted(loadDashboard);
                 <component :is="action.icon" :size="20" weight="duotone" />
               </div>
               <div class="min-w-0">
-                <p class="text-sm font-semibold text-[#171322]">
+                <p class="text-sm font-semibold text-foreground">
                   {{ action.label }}
                 </p>
-                <p class="mt-1 text-xs leading-4 text-[#6b7280]">
+                <p class="mt-1 text-xs leading-4 text-muted">
                   {{ action.description }}
                 </p>
               </div>
               <PhArrowRight
                 :size="14"
-                class="mt-auto text-[#d1d5db] transition group-hover:translate-x-0.5 group-hover:text-[#4f46e5]"
+                class="mt-auto text-[#d1d5db] transition group-hover:translate-x-0.5 group-hover:text-brand"
               />
             </RouterLink>
           </div>
@@ -406,15 +406,15 @@ onMounted(loadDashboard);
 
         <!-- SECTION 5 — Recent Activity -->
         <section
-          class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5"
+          class="rounded-xl border border-border bg-white shadow-sm p-5"
         >
           <div class="mb-4 flex items-center gap-2">
             <PhClockCountdown
               :size="17"
               weight="duotone"
-              class="text-[#6b7280]"
+              class="text-muted"
             />
-            <h2 class="text-sm font-semibold text-[#171322]">
+            <h2 class="text-sm font-semibold text-foreground">
               Aktivitas Terbaru
             </h2>
           </div>
@@ -435,10 +435,10 @@ onMounted(loadDashboard);
               class="mx-auto h-7 w-7 text-[#d1d5db]"
               weight="duotone"
             />
-            <p class="mt-3 text-sm font-medium text-[#171322]">
+            <p class="mt-3 text-sm font-medium text-foreground">
               Belum ada aktivitas
             </p>
-            <p class="mt-1 text-xs leading-5 text-[#6b7280]">
+            <p class="mt-1 text-xs leading-5 text-muted">
               Aktivitas admin dan guru di sekolah ini akan muncul di sini.
             </p>
           </div>
@@ -450,15 +450,15 @@ onMounted(loadDashboard);
               class="flex items-start gap-3 py-3 first:pt-0 last:pb-0"
             >
               <div
-                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#f3f1ec] text-[10px] font-semibold text-[#6b7280]"
+                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#f3f1ec] text-[10px] font-semibold text-muted"
               >
                 {{ activity.userName?.charAt(0)?.toUpperCase() ?? "?" }}
               </div>
               <div class="min-w-0 flex-1">
-                <p class="text-sm leading-5 text-[#171322]">
+                <p class="text-sm leading-5 text-foreground">
                   <span class="font-medium">{{ activity.userName }}</span>
                   {{ " " }}
-                  <span class="text-[#6b7280]">{{ activity.action }}</span>
+                  <span class="text-muted">{{ activity.action }}</span>
                 </p>
                 <p class="mt-0.5 text-xs text-[#9ca3af]">
                   {{ formatDateTime(activity.timestamp) }}
@@ -472,7 +472,7 @@ onMounted(loadDashboard);
 
     <!-- Right sidebar -->
     <aside
-      class="min-w-0 border-t border-[#ebe7df] bg-white xl:sticky xl:top-0 xl:h-dvh xl:min-h-0 xl:overflow-y-auto xl:border-l xl:border-t-0"
+      class="min-w-0 border-t border-border bg-white xl:sticky xl:top-0 xl:h-dvh xl:min-h-0 xl:overflow-y-auto xl:border-l xl:border-t-0"
     >
       <div class="flex flex-col gap-5 p-5">
         <!-- Chat -->
@@ -480,9 +480,9 @@ onMounted(loadDashboard);
 
         <!-- Enrollment distribution -->
         <section
-          class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-4"
+          class="rounded-xl border border-border bg-white shadow-sm p-4"
         >
-          <h3 class="mb-3 text-sm font-semibold text-[#171322]">
+          <h3 class="mb-3 text-sm font-semibold text-foreground">
             Distribusi Kelas
           </h3>
 
@@ -498,7 +498,7 @@ onMounted(loadDashboard);
             v-else-if="!stats?.enrollmentTrends?.length"
             class="rounded-lg bg-[#fbfaf8] px-3 py-5 text-center"
           >
-            <p class="text-xs text-[#6b7280]">
+            <p class="text-xs text-muted">
               Belum ada data distribusi kelas.
             </p>
           </div>
@@ -513,7 +513,7 @@ onMounted(loadDashboard);
                 <span class="truncate font-medium text-[#374151]">
                   {{ trend.className }}
                 </span>
-                <span class="shrink-0 text-[#6b7280]">
+                <span class="shrink-0 text-muted">
                   {{ trend.students }} siswa
                 </span>
               </div>
@@ -521,7 +521,7 @@ onMounted(loadDashboard);
                 class="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-[#f3f1ec]"
               >
                 <div
-                  class="h-full rounded-full bg-[#4f46e5] transition-all"
+                  class="h-full rounded-full bg-brand transition-all"
                   :style="{
                     width: `${Math.min(100, (trend.students / Math.max(1, ...stats!.enrollmentTrends.map((t) => t.students))) * 100)}%`,
                   }"

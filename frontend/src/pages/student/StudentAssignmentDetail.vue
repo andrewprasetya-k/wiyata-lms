@@ -192,12 +192,12 @@ async function handleSubmit() {
 
 <template>
   <main class="min-h-screen min-w-0 flex-1 bg-[#f8f7f4]">
-    <header class="border-b border-[#ebe7df] bg-white">
+    <header class="border-b border-border bg-white">
       <div
-        class="flex min-w-0 items-center gap-2 px-5 py-5 text-xs text-[#6b7280] sm:px-6 lg:px-8"
+        class="flex min-w-0 items-center gap-2 px-5 py-5 text-xs text-muted sm:px-6 lg:px-8"
       >
         <RouterLink
-          class="inline-flex shrink-0 items-center gap-1.5 transition hover:text-[#4f46e5]"
+          class="inline-flex shrink-0 items-center gap-1.5 transition hover:text-brand"
           :to="`/student/subjects/${subjectClassId}`"
         >
           <PhArrowLeft :size="15" />
@@ -216,7 +216,7 @@ async function handleSubmit() {
         >
           /
         </span>
-        <span class="min-w-0 truncate font-medium text-[#171322]">
+        <span class="min-w-0 truncate font-medium text-foreground">
           {{ assignment?.assignmentTitle || "Detail tugas" }}
         </span>
       </div>
@@ -228,14 +228,14 @@ async function handleSubmit() {
     >
       <div class="space-y-4">
         <div
-          class="h-52 animate-pulse rounded-xl border border-[#ebe7df] bg-white"
+          class="h-52 animate-pulse rounded-xl border border-border bg-white"
         />
         <div
-          class="h-72 animate-pulse rounded-xl border border-[#ebe7df] bg-white"
+          class="h-72 animate-pulse rounded-xl border border-border bg-white"
         />
       </div>
       <div
-        class="h-96 animate-pulse rounded-xl border border-[#ebe7df] bg-white"
+        class="h-96 animate-pulse rounded-xl border border-border bg-white"
       />
     </section>
 
@@ -253,14 +253,14 @@ async function handleSubmit() {
             <PhWarningCircle :size="22" weight="duotone" />
           </div>
           <div>
-            <h1 class="text-base font-semibold text-[#171322]">
+            <h1 class="text-base font-semibold text-foreground">
               Tidak bisa memuat tugas
             </h1>
             <p class="mt-1 text-sm leading-6 text-[#7a7385]">
               {{ errorMessage }}
             </p>
             <button
-              class="mt-4 rounded-lg bg-[#4f46e5] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+              class="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
               type="button"
               @click="loadAssignment"
             >
@@ -276,21 +276,21 @@ async function handleSubmit() {
       class="flex min-h-[calc(100vh-49px)] items-center justify-center px-5 py-10"
     >
       <article
-        class="w-full max-w-xl rounded-xl border border-[#ebe7df] bg-white p-6 text-center"
+        class="w-full max-w-xl rounded-xl border border-border bg-white p-6 text-center"
       >
         <div
-          class="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
+          class="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
         >
           <PhClipboardText :size="22" weight="duotone" />
         </div>
-        <h1 class="mt-4 text-base font-semibold text-[#171322]">
+        <h1 class="mt-4 text-base font-semibold text-foreground">
           Tugas tidak ditemukan
         </h1>
         <p class="mt-1 text-sm leading-6 text-[#7a7385]">
           Tugas ini tidak tersedia atau sudah tidak dapat diakses.
         </p>
         <RouterLink
-          class="mt-5 inline-flex items-center gap-2 rounded-lg bg-[#4f46e5] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+          class="mt-5 inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
           :to="`/student/subjects/${subjectClassId}`"
         >
           <PhArrowLeft :size="16" />
@@ -304,10 +304,10 @@ async function handleSubmit() {
       class="mx-auto grid max-w-screen min-w-0 gap-5 px-5 py-5 sm:px-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:px-8 lg:py-6"
     >
       <div class="min-w-0 space-y-4">
-        <article class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5 sm:p-6">
+        <article class="rounded-xl border border-border bg-white shadow-sm p-5 sm:p-6">
           <div class="flex min-w-0 items-start gap-4">
             <div
-              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
+              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
             >
               <PhClipboardText :size="22" weight="duotone" />
             </div>
@@ -315,24 +315,24 @@ async function handleSubmit() {
               <div class="flex flex-wrap items-center gap-2">
                 <span
                   v-if="assignment.categoryName"
-                  class="rounded-full bg-[#eef2ff] px-2.5 py-1 text-[11px] font-medium text-[#4f46e5]"
+                  class="rounded-full bg-[#eef2ff] px-2.5 py-1 text-[11px] font-medium text-brand"
                 >
                   {{ assignment.categoryName }}
                 </span>
                 <span
                   v-if="assignment.subjectName || assignment.subjectCode"
-                  class="rounded-full bg-[#f8f7f4] px-2.5 py-1 text-[11px] text-[#6b7280]"
+                  class="rounded-full bg-[#f8f7f4] px-2.5 py-1 text-[11px] text-muted"
                 >
                   {{ assignment.subjectName || assignment.subjectCode }}
                 </span>
               </div>
               <h1
-                class="mt-3 wrap-break-word text-xl font-semibold leading-7 text-[#171322] sm:text-2xl"
+                class="mt-3 wrap-break-word text-xl font-semibold leading-7 text-foreground sm:text-2xl"
               >
                 {{ assignment.assignmentTitle }}
               </h1>
               <div
-                class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-[#6b7280]"
+                class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted"
               >
                 <span class="inline-flex items-center gap-1.5">
                   <PhCalendarBlank :size="15" />
@@ -354,7 +354,7 @@ async function handleSubmit() {
           </div>
 
           <div class="mt-6 border-t border-[#f0ede8] pt-5">
-            <h2 class="text-sm font-semibold text-[#171322]">Instruksi tugas</h2>
+            <h2 class="text-sm font-semibold text-foreground">Instruksi tugas</h2>
             <p
               v-if="assignment.assignmentDescription"
               class="mt-3 whitespace-pre-line wrap-break-word text-sm leading-7 text-[#4a4356]"
@@ -367,10 +367,10 @@ async function handleSubmit() {
           </div>
         </article>
 
-        <article class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5 sm:p-6">
+        <article class="rounded-xl border border-border bg-white shadow-sm p-5 sm:p-6">
           <div class="flex items-center gap-2">
-            <PhPaperclip :size="18" class="text-[#4f46e5]" />
-            <h2 class="text-sm font-semibold text-[#171322]">
+            <PhPaperclip :size="18" class="text-brand" />
+            <h2 class="text-sm font-semibold text-foreground">
               Lampiran dari guru
             </h2>
           </div>
@@ -394,10 +394,10 @@ async function handleSubmit() {
       </div>
 
       <aside class="min-w-0 lg:sticky lg:top-6">
-        <article class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5">
+        <article class="rounded-xl border border-border bg-white shadow-sm p-5">
           <div class="flex items-start justify-between gap-3">
             <div>
-              <p class="text-sm font-semibold text-[#171322]">
+              <p class="text-sm font-semibold text-foreground">
                 Pengumpulan tugas
               </p>
             </div>
@@ -410,7 +410,7 @@ async function handleSubmit() {
               class="shrink-0 rounded-full px-2.5 py-1 text-[10px] font-medium"
               :class="
                 submissionStatus.status === 'graded'
-                  ? 'bg-[#eef2ff] text-[#4f46e5]'
+                  ? 'bg-[#eef2ff] text-brand'
                   : submissionStatus.status === 'submitted'
                     ? 'bg-[#ecfdf3] text-[#027a48]'
                     : 'bg-[#fff7ed] text-[#ea580c]'
@@ -431,7 +431,7 @@ async function handleSubmit() {
           >
             <div class="flex items-start justify-between gap-4 py-3">
               <dt class="text-xs text-[#7a7385]">Tenggat</dt>
-              <dd class="text-right text-xs font-medium text-[#171322]">
+              <dd class="text-right text-xs font-medium text-foreground">
                 {{
                   assignment.deadline
                     ? formatDateTime(assignment.deadline)
@@ -444,7 +444,7 @@ async function handleSubmit() {
               class="flex items-start justify-between gap-4 py-3"
             >
               <dt class="text-xs text-[#7a7385]">Dibuat</dt>
-              <dd class="text-right text-xs font-medium text-[#171322]">
+              <dd class="text-right text-xs font-medium text-foreground">
                 {{ formatDateTime(assignment.createdAt) }}
               </dd>
             </div>
@@ -463,7 +463,7 @@ async function handleSubmit() {
               {{ submissionError }}
             </p>
             <button
-              class="mt-3 rounded-lg bg-white px-3 py-2 text-xs font-medium text-[#4f46e5] transition hover:bg-[#eef2ff]"
+              class="mt-3 rounded-lg bg-white px-3 py-2 text-xs font-medium text-brand transition hover:bg-[#eef2ff]"
               type="button"
               @click="loadMySubmissionStatus"
             >
@@ -486,7 +486,7 @@ async function handleSubmit() {
                   weight="duotone"
                 />
                 <div>
-                  <p class="text-sm font-semibold text-[#171322]">
+                  <p class="text-sm font-semibold text-foreground">
                     {{
                       submissionStatus.status === "graded"
                         ? "Tugas sudah dinilai"
@@ -515,10 +515,10 @@ async function handleSubmit() {
               "
               class="rounded-xl border border-[#c7d2fe] bg-[#eef2ff] p-4"
             >
-              <p class="text-xs font-medium text-[#4f46e5]">
+              <p class="text-xs font-medium text-brand">
                 Nilai dan feedback
               </p>
-              <p class="mt-2 text-3xl font-medium text-[#171322]">
+              <p class="mt-2 text-3xl font-medium text-foreground">
                 {{ submissionStatus.submission.assessment.score }}
               </p>
               <p
@@ -545,7 +545,7 @@ async function handleSubmit() {
               v-if="submissionStatus.submission?.attachments?.length"
               class="min-w-0"
             >
-              <p class="text-xs font-medium text-[#171322]">
+              <p class="text-xs font-medium text-foreground">
                 File yang dikumpulkan
               </p>
               <AttachmentPreviewList
@@ -571,7 +571,7 @@ async function handleSubmit() {
                 Kamu dapat memilih lebih dari satu file.
               </p>
               <label
-                class="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-lg border border-[#ddd8e4] bg-white px-3 py-2 text-xs font-medium text-[#4f46e5] transition hover:bg-[#eef2ff]"
+                class="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-lg border border-[#ddd8e4] bg-white px-3 py-2 text-xs font-medium text-brand transition hover:bg-[#eef2ff]"
               >
                 <PhPaperclip :size="16" />
                 Pilih file
@@ -588,7 +588,7 @@ async function handleSubmit() {
               <div
                 v-for="(file, index) in selectedFiles"
                 :key="`${file.name}-${file.size}-${index}`"
-                class="flex max-w-full items-center justify-between gap-3 overflow-hidden rounded-lg border border-[#ebe7df] bg-white px-3 py-3"
+                class="flex max-w-full items-center justify-between gap-3 overflow-hidden rounded-lg border border-border bg-white px-3 py-3"
               >
                 <div class="min-w-0 flex-1 overflow-hidden">
                   <p class="truncate text-xs font-medium text-[#3f3a4a]">
@@ -621,7 +621,7 @@ async function handleSubmit() {
               :class="
                 isSubmitting || selectedFiles.length === 0
                   ? 'cursor-not-allowed bg-[#d8d5dd]'
-                  : 'bg-[#4f46e5] hover:bg-[#4338ca]'
+                  : 'bg-brand hover:bg-[#4338ca]'
               "
               :disabled="isSubmitting || selectedFiles.length === 0"
               type="button"

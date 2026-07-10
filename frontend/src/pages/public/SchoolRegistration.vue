@@ -73,7 +73,7 @@ async function submit() {
 </script>
 
 <template>
-  <main class="min-h-screen bg-[#fbfaf8] px-6 py-8 text-[#171322]">
+  <main class="min-h-screen bg-[#fbfaf8] px-6 py-8 text-foreground">
     <div class="mx-auto flex w-full max-w-5xl items-center justify-between">
       <RouterLink to="/home" class="flex items-center gap-3">
         <img src="/logo_fix.svg" alt="Wiyata" class="h-9 w-9 rounded-lg" />
@@ -81,7 +81,7 @@ async function submit() {
       </RouterLink>
       <RouterLink
         to="/login"
-        class="rounded-lg border border-[#ebe7df] bg-white px-4 py-2 text-sm font-medium text-[#5f5968] transition hover:text-[#171322]"
+        class="rounded-lg border border-border bg-white px-4 py-2 text-sm font-medium text-[#5f5968] transition hover:text-foreground"
       >
         Masuk
       </RouterLink>
@@ -91,7 +91,7 @@ async function submit() {
       class="mx-auto mt-12 grid max-w-5xl gap-8 lg:grid-cols-[0.9fr_1.1fr]"
     >
       <div class="pt-4">
-        <p class="text-sm font-medium text-[#4f46e5]">Pendaftaran sekolah</p>
+        <p class="text-sm font-medium text-brand">Pendaftaran sekolah</p>
         <h1 class="mt-4 text-4xl font-semibold leading-tight lg:text-5xl">
           Daftarkan sekolah untuk memakai Wiyata.
         </h1>
@@ -101,7 +101,7 @@ async function submit() {
         </p>
       </div>
 
-      <div class="rounded-xl border border-[#ebe7df] bg-white p-6 shadow-sm">
+      <div class="rounded-xl border border-border bg-white p-6 shadow-sm">
         <div v-if="submittedEmail" class="space-y-5">
           <div class="rounded-xl border border-[#dbe7d5] bg-[#f5fbf2] p-5">
             <p class="text-base font-semibold text-[#1f3d25]">
@@ -114,7 +114,7 @@ async function submit() {
           </div>
           <RouterLink
             to="/home"
-            class="inline-flex h-10 items-center justify-center rounded-lg border border-[#ebe7df] px-4 text-sm font-medium text-[#5f5968] transition hover:text-[#171322]"
+            class="inline-flex h-10 items-center justify-center rounded-lg border border-border px-4 text-sm font-medium text-[#5f5968] transition hover:text-foreground"
           >
             Kembali ke beranda
           </RouterLink>
@@ -134,7 +134,7 @@ async function submit() {
             </span>
             <input
               v-model="form.schoolName"
-              class="h-11 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3 text-sm outline-none transition focus:border-[#4f46e5] focus:bg-white"
+              class="h-11 w-full rounded-lg border border-border bg-[#fbfaf8] px-3 text-sm outline-none transition focus:border-brand focus:bg-white"
               type="text"
               autocomplete="organization"
               placeholder="SMA Wiyata Mandala"
@@ -148,7 +148,7 @@ async function submit() {
             </span>
             <input
               v-model="form.npsn"
-              class="h-11 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3 text-sm outline-none transition focus:border-[#4f46e5] focus:bg-white"
+              class="h-11 w-full rounded-lg border border-border bg-[#fbfaf8] px-3 text-sm outline-none transition focus:border-brand focus:bg-white"
               type="text"
               placeholder="12345678"
             />
@@ -161,7 +161,7 @@ async function submit() {
               </span>
               <input
                 v-model="form.picName"
-                class="h-11 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3 text-sm outline-none transition focus:border-[#4f46e5] focus:bg-white"
+                class="h-11 w-full rounded-lg border border-border bg-[#fbfaf8] px-3 text-sm outline-none transition focus:border-brand focus:bg-white"
                 type="text"
                 autocomplete="name"
                 placeholder="Budi Santoso"
@@ -174,7 +174,7 @@ async function submit() {
               </span>
               <input
                 v-model="form.picEmail"
-                class="h-11 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3 text-sm outline-none transition focus:border-[#4f46e5] focus:bg-white"
+                class="h-11 w-full rounded-lg border border-border bg-[#fbfaf8] px-3 text-sm outline-none transition focus:border-brand focus:bg-white"
                 type="email"
                 autocomplete="email"
                 placeholder="budi@sekolah.sch.id"
@@ -190,7 +190,7 @@ async function submit() {
               </span>
               <input
                 v-model="form.picPhone"
-                class="h-11 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3 text-sm outline-none transition focus:border-[#4f46e5] focus:bg-white"
+                class="h-11 w-full rounded-lg border border-border bg-[#fbfaf8] px-3 text-sm outline-none transition focus:border-brand focus:bg-white"
                 type="tel"
                 autocomplete="tel"
                 placeholder="081234567890"
@@ -204,7 +204,7 @@ async function submit() {
               </span>
               <input
                 v-model="form.picRole"
-                class="h-11 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3 text-sm outline-none transition focus:border-[#4f46e5] focus:bg-white"
+                class="h-11 w-full rounded-lg border border-border bg-[#fbfaf8] px-3 text-sm outline-none transition focus:border-brand focus:bg-white"
                 type="text"
                 placeholder="Kepala sekolah"
               />
@@ -218,7 +218,7 @@ async function submit() {
             </span>
             <textarea
               v-model="form.message"
-              class="min-h-28 w-full resize-y rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3 py-3 text-sm outline-none transition focus:border-[#4f46e5] focus:bg-white"
+              class="min-h-28 w-full resize-y rounded-lg border border-border bg-[#fbfaf8] px-3 py-3 text-sm outline-none transition focus:border-brand focus:bg-white"
               placeholder="Ceritakan kebutuhan sekolah secara singkat."
             />
           </label>
@@ -233,7 +233,7 @@ async function submit() {
           <button
             type="submit"
             :disabled="loading || !canSubmit"
-            class="flex h-11 w-full items-center justify-center rounded-lg bg-[#4f46e5] px-5 text-sm font-medium text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:bg-[#bab7d8]"
+            class="flex h-11 w-full items-center justify-center rounded-lg bg-brand px-5 text-sm font-medium text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:bg-[#bab7d8]"
           >
             {{ loading ? "Mengirim request..." : "Kirim request pendaftaran" }}
           </button>

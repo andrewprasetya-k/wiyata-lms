@@ -243,7 +243,7 @@ onMounted(() => {
 
 <template>
   <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
-    <header class="border-b border-[#ebe7df] bg-white">
+    <header class="border-b border-border bg-white">
       <div
         class="flex min-w-0 flex-col gap-3 px-5 py-5 sm:px-6 lg:flex-row lg:items-end lg:justify-between lg:px-8"
       >
@@ -251,17 +251,17 @@ onMounted(() => {
           <p class="eyebrow">
             Super Admin
           </p>
-          <h1 class="mt-2 text-2xl font-semibold text-[#171322] sm:text-3xl">
+          <h1 class="mt-2 text-2xl font-semibold text-foreground sm:text-3xl">
             Permintaan Pendaftaran Sekolah
           </h1>
-          <p class="mt-2 max-w-3xl text-sm leading-6 text-[#6b7280]">
+          <p class="mt-2 max-w-3xl text-sm leading-6 text-muted">
             Review request dari landing page, lalu approve untuk membuat sekolah
             dan token undangan admin.
           </p>
         </div>
         <button
           type="button"
-          class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+          class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
           :disabled="isLoading"
           @click="loadRequests()"
         >
@@ -274,16 +274,16 @@ onMounted(() => {
     <section
       class="grid w-full max-w-none gap-6 px-5 py-6 sm:px-6 lg:px-8 xl:grid-cols-[minmax(0,1fr)_420px]"
     >
-      <section class="min-w-0 rounded-xl border border-[#ebe7df] bg-white p-5 shadow-sm">
+      <section class="min-w-0 rounded-xl border border-border bg-white p-5 shadow-sm">
         <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <p class="eyebrow">
               Antrian request
             </p>
-            <h2 class="mt-2 text-xl font-semibold text-[#171322]">
+            <h2 class="mt-2 text-xl font-semibold text-foreground">
               Request sekolah
             </h2>
-            <p class="mt-1 text-sm text-[#6b7280]">
+            <p class="mt-1 text-sm text-muted">
               {{ totalItems }} request pada status {{ statusLabel(activeStatus) }}.
             </p>
           </div>
@@ -296,7 +296,7 @@ onMounted(() => {
               :class="
                 activeStatus === tab.value
                   ? 'border-[#ea580c] bg-[#fff7ed] text-[#c2410c]'
-                  : 'border-[#e5e7eb] bg-white text-[#6b7280] hover:text-[#171322]'
+                  : 'border-[#e5e7eb] bg-white text-muted hover:text-foreground'
               "
               @click="selectStatus(tab.value)"
             >
@@ -317,7 +317,7 @@ onMounted(() => {
             <p class="text-sm leading-6 text-[#a8665d]">{{ errorMessage }}</p>
             <button
               type="button"
-              class="mt-3 inline-flex items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-3 py-2 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60"
+              class="mt-3 inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-white px-3 py-2 text-sm font-medium text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
               @click="loadRequests()"
             >
               Coba lagi
@@ -332,10 +332,10 @@ onMounted(() => {
               class="mx-auto h-7 w-7 text-[#9ca3af]"
               weight="duotone"
             />
-            <h3 class="mt-3 text-sm font-semibold text-[#171322]">
+            <h3 class="mt-3 text-sm font-semibold text-foreground">
               Belum ada request
             </h3>
-            <p class="mt-2 text-sm leading-6 text-[#6b7280]">
+            <p class="mt-2 text-sm leading-6 text-muted">
               Belum ada request dengan status {{ statusLabel(activeStatus) }}.
             </p>
           </div>
@@ -344,12 +344,12 @@ onMounted(() => {
             v-for="request in requests"
             v-else
             :key="request.requestId"
-            class="rounded-xl border border-[#ebe7df] bg-[#fcfbf8] p-4"
+            class="rounded-xl border border-border bg-[#fcfbf8] p-4"
           >
             <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div class="min-w-0">
                 <div class="flex min-w-0 flex-wrap items-center gap-2">
-                  <h3 class="truncate text-base font-semibold text-[#171322]">
+                  <h3 class="truncate text-base font-semibold text-foreground">
                     {{ request.schoolName }}
                   </h3>
                   <span
@@ -359,7 +359,7 @@ onMounted(() => {
                     {{ statusLabel(request.status) }}
                   </span>
                 </div>
-                <div class="mt-3 grid gap-1 text-sm leading-6 text-[#6b7280] md:grid-cols-2">
+                <div class="mt-3 grid gap-1 text-sm leading-6 text-muted md:grid-cols-2">
                   <p class="truncate">PIC: {{ request.picName }}</p>
                   <p class="truncate">{{ request.picEmail }}</p>
                   <p class="text-xs text-[#9ca3af] md:col-span-2">
@@ -369,7 +369,7 @@ onMounted(() => {
               </div>
               <button
                 type="button"
-                class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-3 py-2 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60"
+                class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-border bg-white px-3 py-2 text-sm font-medium text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
                 :disabled="detailLoading"
                 @click="openDetail(request.requestId)"
               >
@@ -381,20 +381,20 @@ onMounted(() => {
 
         <div
           v-if="!isLoading && !errorMessage && totalPages > 1"
-          class="mt-5 flex items-center justify-between border-t border-[#ebe7df] pt-4 text-sm"
+          class="mt-5 flex items-center justify-between border-t border-border pt-4 text-sm"
         >
           <button
             type="button"
-            class="inline-flex items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-3 py-2 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60"
+            class="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-white px-3 py-2 text-sm font-medium text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
             :disabled="page <= 1"
             @click="loadRequests(page - 1)"
           >
             Sebelumnya
           </button>
-          <span class="text-[#6b7280]">Halaman {{ page }} dari {{ totalPages }}</span>
+          <span class="text-muted">Halaman {{ page }} dari {{ totalPages }}</span>
           <button
             type="button"
-            class="inline-flex items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-3 py-2 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60"
+            class="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-white px-3 py-2 text-sm font-medium text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
             :disabled="page >= totalPages"
             @click="loadRequests(page + 1)"
           >
@@ -404,13 +404,13 @@ onMounted(() => {
       </section>
 
       <aside class="min-w-0">
-        <section class="rounded-xl border border-[#ebe7df] bg-white p-5 shadow-sm xl:sticky xl:top-6">
+        <section class="rounded-xl border border-border bg-white p-5 shadow-sm xl:sticky xl:top-6">
           <div class="flex items-start justify-between gap-4">
             <div>
               <p class="eyebrow">
                 Detail request
               </p>
-              <h2 class="mt-2 text-xl font-semibold text-[#171322]">
+              <h2 class="mt-2 text-xl font-semibold text-foreground">
                 Review pendaftaran
               </h2>
             </div>
@@ -428,14 +428,14 @@ onMounted(() => {
             class="mt-5 rounded-lg border border-dashed border-[#d1d5db] bg-[#fafafa] px-4 py-8 text-center"
           >
             <PhClipboardText class="mx-auto h-7 w-7 text-[#9ca3af]" weight="duotone" />
-            <p class="mt-3 text-sm font-semibold text-[#171322]">Belum ada request dipilih</p>
-            <p class="mt-1 text-sm text-[#6b7280]">Pilih salah satu request dari daftar untuk melihat detail dan tindakan.</p>
+            <p class="mt-3 text-sm font-semibold text-foreground">Belum ada request dipilih</p>
+            <p class="mt-1 text-sm text-muted">Pilih salah satu request dari daftar untuk melihat detail dan tindakan.</p>
           </div>
 
           <div v-else class="mt-5 space-y-5">
-            <div class="space-y-3 rounded-xl border border-[#ebe7df] bg-[#fcfbf8] p-4">
+            <div class="space-y-3 rounded-xl border border-border bg-[#fcfbf8] p-4">
               <div class="flex flex-wrap items-center gap-2">
-                <p class="text-base font-semibold text-[#171322]">
+                <p class="text-base font-semibold text-foreground">
                   {{ selectedRequest.schoolName }}
                 </p>
                 <span
@@ -506,7 +506,7 @@ onMounted(() => {
               </div>
               <button
                 type="button"
-                class="mt-3 inline-flex items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-3 py-2 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60"
+                class="mt-3 inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-white px-3 py-2 text-sm font-medium text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
                 @click="copyInvitationLink"
               >
                 <PhCopy :size="16" weight="bold" />
@@ -538,7 +538,7 @@ onMounted(() => {
               class="space-y-4 rounded-xl border border-[#bbf7d0] bg-[#f6fef9] p-4"
               @submit.prevent="submitApprove"
             >
-              <p class="text-sm font-semibold text-[#171322]">Approve request</p>
+              <p class="text-sm font-semibold text-foreground">Approve request</p>
               <label class="block text-sm font-medium text-[#374151]">
                 Kode sekolah
                 <input
@@ -592,7 +592,7 @@ onMounted(() => {
               class="space-y-4 rounded-xl border border-[#fecaca] bg-[#fef2f2] p-4"
               @submit.prevent="submitReject"
             >
-              <p class="text-sm font-semibold text-[#171322]">Reject request</p>
+              <p class="text-sm font-semibold text-foreground">Reject request</p>
               <label class="block text-sm font-medium text-[#374151]">
                 Alasan
                 <textarea

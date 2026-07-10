@@ -1549,7 +1549,7 @@ function formatDateTime(value?: string | null) {
           v-if="isBooting"
           class="grid min-h-screen gap-4 overflow-hidden rounded-xl bg-white p-4 lg:grid-cols-[300px_minmax(0,1fr)]"
         >
-          <div class="space-y-3 border-[#ebe7df] lg:border-r lg:pr-4">
+          <div class="space-y-3 border-border lg:border-r lg:pr-4">
             <div class="h-16 animate-pulse rounded-xl bg-[#f1eee8]" />
             <div class="h-20 animate-pulse rounded-xl bg-[#f8f7f4]" />
             <div class="h-20 animate-pulse rounded-xl bg-[#f8f7f4]" />
@@ -1570,15 +1570,15 @@ function formatDateTime(value?: string | null) {
           >
             <PhWarningCircle :size="24" weight="duotone" />
           </div>
-          <h2 class="mt-4 text-base font-semibold text-[#171322]">
+          <h2 class="mt-4 text-base font-semibold text-foreground">
             Chat belum bisa dibuka
           </h2>
-          <p class="mt-2 max-w-md text-sm leading-6 text-[#6b7280]">
+          <p class="mt-2 max-w-md text-sm leading-6 text-muted">
             {{ accessError }}
           </p>
           <button
             type="button"
-            class="mt-5 rounded-lg bg-[#171322] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#374151]"
+            class="mt-5 rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-white transition hover:bg-[#374151]"
             @click="bootstrapChat"
           >
             Coba lagi
@@ -1591,14 +1591,14 @@ function formatDateTime(value?: string | null) {
         >
           <aside
             ref="roomListEl"
-            class="min-w-0 overflow-y-auto border-[#ebe7df] bg-[#fbfaf8] lg:border-r"
+            class="min-w-0 overflow-y-auto border-border bg-[#fbfaf8] lg:border-r"
           >
             <div class="px-4 py-4 sm:px-5">
               <div class="flex items-center justify-between gap-3">
-                <p class="text-sm font-semibold text-[#171322]">Percakapan</p>
+                <p class="text-sm font-semibold text-foreground">Percakapan</p>
                 <button
                   type="button"
-                  class="flex items-center gap-1.5 rounded-lg bg-[#4f46e5] px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-[#4338ca]"
+                  class="flex items-center gap-1.5 rounded-lg bg-brand px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-[#4338ca]"
                   @click="openCreateConversation('dm')"
                 >
                   <PhPlus :size="13" weight="bold" />
@@ -1610,13 +1610,13 @@ function formatDateTime(value?: string | null) {
               <input
                 v-model="roomSearch"
                 type="search"
-                class="min-w-0 flex-1 rounded-lg border border-transparent bg-[#f3f1ec] px-3 py-2 text-xs text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#c7d2fe] focus:bg-white focus:ring-2 focus:ring-[#4f46e5]/15"
+                class="min-w-0 flex-1 rounded-lg border border-transparent bg-[#f3f1ec] px-3 py-2 text-xs text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-[#c7d2fe] focus:bg-white focus:ring-2 focus:ring-brand/15"
                 placeholder="Cari ruang..."
                 @keydown.enter.prevent="searchRooms"
               />
               <button
                 type="button"
-                class="rounded-lg border border-[#d8d2c8] px-3 py-2 text-xs font-semibold text-[#4f46e5] transition hover:border-[#4f46e5]"
+                class="rounded-lg border border-[#d8d2c8] px-3 py-2 text-xs font-semibold text-brand transition hover:border-brand"
                 @click="searchRooms"
               >
                 Cari
@@ -1634,7 +1634,7 @@ function formatDateTime(value?: string | null) {
                     ? 'border-[#d7d1ff] bg-white'
                     : room.unreadCount > 0
                       ? 'border-[#c7d2fe] bg-white'
-                      : 'border-[#ebe7df] bg-[#fbfaf8]'
+                      : 'border-border bg-[#fbfaf8]'
                 "
                 @click="
                   selectedRoom = room;
@@ -1644,7 +1644,7 @@ function formatDateTime(value?: string | null) {
                 <span
                   class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-sm font-semibold text-white"
                   :class="
-                    isDirectMessageRoom(room) ? 'bg-[#059669]' : 'bg-[#4f46e5]'
+                    isDirectMessageRoom(room) ? 'bg-[#059669]' : 'bg-brand'
                   "
                 >
                   {{
@@ -1655,7 +1655,7 @@ function formatDateTime(value?: string | null) {
                 </span>
                 <span class="min-w-0 flex-1">
                   <span
-                    class="block truncate text-sm text-[#171322]"
+                    class="block truncate text-sm text-foreground"
                     :class="
                       room.unreadCount > 0 ? 'font-bold' : 'font-semibold'
                     "
@@ -1667,7 +1667,7 @@ function formatDateTime(value?: string | null) {
                     :class="
                       room.unreadCount > 0
                         ? 'font-semibold text-[#3f3a4a]'
-                        : 'text-[#6b7280]'
+                        : 'text-muted'
                     "
                   >
                     {{ roomPreview(room) }}
@@ -1679,7 +1679,7 @@ function formatDateTime(value?: string | null) {
                   }}</span>
                   <span
                     v-if="room.unreadCount > 0"
-                    class="rounded-full bg-[#4f46e5] px-2 py-0.5 text-[11px] font-semibold text-white"
+                    class="rounded-full bg-brand px-2 py-0.5 text-[11px] font-semibold text-white"
                     :aria-label="`${room.unreadCount} pesan belum dibaca`"
                   >
                     {{ room.unreadCount }}
@@ -1695,7 +1695,7 @@ function formatDateTime(value?: string | null) {
                   class="mx-auto h-7 w-7 text-[#9ca3af]"
                   weight="duotone"
                 />
-                <p class="mt-3 text-sm font-semibold text-[#171322]">
+                <p class="mt-3 text-sm font-semibold text-foreground">
                   Belum ada percakapan
                 </p>
               </div>
@@ -1714,19 +1714,19 @@ function formatDateTime(value?: string | null) {
               class="flex flex-1 flex-col items-center justify-center px-6 py-16 text-center"
             >
               <div
-                class="flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
+                class="flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
               >
                 <PhChatCircleText class="h-6 w-6" weight="duotone" />
               </div>
-              <h2 class="mt-4 text-base font-semibold text-[#171322]">
+              <h2 class="mt-4 text-base font-semibold text-foreground">
                 Belum ada percakapan
               </h2>
-              <p class="mt-2 max-w-xs text-sm leading-6 text-[#6b7280]">
+              <p class="mt-2 max-w-xs text-sm leading-6 text-muted">
                 Mulailah dengan membuat ruang chat atau mengirim pesan langsung.
               </p>
               <button
                 type="button"
-                class="mt-5 flex items-center gap-2 rounded-lg bg-[#4f46e5] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#4338ca]"
+                class="mt-5 flex items-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#4338ca]"
                 @click="openCreateConversation('dm')"
               >
                 <PhPlus :size="15" weight="bold" />
@@ -1737,25 +1737,25 @@ function formatDateTime(value?: string | null) {
             <template v-else>
               <div
                 v-if="isDragActive"
-                class="pointer-events-none absolute inset-4 z-20 flex items-center justify-center rounded-2xl border-2 border-dashed border-[#4f46e5] bg-[#eef2ff]/80"
+                class="pointer-events-none absolute inset-4 z-20 flex items-center justify-center rounded-2xl border-2 border-dashed border-brand bg-[#eef2ff]/80"
               >
                 <div
                   class="rounded-2xl bg-white px-5 py-4 text-center shadow-sm"
                 >
-                  <p class="text-sm font-semibold text-[#171322]">
+                  <p class="text-sm font-semibold text-foreground">
                     Lepas file di sini
                   </p>
-                  <p class="mt-1 text-xs text-[#6b7280]">
+                  <p class="mt-1 text-xs text-muted">
                     Maksimal {{ maxChatAttachments }} file, masing-masing hingga
                     {{ maxChatAttachmentSizeMb }}MB
                   </p>
                 </div>
               </div>
               <div
-                class="flex items-center gap-3 border-b border-[#ebe7df] bg-white px-4 py-3 sm:px-5"
+                class="flex items-center gap-3 border-b border-border bg-white px-4 py-3 sm:px-5"
               >
                 <div
-                  class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-[#4f46e5] text-sm font-semibold text-white"
+                  class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-brand text-sm font-semibold text-white"
                 >
                   {{ roomInitial }}
                 </div>
@@ -1763,18 +1763,18 @@ function formatDateTime(value?: string | null) {
                   <button
                     v-if="selectedRoomIsGroup"
                     type="button"
-                    class="block max-w-full truncate text-left text-sm font-semibold text-[#171322] transition hover:text-[#4f46e5]"
+                    class="block max-w-full truncate text-left text-sm font-semibold text-foreground transition hover:text-brand"
                     @click="openGroupInfo"
                   >
                     {{ roomDisplayName(selectedRoom) }}
                   </button>
                   <h2
                     v-else
-                    class="truncate text-sm font-semibold text-[#171322]"
+                    class="truncate text-sm font-semibold text-foreground"
                   >
                     {{ roomDisplayName(selectedRoom) }}
                   </h2>
-                  <p class="truncate text-xs text-[#6b7280]">
+                  <p class="truncate text-xs text-muted">
                     {{ selectedSchoolName }} · {{ roomSubtitle(selectedRoom) }}
                   </p>
                 </div>
@@ -1789,7 +1789,7 @@ function formatDateTime(value?: string | null) {
                   <button
                     v-if="hasMore"
                     type="button"
-                    class="mx-auto rounded-full border border-[#d8d2c8] bg-white px-4 py-2 text-xs font-semibold text-[#4f46e5] transition hover:border-[#4f46e5] disabled:opacity-60"
+                    class="mx-auto rounded-full border border-[#d8d2c8] bg-white px-4 py-2 text-xs font-semibold text-brand transition hover:border-brand disabled:opacity-60"
                     :disabled="isLoadingOlder"
                     @click="loadOlderMessages"
                   >
@@ -1817,7 +1817,7 @@ function formatDateTime(value?: string | null) {
                     </p>
                     <button
                       type="button"
-                      class="mt-3 rounded-xl bg-[#4f46e5] px-4 py-2 text-sm font-semibold text-white"
+                      class="mt-3 rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-white"
                       @click="loadLatestMessages"
                     >
                       Coba lagi
@@ -1829,14 +1829,14 @@ function formatDateTime(value?: string | null) {
                     class="flex min-h-80 flex-col items-center justify-center rounded-2xl px-6 text-center"
                   >
                     <div
-                      class="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-[#eef2ff] text-[#4f46e5]"
+                      class="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-[#eef2ff] text-brand"
                     >
                       <PhChatCircleText class="h-5 w-5" weight="duotone" />
                     </div>
-                    <h3 class="text-sm font-semibold text-[#171322]">
+                    <h3 class="text-sm font-semibold text-foreground">
                       Belum ada pesan.
                     </h3>
-                    <p class="mt-1 max-w-sm text-sm leading-6 text-[#6b7280]">
+                    <p class="mt-1 max-w-sm text-sm leading-6 text-muted">
                       {{
                         selectedRoomIsDM
                           ? "Mulai percakapan pertama di pesan langsung ini."
@@ -1878,7 +1878,7 @@ function formatDateTime(value?: string | null) {
                         >
                           <p
                             v-if="shouldShowSender(message, index)"
-                            class="px-2 text-xs font-medium text-[#6b7280]"
+                            class="px-2 text-xs font-medium text-muted"
                           >
                             {{ message.senderName }}
                           </p>
@@ -1893,7 +1893,7 @@ function formatDateTime(value?: string | null) {
                                     isGroupedWithNext(message, index)
                                       ? 'rounded-br-lg'
                                       : 'rounded-br-md',
-                                    'bg-[#4f46e5] text-white',
+                                    'bg-brand text-white',
                                   ]
                                 : [
                                     isGroupedWithPrevious(message, index)
@@ -1902,7 +1902,7 @@ function formatDateTime(value?: string | null) {
                                     isGroupedWithNext(message, index)
                                       ? 'rounded-bl-lg'
                                       : 'rounded-bl-md',
-                                    'border border-[#ebe7df] bg-white text-[#171322]',
+                                    'border border-border bg-white text-foreground',
                                   ]
                             "
                           >
@@ -1933,7 +1933,7 @@ function formatDateTime(value?: string | null) {
                                 :class="
                                   message.isMine
                                     ? 'bg-white/10 text-white ring-1 ring-white/20'
-                                    : 'border border-[#ebe7df] bg-[#fbfaf8] text-[#171322]'
+                                    : 'border border-border bg-[#fbfaf8] text-foreground'
                                 "
                                 @click="openAttachment(attachment)"
                                 :aria-label="
@@ -1961,7 +1961,7 @@ function formatDateTime(value?: string | null) {
                                     :class="
                                       message.isMine
                                         ? 'bg-white/15'
-                                        : 'bg-white text-[#4f46e5]'
+                                        : 'bg-white text-brand'
                                     "
                                   >
                                     <component
@@ -2056,7 +2056,7 @@ function formatDateTime(value?: string | null) {
                             </button>
                             <span
                               v-else-if="readIndicatorLabel(message)"
-                              class="inline-flex items-center gap-1 text-[#6b7280]"
+                              class="inline-flex items-center gap-1 text-muted"
                               :title="readIndicatorLabel(message)"
                               :aria-label="readIndicatorLabel(message)"
                             >
@@ -2064,7 +2064,7 @@ function formatDateTime(value?: string | null) {
                                 v-if="isReadByOthers(message)"
                                 :size="13"
                                 weight="bold"
-                                class="text-[#4f46e5]"
+                                class="text-brand"
                               />
                               <PhCheck
                                 v-else
@@ -2093,7 +2093,7 @@ function formatDateTime(value?: string | null) {
               >
                 <button
                   type="button"
-                  class="pointer-events-auto inline-flex items-center gap-2 rounded-full border border-[#d7d1ff] bg-white px-3 py-2 text-xs font-semibold text-[#4f46e5] shadow-sm transition hover:border-[#4f46e5] hover:bg-[#eef2ff]"
+                  class="pointer-events-auto inline-flex items-center gap-2 rounded-full border border-[#d7d1ff] bg-white px-3 py-2 text-xs font-semibold text-brand shadow-sm transition hover:border-brand hover:bg-[#eef2ff]"
                   aria-label="Lompat ke pesan terbaru"
                   @click="scrollToBottom"
                 >
@@ -2116,7 +2116,7 @@ function formatDateTime(value?: string | null) {
                   <div
                     v-for="(attachment, index) in selectedFiles"
                     :key="attachment.id"
-                    class="min-w-0 overflow-hidden rounded-xl border border-[#ebe7df] bg-[#fbfaf8]"
+                    class="min-w-0 overflow-hidden rounded-xl border border-border bg-[#fbfaf8]"
                   >
                     <img
                       v-if="attachment.previewUrl"
@@ -2126,7 +2126,7 @@ function formatDateTime(value?: string | null) {
                     />
                     <div class="flex min-w-0 items-center gap-3 p-3">
                       <span
-                        class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-[#4f46e5]"
+                        class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-brand"
                       >
                         <component
                           :is="
@@ -2141,7 +2141,7 @@ function formatDateTime(value?: string | null) {
                       </span>
                       <span class="min-w-0 flex-1">
                         <span
-                          class="block truncate text-xs font-semibold text-[#171322]"
+                          class="block truncate text-xs font-semibold text-foreground"
                         >
                           {{ attachment.file.name }}
                         </span>
@@ -2179,7 +2179,7 @@ function formatDateTime(value?: string | null) {
                   />
                   <button
                     type="button"
-                    class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#ebe7df] text-[#6b7280] transition hover:border-[#c7d2fe] hover:text-[#4f46e5] focus:outline-none focus:ring-2 focus:ring-[#4f46e5]/15 disabled:cursor-not-allowed disabled:opacity-60"
+                    class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border text-muted transition hover:border-[#c7d2fe] hover:text-brand focus:outline-none focus:ring-2 focus:ring-brand/15 disabled:cursor-not-allowed disabled:opacity-60"
                     :disabled="
                       !selectedRoom?.canSend ||
                       selectedFiles.length >= maxChatAttachments
@@ -2193,14 +2193,14 @@ function formatDateTime(value?: string | null) {
                   <textarea
                     v-model="draft"
                     rows="1"
-                    class="max-h-32 min-h-11 flex-1 resize-none rounded-xl border border-transparent bg-[#f3f1ec] px-4 py-3 text-sm text-[#171322] outline-none transition placeholder:text-[#aaa29a] focus:border-[#c7d2fe] focus:bg-white focus:ring-2 focus:ring-[#4f46e5]/15"
+                    class="max-h-32 min-h-11 flex-1 resize-none rounded-xl border border-transparent bg-[#f3f1ec] px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-[#aaa29a] focus:border-[#c7d2fe] focus:bg-white focus:ring-2 focus:ring-brand/15"
                     placeholder="Tulis pesan..."
                     :disabled="!selectedRoom?.canSend"
                     @keydown="handleComposerKeydown"
                   />
                   <button
                     type="submit"
-                    class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#4f46e5] text-white transition hover:bg-[#4338ca] focus:outline-none focus:ring-2 focus:ring-[#4f46e5]/30 disabled:cursor-not-allowed disabled:bg-[#c7c3d7]"
+                    class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand text-white transition hover:bg-[#4338ca] focus:outline-none focus:ring-2 focus:ring-brand/30 disabled:cursor-not-allowed disabled:bg-[#c7c3d7]"
                     :disabled="!canSend"
                     aria-label="Kirim pesan"
                   >
@@ -2213,7 +2213,7 @@ function formatDateTime(value?: string | null) {
                   <span>Enter untuk kirim, Shift+Enter untuk baris baru.</span>
                   <span
                     v-if="composerStatusLabel"
-                    class="inline-flex items-center gap-1.5 font-medium text-[#6b7280]"
+                    class="inline-flex items-center gap-1.5 font-medium text-muted"
                   >
                     <PhSpinnerGap class="h-3.5 w-3.5 animate-spin" />
                     {{ composerStatusLabel }}
@@ -2238,12 +2238,12 @@ function formatDateTime(value?: string | null) {
         <!-- Header -->
         <div class="px-5 py-4">
           <div class="flex items-center justify-between">
-            <h2 class="text-base font-semibold text-[#171322]">
+            <h2 class="text-base font-semibold text-foreground">
               Buat Percakapan
             </h2>
             <button
               type="button"
-              class="rounded-lg p-1.5 text-[#9ca3af] transition hover:bg-[#f3f1ec] hover:text-[#171322]"
+              class="rounded-lg p-1.5 text-[#9ca3af] transition hover:bg-[#f3f1ec] hover:text-foreground"
               aria-label="Tutup"
               @click="isCreateConversationOpen = false"
             >
@@ -2257,8 +2257,8 @@ function formatDateTime(value?: string | null) {
               class="flex-1 rounded-md py-1.5 text-sm font-medium transition"
               :class="
                 activeCreateTab === 'dm'
-                  ? 'bg-white text-[#171322] shadow-sm'
-                  : 'text-[#6b7280] hover:text-[#171322]'
+                  ? 'bg-white text-foreground shadow-sm'
+                  : 'text-muted hover:text-foreground'
               "
               @click="activeCreateTab = 'dm'"
             >
@@ -2269,8 +2269,8 @@ function formatDateTime(value?: string | null) {
               class="flex-1 rounded-md py-1.5 text-sm font-medium transition"
               :class="
                 activeCreateTab === 'group'
-                  ? 'bg-white text-[#171322] shadow-sm'
-                  : 'text-[#6b7280] hover:text-[#171322]'
+                  ? 'bg-white text-foreground shadow-sm'
+                  : 'text-muted hover:text-foreground'
               "
               @click="activeCreateTab = 'group'"
             >
@@ -2288,7 +2288,7 @@ function formatDateTime(value?: string | null) {
           <div class="space-y-4 overflow-y-auto px-5 py-4">
             <div>
               <label
-                class="text-sm font-medium text-[#171322]"
+                class="text-sm font-medium text-foreground"
                 for="chat-dm-search"
               >
                 Cari warga sekolah
@@ -2298,13 +2298,13 @@ function formatDateTime(value?: string | null) {
                   id="chat-dm-search"
                   v-model="dmSearch"
                   type="text"
-                  class="min-w-0 flex-1 rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm text-[#171322] outline-none transition focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/15"
+                  class="min-w-0 flex-1 rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm text-foreground outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/15"
                   placeholder="Cari warga sekolah..."
                   @keydown.enter.prevent="loadDMTargets"
                 />
                 <button
                   type="button"
-                  class="rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm font-medium text-[#4f46e5] transition hover:border-[#4f46e5] disabled:opacity-60"
+                  class="rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm font-medium text-brand transition hover:border-brand disabled:opacity-60"
                   :disabled="isLoadingDMTargets"
                   @click="loadDMTargets"
                 >
@@ -2320,9 +2320,9 @@ function formatDateTime(value?: string | null) {
               {{ directMessageError }}
             </p>
 
-            <div class="rounded-lg border border-[#ebe7df]">
+            <div class="rounded-lg border border-border">
               <div
-                class="border-b border-[#ebe7df] bg-[#fbfaf8] px-3 py-2 text-xs font-semibold uppercase tracking-[0.06em] text-[#9ca3af]"
+                class="border-b border-border bg-[#fbfaf8] px-3 py-2 text-xs font-semibold uppercase tracking-[0.06em] text-[#9ca3af]"
               >
                 Warga sekolah
               </div>
@@ -2332,7 +2332,7 @@ function formatDateTime(value?: string | null) {
               </div>
               <div
                 v-else-if="dmResults.length === 0"
-                class="rounded-lg bg-[#fbfaf8] p-3 text-sm leading-6 text-[#6b7280]"
+                class="rounded-lg bg-[#fbfaf8] p-3 text-sm leading-6 text-muted"
               >
                 Tidak ada warga sekolah yang cocok.
               </div>
@@ -2346,7 +2346,7 @@ function formatDateTime(value?: string | null) {
                     v-model="selectedDMTargetId"
                     type="radio"
                     name="dm-target"
-                    class="h-4 w-4 border-[#d8d2c8] text-[#4f46e5]"
+                    class="h-4 w-4 border-[#d8d2c8] text-brand"
                     :value="member.userId"
                   />
                   <span
@@ -2356,11 +2356,11 @@ function formatDateTime(value?: string | null) {
                   </span>
                   <span class="min-w-0 flex-1">
                     <span
-                      class="block truncate text-sm font-medium text-[#171322]"
+                      class="block truncate text-sm font-medium text-foreground"
                     >
                       {{ member.fullName || member.email }}
                     </span>
-                    <span class="block truncate text-xs text-[#6b7280]">
+                    <span class="block truncate text-xs text-muted">
                       {{ member.email }}
                     </span>
                   </span>
@@ -2372,7 +2372,7 @@ function formatDateTime(value?: string | null) {
           <div class="flex flex-col gap-2 px-5 py-4 sm:flex-row sm:justify-end">
             <button
               type="button"
-              class="rounded-lg border border-[#d8d2c8] px-4 py-2 text-sm font-medium text-[#6b7280] transition hover:bg-[#fbfaf8]"
+              class="rounded-lg border border-[#d8d2c8] px-4 py-2 text-sm font-medium text-muted transition hover:bg-[#fbfaf8]"
               :disabled="isOpeningDM"
               @click="isCreateConversationOpen = false"
             >
@@ -2380,7 +2380,7 @@ function formatDateTime(value?: string | null) {
             </button>
             <button
               type="submit"
-              class="rounded-lg bg-[#4f46e5] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:bg-[#c7c3d7]"
+              class="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:bg-[#c7c3d7]"
               :disabled="isOpeningDM"
             >
               {{ isOpeningDM ? "Membuka..." : "Buka percakapan" }}
@@ -2397,7 +2397,7 @@ function formatDateTime(value?: string | null) {
           <div class="space-y-4 overflow-y-auto px-5 py-4">
             <div>
               <label
-                class="text-sm font-medium text-[#171322]"
+                class="text-sm font-medium text-foreground"
                 for="chat-group-name"
               >
                 Nama ruang
@@ -2406,14 +2406,14 @@ function formatDateTime(value?: string | null) {
                 id="chat-group-name"
                 v-model="groupRoomName"
                 type="text"
-                class="mt-1 w-full rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm text-[#171322] outline-none transition focus:border-blue focus:ring-1 focus:ring-[#4f46e5]"
+                class="mt-1 w-full rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm text-foreground outline-none transition focus:border-blue focus:ring-1 focus:ring-brand"
                 placeholder="Contoh: Grup Belajar Fisika"
               />
             </div>
 
             <div>
               <label
-                class="text-sm font-medium text-[#171322]"
+                class="text-sm font-medium text-foreground"
                 for="chat-member-search"
               >
                 Cari warga sekolah
@@ -2423,13 +2423,13 @@ function formatDateTime(value?: string | null) {
                   id="chat-member-search"
                   v-model="memberSearch"
                   type="text"
-                  class="min-w-0 flex-1 rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm text-[#171322] outline-none transition focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/15"
+                  class="min-w-0 flex-1 rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm text-foreground outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/15"
                   placeholder="Cari nama atau email..."
                   @keydown.enter.prevent="loadChatMembers"
                 />
                 <button
                   type="button"
-                  class="rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm font-medium text-[#4f46e5] transition hover:border-[#4f46e5] disabled:opacity-60"
+                  class="rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm font-medium text-brand transition hover:border-brand disabled:opacity-60"
                   :disabled="isLoadingMembers"
                   @click="loadChatMembers"
                 >
@@ -2445,9 +2445,9 @@ function formatDateTime(value?: string | null) {
               {{ createGroupError }}
             </p>
 
-            <div class="rounded-lg border border-[#ebe7df]">
+            <div class="rounded-lg border border-border">
               <div
-                class="border-b border-[#ebe7df] bg-[#fbfaf8] px-3 py-2 text-xs font-semibold uppercase tracking-[0.06em] text-[#9ca3af]"
+                class="border-b border-border bg-[#fbfaf8] px-3 py-2 text-xs font-semibold uppercase tracking-[0.06em] text-[#9ca3af]"
               >
                 Anggota
               </div>
@@ -2457,7 +2457,7 @@ function formatDateTime(value?: string | null) {
               </div>
               <div
                 v-else-if="memberResults.length === 0"
-                class="rounded-lg bg-[#fbfaf8] p-3 text-sm leading-6 text-[#6b7280]"
+                class="rounded-lg bg-[#fbfaf8] p-3 text-sm leading-6 text-muted"
               >
                 Tidak ada warga yang cocok.
               </div>
@@ -2469,22 +2469,22 @@ function formatDateTime(value?: string | null) {
                 >
                   <input
                     type="checkbox"
-                    class="h-4 w-4 rounded border-[#d8d2c8] text-[#4f46e5]"
+                    class="h-4 w-4 rounded border-[#d8d2c8] text-brand"
                     :checked="selectedMemberIds.includes(member.userId)"
                     @change="toggleMember(member.userId)"
                   />
                   <span
-                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#4f46e5] text-xs font-semibold text-white"
+                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand text-xs font-semibold text-white"
                   >
                     {{ getInitials(member.fullName || member.email) }}
                   </span>
                   <span class="min-w-0 flex-1">
                     <span
-                      class="block truncate text-sm font-medium text-[#171322]"
+                      class="block truncate text-sm font-medium text-foreground"
                     >
                       {{ member.fullName || member.email }}
                     </span>
-                    <span class="block truncate text-xs text-[#6b7280]">
+                    <span class="block truncate text-xs text-muted">
                       {{ member.email }}
                     </span>
                   </span>
@@ -2494,11 +2494,11 @@ function formatDateTime(value?: string | null) {
           </div>
 
           <div
-            class="flex flex-col gap-2 border-t border-[#ebe7df] px-5 py-4 sm:flex-row sm:justify-end"
+            class="flex flex-col gap-2 border-t border-border px-5 py-4 sm:flex-row sm:justify-end"
           >
             <button
               type="button"
-              class="rounded-lg border border-[#d8d2c8] px-4 py-2 text-sm font-medium text-[#6b7280] transition hover:bg-[#fbfaf8]"
+              class="rounded-lg border border-[#d8d2c8] px-4 py-2 text-sm font-medium text-muted transition hover:bg-[#fbfaf8]"
               :disabled="isCreatingGroup"
               @click="isCreateConversationOpen = false"
             >
@@ -2506,7 +2506,7 @@ function formatDateTime(value?: string | null) {
             </button>
             <button
               type="submit"
-              class="rounded-lg bg-[#4f46e5] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:bg-[#c7c3d7]"
+              class="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:bg-[#c7c3d7]"
               :disabled="isCreatingGroup"
             >
               {{ isCreatingGroup ? "Membuat..." : "Buat ruang" }}
@@ -2551,7 +2551,7 @@ function formatDateTime(value?: string | null) {
       <div
         class="flex h-full w-full max-w-lg flex-col overflow-hidden bg-white"
       >
-        <div class="border-b border-[#ebe7df] px-5 py-4">
+        <div class="border-b border-border px-5 py-4">
           <div class="flex items-start justify-between gap-4">
             <div class="min-w-0">
               <p
@@ -2559,17 +2559,17 @@ function formatDateTime(value?: string | null) {
               >
                 Info grup
               </p>
-              <h2 class="mt-1 truncate text-lg font-semibold text-[#171322]">
+              <h2 class="mt-1 truncate text-lg font-semibold text-foreground">
                 {{ groupInfo?.roomName || roomDisplayName(selectedRoom) }}
               </h2>
-              <p class="mt-1 text-sm text-[#6b7280]">
+              <p class="mt-1 text-sm text-muted">
                 {{ groupInfo?.memberCount || 0 }} anggota ·
                 {{ groupInfo?.schoolName || selectedSchoolName }}
               </p>
             </div>
             <button
               type="button"
-              class="rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm font-medium text-[#6b7280] transition hover:bg-[#fbfaf8]"
+              class="rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm font-medium text-muted transition hover:bg-[#fbfaf8]"
               @click="isGroupInfoOpen = false"
             >
               Tutup
@@ -2591,7 +2591,7 @@ function formatDateTime(value?: string | null) {
             <p>{{ groupInfoError }}</p>
             <button
               type="button"
-              class="mt-3 rounded-lg bg-[#4f46e5] px-3 py-2 text-xs font-semibold text-white"
+              class="mt-3 rounded-lg bg-brand px-3 py-2 text-xs font-semibold text-white"
               @click="loadGroupInfo"
             >
               Coba lagi
@@ -2607,12 +2607,12 @@ function formatDateTime(value?: string | null) {
             </p>
 
             <section
-              class="rounded-xl border border-[#ebe7df] bg-[#fbfaf8] p-4"
+              class="rounded-xl border border-border bg-[#fbfaf8] p-4"
             >
-              <p class="text-sm font-semibold text-[#171322]">Dibuat oleh</p>
+              <p class="text-sm font-semibold text-foreground">Dibuat oleh</p>
               <div class="mt-3 flex items-center gap-3">
                 <span
-                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#4f46e5] text-xs font-semibold text-white"
+                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand text-xs font-semibold text-white"
                 >
                   {{
                     getInitials(
@@ -2622,7 +2622,7 @@ function formatDateTime(value?: string | null) {
                 </span>
                 <span class="min-w-0">
                   <span
-                    class="block truncate text-sm font-medium text-[#171322]"
+                    class="block truncate text-sm font-medium text-foreground"
                   >
                     {{
                       groupInfo?.creator?.fullName ||
@@ -2630,7 +2630,7 @@ function formatDateTime(value?: string | null) {
                       "Tidak tersedia"
                     }}
                   </span>
-                  <span class="block truncate text-xs text-[#6b7280]">
+                  <span class="block truncate text-xs text-muted">
                     {{ groupInfo?.creator?.email }}
                   </span>
                 </span>
@@ -2642,19 +2642,19 @@ function formatDateTime(value?: string | null) {
 
             <section
               v-if="currentUserIsGroupAdmin"
-              class="mt-4 rounded-xl border border-[#ebe7df] bg-white p-4"
+              class="mt-4 rounded-xl border border-border bg-white p-4"
             >
-              <p class="text-sm font-semibold text-[#171322]">Ubah nama grup</p>
+              <p class="text-sm font-semibold text-foreground">Ubah nama grup</p>
               <form class="mt-3 flex gap-2" @submit.prevent="submitRenameGroup">
                 <input
                   v-model="renameRoomName"
                   type="text"
-                  class="min-w-0 flex-1 rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm text-[#171322] outline-none transition focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/15"
+                  class="min-w-0 flex-1 rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm text-foreground outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/15"
                   placeholder="Nama ruang grup"
                 />
                 <button
                   type="submit"
-                  class="rounded-lg bg-[#4f46e5] px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:bg-[#c7c3d7]"
+                  class="rounded-lg bg-brand px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:bg-[#c7c3d7]"
                   :disabled="isRenamingGroup"
                 >
                   {{ isRenamingGroup ? "Menyimpan..." : "Simpan" }}
@@ -2664,23 +2664,23 @@ function formatDateTime(value?: string | null) {
 
             <section
               v-if="currentUserIsGroupAdmin"
-              class="mt-4 rounded-xl border border-[#ebe7df] bg-white p-4"
+              class="mt-4 rounded-xl border border-border bg-white p-4"
             >
-              <p class="text-sm font-semibold text-[#171322]">Tambah anggota</p>
-              <p class="mt-1 text-xs text-[#6b7280]">
+              <p class="text-sm font-semibold text-foreground">Tambah anggota</p>
+              <p class="mt-1 text-xs text-muted">
                 Hanya warga aktif sekolah yang belum ada di grup ini.
               </p>
               <div class="mt-3 flex gap-2">
                 <input
                   v-model="addMemberSearch"
                   type="search"
-                  class="min-w-0 flex-1 rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm text-[#171322] outline-none transition focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/15"
+                  class="min-w-0 flex-1 rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm text-foreground outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/15"
                   placeholder="Cari nama atau email..."
                   @keydown.enter.prevent="loadEligibleMembers"
                 />
                 <button
                   type="button"
-                  class="rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm font-medium text-[#4f46e5] transition hover:border-[#4f46e5] disabled:opacity-60"
+                  class="rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm font-medium text-brand transition hover:border-brand disabled:opacity-60"
                   :disabled="isLoadingAddMembers"
                   @click="loadEligibleMembers"
                 >
@@ -2688,14 +2688,14 @@ function formatDateTime(value?: string | null) {
                 </button>
               </div>
 
-              <div class="mt-3 rounded-lg border border-[#ebe7df]">
+              <div class="mt-3 rounded-lg border border-border">
                 <div v-if="isLoadingAddMembers" class="space-y-2 p-3">
                   <div class="h-10 animate-pulse rounded-lg bg-[#f3f1ec]" />
                   <div class="h-10 animate-pulse rounded-lg bg-[#f3f1ec]" />
                 </div>
                 <div
                   v-else-if="addMemberResults.length === 0"
-                  class="rounded-lg bg-[#fbfaf8] p-3 text-sm leading-6 text-[#6b7280]"
+                  class="rounded-lg bg-[#fbfaf8] p-3 text-sm leading-6 text-muted"
                 >
                   Tidak ada warga yang bisa ditambahkan.
                 </div>
@@ -2707,22 +2707,22 @@ function formatDateTime(value?: string | null) {
                   >
                     <input
                       type="checkbox"
-                      class="h-4 w-4 rounded border-[#d8d2c8] text-[#4f46e5]"
+                      class="h-4 w-4 rounded border-[#d8d2c8] text-brand"
                       :checked="selectedAddMemberIds.includes(member.userId)"
                       @change="toggleAddMember(member.userId)"
                     />
                     <span
-                      class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#4f46e5] text-xs font-semibold text-white"
+                      class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand text-xs font-semibold text-white"
                     >
                       {{ getInitials(member.fullName || member.email) }}
                     </span>
                     <span class="min-w-0 flex-1">
                       <span
-                        class="block truncate text-sm font-medium text-[#171322]"
+                        class="block truncate text-sm font-medium text-foreground"
                       >
                         {{ member.fullName || member.email }}
                       </span>
-                      <span class="block truncate text-xs text-[#6b7280]">
+                      <span class="block truncate text-xs text-muted">
                         {{ member.email }}
                       </span>
                     </span>
@@ -2731,12 +2731,12 @@ function formatDateTime(value?: string | null) {
               </div>
 
               <div class="mt-3 flex items-center justify-between gap-3">
-                <p class="text-xs text-[#6b7280]">
+                <p class="text-xs text-muted">
                   {{ selectedAddMembers.length }} anggota dipilih
                 </p>
                 <button
                   type="button"
-                  class="rounded-lg bg-[#4f46e5] px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:bg-[#c7c3d7]"
+                  class="rounded-lg bg-brand px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:bg-[#c7c3d7]"
                   :disabled="
                     isAddingMembers || selectedAddMemberIds.length === 0
                   "
@@ -2747,28 +2747,28 @@ function formatDateTime(value?: string | null) {
               </div>
             </section>
 
-            <section class="mt-4 rounded-xl border border-[#ebe7df] bg-white">
-              <div class="border-b border-[#ebe7df] px-4 py-3">
-                <p class="text-sm font-semibold text-[#171322]">Anggota</p>
+            <section class="mt-4 rounded-xl border border-border bg-white">
+              <div class="border-b border-border px-4 py-3">
+                <p class="text-sm font-semibold text-foreground">Anggota</p>
               </div>
-              <div class="divide-y divide-[#ebe7df]">
+              <div class="divide-y divide-border">
                 <div
                   v-for="member in groupInfo?.members || []"
                   :key="member.userId"
                   class="flex items-center gap-3 px-4 py-3"
                 >
                   <span
-                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#4f46e5] text-xs font-semibold text-white"
+                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand text-xs font-semibold text-white"
                   >
                     {{ getInitials(member.fullName || member.email) }}
                   </span>
                   <span class="min-w-0 flex-1">
                     <span
-                      class="block truncate text-sm font-medium text-[#171322]"
+                      class="block truncate text-sm font-medium text-foreground"
                     >
                       {{ member.fullName || member.email }}
                     </span>
-                    <span class="block truncate text-xs text-[#6b7280]">
+                    <span class="block truncate text-xs text-muted">
                       {{ member.email }}
                     </span>
                   </span>
@@ -2776,8 +2776,8 @@ function formatDateTime(value?: string | null) {
                     class="rounded-full px-2 py-1 text-[11px] font-semibold"
                     :class="
                       member.role === 'admin'
-                        ? 'bg-[#eef2ff] text-[#4f46e5]'
-                        : 'bg-[#f3f1ec] text-[#6b7280]'
+                        ? 'bg-[#eef2ff] text-brand'
+                        : 'bg-[#f3f1ec] text-muted'
                     "
                   >
                     {{ member.role === "admin" ? "Admin" : "Anggota" }}
@@ -2803,7 +2803,7 @@ function formatDateTime(value?: string | null) {
           </template>
         </div>
 
-        <div class="border-t border-[#ebe7df] px-5 py-4">
+        <div class="border-t border-border px-5 py-4">
           <button
             type="button"
             class="w-full rounded-lg border border-red-100 px-4 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-60"

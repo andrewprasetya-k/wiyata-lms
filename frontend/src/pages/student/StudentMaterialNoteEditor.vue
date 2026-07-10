@@ -181,7 +181,7 @@ onMounted(loadPage);
 <template>
   <main class="min-h-screen flex-1 bg-[#f8f7f4]">
     <header
-      class="sticky top-0 z-10 border-b border-[#ebe7df] bg-white/95 px-5 py-3 backdrop-blur sm:px-6 lg:px-8"
+      class="sticky top-0 z-10 border-b border-border bg-white/95 px-5 py-3 backdrop-blur sm:px-6 lg:px-8"
     >
       <div
         class="mx-auto flex w-full max-w-400 items-center justify-between gap-4"
@@ -191,7 +191,7 @@ onMounted(loadPage);
           aria-label="Breadcrumb"
         >
           <RouterLink
-            class="inline-flex shrink-0 items-center gap-1.5 font-medium transition hover:text-[#4f46e5]"
+            class="inline-flex shrink-0 items-center gap-1.5 font-medium transition hover:text-brand"
             :to="{
               name: 'student-material-detail',
               params: { sclId: subjectClassId, matId: materialId },
@@ -209,7 +209,7 @@ onMounted(loadPage);
             }}
           </span>
           <span class="hidden text-[#d1ccd5] sm:inline">/</span>
-          <span class="truncate font-medium text-[#171322]">
+          <span class="truncate font-medium text-foreground">
             {{ material?.materialTitle || "Editor catatan" }}
           </span>
         </nav>
@@ -221,10 +221,10 @@ onMounted(loadPage);
       class="mx-auto grid w-full max-w-400 gap-5 px-5 py-5 sm:px-6 lg:grid-cols-[minmax(0,3fr)_minmax(340px,2fr)] lg:px-8"
     >
       <div
-        class="h-150 animate-pulse rounded-[22px] border border-[#ebe7df] bg-white"
+        class="h-150 animate-pulse rounded-[22px] border border-border bg-white"
       />
       <div
-        class="h-150 animate-pulse rounded-[22px] border border-[#ebe7df] bg-white"
+        class="h-150 animate-pulse rounded-[22px] border border-border bg-white"
       />
     </section>
 
@@ -237,12 +237,12 @@ onMounted(loadPage);
       >
         <PhWarningCircle :size="24" weight="duotone" />
       </div>
-      <p class="text-sm font-medium text-[#171322]">
+      <p class="text-sm font-medium text-foreground">
         Tidak bisa membuka editor catatan
       </p>
       <p class="mt-2 text-sm leading-6 text-[#7a7385]">{{ errorMessage }}</p>
       <button
-        class="mt-5 rounded-xl bg-[#4f46e5] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+        class="mt-5 rounded-xl bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
         type="button"
         @click="loadPage"
       >
@@ -255,25 +255,25 @@ onMounted(loadPage);
       class="mx-auto grid w-full max-w-400 items-start gap-5 px-5 py-5 sm:px-6 lg:grid-cols-[minmax(0,3fr)_minmax(340px,2fr)] lg:px-8"
     >
       <section
-        class="min-w-0 overflow-hidden rounded-[22px] border border-[#ebe7df] bg-white"
+        class="min-w-0 overflow-hidden rounded-[22px] border border-border bg-white"
       >
-        <header class="border-b border-[#ebe7df] px-5 py-4 sm:px-6">
+        <header class="border-b border-border px-5 py-4 sm:px-6">
           <div class="flex flex-wrap items-center gap-2">
             <span
-              class="inline-flex items-center gap-1.5 rounded-lg bg-[#eef2ff] px-2.5 py-1 text-xs font-medium text-[#4f46e5]"
+              class="inline-flex items-center gap-1.5 rounded-lg bg-[#eef2ff] px-2.5 py-1 text-xs font-medium text-brand"
             >
               <PhBookOpen :size="14" weight="duotone" />
               {{ material.subjectName || "Materi kelas" }}
             </span>
             <span
               v-if="material.materialType"
-              class="rounded-lg bg-[#f3f1ec] px-2.5 py-1 text-xs font-medium uppercase text-[#6b7280]"
+              class="rounded-lg bg-[#f3f1ec] px-2.5 py-1 text-xs font-medium uppercase text-muted"
             >
               {{ material.materialType }}
             </span>
           </div>
 
-          <h1 class="mt-3 text-2xl font-medium text-[#171322]">
+          <h1 class="mt-3 text-2xl font-medium text-foreground">
             {{ material.materialTitle }}
           </h1>
           <p class="mt-1 text-xs text-[#8b8592]">
@@ -286,11 +286,11 @@ onMounted(loadPage);
 
         <div class="space-y-5 bg-[#f4f3f1] p-4 sm:p-6">
           <article
-            class="mx-auto w-full max-w-4xl rounded-[18px] border border-[#ebe7df] bg-white p-5 shadow-[0_8px_28px_rgba(53,45,35,0.06)] sm:p-6"
+            class="mx-auto w-full max-w-4xl rounded-[18px] border border-border bg-white p-5 shadow-[0_8px_28px_rgba(53,45,35,0.06)] sm:p-6"
           >
             <div class="flex items-center justify-between gap-3">
               <div>
-                <p class="text-sm font-medium text-[#171322]">
+                <p class="text-sm font-medium text-foreground">
                   Lampiran materi
                 </p>
                 <p class="mt-1 text-xs text-[#8b8592]">
@@ -298,7 +298,7 @@ onMounted(loadPage);
                 </p>
               </div>
               <span
-                class="shrink-0 rounded-lg bg-[#f3f1ec] px-2.5 py-1 text-xs text-[#6b7280]"
+                class="shrink-0 rounded-lg bg-[#f3f1ec] px-2.5 py-1 text-xs text-muted"
               >
                 {{ material.attachments?.length || 0 }} file
               </span>
@@ -313,19 +313,19 @@ onMounted(loadPage);
       </section>
 
       <article
-        class="flex min-h-168 min-w-0 flex-col overflow-hidden rounded-[22px] border border-[#ebe7df] bg-[#fbfaf8] lg:sticky lg:top-17 lg:h-[calc(100vh-6rem)] lg:min-h-0"
+        class="flex min-h-168 min-w-0 flex-col overflow-hidden rounded-[22px] border border-border bg-[#fbfaf8] lg:sticky lg:top-17 lg:h-[calc(100vh-6rem)] lg:min-h-0"
       >
         <header
-          class="flex shrink-0 items-start justify-between gap-3 border-b border-[#ebe7df] bg-white px-5 py-4"
+          class="flex shrink-0 items-start justify-between gap-3 border-b border-border bg-white px-5 py-4"
         >
           <div class="flex min-w-0 items-start gap-3">
             <div
-              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
+              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
             >
               <PhNotebook :size="18" weight="duotone" />
             </div>
             <div class="min-w-0">
-              <h2 class="truncate text-sm font-medium text-[#171322]">
+              <h2 class="truncate text-sm font-medium text-foreground">
                 Catatan — {{ material.materialTitle }}
               </h2>
               <p class="mt-1 text-xs leading-5 text-[#8b8592]">
@@ -367,7 +367,7 @@ onMounted(loadPage);
             {{ errorMessage }}
           </p>
 
-          <footer class="shrink-0 border-t border-[#ebe7df] bg-white px-5 py-4">
+          <footer class="shrink-0 border-t border-border bg-white px-5 py-4">
             <div
               class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2"
             >
@@ -387,7 +387,7 @@ onMounted(loadPage);
               <div class="flex flex-wrap items-center gap-2">
                 <button
                   v-if="note"
-                  class="inline-flex items-center gap-2 rounded-xl border border-[#ebe7df] bg-white px-3 py-2 text-xs font-medium text-[#b42318] transition hover:border-[#fda29b] hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-60"
+                  class="inline-flex items-center gap-2 rounded-xl border border-border bg-white px-3 py-2 text-xs font-medium text-[#b42318] transition hover:border-[#fda29b] hover:bg-[#fef2f2] disabled:cursor-not-allowed disabled:opacity-60"
                   :disabled="isSaving || isDeleting"
                   type="button"
                   @click="deleteNote"
@@ -399,7 +399,7 @@ onMounted(loadPage);
                 <button
                   class="inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium text-white transition disabled:cursor-not-allowed disabled:bg-[#d8d5dd]"
                   :class="
-                    canSave ? 'bg-[#4f46e5] hover:bg-[#4338ca]' : 'bg-[#d8d5dd]'
+                    canSave ? 'bg-brand hover:bg-[#4338ca]' : 'bg-[#d8d5dd]'
                   "
                   :disabled="!canSave"
                   type="submit"

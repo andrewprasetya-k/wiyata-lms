@@ -224,9 +224,9 @@ async function removeComment(comment: FeedComment) {
 </script>
 
 <template>
-  <div class="mt-4 border-t border-[#ebe7df] pt-3">
+  <div class="mt-4 border-t border-border pt-3">
     <button
-      class="inline-flex items-center gap-2 rounded-2xl px-3 py-2 text-xs font-medium text-[#4f46e5] transition hover:bg-[#eef2ff] focus:outline-none focus:ring-2 focus:ring-[#4f46e5]/25"
+      class="inline-flex items-center gap-2 rounded-2xl px-3 py-2 text-xs font-medium text-brand transition hover:bg-[#eef2ff] focus:outline-none focus:ring-2 focus:ring-brand/25"
       type="button"
       @click="toggleComments"
     >
@@ -241,7 +241,7 @@ async function removeComment(comment: FeedComment) {
     <div v-if="isExpanded" class="mt-3 space-y-3 rounded-2xl bg-white/70 p-3">
       <div
         v-if="isLoading"
-        class="space-y-3 rounded-xl border border-[#ebe7df] bg-[#fbfaf8] p-3"
+        class="space-y-3 rounded-xl border border-border bg-[#fbfaf8] p-3"
         aria-label="Memuat komentar"
       >
         <div v-for="item in 2" :key="item" class="flex animate-pulse gap-3">
@@ -280,7 +280,7 @@ async function removeComment(comment: FeedComment) {
         >
           <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
-              <p class="truncate text-xs font-medium text-[#171322]">
+              <p class="truncate text-xs font-medium text-foreground">
                 {{ comment.creatorName || "Pengirim tidak tersedia" }}
               </p>
               <p class="mt-0.5 text-[11px] text-[#a09aa8]">
@@ -321,7 +321,7 @@ async function removeComment(comment: FeedComment) {
         <textarea
           :id="`feed-comment-${post.feedId}`"
           v-model="commentText"
-          class="min-h-20 w-full resize-y rounded-2xl border border-[#ebe7df] bg-white px-3 py-2 text-xs leading-5 text-[#171322] outline-none transition placeholder:text-[#a09aa8] focus:border-[#4f46e5]"
+          class="min-h-20 w-full resize-y rounded-2xl border border-border bg-white px-3 py-2 text-xs leading-5 text-foreground outline-none transition placeholder:text-[#a09aa8] focus:border-brand"
           maxlength="800"
           placeholder="Tulis komentar singkat..."
         />
@@ -336,7 +336,7 @@ async function removeComment(comment: FeedComment) {
             Komentar hanya untuk feed kelas.
           </p>
           <button
-            class="inline-flex items-center gap-2 rounded-2xl bg-[#4f46e5] px-3 py-2 text-xs font-medium text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:opacity-60"
+            class="inline-flex items-center gap-2 rounded-2xl bg-brand px-3 py-2 text-xs font-medium text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:opacity-60"
             type="submit"
             :disabled="!commentText.trim()"
           >

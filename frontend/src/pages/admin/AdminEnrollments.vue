@@ -436,15 +436,15 @@ onMounted(async () => {
 
 <template>
   <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
-    <header class="border-b border-[#ebe7df] bg-white">
+    <header class="border-b border-border bg-white">
       <div
         class="flex min-w-0 flex-col gap-3 px-5 py-5 sm:px-6 lg:flex-row lg:items-end lg:justify-between lg:px-8"
       >
         <div class="min-w-0">
-          <h1 class="mt-1 text-2xl font-semibold text-[#171322] sm:text-3xl">
+          <h1 class="mt-1 text-2xl font-semibold text-foreground sm:text-3xl">
             Penempatan Kelas
           </h1>
-          <p class="mt-2 max-w-3xl text-sm leading-6 text-[#6b7280]">
+          <p class="mt-2 max-w-3xl text-sm leading-6 text-muted">
             Tempatkan siswa atau guru ke kelas aktif sebelum kegiatan belajar
             dan penugasan mengajar dimulai.
           </p>
@@ -456,7 +456,7 @@ onMounted(async () => {
             {{ currentSchool.schoolName || "Sekolah belum tersedia" }}
           </span>
           <span
-            class="rounded-lg bg-[#f3f1ec] px-3 py-2 font-medium text-[#6b7280]"
+            class="rounded-lg bg-[#f3f1ec] px-3 py-2 font-medium text-muted"
           >
             {{ currentSchool.schoolCode || "Kode belum tersedia" }}
           </span>
@@ -478,10 +478,10 @@ onMounted(async () => {
 
       <div class="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
         <section
-          class="order-2 min-w-0 rounded-xl border border-[#ebe7df] bg-white shadow-sm lg:order-1"
+          class="order-2 min-w-0 rounded-xl border border-border bg-white shadow-sm lg:order-1"
         >
           <div
-            class="flex flex-col gap-3 border-b border-[#ebe7df] p-5 sm:flex-row sm:items-start sm:justify-between"
+            class="flex flex-col gap-3 border-b border-border p-5 sm:flex-row sm:items-start sm:justify-between"
           >
             <div class="min-w-0">
               <p
@@ -489,10 +489,10 @@ onMounted(async () => {
               >
                 Penempatan aktif
               </p>
-              <h2 class="mt-1 text-base font-semibold text-[#171322]">
+              <h2 class="mt-1 text-base font-semibold text-foreground">
                 {{ selectedClass?.classTitle || "Pilih kelas" }}
               </h2>
-              <p class="mt-1 text-sm leading-6 text-[#6b7280]">
+              <p class="mt-1 text-sm leading-6 text-muted">
                 {{
                   selectedClass
                     ? `${selectedTerm?.termName || "Semester"} · ${selectedAcademicYear?.academicYearName || "Tahun ajaran"}`
@@ -508,7 +508,7 @@ onMounted(async () => {
                 {{ studentEnrollmentCount }} siswa
               </span>
               <span
-                class="inline-flex items-center gap-2 rounded-lg bg-[#eef2ff] px-3 py-2 text-[#4f46e5]"
+                class="inline-flex items-center gap-2 rounded-lg bg-[#eef2ff] px-3 py-2 text-brand"
               >
                 <PhChalkboardTeacher :size="16" weight="duotone" />
                 {{ teacherEnrollmentCount }} guru
@@ -534,15 +534,15 @@ onMounted(async () => {
                 class="mx-auto text-[#dc2626]"
                 weight="duotone"
               />
-              <h3 class="mt-3 text-sm font-semibold text-[#171322]">
+              <h3 class="mt-3 text-sm font-semibold text-foreground">
                 Penempatan belum bisa dimuat
               </h3>
-              <p class="mt-2 text-sm leading-6 text-[#6b7280]">
+              <p class="mt-2 text-sm leading-6 text-muted">
                 {{ enrollmentsError }}
               </p>
               <button
                 type="button"
-                class="mt-4 inline-flex items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60"
+                class="mt-4 inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
                 @click="loadEnrollments"
               >
                 Coba lagi
@@ -557,10 +557,10 @@ onMounted(async () => {
                 class="mx-auto h-7 w-7 text-[#9ca3af]"
                 weight="duotone"
               />
-              <h3 class="mt-3 text-sm font-semibold text-[#171322]">
+              <h3 class="mt-3 text-sm font-semibold text-foreground">
                 Belum ada kelas dipilih
               </h3>
-              <p class="mt-2 text-sm leading-6 text-[#6b7280]">
+              <p class="mt-2 text-sm leading-6 text-muted">
                 Pilih tahun ajaran, semester, dan kelas untuk mulai mengelola
                 penempatan.
               </p>
@@ -574,16 +574,16 @@ onMounted(async () => {
                 class="mx-auto h-7 w-7 text-[#9ca3af]"
                 weight="duotone"
               />
-              <h3 class="mt-3 text-sm font-semibold text-[#171322]">
+              <h3 class="mt-3 text-sm font-semibold text-foreground">
                 Belum ada warga di kelas ini
               </h3>
-              <p class="mt-2 text-sm leading-6 text-[#6b7280]">
+              <p class="mt-2 text-sm leading-6 text-muted">
                 Pilih warga sekolah melalui panel penempatan untuk
                 menambahkannya.
               </p>
             </div>
 
-            <div v-else class="divide-y divide-[#ebe7df]">
+            <div v-else class="divide-y divide-border">
               <article
                 v-for="enrollment in enrollments"
                 :key="enrollment.enrollmentId"
@@ -597,7 +597,7 @@ onMounted(async () => {
                       class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-xs font-semibold"
                       :class="
                         enrollment.role === 'teacher'
-                          ? 'bg-[#eef2ff] text-[#4f46e5]'
+                          ? 'bg-[#eef2ff] text-brand'
                           : 'bg-[#f0fdf4] text-[#059669]'
                       "
                     >
@@ -608,7 +608,7 @@ onMounted(async () => {
                     <div class="min-w-0">
                       <div class="flex min-w-0 flex-wrap items-center gap-2">
                         <h3
-                          class="wrap-break-word text-sm font-semibold text-[#171322]"
+                          class="wrap-break-word text-sm font-semibold text-foreground"
                         >
                           {{ enrollment.userFullName || "Nama tidak tersedia" }}
                         </h3>
@@ -616,14 +616,14 @@ onMounted(async () => {
                           class="rounded-lg px-2 py-1 text-[11px] font-medium"
                           :class="
                             enrollment.role === 'teacher'
-                              ? 'bg-[#eef2ff] text-[#4f46e5]'
+                              ? 'bg-[#eef2ff] text-brand'
                               : 'bg-[#f0fdf4] text-[#059669]'
                           "
                         >
                           {{ classRoleLabel(enrollment.role) }}
                         </span>
                       </div>
-                      <p class="mt-1 break-all text-xs text-[#6b7280]">
+                      <p class="mt-1 break-all text-xs text-muted">
                         {{ enrollment.userEmail || "Email tidak tersedia" }}
                       </p>
                       <p class="mt-1 text-[11px] text-[#9ca3af]">
@@ -681,7 +681,7 @@ onMounted(async () => {
 
         <aside class="order-1 min-w-0 lg:order-2">
           <div class="space-y-5 lg:sticky lg:top-6">
-            <section class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5">
+            <section class="rounded-xl border border-border bg-white shadow-sm p-5">
               <div class="flex items-start justify-between gap-3">
                 <div>
                   <p
@@ -689,7 +689,7 @@ onMounted(async () => {
                   >
                     Konteks kelas
                   </p>
-                  <h2 class="mt-1 text-base font-semibold text-[#171322]">
+                  <h2 class="mt-1 text-base font-semibold text-foreground">
                     Pilih periode dan kelas
                   </h2>
                 </div>
@@ -701,11 +701,11 @@ onMounted(async () => {
               </div>
 
               <div class="mt-5 space-y-3">
-                <label class="block text-xs font-medium text-[#6b7280]">
+                <label class="block text-xs font-medium text-muted">
                   Tahun ajaran
                   <select
                     v-model="selectedAcademicYearId"
-                    class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition focus:border-[#4f46e5] focus:bg-white"
+                    class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-brand focus:bg-white"
                     :disabled="yearsLoading || academicYears.length === 0"
                     @change="handleAcademicYearChange"
                   >
@@ -720,11 +720,11 @@ onMounted(async () => {
                     </option>
                   </select>
                 </label>
-                <label class="block text-xs font-medium text-[#6b7280]">
+                <label class="block text-xs font-medium text-muted">
                   Semester
                   <select
                     v-model="selectedTermId"
-                    class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition focus:border-[#4f46e5] focus:bg-white"
+                    class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-brand focus:bg-white"
                     :disabled="termsLoading || terms.length === 0"
                     @change="handleTermChange"
                   >
@@ -738,11 +738,11 @@ onMounted(async () => {
                     </option>
                   </select>
                 </label>
-                <label class="block text-xs font-medium text-[#6b7280]">
+                <label class="block text-xs font-medium text-muted">
                   Kelas
                   <select
                     v-model="selectedClassId"
-                    class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition focus:border-[#4f46e5] focus:bg-white"
+                    class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-brand focus:bg-white"
                     :disabled="classesLoading || classes.length === 0"
                     @change="handleClassChange"
                   >
@@ -761,7 +761,7 @@ onMounted(async () => {
               <div class="mt-4 space-y-2 text-xs leading-5">
                 <p
                   v-if="yearsLoading || termsLoading || classesLoading"
-                  class="text-[#6b7280]"
+                  class="text-muted"
                 >
                   Memuat konteks kelas...
                 </p>
@@ -786,26 +786,26 @@ onMounted(async () => {
                 </div>
                 <p
                   v-else-if="academicYears.length === 0"
-                  class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-[#6b7280]"
+                  class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-muted"
                 >
                   Belum ada tahun ajaran.
                 </p>
                 <p
                   v-else-if="selectedAcademicYearId && terms.length === 0"
-                  class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-[#6b7280]"
+                  class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-muted"
                 >
                   Belum ada semester untuk tahun ajaran ini.
                 </p>
                 <p
                   v-else-if="selectedTermId && classes.length === 0"
-                  class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-[#6b7280]"
+                  class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-muted"
                 >
                   Belum ada kelas untuk semester ini.
                 </p>
               </div>
             </section>
 
-            <section class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5">
+            <section class="rounded-xl border border-border bg-white shadow-sm p-5">
               <div class="flex items-start justify-between gap-3">
                 <div>
                   <p
@@ -813,33 +813,33 @@ onMounted(async () => {
                   >
                     Tambah penempatan
                   </p>
-                  <h2 class="mt-1 text-base font-semibold text-[#171322]">
+                  <h2 class="mt-1 text-base font-semibold text-foreground">
                     Pilih warga sekolah
                   </h2>
-                  <p class="mt-1 text-xs leading-5 text-[#6b7280]">
+                  <p class="mt-1 text-xs leading-5 text-muted">
                     Peran penempatan mengikuti peran warga sekolah.
                   </p>
                 </div>
                 <span
-                  class="shrink-0 rounded-lg bg-[#eef2ff] px-2.5 py-1.5 text-xs font-medium text-[#4f46e5]"
+                  class="shrink-0 rounded-lg bg-[#eef2ff] px-2.5 py-1.5 text-xs font-medium text-brand"
                 >
                   {{ selectedMembers.length }} dipilih
                 </span>
               </div>
 
               <div class="mt-5 space-y-3">
-                <label class="block text-xs font-medium text-[#6b7280]">
+                <label class="block text-xs font-medium text-muted">
                   Cari warga sekolah
                   <div class="mt-2 flex gap-2">
                     <input
                       v-model="memberSearch"
                       type="search"
                       placeholder="Nama atau email"
-                      class="min-w-0 flex-1 rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#4f46e5] focus:bg-white"
+                      class="min-w-0 flex-1 rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-brand focus:bg-white"
                     />
                     <button
                       type="button"
-                      class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#ebe7df] bg-white text-[#6b7280] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60"
+                      class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-white text-muted transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
                       :disabled="membersLoading"
                       @click="loadMembers"
                     >
@@ -872,19 +872,19 @@ onMounted(async () => {
                 </div>
                 <div
                   v-else-if="!selectedClassId"
-                  class="rounded-lg bg-[#fbfaf8] p-3 text-xs leading-5 text-[#6b7280]"
+                  class="rounded-lg bg-[#fbfaf8] p-3 text-xs leading-5 text-muted"
                 >
                   Pilih kelas sebelum menambahkan warga sekolah.
                 </div>
                 <div
                   v-else-if="availableMembers.length === 0"
-                  class="rounded-lg bg-[#fbfaf8] p-3 text-xs leading-5 text-[#6b7280]"
+                  class="rounded-lg bg-[#fbfaf8] p-3 text-xs leading-5 text-muted"
                 >
                   Tidak ada warga sekolah yang dapat ditambahkan ke kelas ini.
                 </div>
                 <div
                   v-else-if="eligibleAvailableMembers.length === 0"
-                  class="rounded-lg bg-[#fbfaf8] p-3 text-xs leading-5 text-[#6b7280]"
+                  class="rounded-lg bg-[#fbfaf8] p-3 text-xs leading-5 text-muted"
                 >
                   Belum ada siswa atau guru yang dapat ditempatkan. Tambahkan
                   peran Siswa atau Guru di Warga Sekolah terlebih dahulu.
@@ -893,7 +893,7 @@ onMounted(async () => {
                   <label
                     v-for="member in availableMembers"
                     :key="member.schoolUserId"
-                    class="flex items-start gap-3 rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-3 transition"
+                    class="flex items-start gap-3 rounded-lg border border-border bg-[#fbfaf8] p-3 transition"
                     :class="
                       inferPlacementRole(member)
                         ? 'cursor-pointer hover:border-[#d1d5db]'
@@ -902,7 +902,7 @@ onMounted(async () => {
                   >
                     <input
                       type="checkbox"
-                      class="mt-1 h-4 w-4 shrink-0 rounded border-[#d1d5db] text-[#4f46e5] focus:ring-[#4f46e5]"
+                      class="mt-1 h-4 w-4 shrink-0 rounded border-[#d1d5db] text-brand focus:ring-brand"
                       :checked="
                         selectedSchoolUserIds.includes(member.schoolUserId)
                       "
@@ -911,21 +911,21 @@ onMounted(async () => {
                     />
                     <span class="min-w-0 flex-1">
                       <span
-                        class="block wrap-break-word text-sm font-medium text-[#171322]"
+                        class="block wrap-break-word text-sm font-medium text-foreground"
                       >
                         {{ member.fullName || "Nama tidak tersedia" }}
                       </span>
-                      <span class="mt-1 block break-all text-xs text-[#6b7280]">
+                      <span class="mt-1 block break-all text-xs text-muted">
                         {{ member.email || "Email tidak tersedia" }}
                       </span>
                       <span
                         class="ml-2 mt-2 inline-flex rounded-lg px-2 py-1 text-[11px] font-medium"
                         :class="
                           inferPlacementRole(member) === 'teacher'
-                            ? 'bg-[#eef2ff] text-[#4f46e5]'
+                            ? 'bg-[#eef2ff] text-brand'
                             : inferPlacementRole(member) === 'student'
                               ? 'bg-[#f0fdf4] text-[#059669]'
-                              : 'bg-[#f3f1ec] text-[#6b7280]'
+                              : 'bg-[#f3f1ec] text-muted'
                         "
                       >
                         {{ placementRoleLabel(member) }}
@@ -957,18 +957,18 @@ onMounted(async () => {
       <RouterLink
         v-if="enrollments.length > 0"
         to="/admin/subject-classes"
-        class="mt-5 flex items-center justify-between gap-4 rounded-xl border border-[#ebe7df] bg-white p-5 transition hover:border-[#4f46e5] hover:shadow-sm"
+        class="mt-5 flex items-center justify-between gap-4 rounded-xl border border-border bg-white p-5 transition hover:border-brand hover:shadow-sm"
       >
         <div>
           <p class="eyebrow">
             Langkah berikutnya
           </p>
-          <p class="mt-1 text-base font-semibold text-[#171322]">Buka Ruang Mengajar</p>
-          <p class="mt-1 text-sm text-[#6b7280]">
+          <p class="mt-1 text-base font-semibold text-foreground">Buka Ruang Mengajar</p>
+          <p class="mt-1 text-sm text-muted">
             Penempatan sudah ada — hubungkan guru ke kelas dan mata pelajaran.
           </p>
         </div>
-        <PhArrowRight :size="20" class="shrink-0 text-[#4f46e5]" weight="bold" />
+        <PhArrowRight :size="20" class="shrink-0 text-brand" weight="bold" />
       </RouterLink>
     </section>
   </main>

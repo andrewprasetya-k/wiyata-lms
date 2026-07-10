@@ -2,6 +2,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
+@theme {
+  --color-brand: #4f46e5;
+  --color-foreground: #171322;
+  --color-border: #ebe7df;
+  --color-muted: #6b7280;
+}
+
 :root {
   font-family: 'Plus Jakarta Sans Variable', 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }

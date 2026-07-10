@@ -111,13 +111,13 @@ onMounted(loadInbox);
 
 <template>
   <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
-    <header class="border-b border-[#ebe7df] bg-white">
+    <header class="border-b border-border bg-white">
       <div class="px-5 py-5 sm:px-6 lg:px-8">
         <div
           class="mt-2 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
         >
           <div class="min-w-0">
-            <h1 class="mt-1 text-2xl font-semibold text-[#171322] sm:text-3xl">
+            <h1 class="mt-1 text-2xl font-semibold text-foreground sm:text-3xl">
               Inbox Pengumpulan
             </h1>
             <p class="mt-2 max-w-2xl text-sm leading-6 text-[#6b6475]">
@@ -138,11 +138,11 @@ onMounted(loadInbox);
           <div
             v-for="index in 4"
             :key="index"
-            class="h-28 animate-pulse rounded-xl border border-[#ebe7df] bg-white"
+            class="h-28 animate-pulse rounded-xl border border-border bg-white"
           />
         </section>
         <section
-          class="h-56 animate-pulse rounded-xl border border-[#ebe7df] bg-white"
+          class="h-56 animate-pulse rounded-xl border border-border bg-white"
         />
       </template>
 
@@ -155,7 +155,7 @@ onMounted(loadInbox);
           class="mx-auto text-[#d97757]"
           weight="duotone"
         />
-        <h2 class="mt-3 text-lg font-semibold text-[#171322]">
+        <h2 class="mt-3 text-lg font-semibold text-foreground">
           Pengumpulan belum bisa dimuat
         </h2>
         <p class="mx-auto mt-2 max-w-xl text-sm leading-6 text-[#6b6475]">
@@ -163,7 +163,7 @@ onMounted(loadInbox);
         </p>
         <button
           type="button"
-          class="mt-5 inline-flex items-center justify-center rounded-lg bg-[#171322] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#2f2b3a]"
+          class="mt-5 inline-flex items-center justify-center rounded-lg bg-foreground px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#2f2b3a]"
           @click="loadInbox"
         >
           Coba lagi
@@ -173,7 +173,7 @@ onMounted(loadInbox);
       <template v-else>
         <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <article
-            class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-4"
+            class="rounded-xl border border-border bg-white shadow-sm p-4"
           >
             <div class="flex items-center justify-between gap-3">
               <p class="text-sm text-[#6b6475]">Total pengumpulan</p>
@@ -183,12 +183,12 @@ onMounted(loadInbox);
                 weight="duotone"
               />
             </div>
-            <p class="mt-3 text-2xl font-semibold text-[#171322]">
+            <p class="mt-3 text-2xl font-semibold text-foreground">
               {{ summary.submissions }}
             </p>
           </article>
           <article
-            class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-4"
+            class="rounded-xl border border-border bg-white shadow-sm p-4"
           >
             <div class="flex items-center justify-between gap-3">
               <p class="text-sm text-[#6b6475]">Perlu dinilai</p>
@@ -198,12 +198,12 @@ onMounted(loadInbox);
                 weight="duotone"
               />
             </div>
-            <p class="mt-3 text-2xl font-semibold text-[#171322]">
+            <p class="mt-3 text-2xl font-semibold text-foreground">
               {{ summary.pending }}
             </p>
           </article>
           <article
-            class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-4"
+            class="rounded-xl border border-border bg-white shadow-sm p-4"
           >
             <div class="flex items-center justify-between gap-3">
               <p class="text-sm text-[#6b6475]">Sudah dinilai</p>
@@ -213,29 +213,29 @@ onMounted(loadInbox);
                 weight="duotone"
               />
             </div>
-            <p class="mt-3 text-2xl font-semibold text-[#171322]">
+            <p class="mt-3 text-2xl font-semibold text-foreground">
               {{ summary.graded }}
             </p>
           </article>
           <article
-            class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-4"
+            class="rounded-xl border border-border bg-white shadow-sm p-4"
           >
             <div class="flex items-center justify-between gap-3">
               <p class="text-sm text-[#6b6475]">Terlambat</p>
               <PhClock :size="21" class="text-[#b889c9]" weight="duotone" />
             </div>
-            <p class="mt-3 text-2xl font-semibold text-[#171322]">
+            <p class="mt-3 text-2xl font-semibold text-foreground">
               {{ summary.late }}
             </p>
           </article>
         </section>
 
-        <section class="rounded-xl border border-[#ebe7df] bg-white">
+        <section class="rounded-xl border border-border bg-white">
           <div
-            class="flex flex-col gap-4 border-b border-[#ebe7df] px-4 py-4 sm:px-5 lg:flex-row lg:items-end lg:justify-between"
+            class="flex flex-col gap-4 border-b border-border px-4 py-4 sm:px-5 lg:flex-row lg:items-end lg:justify-between"
           >
             <div>
-              <h2 class="text-base font-semibold text-[#171322]">
+              <h2 class="text-base font-semibold text-foreground">
                 Daftar tugas
               </h2>
               <p class="mt-1 text-sm text-[#8a8494]">
@@ -251,8 +251,8 @@ onMounted(loadInbox);
                 class="shrink-0 rounded-lg px-3.5 py-2 text-sm font-medium transition"
                 :class="
                   activeFilter === tab.id
-                    ? 'bg-[#171322] text-white'
-                    : 'bg-[#faf8f4] text-[#6b6475] hover:bg-[#f0e9dd] hover:text-[#171322]'
+                    ? 'bg-foreground text-white'
+                    : 'bg-[#faf8f4] text-[#6b6475] hover:bg-[#f0e9dd] hover:text-foreground'
                 "
                 @click="activeFilter = tab.id"
               >
@@ -268,7 +268,7 @@ onMounted(loadInbox);
               class="mx-auto text-[#b5afbf]"
               weight="duotone"
             />
-            <h2 class="mt-3 text-lg font-semibold text-[#171322]">
+            <h2 class="mt-3 text-lg font-semibold text-foreground">
               Belum ada pengumpulan
             </h2>
             <p class="mx-auto mt-2 max-w-xl text-sm leading-6 text-[#6b6475]">
@@ -286,7 +286,7 @@ onMounted(loadInbox);
               class="mx-auto text-[#b5afbf]"
               weight="duotone"
             />
-            <h2 class="mt-3 text-lg font-semibold text-[#171322]">
+            <h2 class="mt-3 text-lg font-semibold text-foreground">
               Tidak ada hasil
             </h2>
             <p class="mx-auto mt-2 max-w-xl text-sm leading-6 text-[#6b6475]">
@@ -294,7 +294,7 @@ onMounted(loadInbox);
             </p>
           </div>
 
-          <div v-else class="divide-y divide-[#ebe7df]">
+          <div v-else class="divide-y divide-border">
             <article
               v-for="item in filteredItems"
               :key="`${item.subjectClassId}-${item.assignmentId}`"
@@ -306,7 +306,7 @@ onMounted(loadInbox);
                 <div class="min-w-0">
                   <div class="flex flex-wrap gap-2 text-xs font-medium">
                     <span
-                      class="rounded-lg bg-[#eef0ff] px-2.5 py-1 text-[#4f46e5]"
+                      class="rounded-lg bg-[#eef0ff] px-2.5 py-1 text-brand"
                     >
                       {{ item.subjectName }}
                       <template v-if="item.subjectCode">
@@ -321,7 +321,7 @@ onMounted(loadInbox);
                   </div>
 
                   <h3
-                    class="mt-3 wrap-break-word text-base font-semibold text-[#171322] sm:text-lg"
+                    class="mt-3 wrap-break-word text-base font-semibold text-foreground sm:text-lg"
                   >
                     {{ item.assignmentTitle }}
                   </h3>
@@ -339,7 +339,7 @@ onMounted(loadInbox);
                     name: 'teacher-assignment-review',
                     params: { assignmentId: item.assignmentId },
                   }"
-                  class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-[#171322] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#2f2b3a]"
+                  class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-foreground px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#2f2b3a]"
                 >
                   Nilai pengumpulan
                   <PhArrowRight :size="16" />
@@ -349,25 +349,25 @@ onMounted(loadInbox);
               <div class="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
                 <div class="rounded-lg bg-[#faf8f4] px-3 py-2.5">
                   <p class="text-xs text-[#8a8494]">Pengumpulan</p>
-                  <p class="mt-1 text-lg font-semibold text-[#171322]">
+                  <p class="mt-1 text-lg font-semibold text-foreground">
                     {{ item.submissionCount }}
                   </p>
                 </div>
                 <div class="rounded-lg bg-[#fff7ed] px-3 py-2.5">
                   <p class="text-xs text-[#9f6b1d]">Perlu dinilai</p>
-                  <p class="mt-1 text-lg font-semibold text-[#171322]">
+                  <p class="mt-1 text-lg font-semibold text-foreground">
                     {{ item.pendingCount }}
                   </p>
                 </div>
                 <div class="rounded-lg bg-[#eef7f2] px-3 py-2.5">
                   <p class="text-xs text-[#2f7d5c]">Sudah dinilai</p>
-                  <p class="mt-1 text-lg font-semibold text-[#171322]">
+                  <p class="mt-1 text-lg font-semibold text-foreground">
                     {{ item.gradedCount }}
                   </p>
                 </div>
                 <div class="rounded-lg bg-[#fff1ed] px-3 py-2.5">
                   <p class="text-xs text-[#b86845]">Terlambat</p>
-                  <p class="mt-1 text-lg font-semibold text-[#171322]">
+                  <p class="mt-1 text-lg font-semibold text-foreground">
                     {{ item.lateCount }}
                   </p>
                 </div>

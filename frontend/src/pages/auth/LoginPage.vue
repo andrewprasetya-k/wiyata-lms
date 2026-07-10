@@ -48,17 +48,17 @@ async function submit() {
           />
         </div>
         <div>
-          <p class="text-sm font-medium text-[#4f46e5]">Wiyata</p>
-          <p class="text-xs text-[#6b7280]">Academic workspace</p>
+          <p class="text-sm font-medium text-brand">Wiyata</p>
+          <p class="text-xs text-muted">Academic workspace</p>
         </div>
       </div>
 
       <div class="max-w-xl">
-        <p class="text-sm font-medium text-[#6b7280]">
+        <p class="text-sm font-medium text-muted">
           Learning Management System
         </p>
         <h1
-          class="mt-4 text-4xl font-medium leading-tight text-[#171322] lg:text-6xl"
+          class="mt-4 text-4xl font-medium leading-tight text-foreground lg:text-6xl"
         >
           Masuk ke ruang belajar yang lebih tenang.
         </h1>
@@ -88,12 +88,12 @@ async function submit() {
               />
             </div>
             <div>
-              <p class="text-sm font-medium text-[#4f46e5]">Wiyata</p>
-              <p class="text-xs text-[#6b7280]">Academic workspace</p>
+              <p class="text-sm font-medium text-brand">Wiyata</p>
+              <p class="text-xs text-muted">Academic workspace</p>
             </div>
           </div>
 
-          <h2 class="text-3xl font-medium text-[#171322]">Login</h2>
+          <h2 class="text-3xl font-medium text-foreground">Login</h2>
           <p class="mt-3 text-sm text-[#7a7385]">
             Gunakan akun Wiyata yang sudah terdaftar.
           </p>
@@ -106,7 +106,7 @@ async function submit() {
             </span>
             <input
               v-model="email"
-              class="h-12 w-full rounded-2xl border border-[#e7e2da] bg-[#fbfaf8] px-4 text-sm outline-none transition focus:border-[#4f46e5] focus:bg-white"
+              class="h-12 w-full rounded-2xl border border-[#e7e2da] bg-[#fbfaf8] px-4 text-sm outline-none transition focus:border-brand focus:bg-white"
               type="email"
               autocomplete="email"
               placeholder="nama@sekolah.sch.id"
@@ -119,7 +119,7 @@ async function submit() {
             </span>
             <input
               v-model="password"
-              class="h-12 w-full rounded-2xl border border-[#e7e2da] bg-[#fbfaf8] px-4 text-sm outline-none transition focus:border-[#4f46e5] focus:bg-white"
+              class="h-12 w-full rounded-2xl border border-[#e7e2da] bg-[#fbfaf8] px-4 text-sm outline-none transition focus:border-brand focus:bg-white"
               type="password"
               autocomplete="current-password"
               placeholder="••••••••"
@@ -134,7 +134,7 @@ async function submit() {
           </p>
 
           <button
-            class="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#4f46e5] text-sm font-medium text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:bg-[#bab7d8]"
+            class="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-brand text-sm font-medium text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:bg-[#bab7d8]"
             type="submit"
             :disabled="!canSubmit || isSubmitting"
           >

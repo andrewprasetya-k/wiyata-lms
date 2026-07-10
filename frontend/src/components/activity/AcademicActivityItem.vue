@@ -27,10 +27,10 @@ function ariaLabel() {
   <RouterLink
     v-if="isInternalActivityLink(activity.link)"
     :to="activity.link || ''"
-    class="group flex min-w-0 gap-3 rounded-lg border p-4 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5] focus-visible:ring-offset-2"
+    class="group flex min-w-0 gap-3 rounded-lg border p-4 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
     :class="activity.type === 'assignment_overdue'
       ? 'border-[#fecaca] bg-[#fef2f2] hover:bg-[#fee2e2]'
-      : 'border-[#ebe7df] bg-white hover:border-[#c7d2fe] hover:bg-[#fbfaf8]'"
+      : 'border-border bg-white hover:border-[#c7d2fe] hover:bg-[#fbfaf8]'"
     :aria-label="ariaLabel()"
   >
     <span
@@ -61,7 +61,7 @@ function ariaLabel() {
         </span>
       </span>
       <span
-        class="mt-2 line-clamp-2 text-sm font-medium leading-5 text-[#171322] transition group-hover:text-[#4f46e5]"
+        class="mt-2 line-clamp-2 text-sm font-medium leading-5 text-foreground transition group-hover:text-brand"
       >
         {{ activity.title }}
       </span>
@@ -78,7 +78,7 @@ function ariaLabel() {
     </span>
     <PhArrowRight
       :size="15"
-      class="mt-2 shrink-0 text-[#a09aa8] transition group-hover:translate-x-0.5 group-hover:text-[#4f46e5]"
+      class="mt-2 shrink-0 text-[#a09aa8] transition group-hover:translate-x-0.5 group-hover:text-brand"
       aria-hidden="true"
     />
   </RouterLink>
@@ -88,7 +88,7 @@ function ariaLabel() {
     class="flex min-w-0 gap-3 rounded-lg border p-4"
     :class="activity.type === 'assignment_overdue'
       ? 'border-[#fecaca] bg-[#fef2f2]'
-      : 'border-[#ebe7df] bg-white'"
+      : 'border-border bg-white'"
   >
     <span
       class="mt-2 h-2.5 w-2.5 shrink-0 rounded-full"
@@ -117,7 +117,7 @@ function ariaLabel() {
           Prioritas
         </span>
       </div>
-      <h3 class="mt-2 line-clamp-2 text-sm font-medium text-[#171322]">
+      <h3 class="mt-2 line-clamp-2 text-sm font-medium text-foreground">
         {{ activity.title }}
       </h3>
       <p class="mt-1 line-clamp-2 text-xs leading-5 text-[#7a7385]">

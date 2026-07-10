@@ -36,7 +36,7 @@ function isActive(to: string) {
 
 <template>
   <aside
-    class="flex h-full flex-col border-r border-[#ebe7df] bg-white/95 transition-[width] duration-200 ease-in-out"
+    class="flex h-full flex-col border-r border-border bg-white/95 transition-[width] duration-200 ease-in-out"
     :class="isCollapsed ? 'w-18' : 'w-62'"
   >
     <!-- ── Header: logo + brand + toggle -->
@@ -52,7 +52,7 @@ function isActive(to: string) {
 
       <!-- Brand label — flex-1 only in expanded; h-0 flex-none in collapsed to take zero space in flex-col -->
       <span
-        class="overflow-hidden whitespace-nowrap text-[15px] font-semibold tracking-tight text-[#171322] transition-[opacity,transform] duration-150"
+        class="overflow-hidden whitespace-nowrap text-[15px] font-semibold tracking-tight text-foreground transition-[opacity,transform] duration-150"
         :class="
           isCollapsed
             ? 'pointer-events-none h-0 flex-none -translate-x-1 opacity-0'
@@ -91,7 +91,7 @@ function isActive(to: string) {
         :class="[
           isCollapsed ? 'mx-auto w-4 justify-center px-6' : 'w-full gap-3 px-3',
           isActive(item.to)
-            ? 'bg-[#f3f1ec] text-[#171322]'
+            ? 'bg-[#f3f1ec] text-foreground'
             : item.emphasized
               ? 'text-[#575269]'
               : '',
@@ -141,7 +141,7 @@ function isActive(to: string) {
           <span
             v-if="item.badgeCount"
             :key="item.badgeLabel || String(item.badgeCount)"
-            class="absolute inline-flex min-w-[1.1rem] items-center justify-center rounded-full bg-[#4f46e5] px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white shadow-sm"
+            class="absolute inline-flex min-w-[1.1rem] items-center justify-center rounded-full bg-brand px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white shadow-sm"
             :class="isCollapsed ? '-right-1.5 -top-1 ' : 'right-2'"
             :aria-label="
               item.badgeAriaLabel || `${item.badgeCount} chat belum dibaca`
@@ -189,7 +189,7 @@ function isActive(to: string) {
         "
       >
         <span
-          class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#4f46e5] text-[11px] font-medium text-white transition hover:bg-[#4338ca]"
+          class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand text-[11px] font-medium text-white transition hover:bg-[#4338ca]"
           :class="
             isActive(profileTo)
               ? 'ring-2 ring-[#c7d2fe] ring-offset-2 ring-offset-white'

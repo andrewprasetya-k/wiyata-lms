@@ -50,12 +50,12 @@ onMounted(loadMaterial);
 
 <template>
   <main class="min-h-screen min-w-0 flex-1 bg-[#f8f7f4]">
-    <header class="border-b border-[#ebe7df] bg-white">
+    <header class="border-b border-border bg-white">
       <div
-        class="flex min-w-0 items-center gap-2 px-5 py-5 text-xs text-[#6b7280] sm:px-6 lg:px-8"
+        class="flex min-w-0 items-center gap-2 px-5 py-5 text-xs text-muted sm:px-6 lg:px-8"
       >
         <RouterLink
-          class="inline-flex shrink-0 items-center gap-1.5 transition hover:text-[#4f46e5]"
+          class="inline-flex shrink-0 items-center gap-1.5 transition hover:text-brand"
           :to="`/student/subjects/${subjectClassId}`"
         >
           <PhArrowLeft :size="15" />
@@ -64,7 +64,7 @@ onMounted(loadMaterial);
         <span class="text-[#d1d5db]">/</span>
         <span class="shrink-0">Materi</span>
         <span class="text-[#d1d5db]">/</span>
-        <span class="min-w-0 truncate font-medium text-[#171322]">
+        <span class="min-w-0 truncate font-medium text-foreground">
           {{ material?.materialTitle || "Detail materi" }}
         </span>
       </div>
@@ -76,14 +76,14 @@ onMounted(loadMaterial);
     >
       <div class="space-y-4">
         <div
-          class="h-52 animate-pulse rounded-xl border border-[#ebe7df] bg-white"
+          class="h-52 animate-pulse rounded-xl border border-border bg-white"
         />
         <div
-          class="h-80 animate-pulse rounded-xl border border-[#ebe7df] bg-white"
+          class="h-80 animate-pulse rounded-xl border border-border bg-white"
         />
       </div>
       <div
-        class="h-112 animate-pulse rounded-xl border border-[#ebe7df] bg-white"
+        class="h-112 animate-pulse rounded-xl border border-border bg-white"
       />
     </section>
 
@@ -101,14 +101,14 @@ onMounted(loadMaterial);
             <PhWarningCircle :size="22" weight="duotone" />
           </div>
           <div>
-            <h1 class="text-base font-semibold text-[#171322]">
+            <h1 class="text-base font-semibold text-foreground">
               Tidak bisa memuat materi
             </h1>
             <p class="mt-1 text-sm leading-6 text-[#7a7385]">
               {{ errorMessage }}
             </p>
             <button
-              class="mt-4 rounded-lg bg-[#4f46e5] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+              class="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
               type="button"
               @click="loadMaterial"
             >
@@ -124,21 +124,21 @@ onMounted(loadMaterial);
       class="flex min-h-[calc(100vh-49px)] items-center justify-center px-5 py-10"
     >
       <article
-        class="w-full max-w-xl rounded-xl border border-[#ebe7df] bg-white p-8 text-center"
+        class="w-full max-w-xl rounded-xl border border-border bg-white p-8 text-center"
       >
         <div
-          class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
+          class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
         >
           <PhBookOpen :size="24" weight="duotone" />
         </div>
-        <h1 class="mt-4 text-base font-semibold text-[#171322]">
+        <h1 class="mt-4 text-base font-semibold text-foreground">
           Materi tidak ditemukan
         </h1>
         <p class="mx-auto mt-1 max-w-md text-sm leading-6 text-[#7a7385]">
           Materi ini tidak tersedia atau sudah tidak dapat diakses.
         </p>
         <RouterLink
-          class="mt-5 inline-flex items-center gap-2 rounded-lg bg-[#4f46e5] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
+          class="mt-5 inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-[#4338ca]"
           :to="`/student/subjects/${subjectClassId}`"
         >
           <PhArrowLeft :size="16" />
@@ -152,10 +152,10 @@ onMounted(loadMaterial);
       class="mx-auto grid w-full max-w-screen min-w-0 items-start gap-5 px-5 py-5 sm:px-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:px-8 lg:py-6"
     >
       <div class="min-w-0 space-y-4">
-        <article class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5 sm:p-6">
+        <article class="rounded-xl border border-border bg-white shadow-sm p-5 sm:p-6">
           <div class="flex min-w-0 items-start gap-4">
             <div
-              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
+              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
             >
               <PhBookOpen :size="22" weight="duotone" />
             </div>
@@ -163,24 +163,24 @@ onMounted(loadMaterial);
               <div class="flex flex-wrap items-center gap-2">
                 <span
                   v-if="material.materialType"
-                  class="rounded-full bg-[#eef2ff] px-2.5 py-1 text-[11px] font-medium uppercase text-[#4f46e5]"
+                  class="rounded-full bg-[#eef2ff] px-2.5 py-1 text-[11px] font-medium uppercase text-brand"
                 >
                   {{ material.materialType }}
                 </span>
                 <span
                   v-if="material.subjectName"
-                  class="rounded-full bg-[#f8f7f4] px-2.5 py-1 text-[11px] text-[#6b7280]"
+                  class="rounded-full bg-[#f8f7f4] px-2.5 py-1 text-[11px] text-muted"
                 >
                   {{ material.subjectName }}
                 </span>
               </div>
               <h1
-                class="mt-3 wrap-break-word text-xl font-semibold leading-7 text-[#171322] sm:text-2xl"
+                class="mt-3 wrap-break-word text-xl font-semibold leading-7 text-foreground sm:text-2xl"
               >
                 {{ material.materialTitle }}
               </h1>
               <div
-                class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-[#6b7280]"
+                class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted"
               >
                 <span class="inline-flex items-center gap-1.5">
                   <PhUserCircle :size="15" />
@@ -192,7 +192,7 @@ onMounted(loadMaterial);
           </div>
 
           <div class="mt-6 border-t border-[#f0ede8] pt-5">
-            <h2 class="text-sm font-semibold text-[#171322]">Deskripsi materi</h2>
+            <h2 class="text-sm font-semibold text-foreground">Deskripsi materi</h2>
             <p
               v-if="material.materialDesc"
               class="mt-3 whitespace-pre-line wrap-break-word text-sm leading-7 text-[#4a4356]"
@@ -205,17 +205,17 @@ onMounted(loadMaterial);
           </div>
         </article>
 
-        <article class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5 sm:p-6">
+        <article class="rounded-xl border border-border bg-white shadow-sm p-5 sm:p-6">
           <div class="flex items-center justify-between gap-3">
             <div class="flex items-center gap-2">
-              <PhPaperclip :size="18" class="text-[#4f46e5]" />
-              <h2 class="text-sm font-semibold text-[#171322]">
+              <PhPaperclip :size="18" class="text-brand" />
+              <h2 class="text-sm font-semibold text-foreground">
                 Lampiran materi
               </h2>
             </div>
             <span
               v-if="material.attachments?.length"
-              class="shrink-0 rounded-full bg-[#f8f7f4] px-2.5 py-1 text-[11px] text-[#6b7280]"
+              class="shrink-0 rounded-full bg-[#f8f7f4] px-2.5 py-1 text-[11px] text-muted"
             >
               {{ material.attachments.length }} file
             </span>
@@ -232,8 +232,8 @@ onMounted(loadMaterial);
           />
         </article>
 
-        <!-- <article class="rounded-xl border border-[#ebe7df] bg-white p-5">
-          <h2 class="text-sm font-semibold text-[#171322]">Progress materi</h2>
+        <!-- <article class="rounded-xl border border-border bg-white p-5">
+          <h2 class="text-sm font-semibold text-foreground">Progress materi</h2>
           <p class="mt-1 text-sm leading-6 text-[#7a7385]">
             Progress materi direncanakan setelah MVP sekolah. Membuka materi
             belum menandai progres selesai.

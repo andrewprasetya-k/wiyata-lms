@@ -76,7 +76,7 @@ watch(
 
 <template>
   <article
-    class="flex h-full min-h-0 flex-col rounded-[22px] border border-[#ebe7df] bg-[#fbfaf8] p-5 lg:overflow-hidden"
+    class="flex h-full min-h-0 flex-col rounded-[22px] border border-border bg-[#fbfaf8] p-5 lg:overflow-hidden"
   >
     <div class="flex items-start gap-3">
       <div
@@ -85,7 +85,7 @@ watch(
         <PhNotebook :size="20" weight="duotone" />
       </div>
       <div class="min-w-0">
-        <h2 class="text-base font-medium text-[#171322]">Catatan Saya</h2>
+        <h2 class="text-base font-medium text-foreground">Catatan Saya</h2>
         <p class="mt-1 text-sm leading-6 text-[#7a7385]">
           Catatan pribadi untuk materi ini.
         </p>
@@ -104,7 +104,7 @@ watch(
     >
       <p class="text-sm leading-6 text-[#b42318]">{{ errorMessage }}</p>
       <button
-        class="mt-3 inline-flex items-center gap-2 text-sm font-medium text-[#4f46e5]"
+        class="mt-3 inline-flex items-center gap-2 text-sm font-medium text-brand"
         type="button"
         @click="loadNote"
       >
@@ -130,7 +130,7 @@ watch(
       </p>
 
       <RouterLink
-        class="mt-5 inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-2xl bg-[#4f46e5] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#4338ca] lg:mt-auto"
+        class="mt-5 inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-2xl bg-brand px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#4338ca] lg:mt-auto"
         :to="{
           name: 'student-material-note',
           params: {

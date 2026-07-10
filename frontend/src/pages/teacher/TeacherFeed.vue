@@ -295,8 +295,8 @@ async function scrollToLinkedPost() {
   const el = document.getElementById(`post-${postId}`);
   if (el) {
     el.scrollIntoView({ behavior: "smooth", block: "center" });
-    el.classList.add("ring-2", "ring-[#4f46e5]", "ring-offset-2");
-    setTimeout(() => el.classList.remove("ring-2", "ring-[#4f46e5]", "ring-offset-2"), 3000);
+    el.classList.add("ring-2", "ring-brand", "ring-offset-2");
+    setTimeout(() => el.classList.remove("ring-2", "ring-brand", "ring-offset-2"), 3000);
   }
 }
 
@@ -309,13 +309,13 @@ function updatePostCommentCount(feedId: string, count: number) {
 
 <template>
   <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
-    <header class="border-b border-[#ebe7df] bg-white">
+    <header class="border-b border-border bg-white">
       <div class="px-5 py-5 sm:px-6 lg:px-8">
         <div
           class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
         >
           <div class="min-w-0">
-            <h1 class="text-2xl font-semibold text-[#171322] sm:text-3xl">
+            <h1 class="text-2xl font-semibold text-foreground sm:text-3xl">
               Pengumuman Kelas
             </h1>
             <p class="mt-2 max-w-2xl text-sm leading-6 text-[#6b6475]">
@@ -338,10 +338,10 @@ function updatePostCommentCount(feedId: string, count: number) {
       <template v-if="classesLoading">
         <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
           <div
-            class="h-72 animate-pulse rounded-xl border border-[#ebe7df] bg-white"
+            class="h-72 animate-pulse rounded-xl border border-border bg-white"
           />
           <div
-            class="h-72 animate-pulse rounded-xl border border-[#ebe7df] bg-white"
+            class="h-72 animate-pulse rounded-xl border border-border bg-white"
           />
         </div>
       </template>
@@ -355,14 +355,14 @@ function updatePostCommentCount(feedId: string, count: number) {
           class="mx-auto text-[#d97757]"
           weight="duotone"
         />
-        <h2 class="mt-3 text-lg font-semibold text-[#171322]">
+        <h2 class="mt-3 text-lg font-semibold text-foreground">
           Kelas belum bisa dimuat
         </h2>
         <p class="mt-2 text-sm leading-6 text-[#6b6475]">
           {{ classesError }}
         </p>
         <button
-          class="mt-5 inline-flex items-center gap-2 rounded-lg bg-[#171322] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#2f2b3a]"
+          class="mt-5 inline-flex items-center gap-2 rounded-lg bg-foreground px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#2f2b3a]"
           type="button"
           @click="loadClasses"
         >
@@ -373,17 +373,17 @@ function updatePostCommentCount(feedId: string, count: number) {
 
       <section
         v-else-if="classes.length === 0"
-        class="mx-auto max-w-xl rounded-xl border border-[#ebe7df] bg-white px-5 py-10 text-center"
+        class="mx-auto max-w-xl rounded-xl border border-border bg-white px-5 py-10 text-center"
       >
         <div
-          class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
+          class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
         >
           <PhChalkboardTeacher class="h-6 w-6" weight="duotone" />
         </div>
-        <h2 class="mt-3 text-base font-semibold text-[#171322]">
+        <h2 class="mt-3 text-base font-semibold text-foreground">
           Belum ada kelas aktif
         </h2>
-        <p class="mt-2 text-sm leading-6 text-[#6b7280]">
+        <p class="mt-2 text-sm leading-6 text-muted">
           Belum ada kelas aktif yang bisa digunakan untuk mengirim pengumuman.
         </p>
       </section>
@@ -394,16 +394,16 @@ function updatePostCommentCount(feedId: string, count: number) {
       >
         <aside class="order-1 min-w-0 lg:order-2">
           <article
-            class="rounded-xl border border-[#ebe7df] bg-white p-5 lg:sticky lg:top-6"
+            class="rounded-xl border border-border bg-white p-5 lg:sticky lg:top-6"
           >
             <div class="flex items-start gap-3">
               <div
-                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
+                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
               >
                 <PhMegaphone :size="20" weight="duotone" />
               </div>
               <div class="min-w-0">
-                <h2 class="text-base font-semibold text-[#171322]">
+                <h2 class="text-base font-semibold text-foreground">
                   Buat pengumuman
                 </h2>
                 <p class="mt-1 text-xs leading-5 text-[#7a7385]">
@@ -421,7 +421,7 @@ function updatePostCommentCount(feedId: string, count: number) {
             <select
               id="feed-class"
               v-model="selectedClassId"
-              class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-white px-3.5 py-2.5 text-sm text-[#171322] outline-none transition focus:border-[#4f46e5]"
+              class="mt-2 w-full rounded-lg border border-border bg-white px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-brand"
             >
               <option
                 v-for="item in classes"
@@ -441,7 +441,7 @@ function updatePostCommentCount(feedId: string, count: number) {
             <textarea
               id="feed-content"
               v-model="content"
-              class="mt-2 min-h-40 w-full resize-y rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-3 text-sm leading-6 text-[#171322] outline-none transition placeholder:text-[#a09aa8] focus:border-[#4f46e5] focus:bg-white"
+              class="mt-2 min-h-40 w-full resize-y rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-3 text-sm leading-6 text-foreground outline-none transition placeholder:text-[#a09aa8] focus:border-brand focus:bg-white"
               placeholder="Tulis pengumuman untuk kelas ini..."
               maxlength="1200"
             />
@@ -454,7 +454,7 @@ function updatePostCommentCount(feedId: string, count: number) {
               </span>
             </p>
             <button
-              class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#4f46e5] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:opacity-60"
+              class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:opacity-60"
               type="button"
               :disabled="!canSubmit"
               @click="submitFeed"
@@ -467,10 +467,10 @@ function updatePostCommentCount(feedId: string, count: number) {
 
         <section class="order-2 min-w-0 lg:order-1">
           <div
-            class="flex flex-col gap-3 rounded-xl border border-[#ebe7df] bg-white px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5"
+            class="flex flex-col gap-3 rounded-xl border border-border bg-white px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5"
           >
             <div class="min-w-0">
-              <h2 class="truncate text-base font-semibold text-[#171322]">
+              <h2 class="truncate text-base font-semibold text-foreground">
                 {{
                   classHeader?.classTitle ||
                   selectedClass?.className ||
@@ -483,7 +483,7 @@ function updatePostCommentCount(feedId: string, count: number) {
               </p>
             </div>
             <button
-              class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-[#ebe7df] px-3 py-2 text-xs font-medium text-[#4f46e5] transition hover:border-[#4f46e5] hover:bg-[#eef2ff] disabled:opacity-50"
+              class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-border px-3 py-2 text-xs font-medium text-brand transition hover:border-brand hover:bg-[#eef2ff] disabled:opacity-50"
               type="button"
               :disabled="feedLoading"
               @click="loadFeed"
@@ -497,15 +497,15 @@ function updatePostCommentCount(feedId: string, count: number) {
             <div
               v-for="item in 3"
               :key="item"
-              class="h-32 animate-pulse rounded-xl border border-[#ebe7df] bg-white"
+              class="h-32 animate-pulse rounded-xl border border-border bg-white"
             />
           </div>
 
           <div
             v-else-if="feedAccessMessage"
-            class="mt-3 rounded-xl border border-[#ebe7df] bg-white p-5"
+            class="mt-3 rounded-xl border border-border bg-white p-5"
           >
-            <h3 class="text-sm font-semibold text-[#171322]">
+            <h3 class="text-sm font-semibold text-foreground">
               Pengumuman belum bisa dimuat
             </h3>
             <p class="mt-2 text-sm leading-6 text-[#7a7385]">
@@ -535,17 +535,17 @@ function updatePostCommentCount(feedId: string, count: number) {
 
           <div
             v-else-if="posts.length === 0"
-            class="mt-3 rounded-xl border border-[#ebe7df] bg-white px-5 py-10 text-center"
+            class="mt-3 rounded-xl border border-border bg-white px-5 py-10 text-center"
           >
             <div
-              class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
+              class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
             >
               <PhMegaphone class="h-6 w-6" weight="duotone" />
             </div>
-            <h3 class="mt-3 text-base font-semibold text-[#171322]">
+            <h3 class="mt-3 text-base font-semibold text-foreground">
               Belum ada pengumuman
             </h3>
-            <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#6b7280]">
+            <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-muted">
               Pengumuman yang Anda kirim untuk kelas ini akan tampil di sini dan
               dapat dibaca oleh siswa aktif.
             </p>
@@ -556,7 +556,7 @@ function updatePostCommentCount(feedId: string, count: number) {
               v-for="post in posts"
               :key="post.feedId"
               :id="`post-${post.feedId}`"
-              class="min-w-0 rounded-xl border border-[#ebe7df] bg-white transition-shadow"
+              class="min-w-0 rounded-xl border border-border bg-white transition-shadow"
               :class="isOptimisticFeed(post) ? 'opacity-80' : ''"
             >
               <div class="flex min-w-0 items-start gap-3 px-4 pt-4 sm:px-5">
@@ -569,7 +569,7 @@ function updatePostCommentCount(feedId: string, count: number) {
                   <div
                     class="flex min-w-0 flex-col gap-1 sm:flex-row sm:items-center sm:justify-between"
                   >
-                    <h3 class="truncate text-sm font-semibold text-[#171322]">
+                    <h3 class="truncate text-sm font-semibold text-foreground">
                       {{ post.creatorName || "Pengirim tidak tersedia" }}
                     </h3>
                     <span class="shrink-0 text-xs text-[#a09aa8]">

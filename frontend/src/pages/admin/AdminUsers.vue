@@ -655,15 +655,15 @@ onMounted(async () => {
 
 <template>
   <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
-    <header class="border-b border-[#ebe7df] bg-white">
+    <header class="border-b border-border bg-white">
       <div
         class="flex min-w-0 flex-col gap-3 px-5 py-5 sm:px-6 lg:flex-row lg:items-end lg:justify-between lg:px-8"
       >
         <div class="min-w-0">
-          <h1 class="mt-1 text-2xl font-semibold text-[#171322] sm:text-3xl">
+          <h1 class="mt-1 text-2xl font-semibold text-foreground sm:text-3xl">
             Warga Sekolah
           </h1>
-          <p class="mt-2 max-w-3xl text-sm leading-6 text-[#6b7280]">
+          <p class="mt-2 max-w-3xl text-sm leading-6 text-muted">
             Kelola warga pada sekolah aktif dan import data siswa, guru, atau
             admin sekolah dari template CSV.
           </p>
@@ -675,7 +675,7 @@ onMounted(async () => {
             {{ currentSchool.schoolName || "Sekolah belum tersedia" }}
           </span>
           <span
-            class="rounded-lg bg-[#f3f1ec] px-3 py-2 font-medium text-[#6b7280]"
+            class="rounded-lg bg-[#f3f1ec] px-3 py-2 font-medium text-muted"
           >
             {{ currentSchool.schoolCode || "Kode belum tersedia" }}
           </span>
@@ -697,10 +697,10 @@ onMounted(async () => {
 
       <div class="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
         <section
-          class="order-2 min-w-0 rounded-xl border border-[#ebe7df] bg-white shadow-sm lg:order-1"
+          class="order-2 min-w-0 rounded-xl border border-border bg-white shadow-sm lg:order-1"
         >
           <div
-            class="flex flex-col gap-4 border-b border-[#ebe7df] p-5"
+            class="flex flex-col gap-4 border-b border-border p-5"
           >
             <div
               class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
@@ -711,15 +711,15 @@ onMounted(async () => {
                 >
                   Warga sekolah aktif
                 </p>
-                <h2 class="mt-1 text-base font-semibold text-[#171322]">
+                <h2 class="mt-1 text-base font-semibold text-foreground">
                   Daftar pengguna sekolah
                 </h2>
-                <p class="mt-1 text-sm text-[#6b7280]">
+                <p class="mt-1 text-sm text-muted">
                   Kelola peran utama setiap pengguna pada sekolah aktif.
                 </p>
               </div>
               <span
-                class="inline-flex shrink-0 items-center gap-2 self-start rounded-lg bg-[#eef2ff] px-3 py-2 text-xs font-medium text-[#4f46e5]"
+                class="inline-flex shrink-0 items-center gap-2 self-start rounded-lg bg-[#eef2ff] px-3 py-2 text-xs font-medium text-brand"
               >
                 <PhUsers :size="16" weight="duotone" />
                 {{ membersTotalItems || members.length }} warga
@@ -735,7 +735,7 @@ onMounted(async () => {
                 v-model="memberSearch"
                 type="search"
                 placeholder="Cari nama atau email warga sekolah"
-                class="w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] py-2.5 pl-10 pr-3.5 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#4f46e5] focus:bg-white"
+                class="w-full rounded-lg border border-border bg-[#fbfaf8] py-2.5 pl-10 pr-3.5 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-brand focus:bg-white"
               />
             </div>
           </div>
@@ -758,15 +758,15 @@ onMounted(async () => {
                 class="mx-auto text-[#dc2626]"
                 weight="duotone"
               />
-              <h3 class="mt-3 text-sm font-semibold text-[#171322]">
+              <h3 class="mt-3 text-sm font-semibold text-foreground">
                 Warga sekolah belum bisa dimuat
               </h3>
-              <p class="mt-2 text-sm leading-6 text-[#6b7280]">
+              <p class="mt-2 text-sm leading-6 text-muted">
                 {{ rolesError || membersError }}
               </p>
               <button
                 type="button"
-                class="mt-4 inline-flex items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60"
+                class="mt-4 inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
                 @click="rolesError ? loadRoles() : loadMembers()"
               >
                 Coba lagi
@@ -781,16 +781,16 @@ onMounted(async () => {
                 class="mx-auto h-7 w-7 text-[#9ca3af]"
                 weight="duotone"
               />
-              <h3 class="mt-3 text-sm font-semibold text-[#171322]">
+              <h3 class="mt-3 text-sm font-semibold text-foreground">
                 Belum ada warga sekolah
               </h3>
-              <p class="mt-2 text-sm leading-6 text-[#6b7280]">
+              <p class="mt-2 text-sm leading-6 text-muted">
                 Import warga sekolah dari panel kanan untuk memulai.
               </p>
             </div>
 
             <div v-else class="flex flex-col gap-4">
-              <div class="divide-y divide-[#ebe7df]">
+              <div class="divide-y divide-border">
               <article
                 v-for="member in members"
                 :key="member.schoolUserId"
@@ -808,18 +808,18 @@ onMounted(async () => {
                     <div class="min-w-0">
                       <div class="flex min-w-0 flex-wrap items-center gap-2">
                         <h3
-                          class="min-w-0 wrap-break-word text-sm font-semibold text-[#171322]"
+                          class="min-w-0 wrap-break-word text-sm font-semibold text-foreground"
                         >
                           {{ member.fullName || "Nama tidak tersedia" }}
                         </h3>
                         <span
                           v-if="primaryRoleName(member)"
-                          class="rounded-lg bg-[#eef2ff] px-2 py-1 text-[11px] font-medium text-[#4f46e5]"
+                          class="rounded-lg bg-[#eef2ff] px-2 py-1 text-[11px] font-medium text-brand"
                         >
                           {{ roleLabel(primaryRoleName(member)) }}
                         </span>
                       </div>
-                      <p class="mt-1 break-all text-xs text-[#6b7280]">
+                      <p class="mt-1 break-all text-xs text-muted">
                         {{ member.email || "Email tidak tersedia" }}
                       </p>
                       <p class="mt-2 text-[11px] text-[#9ca3af]">
@@ -827,7 +827,7 @@ onMounted(async () => {
                       </p>
                       <p
                         v-if="member.classCodes?.length"
-                        class="mt-2 text-[11px] font-medium text-[#6b7280]"
+                        class="mt-2 text-[11px] font-medium text-muted"
                       >
                         Kelas: {{ member.classCodes.join(", ") }}
                       </p>
@@ -842,10 +842,10 @@ onMounted(async () => {
                   </div>
 
                   <div class="min-w-0 rounded-lg bg-[#fbfaf8] p-3">
-                    <label class="block text-xs font-medium text-[#6b7280]">
+                    <label class="block text-xs font-medium text-muted">
                       Peran sekolah
                       <select
-                        class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-white px-3 py-2.5 text-sm text-[#171322] outline-none transition focus:border-[#4f46e5]"
+                        class="mt-2 w-full rounded-lg border border-border bg-white px-3 py-2.5 text-sm text-foreground outline-none transition focus:border-brand"
                         :value="memberRoleDrafts[member.schoolUserId] ?? ''"
                         :disabled="rolesLoading || allowedRoles.length === 0"
                         @change="
@@ -916,7 +916,7 @@ onMounted(async () => {
 
         <aside class="order-1 min-w-0 lg:order-2">
           <section
-            class="rounded-xl border border-[#ebe7df] bg-white shadow-sm p-5 lg:sticky lg:top-6"
+            class="rounded-xl border border-border bg-white shadow-sm p-5 lg:sticky lg:top-6"
           >
             <div class="flex items-start justify-between gap-3">
               <div>
@@ -925,10 +925,10 @@ onMounted(async () => {
                 >
                   Tambah warga sekolah
                 </p>
-                <h2 class="mt-1 text-base font-semibold text-[#171322]">
+                <h2 class="mt-1 text-base font-semibold text-foreground">
                   Undang atau buat akun
                 </h2>
-                <p class="mt-1 text-xs leading-5 text-[#6b7280]">
+                <p class="mt-1 text-xs leading-5 text-muted">
                   Undangan email menjadi alur utama agar guru dan siswa membuat
                   password sendiri. Pembuatan akun langsung tetap tersedia
                   sebagai fallback.
@@ -942,7 +942,7 @@ onMounted(async () => {
             </div>
 
             <div
-              class="mt-5 grid rounded-lg bg-[#fbfaf8] p-1 text-xs font-medium text-[#6b7280] sm:grid-cols-2"
+              class="mt-5 grid rounded-lg bg-[#fbfaf8] p-1 text-xs font-medium text-muted sm:grid-cols-2"
               role="tablist"
               aria-label="Mode tambah warga sekolah"
             >
@@ -951,8 +951,8 @@ onMounted(async () => {
                 class="rounded-md px-3 py-2 transition"
                 :class="
                   memberEntryMode === 'invite'
-                    ? 'bg-white text-[#171322] shadow-sm'
-                    : 'hover:text-[#171322]'
+                    ? 'bg-white text-foreground shadow-sm'
+                    : 'hover:text-foreground'
                 "
                 :aria-selected="memberEntryMode === 'invite'"
                 role="tab"
@@ -965,8 +965,8 @@ onMounted(async () => {
                 class="rounded-md px-3 py-2 transition"
                 :class="
                   memberEntryMode === 'direct'
-                    ? 'bg-white text-[#171322] shadow-sm'
-                    : 'hover:text-[#171322]'
+                    ? 'bg-white text-foreground shadow-sm'
+                    : 'hover:text-foreground'
                 "
                 :aria-selected="memberEntryMode === 'direct'"
                 role="tab"
@@ -981,41 +981,41 @@ onMounted(async () => {
               class="mt-5 space-y-3"
               @submit.prevent="submitInviteMember"
             >
-              <label class="block text-xs font-medium text-[#6b7280]">
+              <label class="block text-xs font-medium text-muted">
                 Nama lengkap
                 <input
                   v-model="inviteForm.fullName"
                   type="text"
                   placeholder="Nama guru atau siswa"
-                  class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#4f46e5] focus:bg-white"
+                  class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-brand focus:bg-white"
                 />
               </label>
-              <label class="block text-xs font-medium text-[#6b7280]">
+              <label class="block text-xs font-medium text-muted">
                 Email
                 <input
                   v-model="inviteForm.email"
                   type="email"
                   placeholder="email@sekolah.sch.id"
-                  class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#4f46e5] focus:bg-white"
+                  class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-brand focus:bg-white"
                 />
               </label>
-              <label class="block text-xs font-medium text-[#6b7280]">
+              <label class="block text-xs font-medium text-muted">
                 Peran
                 <select
                   v-model="inviteForm.role"
-                  class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition focus:border-[#4f46e5] focus:bg-white"
+                  class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-brand focus:bg-white"
                 >
                   <option value="student">Siswa</option>
                   <option value="teacher">Guru</option>
                 </select>
               </label>
-              <label class="block text-xs font-medium text-[#6b7280]">
+              <label class="block text-xs font-medium text-muted">
                 Kode kelas
                 <input
                   v-model="inviteForm.classCode"
                   type="text"
                   placeholder="Wajib untuk siswa"
-                  class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#4f46e5] focus:bg-white disabled:cursor-not-allowed disabled:opacity-60"
+                  class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-brand focus:bg-white disabled:cursor-not-allowed disabled:opacity-60"
                   :disabled="inviteForm.role !== 'student'"
                 />
               </label>
@@ -1053,7 +1053,7 @@ onMounted(async () => {
                   <p class="break-all text-[11px]">{{ inviteLink }}</p>
                   <button
                     type="button"
-                    class="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60"
+                    class="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
                     @click="copyInviteLink"
                   >
                     <PhCopy :size="15" weight="duotone" />
@@ -1068,51 +1068,51 @@ onMounted(async () => {
               class="mt-5 space-y-3"
               @submit.prevent="submitManualMember"
             >
-              <label class="block text-xs font-medium text-[#6b7280]">
+              <label class="block text-xs font-medium text-muted">
                 Nama lengkap
                 <input
                   v-model="manualForm.fullName"
                   type="text"
                   placeholder="Nama warga sekolah"
-                  class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#4f46e5] focus:bg-white"
+                  class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-brand focus:bg-white"
                 />
               </label>
-              <label class="block text-xs font-medium text-[#6b7280]">
+              <label class="block text-xs font-medium text-muted">
                 Email
                 <input
                   v-model="manualForm.email"
                   type="email"
                   placeholder="email@sekolah.sch.id"
-                  class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#4f46e5] focus:bg-white"
+                  class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-brand focus:bg-white"
                 />
               </label>
-              <label class="block text-xs font-medium text-[#6b7280]">
+              <label class="block text-xs font-medium text-muted">
                 Password awal
                 <input
                   v-model="manualForm.password"
                   type="password"
                   placeholder="Minimal 6 karakter"
-                  class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#4f46e5] focus:bg-white"
+                  class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-brand focus:bg-white"
                 />
               </label>
-              <label class="block text-xs font-medium text-[#6b7280]">
+              <label class="block text-xs font-medium text-muted">
                 Peran
                 <select
                   v-model="manualForm.role"
-                  class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition focus:border-[#4f46e5] focus:bg-white"
+                  class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-brand focus:bg-white"
                 >
                   <option value="student">Siswa</option>
                   <option value="teacher">Guru</option>
                   <option value="admin">Admin sekolah</option>
                 </select>
               </label>
-              <label class="block text-xs font-medium text-[#6b7280]">
+              <label class="block text-xs font-medium text-muted">
                 Kode kelas
                 <input
                   v-model="manualForm.classCode"
                   type="text"
                   placeholder="Opsional untuk siswa"
-                  class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#4f46e5] focus:bg-white disabled:cursor-not-allowed disabled:opacity-60"
+                  class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-brand focus:bg-white disabled:cursor-not-allowed disabled:opacity-60"
                   :disabled="manualForm.role !== 'student'"
                 />
               </label>
@@ -1134,7 +1134,7 @@ onMounted(async () => {
               </button>
             </form>
 
-            <div class="mt-6 border-t border-[#ebe7df] pt-5">
+            <div class="mt-6 border-t border-border pt-5">
               <div class="flex items-start gap-3">
                 <PhFileCsv
                   :size="21"
@@ -1142,10 +1142,10 @@ onMounted(async () => {
                   weight="duotone"
                 />
                 <div>
-                  <h3 class="text-sm font-semibold text-[#171322]">
+                  <h3 class="text-sm font-semibold text-foreground">
                     Import warga sekolah
                   </h3>
-                  <p class="mt-1 text-xs leading-5 text-[#6b7280]">
+                  <p class="mt-1 text-xs leading-5 text-muted">
                     Upload template CSV atau Excel untuk menambahkan banyak
                     warga sekaligus.
                   </p>
@@ -1156,7 +1156,7 @@ onMounted(async () => {
                 <div class="grid gap-2 sm:grid-cols-2">
                   <button
                     type="button"
-                    class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60"
+                    class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
                     @click="downloadTemplate"
                   >
                     <PhDownloadSimple :size="17" weight="duotone" />
@@ -1165,7 +1165,7 @@ onMounted(async () => {
 
                   <button
                     type="button"
-                    class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60"
+                    class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
                     @click="downloadExcelTemplate"
                   >
                     <PhDownloadSimple :size="17" weight="duotone" />
@@ -1173,23 +1173,23 @@ onMounted(async () => {
                   </button>
                 </div>
 
-                <label class="block text-xs font-medium text-[#6b7280]">
+                <label class="block text-xs font-medium text-muted">
                   File CSV atau Excel
                   <input
                     type="file"
                     accept=".csv,text/csv,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                    class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition file:mr-3 file:rounded-md file:border-0 file:bg-[#fff4ee] file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-[#ea580c] focus:border-[#4f46e5] focus:bg-white"
+                    class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition file:mr-3 file:rounded-md file:border-0 file:bg-[#fff4ee] file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-[#ea580c] focus:border-brand focus:bg-white"
                     @change="handleImportFileChange"
                   />
                 </label>
 
-                <label class="block text-xs font-medium text-[#6b7280]">
+                <label class="block text-xs font-medium text-muted">
                   Password awal untuk akun baru
                   <input
                     v-model="importDefaultPassword"
                     type="password"
                     placeholder="Minimal 6 karakter"
-                    class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#171322] outline-none transition placeholder:text-[#9ca3af] focus:border-[#4f46e5] focus:bg-white"
+                    class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-brand focus:bg-white"
                   />
                 </label>
 
@@ -1220,7 +1220,7 @@ onMounted(async () => {
                 <button
                   v-if="importPreview || importResult || importFile"
                   type="button"
-                  class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[#ebe7df] bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:cursor-not-allowed disabled:opacity-60"
+                  class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
                   :disabled="importCommitLoading || importPreviewLoading"
                   @click="resetImportState"
                 >
@@ -1238,13 +1238,13 @@ onMounted(async () => {
               </p>
               <p
                 v-else-if="importPreviewLoading"
-                class="rounded-lg bg-[#fbfaf8] px-3 py-3 text-xs leading-5 text-[#6b7280]"
+                class="rounded-lg bg-[#fbfaf8] px-3 py-3 text-xs leading-5 text-muted"
               >
                 Memvalidasi file import...
               </p>
               <p
                 v-else-if="!importPreview"
-                class="rounded-lg bg-[#fbfaf8] px-3 py-3 text-xs leading-5 text-[#6b7280]"
+                class="rounded-lg bg-[#fbfaf8] px-3 py-3 text-xs leading-5 text-muted"
               >
                 Pilih file CSV untuk melihat preview validasi.
               </p>
@@ -1279,14 +1279,14 @@ onMounted(async () => {
                   >
                     <div class="flex items-start justify-between gap-2">
                       <div class="min-w-0">
-                        <p class="text-xs font-semibold text-[#171322]">
+                        <p class="text-xs font-semibold text-foreground">
                           Baris {{ row.rowNumber }} ·
                           {{ row.fullName || "Nama kosong" }}
                         </p>
-                        <p class="mt-1 break-all text-xs text-[#6b7280]">
+                        <p class="mt-1 break-all text-xs text-muted">
                           {{ row.email || "Email kosong" }}
                         </p>
-                        <p class="mt-1 text-xs text-[#6b7280]">
+                        <p class="mt-1 text-xs text-muted">
                           {{ roleLabel(row.role) }}
                           <span v-if="row.classCode">
                             · {{ row.classCode }}</span

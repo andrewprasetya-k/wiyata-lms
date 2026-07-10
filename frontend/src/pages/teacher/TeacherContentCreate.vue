@@ -330,19 +330,19 @@ onMounted(loadInitialData);
 
 <template>
   <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
-    <header class="border-b border-[#ebe7df] bg-white">
+    <header class="border-b border-border bg-white">
       <div class="px-5 py-5 sm:px-6 lg:px-8">
-        <div class="flex min-w-0 items-center gap-2 text-xs text-[#6b7280]">
+        <div class="flex min-w-0 items-center gap-2 text-xs text-muted">
           <button
             type="button"
-            class="inline-flex shrink-0 items-center gap-1.5 transition hover:text-[#4f46e5]"
+            class="inline-flex shrink-0 items-center gap-1.5 transition hover:text-brand"
             @click="router.back()"
           >
             <PhArrowLeft :size="15" />
             Mata pelajaran
           </button>
           <span class="text-[#d1d5db]">/</span>
-          <span class="min-w-0 truncate font-medium text-[#171322]">
+          <span class="min-w-0 truncate font-medium text-foreground">
             {{ isEditMode ? "Edit" : "Buat" }}
             {{ activeTab === "material" ? "Materi" : "Tugas" }}
           </span>
@@ -355,11 +355,11 @@ onMounted(loadInitialData);
             <p class="text-xs font-medium uppercase tracking-wide text-[#7b61a8]">
               {{ subject?.subjectName || "Konten mata pelajaran" }}
             </p>
-            <h1 class="mt-1 text-xl font-semibold text-[#171322] sm:text-2xl">
+            <h1 class="mt-1 text-xl font-semibold text-foreground sm:text-2xl">
               {{ isEditMode ? "Edit" : "Buat" }}
               {{ activeTab === "material" ? "Materi" : "Tugas" }}
             </h1>
-            <p class="mt-1 text-sm text-[#6b7280]">
+            <p class="mt-1 text-sm text-muted">
               <template v-if="subject">
                 {{ subject.className }}
                 <span v-if="subject.subjectCode">
@@ -373,7 +373,7 @@ onMounted(loadInitialData);
             class="inline-flex self-start rounded-lg px-2.5 py-1.5 text-xs font-medium lg:self-auto"
             :class="
               activeTab === 'material'
-                ? 'bg-[#eef2ff] text-[#4f46e5]'
+                ? 'bg-[#eef2ff] text-brand'
                 : 'bg-[#fff7ed] text-[#ea580c]'
             "
           >
@@ -396,31 +396,31 @@ onMounted(loadInitialData);
         <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
           <div class="space-y-4">
             <div
-              class="h-56 animate-pulse rounded-xl border border-[#ebe7df] bg-white"
+              class="h-56 animate-pulse rounded-xl border border-border bg-white"
             />
             <div
-              class="h-48 animate-pulse rounded-xl border border-[#ebe7df] bg-white"
+              class="h-48 animate-pulse rounded-xl border border-border bg-white"
             />
           </div>
           <div
-            class="h-80 animate-pulse rounded-xl border border-[#ebe7df] bg-white"
+            class="h-80 animate-pulse rounded-xl border border-border bg-white"
           />
         </div>
       </template>
 
       <template v-else>
         <div
-          class="mb-5 flex max-w-full gap-2 overflow-x-auto rounded-xl border border-[#ebe7df] bg-white p-1.5 sm:w-fit"
+          class="mb-5 flex max-w-full gap-2 overflow-x-auto rounded-xl border border-border bg-white p-1.5 sm:w-fit"
         >
           <button
             type="button"
             class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition sm:min-w-28"
             :class="[
               activeTab === 'material'
-                ? 'bg-[#eef2ff] text-[#4f46e5]'
-                : 'text-[#6b7280]',
+                ? 'bg-[#eef2ff] text-brand'
+                : 'text-muted',
               !isEditMode && activeTab !== 'material'
-                ? 'cursor-pointer hover:bg-[#f3f1ec] hover:text-[#171322]'
+                ? 'cursor-pointer hover:bg-[#f3f1ec] hover:text-foreground'
                 : isEditMode && activeTab !== 'material'
                   ? 'cursor-not-allowed opacity-50'
                   : '',
@@ -436,10 +436,10 @@ onMounted(loadInitialData);
             class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition sm:min-w-28"
             :class="[
               activeTab === 'assignment'
-                ? 'bg-[#eef2ff] text-[#4f46e5]'
-                : 'text-[#6b7280]',
+                ? 'bg-[#eef2ff] text-brand'
+                : 'text-muted',
               !isEditMode && activeTab !== 'assignment'
-                ? 'cursor-pointer hover:bg-[#f3f1ec] hover:text-[#171322]'
+                ? 'cursor-pointer hover:bg-[#f3f1ec] hover:text-foreground'
                 : isEditMode && activeTab !== 'assignment'
                   ? 'cursor-not-allowed opacity-50'
                   : '',
@@ -455,16 +455,16 @@ onMounted(loadInitialData);
         <div class="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
           <div class="min-w-0 space-y-5">
             <section
-              class="rounded-xl border border-[#ebe7df] bg-white p-5 sm:p-6"
+              class="rounded-xl border border-border bg-white p-5 sm:p-6"
             >
               <div class="flex items-start gap-3">
                 <div
-                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"
+                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#eef2ff] text-brand"
                 >
                   <PhInfo :size="20" weight="duotone" />
                 </div>
                 <div>
-                  <h2 class="text-base font-semibold text-[#171322]">
+                  <h2 class="text-base font-semibold text-foreground">
                     Informasi utama
                   </h2>
                   <p class="mt-1 text-xs leading-5 text-[#8a8494]">
@@ -492,7 +492,7 @@ onMounted(loadInitialData);
                     id="content-title"
                     v-model="form.title"
                     type="text"
-                    class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-4 py-3 text-sm text-[#171322] outline-none transition placeholder:text-[#a09aa8] focus:border-[#4f46e5] focus:bg-white"
+                    class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-[#a09aa8] focus:border-brand focus:bg-white"
                     placeholder="Contoh: Pengenalan Aljabar Linear"
                   />
                 </div>
@@ -513,7 +513,7 @@ onMounted(loadInitialData);
                     id="content-description"
                     v-model="form.description"
                     rows="7"
-                    class="mt-2 w-full resize-none rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-4 py-3 text-sm leading-6 text-[#374151] outline-none transition placeholder:text-[#a09aa8] focus:border-[#4f46e5] focus:bg-white"
+                    class="mt-2 w-full resize-none rounded-lg border border-border bg-[#fbfaf8] px-4 py-3 text-sm leading-6 text-[#374151] outline-none transition placeholder:text-[#a09aa8] focus:border-brand focus:bg-white"
                     placeholder="Berikan instruksi atau detail tambahan..."
                   />
                 </div>
@@ -521,16 +521,16 @@ onMounted(loadInitialData);
             </section>
 
             <section
-              class="rounded-xl border border-[#ebe7df] bg-white p-5 sm:p-6"
+              class="rounded-xl border border-border bg-white p-5 sm:p-6"
             >
               <div class="flex items-start gap-3">
                 <div
-                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#f3f1ec] text-[#6b7280]"
+                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#f3f1ec] text-muted"
                 >
                   <PhFileText :size="20" weight="duotone" />
                 </div>
                 <div>
-                  <h2 class="text-base font-semibold text-[#171322]">
+                  <h2 class="text-base font-semibold text-foreground">
                     Lampiran dan media
                   </h2>
                   <p class="mt-1 text-xs leading-5 text-[#8a8494]">
@@ -577,19 +577,19 @@ onMounted(loadInitialData);
 
           <aside class="min-w-0">
             <div class="space-y-4 lg:sticky lg:top-6">
-              <section class="rounded-xl border border-[#ebe7df] bg-white p-5">
+              <section class="rounded-xl border border-border bg-white p-5">
                 <p
                   class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#9ca3af]"
                 >
                   Metadata
                 </p>
-                <h2 class="mt-1 text-base font-semibold text-[#171322]">
+                <h2 class="mt-1 text-base font-semibold text-foreground">
                   Pengaturan konten
                 </h2>
 
                 <div v-if="activeTab === 'material'" class="mt-5">
                   <label
-                    class="block text-xs font-medium text-[#6b7280]"
+                    class="block text-xs font-medium text-muted"
                     for="material-type"
                   >
                     Tipe materi
@@ -597,7 +597,7 @@ onMounted(loadInitialData);
                   <select
                     id="material-type"
                     v-model="form.materialType"
-                    class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#374151] outline-none transition focus:border-[#4f46e5] focus:bg-white"
+                    class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#374151] outline-none transition focus:border-brand focus:bg-white"
                   >
                     <option value="pdf">PDF</option>
                     <option value="video">Video</option>
@@ -609,7 +609,7 @@ onMounted(loadInitialData);
                 <div v-else class="mt-5 space-y-5">
                   <div>
                     <label
-                      class="block text-xs font-medium text-[#6b7280]"
+                      class="block text-xs font-medium text-muted"
                       for="assignment-category"
                     >
                       Kategori tugas
@@ -618,7 +618,7 @@ onMounted(loadInitialData);
                       id="assignment-category"
                       v-model="form.categoryId"
                       :disabled="categories.length === 0"
-                      class="mt-2 w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#374151] outline-none transition focus:border-[#4f46e5] focus:bg-white disabled:cursor-not-allowed disabled:opacity-60"
+                      class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-[#374151] outline-none transition focus:border-brand focus:bg-white disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       <option
                         v-for="cat in categories"
@@ -639,7 +639,7 @@ onMounted(loadInitialData);
                   </div>
 
                   <div>
-                    <p class="text-xs font-medium text-[#6b7280]">Tenggat</p>
+                    <p class="text-xs font-medium text-muted">Tenggat</p>
                     <div class="mt-2 grid gap-2">
                       <div class="relative">
                         <PhCalendarBlank
@@ -649,7 +649,7 @@ onMounted(loadInitialData);
                         <input
                           v-model="form.deadlineDate"
                           type="date"
-                          class="w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] py-2.5 pl-10 pr-3 text-sm text-[#374151] outline-none transition focus:border-[#4f46e5] focus:bg-white"
+                          class="w-full rounded-lg border border-border bg-[#fbfaf8] py-2.5 pl-10 pr-3 text-sm text-[#374151] outline-none transition focus:border-brand focus:bg-white"
                         />
                       </div>
                       <div class="relative">
@@ -660,7 +660,7 @@ onMounted(loadInitialData);
                         <input
                           v-model="form.deadlineTime"
                           type="time"
-                          class="w-full rounded-lg border border-[#ebe7df] bg-[#fbfaf8] py-2.5 pl-10 pr-3 text-sm text-[#374151] outline-none transition focus:border-[#4f46e5] focus:bg-white"
+                          class="w-full rounded-lg border border-border bg-[#fbfaf8] py-2.5 pl-10 pr-3 text-sm text-[#374151] outline-none transition focus:border-brand focus:bg-white"
                         />
                       </div>
                     </div>
@@ -680,7 +680,7 @@ onMounted(loadInitialData);
                         type="button"
                         class="relative h-5 w-10 shrink-0 rounded-full transition"
                         :class="
-                          form.allowLate ? 'bg-[#4f46e5]' : 'bg-[#e5e7eb]'
+                          form.allowLate ? 'bg-brand' : 'bg-[#e5e7eb]'
                         "
                         :aria-pressed="form.allowLate"
                         @click="form.allowLate = !form.allowLate"
@@ -711,11 +711,11 @@ onMounted(loadInitialData);
                 </p>
               </section>
 
-              <section class="rounded-xl border border-[#ebe7df] bg-white p-4">
+              <section class="rounded-xl border border-border bg-white p-4">
                 <div class="grid gap-2">
                   <button
                     type="button"
-                    class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#4f46e5] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:opacity-50"
+                    class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:opacity-50"
                     :disabled="isSubmitDisabled"
                     @click="handleSubmit"
                   >
@@ -734,7 +734,7 @@ onMounted(loadInitialData);
                   </button>
                   <button
                     type="button"
-                    class="inline-flex w-full items-center justify-center rounded-lg border border-[#ebe7df] bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:bg-[#f3f1ec]"
+                    class="inline-flex w-full items-center justify-center rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:bg-[#f3f1ec]"
                     @click="router.back()"
                   >
                     Batal

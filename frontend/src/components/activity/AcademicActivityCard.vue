@@ -133,21 +133,21 @@ function isInternalLink(link?: string | null) {
 
 <template>
   <article
-    class="min-w-0 rounded-xl border border-[#ebe7df] bg-white p-4 sm:p-5 shadow-sm"
+    class="min-w-0 rounded-xl border border-border bg-white p-4 sm:p-5 shadow-sm"
     aria-labelledby="academic-activity-title"
   >
     <div class="mb-4 flex min-w-0 items-start justify-between gap-3">
       <div class="min-w-0">
         <h2
           id="academic-activity-title"
-          class="text-sm font-semibold text-[#171322]"
+          class="text-sm font-semibold text-foreground"
         >
           Agenda Mendatang
         </h2>
       </div>
       <RouterLink
         :to="activityRoute"
-        class="inline-flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-[#4f46e5] transition hover:bg-[#eef2ff] hover:text-[#4338ca] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5] focus-visible:ring-offset-2"
+        class="inline-flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-brand transition hover:bg-[#eef2ff] hover:text-[#4338ca] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
         aria-label="Lihat semua aktivitas akademik"
       >
         Lihat semua aktivitas
@@ -159,7 +159,7 @@ function isInternalLink(link?: string | null) {
       <div
         v-for="item in 4"
         :key="item"
-        class="flex min-w-0 gap-3 rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-3"
+        class="flex min-w-0 gap-3 rounded-lg border border-border bg-[#fbfaf8] p-3"
       >
         <div class="mt-1 h-2 w-2 shrink-0 rounded-full bg-[#e5e7eb]" />
         <div class="min-w-0 flex-1 space-y-2">
@@ -179,23 +179,23 @@ function isInternalLink(link?: string | null) {
 
     <div
       v-else-if="visibleActivities.length === 0"
-      class="rounded-lg border border-[#ebe7df] bg-[#fbfaf8] p-4"
+      class="rounded-lg border border-border bg-[#fbfaf8] p-4"
     >
       <div
-        class="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-[#eef2ff] text-[#4f46e5]"
+        class="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-[#eef2ff] text-brand"
       >
         <PhCalendarCheck class="h-5 w-5" weight="duotone" />
       </div>
-      <p class="text-sm font-semibold text-[#171322]">
+      <p class="text-sm font-semibold text-foreground">
         {{ emptyMessage }}
       </p>
-      <p class="mt-1 text-sm leading-6 text-[#6b7280]">
+      <p class="mt-1 text-sm leading-6 text-muted">
         Aktivitas akan muncul saat ada tenggat, materi, pengumuman, atau
         pengumpulan yang relevan.
       </p>
       <RouterLink
         :to="activityRoute"
-        class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-[#ebe7df] bg-white px-3 py-2 text-xs font-medium text-[#4f46e5] transition hover:border-[#4f46e5] hover:bg-[#eef2ff]"
+        class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-2 text-xs font-medium text-brand transition hover:border-brand hover:bg-[#eef2ff]"
       >
         Lihat semua aktivitas
         <PhArrowRight :size="13" />
@@ -204,7 +204,7 @@ function isInternalLink(link?: string | null) {
 
     <div v-else>
       <ul
-        class="divide-y divide-[#ebe7df]"
+        class="divide-y divide-border"
         :class="
           sortedActivities.length > props.maxItems
             ? 'max-h-60 overflow-y-auto pr-1'
@@ -220,7 +220,7 @@ function isInternalLink(link?: string | null) {
           <RouterLink
             v-if="isInternalLink(activity.link)"
             :to="activity.link || ''"
-            class="group flex min-w-0 gap-3 rounded-lg p-1 -m-1 transition hover:bg-[#fbfaf8] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5] focus-visible:ring-offset-2"
+            class="group flex min-w-0 gap-3 rounded-lg p-1 -m-1 transition hover:bg-[#fbfaf8] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
             :aria-label="`${typeLabel(activity.type)}: ${activity.title}`"
           >
             <span
@@ -232,7 +232,7 @@ function isInternalLink(link?: string | null) {
               <span class="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
                 <span
                   class="text-[11px] font-medium"
-                  :class="activity.type === 'assignment_overdue' ? 'text-[#dc2626]' : 'text-[#4f46e5]'"
+                  :class="activity.type === 'assignment_overdue' ? 'text-[#dc2626]' : 'text-brand'"
                 >
                   {{ typeLabel(activity.type) }}
                 </span>
@@ -253,7 +253,7 @@ function isInternalLink(link?: string | null) {
                 </span>
               </span>
               <span
-                class="mt-1 line-clamp-2 text-sm font-medium leading-5 text-[#171322] transition group-hover:text-[#4f46e5]"
+                class="mt-1 line-clamp-2 text-sm font-medium leading-5 text-foreground transition group-hover:text-brand"
               >
                 {{ activity.title }}
               </span>
@@ -263,7 +263,7 @@ function isInternalLink(link?: string | null) {
             </span>
             <PhArrowRight
               :size="14"
-              class="mt-2 shrink-0 text-[#a09aa8] transition group-hover:translate-x-0.5 group-hover:text-[#4f46e5]"
+              class="mt-2 shrink-0 text-[#a09aa8] transition group-hover:translate-x-0.5 group-hover:text-brand"
               aria-hidden="true"
             />
           </RouterLink>
@@ -278,7 +278,7 @@ function isInternalLink(link?: string | null) {
               <div class="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
                 <span
                   class="text-[11px] font-medium"
-                  :class="activity.type === 'assignment_overdue' ? 'text-[#dc2626]' : 'text-[#4f46e5]'"
+                  :class="activity.type === 'assignment_overdue' ? 'text-[#dc2626]' : 'text-brand'"
                 >
                   {{ typeLabel(activity.type) }}
                 </span>
@@ -298,7 +298,7 @@ function isInternalLink(link?: string | null) {
                   Prioritas
                 </span>
               </div>
-              <p class="mt-1 line-clamp-2 text-sm font-medium text-[#171322]">
+              <p class="mt-1 line-clamp-2 text-sm font-medium text-foreground">
                 {{ activity.title }}
               </p>
               <p class="mt-1 line-clamp-2 text-xs leading-5 text-[#7a7385]">
