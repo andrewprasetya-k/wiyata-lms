@@ -259,7 +259,7 @@ func main() {
 		userAPI := api.Group("/users")
 		{
 			userAPI.POST("", middleware.RequireSystemSuperAdmin(schoolService), userHandler.Create)
-			userAPI.GET("", middleware.RequireRole(schoolService, "admin", "super_admin"), userHandler.FindAll)
+			userAPI.GET("", middleware.RequireSystemSuperAdmin(schoolService), userHandler.FindAll)
 			userAPI.GET("/:id", middleware.RequireSystemSuperAdmin(schoolService), userHandler.GetByID)
 			userAPI.PATCH("/:id", middleware.RequireSystemSuperAdmin(schoolService), userHandler.Update)
 			userAPI.PATCH("/change-password/:id", middleware.RequireSystemSuperAdmin(schoolService), userHandler.ChangePassword)
