@@ -3,6 +3,7 @@ package handler
 import (
 	"backend/internal/domain"
 	"backend/internal/dto"
+	"backend/internal/middleware"
 	"backend/internal/service"
 	"net/http"
 	"strconv"
@@ -13,12 +14,14 @@ import (
 type SchoolUserHandler struct {
 	service       service.SchoolUserService
 	schoolService service.SchoolService
+	rbacService   service.RBACService
 }
 
-func NewSchoolUserHandler(service service.SchoolUserService, schoolService service.SchoolService) *SchoolUserHandler {
+func NewSchoolUserHandler(service service.SchoolUserService, schoolService service.SchoolService, rbacService service.RBACService) *SchoolUserHandler {
 	return &SchoolUserHandler{
 		service:       service,
 		schoolService: schoolService,
+		rbacService:   rbacService,
 	}
 }
 
@@ -107,6 +110,24 @@ func (h *SchoolUserHandler) mapSchoolToHeader(s *domain.School) dto.SchoolHeader
 
 func (h *SchoolUserHandler) GetSchoolsByUser(c *gin.Context) {
 	userID := c.Param("userId")
+
+	requesterID := middleware.GetUserID(c)
+	if requesterID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+	if requesterID != userID {
+		isSuperAdmin, err := h.rbacService.IsSuperAdmin(requesterID)
+		if err != nil {
+			HandleError(c, err)
+			return
+		}
+		if !isSuperAdmin {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: cannot access another user's school memberships"})
+			return
+		}
+	}
+
 	schools, err := h.service.GetSchoolsByUser(userID)
 	if err != nil {
 		HandleError(c, err)

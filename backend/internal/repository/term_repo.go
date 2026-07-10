@@ -7,8 +7,8 @@ import (
 
 type TermRepository interface {
 	Create(term *domain.Term) error
-	FindAll(search string, page int, limit int) ([]*domain.Term, int64, error)
-	GetByAcademicYear(acyID string) ([]*domain.Term, error)
+	FindAll(schoolID string, search string, page int, limit int) ([]*domain.Term, int64, error)
+	GetByAcademicYear(acyID string, schoolID string) ([]*domain.Term, error)
 	GetByID(id string) (*domain.Term, error)
 	Update(term *domain.Term) error
 	Delete(id string) error
@@ -30,15 +30,17 @@ func (r *termRepository) Create(term *domain.Term) error {
 	return r.db.Create(term).Error
 }
 
-func (r *termRepository) FindAll(search string, page int, limit int) ([]*domain.Term, int64, error) {
+func (r *termRepository) FindAll(schoolID string, search string, page int, limit int) ([]*domain.Term, int64, error) {
 	var terms []*domain.Term
 	var total int64
 
-	query := r.db.Model(&domain.Term{}).Preload("AcademicYear.School")
+	query := r.db.Model(&domain.Term{}).Preload("AcademicYear.School").
+		Joins("JOIN edv.academic_years ON edv.academic_years.acy_id = edv.terms.trm_acy_id").
+		Where("edv.academic_years.acy_sch_id = ?", schoolID)
 
 	if search != "" {
 		searchTerm := "%" + search + "%"
-		query = query.Where("trm_name ILIKE ?", searchTerm)
+		query = query.Where("edv.terms.trm_name ILIKE ?", searchTerm)
 	}
 
 	if err := query.Count(&total).Error; err != nil {
@@ -46,13 +48,16 @@ func (r *termRepository) FindAll(search string, page int, limit int) ([]*domain.
 	}
 
 	offset := (page - 1) * limit
-	err := query.Limit(limit).Offset(offset).Order("created_at desc").Find(&terms).Error
+	err := query.Limit(limit).Offset(offset).Order("edv.terms.created_at desc").Find(&terms).Error
 	return terms, total, err
 }
 
-func (r *termRepository) GetByAcademicYear(acyID string) ([]*domain.Term, error) {
+func (r *termRepository) GetByAcademicYear(acyID string, schoolID string) ([]*domain.Term, error) {
 	var terms []*domain.Term
-	err := r.db.Preload("AcademicYear.School").Where("trm_acy_id = ?", acyID).Order("created_at asc").Find(&terms).Error
+	err := r.db.Preload("AcademicYear.School").
+		Joins("JOIN edv.academic_years ON edv.academic_years.acy_id = edv.terms.trm_acy_id").
+		Where("edv.terms.trm_acy_id = ? AND edv.academic_years.acy_sch_id = ?", acyID, schoolID).
+		Order("edv.terms.created_at asc").Find(&terms).Error
 	return terms, err
 }
 

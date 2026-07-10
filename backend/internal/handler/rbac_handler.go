@@ -10,11 +10,21 @@ import (
 )
 
 type RBACHandler struct {
-	service service.RBACService
+	service           service.RBACService
+	schoolUserService service.SchoolUserService
 }
 
-func NewRBACHandler(service service.RBACService) *RBACHandler {
-	return &RBACHandler{service: service}
+func NewRBACHandler(service service.RBACService, schoolUserService service.SchoolUserService) *RBACHandler {
+	return &RBACHandler{service: service, schoolUserService: schoolUserService}
+}
+
+func getRBACSchoolID(c *gin.Context) string {
+	if sid, exists := c.Get("school_id"); exists {
+		if value, ok := sid.(string); ok && value != "" {
+			return value
+		}
+	}
+	return c.GetHeader("SchoolId")
 }
 
 // Role Handlers
@@ -127,6 +137,22 @@ func (h *RBACHandler) RemoveRole(c *gin.Context) {
 
 func (h *RBACHandler) GetUserRoles(c *gin.Context) {
 	schoolUserID := c.Param("schoolUserId")
+	schoolID := getRBACSchoolID(c)
+	if schoolID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
+
+	belongs, err := h.schoolUserService.BelongsToSchool(schoolUserID, schoolID)
+	if err != nil {
+		HandleError(c, err)
+		return
+	}
+	if !belongs {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: school user does not belong to active school"})
+		return
+	}
+
 	userRoles, err := h.service.GetUserRoles(schoolUserID)
 	if err != nil {
 		HandleError(c, err)

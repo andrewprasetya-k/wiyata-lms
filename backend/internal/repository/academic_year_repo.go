@@ -8,7 +8,7 @@ import (
 
 type AcademicYearRepository interface {
 	Create(acy *domain.AcademicYear) error
-	FindAll(search string, page int, limit int) ([]*domain.AcademicYear, int64, error)
+	FindAll(schoolID string, search string, page int, limit int) ([]*domain.AcademicYear, int64, error)
 	GetBySchool(schoolID string) ([]*domain.AcademicYear, error)
 	GetByID(id string) (*domain.AcademicYear, error)
 	Update(acy *domain.AcademicYear) error
@@ -31,11 +31,11 @@ func (r *academicYearRepository) Create(acy *domain.AcademicYear) error {
 	return r.db.Create(acy).Error
 }
 
-func (r *academicYearRepository) FindAll(search string, page int, limit int) ([]*domain.AcademicYear, int64, error) {
+func (r *academicYearRepository) FindAll(schoolID string, search string, page int, limit int) ([]*domain.AcademicYear, int64, error) {
 	var years []*domain.AcademicYear
 	var total int64
 
-	query := r.db.Model(&domain.AcademicYear{}).Joins("School")
+	query := r.db.Model(&domain.AcademicYear{}).Joins("School").Where("acy_sch_id = ?", schoolID)
 
 	if search != "" {
 		searchTerm := "%" + search + "%"

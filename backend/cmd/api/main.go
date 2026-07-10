@@ -59,9 +59,12 @@ func main() {
 	userService := service.NewUserService(userRepo)
 	userHandler := handler.NewUserHandler(userService)
 
+	rbacRepo := repository.NewRBACRepository(db)
+	rbacService := service.NewRBACService(rbacRepo, userService, schoolRepo)
+
 	schoolUserRepo := repository.NewSchoolUserRepository(db)
 	schoolUserService := service.NewSchoolUserService(schoolUserRepo, schoolService)
-	schoolUserHandler := handler.NewSchoolUserHandler(schoolUserService, schoolService)
+	schoolUserHandler := handler.NewSchoolUserHandler(schoolUserService, schoolService, rbacService)
 	adminSchoolMemberImportService := service.NewAdminSchoolMemberImportService(db, emailService)
 	adminSchoolMemberImportHandler := handler.NewAdminSchoolMemberImportHandler(adminSchoolMemberImportService)
 	schoolMemberInvitationRepo := repository.NewSchoolMemberInvitationRepository(db)
@@ -75,9 +78,7 @@ func main() {
 	subjectService := service.NewSubjectService(subjectRepo, schoolService)
 	subjectHandler := handler.NewSubjectHandler(subjectService, schoolService)
 
-	rbacRepo := repository.NewRBACRepository(db)
-	rbacService := service.NewRBACService(rbacRepo, userService, schoolRepo)
-	rbacHandler := handler.NewRBACHandler(rbacService)
+	rbacHandler := handler.NewRBACHandler(rbacService, schoolUserService)
 	superAdminBootstrapService := service.NewSuperAdminBootstrapService(db)
 	superAdminBootstrapHandler := handler.NewSuperAdminBootstrapHandler(superAdminBootstrapService)
 
@@ -209,8 +210,8 @@ func main() {
 		academicYearAPI := api.Group("/academic-years")
 		{
 			academicYearAPI.POST("", middleware.RequireRole(schoolService, "admin", "super_admin"), academicYearHandler.Create)
-			academicYearAPI.GET("", academicYearHandler.FindAll)
-			academicYearAPI.GET("/:id", academicYearHandler.GetByID)
+			academicYearAPI.GET("", middleware.RequireSchoolMember(schoolService), academicYearHandler.FindAll)
+			academicYearAPI.GET("/:id", middleware.RequireSchoolMember(schoolService), academicYearHandler.GetByID)
 			academicYearAPI.GET("/school/:schoolCode", middleware.RequireSchoolMember(schoolService), academicYearHandler.GetBySchool)
 			academicYearAPI.PATCH("/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "super_admin"), academicYearHandler.Update)
 			academicYearAPI.PATCH("/activate/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "super_admin"), academicYearHandler.Activate)
@@ -221,9 +222,9 @@ func main() {
 		termAPI := api.Group("/terms")
 		{
 			termAPI.POST("", middleware.RequireRole(schoolService, "admin", "super_admin"), termHandler.Create)
-			termAPI.GET("", termHandler.FindAll)
-			termAPI.GET("/:id", termHandler.GetByID)
-			termAPI.GET("/academic-year/:academicYearId", termHandler.GetByAcademicYear)
+			termAPI.GET("", middleware.RequireSchoolMember(schoolService), termHandler.FindAll)
+			termAPI.GET("/:id", middleware.RequireSchoolMember(schoolService), termHandler.GetByID)
+			termAPI.GET("/academic-year/:academicYearId", middleware.RequireSchoolMember(schoolService), termHandler.GetByAcademicYear)
 			termAPI.PATCH("/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "super_admin"), termHandler.Update)
 			termAPI.PATCH("/activate/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "super_admin"), termHandler.Activate)
 			termAPI.PATCH("/deactivate/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "super_admin"), termHandler.Deactivate)
@@ -244,6 +245,8 @@ func main() {
 		{
 			schoolUserAPI.POST("/enroll", middleware.RequireRole(schoolService, "admin", "super_admin"), schoolUserHandler.Enroll)
 			schoolUserAPI.GET("/school/:schoolCode", middleware.RequireSchoolMember(schoolService), schoolUserHandler.GetMembersBySchool)
+			// GetSchoolsByUser is user-scoped, not school-scoped: authorization is enforced
+			// inside the handler (self-access or system super_admin only).
 			schoolUserAPI.GET("/user/:userId", schoolUserHandler.GetSchoolsByUser)
 			schoolUserAPI.DELETE("/:userId", middleware.RequireRole(schoolService, "admin", "super_admin"), schoolUserHandler.Unenroll)
 		}
@@ -275,8 +278,8 @@ func main() {
 		subjectAPI := api.Group("/subjects")
 		{
 			subjectAPI.POST("", middleware.RequireRole(schoolService, "admin", "super_admin"), subjectHandler.Create)
-			subjectAPI.GET("", subjectHandler.FindAll)
-			subjectAPI.GET("/:id", subjectHandler.GetByID)
+			subjectAPI.GET("", middleware.RequireSchoolMember(schoolService), subjectHandler.FindAll)
+			subjectAPI.GET("/:id", middleware.RequireSchoolMember(schoolService), subjectHandler.GetByID)
 			subjectAPI.GET("/school/:schoolCode", middleware.RequireSchoolMember(schoolService), subjectHandler.GetBySchool)
 			subjectAPI.GET("/school/:schoolCode/:subjectCode", middleware.RequireSchoolMember(schoolService), subjectHandler.GetByCode)
 			subjectAPI.PATCH("/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "super_admin"), subjectHandler.Update)
@@ -295,7 +298,7 @@ func main() {
 			// User Roles (Assignments)
 			rbacAPI.POST("/user-roles", middleware.RequireRole(schoolService, "admin", "super_admin"), rbacHandler.AssignRole)
 			rbacAPI.DELETE("/user-roles", middleware.RequireRole(schoolService, "admin", "super_admin"), rbacHandler.RemoveRole)
-			rbacAPI.GET("/user-roles/:schoolUserId", rbacHandler.GetUserRoles)
+			rbacAPI.GET("/user-roles/:schoolUserId", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "super_admin"), rbacHandler.GetUserRoles)
 			rbacAPI.PATCH("/user-roles/:schoolUserId", middleware.RequireRole(schoolService, "admin", "super_admin"), rbacHandler.UpdateUserRoles)
 
 			// Super Admin
@@ -314,8 +317,8 @@ func main() {
 		classAPI := api.Group("/classes")
 		{
 			classAPI.POST("", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "teacher"), classHandler.Create)
-			classAPI.GET("", classHandler.FindAll)
-			classAPI.GET("/:id", classHandler.GetByID)
+			classAPI.GET("", middleware.RequireSchoolMember(schoolService), classHandler.FindAll)
+			classAPI.GET("/:id", middleware.RequireSchoolMember(schoolService), classHandler.GetByID)
 			classAPI.PATCH("/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "teacher"), classHandler.Update)
 			classAPI.DELETE("/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin"), classHandler.Delete)
 		}

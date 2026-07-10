@@ -59,7 +59,7 @@ func (r *gradeTestGradeRepoStub) GetStudentGradebookRows(_, _, _ string) ([]dto.
 type gradeTestSubjectRepoStub struct{}
 
 func (r *gradeTestSubjectRepoStub) Create(_ *domain.Subject) error                                        { return nil }
-func (r *gradeTestSubjectRepoStub) FindAll(_ string, _, _ int) ([]*domain.Subject, int64, error)          { return nil, 0, nil }
+func (r *gradeTestSubjectRepoStub) FindAll(_ string, _ string, _, _ int) ([]*domain.Subject, int64, error) { return nil, 0, nil }
 func (r *gradeTestSubjectRepoStub) GetBySchool(_ string) ([]*domain.Subject, error)                       { return nil, nil }
 func (r *gradeTestSubjectRepoStub) GetByID(_ string) (*domain.Subject, error)                             { return nil, nil }
 func (r *gradeTestSubjectRepoStub) GetByCode(_, _ string) (*domain.Subject, error)                        { return nil, nil }

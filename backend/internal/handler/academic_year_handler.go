@@ -47,7 +47,13 @@ func (h *AcademicYearHandler) FindAll(c *gin.Context) {
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
 	search := c.Query("search")
 
-	years, total, err := h.service.FindAll(search, page, limit)
+	schoolID := getAcademicYearSchoolID(c)
+	if schoolID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
+
+	years, total, err := h.service.FindAll(schoolID, search, page, limit)
 	if err != nil {
 		HandleError(c, err)
 		return
@@ -101,9 +107,19 @@ func (h *AcademicYearHandler) GetBySchool(c *gin.Context) {
 
 func (h *AcademicYearHandler) GetByID(c *gin.Context) {
 	id := c.Param("id")
+	schoolID := getAcademicYearSchoolID(c)
+	if schoolID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
+
 	acy, err := h.service.GetByID(id)
 	if err != nil {
 		HandleError(c, err)
+		return
+	}
+	if acy.SchoolID != schoolID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: academic year does not belong to active school"})
 		return
 	}
 	c.JSON(http.StatusOK, h.mapToResponse(acy))

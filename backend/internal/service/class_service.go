@@ -43,15 +43,7 @@ func (s *classService) Create(class *domain.Class) error {
 	return s.repo.Create(class)
 }
 
-func (s *classService) FindAll(search string, schoolCode string, termID string, page int, limit int) ([]*domain.Class, int64, error) {
-	var schoolID string
-	var err error
-	if schoolCode != "" {
-		schoolID, err = s.schoolService.ConvertCodeToID(schoolCode)
-		if err != nil {
-			return nil, 0, err
-		}
-	}
+func (s *classService) FindAll(search string, schoolID string, termID string, page int, limit int) ([]*domain.Class, int64, error) {
 	return s.repo.FindAll(search, schoolID, termID, page, limit)
 }
 

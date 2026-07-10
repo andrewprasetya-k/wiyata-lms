@@ -60,7 +60,13 @@ func (h *ClassHandler) FindAll(c *gin.Context) {
 	schoolCode := c.Query("schoolCode")
 	termID := c.Query("termId")
 
-	classes, total, err := h.service.FindAll(search, schoolCode, termID, page, limit)
+	schoolID := getClassSchoolID(c)
+	if schoolID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
+
+	classes, total, err := h.service.FindAll(search, schoolID, termID, page, limit)
 	if err != nil {
 		HandleError(c, err)
 		return
@@ -99,9 +105,19 @@ func (h *ClassHandler) FindAll(c *gin.Context) {
 
 func (h *ClassHandler) GetByID(c *gin.Context) {
 	id := c.Param("id")
+	schoolID := getClassSchoolID(c)
+	if schoolID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
+
 	class, err := h.service.GetByID(id)
 	if err != nil {
 		HandleError(c, err)
+		return
+	}
+	if class.SchoolID != schoolID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: class does not belong to active school"})
 		return
 	}
 	c.JSON(http.StatusOK, h.mapToResponse(class))

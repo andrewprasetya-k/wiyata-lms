@@ -11,6 +11,7 @@ type SchoolUserService interface {
 	GetMembersBySchool(schoolCode string, search string, page int, limit int) ([]*domain.SchoolUser, int64, error)
 	GetSchoolsByUser(userID string) ([]*domain.SchoolUser, error)
 	Unenroll(id string) error
+	BelongsToSchool(schoolUserID string, schoolID string) (bool, error)
 }
 
 type schoolUserService struct {
@@ -52,4 +53,8 @@ func (s *schoolUserService) GetSchoolsByUser(userID string) ([]*domain.SchoolUse
 
 func (s *schoolUserService) Unenroll(userId string) error {
 	return s.repo.Delete(userId)
+}
+
+func (s *schoolUserService) BelongsToSchool(schoolUserID string, schoolID string) (bool, error) {
+	return s.repo.BelongsToSchool(schoolUserID, schoolID)
 }

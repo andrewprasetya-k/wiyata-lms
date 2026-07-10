@@ -9,8 +9,8 @@ import (
 
 type TermService interface {
 	Create(term *domain.Term) error
-	FindAll(search string, page int, limit int) ([]*domain.Term, int64, error)
-	GetByAcademicYear(acyID string) ([]*domain.Term, error)
+	FindAll(schoolID string, search string, page int, limit int) ([]*domain.Term, int64, error)
+	GetByAcademicYear(acyID string, schoolID string) ([]*domain.Term, error)
 	GetByID(id string) (*domain.Term, error)
 	Update(term *domain.Term) error
 	Delete(id string) error
@@ -42,12 +42,12 @@ func (s *termService) Create(term *domain.Term) error {
 	return s.repo.Create(term)
 }
 
-func (s *termService) FindAll(search string, page int, limit int) ([]*domain.Term, int64, error) {
-	return s.repo.FindAll(search, page, limit)
+func (s *termService) FindAll(schoolID string, search string, page int, limit int) ([]*domain.Term, int64, error) {
+	return s.repo.FindAll(schoolID, search, page, limit)
 }
 
-func (s *termService) GetByAcademicYear(acyID string) ([]*domain.Term, error) {
-	return s.repo.GetByAcademicYear(acyID)
+func (s *termService) GetByAcademicYear(acyID string, schoolID string) ([]*domain.Term, error) {
+	return s.repo.GetByAcademicYear(acyID, schoolID)
 }
 
 func (s *termService) GetByID(id string) (*domain.Term, error) {

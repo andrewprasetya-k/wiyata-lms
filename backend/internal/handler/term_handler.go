@@ -43,7 +43,13 @@ func (h *TermHandler) FindAll(c *gin.Context) {
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
 	search := c.Query("search")
 
-	terms, total, err := h.service.FindAll(search, page, limit)
+	schoolID := getTermSchoolID(c)
+	if schoolID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
+
+	terms, total, err := h.service.FindAll(schoolID, search, page, limit)
 	if err != nil {
 		HandleError(c, err)
 		return
@@ -68,7 +74,13 @@ func (h *TermHandler) FindAll(c *gin.Context) {
 
 func (h *TermHandler) GetByAcademicYear(c *gin.Context) {
 	acyID := c.Param("academicYearId")
-	terms, err := h.service.GetByAcademicYear(acyID)
+	schoolID := getTermSchoolID(c)
+	if schoolID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
+
+	terms, err := h.service.GetByAcademicYear(acyID, schoolID)
 	if err != nil {
 		HandleError(c, err)
 		return
@@ -84,9 +96,19 @@ func (h *TermHandler) GetByAcademicYear(c *gin.Context) {
 
 func (h *TermHandler) GetByID(c *gin.Context) {
 	id := c.Param("id")
+	schoolID := getTermSchoolID(c)
+	if schoolID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
+
 	term, err := h.service.GetByID(id)
 	if err != nil {
 		HandleError(c, err)
+		return
+	}
+	if term.AcademicYear.School.ID != schoolID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: term does not belong to active school"})
 		return
 	}
 	c.JSON(http.StatusOK, h.mapToResponse(term))

@@ -8,7 +8,7 @@ import (
 
 type SubjectRepository interface {
 	Create(subject *domain.Subject) error
-	FindAll(search string, page int, limit int) ([]*domain.Subject, int64, error)
+	FindAll(schoolID string, search string, page int, limit int) ([]*domain.Subject, int64, error)
 	GetBySchool(schoolID string) ([]*domain.Subject, error)
 	GetByID(id string) (*domain.Subject, error)
 	GetByCode(schoolID string, code string) (*domain.Subject, error)
@@ -30,11 +30,11 @@ func (r *subjectRepository) Create(subject *domain.Subject) error {
 	return r.db.Create(subject).Error
 }
 
-func (r *subjectRepository) FindAll(search string, page int, limit int) ([]*domain.Subject, int64, error) {
+func (r *subjectRepository) FindAll(schoolID string, search string, page int, limit int) ([]*domain.Subject, int64, error) {
 	var subjects []*domain.Subject
 	var total int64
 
-	query := r.db.Model(&domain.Subject{}).Preload("School")
+	query := r.db.Model(&domain.Subject{}).Preload("School").Where("sub_sch_id = ?", schoolID)
 
 	if search != "" {
 		searchTerm := "%" + search + "%"

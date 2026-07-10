@@ -23,6 +23,7 @@ type RBACService interface {
 
 	// Super Admin management
 	CreateSuperAdmin(name, email, password string) error
+	IsSuperAdmin(userID string) (bool, error)
 }
 
 type rbacService struct {
@@ -99,6 +100,10 @@ func (s *rbacService) GetUserRoles(schoolUserID string) ([]*domain.UserRole, err
 
 func (s *rbacService) SyncUserRoles(schoolUserID string, roleIDs []string) error {
 	return s.repo.SyncUserRoles(schoolUserID, roleIDs)
+}
+
+func (s *rbacService) IsSuperAdmin(userID string) (bool, error) {
+	return s.repo.IsSuperAdmin(userID)
 }
 
 func (s *rbacService) CreateSuperAdmin(name, email, password string) error {

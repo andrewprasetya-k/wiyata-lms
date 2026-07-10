@@ -49,7 +49,13 @@ func (h *SubjectHandler) FindAll(c *gin.Context) {
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
 	search := c.Query("search")
 
-	subjects, total, err := h.service.FindAll(search, page, limit)
+	schoolID := getSubjectSchoolID(c)
+	if schoolID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
+
+	subjects, total, err := h.service.FindAll(schoolID, search, page, limit)
 	if err != nil {
 		HandleError(c, err)
 		return
@@ -113,9 +119,19 @@ func (h *SubjectHandler) mapSchoolToHeader(s *domain.School) dto.SchoolHeaderDTO
 
 func (h *SubjectHandler) GetByID(c *gin.Context) {
 	id := c.Param("id")
+	schoolID := getSubjectSchoolID(c)
+	if schoolID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
+
 	subject, err := h.service.GetByID(id)
 	if err != nil {
 		HandleError(c, err)
+		return
+	}
+	if subject.SchoolID != schoolID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: subject does not belong to active school"})
 		return
 	}
 	c.JSON(http.StatusOK, h.mapToResponse(subject))

@@ -12,7 +12,7 @@ var subjectColorPattern = regexp.MustCompile(`^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[
 
 type SubjectService interface {
 	Create(subject *domain.Subject) error
-	FindAll(search string, page int, limit int) ([]*domain.Subject, int64, error)
+	FindAll(schoolID string, search string, page int, limit int) ([]*domain.Subject, int64, error)
 	GetBySchool(schoolCode string) ([]*domain.Subject, error)
 	GetByID(id string) (*domain.Subject, error)
 	GetByCode(schoolCode string, subjectCode string) (*domain.Subject, error)
@@ -51,8 +51,8 @@ func (s *subjectService) Create(subject *domain.Subject) error {
 	return s.repo.Create(subject)
 }
 
-func (s *subjectService) FindAll(search string, page int, limit int) ([]*domain.Subject, int64, error) {
-	return s.repo.FindAll(search, page, limit)
+func (s *subjectService) FindAll(schoolID string, search string, page int, limit int) ([]*domain.Subject, int64, error) {
+	return s.repo.FindAll(schoolID, search, page, limit)
 }
 
 func (s *subjectService) GetBySchool(schoolCode string) ([]*domain.Subject, error) {
