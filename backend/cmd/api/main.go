@@ -168,17 +168,12 @@ func main() {
 	middleware.InitRBAC(rbacRepo)
 
 	// Shared per-tenant rate limiter: 20 req/s sustained, burst of 40, keyed
-	// by SchoolId header (falls back to client IP when no school context is
-	// available yet, e.g. login/register). See internal/middleware/rate_limit.go.
+	// by SchoolId header
 	rateLimiterStore := middleware.NewInMemoryRateLimiterStore(20, 40, 10*time.Minute)
 
 	requestLogger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
 	//router setup
-	// gin.New() + Recovery() + RequestID() + StructuredLogger() replaces
-	// gin.Default()'s plain-text access log with structured (slog) request
-	// logging tagged with a request id (see internal/middleware/logging.go
-	// and request_id.go).
 	r := gin.New()
 	r.Use(gin.Recovery())
 	r.Use(middleware.RequestID())
@@ -194,19 +189,14 @@ func main() {
 	api := r.Group("/api")
 	{
 		//public routes
-		// Rate-limited by IP (no school context exists yet at this point) —
-		// these are classic brute-force/spam targets (login, registration).
+		// Rate-limited by IP (no school context exists yet at this point)
 		api.POST("/login", middleware.RateLimitPerTenant(rateLimiterStore), authHandler.Login)
 		api.POST("/register", middleware.RateLimitPerTenant(rateLimiterStore), authHandler.Register)
 		api.POST("/school-registration-requests", middleware.RateLimitPerTenant(rateLimiterStore), schoolRegistrationRequestHandler.Create)
-		// Not rate-limited: token-gated (guessing is already infeasible given
-		// token length/hashing), low-frequency by nature.
+		// Not rate-limited: token-gated (guessing is already infeasible given token length/hashing)
 		api.GET("/invitations/:token", invitationHandler.GetMetadata)
 		api.POST("/invitations/:token/accept", invitationHandler.Accept)
-		// Not rate-limited: long-lived SSE/WebSocket connections — a
-		// per-request limiter does not apply meaningfully to a single
-		// persistent connection, and throttling the handshake would drop
-		// legitimate reconnects during network blips.
+		// Not rate-limited: long-lived SSE/WebSocket connections 
 		api.GET("/events/sidebar", sidebarStreamHandler.Stream)
 		api.GET("/ws/chat", chatWebSocketHandler.Chat)
 
@@ -270,8 +260,6 @@ func main() {
 		{
 			schoolUserAPI.POST("/enroll", middleware.RequireRole(schoolService, "admin", "super_admin"), schoolUserHandler.Enroll)
 			schoolUserAPI.GET("/school/:schoolCode", middleware.RequireSchoolMember(schoolService), schoolUserHandler.GetMembersBySchool)
-			// GetSchoolsByUser is user-scoped, not school-scoped: authorization is enforced
-			// inside the handler (self-access or system super_admin only).
 			schoolUserAPI.GET("/user/:userId", schoolUserHandler.GetSchoolsByUser)
 			schoolUserAPI.DELETE("/:userId", middleware.RequireRole(schoolService, "admin", "super_admin"), schoolUserHandler.Unenroll)
 		}
