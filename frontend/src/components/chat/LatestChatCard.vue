@@ -169,7 +169,7 @@ function formatTime(value?: string | null) {
             class="mt-0.5 block w-full overflow-hidden text-ellipsis whitespace-nowrap text-xs"
             :class="
               room.unreadCount > 0
-                ? 'font-semibold text-[#3f3a4a]'
+                ? 'font-semibold text-foreground'
                 : 'text-muted'
             "
           >

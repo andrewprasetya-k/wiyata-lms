@@ -120,12 +120,12 @@ onMounted(loadInbox);
             <h1 class="mt-1 text-2xl font-semibold text-foreground sm:text-3xl">
               Inbox Pengumpulan
             </h1>
-            <p class="mt-2 max-w-2xl text-sm leading-6 text-[#6b6475]">
+            <p class="mt-2 max-w-2xl text-sm leading-6 text-muted">
               Pantau pengumpulan dari semua mata pelajaran yang Anda ajar.
               Penilaian dan umpan balik tetap dilakukan di halaman nilai tugas.
             </p>
           </div>
-          <p class="shrink-0 text-sm text-[#8a8494]">
+          <p class="shrink-0 text-sm text-muted">
             {{ inboxItems.length }} tugas
           </p>
         </div>
@@ -158,7 +158,7 @@ onMounted(loadInbox);
         <h2 class="mt-3 text-lg font-semibold text-foreground">
           Pengumpulan belum bisa dimuat
         </h2>
-        <p class="mx-auto mt-2 max-w-xl text-sm leading-6 text-[#6b6475]">
+        <p class="mx-auto mt-2 max-w-xl text-sm leading-6 text-muted">
           {{ errorMessage }}
         </p>
         <button
@@ -176,7 +176,7 @@ onMounted(loadInbox);
             class="rounded-xl border border-border bg-surface shadow-sm p-4"
           >
             <div class="flex items-center justify-between gap-3">
-              <p class="text-sm text-[#6b6475]">Total pengumpulan</p>
+              <p class="text-sm text-muted">Total pengumpulan</p>
               <PhClipboardText
                 :size="21"
                 class="text-[#7aa7d9]"
@@ -191,7 +191,7 @@ onMounted(loadInbox);
             class="rounded-xl border border-border bg-surface shadow-sm p-4"
           >
             <div class="flex items-center justify-between gap-3">
-              <p class="text-sm text-[#6b6475]">Perlu dinilai</p>
+              <p class="text-sm text-muted">Perlu dinilai</p>
               <PhWarningCircle
                 :size="21"
                 class="text-[#e58f86]"
@@ -206,7 +206,7 @@ onMounted(loadInbox);
             class="rounded-xl border border-border bg-surface shadow-sm p-4"
           >
             <div class="flex items-center justify-between gap-3">
-              <p class="text-sm text-[#6b6475]">Sudah dinilai</p>
+              <p class="text-sm text-muted">Sudah dinilai</p>
               <PhCheckCircle
                 :size="21"
                 class="text-[#74bfa5]"
@@ -221,7 +221,7 @@ onMounted(loadInbox);
             class="rounded-xl border border-border bg-surface shadow-sm p-4"
           >
             <div class="flex items-center justify-between gap-3">
-              <p class="text-sm text-[#6b6475]">Terlambat</p>
+              <p class="text-sm text-muted">Terlambat</p>
               <PhClock :size="21" class="text-[#b889c9]" weight="duotone" />
             </div>
             <p class="mt-3 text-2xl font-semibold text-foreground">
@@ -238,7 +238,7 @@ onMounted(loadInbox);
               <h2 class="text-base font-semibold text-foreground">
                 Daftar tugas
               </h2>
-              <p class="mt-1 text-sm text-[#8a8494]">
+              <p class="mt-1 text-sm text-muted">
                 {{ inboxItems.length }} tugas memiliki data pengumpulan di
                 sekolah aktif.
               </p>
@@ -252,7 +252,7 @@ onMounted(loadInbox);
                 :class="
                   activeFilter === tab.id
                     ? 'bg-foreground text-white'
-                    : 'bg-[#faf8f4] text-[#6b6475] hover:bg-[#f0e9dd] hover:text-foreground'
+                    : 'bg-[#faf8f4] text-muted hover:bg-[#f0e9dd] hover:text-foreground'
                 "
                 @click="activeFilter = tab.id"
               >
@@ -271,7 +271,7 @@ onMounted(loadInbox);
             <h2 class="mt-3 text-lg font-semibold text-foreground">
               Belum ada pengumpulan
             </h2>
-            <p class="mx-auto mt-2 max-w-xl text-sm leading-6 text-[#6b6475]">
+            <p class="mx-auto mt-2 max-w-xl text-sm leading-6 text-muted">
               Pengumpulan akan tampil setelah siswa mengumpulkan tugas pada mata
               pelajaran yang Anda ajar.
             </p>
@@ -289,7 +289,7 @@ onMounted(loadInbox);
             <h2 class="mt-3 text-lg font-semibold text-foreground">
               Tidak ada hasil
             </h2>
-            <p class="mx-auto mt-2 max-w-xl text-sm leading-6 text-[#6b6475]">
+            <p class="mx-auto mt-2 max-w-xl text-sm leading-6 text-muted">
               Tidak ada tugas yang sesuai dengan filter saat ini.
             </p>
           </div>
@@ -314,7 +314,7 @@ onMounted(loadInbox);
                       </template>
                     </span>
                     <span
-                      class="rounded-lg bg-[#faf8f4] px-2.5 py-1 text-[#6b6475]"
+                      class="rounded-lg bg-[#faf8f4] px-2.5 py-1 text-muted"
                     >
                       {{ item.className || item.classCode || "Kelas" }}
                     </span>
@@ -327,7 +327,7 @@ onMounted(loadInbox);
                   </h3>
                   <p
                     v-if="item.deadline"
-                    class="mt-1.5 inline-flex items-center gap-1.5 text-sm text-[#6b6475]"
+                    class="mt-1.5 inline-flex items-center gap-1.5 text-sm text-muted"
                   >
                     <PhClock :size="15" weight="duotone" />
                     Tenggat {{ formatDate(item.deadline) }}
@@ -348,7 +348,7 @@ onMounted(loadInbox);
 
               <div class="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
                 <div class="rounded-lg bg-[#faf8f4] px-3 py-2.5">
-                  <p class="text-xs text-[#8a8494]">Pengumpulan</p>
+                  <p class="text-xs text-muted">Pengumpulan</p>
                   <p class="mt-1 text-lg font-semibold text-foreground">
                     {{ item.submissionCount }}
                   </p>

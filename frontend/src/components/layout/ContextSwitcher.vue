@@ -215,7 +215,7 @@ function isSameContext(
       @click="toggleMenu"
     >
       <span class="min-w-0 flex-1">
-        <span class="block truncate text-[13px] font-semibold text-[#2f2b3a]">
+        <span class="block truncate text-[13px] font-semibold text-foreground">
           {{ activeDescription.title }}
         </span>
         <span class="text-[11px] text-[#7c7789]">{{
@@ -248,7 +248,7 @@ function isSameContext(
       >
         <div class="border-b border-border px-3 py-2">
           <p
-            class="truncate text-sm font-semibold text-[#2f2b3a]"
+            class="truncate text-sm font-semibold text-foreground"
             :title="activeDescription.title"
           >
             {{ activeDescription.title }}
@@ -286,7 +286,7 @@ function isSameContext(
                 </span>
                 <span class="min-w-0 flex-1">
                   <span
-                    class="block truncate text-sm font-medium text-[#2f2b3a]"
+                    class="block truncate text-sm font-medium text-foreground"
                     :title="group.school.name"
                   >
                     {{ group.school.name }}
@@ -327,7 +327,7 @@ function isSameContext(
                 <PhBuildings :size="17" />
               </span>
               <span class="min-w-0 flex-1">
-                <span class="block truncate text-sm font-medium text-[#2f2b3a]">
+                <span class="block truncate text-sm font-medium text-foreground">
                   Platform Wiyata
                 </span>
                 <span class="text-xs text-[#7c7789]">Super Admin</span>

@@ -81,7 +81,7 @@ async function submit() {
       </RouterLink>
       <RouterLink
         to="/login"
-        class="rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-[#5f5968] transition hover:text-foreground"
+        class="rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-foreground-secondary transition hover:text-foreground"
       >
         Masuk
       </RouterLink>
@@ -95,7 +95,7 @@ async function submit() {
         <h1 class="mt-4 text-4xl font-semibold leading-tight lg:text-5xl">
           Daftarkan sekolah untuk memakai Wiyata.
         </h1>
-        <p class="mt-5 max-w-xl text-base leading-7 text-[#6b6475]">
+        <p class="mt-5 max-w-xl text-base leading-7 text-muted">
           Kirim data awal sekolah dan kontak PIC. Tim Wiyata akan meninjau
           request sebelum akun admin sekolah dibuat melalui undangan.
         </p>
@@ -114,7 +114,7 @@ async function submit() {
           </div>
           <RouterLink
             to="/home"
-            class="inline-flex h-10 items-center justify-center rounded-lg border border-border px-4 text-sm font-medium text-[#5f5968] transition hover:text-foreground"
+            class="inline-flex h-10 items-center justify-center rounded-lg border border-border px-4 text-sm font-medium text-foreground-secondary transition hover:text-foreground"
           >
             Kembali ke beranda
           </RouterLink>
@@ -129,7 +129,7 @@ async function submit() {
           </div>
 
           <label class="block">
-            <span class="mb-2 block text-sm font-medium text-[#5f5968]">
+            <span class="mb-2 block text-sm font-medium text-foreground-secondary">
               Nama sekolah
             </span>
             <input
@@ -142,7 +142,7 @@ async function submit() {
           </label>
 
           <label class="block">
-            <span class="mb-2 block text-sm font-medium text-[#5f5968]">
+            <span class="mb-2 block text-sm font-medium text-foreground-secondary">
               NPSN
               <span class="font-normal text-muted">opsional</span>
             </span>
@@ -156,7 +156,7 @@ async function submit() {
 
           <div class="grid gap-4 sm:grid-cols-2">
             <label class="block">
-              <span class="mb-2 block text-sm font-medium text-[#5f5968]">
+              <span class="mb-2 block text-sm font-medium text-foreground-secondary">
                 Nama PIC
               </span>
               <input
@@ -169,7 +169,7 @@ async function submit() {
             </label>
 
             <label class="block">
-              <span class="mb-2 block text-sm font-medium text-[#5f5968]">
+              <span class="mb-2 block text-sm font-medium text-foreground-secondary">
                 Email PIC
               </span>
               <input
@@ -184,7 +184,7 @@ async function submit() {
 
           <div class="grid gap-4 sm:grid-cols-2">
             <label class="block">
-              <span class="mb-2 block text-sm font-medium text-[#5f5968]">
+              <span class="mb-2 block text-sm font-medium text-foreground-secondary">
                 Nomor HP
                 <span class="font-normal text-muted">opsional</span>
               </span>
@@ -198,7 +198,7 @@ async function submit() {
             </label>
 
             <label class="block">
-              <span class="mb-2 block text-sm font-medium text-[#5f5968]">
+              <span class="mb-2 block text-sm font-medium text-foreground-secondary">
                 Peran PIC
                 <span class="font-normal text-muted">opsional</span>
               </span>
@@ -212,7 +212,7 @@ async function submit() {
           </div>
 
           <label class="block">
-            <span class="mb-2 block text-sm font-medium text-[#5f5968]">
+            <span class="mb-2 block text-sm font-medium text-foreground-secondary">
               Catatan
               <span class="font-normal text-muted">opsional</span>
             </span>

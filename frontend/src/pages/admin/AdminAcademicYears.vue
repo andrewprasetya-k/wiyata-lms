@@ -798,7 +798,7 @@ watch(selectedWeightSubjectId, () => {
             </span>
           </div>
 
-          <label class="mt-5 block text-sm font-medium text-[#3f3a4a]">
+          <label class="mt-5 block text-sm font-medium text-foreground">
             Tahun ajaran
             <select
               v-model="selectedAcademicYearId"
@@ -1003,7 +1003,7 @@ watch(selectedWeightSubjectId, () => {
                   />
                 </div>
               </div>
-              <p class="mt-2 text-xs leading-5 text-[#8a8494]">
+              <p class="mt-2 text-xs leading-5 text-muted">
                 Opsional. Kosongkan untuk memakai warna fallback otomatis.
               </p>
             </div>
@@ -1075,9 +1075,9 @@ watch(selectedWeightSubjectId, () => {
                       {{ subject.schoolCode || currentSchool.schoolCode }} •
                       dibuat {{ formatDateTime(subject.createdAt) }}
                     </p>
-                    <p class="mt-1 text-xs text-[#8a8494]">
+                    <p class="mt-1 text-xs text-muted">
                       Warna:
-                      <span class="font-medium text-[#4a4356]">
+                      <span class="font-medium text-foreground">
                         {{ subject.color || "fallback otomatis" }}
                       </span>
                     </p>
@@ -1225,7 +1225,7 @@ watch(selectedWeightSubjectId, () => {
           class="mt-5 grid gap-5 xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]"
         >
           <div class="rounded-lg bg-surface-subtle p-4">
-            <label class="block text-sm font-medium text-[#3f3a4a]">
+            <label class="block text-sm font-medium text-foreground">
               Mata pelajaran
               <select
                 v-model="selectedWeightSubjectId"

@@ -119,7 +119,7 @@ watch(
           <p class="whitespace-pre-wrap text-sm leading-6 text-[#4f4858]">
             {{ note.content }}
           </p>
-          <p class="mt-3 text-xs text-[#a09aa8]">
+          <p class="mt-3 text-xs text-muted">
             Disimpan {{ formatDateTime(note.updatedAt) }}
           </p>
         </div>

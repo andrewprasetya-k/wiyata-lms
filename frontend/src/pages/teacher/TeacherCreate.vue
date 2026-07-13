@@ -59,7 +59,7 @@ onMounted(loadSubjects);
         <h1 class="mt-3 text-3xl font-medium text-foreground md:text-4xl">
           Pilih mata pelajaran terlebih dahulu
         </h1>
-        <p class="mt-3 max-w-2xl text-sm leading-6 text-[#6b6475]">
+        <p class="mt-3 max-w-2xl text-sm leading-6 text-muted">
           Materi dan tugas dibuat dari ruang mengajar agar setiap konten
           terhubung ke mata pelajaran dan kelas yang tepat.
         </p>
@@ -69,7 +69,7 @@ onMounted(loadSubjects);
         v-if="loading"
         class="rounded-[22px] bg-surface p-5 shadow-sm ring-1 ring-black/5"
       >
-        <p class="text-sm text-[#6b6475]">Memuat mata pelajaran yang diajar...</p>
+        <p class="text-sm text-muted">Memuat mata pelajaran yang diajar...</p>
       </section>
 
       <section
@@ -89,7 +89,7 @@ onMounted(loadSubjects);
               <h2 class="text-lg font-medium text-foreground">
                 Gagal memuat mata pelajaran
               </h2>
-              <p class="mt-2 text-sm leading-6 text-[#6b6475]">
+              <p class="mt-2 text-sm leading-6 text-muted">
                 {{ errorMessage }}
               </p>
             </div>
@@ -118,7 +118,7 @@ onMounted(loadSubjects);
             <h2 class="text-lg font-medium text-foreground">
               Belum ada mata pelajaran yang diajar
             </h2>
-            <p class="mt-2 max-w-2xl text-sm leading-6 text-[#6b6475]">
+            <p class="mt-2 max-w-2xl text-sm leading-6 text-muted">
               Admin sekolah perlu menugaskan guru ke kelas ajar terlebih
               dahulu sebelum materi atau tugas dapat dibuat.
             </p>
@@ -149,7 +149,7 @@ onMounted(loadSubjects);
             </span>
           </div>
 
-          <p class="mt-5 text-sm text-[#8a8494]">
+          <p class="mt-5 text-sm text-muted">
             {{ subject.className || subject.classCode || "Kelas" }}
           </p>
           <h2 class="mt-1 text-2xl font-medium text-foreground">
@@ -157,11 +157,11 @@ onMounted(loadSubjects);
           </h2>
           <p
             v-if="subject.classCode"
-            class="mt-2 text-sm text-[#6b6475]"
+            class="mt-2 text-sm text-muted"
           >
             Kode kelas: {{ subject.classCode }}
           </p>
-          <p class="mt-4 text-sm leading-6 text-[#6b6475]">
+          <p class="mt-4 text-sm leading-6 text-muted">
             Konten yang dibuat akan masuk ke ruang mengajar ini dan dapat
             dilihat oleh siswa di kelas terkait.
           </p>

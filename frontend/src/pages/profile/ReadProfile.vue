@@ -150,11 +150,11 @@ const schoolRows = computed(() => [
           >
             {{ initials }}
           </div>
-          <p class="mt-4 text-xs text-[#8a8494]">Akun Wiyata</p>
+          <p class="mt-4 text-xs text-muted">Akun Wiyata</p>
           <h2 class="mt-1 wrap-break-word text-xl font-medium text-foreground">
             {{ auth.user.fullName || "Nama tidak tersedia" }}
           </h2>
-          <p class="mt-1 break-all text-sm leading-6 text-[#6b6475]">
+          <p class="mt-1 break-all text-sm leading-6 text-muted">
             {{ auth.user.email || "Email tidak tersedia" }}
           </p>
 
@@ -189,7 +189,7 @@ const schoolRows = computed(() => [
                 <h2 class="text-sm font-medium text-foreground">
                   Identitas akun
                 </h2>
-                <p class="mt-1 text-xs text-[#8a8494]">
+                <p class="mt-1 text-xs text-muted">
                   Informasi dari sesi yang sedang digunakan.
                 </p>
               </div>
@@ -201,7 +201,7 @@ const schoolRows = computed(() => [
                 :key="row.label"
                 class="grid min-w-0 gap-1 py-3 first:pt-0 last:pb-0 sm:grid-cols-[120px_minmax(0,1fr)] sm:gap-4"
               >
-                <dt class="text-xs text-[#8a8494]">{{ row.label }}</dt>
+                <dt class="text-xs text-muted">{{ row.label }}</dt>
                 <dd
                   class="wrap-break-word text-sm font-medium text-foreground sm:text-right"
                 >
@@ -224,7 +224,7 @@ const schoolRows = computed(() => [
                 <h2 class="text-sm font-medium text-foreground">
                   Konteks sekolah
                 </h2>
-                <p class="mt-1 text-xs text-[#8a8494]">
+                <p class="mt-1 text-xs text-muted">
                   Sekolah yang sedang digunakan pada sesi ini.
                 </p>
               </div>
@@ -236,7 +236,7 @@ const schoolRows = computed(() => [
                 :key="row.label"
                 class="grid min-w-0 gap-1 py-3 first:pt-0 last:pb-0 sm:grid-cols-[120px_minmax(0,1fr)] sm:gap-4"
               >
-                <dt class="text-xs text-[#8a8494]">{{ row.label }}</dt>
+                <dt class="text-xs text-muted">{{ row.label }}</dt>
                 <dd
                   class="wrap-break-word text-sm font-medium text-foreground sm:text-right"
                 >
@@ -259,7 +259,7 @@ const schoolRows = computed(() => [
             </div>
             <div class="min-w-0">
               <h2 class="text-sm font-medium text-foreground">Akses sekolah</h2>
-              <p class="mt-1 text-xs text-[#8a8494]">
+              <p class="mt-1 text-xs text-muted">
                 Sekolah dan peran yang tersedia untuk akun ini.
               </p>
             </div>
@@ -274,7 +274,7 @@ const schoolRows = computed(() => [
               <p class="truncate text-sm font-medium text-foreground">
                 {{ membership.school.name || "Sekolah tidak tersedia" }}
               </p>
-              <p class="mt-1 truncate text-xs text-[#8a8494]">
+              <p class="mt-1 truncate text-xs text-muted">
                 {{ membership.school.code || "Kode tidak tersedia" }}
               </p>
               <div class="mt-3 flex flex-wrap gap-2">

@@ -222,7 +222,7 @@ onMounted(() => {
                 <p class="mt-0.5 text-sm font-medium text-foreground">
                   {{ card.label }}
                 </p>
-                <p class="mt-1 text-xs leading-5 text-[#8a8494]">
+                <p class="mt-1 text-xs leading-5 text-muted">
                   {{ card.helper }}
                 </p>
               </component>

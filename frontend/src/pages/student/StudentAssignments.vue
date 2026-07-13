@@ -221,28 +221,28 @@ onMounted(loadAssignments);
               class="text-brand"
               weight="duotone"
             />
-            <p class="mt-3 text-xs text-[#8b8592]">Total tugas</p>
+            <p class="mt-3 text-xs text-muted">Total tugas</p>
             <p class="mt-1 text-2xl font-medium text-foreground">
               {{ summary.totalAssignments }}
             </p>
           </article>
           <article class="rounded-xl border border-border bg-surface shadow-sm p-4">
             <PhClock :size="22" class="text-[#ea580c]" weight="duotone" />
-            <p class="mt-3 text-xs text-[#8b8592]">Belum dikumpulkan</p>
+            <p class="mt-3 text-xs text-muted">Belum dikumpulkan</p>
             <p class="mt-1 text-2xl font-medium text-warning">
               {{ summary.notSubmittedCount }}
             </p>
           </article>
           <article class="rounded-xl border border-border bg-surface shadow-sm p-4">
             <PhCheckCircle :size="22" class="text-brand" weight="duotone" />
-            <p class="mt-3 text-xs text-[#8b8592]">Sudah dikumpulkan</p>
+            <p class="mt-3 text-xs text-muted">Sudah dikumpulkan</p>
             <p class="mt-1 text-2xl font-medium text-brand">
               {{ summary.submittedCount }}
             </p>
           </article>
           <article class="rounded-xl border border-border bg-surface shadow-sm p-4">
             <PhSealCheck :size="22" class="text-[#059669]" weight="duotone" />
-            <p class="mt-3 text-xs text-[#8b8592]">Sudah dinilai</p>
+            <p class="mt-3 text-xs text-muted">Sudah dinilai</p>
             <p class="mt-1 text-2xl font-medium text-success">
               {{ summary.gradedCount }}
             </p>
@@ -253,7 +253,7 @@ onMounted(loadAssignments);
               class="text-danger"
               weight="duotone"
             />
-            <p class="mt-3 text-xs text-[#8b8592]">Lewat deadline</p>
+            <p class="mt-3 text-xs text-muted">Lewat deadline</p>
             <p class="mt-1 text-2xl font-medium text-danger">
               {{ summary.overdueCount }}
             </p>
@@ -388,7 +388,7 @@ onMounted(loadAssignments);
 
                   <p
                     v-if="item.submittedAt"
-                    class="mt-3 text-xs text-[#8b8592]"
+                    class="mt-3 text-xs text-muted"
                   >
                     Dikumpulkan {{ formatDateTime(item.submittedAt) }}
                   </p>

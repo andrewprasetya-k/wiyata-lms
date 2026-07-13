@@ -129,7 +129,7 @@ onMounted(loadNotes);
             Ruang belajar pribadi
           </p>
           <h1 class="mt-1 text-2xl font-medium text-foreground">Catatan Saya</h1>
-          <p class="mt-1 text-sm leading-6 text-[#6b6475]">
+          <p class="mt-1 text-sm leading-6 text-muted">
             Baca kembali catatan materi yang masih tersedia di kelas aktifmu.
           </p>
         </div>
@@ -177,7 +177,7 @@ onMounted(loadNotes);
             <h2 class="text-base font-medium text-foreground">
               Catatan tidak dapat dimuat
             </h2>
-            <p class="mt-1 text-sm leading-6 text-[#6b6475]">
+            <p class="mt-1 text-sm leading-6 text-muted">
               {{ errorMessage }}
             </p>
             <button
@@ -207,7 +207,7 @@ onMounted(loadNotes);
         <h2 class="mt-4 text-base font-medium text-foreground">
           Belum ada catatan
         </h2>
-        <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#6b6475]">
+        <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-muted">
           Belum ada catatan. Buka materi dan tulis catatan untuk mulai membangun
           ruang belajarmu.
         </p>
@@ -271,7 +271,7 @@ onMounted(loadNotes);
                       ),
                     }"
                   />
-                  <span class="truncate text-xs text-[#6b6475]">
+                  <span class="truncate text-xs text-muted">
                     {{ note.subjectName || "Mata pelajaran" }}
                   </span>
                 </div>
@@ -343,7 +343,7 @@ onMounted(loadNotes);
               <span class="block text-xs font-medium text-brand">
                 Materi terkait
               </span>
-              <span class="mt-1 block truncate text-sm text-[#3f3a4a]">
+              <span class="mt-1 block truncate text-sm text-foreground">
                 {{ selectedNote.materialTitle }}
                 <template v-if="selectedNote.materialType">
                   · {{ selectedNote.materialType.toUpperCase() }}
@@ -357,7 +357,7 @@ onMounted(loadNotes);
             class="mt-5 min-h-64 flex-1 rounded-[18px] border border-border bg-surface p-5 sm:p-6"
           >
             <p
-              class="whitespace-pre-wrap wrap-break-word text-sm leading-7 text-[#3f3a4a]"
+              class="whitespace-pre-wrap wrap-break-word text-sm leading-7 text-foreground"
             >
               {{ selectedNote.content }}
             </p>

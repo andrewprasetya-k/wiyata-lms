@@ -1352,7 +1352,7 @@ function formatDateTime(value?: string | null) {
                     class="mt-0.5 block truncate text-xs"
                     :class="
                       room.unreadCount > 0
-                        ? 'font-semibold text-[#3f3a4a]'
+                        ? 'font-semibold text-foreground'
                         : 'text-muted'
                     "
                   >
@@ -1498,7 +1498,7 @@ function formatDateTime(value?: string | null) {
                     v-else-if="threadError"
                     class="rounded-2xl border border-red-100 bg-surface px-4 py-6 text-center"
                   >
-                    <p class="text-sm font-semibold text-red-600">
+                    <p class="text-sm font-semibold text-danger">
                       {{ threadError }}
                     </p>
                     <button
@@ -1542,7 +1542,7 @@ function formatDateTime(value?: string | null) {
                       >
                         <div class="h-px flex-1 bg-[#e7e1d7]" />
                         <span
-                          class="shrink-0 rounded-full bg-surface px-3 py-1 text-[11px] font-medium text-[#8b8592]"
+                          class="shrink-0 rounded-full bg-surface px-3 py-1 text-[11px] font-medium text-muted"
                         >
                           {{ formatDateDivider(message.createdAt) }}
                         </span>
@@ -1672,7 +1672,7 @@ function formatDateTime(value?: string | null) {
                                       :class="
                                         message.isMine
                                           ? 'text-white/70'
-                                          : 'text-[#8b8592]'
+                                          : 'text-muted'
                                       "
                                     >
                                       {{
@@ -1792,7 +1792,7 @@ function formatDateTime(value?: string | null) {
                 class="shrink-0 px-4 py-3 sm:px-5"
                 @submit.prevent="submitMessage"
               >
-                <p v-if="composerError" class="mb-2 text-sm text-red-600">
+                <p v-if="composerError" class="mb-2 text-sm text-danger">
                   {{ composerError }}
                 </p>
                 <div
@@ -1832,7 +1832,7 @@ function formatDateTime(value?: string | null) {
                           {{ attachment.file.name }}
                         </span>
                         <span
-                          class="mt-0.5 block truncate text-[11px] text-[#8b8592]"
+                          class="mt-0.5 block truncate text-[11px] text-muted"
                         >
                           {{
                             fileTypeLabel(

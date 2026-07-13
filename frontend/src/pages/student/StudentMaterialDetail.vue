@@ -195,7 +195,7 @@ onMounted(loadMaterial);
             <h2 class="text-sm font-semibold text-foreground">Deskripsi materi</h2>
             <p
               v-if="material.materialDesc"
-              class="mt-3 whitespace-pre-line wrap-break-word text-sm leading-7 text-[#4a4356]"
+              class="mt-3 whitespace-pre-line wrap-break-word text-sm leading-7 text-foreground"
             >
               {{ material.materialDesc }}
             </p>

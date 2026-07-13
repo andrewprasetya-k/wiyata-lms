@@ -94,7 +94,7 @@ onMounted(loadInvitation);
       </RouterLink>
       <RouterLink
         to="/login"
-        class="rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-[#5f5968] transition hover:text-foreground"
+        class="rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-foreground-secondary transition hover:text-foreground"
       >
         Masuk
       </RouterLink>
@@ -144,7 +144,7 @@ onMounted(loadInvitation);
           </div>
           <RouterLink
             to="/home"
-            class="inline-flex h-10 items-center justify-center rounded-lg border border-border px-4 text-sm font-medium text-[#5f5968] transition hover:text-foreground"
+            class="inline-flex h-10 items-center justify-center rounded-lg border border-border px-4 text-sm font-medium text-foreground-secondary transition hover:text-foreground"
           >
             Kembali ke beranda
           </RouterLink>
@@ -159,7 +159,7 @@ onMounted(loadInvitation);
             <h1 class="mt-3 text-3xl font-semibold leading-tight">
               Selesaikan akun admin sekolah.
             </h1>
-            <p class="mt-4 text-sm leading-6 text-[#6b6475]">
+            <p class="mt-4 text-sm leading-6 text-muted">
               Undangan ini terhubung dengan sekolah berikut. Buat password untuk
               mulai memakai Wiyata setelah login.
             </p>
@@ -196,7 +196,7 @@ onMounted(loadInvitation);
 
           <form class="space-y-5" @submit.prevent="submit">
             <label class="block">
-              <span class="mb-2 block text-sm font-medium text-[#5f5968]">
+              <span class="mb-2 block text-sm font-medium text-foreground-secondary">
                 Nama lengkap
               </span>
               <input
@@ -209,7 +209,7 @@ onMounted(loadInvitation);
             </label>
 
             <label class="block">
-              <span class="mb-2 block text-sm font-medium text-[#5f5968]">
+              <span class="mb-2 block text-sm font-medium text-foreground-secondary">
                 Password
               </span>
               <input
@@ -222,7 +222,7 @@ onMounted(loadInvitation);
             </label>
 
             <label class="block">
-              <span class="mb-2 block text-sm font-medium text-[#5f5968]">
+              <span class="mb-2 block text-sm font-medium text-foreground-secondary">
                 Konfirmasi password
               </span>
               <input

@@ -255,7 +255,7 @@ const screenshotSlots = [
             </span>
             <button
               type="button"
-              class="rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-[#5f5968] transition-colors hover:text-foreground"
+              class="rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-foreground-secondary transition-colors hover:text-foreground"
               @click="auth.logout()"
             >
               Keluar
@@ -264,7 +264,7 @@ const screenshotSlots = [
           <template v-else>
             <RouterLink
               to="/school-registration"
-              class="hidden rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-[#5f5968] transition-colors hover:text-foreground sm:inline-flex"
+              class="hidden rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-foreground-secondary transition-colors hover:text-foreground sm:inline-flex"
             >
               Daftarkan Sekolah
             </RouterLink>
@@ -410,7 +410,7 @@ const screenshotSlots = [
           <RouterLink
             to="/login"
             id="hero-cta-masuk"
-            class="inline-flex h-11 items-center justify-center rounded-lg border border-border bg-surface px-6 text-sm font-medium text-[#5f5968] transition-colors hover:bg-background hover:text-foreground"
+            class="inline-flex h-11 items-center justify-center rounded-lg border border-border bg-surface px-6 text-sm font-medium text-foreground-secondary transition-colors hover:bg-background hover:text-foreground"
           >
             Masuk ke Wiyata
           </RouterLink>

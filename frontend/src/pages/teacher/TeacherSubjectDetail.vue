@@ -429,7 +429,7 @@ onMounted(loadWorkspace);
                       {{ material.materialDesc }}
                     </p>
                   </div>
-                  <p class="shrink-0 text-xs text-[#8a8494]">
+                  <p class="shrink-0 text-xs text-muted">
                     {{ formatDateTime(material.createdAt) }}
                   </p>
                 </div>
@@ -584,7 +584,7 @@ onMounted(loadWorkspace);
                 v-if="submissionSummary"
                 class="flex flex-wrap gap-2 text-sm"
               >
-                <span class="rounded-lg bg-[#faf8f4] px-3 py-2 text-[#6b6475]">
+                <span class="rounded-lg bg-[#faf8f4] px-3 py-2 text-muted">
                   {{ submissionSummary.submissionCount }} pengumpulan
                 </span>
                 <span class="rounded-lg bg-[#eef7f2] px-3 py-2 text-[#2f7d5c]">
@@ -600,7 +600,7 @@ onMounted(loadWorkspace);
 
               <div
                 v-if="submissionsLoading"
-                class="rounded-lg border border-border bg-surface p-5 text-sm text-[#6b6475]"
+                class="rounded-lg border border-border bg-surface p-5 text-sm text-muted"
               >
                 Memuat pengumpulan...
               </div>
@@ -612,7 +612,7 @@ onMounted(loadWorkspace);
                 <h2 class="text-lg font-semibold text-foreground">
                   Pengumpulan gagal dimuat
                 </h2>
-                <p class="mt-2 text-sm leading-6 text-[#6b6475]">
+                <p class="mt-2 text-sm leading-6 text-muted">
                   {{ submissionsError }}
                 </p>
               </div>
@@ -655,7 +655,7 @@ onMounted(loadWorkspace);
                     </h2>
                     <p
                       v-if="group.assignment.deadline"
-                      class="mt-2 text-sm text-[#6b6475]"
+                      class="mt-2 text-sm text-muted"
                     >
                       Tenggat {{ formatDate(group.assignment.deadline) }}
                     </p>
@@ -663,7 +663,7 @@ onMounted(loadWorkspace);
                   <div class="flex flex-col items-start gap-2 sm:items-end">
                     <div class="flex flex-wrap gap-2 text-xs font-medium">
                       <span
-                        class="rounded-lg bg-[#faf8f4] px-3 py-2 text-[#6b6475]"
+                        class="rounded-lg bg-[#faf8f4] px-3 py-2 text-muted"
                       >
                         {{ group.submissionCount }} pengumpulan
                       </span>
@@ -704,12 +704,12 @@ onMounted(loadWorkspace);
                       <h3 class="truncate text-sm font-semibold text-foreground">
                         {{ submission.studentName }}
                       </h3>
-                      <p class="mt-1 text-xs text-[#6b6475]">
+                      <p class="mt-1 text-xs text-muted">
                         Dikumpulkan {{ formatDateTime(submission.submittedAt) }}
                       </p>
                     </div>
                     <div
-                      class="flex flex-wrap items-center gap-2 text-xs font-medium text-[#6b6475]"
+                      class="flex flex-wrap items-center gap-2 text-xs font-medium text-muted"
                     >
                       <span class="rounded-lg bg-surface px-3 py-2">
                         {{ submission.attachments?.length ?? 0 }} lampiran

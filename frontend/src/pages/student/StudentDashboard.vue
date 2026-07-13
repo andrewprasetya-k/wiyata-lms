@@ -463,7 +463,7 @@ onMounted(() => {
                 <p class="text-sm font-medium text-foreground">
                   Daftar mata pelajaran
                 </p>
-                <p class="mt-1 text-xs text-[#8b8592]">
+                <p class="mt-1 text-xs text-muted">
                   Buka materi dan tugas dari kelas aktif.
                 </p>
               </div>
@@ -533,7 +533,7 @@ onMounted(() => {
                   </div>
                   <PhArrowRight
                     :size="15"
-                    class="mt-1 shrink-0 text-[#a09aa8] transition group-hover:translate-x-0.5 group-hover:text-brand"
+                    class="mt-1 shrink-0 text-muted transition group-hover:translate-x-0.5 group-hover:text-brand"
                   />
                 </div>
               </RouterLink>
@@ -561,7 +561,7 @@ onMounted(() => {
                 </div>
                 <div class="min-w-0">
                   <p class="text-sm font-medium text-foreground">Tugas Saya</p>
-                  <p class="mt-1 text-xs text-[#8b8592]">
+                  <p class="mt-1 text-xs text-muted">
                     Prioritas tugas dari semua mata pelajaran.
                   </p>
                 </div>
@@ -625,7 +625,7 @@ onMounted(() => {
                         · {{ assignment.subjectCode }}
                       </span>
                     </p>
-                    <p class="mt-1.5 text-[11px] text-[#8b8592]">
+                    <p class="mt-1.5 text-[11px] text-muted">
                       Tenggat {{ formatDate(assignment.deadline) }}
                     </p>
                   </div>
@@ -638,7 +638,7 @@ onMounted(() => {
                     </span>
                     <PhArrowRight
                       :size="14"
-                      class="text-[#a09aa8] transition group-hover:translate-x-0.5 group-hover:text-brand"
+                      class="text-muted transition group-hover:translate-x-0.5 group-hover:text-brand"
                     />
                   </div>
                 </div>
@@ -663,7 +663,7 @@ onMounted(() => {
         >
           <template #notifications>
             <div class="mb-3 flex items-center justify-between gap-3">
-              <p class="text-xs text-[#a09aa8]">
+              <p class="text-xs text-muted">
                 {{ notificationUnread.unreadCount.value }} belum dibaca
               </p>
               <div class="flex items-center gap-2">
@@ -737,7 +737,7 @@ onMounted(() => {
                     <p class="line-clamp-1 text-sm font-medium text-foreground">
                       {{ notificationTitle(item) }}
                     </p>
-                    <span class="shrink-0 text-[10px] text-[#a09aa8]">{{
+                    <span class="shrink-0 text-[10px] text-muted">{{
                       formatDateTime(item.createdAt)
                     }}</span>
                   </div>
@@ -815,10 +815,10 @@ onMounted(() => {
                 :key="post.feedId"
                 class="min-w-0 py-3 first:pt-0 last:pb-0"
               >
-                <p class="line-clamp-2 text-sm leading-6 text-[#3f3a4a]">
+                <p class="line-clamp-2 text-sm leading-6 text-foreground">
                   {{ post.content }}
                 </p>
-                <p class="mt-1 text-xs text-[#a09aa8]">
+                <p class="mt-1 text-xs text-muted">
                   {{ post.creatorName || "Pengirim tidak tersedia" }} ·
                   {{ formatDateTime(post.createdAt) }}
                 </p>

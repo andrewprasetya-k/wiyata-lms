@@ -14,7 +14,7 @@ function logout() {
     <h1 class="mt-3 text-3xl font-medium text-foreground">
       Autorisasi tidak dikenali.
     </h1>
-    <p class="mt-4 text-sm leading-6 text-[#6b6475]">
+    <p class="mt-4 text-sm leading-6 text-muted">
       Pilih konteks sekolah atau role yang sesuai, lalu coba kembali ke halaman
       tujuan.
     </p>

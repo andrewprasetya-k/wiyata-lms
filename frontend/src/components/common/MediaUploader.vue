@@ -182,7 +182,7 @@ function formatSize(bytes: number) {
   <div class="media-uploader">
     <label class="flex h-32 w-full cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-border bg-surface-subtle transition hover:border-brand-line hover:bg-surface focus-within:border-brand focus-within:bg-surface focus-within:ring-2 focus-within:ring-brand/15">
       <div class="flex flex-col items-center justify-center px-4 py-5 text-center">
-        <PhUploadSimple :size="30" class="mb-2 text-[#8b8592]" />
+        <PhUploadSimple :size="30" class="mb-2 text-muted" />
         <p class="mb-1 text-sm font-medium text-foreground">Klik untuk unggah atau seret file</p>
         <p class="text-xs text-muted">PDF, video, atau dokumen (maks. {{ maxSizeMb }}MB)</p>
       </div>
@@ -193,7 +193,7 @@ function formatSize(bytes: number) {
       <div v-for="(file, index) in files" :key="index" class="flex max-w-full items-center justify-between gap-3 overflow-hidden rounded-xl border border-border bg-surface p-3">
         <div class="flex min-w-0 flex-1 items-center gap-3 overflow-hidden">
           <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#f3f0ea]">
-            <PhFile :size="20" class="text-[#6b6475]" />
+            <PhFile :size="20" class="text-muted" />
           </div>
           <div class="min-w-0 flex-1 overflow-hidden">
             <p class="truncate text-sm font-medium text-foreground">{{ file.name }}</p>
@@ -209,7 +209,7 @@ function formatSize(bytes: number) {
           <button 
             type="button" 
             @click="removeFile(index)" 
-            class="rounded-lg p-1.5 text-[#8b8592] transition hover:bg-danger-soft hover:text-danger disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-danger/15"
+            class="rounded-lg p-1.5 text-muted transition hover:bg-danger-soft hover:text-danger disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-danger/15"
             :disabled="isFileRemoving(file, index)"
             :title="isFileRemoving(file, index) ? 'Menghapus...' : 'Hapus'"
           >

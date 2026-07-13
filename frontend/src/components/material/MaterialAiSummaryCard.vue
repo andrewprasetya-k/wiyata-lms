@@ -109,7 +109,7 @@ onBeforeUnmount(() => {
 
     <div
       v-if="sanitizedHtml"
-      class="ai-summary-content mt-4 text-sm leading-7 text-[#4a4356]"
+      class="ai-summary-content mt-4 text-sm leading-7 text-foreground"
       v-html="sanitizedHtml"
     />
     <p v-else class="mt-4 text-sm leading-6 text-muted">

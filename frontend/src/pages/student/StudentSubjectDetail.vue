@@ -315,7 +315,7 @@ onMounted(loadSubject);
                 </h3>
                 <p
                   v-if="material.materialDesc"
-                  class="mt-2 line-clamp-3 text-xs leading-5 text-[#6b6475]"
+                  class="mt-2 line-clamp-3 text-xs leading-5 text-muted"
                 >
                   {{ material.materialDesc }}
                 </p>
@@ -454,7 +454,7 @@ onMounted(loadSubject);
                   </div>
                   <p
                     v-if="assignment.assignmentDescription"
-                    class="mt-1 line-clamp-2 text-xs leading-5 text-[#6b6475]"
+                    class="mt-1 line-clamp-2 text-xs leading-5 text-muted"
                   >
                     {{ assignment.assignmentDescription }}
                   </p>
@@ -574,7 +574,7 @@ onMounted(loadSubject);
               </div>
 
               <p
-                class="mt-4 line-clamp-5 flex-1 whitespace-pre-line wrap-break-word text-sm leading-6 text-[#6b6475]"
+                class="mt-4 line-clamp-5 flex-1 whitespace-pre-line wrap-break-word text-sm leading-6 text-muted"
               >
                 {{ note.content }}
               </p>
@@ -583,7 +583,7 @@ onMounted(loadSubject);
                 class="mt-4 flex flex-wrap items-center gap-2 border-t border-[#f0ede8] pt-3"
               >
                 <button
-                  class="rounded-lg border border-border px-3 py-2 text-xs font-medium text-[#6b6475] transition hover:bg-background"
+                  class="rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted transition hover:bg-background"
                   type="button"
                   @click="
                     router.push(

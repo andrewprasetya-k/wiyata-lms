@@ -40,7 +40,7 @@ function goBack() {
     <h1 class="mt-3 text-3xl font-medium text-foreground">
       Halaman tidak ditemukan
     </h1>
-    <p class="mt-4 text-sm leading-6 text-[#6b6475]">
+    <p class="mt-4 text-sm leading-6 text-muted">
       Halaman yang kamu cari tidak tersedia atau mungkin sudah dipindahkan.
     </p>
     <div class="mt-7 flex flex-col items-center justify-center gap-3">

@@ -467,7 +467,7 @@ onMounted(loadInitialData);
                   <h2 class="text-base font-semibold text-foreground">
                     Informasi utama
                   </h2>
-                  <p class="mt-1 text-xs leading-5 text-[#8a8494]">
+                  <p class="mt-1 text-xs leading-5 text-muted">
                     Isi judul dan
                     {{
                       activeTab === "material"
@@ -492,7 +492,7 @@ onMounted(loadInitialData);
                     id="content-title"
                     v-model="form.title"
                     type="text"
-                    class="mt-2 w-full rounded-lg border border-border bg-surface-subtle px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-[#a09aa8] focus:border-brand focus:bg-surface"
+                    class="mt-2 w-full rounded-lg border border-border bg-surface-subtle px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:bg-surface"
                     placeholder="Contoh: Pengenalan Aljabar Linear"
                   />
                 </div>
@@ -513,7 +513,7 @@ onMounted(loadInitialData);
                     id="content-description"
                     v-model="form.description"
                     rows="7"
-                    class="mt-2 w-full resize-none rounded-lg border border-border bg-surface-subtle px-4 py-3 text-sm leading-6 text-foreground-secondary outline-none transition placeholder:text-[#a09aa8] focus:border-brand focus:bg-surface"
+                    class="mt-2 w-full resize-none rounded-lg border border-border bg-surface-subtle px-4 py-3 text-sm leading-6 text-foreground-secondary outline-none transition placeholder:text-muted focus:border-brand focus:bg-surface"
                     placeholder="Berikan instruksi atau detail tambahan..."
                   />
                 </div>
@@ -533,7 +533,7 @@ onMounted(loadInitialData);
                   <h2 class="text-base font-semibold text-foreground">
                     Lampiran dan media
                   </h2>
-                  <p class="mt-1 text-xs leading-5 text-[#8a8494]">
+                  <p class="mt-1 text-xs leading-5 text-muted">
                     Tambahkan file pendukung yang dibutuhkan siswa.
                   </p>
                 </div>

@@ -148,11 +148,11 @@ onMounted(loadGrades);
                   {{ schoolName }}
                 </p>
               </div>
-              <PhCaretDown :size="13" class="shrink-0 text-[#a09aa8]" />
+              <PhCaretDown :size="13" class="shrink-0 text-muted" />
             </div>
             <select
               v-if="activeClassStore.classes.length > 1"
-              class="min-w-0 rounded-lg border border-border bg-surface px-3 py-2 text-xs text-[#3f3a4a] outline-none transition focus:border-brand"
+              class="min-w-0 rounded-lg border border-border bg-surface px-3 py-2 text-xs text-foreground outline-none transition focus:border-brand"
               :value="activeClassStore.activeClassId ?? ''"
               aria-label="Pilih kelas"
               @change="
@@ -484,7 +484,7 @@ onMounted(loadGrades);
                       Feedback
                     </p>
                     <p
-                      class="mt-1 whitespace-pre-line wrap-break-word text-xs leading-5 text-[#4a4356]"
+                      class="mt-1 whitespace-pre-line wrap-break-word text-xs leading-5 text-foreground"
                     >
                       {{ assignment.feedback }}
                     </p>

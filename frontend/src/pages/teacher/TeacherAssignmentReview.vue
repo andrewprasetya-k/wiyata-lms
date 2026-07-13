@@ -344,7 +344,7 @@ onMounted(loadData);
                 <h2 class="text-base font-semibold text-foreground">
                   Lampiran jawaban
                 </h2>
-                <p class="mt-1 text-xs text-[#8a8494]">
+                <p class="mt-1 text-xs text-muted">
                   {{ currentSubmission.attachments?.length || 0 }} lampiran
                   dikirim siswa
                 </p>
@@ -413,7 +413,7 @@ onMounted(loadData);
                   id="submission-feedback"
                   v-model="feedback"
                   rows="6"
-                  class="mt-2 w-full resize-none rounded-lg border border-border bg-surface-subtle px-3.5 py-3 text-sm leading-6 text-foreground-secondary outline-none transition placeholder:text-[#a09aa8] focus:border-brand focus:bg-surface"
+                  class="mt-2 w-full resize-none rounded-lg border border-border bg-surface-subtle px-3.5 py-3 text-sm leading-6 text-foreground-secondary outline-none transition placeholder:text-muted focus:border-brand focus:bg-surface"
                   placeholder="Tuliskan masukan untuk siswa..."
                 />
               </div>
@@ -445,7 +445,7 @@ onMounted(loadData);
                 <h2 class="text-sm font-semibold text-foreground">
                   Daftar siswa
                 </h2>
-                <span class="text-xs text-[#8a8494]">
+                <span class="text-xs text-muted">
                   {{ submissions.length }} pengumpulan
                 </span>
               </div>

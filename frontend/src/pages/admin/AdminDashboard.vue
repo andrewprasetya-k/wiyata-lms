@@ -160,7 +160,7 @@ const quickActions = [
     icon: PhCalendarBlank,
     to: "/admin/subject-classes",
     color: "bg-[#fff4ee] text-[#c2410c]",
-    border: "hover:border-[#fdba74]",
+    border: "hover:border-warning-line",
   },
 ];
 

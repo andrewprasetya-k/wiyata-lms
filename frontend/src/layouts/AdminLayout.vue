@@ -46,7 +46,7 @@ const items = computed(() => [
 </script>
 
 <template>
-  <div class="min-h-screen bg-background text-[#2f2b3a]">
+  <div class="min-h-screen bg-background text-foreground">
     <div class="mx-auto flex min-h-screen max-w-360">
       <Sidebar
         class="sticky top-0 h-screen shrink-0"

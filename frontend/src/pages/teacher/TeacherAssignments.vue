@@ -353,11 +353,11 @@ onMounted(loadAssignments);
                         </span>
                         <span
                           v-if="item.item.subjectCode"
-                          class="text-[#8a8494]"
+                          class="text-muted"
                         >
                           {{ item.item.subjectCode }}
                         </span>
-                        <span class="text-[#8a8494]">
+                        <span class="text-muted">
                           {{
                             item.item.className ||
                             item.item.classCode ||
@@ -388,7 +388,7 @@ onMounted(loadAssignments);
 
               <dl class="mt-4 grid grid-cols-3 gap-2 text-xs sm:max-w-lg">
                 <div class="rounded-lg bg-surface-subtle p-3">
-                  <dt class="text-[#8a8494]">Pengumpulan</dt>
+                  <dt class="text-muted">Pengumpulan</dt>
                   <dd class="mt-1 text-base font-medium text-foreground">
                     {{ item.submissionCount }}
                   </dd>

@@ -102,12 +102,12 @@ function isActive(to: string) {
           :is="item.icon"
           :size="20"
           weight="regular"
-          class="shrink-0 text-gray-500"
+          class="shrink-0 text-muted"
         />
 
         <!-- Label — visible only when expanded -->
         <span
-          class="flex-1 truncate text-sm font-medium transition-[opacity,transform] duration-150 text-gray-500"
+          class="flex-1 truncate text-sm font-medium transition-[opacity,transform] duration-150 text-muted"
           :class="
             isCollapsed
               ? 'pointer-events-none w-0 -translate-x-1 opacity-0'
@@ -157,7 +157,7 @@ function isActive(to: string) {
     <div class="shrink-0 space-y-2 px-2 py-4">
       <!-- Logout -->
       <button
-        class="relative flex h-10 items-center rounded-xl text-red-600 transition hover:bg-red-600 hover:text-white/95 cursor-pointer"
+        class="relative flex h-10 items-center rounded-xl text-danger transition hover:bg-red-600 hover:text-white/95 cursor-pointer"
         :class="
           isCollapsed ? 'mx-auto w-4 justify-center px-6' : 'w-full gap-3 px-3'
         "
@@ -206,7 +206,7 @@ function isActive(to: string) {
               : 'translate-x-0 opacity-100'
           "
         >
-          <span class="block truncate text-sm font-medium text-[#2f2b3a]">
+          <span class="block truncate text-sm font-medium text-foreground">
             {{ auth.user?.fullName || "Pengguna" }}
           </span>
         </span>

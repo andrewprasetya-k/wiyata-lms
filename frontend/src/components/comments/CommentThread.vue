@@ -345,7 +345,7 @@ onMounted(() => {
               <p class="truncate text-xs font-medium text-foreground">
                 {{ comment.creatorName || "Pengirim tidak tersedia" }}
               </p>
-              <p class="mt-0.5 text-[11px] text-[#a09aa8]">
+              <p class="mt-0.5 text-[11px] text-muted">
                 {{
                   comment.optimisticStatus === "pending"
                     ? "Mengirim..."
@@ -369,7 +369,7 @@ onMounted(() => {
             </button>
           </div>
           <p
-            class="mt-2 whitespace-pre-line wrap-break-word text-xs leading-5 text-[#4a4356]"
+            class="mt-2 whitespace-pre-line wrap-break-word text-xs leading-5 text-foreground"
           >
             {{ comment.content }}
           </p>
@@ -381,7 +381,7 @@ onMounted(() => {
         <textarea
           :id="discussionId"
           v-model="commentText"
-          class="min-h-20 w-full resize-y rounded-2xl border border-border bg-surface px-3 py-2 text-xs leading-5 text-foreground outline-none transition placeholder:text-[#a09aa8] focus:border-brand"
+          class="min-h-20 w-full resize-y rounded-2xl border border-border bg-surface px-3 py-2 text-xs leading-5 text-foreground outline-none transition placeholder:text-muted focus:border-brand"
           maxlength="800"
           placeholder="Tulis komentar singkat..."
         />
@@ -392,7 +392,7 @@ onMounted(() => {
           {{ submitErrorMessage }}
         </p>
         <div class="flex items-center justify-between gap-3">
-          <p class="text-[11px] text-[#8b8592]">
+          <p class="text-[11px] text-muted">
             Komentar hanya untuk feed kelas.
           </p>
           <button
@@ -471,7 +471,7 @@ onMounted(() => {
             <p class="truncate text-sm font-medium text-foreground">
               {{ comment.creatorName || "Pengirim tidak tersedia" }}
             </p>
-            <p class="mt-0.5 text-xs text-[#a09aa8]">
+            <p class="mt-0.5 text-xs text-muted">
               {{
                 comment.optimisticStatus === "pending"
                   ? formatDateTime(new Date().toLocaleString())
@@ -493,7 +493,7 @@ onMounted(() => {
           </button>
         </div>
         <p
-          class="mt-3 whitespace-pre-line wrap-break-word text-sm leading-6 text-[#4a4356]"
+          class="mt-3 whitespace-pre-line wrap-break-word text-sm leading-6 text-foreground"
         >
           {{ comment.content }}
         </p>
@@ -505,7 +505,7 @@ onMounted(() => {
       <textarea
         :id="discussionId"
         v-model="commentText"
-        class="min-h-24 w-full resize-y rounded-xl border border-border bg-surface px-3 py-2 text-sm leading-6 text-foreground outline-none transition placeholder:text-[#a09aa8] focus:border-brand"
+        class="min-h-24 w-full resize-y rounded-xl border border-border bg-surface px-3 py-2 text-sm leading-6 text-foreground outline-none transition placeholder:text-muted focus:border-brand"
         maxlength="800"
         :placeholder="placeholder"
       />
@@ -513,7 +513,7 @@ onMounted(() => {
         {{ submitErrorMessage }}
       </p>
       <div class="flex items-center justify-between gap-3">
-        <p class="text-xs text-[#8b8592]">
+        <p class="text-xs text-muted">
           Diskusi terlihat oleh peserta yang memiliki akses ke konten ini.
         </p>
         <button

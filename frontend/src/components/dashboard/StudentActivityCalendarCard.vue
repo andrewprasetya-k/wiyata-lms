@@ -207,7 +207,7 @@ onMounted(() => {
       <span
         v-for="day in ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']"
         :key="day"
-        class="py-0.5 text-[10px] text-[#a09aa8]"
+        class="py-0.5 text-[10px] text-muted"
       >
         {{ day }}
       </span>
@@ -220,7 +220,7 @@ onMounted(() => {
             day.isToday
               ? 'bg-brand font-medium text-white'
               : day.isCurrentMonth
-                ? 'text-[#4a4356] hover:bg-surface-subtle'
+                ? 'text-foreground hover:bg-surface-subtle'
                 : 'text-[#c0bac8] hover:bg-surface-subtle',
             selectedDate === day.dateKey
               ? 'ring-2 ring-brand ring-offset-1'
@@ -262,7 +262,7 @@ onMounted(() => {
     <div class="mt-3 border-t border-border pt-3">
       <div class="mb-2 flex items-center justify-between gap-3">
         <p class="text-sm font-medium text-foreground">Deadline Tugas</p>
-        <p class="shrink-0 text-xs text-[#8b8592]">
+        <p class="shrink-0 text-xs text-muted">
           {{ formatActivityDate(selectedDate) }}
         </p>
       </div>
@@ -372,7 +372,7 @@ onMounted(() => {
             selectedDateDeadlineActivities.length >
             selectedDatePreview.length
           "
-          class="mt-3 text-xs text-[#8b8592]"
+          class="mt-3 text-xs text-muted"
         >
           +{{
             selectedDateDeadlineActivities.length -

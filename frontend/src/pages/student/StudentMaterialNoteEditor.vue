@@ -276,7 +276,7 @@ onMounted(loadPage);
           <h1 class="mt-3 text-2xl font-medium text-foreground">
             {{ material.materialTitle }}
           </h1>
-          <p class="mt-1 text-xs text-[#8b8592]">
+          <p class="mt-1 text-xs text-muted">
             <template v-if="material.creatorName">
               {{ material.creatorName }} ·
             </template>
@@ -293,7 +293,7 @@ onMounted(loadPage);
                 <p class="text-sm font-medium text-foreground">
                   Lampiran materi
                 </p>
-                <p class="mt-1 text-xs text-[#8b8592]">
+                <p class="mt-1 text-xs text-muted">
                   Preview file tetap tersedia saat kamu menulis catatan.
                 </p>
               </div>
@@ -328,7 +328,7 @@ onMounted(loadPage);
               <h2 class="truncate text-sm font-medium text-foreground">
                 Catatan — {{ material.materialTitle }}
               </h2>
-              <p class="mt-1 text-xs leading-5 text-[#8b8592]">
+              <p class="mt-1 text-xs leading-5 text-muted">
                 Catatan ini hanya dapat dilihat olehmu.
               </p>
             </div>
@@ -350,7 +350,7 @@ onMounted(loadPage);
 
         <form class="flex min-h-0 flex-1 flex-col" @submit.prevent="saveNote">
           <div class="flex min-h-0 flex-1 flex-col overflow-y-auto px-5 py-4">
-            <p class="mb-3 text-xs leading-5 text-[#a09aa8]">
+            <p class="mb-3 text-xs leading-5 text-muted">
               Tulis ringkasan, poin penting, atau hal yang ingin kamu ingat.
             </p>
             <textarea
@@ -374,12 +374,12 @@ onMounted(loadPage);
               <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
                 <p
                   class="text-xs"
-                  :class="isTooLong ? 'text-danger' : 'text-[#a09aa8]'"
+                  :class="isTooLong ? 'text-danger' : 'text-muted'"
                 >
                   {{ Array.from(content).length.toLocaleString("id-ID") }} /
                   10.000 karakter
                 </p>
-                <p v-if="note?.updatedAt" class="text-xs text-[#a09aa8]">
+                <p v-if="note?.updatedAt" class="text-xs text-muted">
                   Disimpan {{ formatDateTime(note.updatedAt) }}
                 </p>
               </div>

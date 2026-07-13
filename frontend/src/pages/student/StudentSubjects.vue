@@ -80,7 +80,7 @@ onMounted(loadSubjects);
           Buka materi, tugas, dan catatan dari kelas aktifmu.
         </p>
         <RouterLink
-          class="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-xs font-medium text-[#3f3a4a] transition hover:border-brand hover:text-brand sm:w-auto"
+          class="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-xs font-medium text-foreground-secondary transition hover:border-brand hover:text-brand sm:w-auto"
           to="/student/feed"
         >
           <PhMegaphone :size="16" />
@@ -119,11 +119,11 @@ onMounted(loadSubjects);
                     {{ schoolName }}
                   </p>
                 </div>
-                <PhCaretDown :size="13" class="shrink-0 text-[#a09aa8]" />
+                <PhCaretDown :size="13" class="shrink-0 text-muted" />
               </div>
               <select
                 v-if="classes.length > 1"
-                class="min-w-0 max-w-full rounded-lg border border-border bg-surface px-3 py-2 text-xs text-[#3f3a4a] outline-none transition focus:border-brand"
+                class="min-w-0 max-w-full rounded-lg border border-border bg-surface px-3 py-2 text-xs text-foreground outline-none transition focus:border-brand"
                 :value="activeClassStore.activeClassId ?? ''"
                 aria-label="Pilih kelas aktif"
                 @change="
@@ -282,20 +282,20 @@ onMounted(loadSubjects);
                 <div class="flex items-center justify-between gap-3">
                   <div class="min-w-0">
                     <p class="text-xs text-[#9a95a3]">Kode Mapel</p>
-                    <p class="mt-1 truncate text-sm font-medium text-[#3f3a4a]">
+                    <p class="mt-1 truncate text-sm font-medium text-foreground">
                       {{ subject.subjectCode || "Kode belum tersedia" }}
                     </p>
                   </div>
                   <PhArrowRight
                     :size="18"
-                    class="text-[#a09aa8] transition group-hover:translate-x-0.5 group-hover:text-brand"
+                    class="text-muted transition group-hover:translate-x-0.5 group-hover:text-brand"
                   />
                 </div>
                 <div
                   class="flex flex-wrap gap-2 border-t border-[#f3f1ec] pt-3"
                 >
                   <span
-                    class="rounded-full bg-surface-strong px-2 py-1 text-[11px] text-[#6b6475]"
+                    class="rounded-full bg-surface-strong px-2 py-1 text-[11px] text-muted"
                   >
                     Materi
                   </span>

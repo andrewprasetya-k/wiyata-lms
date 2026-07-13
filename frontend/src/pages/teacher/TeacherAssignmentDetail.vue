@@ -163,7 +163,7 @@ onMounted(loadAssignment);
         <h2 class="mt-3 text-lg font-semibold text-foreground">
           Tugas belum bisa dimuat
         </h2>
-        <p class="mt-2 text-sm leading-6 text-[#6b6475]">
+        <p class="mt-2 text-sm leading-6 text-muted">
           {{ errorMessage }}
         </p>
         <button
@@ -187,7 +187,7 @@ onMounted(loadAssignment);
         <h2 class="mt-3 text-lg font-semibold text-foreground">
           Tugas tidak ditemukan
         </h2>
-        <p class="mt-2 text-sm leading-6 text-[#6b6475]">
+        <p class="mt-2 text-sm leading-6 text-muted">
           Tugas ini tidak tersedia atau bukan bagian dari mata pelajaran yang
           Anda ajar.
         </p>
@@ -237,7 +237,7 @@ onMounted(loadAssignment);
               </h2>
               <p
                 v-if="assignment.assignmentDescription"
-                class="mt-3 whitespace-pre-line wrap-break-word text-sm leading-7 text-[#4a4356]"
+                class="mt-3 whitespace-pre-line wrap-break-word text-sm leading-7 text-foreground"
               >
                 {{ assignment.assignmentDescription }}
               </p>

@@ -62,7 +62,7 @@ async function submit() {
         >
           Masuk ke ruang belajar yang lebih tenang.
         </h1>
-        <p class="mt-6 text-base leading-7 text-[#6b6475]">
+        <p class="mt-6 text-base leading-7 text-muted">
           Satu login untuk siswa, guru, admin sekolah, dan super admin. Wiyata
           akan memilih ruang kerja berdasarkan role dan konteks sekolah.
         </p>
@@ -101,7 +101,7 @@ async function submit() {
 
         <form class="space-y-5" @submit.prevent="submit">
           <label class="block">
-            <span class="mb-2 block text-sm font-medium text-[#5f5968]">
+            <span class="mb-2 block text-sm font-medium text-foreground-secondary">
               Email
             </span>
             <input
@@ -114,7 +114,7 @@ async function submit() {
           </label>
 
           <label class="block">
-            <span class="mb-2 block text-sm font-medium text-[#5f5968]">
+            <span class="mb-2 block text-sm font-medium text-foreground-secondary">
               Password
             </span>
             <input

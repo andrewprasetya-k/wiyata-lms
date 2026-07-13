@@ -156,7 +156,7 @@ onMounted(loadMaterial)
         <h2 class="mt-3 text-lg font-semibold text-foreground">
           Materi belum bisa dimuat
         </h2>
-        <p class="mt-2 text-sm leading-6 text-[#6b6475]">
+        <p class="mt-2 text-sm leading-6 text-muted">
           {{ errorMessage }}
         </p>
         <button
@@ -180,7 +180,7 @@ onMounted(loadMaterial)
         <h2 class="mt-3 text-lg font-semibold text-foreground">
           Materi tidak ditemukan
         </h2>
-        <p class="mt-2 text-sm leading-6 text-[#6b6475]">
+        <p class="mt-2 text-sm leading-6 text-muted">
           Materi ini tidak tersedia atau bukan bagian dari mata pelajaran yang
           Anda ajar.
         </p>
@@ -206,13 +206,13 @@ onMounted(loadMaterial)
             </p>
             <p
               v-if="material.materialDesc"
-              class="mt-3 whitespace-pre-line wrap-break-word text-sm leading-7 text-[#4a4356]"
+              class="mt-3 whitespace-pre-line wrap-break-word text-sm leading-7 text-foreground"
             >
               {{ material.materialDesc }}
             </p>
             <div
               v-else
-              class="mt-3 rounded-lg bg-surface-subtle px-4 py-5 text-sm leading-6 text-[#8a8494]"
+              class="mt-3 rounded-lg bg-surface-subtle px-4 py-5 text-sm leading-6 text-muted"
             >
               Deskripsi materi belum tersedia.
             </div>
@@ -222,7 +222,7 @@ onMounted(loadMaterial)
             <div class="flex items-center justify-between gap-3">
               <div>
                 <h2 class="text-base font-semibold text-foreground">Lampiran</h2>
-                <p class="mt-1 text-xs text-[#8a8494]">
+                <p class="mt-1 text-xs text-muted">
                   {{ material.attachments?.length ?? 0 }} lampiran terhubung
                 </p>
               </div>
@@ -255,11 +255,11 @@ onMounted(loadMaterial)
                 <div class="flex items-start gap-3">
                   <PhUserCircle
                     :size="18"
-                    class="mt-0.5 shrink-0 text-[#8a8494]"
+                    class="mt-0.5 shrink-0 text-muted"
                     weight="duotone"
                   />
                   <div class="min-w-0">
-                    <dt class="text-xs text-[#8a8494]">Dibuat oleh</dt>
+                    <dt class="text-xs text-muted">Dibuat oleh</dt>
                     <dd class="mt-1 wrap-break-word text-sm text-foreground-secondary">
                       {{ material.creatorName || 'Pengirim tidak tersedia' }}
                     </dd>
@@ -268,11 +268,11 @@ onMounted(loadMaterial)
                 <div class="flex items-start gap-3">
                   <PhCalendarBlank
                     :size="18"
-                    class="mt-0.5 shrink-0 text-[#8a8494]"
+                    class="mt-0.5 shrink-0 text-muted"
                     weight="duotone"
                   />
                   <div class="min-w-0">
-                    <dt class="text-xs text-[#8a8494]">Dibuat</dt>
+                    <dt class="text-xs text-muted">Dibuat</dt>
                     <dd class="mt-1 text-sm text-foreground-secondary">
                       {{ formatDateTime(material.createdAt) }}
                     </dd>
@@ -281,11 +281,11 @@ onMounted(loadMaterial)
                 <div class="flex items-start gap-3">
                   <PhPaperclip
                     :size="18"
-                    class="mt-0.5 shrink-0 text-[#8a8494]"
+                    class="mt-0.5 shrink-0 text-muted"
                     weight="duotone"
                   />
                   <div class="min-w-0">
-                    <dt class="text-xs text-[#8a8494]">Lampiran</dt>
+                    <dt class="text-xs text-muted">Lampiran</dt>
                     <dd class="mt-1 text-sm text-foreground-secondary">
                       {{ material.attachments?.length ?? 0 }} lampiran
                     </dd>

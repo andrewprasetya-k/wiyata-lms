@@ -321,7 +321,7 @@ function updatePostCommentCount(feedId: string, count: number) {
             <h1 class="text-2xl font-semibold text-foreground sm:text-3xl">
               Pengumuman Kelas
             </h1>
-            <p class="mt-2 max-w-2xl text-sm leading-6 text-[#6b6475]">
+            <p class="mt-2 max-w-2xl text-sm leading-6 text-muted">
               Sampaikan informasi kepada siswa dan lanjutkan diskusi melalui
               komentar pada setiap pengumuman.
             </p>
@@ -361,7 +361,7 @@ function updatePostCommentCount(feedId: string, count: number) {
         <h2 class="mt-3 text-lg font-semibold text-foreground">
           Kelas belum bisa dimuat
         </h2>
-        <p class="mt-2 text-sm leading-6 text-[#6b6475]">
+        <p class="mt-2 text-sm leading-6 text-muted">
           {{ classesError }}
         </p>
         <button
@@ -416,7 +416,7 @@ function updatePostCommentCount(feedId: string, count: number) {
             </div>
 
             <label
-              class="mt-5 block text-xs font-medium text-[#6b6475]"
+              class="mt-5 block text-xs font-medium text-muted"
               for="feed-class"
             >
               Kelas tujuan
@@ -436,7 +436,7 @@ function updatePostCommentCount(feedId: string, count: number) {
             </select>
 
             <label
-              class="mt-4 block text-xs font-medium text-[#6b6475]"
+              class="mt-4 block text-xs font-medium text-muted"
               for="feed-content"
             >
               Isi pengumuman
@@ -444,11 +444,11 @@ function updatePostCommentCount(feedId: string, count: number) {
             <textarea
               id="feed-content"
               v-model="content"
-              class="mt-2 min-h-40 w-full resize-y rounded-lg border border-border bg-surface-subtle px-3.5 py-3 text-sm leading-6 text-foreground outline-none transition placeholder:text-[#a09aa8] focus:border-brand focus:bg-surface"
+              class="mt-2 min-h-40 w-full resize-y rounded-lg border border-border bg-surface-subtle px-3.5 py-3 text-sm leading-6 text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:bg-surface"
               placeholder="Tulis pengumuman untuk kelas ini..."
               maxlength="1200"
             />
-            <p class="mt-2 text-xs leading-5 text-[#8b8592]">
+            <p class="mt-2 text-xs leading-5 text-muted">
               <span v-if="feedAccessMessage">
                 Pengumuman belum bisa dikirim untuk kelas ini.
               </span>
@@ -529,7 +529,7 @@ function updatePostCommentCount(feedId: string, count: number) {
             </p>
             <button
               type="button"
-              class="mt-4 inline-flex items-center gap-2 rounded-lg border border-[#fdba74] bg-surface px-3 py-2 text-xs font-medium text-warning"
+              class="mt-4 inline-flex items-center gap-2 rounded-lg border border-warning-line bg-surface px-3 py-2 text-xs font-medium text-warning"
               @click="loadFeed"
             >
               <PhArrowClockwise :size="14" />
@@ -576,7 +576,7 @@ function updatePostCommentCount(feedId: string, count: number) {
                     <h3 class="truncate text-sm font-semibold text-foreground">
                       {{ post.creatorName || "Pengirim tidak tersedia" }}
                     </h3>
-                    <span class="shrink-0 text-xs text-[#a09aa8]">
+                    <span class="shrink-0 text-xs text-muted">
                       {{ formatDateTime(post.createdAt) }}
                     </span>
                   </div>
@@ -588,7 +588,7 @@ function updatePostCommentCount(feedId: string, count: number) {
                 </div>
               </div>
               <p
-                class="whitespace-pre-line wrap-break-word px-4 pb-4 pt-3 text-sm leading-6 text-[#4a4356] sm:px-5"
+                class="whitespace-pre-line wrap-break-word px-4 pb-4 pt-3 text-sm leading-6 text-foreground sm:px-5"
               >
                 {{ post.content }}
               </p>
@@ -600,7 +600,7 @@ function updatePostCommentCount(feedId: string, count: number) {
                   :initial-count="post.commentCount"
                   @count-change="(count) => updatePostCommentCount(post.feedId, count)"
                 />
-                <p v-else class="py-3 text-xs leading-5 text-[#8b8592]">
+                <p v-else class="py-3 text-xs leading-5 text-muted">
                   Komentar tersedia setelah pengumuman tersimpan.
                 </p>
               </div>

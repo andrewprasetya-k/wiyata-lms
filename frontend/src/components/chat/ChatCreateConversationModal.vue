@@ -243,7 +243,7 @@ watch(activeCreateTab, (tab) => {
 
           <p
             v-if="directMessageError"
-            class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600"
+            class="rounded-lg bg-red-50 px-3 py-2 text-sm text-danger"
           >
             {{ directMessageError }}
           </p>
@@ -368,7 +368,7 @@ watch(activeCreateTab, (tab) => {
 
           <p
             v-if="createGroupError"
-            class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600"
+            class="rounded-lg bg-red-50 px-3 py-2 text-sm text-danger"
           >
             {{ createGroupError }}
           </p>

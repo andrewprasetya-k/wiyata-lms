@@ -158,7 +158,7 @@ onMounted(loadSubjects);
                   </h2>
                   <p
                     v-if="subject.subjectCode || subject.classCode"
-                    class="mt-1 truncate text-xs text-[#8a8494]"
+                    class="mt-1 truncate text-xs text-muted"
                   >
                     {{
                       [subject.subjectCode, subject.classCode]
@@ -169,13 +169,13 @@ onMounted(loadSubjects);
                 </div>
                 <PhArrowRight
                   :size="17"
-                  class="mt-1 shrink-0 text-[#a09aa8] transition group-hover:translate-x-0.5 group-hover:text-brand"
+                  class="mt-1 shrink-0 text-muted transition group-hover:translate-x-0.5 group-hover:text-brand"
                 />
               </div>
 
               <dl class="mt-4 grid grid-cols-2 gap-2 text-xs">
                 <div class="rounded-lg bg-surface-subtle p-3">
-                  <dt class="flex items-center gap-1.5 text-[#8a8494]">
+                  <dt class="flex items-center gap-1.5 text-muted">
                     <PhUsersThree :size="15" weight="duotone" />
                     Siswa
                   </dt>
@@ -184,7 +184,7 @@ onMounted(loadSubjects);
                   </dd>
                 </div>
                 <div class="rounded-lg bg-surface-subtle p-3">
-                  <dt class="flex items-center gap-1.5 text-[#8a8494]">
+                  <dt class="flex items-center gap-1.5 text-muted">
                     <PhFileText :size="15" weight="duotone" />
                     Materi
                   </dt>
@@ -193,7 +193,7 @@ onMounted(loadSubjects);
                   </dd>
                 </div>
                 <div class="rounded-lg bg-surface-subtle p-3">
-                  <dt class="flex items-center gap-1.5 text-[#8a8494]">
+                  <dt class="flex items-center gap-1.5 text-muted">
                     <PhClipboardText :size="15" weight="duotone" />
                     Tugas
                   </dt>

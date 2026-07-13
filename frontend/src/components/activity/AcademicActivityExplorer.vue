@@ -153,7 +153,7 @@ function selectRange(value: "today" | "7d" | "30d") {
           >
             <div class="min-w-0">
               <p class="text-sm font-medium text-foreground">Filter aktivitas</p>
-              <p class="mt-1 text-xs leading-5 text-[#8b8592]">
+              <p class="mt-1 text-xs leading-5 text-muted">
                 Pilih jenis aktivitas dan rentang waktu yang ingin dilihat.
               </p>
             </div>
@@ -284,7 +284,7 @@ function selectRange(value: "today" | "7d" | "30d") {
               </dd>
             </div>
             <div class="border-t border-border pt-3">
-              <dt class="text-xs text-[#8b8592]">Rentang</dt>
+              <dt class="text-xs text-muted">Rentang</dt>
               <dd class="mt-1 text-sm font-medium text-foreground">
                 {{ dateRange.label }}
               </dd>

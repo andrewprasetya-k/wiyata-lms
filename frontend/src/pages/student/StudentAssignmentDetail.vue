@@ -399,7 +399,7 @@ async function handleWithdraw() {
             </h2>
             <p
               v-if="assignment.assignmentDescription"
-              class="mt-3 whitespace-pre-line wrap-break-word text-sm leading-7 text-[#4a4356]"
+              class="mt-3 whitespace-pre-line wrap-break-word text-sm leading-7 text-foreground"
             >
               {{ assignment.assignmentDescription }}
             </p>
@@ -563,7 +563,7 @@ async function handleWithdraw() {
               </p>
               <p
                 v-if="submissionStatus.submission.assessment.feedback"
-                class="mt-3 border-t border-brand-line pt-3 whitespace-pre-line wrap-break-word text-sm leading-6 text-[#4a4356]"
+                class="mt-3 border-t border-brand-line pt-3 whitespace-pre-line wrap-break-word text-sm leading-6 text-foreground"
               >
                 {{ submissionStatus.submission.assessment.feedback }}
               </p>
@@ -614,10 +614,10 @@ async function handleWithdraw() {
                 class="mx-auto text-muted"
                 weight="duotone"
               />
-              <p class="mt-2 text-sm font-medium text-[#3f3a4a]">
+              <p class="mt-2 text-sm font-medium text-foreground">
                 Pilih file jawaban
               </p>
-              <p class="mt-1 text-xs leading-5 text-[#8b8592]">
+              <p class="mt-1 text-xs leading-5 text-muted">
                 Kamu dapat memilih lebih dari satu file.
               </p>
               <label
@@ -641,10 +641,10 @@ async function handleWithdraw() {
                 class="flex max-w-full items-center justify-between gap-3 overflow-hidden rounded-lg border border-border bg-surface px-3 py-3"
               >
                 <div class="min-w-0 flex-1 overflow-hidden">
-                  <p class="truncate text-xs font-medium text-[#3f3a4a]">
+                  <p class="truncate text-xs font-medium text-foreground">
                     {{ file.name }}
                   </p>
-                  <p class="mt-1 text-[11px] text-[#8b8592]">
+                  <p class="mt-1 text-[11px] text-muted">
                     {{ formatFileSize(file.size) }}
                   </p>
                 </div>

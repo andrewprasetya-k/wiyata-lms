@@ -23,8 +23,8 @@ defineProps<{
         Post-MVP
       </span>
       <h1 class="mt-3 text-3xl font-medium text-foreground">Direncanakan setelah MVP sekolah</h1>
-      <h2 class="mt-2 text-xl font-medium text-[#3f3a4a]">{{ title }}</h2>
-      <p class="mt-4 max-w-xl text-sm leading-6 text-[#6b6475]">
+      <h2 class="mt-2 text-xl font-medium text-foreground">{{ title }}</h2>
+      <p class="mt-4 max-w-xl text-sm leading-6 text-muted">
         {{ description }}
       </p>
     </article>

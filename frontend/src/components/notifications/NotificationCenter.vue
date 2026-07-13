@@ -237,7 +237,7 @@ onMounted(() => {
       >
         <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div class="min-w-0">
-            <p class="text-xs font-medium uppercase tracking-[0.16em] text-[#a09aa8]">
+            <p class="text-xs font-medium uppercase tracking-[0.16em] text-muted">
               Pusat notifikasi
             </p>
             <h1 class="mt-2 text-2xl font-semibold text-foreground">
@@ -297,7 +297,7 @@ onMounted(() => {
             </button>
           </div>
 
-          <p class="text-xs text-[#a09aa8]">
+          <p class="text-xs text-muted">
             {{ notificationUnread.unreadCount.value }} belum dibaca
           </p>
         </div>
@@ -390,7 +390,7 @@ onMounted(() => {
                 >
                   baru
                 </span>
-                <span class="text-xs text-[#a09aa8]">
+                <span class="text-xs text-muted">
                   {{ formatDateTime(item.createdAt) }}
                 </span>
               </div>
@@ -409,7 +409,7 @@ onMounted(() => {
                 <PhArrowRight
                   v-if="isInternalNotificationLink(item.link)"
                   :size="16"
-                  class="mt-1 shrink-0 text-[#a09aa8]"
+                  class="mt-1 shrink-0 text-muted"
                   aria-hidden="true"
                 />
               </div>
@@ -421,7 +421,7 @@ onMounted(() => {
           v-if="!loading && !error && notifications.length > 0"
           class="flex flex-col gap-2 border-t border-border px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5"
         >
-          <p class="text-xs text-[#a09aa8]">
+          <p class="text-xs text-muted">
             Menampilkan {{ notifications.length }} dari {{ totalItems }}
             notifikasi.
           </p>

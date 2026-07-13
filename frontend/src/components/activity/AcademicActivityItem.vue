@@ -44,7 +44,7 @@ function ariaLabel() {
           :label="activityTypeLabel(activity.type, role)"
           :overdue="activity.type === 'assignment_overdue'"
         />
-        <span class="text-[11px] text-[#8b8592]">
+        <span class="text-[11px] text-muted">
           {{ activityRelativeLabel(activity) }}
         </span>
         <span
@@ -101,7 +101,7 @@ function ariaLabel() {
           :label="activityTypeLabel(activity.type, role)"
           :overdue="activity.type === 'assignment_overdue'"
         />
-        <span class="text-[11px] text-[#8b8592]">
+        <span class="text-[11px] text-muted">
           {{ activityRelativeLabel(activity) }}
         </span>
         <span

@@ -261,7 +261,7 @@ function responseStatus(error: unknown) {
             <p class="truncate text-sm font-medium text-foreground">
               {{ attachment.mediaName || "Lampiran" }}
             </p>
-            <p class="mt-1 truncate text-xs text-[#8b8592]">
+            <p class="mt-1 truncate text-xs text-muted">
               {{ fileTypeLabel(attachment) }}
               <template v-if="formatFileSize(attachment.fileSize)">
                 · {{ formatFileSize(attachment.fileSize) }}
@@ -325,7 +325,7 @@ function responseStatus(error: unknown) {
         >
           <div
             v-if="isSummaryLoading(attachment.mediaId)"
-            class="flex items-center gap-2 text-sm text-[#6b6475]"
+            class="flex items-center gap-2 text-sm text-muted"
           >
             <PhSpinnerGap class="h-4 w-4 animate-spin text-brand" />
             AI sedang membaca dokumen...
