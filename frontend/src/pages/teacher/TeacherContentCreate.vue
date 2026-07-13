@@ -25,10 +25,7 @@ import { deleteMedia } from "../../services/media";
 import MediaUploader from "../../components/common/MediaUploader.vue";
 import type { TeacherSubjectClass } from "../../types/teacherSubjects";
 import type { AssignmentCategory } from "../../types/teacherAssignment";
-import {
-  formatDateInputValue,
-  formatTimeInputValue,
-} from "../../utils/date";
+import { formatDateInputValue, formatTimeInputValue } from "../../utils/date";
 
 const route = useRoute();
 const router = useRouter();
@@ -352,7 +349,9 @@ onMounted(loadInitialData);
           class="mt-4 flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"
         >
           <div class="min-w-0">
-            <p class="text-xs font-medium uppercase tracking-wide text-[#7b61a8]">
+            <p
+              class="text-xs font-medium uppercase tracking-wide text-[#7b61a8]"
+            >
               {{ subject?.subjectName || "Konten mata pelajaran" }}
             </p>
             <h1 class="mt-1 text-xl font-semibold text-foreground sm:text-2xl">
@@ -366,7 +365,9 @@ onMounted(loadInitialData);
                   · {{ subject.subjectCode }}
                 </span>
               </template>
-              <template v-else> Lengkapi informasi konten untuk siswa. </template>
+              <template v-else>
+                Lengkapi informasi konten untuk siswa.
+              </template>
             </p>
           </div>
           <span
@@ -669,7 +670,9 @@ onMounted(loadInitialData);
                   <div class="border-t border-[#f3f4f6] pt-4">
                     <div class="flex items-center justify-between gap-3">
                       <div class="min-w-0">
-                        <p class="text-xs font-medium text-foreground-secondary">
+                        <p
+                          class="text-xs font-medium text-foreground-secondary"
+                        >
                           Izinkan terlambat
                         </p>
                         <p class="mt-1 text-[11px] leading-4 text-muted">
@@ -679,9 +682,7 @@ onMounted(loadInitialData);
                       <button
                         type="button"
                         class="relative h-5 w-10 shrink-0 rounded-full transition"
-                        :class="
-                          form.allowLate ? 'bg-brand' : 'bg-[#e5e7eb]'
-                        "
+                        :class="form.allowLate ? 'bg-brand' : 'bg-[#e5e7eb]'"
                         :aria-pressed="form.allowLate"
                         @click="form.allowLate = !form.allowLate"
                       >
@@ -695,20 +696,6 @@ onMounted(loadInitialData);
                     </div>
                   </div>
                 </div>
-              </section>
-
-              <section
-                class="rounded-xl border border-warning-line bg-warning-soft p-4"
-              >
-                <p
-                  class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#ea580c]"
-                >
-                  Publikasi
-                </p>
-                <p class="mt-2 text-xs leading-5 text-warning">
-                  Konten akan langsung tersedia bagi siswa di
-                  <strong>{{ subject?.className }}</strong> setelah disimpan.
-                </p>
               </section>
 
               <section class="rounded-xl border border-border bg-surface p-4">
