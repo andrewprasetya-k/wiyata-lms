@@ -279,8 +279,8 @@ notifications.
 
 - `POST /assignments/submit/:assignmentId` - Submit assignment as current enrolled student
 - `GET /assignments/submit/:submissionId` - Get submission by ID for current teacher-owned subject class
-- `PATCH /assignments/submit/:submissionId` - Update current student's own submission
-- `DELETE /assignments/submit/:submissionId` - Delete current student's own submission
+- `PATCH /assignments/submit/:submissionId` - Update current student's own submission (blocked if already graded or assignment closed)
+- `DELETE /assignments/submit/:submissionId` - Withdraw current student's own submission (soft delete; blocked if already graded or assignment closed; resubmitting via `POST` restores it)
 
 ### Assessments (Grading)
 

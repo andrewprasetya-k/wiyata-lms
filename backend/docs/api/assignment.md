@@ -502,6 +502,11 @@ The web client uses absolute HTTP(S) `fileUrl` values directly for inline image/
 - **Auth Note:** Actor identity is taken from the JWT token. Sending identity fields in the body is ignored or no longer required.
 - **Authorization:** Submission must belong to the current JWT user and active school. Student must still be enrolled in the assignment class.
 - **Attachment Rule:** Every `mediaId` must exist, belong to the active school, and be owned/uploaded by the current student.
+- **Business Rules (mutability check, shared with Delete Submission below):**
+  - The submission must **not** already have an assessment. If it does, the request is rejected — a graded submission cannot be edited.
+  - The assignment must still be open: this passes if `deadline` is not set, if `allowLateSubmission` is `true`, or if the current time is still before `deadline`. Otherwise the request is rejected.
+  - These two checks run before any write; if either fails, no attachment or timestamp change is applied.
+- **Side Effect:** On success, `submittedAt` is updated to the current time (i.e. editing a submission re-stamps it as if freshly submitted), and if `mediaIds` is provided, the submission's attachments are fully replaced with the given list.
 - **Body:**
 ```json
 {
@@ -509,15 +514,57 @@ The web client uses absolute HTTP(S) `fileUrl` values directly for inline image/
   "mediaIds": ["uuid"]
 }
 ```
+- **Error Responses (business rule violations, `400 Bad Request`):**
+```json
+{ "error": "Cannot modify a graded submission" }
+```
+```json
+{ "error": "Cannot modify submission after the assignment is closed" }
+```
 
-### 14. Delete Submission
+### 14. Withdraw (Delete) Submission
 - **URL:** `/submit/:submissionId`
 - **Method:** `DELETE`
 - **Auth:** Required
 - **Role:** `student`
 - **School Context:** Requires `SchoolId` header
-- **Authorization:** Submission must belong to the current JWT user and active school. Student must still be enrolled in the assignment class.
-- **Note:** Soft delete, can be restored by resubmitting
+- **Auth Note:** Actor identity is taken from the JWT token.
+- **Request Parameters:** Path parameter `submissionId` only. No query parameters or request body.
+- **Authorization/Permission Requirements:** Resolved by `authorizeStudentForSubmission` before the service is called:
+  1. Caller must be an authenticated user with the `student` role (enforced by the route's `RequireRole` middleware).
+  2. The submission must belong to the active school (matching the `SchoolId` header).
+  3. The submission's `userId` must match the current JWT user — a student can only withdraw their own submission.
+  4. The submission's parent assignment must also belong to the active school.
+  5. The student must still have an active (non-left) enrollment in the assignment's subject class.
+  - Any failure returns `401` (no/invalid identity), `400` (missing `SchoolId` header), or `403` (school/ownership/enrollment mismatch), before the business-rule checks below ever run.
+- **Business Rules (a.k.a. "withdrawal eligibility" — same `validateSubmissionMutable` check used by Update Submission):**
+  1. **Not graded:** the submission must have no associated assessment. If an assessment exists, withdrawal is rejected with `400` and `{"error": "Cannot modify a graded submission"}`. There is no way to withdraw a graded submission through this endpoint.
+  2. **Assignment still open:** withdrawal is allowed only if the assignment has no `deadline`, or `allowLateSubmission` is `true`, or the current time is still before `deadline`. If the assignment is closed (a deadline has passed and late submission is not allowed), withdrawal is rejected with `400` and `{"error": "Cannot modify submission after the assignment is closed"}`.
+  - Both checks are evaluated in the service layer immediately before the delete transaction runs; if either fails, the transaction never starts and nothing is modified.
+- **State Transition:** `Submitted` → `Not Submitted`. Concretely:
+  - The submission row is **soft-deleted** (`deleted_at` is set) — the row is not physically removed.
+  - All attachment links for the submission (`edv.attachments` rows with `source_type = 'submission'`) are unlinked in the same transaction. The underlying uploaded media files/records are **not** deleted — only the link between the submission and its attachments is removed.
+  - Because `(sbm_asg_id, sbm_usr_id)` is a unique constraint on the submissions table, a subsequent `POST /submit/:assignmentId` (Submit) by the same student for the same assignment will **resurrect this same soft-deleted row** (same `submissionId`, `deleted_at` reset to null, `submittedAt` and attachments refreshed) rather than creating a new row. This is existing `Submit`/`UpsertSubmission` behavior, unchanged by this feature — withdrawal relies on it to make "withdraw then resubmit" work.
+  - After withdrawal, `GET /my-submission/:assignmentId` (see §12) reports `"status": "not_submitted", "submission": null` for this assignment/student, since the soft-deleted row is excluded by the default query scope.
+- **Side Effects:** None beyond the soft-delete and attachment unlink described above — no notification is sent to the teacher or student on withdrawal, and no separate audit-log entry is written (state is recoverable/inspectable only via the `deleted_at` timestamp on the submission row itself).
+- **Success Response:** `200 OK`
+```json
+{ "message": "Submission deleted" }
+```
+- **Error Responses:**
+  - `401 Unauthorized` — no valid JWT / user identity.
+  - `400 Bad Request` — missing `SchoolId` header, **or** one of the two business-rule violations above:
+    ```json
+    { "error": "Cannot modify a graded submission" }
+    ```
+    ```json
+    { "error": "Cannot modify submission after the assignment is closed" }
+    ```
+  - `403 Forbidden` — submission does not belong to the active school, does not belong to the current user, the assignment does not belong to the active school, or the student's enrollment is no longer active.
+  - `404 Not Found` — `submissionId` does not exist.
+- **Implementation Notes:**
+  - The success response message text (`"Submission deleted"`) has not been updated to reflect the "withdraw" terminology used by the frontend and in this document's business rules — the HTTP contract still reads as a deletion, not a withdrawal, even though the actual effect (soft-delete + resurrectable via resubmission) is a withdrawal in practice. This is a documentation/naming inconsistency in the current implementation, not a bug.
+  - The two business-rule error strings are matched by exact string comparison in the handler (`handleSubmissionMutationError`), the same pattern already used for the `"submission past due"` error on `Submit`. Changing either error message on the service side without updating the handler's `switch` statement will silently fall through to the generic `HandleError` path instead of returning the intended `400`.
 
 ---
 
