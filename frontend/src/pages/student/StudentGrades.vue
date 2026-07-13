@@ -25,13 +25,7 @@ const gradebook = ref<MyGradebookResponse | null>(null);
 const isLoading = ref(true);
 const errorMessage = ref("");
 
-const activeMembership = computed(() => auth.activeMembership);
-
-const schoolName = computed(
-  () => activeMembership.value?.school.name ?? "Sekolah aktif",
-);
 const schoolUserId = computed(() => auth.activeSchoolUserId);
-const activeClass = computed(() => activeClassStore.activeClass);
 const subjects = computed(() => gradebook.value?.subjects ?? []);
 const hasAssignments = computed(() =>
   subjects.value.some((subject) => subject.assignments.length > 0),
@@ -67,11 +61,6 @@ async function loadGrades(selectedClassId?: string) {
   } finally {
     isLoading.value = false;
   }
-}
-
-async function changeActiveClass(classId: string) {
-  activeClassStore.setActiveClass(classId);
-  await loadGrades(classId);
 }
 
 function getGradebookErrorMessage(error: unknown) {
@@ -123,51 +112,6 @@ onMounted(loadGrades);
           <p class="mt-2 max-w-3xl text-sm leading-6 text-muted">
             Rekap nilai dan feedback untuk kelas aktif.
           </p>
-        </div>
-
-        <div class="flex min-w-0 flex-col gap-2 sm:items-end">
-          <span class="text-[11px] text-muted">Kelas aktif</span>
-          <div class="flex min-w-0 items-center gap-2">
-            <div
-              class="flex min-w-0 items-center gap-2 rounded-lg border border-border bg-surface-subtle px-3 py-2"
-            >
-              <div
-                class="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-brand text-[10px] font-medium text-white"
-              >
-                {{ activeClass?.classTitle?.slice(0, 2).toUpperCase() || "EV" }}
-              </div>
-              <div class="min-w-0">
-                <p class="truncate text-xs font-medium text-foreground">
-                  {{
-                    activeClass?.classTitle ||
-                    gradebook?.class.className ||
-                    "Belum ada kelas aktif"
-                  }}
-                </p>
-                <p class="truncate text-[10px] text-muted">
-                  {{ schoolName }}
-                </p>
-              </div>
-              <PhCaretDown :size="13" class="shrink-0 text-muted" />
-            </div>
-            <select
-              v-if="activeClassStore.classes.length > 1"
-              class="min-w-0 rounded-lg border border-border bg-surface px-3 py-2 text-xs text-foreground outline-none transition focus:border-brand"
-              :value="activeClassStore.activeClassId ?? ''"
-              aria-label="Pilih kelas"
-              @change="
-                changeActiveClass(($event.target as HTMLSelectElement).value)
-              "
-            >
-              <option
-                v-for="item in activeClassStore.classes"
-                :key="item.enrollmentId"
-                :value="item.classId"
-              >
-                {{ item.classTitle || "Kelas" }}
-              </option>
-            </select>
-          </div>
         </div>
       </div>
     </header>
@@ -288,11 +232,7 @@ onMounted(loadGrades);
           <article class="rounded-xl bg-surface px-4 py-3">
             <div class="flex items-center justify-between gap-3">
               <p class="text-xs text-muted">Sudah dikumpulkan</p>
-              <PhCheckCircle
-                :size="17"
-                class="text-brand"
-                weight="duotone"
-              />
+              <PhCheckCircle :size="17" class="text-brand" weight="duotone" />
             </div>
             <p class="mt-2 text-2xl font-medium text-brand">
               {{ gradebook?.summary.submittedAssignmentCount ?? 0 }}
@@ -382,7 +322,7 @@ onMounted(loadGrades);
             </header>
 
             <div
-              class="grid gap-2 border-y border-[#f0ede8] bg-surface-subtle px-4 py-3 sm:grid-cols-3"
+              class="grid gap-2 border-y border-surface-strong bg-surface-subtle px-4 py-3 sm:grid-cols-3"
             >
               <span class="text-xs text-success">
                 <strong class="font-medium">{{ subject.gradedCount }}</strong>
@@ -401,7 +341,7 @@ onMounted(loadGrades);
             </div>
 
             <div
-              class="border-[#f0ede8] bg-surface px-4 py-3 text-xs leading-5 text-muted"
+              class="border-surface-strong bg-surface px-4 py-3 text-xs leading-5 text-muted"
             >
               <p
                 v-if="
@@ -426,7 +366,7 @@ onMounted(loadGrades);
               </p>
             </div>
 
-            <div v-else class="divide-y divide-[#f0ede8]">
+            <div v-else class="divide-y divide-surface-strong">
               <div
                 v-for="assignment in subject.assignments"
                 :key="assignment.assignmentId"
@@ -480,9 +420,7 @@ onMounted(loadGrades);
                     v-if="assignment.feedback"
                     class="mt-3 rounded-lg bg-surface-subtle px-3 py-2.5"
                   >
-                    <p class="text-[10px] font-medium text-muted">
-                      Feedback
-                    </p>
+                    <p class="text-[10px] font-medium text-muted">Feedback</p>
                     <p
                       class="mt-1 whitespace-pre-line wrap-break-word text-xs leading-5 text-foreground"
                     >

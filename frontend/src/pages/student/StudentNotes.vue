@@ -118,17 +118,14 @@ onMounted(loadNotes);
 
 <template>
   <main class="min-h-screen min-w-0 flex-1 bg-background">
-    <header
-      class="border-b border-border bg-surface px-5 py-4 sm:px-6 lg:px-8"
-    >
+    <header class="border-b border-border bg-surface px-5 py-4 sm:px-6 lg:px-8">
       <div
         class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
       >
         <div>
-          <p class="text-xs font-medium uppercase tracking-wide text-muted">
-            Ruang belajar pribadi
-          </p>
-          <h1 class="mt-1 text-2xl font-medium text-foreground">Catatan Saya</h1>
+          <h1 class="mt-1 text-2xl font-medium text-foreground">
+            Catatan Saya
+          </h1>
           <p class="mt-1 text-sm leading-6 text-muted">
             Baca kembali catatan materi yang masih tersedia di kelas aktifmu.
           </p>
@@ -278,9 +275,7 @@ onMounted(loadNotes);
                 <p class="mt-2 truncate text-sm font-medium text-foreground">
                   {{ note.materialTitle }}
                 </p>
-                <p
-                  class="mt-1 truncate whitespace-pre-line text-xs text-muted"
-                >
+                <p class="mt-1 truncate whitespace-pre-line text-xs text-muted">
                   {{ note.content }}
                 </p>
                 <p class="mt-2 text-[10px] text-[#b0aab7]">
@@ -301,9 +296,7 @@ onMounted(loadNotes);
             class="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-start sm:justify-between"
           >
             <div class="min-w-0">
-              <div
-                class="flex flex-wrap items-center gap-2 text-xs text-muted"
-              >
+              <div class="flex flex-wrap items-center gap-2 text-xs text-muted">
                 <span>{{ selectedNote.subjectName || "Mata pelajaran" }}</span>
                 <span class="text-[#d1ccd5]">/</span>
                 <span>{{ selectedNote.className || "Kelas" }}</span>
@@ -313,9 +306,7 @@ onMounted(loadNotes);
               >
                 {{ selectedNote.materialTitle }}
               </h2>
-              <p
-                class="mt-2 inline-flex items-center gap-2 text-xs text-muted"
-              >
+              <p class="mt-2 inline-flex items-center gap-2 text-xs text-muted">
                 <PhClock :size="14" />
                 Diperbarui {{ formatDateTime(selectedNote.updatedAt) }}
               </p>
