@@ -158,7 +158,7 @@ onUnmounted(() => window.removeEventListener("keydown", handleKeydown));
               <button
                 ref="cancelRef"
                 type="button"
-                class="flex-1 rounded-xl border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground-secondary transition hover:border-strong hover:bg-[#f9f8f7] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 sm:flex-none sm:min-w-22"
+                class="flex-1 rounded-xl border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground-secondary transition hover:border-border-strong hover:bg-[#f9f8f7] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 sm:flex-none sm:min-w-22"
                 @click="store.dismiss()"
               >
                 {{ store.options.cancelLabel ?? "Batal" }}

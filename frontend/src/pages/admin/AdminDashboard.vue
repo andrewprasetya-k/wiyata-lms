@@ -152,7 +152,7 @@ const quickActions = [
     icon: PhClipboardText,
     to: "/admin/enrollments",
     color: "bg-surface-strong text-muted",
-    border: "hover:border-strong",
+    border: "hover:border-border-strong",
   },
   {
     label: "Ruang Mengajar",

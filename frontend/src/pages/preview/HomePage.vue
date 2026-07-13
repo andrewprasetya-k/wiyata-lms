@@ -548,7 +548,7 @@ const screenshotSlots = [
             v-for="role in mainRoles"
             :id="role.anchor"
             :key="role.title"
-            class="rounded-2xl border border-border bg-surface px-8 py-9 transition hover:border-[#c7c3d7] hover:shadow-md"
+            class="rounded-2xl border border-border bg-surface px-8 py-9 transition hover:border-border-strong hover:shadow-md"
           >
             <p
               class="text-xs font-semibold uppercase tracking-widest text-brand"
@@ -709,7 +709,7 @@ const screenshotSlots = [
               <RouterLink
                 to="/login"
                 id="final-cta-masuk"
-                class="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-[#e0daf7] bg-surface/70 px-7 text-sm font-medium text-muted transition-colors hover:border-[#c7c3d7] hover:text-foreground"
+                class="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-[#e0daf7] bg-surface/70 px-7 text-sm font-medium text-muted transition-colors hover:border-border-strong hover:text-foreground"
               >
                 Masuk ke Wiyata
                 <PhArrowRight :size="15" />

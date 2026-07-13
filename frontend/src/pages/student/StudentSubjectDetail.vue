@@ -177,7 +177,7 @@ onMounted(loadSubject);
             :class="
               activeTab === tab.key
                 ? 'border-brand font-medium text-brand'
-                : 'border-transparent text-muted hover:border-[#d8d5df] hover:text-foreground-secondary'
+                : 'border-transparent text-muted hover:border-border-strong hover:text-foreground-secondary'
             "
             type="button"
             @click="activeTab = tab.key"
@@ -281,7 +281,7 @@ onMounted(loadSubject);
             <article
               v-for="material in materials"
               :key="material.materialId"
-              class="group flex min-w-0 cursor-pointer flex-col rounded-xl border border-border bg-surface p-4 transition hover:-translate-y-0.5 hover:border-[#c7c3ef] hover:shadow-[0_14px_30px_rgba(66,55,40,0.07)]"
+              class="group flex min-w-0 cursor-pointer flex-col rounded-xl border border-border bg-surface p-4 transition hover:-translate-y-0.5 hover:border-border-strong hover:shadow-[0_14px_30px_rgba(66,55,40,0.07)]"
               tabindex="0"
               @click="
                 router.push(
@@ -418,7 +418,7 @@ onMounted(loadSubject);
             <article
               v-for="assignment in assignments"
               :key="assignment.assignmentId"
-              class="group cursor-pointer rounded-xl border border-border bg-surface p-4 transition hover:border-[#c7c3ef] hover:shadow-[0_10px_24px_rgba(66,55,40,0.06)]"
+              class="group cursor-pointer rounded-xl border border-border bg-surface p-4 transition hover:border-border-strong hover:shadow-[0_10px_24px_rgba(66,55,40,0.06)]"
               tabindex="0"
               @click="
                 router.push(

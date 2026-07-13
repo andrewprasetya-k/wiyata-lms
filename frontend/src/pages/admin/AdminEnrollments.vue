@@ -899,13 +899,13 @@ onMounted(async () => {
                     class="flex items-start gap-3 rounded-lg border border-border bg-surface-subtle p-3 transition"
                     :class="
                       inferPlacementRole(member)
-                        ? 'cursor-pointer hover:border-strong'
+                        ? 'cursor-pointer hover:border-border-strong'
                         : 'cursor-not-allowed opacity-65'
                     "
                   >
                     <input
                       type="checkbox"
-                      class="mt-1 h-4 w-4 shrink-0 rounded border-[#d1d5db] text-brand focus:ring-brand"
+                      class="mt-1 h-4 w-4 shrink-0 rounded border-border-strong text-brand focus:ring-brand"
                       :checked="
                         selectedSchoolUserIds.includes(member.schoolUserId)
                       "

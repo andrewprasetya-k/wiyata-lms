@@ -205,7 +205,7 @@ function isSameContext(
     <button
       ref="triggerEl"
       type="button"
-      class="flex items-center gap-2.5 rounded-xl border border-border bg-surface-subtle px-2.5 py-2 text-left transition hover:border-[#d8d2c6] hover:bg-surface-strong focus:outline-none focus:ring-2 focus:ring-brand-line focus:ring-offset-2 focus:ring-offset-white disabled:cursor-default disabled:opacity-80"
+      class="flex items-center gap-2.5 rounded-xl border border-border bg-surface-subtle px-2.5 py-2 text-left transition hover:border-border-strong hover:bg-surface-strong focus:outline-none focus:ring-2 focus:ring-brand-line focus:ring-offset-2 focus:ring-offset-white disabled:cursor-default disabled:opacity-80"
       :class="isOpen ? 'border-brand-line bg-brand-soft' : ''"
       :disabled="!hasMultipleContexts || isSwitching"
       :aria-haspopup="hasMultipleContexts ? 'menu' : undefined"

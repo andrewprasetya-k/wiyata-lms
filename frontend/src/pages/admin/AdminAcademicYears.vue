@@ -694,7 +694,7 @@ watch(selectedWeightSubjectId, () => {
               v-model="academicYearForm.academicYearName"
               type="text"
               placeholder="Contoh: 2026/2027"
-              class="min-w-0 flex-1 rounded-lg border border-[#e5e7eb] bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+              class="min-w-0 flex-1 rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand-line"
             />
             <button
               type="submit"
@@ -722,7 +722,7 @@ watch(selectedWeightSubjectId, () => {
             </p>
             <div
               v-else-if="academicYears.length === 0"
-              class="rounded-lg border border-dashed border-[#d1d5db] bg-[#fafafa] px-4 py-8 text-center"
+              class="rounded-lg border border-dashed border-border-strong bg-surface-subtle px-4 py-8 text-center"
             >
               <PhCalendarBlank class="mx-auto h-7 w-7 text-muted" weight="duotone" />
               <p class="mt-3 text-sm font-semibold text-foreground">Belum ada tahun ajaran</p>
@@ -802,7 +802,7 @@ watch(selectedWeightSubjectId, () => {
             Tahun ajaran
             <select
               v-model="selectedAcademicYearId"
-              class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-surface px-4 py-3 text-sm text-foreground outline-none transition focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+              class="mt-2 w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition focus:border-brand focus:ring-2 focus:ring-brand-line"
               @change="loadTerms"
             >
               <option value="" disabled>Pilih tahun ajaran</option>
@@ -824,7 +824,7 @@ watch(selectedWeightSubjectId, () => {
               v-model="termForm.termName"
               type="text"
               placeholder="Contoh: Semester Ganjil"
-              class="min-w-0 flex-1 rounded-lg border border-[#e5e7eb] bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+              class="min-w-0 flex-1 rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand-line"
             />
             <button
               type="submit"
@@ -851,7 +851,7 @@ watch(selectedWeightSubjectId, () => {
             </p>
             <div
               v-else-if="!selectedAcademicYearId"
-              class="rounded-lg border border-dashed border-[#d1d5db] bg-[#fafafa] px-4 py-8 text-center"
+              class="rounded-lg border border-dashed border-border-strong bg-surface-subtle px-4 py-8 text-center"
             >
               <PhCalendarBlank class="mx-auto h-7 w-7 text-muted" weight="duotone" />
               <p class="mt-3 text-sm font-semibold text-foreground">Pilih tahun ajaran</p>
@@ -859,7 +859,7 @@ watch(selectedWeightSubjectId, () => {
             </div>
             <div
               v-else-if="terms.length === 0"
-              class="rounded-lg border border-dashed border-[#d1d5db] bg-[#fafafa] px-4 py-8 text-center"
+              class="rounded-lg border border-dashed border-border-strong bg-surface-subtle px-4 py-8 text-center"
             >
               <PhCalendarBlank class="mx-auto h-7 w-7 text-muted" weight="duotone" />
               <p class="mt-3 text-sm font-semibold text-foreground">Belum ada semester</p>
@@ -970,13 +970,13 @@ watch(selectedWeightSubjectId, () => {
               v-model="subjectForm.subjectName"
               type="text"
               placeholder="Nama mata pelajaran"
-              class="min-w-0 rounded-lg border border-[#e5e7eb] bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+              class="min-w-0 rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand-line"
             />
             <input
               v-model="subjectForm.subjectCode"
               type="text"
               placeholder="Kode"
-              class="min-w-0 rounded-lg border border-[#e5e7eb] bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+              class="min-w-0 rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand-line"
             />
             <div class="sm:col-span-2">
               <label class="text-xs font-semibold text-muted">
@@ -986,7 +986,7 @@ watch(selectedWeightSubjectId, () => {
                 <input
                   v-model="subjectColorPickerValue"
                   type="color"
-                  class="h-11 w-14 rounded-lg border border-[#e5e7eb] bg-surface p-1"
+                  class="h-11 w-14 rounded-lg border border-border bg-surface p-1"
                   aria-label="Pilih warna mata pelajaran"
                 />
                 <div class="flex min-w-0 items-center gap-3">
@@ -999,7 +999,7 @@ watch(selectedWeightSubjectId, () => {
                     v-model="subjectForm.color"
                     type="text"
                     placeholder="#4f46e5"
-                    class="min-w-0 flex-1 rounded-lg border border-[#e5e7eb] bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                    class="min-w-0 flex-1 rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand-line"
                   />
                 </div>
               </div>
@@ -1047,7 +1047,7 @@ watch(selectedWeightSubjectId, () => {
             </p>
             <div
               v-else-if="subjects.length === 0"
-              class="rounded-lg border border-dashed border-[#d1d5db] bg-[#fafafa] px-4 py-8 text-center"
+              class="rounded-lg border border-dashed border-border-strong bg-surface-subtle px-4 py-8 text-center"
             >
               <PhBookOpen class="mx-auto h-7 w-7 text-muted" weight="duotone" />
               <p class="mt-3 text-sm font-semibold text-foreground">Belum ada mata pelajaran</p>
@@ -1129,7 +1129,7 @@ watch(selectedWeightSubjectId, () => {
               v-model="categoryForm.categoryName"
               type="text"
               placeholder="Contoh: Kuis"
-              class="min-w-0 flex-1 rounded-lg border border-[#e5e7eb] bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+              class="min-w-0 flex-1 rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand-line"
             />
             <button
               type="submit"
@@ -1156,7 +1156,7 @@ watch(selectedWeightSubjectId, () => {
             </p>
             <div
               v-else-if="categories.length === 0"
-              class="rounded-lg border border-dashed border-[#d1d5db] bg-[#fafafa] px-4 py-8 text-center"
+              class="rounded-lg border border-dashed border-border-strong bg-surface-subtle px-4 py-8 text-center"
             >
               <PhTag class="mx-auto h-7 w-7 text-muted" weight="duotone" />
               <p class="mt-3 text-sm font-semibold text-foreground">Belum ada kategori tugas</p>
@@ -1208,14 +1208,14 @@ watch(selectedWeightSubjectId, () => {
 
         <div
           v-if="subjects.length === 0"
-          class="mt-5 rounded-lg border border-dashed border-[#d1d5db] bg-[#fafafa] p-4 text-sm leading-6 text-muted"
+          class="mt-5 rounded-lg border border-dashed border-border-strong bg-surface-subtle p-4 text-sm leading-6 text-muted"
         >
           Tambahkan mata pelajaran terlebih dahulu sebelum mengatur bobot nilai.
         </div>
 
         <div
           v-else-if="categories.length === 0"
-          class="mt-5 rounded-lg border border-dashed border-[#d1d5db] bg-[#fafafa] p-4 text-sm leading-6 text-muted"
+          class="mt-5 rounded-lg border border-dashed border-border-strong bg-surface-subtle p-4 text-sm leading-6 text-muted"
         >
           Tambahkan kategori tugas terlebih dahulu sebelum mengatur bobot nilai.
         </div>
@@ -1229,7 +1229,7 @@ watch(selectedWeightSubjectId, () => {
               Mata pelajaran
               <select
                 v-model="selectedWeightSubjectId"
-                class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-surface px-4 py-3 text-sm text-foreground outline-none transition focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                class="mt-2 w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition focus:border-brand focus:ring-2 focus:ring-brand-line"
               >
                 <option value="" disabled>Pilih mata pelajaran</option>
                 <option
@@ -1350,7 +1350,7 @@ watch(selectedWeightSubjectId, () => {
                     min="0"
                     max="100"
                     step="0.01"
-                    class="mt-1 w-full rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-3 py-2 text-right text-sm text-foreground outline-none transition focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                    class="mt-1 w-full rounded-lg border border-border bg-surface-subtle px-3 py-2 text-right text-sm text-foreground outline-none transition focus:border-brand focus:ring-2 focus:ring-brand-line"
                   />
                 </label>
               </div>

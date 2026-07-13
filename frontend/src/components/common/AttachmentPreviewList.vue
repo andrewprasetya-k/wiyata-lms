@@ -281,7 +281,7 @@ function responseStatus(error: unknown) {
           >
             <button
               v-if="canSummarize(attachment)"
-              class="inline-flex items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-xs font-medium text-[#5b4b7a] transition hover:border-[#d8d1c5] hover:bg-background focus:outline-none focus:ring-2 focus:ring-brand/25 disabled:cursor-not-allowed disabled:opacity-60"
+              class="inline-flex items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-xs font-medium text-[#5b4b7a] transition hover:border-border-strong hover:bg-background focus:outline-none focus:ring-2 focus:ring-brand/25 disabled:cursor-not-allowed disabled:opacity-60"
               type="button"
               :disabled="isSummaryLoading(attachment.mediaId)"
               @click="summarizeAttachment(attachment)"

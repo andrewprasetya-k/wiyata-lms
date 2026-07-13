@@ -163,8 +163,8 @@ function isInternalLink(link?: string | null) {
       >
         <div class="mt-1 h-2 w-2 shrink-0 rounded-full bg-[#e5e7eb]" />
         <div class="min-w-0 flex-1 space-y-2">
-          <div class="h-3 w-20 animate-pulse rounded bg-[#e9e5dd]" />
-          <div class="h-4 w-3/4 animate-pulse rounded bg-[#e9e5dd]" />
+          <div class="h-3 w-20 animate-pulse rounded bg-surface-strong" />
+          <div class="h-4 w-3/4 animate-pulse rounded bg-surface-strong" />
           <div class="h-3 w-1/2 animate-pulse rounded bg-[#eeeae3]" />
         </div>
       </div>

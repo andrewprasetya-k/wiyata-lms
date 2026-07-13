@@ -307,10 +307,10 @@ onMounted(() => {
         aria-label="Memuat komentar"
       >
         <div v-for="item in 2" :key="item" class="flex animate-pulse gap-3">
-          <div class="h-7 w-7 shrink-0 rounded-full bg-[#e9e5dd]" />
+          <div class="h-7 w-7 shrink-0 rounded-full bg-surface-strong" />
           <div class="min-w-0 flex-1 space-y-2">
             <div class="flex items-center gap-2">
-              <div class="h-3 w-24 rounded bg-[#e9e5dd]" />
+              <div class="h-3 w-24 rounded bg-surface-strong" />
               <div class="h-2.5 w-12 rounded bg-[#eeeae3]" />
             </div>
             <div class="h-3 w-3/4 rounded bg-[#eeeae3]" />
@@ -433,10 +433,10 @@ onMounted(() => {
       aria-label="Memuat diskusi"
     >
       <div v-for="item in 2" :key="item" class="flex animate-pulse gap-3">
-        <div class="h-8 w-8 shrink-0 rounded-full bg-[#e9e5dd]" />
+        <div class="h-8 w-8 shrink-0 rounded-full bg-surface-strong" />
         <div class="min-w-0 flex-1 space-y-2">
           <div class="flex items-center gap-2">
-            <div class="h-3 w-24 rounded bg-[#e9e5dd]" />
+            <div class="h-3 w-24 rounded bg-surface-strong" />
             <div class="h-2.5 w-12 rounded bg-[#eeeae3]" />
           </div>
           <div class="h-3 w-4/5 rounded bg-[#eeeae3]" />

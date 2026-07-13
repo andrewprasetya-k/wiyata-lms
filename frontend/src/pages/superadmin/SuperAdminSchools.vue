@@ -349,7 +349,7 @@ onMounted(() => {
                 v-model="searchQuery"
                 type="search"
                 placeholder="Cari nama, kode, email..."
-                class="w-full rounded-lg border border-[#e5e7eb] bg-surface py-2.5 pl-10 pr-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                class="w-full rounded-lg border border-border bg-surface py-2.5 pl-10 pr-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand-line"
                 @input="onSearchInput"
               />
             </label>
@@ -555,7 +555,7 @@ onMounted(() => {
                 <input
                   v-model="schoolForm.schoolName"
                   type="text"
-                  class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                  class="mt-2 w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand-line"
                   placeholder="Contoh: SMA Wiyata"
                 />
               </label>
@@ -565,7 +565,7 @@ onMounted(() => {
                 <input
                   v-model="schoolForm.schoolCode"
                   type="text"
-                  class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                  class="mt-2 w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand-line"
                   placeholder="Kosongkan untuk kode otomatis"
                 />
               </label>
@@ -575,7 +575,7 @@ onMounted(() => {
                 <input
                   v-model="schoolForm.schoolEmail"
                   type="email"
-                  class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                  class="mt-2 w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand-line"
                   placeholder="admin@sekolah.sch.id"
                 />
               </label>
@@ -585,7 +585,7 @@ onMounted(() => {
                 <input
                   v-model="schoolForm.schoolPhone"
                   type="tel"
-                  class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                  class="mt-2 w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand-line"
                   placeholder="081234567890"
                 />
               </label>
@@ -595,7 +595,7 @@ onMounted(() => {
                 <input
                   v-model="schoolForm.schoolWebsite"
                   type="url"
-                  class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                  class="mt-2 w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand-line"
                   placeholder="https://sekolah.sch.id"
                 />
               </label>
@@ -605,7 +605,7 @@ onMounted(() => {
                 <textarea
                   v-model="schoolForm.schoolAddress"
                   rows="4"
-                  class="mt-2 w-full resize-none rounded-lg border border-[#e5e7eb] bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                  class="mt-2 w-full resize-none rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand-line"
                   placeholder="Alamat lengkap sekolah"
                 />
               </label>
@@ -625,7 +625,7 @@ onMounted(() => {
                   :class="
                     adminMode === 'new'
                       ? 'border-[#ea580c] bg-warning-soft'
-                      : 'border-[#e5e7eb] bg-surface hover:bg-[#fafafa]'
+                      : 'border-border bg-surface hover:bg-surface-subtle'
                   "
                 >
                   <input
@@ -649,7 +649,7 @@ onMounted(() => {
                   :class="
                     adminMode === 'existing'
                       ? 'border-[#ea580c] bg-warning-soft'
-                      : 'border-[#e5e7eb] bg-surface hover:bg-[#fafafa]'
+                      : 'border-border bg-surface hover:bg-surface-subtle'
                   "
                 >
                   <input
@@ -675,7 +675,7 @@ onMounted(() => {
                   <input
                     v-model="newAdminForm.fullName"
                     type="text"
-                    class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                    class="mt-2 w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand-line"
                     placeholder="Admin Sekolah"
                   />
                 </label>
@@ -685,7 +685,7 @@ onMounted(() => {
                   <input
                     v-model="newAdminForm.email"
                     type="email"
-                    class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                    class="mt-2 w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand-line"
                     placeholder="admin@sma.sch.id"
                   />
                 </label>
@@ -695,7 +695,7 @@ onMounted(() => {
                   <input
                     v-model="newAdminForm.password"
                     type="password"
-                    class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                    class="mt-2 w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand-line"
                     placeholder="Minimal 6 karakter"
                   />
                 </label>
@@ -707,12 +707,12 @@ onMounted(() => {
                   <input
                     v-model="existingAdminForm.userId"
                     type="text"
-                    class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                    class="mt-2 w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand-line"
                     placeholder="UUID user global"
                   />
                 </label>
                 <p
-                  class="rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-3 py-2 text-xs leading-5 text-muted"
+                  class="rounded-lg border border-border bg-surface-subtle px-3 py-2 text-xs leading-5 text-muted"
                 >
                   Ambil User ID dari data akun global yang sudah ada. Setelah
                   submit, akun tersebut mendapat role admin sekolah untuk

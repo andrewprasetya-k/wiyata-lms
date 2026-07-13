@@ -157,7 +157,7 @@ onMounted(() => {
                 v-model="searchQuery"
                 type="search"
                 placeholder="Cari nama atau email..."
-                class="w-full rounded-lg border border-[#e5e7eb] bg-surface py-2.5 pl-10 pr-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                class="w-full rounded-lg border border-border bg-surface py-2.5 pl-10 pr-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand-line"
                 @input="onSearchInput"
               />
             </label>

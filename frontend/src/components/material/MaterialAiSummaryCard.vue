@@ -98,7 +98,7 @@ onBeforeUnmount(() => {
       </div>
 
       <button
-        class="inline-flex items-center rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-medium text-[#5b4b7a] transition hover:border-[#d8d1c5] hover:bg-background focus:outline-none focus:ring-2 focus:ring-brand/25 disabled:cursor-not-allowed disabled:opacity-50"
+        class="inline-flex items-center rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-medium text-[#5b4b7a] transition hover:border-border-strong hover:bg-background focus:outline-none focus:ring-2 focus:ring-brand/25 disabled:cursor-not-allowed disabled:opacity-50"
         type="button"
         :disabled="!trimmedSummary"
         @click="copySummary"

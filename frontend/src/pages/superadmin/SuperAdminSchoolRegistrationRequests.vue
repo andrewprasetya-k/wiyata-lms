@@ -296,7 +296,7 @@ onMounted(() => {
               :class="
                 activeStatus === tab.value
                   ? 'border-[#ea580c] bg-warning-soft text-[#c2410c]'
-                  : 'border-[#e5e7eb] bg-surface text-muted hover:text-foreground'
+                  : 'border-border bg-surface text-muted hover:text-foreground'
               "
               @click="selectStatus(tab.value)"
             >
@@ -425,7 +425,7 @@ onMounted(() => {
 
           <div
             v-else-if="!selectedRequest"
-            class="mt-5 rounded-lg border border-dashed border-[#d1d5db] bg-[#fafafa] px-4 py-8 text-center"
+            class="mt-5 rounded-lg border border-dashed border-border-strong bg-surface-subtle px-4 py-8 text-center"
           >
             <PhClipboardText class="mx-auto h-7 w-7 text-muted" weight="duotone" />
             <p class="mt-3 text-sm font-semibold text-foreground">Belum ada request dipilih</p>
@@ -543,7 +543,7 @@ onMounted(() => {
                 Kode sekolah
                 <input
                   v-model="approveForm.schoolCode"
-                  class="mt-2 w-full rounded-lg border border-[#d1d5db] bg-surface px-3 py-2.5 text-sm outline-none focus:border-success"
+                  class="mt-2 w-full rounded-lg border border-border-strong bg-surface px-3 py-2.5 text-sm outline-none focus:border-success"
                   placeholder="SMWM"
                 />
               </label>
@@ -551,14 +551,14 @@ onMounted(() => {
                 Nama sekolah
                 <input
                   v-model="approveForm.schoolName"
-                  class="mt-2 w-full rounded-lg border border-[#d1d5db] bg-surface px-3 py-2.5 text-sm outline-none focus:border-success"
+                  class="mt-2 w-full rounded-lg border border-border-strong bg-surface px-3 py-2.5 text-sm outline-none focus:border-success"
                 />
               </label>
               <label class="block text-sm font-medium text-foreground-secondary">
                 Nama admin
                 <input
                   v-model="approveForm.adminName"
-                  class="mt-2 w-full rounded-lg border border-[#d1d5db] bg-surface px-3 py-2.5 text-sm outline-none focus:border-success"
+                  class="mt-2 w-full rounded-lg border border-border-strong bg-surface px-3 py-2.5 text-sm outline-none focus:border-success"
                 />
               </label>
               <label class="block text-sm font-medium text-foreground-secondary">
@@ -566,7 +566,7 @@ onMounted(() => {
                 <input
                   v-model="approveForm.adminEmail"
                   type="email"
-                  class="mt-2 w-full rounded-lg border border-[#d1d5db] bg-surface px-3 py-2.5 text-sm outline-none focus:border-success"
+                  class="mt-2 w-full rounded-lg border border-border-strong bg-surface px-3 py-2.5 text-sm outline-none focus:border-success"
                 />
               </label>
               <label class="block text-sm font-medium text-foreground-secondary">
@@ -574,7 +574,7 @@ onMounted(() => {
                 <textarea
                   v-model="approveForm.note"
                   rows="3"
-                  class="mt-2 w-full resize-none rounded-lg border border-[#d1d5db] bg-surface px-3 py-2.5 text-sm outline-none focus:border-success"
+                  class="mt-2 w-full resize-none rounded-lg border border-border-strong bg-surface px-3 py-2.5 text-sm outline-none focus:border-success"
                   placeholder="Opsional"
                 />
               </label>

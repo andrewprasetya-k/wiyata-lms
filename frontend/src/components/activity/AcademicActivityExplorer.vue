@@ -208,8 +208,8 @@ function selectRange(value: "today" | "7d" | "30d") {
           >
             <div class="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-[#e5e7eb]" />
             <div class="min-w-0 flex-1 space-y-2">
-              <div class="h-3 w-24 animate-pulse rounded bg-[#e9e5dd]" />
-              <div class="h-4 w-3/4 animate-pulse rounded bg-[#e9e5dd]" />
+              <div class="h-3 w-24 animate-pulse rounded bg-surface-strong" />
+              <div class="h-4 w-3/4 animate-pulse rounded bg-surface-strong" />
               <div class="h-3 w-1/2 animate-pulse rounded bg-[#eeeae3]" />
             </div>
           </div>
