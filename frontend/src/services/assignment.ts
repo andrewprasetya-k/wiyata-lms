@@ -15,6 +15,10 @@ export async function getSubjectAssignments(subjectClassId: string, page = 1, li
       params: { page, limit },
     }
   )
+  // Backend returns "data": null (not []) for an empty collection — see
+  // internal/handler/assignment_handler.go's `var assignments []dto...`.
+  // Normalize here so every caller can safely treat this as an array.
+  data.data.data = data.data.data || []
   return data
 }
 
