@@ -191,7 +191,7 @@ onMounted(loadWorkspace);
             <PhArrowLeft :size="15" />
             Mata pelajaran
           </RouterLink>
-          <span class="text-[#d1d5db]">/</span>
+          <span class="text-border-strong">/</span>
           <span class="min-w-0 truncate font-medium text-foreground">
             {{
               subject?.subjectName ??
@@ -315,32 +315,36 @@ onMounted(loadWorkspace);
 
       <template v-else>
         <section class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <article class="rounded-xl border border-border bg-surface shadow-sm p-4">
+          <article
+            class="rounded-xl border border-border bg-surface shadow-sm p-4"
+          >
             <PhUsersThree :size="21" class="text-[#059669]" weight="duotone" />
             <p class="mt-3 text-xs text-muted">Siswa</p>
             <p class="mt-1 text-2xl font-semibold text-foreground">
               {{ subject.studentCount }}
             </p>
           </article>
-          <article class="rounded-xl border border-border bg-surface shadow-sm p-4">
+          <article
+            class="rounded-xl border border-border bg-surface shadow-sm p-4"
+          >
             <PhFileText :size="21" class="text-[#4f8ef7]" weight="duotone" />
             <p class="mt-3 text-xs text-muted">Materi</p>
             <p class="mt-1 text-2xl font-semibold text-foreground">
               {{ subject.materialCount }}
             </p>
           </article>
-          <article class="rounded-xl border border-border bg-surface shadow-sm p-4">
-            <PhClipboardText
-              :size="21"
-              class="text-brand"
-              weight="duotone"
-            />
+          <article
+            class="rounded-xl border border-border bg-surface shadow-sm p-4"
+          >
+            <PhClipboardText :size="21" class="text-brand" weight="duotone" />
             <p class="mt-3 text-xs text-muted">Tugas</p>
             <p class="mt-1 text-2xl font-semibold text-foreground">
               {{ subject.assignmentCount }}
             </p>
           </article>
-          <article class="rounded-xl border border-border bg-surface shadow-sm p-4">
+          <article
+            class="rounded-xl border border-border bg-surface shadow-sm p-4"
+          >
             <PhWarningCircle
               :size="21"
               class="text-[#ea580c]"
@@ -379,7 +383,7 @@ onMounted(loadWorkspace);
             <div v-if="activeTab === 'materials'" class="space-y-3">
               <div
                 v-if="materials.length === 0"
-                class="rounded-lg border border-border bg-surface-subtle p-8 text-center"
+                class="rounded-lg p-8 text-center"
               >
                 <div
                   class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
@@ -455,7 +459,7 @@ onMounted(loadWorkspace);
             <div v-else-if="activeTab === 'assignments'" class="space-y-3">
               <div
                 v-if="assignments.length === 0"
-                class="rounded-lg border border-border bg-surface-subtle p-8 text-center"
+                class="rounded-lg p-8 text-center"
               >
                 <div
                   class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
@@ -590,7 +594,9 @@ onMounted(loadWorkspace);
                 <span class="rounded-lg bg-[#eef7f2] px-3 py-2 text-[#2f7d5c]">
                   {{ submissionSummary.gradedCount }} sudah dinilai
                 </span>
-                <span class="rounded-lg bg-warning-soft px-3 py-2 text-[#9f6b1d]">
+                <span
+                  class="rounded-lg bg-warning-soft px-3 py-2 text-[#9f6b1d]"
+                >
                   {{ submissionSummary.pendingCount }} perlu dinilai
                 </span>
                 <span class="rounded-lg bg-[#fff1ed] px-3 py-2 text-[#b86845]">
@@ -619,7 +625,7 @@ onMounted(loadWorkspace);
 
               <div
                 v-else-if="submissionCount === 0"
-                class="rounded-lg border border-border bg-surface p-8 text-center"
+                class="rounded-lg p-8 text-center"
               >
                 <div
                   class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
@@ -701,7 +707,9 @@ onMounted(loadWorkspace);
                     class="flex flex-col gap-3 rounded-lg border border-border bg-[#faf8f4] px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
                   >
                     <div class="min-w-0">
-                      <h3 class="truncate text-sm font-semibold text-foreground">
+                      <h3
+                        class="truncate text-sm font-semibold text-foreground"
+                      >
                         {{ submission.studentName }}
                       </h3>
                       <p class="mt-1 text-xs text-muted">
