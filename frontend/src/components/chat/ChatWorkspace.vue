@@ -1496,7 +1496,7 @@ function formatDateTime(value?: string | null) {
 
                   <div
                     v-else-if="threadError"
-                    class="rounded-2xl border border-red-100 bg-surface px-4 py-6 text-center"
+                    class="rounded-2xl border border-danger-line bg-surface px-4 py-6 text-center"
                   >
                     <p class="text-sm font-semibold text-danger">
                       {{ threadError }}

@@ -268,7 +268,7 @@ watch(
 
         <div
           v-else-if="groupInfoError"
-          class="rounded-xl border border-red-100 bg-red-50 px-4 py-5 text-sm text-danger"
+          class="rounded-xl border border-danger-line bg-danger-soft px-4 py-5 text-sm text-danger"
         >
           <p>{{ groupInfoError }}</p>
           <button
@@ -283,7 +283,7 @@ watch(
         <template v-else>
           <p
             v-if="groupActionError"
-            class="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-danger"
+            class="mb-4 rounded-lg bg-danger-soft px-3 py-2 text-sm text-danger"
           >
             {{ groupActionError }}
           </p>
@@ -465,7 +465,7 @@ watch(
                     currentUserIsGroupAdmin && member.userId !== currentUserId
                   "
                   type="button"
-                  class="rounded-lg border border-red-100 px-3 py-1.5 text-xs font-semibold text-danger transition hover:bg-red-50 disabled:opacity-60"
+                  class="rounded-lg border border-danger-line px-3 py-1.5 text-xs font-semibold text-danger transition hover:bg-danger-soft disabled:opacity-60"
                   :disabled="removingMemberId === member.userId"
                   @click="removeMember(member)"
                 >
@@ -484,7 +484,7 @@ watch(
       <div class="border-t border-border px-5 py-4">
         <button
           type="button"
-          class="w-full rounded-lg border border-red-100 px-4 py-2 text-sm font-semibold text-danger transition hover:bg-red-50 disabled:opacity-60"
+          class="w-full rounded-lg border border-danger-line px-4 py-2 text-sm font-semibold text-danger transition hover:bg-danger-soft disabled:opacity-60"
           :disabled="isLeavingGroup"
           @click="leaveSelectedGroup"
         >

@@ -157,7 +157,7 @@ function isActive(to: string) {
     <div class="shrink-0 space-y-2 px-2 py-4">
       <!-- Logout -->
       <button
-        class="relative flex h-10 items-center rounded-xl text-danger transition hover:bg-red-600 hover:text-white/95 cursor-pointer"
+        class="relative flex h-10 items-center rounded-xl text-danger transition hover:bg-danger hover:text-white/95 cursor-pointer"
         :class="
           isCollapsed ? 'mx-auto w-4 justify-center px-6' : 'w-full gap-3 px-3'
         "
