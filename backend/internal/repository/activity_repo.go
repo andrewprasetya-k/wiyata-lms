@@ -234,7 +234,7 @@ func (r *activityRepository) GetStudentAssignmentGraded(userID string, schoolID 
 			asm.asm_id AS source_id,
 			'assignment_graded' AS activity_type,
 			COALESCE(a.asg_title, 'Tugas') AS title,
-			CONCAT('Nilai tugas ', sub.sub_name, ' sudah tersedia') AS description,
+			CONCAT('Tugas ', sub.sub_name, ' sudah dinilai') AS description,
 			asm.assessed_at AS event_at,
 			'normal' AS priority,
 			sub.sub_id AS subject_id,
