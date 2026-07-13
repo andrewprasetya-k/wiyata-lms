@@ -2,7 +2,6 @@
 import { computed, onMounted, ref } from "vue";
 import {
   PhBookOpen,
-  PhCaretDown,
   PhChartBar,
   PhCheckCircle,
   PhClock,

@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import { RouterLink } from "vue-router";
 import { useAuthStore } from "../../stores/auth";
+import { useLogoutConfirm } from "../../composables/useLogoutConfirm";
 import {
   PhList,
   PhX,
@@ -17,12 +18,18 @@ import {
 import Lenis from "lenis";
 
 const auth = useAuthStore();
+const { confirmLogout } = useLogoutConfirm({ redirectTo: false });
 const isSchoolless = computed(
   () => auth.isAuthenticated && !auth.activeContext,
 );
 
 // ── Mobile menu state
 const mobileOpen = ref(false);
+
+async function handleMobileLogout() {
+  mobileOpen.value = false;
+  await confirmLogout();
+}
 
 // ── Lenis smooth scroll — scoped to this page only
 let lenis: Lenis | null = null;
@@ -256,7 +263,7 @@ const screenshotSlots = [
             <button
               type="button"
               class="rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-foreground-secondary transition-colors hover:text-foreground"
-              @click="auth.logout()"
+              @click="confirmLogout"
             >
               Keluar
             </button>
@@ -332,10 +339,7 @@ const screenshotSlots = [
                 <button
                   type="button"
                   class="w-full rounded-md px-3 py-2.5 text-left text-sm text-muted hover:bg-background hover:text-foreground"
-                  @click="
-                    auth.logout();
-                    mobileOpen = false;
-                  "
+                  @click="handleMobileLogout"
                 >
                   Keluar
                 </button>

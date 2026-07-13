@@ -5,6 +5,8 @@ import {
   PhBuildings,
   PhCheckCircle,
   PhEnvelopeSimple,
+  PhEye,
+  PhEyeSlash,
   PhGlobe,
   PhIdentificationBadge,
   PhMagnifyingGlass,
@@ -15,6 +17,7 @@ import {
 import { useToastStore } from "../../stores/toast";
 import { getApiError } from "../../utils/error";
 import PaginationBar from "../../components/common/PaginationBar.vue";
+import { usePasswordVisibility } from "../../composables/usePasswordVisibility";
 import {
   bootstrapSuperAdminSchool,
   getSuperAdminSchools,
@@ -61,6 +64,11 @@ const newAdminForm = ref({
   email: "",
   password: "",
 });
+const {
+  visible: newAdminPasswordVisible,
+  inputType: newAdminPasswordInputType,
+  toggle: toggleNewAdminPasswordVisibility,
+} = usePasswordVisibility();
 const existingAdminForm = ref({
   userId: "",
 });
@@ -692,12 +700,28 @@ onMounted(() => {
 
                 <label class="block text-sm font-medium text-foreground-secondary">
                   Password awal
-                  <input
-                    v-model="newAdminForm.password"
-                    type="password"
-                    class="mt-2 w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand-line"
-                    placeholder="Minimal 6 karakter"
-                  />
+                  <div class="relative mt-2">
+                    <input
+                      v-model="newAdminForm.password"
+                      :type="newAdminPasswordInputType"
+                      class="w-full rounded-lg border border-border bg-surface px-4 py-3 pr-11 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand-line"
+                      placeholder="Minimal 6 karakter"
+                    />
+                    <button
+                      type="button"
+                      class="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-muted transition hover:text-foreground"
+                      :aria-label="
+                        newAdminPasswordVisible
+                          ? 'Sembunyikan password'
+                          : 'Tampilkan password'
+                      "
+                      :aria-pressed="newAdminPasswordVisible"
+                      @click="toggleNewAdminPasswordVisibility"
+                    >
+                      <PhEyeSlash v-if="newAdminPasswordVisible" :size="18" />
+                      <PhEye v-else :size="18" />
+                    </button>
+                  </div>
                 </label>
               </div>
 

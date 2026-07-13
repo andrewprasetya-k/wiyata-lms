@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { PhSignOut, PhSidebarSimple } from "@phosphor-icons/vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 import { useAuthStore } from "../../stores/auth";
+import { useLogoutConfirm } from "../../composables/useLogoutConfirm";
 import type { NavItem } from "../../types/navigation";
 
 defineProps<{
@@ -13,7 +14,7 @@ defineProps<{
 
 const auth = useAuthStore();
 const route = useRoute();
-const router = useRouter();
+const { confirmLogout } = useLogoutConfirm();
 
 const isCollapsed = ref(
   localStorage.getItem("wiyata_sidebar_collapsed") === "true",
@@ -22,11 +23,6 @@ const isCollapsed = ref(
 function toggle() {
   isCollapsed.value = !isCollapsed.value;
   localStorage.setItem("wiyata_sidebar_collapsed", String(isCollapsed.value));
-}
-
-function logout() {
-  auth.logout();
-  router.push("/login");
 }
 
 function isActive(to: string) {
@@ -163,7 +159,7 @@ function isActive(to: string) {
         "
         :title="isCollapsed ? 'Logout' : undefined"
         type="button"
-        @click="logout"
+        @click="confirmLogout"
       >
         <PhSignOut :size="19" class="shrink-0" />
         <span

@@ -4,6 +4,8 @@ import {
   PhCopy,
   PhDownloadSimple,
   PhEnvelopeSimple,
+  PhEye,
+  PhEyeSlash,
   PhFileCsv,
   PhMagnifyingGlass,
   PhPlusCircle,
@@ -48,6 +50,7 @@ import {
   downloadTemplate,
   isExcelFile,
 } from "../../utils/schoolMemberImportFile";
+import { usePasswordVisibility } from "../../composables/usePasswordVisibility";
 import PaginationBar from "../../components/common/PaginationBar.vue";
 import InlineFormError from "../../components/common/InlineFormError.vue";
 
@@ -99,6 +102,11 @@ const memberSearch = ref("");
 const memberEntryMode = ref<"invite" | "direct">("invite");
 const importFile = ref<File | null>(null);
 const importDefaultPassword = ref("");
+const {
+  visible: importPasswordVisible,
+  inputType: importPasswordInputType,
+  toggle: toggleImportPasswordVisibility,
+} = usePasswordVisibility();
 const importPreview = ref<AdminSchoolMemberImportPreviewResponse | null>(null);
 const importResult = ref<AdminSchoolMemberImportCommitResponse | null>(null);
 const inviteResult = ref<CreateSchoolMemberInvitationResponse | null>(null);
@@ -115,6 +123,11 @@ const manualForm = ref<AdminSchoolMemberCreatePayload>({
   role: "student",
   classCode: "",
 });
+const {
+  visible: manualPasswordVisible,
+  inputType: manualPasswordInputType,
+  toggle: toggleManualPasswordVisibility,
+} = usePasswordVisibility();
 
 const allowedRoles = computed(() =>
   roles.value.filter((role) =>
@@ -965,12 +978,28 @@ onMounted(async () => {
               </label>
               <label class="block text-xs font-medium text-muted">
                 Password awal
-                <input
-                  v-model="manualForm.password"
-                  type="password"
-                  placeholder="Minimal 6 karakter"
-                  class="mt-2 w-full rounded-lg border border-border bg-surface-subtle px-3.5 py-2.5 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:bg-surface"
-                />
+                <div class="relative mt-2">
+                  <input
+                    v-model="manualForm.password"
+                    :type="manualPasswordInputType"
+                    placeholder="Minimal 6 karakter"
+                    class="w-full rounded-lg border border-border bg-surface-subtle px-3.5 py-2.5 pr-11 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:bg-surface"
+                  />
+                  <button
+                    type="button"
+                    class="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-muted transition hover:text-foreground"
+                    :aria-label="
+                      manualPasswordVisible
+                        ? 'Sembunyikan password'
+                        : 'Tampilkan password'
+                    "
+                    :aria-pressed="manualPasswordVisible"
+                    @click="toggleManualPasswordVisibility"
+                  >
+                    <PhEyeSlash v-if="manualPasswordVisible" :size="17" />
+                    <PhEye v-else :size="17" />
+                  </button>
+                </div>
               </label>
               <label class="block text-xs font-medium text-muted">
                 Peran
@@ -1063,12 +1092,28 @@ onMounted(async () => {
 
                 <label class="block text-xs font-medium text-muted">
                   Password awal untuk akun baru
-                  <input
-                    v-model="importDefaultPassword"
-                    type="password"
-                    placeholder="Minimal 6 karakter"
-                    class="mt-2 w-full rounded-lg border border-border bg-surface-subtle px-3.5 py-2.5 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:bg-surface"
-                  />
+                  <div class="relative mt-2">
+                    <input
+                      v-model="importDefaultPassword"
+                      :type="importPasswordInputType"
+                      placeholder="Minimal 6 karakter"
+                      class="w-full rounded-lg border border-border bg-surface-subtle px-3.5 py-2.5 pr-11 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:bg-surface"
+                    />
+                    <button
+                      type="button"
+                      class="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-muted transition hover:text-foreground"
+                      :aria-label="
+                        importPasswordVisible
+                          ? 'Sembunyikan password'
+                          : 'Tampilkan password'
+                      "
+                      :aria-pressed="importPasswordVisible"
+                      @click="toggleImportPasswordVisibility"
+                    >
+                      <PhEyeSlash v-if="importPasswordVisible" :size="17" />
+                      <PhEye v-else :size="17" />
+                    </button>
+                  </div>
                 </label>
 
                 <p

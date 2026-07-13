@@ -1,15 +1,27 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from "vue";
 import { RouterLink, useRoute } from "vue-router";
+import { PhEye, PhEyeSlash } from "@phosphor-icons/vue";
 import {
   acceptInvitation,
   getInvitation,
   type AcceptInvitationResponse,
   type InvitationMetadata,
 } from "../../services/onboarding";
+import { usePasswordVisibility } from "../../composables/usePasswordVisibility";
 
 const route = useRoute();
 const token = computed(() => String(route.params.token ?? ""));
+const {
+  visible: passwordVisible,
+  inputType: passwordInputType,
+  toggle: togglePasswordVisibility,
+} = usePasswordVisibility();
+const {
+  visible: confirmPasswordVisible,
+  inputType: confirmPasswordInputType,
+  toggle: toggleConfirmPasswordVisibility,
+} = usePasswordVisibility();
 
 const invitation = ref<InvitationMetadata | null>(null);
 const accepted = ref<AcceptInvitationResponse | null>(null);
@@ -212,26 +224,56 @@ onMounted(loadInvitation);
               <span class="mb-2 block text-sm font-medium text-foreground-secondary">
                 Password
               </span>
-              <input
-                v-model="form.password"
-                class="h-11 w-full rounded-lg border border-border bg-surface-subtle px-3 text-sm outline-none transition focus:border-brand focus:bg-surface"
-                type="password"
-                autocomplete="new-password"
-                placeholder="Minimal 6 karakter"
-              />
+              <div class="relative">
+                <input
+                  v-model="form.password"
+                  class="h-11 w-full rounded-lg border border-border bg-surface-subtle px-3 pr-11 text-sm outline-none transition focus:border-brand focus:bg-surface"
+                  :type="passwordInputType"
+                  autocomplete="new-password"
+                  placeholder="Minimal 6 karakter"
+                />
+                <button
+                  type="button"
+                  class="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-muted transition hover:text-foreground"
+                  :aria-label="
+                    passwordVisible ? 'Sembunyikan password' : 'Tampilkan password'
+                  "
+                  :aria-pressed="passwordVisible"
+                  @click="togglePasswordVisibility"
+                >
+                  <PhEyeSlash v-if="passwordVisible" :size="18" />
+                  <PhEye v-else :size="18" />
+                </button>
+              </div>
             </label>
 
             <label class="block">
               <span class="mb-2 block text-sm font-medium text-foreground-secondary">
                 Konfirmasi password
               </span>
-              <input
-                v-model="form.confirmPassword"
-                class="h-11 w-full rounded-lg border border-border bg-surface-subtle px-3 text-sm outline-none transition focus:border-brand focus:bg-surface"
-                type="password"
-                autocomplete="new-password"
-                placeholder="Ulangi password"
-              />
+              <div class="relative">
+                <input
+                  v-model="form.confirmPassword"
+                  class="h-11 w-full rounded-lg border border-border bg-surface-subtle px-3 pr-11 text-sm outline-none transition focus:border-brand focus:bg-surface"
+                  :type="confirmPasswordInputType"
+                  autocomplete="new-password"
+                  placeholder="Ulangi password"
+                />
+                <button
+                  type="button"
+                  class="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-muted transition hover:text-foreground"
+                  :aria-label="
+                    confirmPasswordVisible
+                      ? 'Sembunyikan password'
+                      : 'Tampilkan password'
+                  "
+                  :aria-pressed="confirmPasswordVisible"
+                  @click="toggleConfirmPasswordVisibility"
+                >
+                  <PhEyeSlash v-if="confirmPasswordVisible" :size="18" />
+                  <PhEye v-else :size="18" />
+                </button>
+              </div>
             </label>
 
             <p

@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { PhArrowRight } from "@phosphor-icons/vue";
+import { PhArrowRight, PhEye, PhEyeSlash } from "@phosphor-icons/vue";
 import { useAuthStore } from "../../stores/auth";
+import { usePasswordVisibility } from "../../composables/usePasswordVisibility";
 
 const auth = useAuthStore();
 const route = useRoute();
@@ -12,6 +13,11 @@ const email = ref("");
 const password = ref("");
 const isSubmitting = ref(false);
 const errorMessage = ref("");
+const {
+  visible: passwordVisible,
+  inputType: passwordInputType,
+  toggle: togglePasswordVisibility,
+} = usePasswordVisibility();
 
 const canSubmit = computed(
   () => email.value.trim() !== "" && password.value.trim() !== "",
@@ -117,13 +123,27 @@ async function submit() {
             <span class="mb-2 block text-sm font-medium text-foreground-secondary">
               Password
             </span>
-            <input
-              v-model="password"
-              class="h-12 w-full rounded-2xl border border-border bg-surface-subtle px-4 text-sm outline-none transition focus:border-brand focus:bg-surface"
-              type="password"
-              autocomplete="current-password"
-              placeholder="••••••••"
-            />
+            <div class="relative">
+              <input
+                v-model="password"
+                class="h-12 w-full rounded-2xl border border-border bg-surface-subtle px-4 pr-12 text-sm outline-none transition focus:border-brand focus:bg-surface"
+                :type="passwordInputType"
+                autocomplete="current-password"
+                placeholder="••••••••"
+              />
+              <button
+                type="button"
+                class="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-muted transition hover:text-foreground"
+                :aria-label="
+                  passwordVisible ? 'Sembunyikan password' : 'Tampilkan password'
+                "
+                :aria-pressed="passwordVisible"
+                @click="togglePasswordVisibility"
+              >
+                <PhEyeSlash v-if="passwordVisible" :size="18" />
+                <PhEye v-else :size="18" />
+              </button>
+            </div>
           </label>
 
           <p

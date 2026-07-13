@@ -43,7 +43,7 @@ func TestMaterialSummaryRouteAllowsOnlyStudentActiveRole(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	middleware.InitRBAC(&materialSummaryRBACStub{
 		rolesByUserSchool: map[string][]string{
-			"user-1:school-1": []string{"admin", "teacher", "student"},
+			"user-1:school-1": {"admin", "teacher", "student"},
 		},
 	})
 
