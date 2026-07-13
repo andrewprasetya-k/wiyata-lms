@@ -1264,7 +1264,7 @@ function formatDateTime(value?: string | null) {
           </p>
           <button
             type="button"
-            class="mt-5 rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-white transition hover:bg-[#374151]"
+            class="mt-5 rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-white transition hover:bg-foreground-secondary"
             @click="bootstrapChat"
           >
             Coba lagi

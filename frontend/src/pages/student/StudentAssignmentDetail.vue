@@ -241,7 +241,7 @@ async function handleWithdraw() {
           <PhArrowLeft :size="15" />
           Mata pelajaran
         </RouterLink>
-        <span class="text-[#d1d5db]">/</span>
+        <span class="text-border-strong">/</span>
         <span
           v-if="assignment?.subjectName || assignment?.subjectCode"
           class="hidden min-w-0 truncate sm:inline"
@@ -250,7 +250,7 @@ async function handleWithdraw() {
         </span>
         <span
           v-if="assignment?.subjectName || assignment?.subjectCode"
-          class="hidden text-[#d1d5db] sm:inline"
+          class="hidden text-border-strong sm:inline"
         >
           /
         </span>
@@ -385,15 +385,15 @@ async function handleWithdraw() {
                 <span>
                   {{
                     assignment.allowLateSubmission
-                      ? "Dapat dikumpulkan setelah tanggal tenggat"
-                      : "Tidak dapat dikumpulkan setelah tanggal tenggat"
+                      ? "Dapat dikumpulkan atau diubah setelah tanggal tenggat"
+                      : "Tidak dapat dikumpulkan atau diubah setelah tanggal tenggat"
                   }}
                 </span>
               </div>
             </div>
           </div>
 
-          <div class="mt-6 border-t border-[#f0ede8] pt-5">
+          <div class="mt-6 border-t border-surface-strong pt-5">
             <h2 class="text-sm font-semibold text-foreground">
               Instruksi tugas
             </h2>
@@ -438,7 +438,9 @@ async function handleWithdraw() {
       </div>
 
       <aside class="min-w-0 lg:sticky lg:top-6">
-        <article class="rounded-xl border border-border bg-surface shadow-sm p-5">
+        <article
+          class="rounded-xl border border-border bg-surface shadow-sm p-5"
+        >
           <div class="flex items-start justify-between gap-3">
             <div>
               <p class="text-sm font-semibold text-foreground">
@@ -471,7 +473,7 @@ async function handleWithdraw() {
           </div>
 
           <dl
-            class="mt-4 divide-y divide-[#f0ede8] rounded-lg bg-surface-subtle px-3"
+            class="mt-4 divide-y divide-surface-strong rounded-lg bg-surface-subtle px-3"
           >
             <div class="flex items-start justify-between gap-4 py-3">
               <dt class="text-xs text-muted">Tenggat</dt>

@@ -341,7 +341,7 @@ onMounted(loadInitialData);
             <PhArrowLeft :size="15" />
             Mata pelajaran
           </button>
-          <span class="text-[#d1d5db]">/</span>
+          <span class="text-border-strong">/</span>
           <span class="min-w-0 truncate font-medium text-foreground">
             {{ isEditMode ? "Edit" : "Buat" }}
             {{ activeTab === "material" ? "Materi" : "Tugas" }}
