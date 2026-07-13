@@ -45,6 +45,13 @@ export async function submitAssignment(assignmentId: string, payload: SubmitAssi
   return data
 }
 
+export async function deleteSubmission(submissionId: string) {
+  const { data } = await api.delete<SubmitAssignmentResponse>(
+    `/assignments/submit/${submissionId}`,
+  )
+  return data
+}
+
 export async function getMySubmissionByAssignment(assignmentId: string) {
   const { data } = await api.get<MySubmissionResponse>(
     `/assignments/my-submission/${assignmentId}`,

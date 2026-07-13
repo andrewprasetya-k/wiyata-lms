@@ -13,8 +13,10 @@ import {
 import AttachmentPreviewList from "../../components/common/AttachmentPreviewList.vue";
 import CommentThread from "../../components/comments/CommentThread.vue";
 import { useAuthStore } from "../../stores/auth";
+import { useConfirmStore } from "../../stores/confirm";
 import { useToastStore } from "../../stores/toast";
 import {
+  deleteSubmission,
   getMySubmissionByAssignment,
   getStudentAssignmentDetail,
   submitAssignment,
@@ -31,6 +33,7 @@ import { getApiError } from "../../utils/error";
 const route = useRoute();
 const auth = useAuthStore();
 const toast = useToastStore();
+const confirm = useConfirmStore();
 const subjectClassId = computed(() => String(route.params.sclId ?? ""));
 const assignmentId = computed(() => String(route.params.asgId ?? ""));
 const assignment = ref<AssignmentItem | null>(null);
@@ -43,6 +46,18 @@ const isSubmitting = ref(false);
 const submissionStatus = ref<MySubmissionResponse | null>(null);
 const isSubmissionLoading = ref(false);
 const submissionError = ref("");
+const isWithdrawing = ref(false);
+
+const isAssignmentOpen = computed(() => {
+  if (!assignment.value?.deadline) return true;
+  if (assignment.value.allowLateSubmission) return true;
+  return new Date(assignment.value.deadline).getTime() > Date.now();
+});
+
+const canWithdraw = computed(
+  () =>
+    submissionStatus.value?.status === "submitted" && isAssignmentOpen.value,
+);
 
 const schoolId = computed(
   () => auth.activeSchoolId ?? auth.defaultContext?.schoolId ?? "",
@@ -110,7 +125,6 @@ function formatFileSize(size: number) {
   if (size < 1024 * 1024) return `${Math.round(size / 1024)} KB`;
   return `${(size / (1024 * 1024)).toFixed(1)} MB`;
 }
-
 
 function patchSubmittedStatus(uploaded: MediaUploadResponse[]) {
   if (!assignment.value) return;
@@ -186,6 +200,30 @@ async function handleSubmit() {
     submitError.value = getApiError(error);
   } finally {
     isSubmitting.value = false;
+  }
+}
+
+async function handleWithdraw() {
+  const submissionId = submissionStatus.value?.submission?.submissionId;
+  if (!submissionId) return;
+
+  const ok = await confirm.confirm({
+    title: "Tarik pengumpulan?",
+    description: "Anda dapat mengumpulkan ulang sebelum tenggat.",
+    confirmLabel: "Ya, tarik kembali",
+    variant: "warning",
+  });
+  if (!ok) return;
+
+  isWithdrawing.value = true;
+  try {
+    await deleteSubmission(submissionId);
+    submissionStatus.value = { status: "not_submitted", submission: null };
+    toast.success("Submission berhasil ditarik kembali.");
+  } catch (error) {
+    toast.error(getApiError(error));
+  } finally {
+    isWithdrawing.value = false;
   }
 }
 </script>
@@ -304,7 +342,9 @@ async function handleSubmit() {
       class="mx-auto grid max-w-screen min-w-0 gap-5 px-5 py-5 sm:px-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:px-8 lg:py-6"
     >
       <div class="min-w-0 space-y-4">
-        <article class="rounded-xl border border-border bg-white shadow-sm p-5 sm:p-6">
+        <article
+          class="rounded-xl border border-border bg-white shadow-sm p-5 sm:p-6"
+        >
           <div class="flex min-w-0 items-start gap-4">
             <div
               class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand"
@@ -354,7 +394,9 @@ async function handleSubmit() {
           </div>
 
           <div class="mt-6 border-t border-[#f0ede8] pt-5">
-            <h2 class="text-sm font-semibold text-foreground">Instruksi tugas</h2>
+            <h2 class="text-sm font-semibold text-foreground">
+              Instruksi tugas
+            </h2>
             <p
               v-if="assignment.assignmentDescription"
               class="mt-3 whitespace-pre-line wrap-break-word text-sm leading-7 text-[#4a4356]"
@@ -367,7 +409,9 @@ async function handleSubmit() {
           </div>
         </article>
 
-        <article class="rounded-xl border border-border bg-white shadow-sm p-5 sm:p-6">
+        <article
+          class="rounded-xl border border-border bg-white shadow-sm p-5 sm:p-6"
+        >
           <div class="flex items-center gap-2">
             <PhPaperclip :size="18" class="text-brand" />
             <h2 class="text-sm font-semibold text-foreground">
@@ -500,9 +544,7 @@ async function handleSubmit() {
                         formatDateTime(submissionStatus.submission.submittedAt)
                       }}
                     </template>
-                    <template v-else>
-                      Status pengumpulan tersimpan.
-                    </template>
+                    <template v-else> Status pengumpulan tersimpan. </template>
                   </p>
                 </div>
               </div>
@@ -515,9 +557,7 @@ async function handleSubmit() {
               "
               class="rounded-xl border border-[#c7d2fe] bg-brand-soft p-4"
             >
-              <p class="text-xs font-medium text-brand">
-                Nilai dan feedback
-              </p>
+              <p class="text-xs font-medium text-brand">Nilai dan feedback</p>
               <p class="mt-2 text-3xl font-medium text-foreground">
                 {{ submissionStatus.submission.assessment.score }}
               </p>
@@ -553,6 +593,16 @@ async function handleSubmit() {
                 :attachments="submissionStatus.submission.attachments"
               />
             </div>
+
+            <button
+              v-if="canWithdraw"
+              class="w-full rounded-lg border border-border px-3 py-2 text-xs font-medium text-[#4a4356] transition hover:bg-[#fbfaf8] disabled:cursor-not-allowed disabled:opacity-60"
+              type="button"
+              :disabled="isWithdrawing"
+              @click="handleWithdraw"
+            >
+              {{ isWithdrawing ? "Menarik kembali..." : "Tarik kembali" }}
+            </button>
           </div>
 
           <template v-else>

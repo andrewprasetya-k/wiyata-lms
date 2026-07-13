@@ -469,11 +469,29 @@ func (s *assignmentService) Assess(asm *domain.Assessment) error {
 	return nil
 }
 
+func (s *assignmentService) validateSubmissionMutable(sbm *domain.Submission, assignment *domain.Assignment) error {
+	if sbm.Assessment != nil {
+		return fmt.Errorf("submission already graded")
+	}
+	if !assignment.AllowLateSubmission && assignment.Deadline != nil && assignment.Deadline.Before(time.Now()) {
+		return fmt.Errorf("assignment closed")
+	}
+	return nil
+}
+
 func (s *assignmentService) UpdateSubmission(id string, mediaIDs []string, actorUserID string, isAdmin bool) error {
 	sbm, err := s.repo.GetSubmissionByID(id)
 	if err != nil {
 		return err
 	}
+	assignment, err := s.repo.GetAssignmentByID(sbm.AssignmentID)
+	if err != nil {
+		return err
+	}
+	if err := s.validateSubmissionMutable(sbm, assignment); err != nil {
+		return err
+	}
+
 	var attachmentMediaIDs []string
 	if mediaIDs != nil {
 		var err error
@@ -499,6 +517,18 @@ func (s *assignmentService) UpdateSubmission(id string, mediaIDs []string, actor
 }
 
 func (s *assignmentService) DeleteSubmission(id string) error {
+	sbm, err := s.repo.GetSubmissionByID(id)
+	if err != nil {
+		return err
+	}
+	assignment, err := s.repo.GetAssignmentByID(sbm.AssignmentID)
+	if err != nil {
+		return err
+	}
+	if err := s.validateSubmissionMutable(sbm, assignment); err != nil {
+		return err
+	}
+
 	return s.db.Transaction(func(tx *gorm.DB) error {
 		if err := s.attService.WithTx(tx).UnlinkBySource(string(domain.SourceSubmission), id); err != nil {
 			return err

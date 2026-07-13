@@ -668,7 +668,9 @@ func (h *AssignmentHandler) UpdateSubmission(c *gin.Context) {
 	}
 
 	if err := h.service.UpdateSubmission(submissionId, input.MediaIDs, userID, h.hasActiveRole(c, "admin")); err != nil {
-		HandleError(c, err)
+		if !h.handleSubmissionMutationError(c, err) {
+			HandleError(c, err)
+		}
 		return
 	}
 
@@ -682,11 +684,30 @@ func (h *AssignmentHandler) DeleteSubmission(c *gin.Context) {
 	}
 
 	if err := h.service.DeleteSubmission(submissionId); err != nil {
-		HandleError(c, err)
+		if !h.handleSubmissionMutationError(c, err) {
+			HandleError(c, err)
+		}
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Submission deleted"})
+}
+
+// handleSubmissionMutationError maps the shared submission-mutation business
+// errors (see assignmentService.validateSubmissionMutable) to 400 responses,
+// consistent with the "submission past due" handling in Submit. Returns true
+// if the error was recognized and a response was written.
+func (h *AssignmentHandler) handleSubmissionMutationError(c *gin.Context, err error) bool {
+	switch err.Error() {
+	case "submission already graded":
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Cannot modify a graded submission"})
+		return true
+	case "assignment closed":
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Cannot modify submission after the assignment is closed"})
+		return true
+	default:
+		return false
+	}
 }
 
 func (h *AssignmentHandler) GetSubmissionByID(c *gin.Context) {
