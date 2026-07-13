@@ -10,8 +10,9 @@ type Subject struct {
 	School    School    `gorm:"foreignKey:SchoolID;references:ID" json:"school,omitempty"`
 	Name      string    `gorm:"column:sub_name" json:"subjectName"`
 	Code      string    `gorm:"column:sub_code" json:"subjectCode"`
-	Color     string    `gorm:"column:sub_color" json:"color,omitempty"`
+	Color     string    `gorm:"column:sub_color;not null" json:"color,omitempty"`
 	CreatedAt time.Time `gorm:"column:created_at;autoCreateTime" json:"createdAt"`
+	UpdatedAt time.Time `gorm:"column:updated_at;autoUpdateTime" json:"updatedAt"`
 }
 
 func (Subject) TableName() string {

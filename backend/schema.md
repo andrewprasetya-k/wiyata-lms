@@ -68,9 +68,9 @@ created_at timestamptz [default: `now()`]
 updated_at timestamptz [default: `now()`]
 
 indexes {
-(srr_status, created_at) [name: 'idx_school_registration_requests_status_created']
-(srr_pic_email, srr_status) [name: 'idx_school_registration_requests_pic_email_status']
-(srr_school_name, srr_status) [name: 'idx_school_registration_requests_school_name_status']
+(srr_status, created_at) [name: 'idx_school_registration_requests_status']
+(lower(srr_pic_email)) [unique, name: 'idx_school_registration_requests_pending_email', note: 'partial index — only enforced WHERE srr_status = \'pending\'; prevents duplicate pending requests from the same email']
+(lower(srr_school_name)) [unique, name: 'idx_school_registration_requests_pending_school_name', note: 'partial index — only enforced WHERE srr_status = \'pending\'; prevents duplicate pending requests for the same school name']
 }
 }
 
@@ -112,7 +112,7 @@ indexes {
 Table terms {
 trm_id uuid [pk, default: `gen_random_uuid()`]
 trm_acy_id uuid [ref: > academic_years.acy_id]
-trm_name varchar(10)
+trm_name varchar(50)
 is_active boolean [default: false]
 created_at timestamptz [default: `now()`]
 
@@ -150,8 +150,11 @@ indexes {
 
 Table roles {
 rol_id uuid [pk, default: `gen_random_uuid()`]
-rol_name varchar(50) [unique]
+rol_name varchar(50)
 created_at timestamptz [default: `now()`]
+
+// NOTE: rol_name has no unique constraint at the database level today.
+// Application code must not assume role names are unique.
 }
 
 Table user_roles {
@@ -162,6 +165,7 @@ created_at timestamptz [default: `now()`]
 
 indexes {
 (urol_scu_id, urol_rol_id) [unique]
+(urol_scu_id) [name: 'idx_user_roles_scu']
 }
 }
 
@@ -202,8 +206,9 @@ sub_id uuid [pk, default: `gen_random_uuid()`]
 sub_sch_id uuid [ref: > schools.sch_id]
 sub_name varchar(100)
 sub_code varchar(20)
-sub_color varchar(9)
+sub_color varchar [not null, note: 'unconstrained varchar at the type level; CHECK (length(sub_color) < 10) enforces the effective 9-character cap instead of a typed varchar(9)']
 created_at timestamptz [default: `now()`]
+updated_at timestamptz
 
 indexes {
 (sub_sch_id, sub_code) [unique]
@@ -214,8 +219,8 @@ Table classes {
 cls_id uuid [pk, default: `gen_random_uuid()`]
 cls_sch_id uuid [ref: > schools.sch_id]
 cls_trm_id uuid [ref: > terms.trm_id]
-cls_code varchar(20)
-cls_title varchar(150)
+cls_code text
+cls_title text
 cls_desc text
 created_by uuid [ref: > users.usr_id]
 is_active boolean [default: true]
@@ -225,6 +230,7 @@ deleted_at timestamptz
 
 indexes {
 (cls_sch_id, cls_code, cls_trm_id) [unique]
+(cls_sch_id, deleted_at) [name: 'idx_classes_active']
 }
 }
 
@@ -252,6 +258,9 @@ left_at timestamptz
 
 indexes {
 (enr_scu_id, enr_cls_id) [unique]
+(enr_cls_id) [name: 'idx_enrollments_class']
+(enr_cls_id, enr_role) [name: 'idx_enrollments_class_role']
+(enr_scu_id) [name: 'idx_enrollments_user']
 }
 }
 
@@ -269,6 +278,11 @@ created_by uuid [ref: > users.usr_id]
 created_at timestamptz [default: `now()`]
 updated_at timestamptz [default: `now()`]
 deleted_at timestamptz
+
+indexes {
+(mat_sch_id, deleted_at) [name: 'idx_materials_active']
+(mat_scl_id) [name: 'idx_materials_class']
+}
 }
 
 Table material_progress {
@@ -280,6 +294,8 @@ last_opened_at timestamptz
 
 indexes {
 (map_usr_id, map_mat_id) [unique]
+(map_mat_id) [name: 'idx_material_progress_material']
+(map_usr_id) [name: 'idx_material_progress_user']
 }
 }
 
@@ -291,6 +307,10 @@ fds_content text
 created_by uuid [ref: > users.usr_id]
 created_at timestamptz [default: `now()`]
 deleted_at timestamptz
+
+indexes {
+(fds_sch_id, deleted_at) [name: 'idx_feeds_active']
+}
 }
 
 Table comments {
@@ -332,6 +352,11 @@ created_by uuid [ref: > users.usr_id]
 created_at timestamptz [default: `now()`]
 updated_at timestamptz [default: `now()`]
 deleted_at timestamptz
+
+indexes {
+(asg_sch_id, deleted_at) [name: 'idx_assignments_active']
+(asg_scl_id) [name: 'idx_assignments_class']
+}
 }
 
 Table submissions {
@@ -344,6 +369,9 @@ deleted_at timestamptz
 
 indexes {
 (sbm_asg_id, sbm_usr_id) [unique]
+(sbm_asg_id, sbm_usr_id) [name: 'idx_submissions_asg_user', note: 'redundant plain btree alongside the unique constraint above — both exist in the live database']
+(sbm_asg_id) [name: 'idx_submissions_assignment']
+(sbm_usr_id) [name: 'idx_submissions_user']
 }
 }
 
@@ -356,7 +384,7 @@ assessed_by uuid [ref: > users.usr_id]
 assessed_at timestamptz [default: `now()`]
 
 indexes {
-(asm_sbm_id) [unique]
+(asm_sbm_id) [name: 'idx_assessments_submission', note: 'plain btree index, NOT unique at the database level — one submission is not guaranteed to have only one assessment row. UpsertAssessment() in assignment_repo.go compensates for this in application code by keeping only the newest row per submission and deleting duplicates on every write.']
 }
 }
 
@@ -426,7 +454,7 @@ created_at timestamptz [default: `now()`]
 deleted_at timestamptz
 
 indexes {
-(room_sch_id, room_ref_type, room_ref_id) [unique, name: 'idx_chat_room_ref']
+(room_sch_id, room_ref_type, room_ref_id) [unique, name: 'chat_rooms_room_sch_id_room_ref_type_room_ref_id_key', note: 'implemented as an auto-named UNIQUE table constraint in the live database, not a manually-named index']
 }
 }
 
@@ -441,6 +469,7 @@ left_at timestamptz
 
 indexes {
 (crm_room_id, crm_usr_id) [unique]
+(crm_usr_id) [name: 'idx_chat_members_user']
 }
 }
 
@@ -461,6 +490,10 @@ msg_ref_id uuid
 
 created_at timestamptz [default: `now()`]
 deleted_at timestamptz
+
+indexes {
+(msg_room_id, created_at) [name: 'idx_chat_messages_room', note: 'created_at ordered DESC in the live database']
+}
 }
 
 Table chat_attachments {
@@ -482,6 +515,7 @@ last_read_at timestamptz
 
 indexes {
 (rct_room_id, rct_usr_id) [unique]
+(rct_usr_id) [name: 'idx_chat_receipts_user']
 }
 }
 
@@ -496,6 +530,7 @@ updated_at timestamptz [default: `now()`]
 
 indexes {
 (snt_usr_id, snt_mat_id) [unique]
+(snt_usr_id) [name: 'idx_student_notes_user']
 }
 }
 
