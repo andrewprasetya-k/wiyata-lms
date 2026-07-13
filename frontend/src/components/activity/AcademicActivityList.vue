@@ -27,7 +27,7 @@ defineProps<{
         >
           {{ group.label }}
         </h2>
-        <span class="text-xs text-[#9ca3af]">{{ group.items.length }} item</span>
+        <span class="text-xs text-muted">{{ group.items.length }} item</span>
       </div>
 
       <ul class="space-y-2" aria-label="Aktivitas akademik">

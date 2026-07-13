@@ -61,8 +61,8 @@ onMounted(loadAssignment);
 </script>
 
 <template>
-  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
-    <header class="border-b border-border bg-white">
+  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-background">
+    <header class="border-b border-border bg-surface">
       <div
         class="flex min-w-0 items-center gap-2 px-5 py-3 text-xs text-muted sm:px-6 lg:px-8"
       >
@@ -119,7 +119,7 @@ onMounted(loadAssignment);
                 asgId: assignment.assignmentId,
               },
             }"
-            class="inline-flex items-center gap-2 rounded-lg border border-border bg-white px-3 py-2 text-xs font-medium text-brand transition hover:border-brand hover:bg-brand-soft"
+            class="inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-xs font-medium text-brand transition hover:border-brand hover:bg-brand-soft"
           >
             <PhPencilSimple :size="15" weight="bold" />
             Edit tugas
@@ -144,10 +144,10 @@ onMounted(loadAssignment);
         class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]"
       >
         <div
-          class="h-80 animate-pulse rounded-xl border border-border bg-white"
+          class="h-80 animate-pulse rounded-xl border border-border bg-surface"
         />
         <div
-          class="h-64 animate-pulse rounded-xl border border-border bg-white"
+          class="h-64 animate-pulse rounded-xl border border-border bg-surface"
         />
       </section>
 
@@ -177,7 +177,7 @@ onMounted(loadAssignment);
 
       <section
         v-else-if="didLoad && !assignment"
-        class="mx-auto max-w-xl rounded-xl border border-border bg-white px-5 py-10 text-center"
+        class="mx-auto max-w-xl rounded-xl border border-border bg-surface px-5 py-10 text-center"
       >
         <div
           class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
@@ -193,7 +193,7 @@ onMounted(loadAssignment);
         </p>
         <RouterLink
           :to="`/teacher/subjects/${subjectClassId}`"
-          class="mt-5 inline-flex items-center gap-2 rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-brand transition hover:border-brand hover:bg-brand-soft"
+          class="mt-5 inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-4 py-2.5 text-sm font-medium text-brand transition hover:border-brand hover:bg-brand-soft"
         >
           <PhArrowLeft :size="16" />
           Kembali ke ruang mengajar
@@ -205,7 +205,7 @@ onMounted(loadAssignment);
         class="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_300px]"
       >
         <div class="min-w-0 space-y-5">
-          <article class="rounded-xl border border-border bg-white shadow-sm p-5 sm:p-6">
+          <article class="rounded-xl border border-border bg-surface shadow-sm p-5 sm:p-6">
             <div class="flex flex-wrap items-center gap-2">
               <span
                 v-if="assignment.categoryName"
@@ -220,7 +220,7 @@ onMounted(loadAssignment);
                   subjectClass?.subjectName ||
                   subjectClass?.subjectCode
                 "
-                class="rounded-full bg-[#f8f7f4] px-2.5 py-1 text-[11px] text-muted"
+                class="rounded-full bg-background px-2.5 py-1 text-[11px] text-muted"
               >
                 {{
                   assignment.subjectName ||
@@ -241,20 +241,20 @@ onMounted(loadAssignment);
               >
                 {{ assignment.assignmentDescription }}
               </p>
-              <p v-else class="mt-3 text-sm leading-6 text-[#7a7385]">
+              <p v-else class="mt-3 text-sm leading-6 text-muted">
                 Instruksi tugas belum tersedia.
               </p>
             </div>
           </article>
 
-          <article class="rounded-xl border border-border bg-white shadow-sm p-5 sm:p-6">
+          <article class="rounded-xl border border-border bg-surface shadow-sm p-5 sm:p-6">
             <div class="flex items-center gap-2">
               <PhPaperclip :size="18" class="text-brand" />
               <h2 class="text-sm font-semibold text-foreground">
                 Lampiran tugas
               </h2>
             </div>
-            <p class="mt-1 text-xs leading-5 text-[#7a7385]">
+            <p class="mt-1 text-xs leading-5 text-muted">
               File pendukung yang bisa dibuka oleh peserta kelas.
             </p>
             <AttachmentPreviewList
@@ -274,13 +274,13 @@ onMounted(loadAssignment);
         </div>
 
         <aside class="min-w-0 lg:sticky lg:top-6">
-          <article class="rounded-xl border border-border bg-white shadow-sm p-5">
+          <article class="rounded-xl border border-border bg-surface shadow-sm p-5">
             <p class="text-sm font-semibold text-foreground">Ringkasan tugas</p>
             <dl
-              class="mt-4 divide-y divide-[#f0ede8] rounded-lg bg-[#fbfaf8] px-3"
+              class="mt-4 divide-y divide-[#f0ede8] rounded-lg bg-surface-subtle px-3"
             >
               <div class="flex items-start justify-between gap-4 py-3">
-                <dt class="inline-flex items-center gap-1.5 text-xs text-[#7a7385]">
+                <dt class="inline-flex items-center gap-1.5 text-xs text-muted">
                   <PhCalendarBlank :size="14" />
                   Tenggat
                 </dt>
@@ -293,7 +293,7 @@ onMounted(loadAssignment);
                 </dd>
               </div>
               <div class="flex items-start justify-between gap-4 py-3">
-                <dt class="text-xs text-[#7a7385]">Pengumpulan terlambat</dt>
+                <dt class="text-xs text-muted">Pengumpulan terlambat</dt>
                 <dd class="text-right text-xs font-medium text-foreground">
                   {{
                     assignment.allowLateSubmission
@@ -306,7 +306,7 @@ onMounted(loadAssignment);
                 v-if="assignment.createdAt"
                 class="flex items-start justify-between gap-4 py-3"
               >
-                <dt class="text-xs text-[#7a7385]">Dibuat</dt>
+                <dt class="text-xs text-muted">Dibuat</dt>
                 <dd class="text-right text-xs font-medium text-foreground">
                   {{ formatDateTime(assignment.createdAt) }}
                 </dd>

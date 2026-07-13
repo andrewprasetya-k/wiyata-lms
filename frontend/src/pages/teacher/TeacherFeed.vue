@@ -311,8 +311,8 @@ function updatePostCommentCount(feedId: string, count: number) {
 </script>
 
 <template>
-  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
-    <header class="border-b border-border bg-white">
+  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-background">
+    <header class="border-b border-border bg-surface">
       <div class="px-5 py-5 sm:px-6 lg:px-8">
         <div
           class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
@@ -341,10 +341,10 @@ function updatePostCommentCount(feedId: string, count: number) {
       <template v-if="classesLoading">
         <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
           <div
-            class="h-72 animate-pulse rounded-xl border border-border bg-white"
+            class="h-72 animate-pulse rounded-xl border border-border bg-surface"
           />
           <div
-            class="h-72 animate-pulse rounded-xl border border-border bg-white"
+            class="h-72 animate-pulse rounded-xl border border-border bg-surface"
           />
         </div>
       </template>
@@ -376,7 +376,7 @@ function updatePostCommentCount(feedId: string, count: number) {
 
       <section
         v-else-if="classes.length === 0"
-        class="mx-auto max-w-xl rounded-xl border border-border bg-white px-5 py-10 text-center"
+        class="mx-auto max-w-xl rounded-xl border border-border bg-surface px-5 py-10 text-center"
       >
         <div
           class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
@@ -397,7 +397,7 @@ function updatePostCommentCount(feedId: string, count: number) {
       >
         <aside class="order-1 min-w-0 lg:order-2">
           <article
-            class="rounded-xl border border-border bg-white p-5 lg:sticky lg:top-6"
+            class="rounded-xl border border-border bg-surface p-5 lg:sticky lg:top-6"
           >
             <div class="flex items-start gap-3">
               <div
@@ -409,7 +409,7 @@ function updatePostCommentCount(feedId: string, count: number) {
                 <h2 class="text-base font-semibold text-foreground">
                   Buat pengumuman
                 </h2>
-                <p class="mt-1 text-xs leading-5 text-[#7a7385]">
+                <p class="mt-1 text-xs leading-5 text-muted">
                   Pilih kelas dan tulis informasi yang perlu diketahui siswa.
                 </p>
               </div>
@@ -424,7 +424,7 @@ function updatePostCommentCount(feedId: string, count: number) {
             <select
               id="feed-class"
               v-model="selectedClassId"
-              class="mt-2 w-full rounded-lg border border-border bg-white px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-brand"
+              class="mt-2 w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-brand"
             >
               <option
                 v-for="item in classes"
@@ -444,7 +444,7 @@ function updatePostCommentCount(feedId: string, count: number) {
             <textarea
               id="feed-content"
               v-model="content"
-              class="mt-2 min-h-40 w-full resize-y rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-3 text-sm leading-6 text-foreground outline-none transition placeholder:text-[#a09aa8] focus:border-brand focus:bg-white"
+              class="mt-2 min-h-40 w-full resize-y rounded-lg border border-border bg-surface-subtle px-3.5 py-3 text-sm leading-6 text-foreground outline-none transition placeholder:text-[#a09aa8] focus:border-brand focus:bg-surface"
               placeholder="Tulis pengumuman untuk kelas ini..."
               maxlength="1200"
             />
@@ -471,7 +471,7 @@ function updatePostCommentCount(feedId: string, count: number) {
 
         <section class="order-2 min-w-0 lg:order-1">
           <div
-            class="flex flex-col gap-3 rounded-xl border border-border bg-white px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5"
+            class="flex flex-col gap-3 rounded-xl border border-border bg-surface px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5"
           >
             <div class="min-w-0">
               <h2 class="truncate text-base font-semibold text-foreground">
@@ -481,7 +481,7 @@ function updatePostCommentCount(feedId: string, count: number) {
                   "Pengumuman kelas"
                 }}
               </h2>
-              <p class="mt-1 text-xs text-[#7a7385]">
+              <p class="mt-1 text-xs text-muted">
                 {{ selectedClass?.subjectCount || 0 }} mata pelajaran yang Anda
                 ajar
               </p>
@@ -501,35 +501,35 @@ function updatePostCommentCount(feedId: string, count: number) {
             <div
               v-for="item in 3"
               :key="item"
-              class="h-32 animate-pulse rounded-xl border border-border bg-white"
+              class="h-32 animate-pulse rounded-xl border border-border bg-surface"
             />
           </div>
 
           <div
             v-else-if="feedAccessMessage"
-            class="mt-3 rounded-xl border border-border bg-white p-5"
+            class="mt-3 rounded-xl border border-border bg-surface p-5"
           >
             <h3 class="text-sm font-semibold text-foreground">
               Pengumuman belum bisa dimuat
             </h3>
-            <p class="mt-2 text-sm leading-6 text-[#7a7385]">
+            <p class="mt-2 text-sm leading-6 text-muted">
               {{ feedAccessMessage }}
             </p>
           </div>
 
           <div
             v-else-if="feedError"
-            class="mt-3 rounded-xl border border-[#fed7aa] bg-warning-soft p-5"
+            class="mt-3 rounded-xl border border-warning-line bg-warning-soft p-5"
           >
-            <h3 class="text-sm font-semibold text-[#9a3412]">
+            <h3 class="text-sm font-semibold text-warning">
               Terjadi kendala
             </h3>
-            <p class="mt-2 text-sm leading-6 text-[#9a3412]">
+            <p class="mt-2 text-sm leading-6 text-warning">
               {{ feedError }}
             </p>
             <button
               type="button"
-              class="mt-4 inline-flex items-center gap-2 rounded-lg border border-[#fdba74] bg-white px-3 py-2 text-xs font-medium text-[#9a3412]"
+              class="mt-4 inline-flex items-center gap-2 rounded-lg border border-[#fdba74] bg-surface px-3 py-2 text-xs font-medium text-warning"
               @click="loadFeed"
             >
               <PhArrowClockwise :size="14" />
@@ -539,7 +539,7 @@ function updatePostCommentCount(feedId: string, count: number) {
 
           <div
             v-else-if="posts.length === 0"
-            class="mt-3 rounded-xl border border-border bg-white px-5 py-10 text-center"
+            class="mt-3 rounded-xl border border-border bg-surface px-5 py-10 text-center"
           >
             <div
               class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
@@ -560,7 +560,7 @@ function updatePostCommentCount(feedId: string, count: number) {
               v-for="post in posts"
               :key="post.feedId"
               :id="`post-${post.feedId}`"
-              class="min-w-0 rounded-xl border border-border bg-white transition-shadow"
+              class="min-w-0 rounded-xl border border-border bg-surface transition-shadow"
               :class="isOptimisticFeed(post) ? 'opacity-80' : ''"
             >
               <div class="flex min-w-0 items-start gap-3 px-4 pt-4 sm:px-5">

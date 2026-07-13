@@ -359,10 +359,10 @@ onMounted(() => {
 
 <template>
   <main
-    class="grid min-h-screen min-w-0 flex-1 grid-cols-1 overflow-x-hidden bg-[#f8f7f4] lg:grid-cols-[minmax(0,1fr)_320px]"
+    class="grid min-h-screen min-w-0 flex-1 grid-cols-1 overflow-x-hidden bg-background lg:grid-cols-[minmax(0,1fr)_320px]"
   >
     <section class="min-w-0">
-      <header class="border-b border-border bg-white">
+      <header class="border-b border-border bg-surface">
         <div
           class="flex min-w-0 flex-col gap-3 px-5 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8"
         >
@@ -401,7 +401,7 @@ onMounted(() => {
               <h2 class="text-base font-medium text-foreground">
                 Dashboard tidak dapat dimuat
               </h2>
-              <p class="mt-1 text-sm leading-6 text-[#7a7385]">
+              <p class="mt-1 text-sm leading-6 text-muted">
                 {{ errorMessage }}
               </p>
               <button
@@ -420,14 +420,14 @@ onMounted(() => {
             <div
               v-for="item in 3"
               :key="item"
-              class="h-36 animate-pulse rounded-xl border border-border bg-white shadow-sm"
+              class="h-36 animate-pulse rounded-xl border border-border bg-surface shadow-sm"
             />
           </div>
           <div class="grid gap-4 xl:grid-cols-2">
             <div
               v-for="item in 2"
               :key="`panel-${item}`"
-              class="h-64 animate-pulse rounded-xl border border-border bg-white shadow-sm"
+              class="h-64 animate-pulse rounded-xl border border-border bg-surface shadow-sm"
             />
           </div>
         </section>
@@ -437,7 +437,7 @@ onMounted(() => {
           class="flex min-h-[50vh] items-center justify-center"
         >
           <article
-            class="w-full max-w-xl rounded-xl border border-border bg-white shadow-sm p-8 text-center"
+            class="w-full max-w-xl rounded-xl border border-border bg-surface shadow-sm p-8 text-center"
           >
             <div
               class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
@@ -447,7 +447,7 @@ onMounted(() => {
             <h2 class="mt-3 text-lg font-medium text-foreground">
               Belum ada kelas aktif
             </h2>
-            <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#7a7385]">
+            <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-muted">
               Kelas akan muncul setelah akunmu terdaftar sebagai anggota kelas
               di sekolah aktif.
             </p>
@@ -456,7 +456,7 @@ onMounted(() => {
 
         <section v-else class="grid min-w-0 gap-4 xl:grid-cols-[1.15fr_0.85fr]">
           <article
-            class="min-w-0 rounded-xl border border-border bg-white shadow-sm p-4 sm:p-5"
+            class="min-w-0 rounded-xl border border-border bg-surface shadow-sm p-4 sm:p-5"
           >
             <div class="mb-4 flex min-w-0 items-center justify-between gap-3">
               <div class="min-w-0">
@@ -479,15 +479,15 @@ onMounted(() => {
               <div
                 v-for="item in 4"
                 :key="item"
-                class="h-24 animate-pulse rounded-lg bg-[#fbfaf8]"
+                class="h-24 animate-pulse rounded-lg bg-surface-subtle"
               />
             </div>
 
             <div
               v-else-if="subjectPreviewError"
-              class="rounded-lg bg-[#fbfaf8] p-5"
+              class="rounded-lg bg-surface-subtle p-5"
             >
-              <p class="mt-2 text-sm leading-6 text-[#7a7385]">
+              <p class="mt-2 text-sm leading-6 text-muted">
                 {{ subjectPreviewError }}
               </p>
             </div>
@@ -499,7 +499,7 @@ onMounted(() => {
               <RouterLink
                 v-for="subject in subjects"
                 :key="subject.subjectClassId"
-                class="group min-w-0 overflow-hidden rounded-lg bg-[#fbfaf8] transition hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_18px_40px_rgba(66,55,40,0.08)]"
+                class="group min-w-0 overflow-hidden rounded-lg bg-surface-subtle transition hover:-translate-y-0.5 hover:bg-surface hover:shadow-[0_18px_40px_rgba(66,55,40,0.08)]"
                 :to="`/student/subjects/${subject.subjectClassId}`"
               >
                 <div
@@ -527,7 +527,7 @@ onMounted(() => {
                         "Mata pelajaran"
                       }}
                     </p>
-                    <p class="mt-1 truncate text-xs leading-5 text-[#7a7385]">
+                    <p class="mt-1 truncate text-xs leading-5 text-muted">
                       {{ subject.teacherName || "Guru belum tersedia" }}
                     </p>
                   </div>
@@ -539,18 +539,18 @@ onMounted(() => {
               </RouterLink>
             </div>
 
-            <div v-else class="rounded-lg bg-[#fbfaf8] p-5">
+            <div v-else class="rounded-lg bg-surface-subtle p-5">
               <p class="text-sm font-medium text-foreground">
                 Belum ada mata pelajaran
               </p>
-              <p class="mt-2 text-sm leading-6 text-[#7a7385]">
+              <p class="mt-2 text-sm leading-6 text-muted">
                 Mata pelajaran akan tampil setelah tersedia pada kelas aktif.
               </p>
             </div>
           </article>
 
           <article
-            class="flex min-h-90 min-w-0 flex-col rounded-xl border border-border bg-white shadow-sm p-4 sm:p-5 lg:max-h-130"
+            class="flex min-h-90 min-w-0 flex-col rounded-xl border border-border bg-surface shadow-sm p-4 sm:p-5 lg:max-h-130"
           >
             <div class="mb-4 flex shrink-0 items-center justify-between gap-3">
               <div class="flex min-w-0 items-start gap-3">
@@ -578,20 +578,20 @@ onMounted(() => {
               <div
                 v-for="item in 3"
                 :key="item"
-                class="h-16 animate-pulse rounded-lg bg-[#fbfaf8]"
+                class="h-16 animate-pulse rounded-lg bg-surface-subtle"
               />
             </div>
 
             <div
               v-else-if="assignmentsError"
-              class="shrink-0 rounded-lg bg-[#fbfaf8] p-4 text-sm leading-6 text-[#7a7385]"
+              class="shrink-0 rounded-lg bg-surface-subtle p-4 text-sm leading-6 text-muted"
             >
               {{ assignmentsError }}
             </div>
 
             <div
               v-else-if="assignmentPreview.length === 0"
-              class="shrink-0 rounded-lg bg-[#fbfaf8] p-4"
+              class="shrink-0 rounded-lg bg-surface-subtle p-4"
             >
               <p class="text-sm font-semibold text-foreground">
                 Belum ada tugas
@@ -619,7 +619,7 @@ onMounted(() => {
                     >
                       {{ assignment.assignmentTitle }}
                     </p>
-                    <p class="mt-1 truncate text-xs text-[#7a7385]">
+                    <p class="mt-1 truncate text-xs text-muted">
                       {{ assignment.subjectName }}
                       <span v-if="assignment.subjectCode">
                         · {{ assignment.subjectCode }}
@@ -650,7 +650,7 @@ onMounted(() => {
     </section>
 
     <aside
-      class="min-w-0 border-t border-border bg-white lg:sticky lg:top-0 lg:h-dvh lg:min-h-0 lg:overflow-hidden lg:border-l lg:border-t-0"
+      class="min-w-0 border-t border-border bg-surface lg:sticky lg:top-0 lg:h-dvh lg:min-h-0 lg:overflow-hidden lg:border-l lg:border-t-0"
     >
       <div
         class="flex flex-col gap-3 p-4 lg:h-full lg:min-h-0 lg:overflow-hidden"
@@ -668,7 +668,7 @@ onMounted(() => {
               </p>
               <div class="flex items-center gap-2">
                 <RouterLink
-                  class="rounded-lg border border-border bg-white px-1 py-1 text-xs font-medium text-brand transition hover:border-brand hover:bg-brand-soft"
+                  class="rounded-lg border border-border bg-surface px-1 py-1 text-xs font-medium text-brand transition hover:border-brand hover:bg-brand-soft"
                   to="/student/notifications"
                 >
                   Lihat semua
@@ -693,17 +693,17 @@ onMounted(() => {
               <div
                 v-for="item in 3"
                 :key="item"
-                class="h-16 animate-pulse rounded-lg bg-[#f0ede8]"
+                class="h-16 animate-pulse rounded-lg bg-surface-strong"
               />
             </div>
             <div
               v-else-if="notificationsError"
-              class="rounded-lg bg-[#fbfaf8] p-4 text-sm leading-6 text-[#7a7385]"
+              class="rounded-lg bg-surface-subtle p-4 text-sm leading-6 text-muted"
             >
               <p>{{ notificationsError }}</p>
               <button
                 type="button"
-                class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-medium text-brand transition hover:border-brand hover:bg-brand-soft disabled:cursor-not-allowed disabled:opacity-60"
+                class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-medium text-brand transition hover:border-brand hover:bg-brand-soft disabled:cursor-not-allowed disabled:opacity-60"
                 :disabled="notificationsLoading"
                 @click="loadNotifications"
               >
@@ -715,7 +715,7 @@ onMounted(() => {
               <button
                 v-for="item in notifications"
                 :key="item.notificationId"
-                class="flex min-w-0 w-full gap-3 p-3 text-left transition hover:bg-[#f8f7f4] disabled:cursor-wait disabled:opacity-75 border-b border-border"
+                class="flex min-w-0 w-full gap-3 p-3 text-left transition hover:bg-background disabled:cursor-wait disabled:opacity-75 border-b border-border"
                 :class="!item.isRead ? 'bg-[#f5f7ff]' : ''"
                 type="button"
                 :disabled="markingNotificationIds.has(item.notificationId)"
@@ -741,7 +741,7 @@ onMounted(() => {
                       formatDateTime(item.createdAt)
                     }}</span>
                   </div>
-                  <p class="line-clamp-2 text-xs leading-5 text-[#7a7385]">
+                  <p class="line-clamp-2 text-xs leading-5 text-muted">
                     {{ notificationMessage(item) }}
                   </p>
                   <span
@@ -753,7 +753,7 @@ onMounted(() => {
                 </div>
               </button>
             </div>
-            <div v-else class="rounded-lg bg-[#fbfaf8] p-4">
+            <div v-else class="rounded-lg bg-surface-subtle p-4">
               <p class="text-sm font-semibold text-foreground">
                 Belum ada notifikasi terbaru
               </p>
@@ -787,18 +787,18 @@ onMounted(() => {
               <div
                 v-for="item in 3"
                 :key="item"
-                class="h-16 animate-pulse rounded-lg bg-[#f0ede8]"
+                class="h-16 animate-pulse rounded-lg bg-surface-strong"
               />
             </div>
             <div
               v-else-if="feedPreviewError"
-              class="rounded-lg bg-[#fbfaf8] p-4 text-sm leading-6 text-[#7a7385]"
+              class="rounded-lg bg-surface-subtle p-4 text-sm leading-6 text-muted"
             >
               <p>{{ feedPreviewError }}</p>
               <button
                 v-if="activeClassStore.activeClassId"
                 type="button"
-                class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-medium text-brand transition hover:border-brand hover:bg-brand-soft disabled:cursor-not-allowed disabled:opacity-60"
+                class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-medium text-brand transition hover:border-brand hover:bg-brand-soft disabled:cursor-not-allowed disabled:opacity-60"
                 :disabled="feedPreviewLoading"
                 @click="retryFeedPreview"
               >
@@ -824,7 +824,7 @@ onMounted(() => {
                 </p>
               </article>
             </div>
-            <div v-else class="rounded-lg bg-[#fbfaf8] p-4">
+            <div v-else class="rounded-lg bg-surface-subtle p-4">
               <p class="text-sm font-semibold text-foreground">
                 Belum ada pengumuman
               </p>

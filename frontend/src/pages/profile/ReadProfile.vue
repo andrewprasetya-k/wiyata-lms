@@ -100,8 +100,8 @@ const schoolRows = computed(() => [
 </script>
 
 <template>
-  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
-    <header class="border-b border-border bg-white">
+  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-background">
+    <header class="border-b border-border bg-surface">
       <div class="px-5 py-4 sm:px-6 lg:px-8">
         <p class="text-[11px] font-medium text-brand">
           {{ pageEyebrow }}
@@ -120,7 +120,7 @@ const schoolRows = computed(() => [
       class="flex min-h-[65vh] items-center justify-center px-5 py-10 sm:px-6 lg:px-8"
     >
       <article
-        class="w-full max-w-xl rounded-xl border border-border bg-white p-8 text-center"
+        class="w-full max-w-xl rounded-xl border border-border bg-surface p-8 text-center"
       >
         <div
           class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
@@ -130,7 +130,7 @@ const schoolRows = computed(() => [
         <h2 class="mt-3 text-lg font-medium text-foreground">
           Data profil belum tersedia
         </h2>
-        <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#7a7385]">
+        <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-muted">
           Informasi akun belum ditemukan pada sesi aktif. Silakan masuk kembali
           untuk memuat profil.
         </p>
@@ -143,7 +143,7 @@ const schoolRows = computed(() => [
     >
       <aside class="min-w-0">
         <article
-          class="rounded-xl border border-border bg-white p-5 lg:sticky lg:top-6"
+          class="rounded-xl border border-border bg-surface p-5 lg:sticky lg:top-6"
         >
           <div
             class="flex h-14 w-14 items-center justify-center rounded-xl bg-brand text-base font-medium text-white"
@@ -177,7 +177,7 @@ const schoolRows = computed(() => [
       <div class="min-w-0 space-y-5">
         <section class="grid min-w-0 gap-5 xl:grid-cols-2">
           <article
-            class="min-w-0 rounded-xl border border-border bg-white p-5"
+            class="min-w-0 rounded-xl border border-border bg-surface p-5"
           >
             <div class="mb-4 flex min-w-0 items-center gap-3">
               <div
@@ -212,7 +212,7 @@ const schoolRows = computed(() => [
           </article>
 
           <article
-            class="min-w-0 rounded-xl border border-border bg-white p-5"
+            class="min-w-0 rounded-xl border border-border bg-surface p-5"
           >
             <div class="mb-4 flex min-w-0 items-center gap-3">
               <div
@@ -249,7 +249,7 @@ const schoolRows = computed(() => [
 
         <section
           v-if="auth.memberships.length > 0"
-          class="min-w-0 rounded-xl border border-border bg-white p-5"
+          class="min-w-0 rounded-xl border border-border bg-surface p-5"
         >
           <div class="flex min-w-0 items-center gap-3">
             <div
@@ -269,7 +269,7 @@ const schoolRows = computed(() => [
             <article
               v-for="membership in auth.memberships"
               :key="membership.schoolUserId"
-              class="min-w-0 rounded-lg border border-border bg-[#fbfaf8] p-4"
+              class="min-w-0 rounded-lg border border-border bg-surface-subtle p-4"
             >
               <p class="truncate text-sm font-medium text-foreground">
                 {{ membership.school.name || "Sekolah tidak tersedia" }}
@@ -287,7 +287,7 @@ const schoolRows = computed(() => [
                 </span>
                 <span
                   v-if="membership.isDefault"
-                  class="rounded-full bg-[#f0fdf4] px-2.5 py-1 text-xs font-medium text-[#059669]"
+                  class="rounded-full bg-success-soft px-2.5 py-1 text-xs font-medium text-success"
                 >
                   Utama
                 </span>
@@ -298,12 +298,12 @@ const schoolRows = computed(() => [
 
         <section
           v-else
-          class="rounded-xl border border-border bg-white p-6 text-center"
+          class="rounded-xl border border-border bg-surface p-6 text-center"
         >
           <h2 class="text-sm font-medium text-foreground">
             Akses sekolah belum tersedia
           </h2>
-          <p class="mt-2 text-sm leading-6 text-[#7a7385]">
+          <p class="mt-2 text-sm leading-6 text-muted">
             Akun ini belum memiliki akses sekolah pada sesi aktif.
           </p>
         </section>

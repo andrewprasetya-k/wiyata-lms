@@ -76,7 +76,7 @@ watch(
 
 <template>
   <article
-    class="flex h-full min-h-0 flex-col rounded-[22px] border border-border bg-[#fbfaf8] p-5 lg:overflow-hidden"
+    class="flex h-full min-h-0 flex-col rounded-[22px] border border-border bg-surface-subtle p-5 lg:overflow-hidden"
   >
     <div class="flex items-start gap-3">
       <div
@@ -86,23 +86,23 @@ watch(
       </div>
       <div class="min-w-0">
         <h2 class="text-base font-medium text-foreground">Catatan Saya</h2>
-        <p class="mt-1 text-sm leading-6 text-[#7a7385]">
+        <p class="mt-1 text-sm leading-6 text-muted">
           Catatan pribadi untuk materi ini.
         </p>
       </div>
     </div>
 
     <div v-if="isLoading" class="mt-5 flex-1 space-y-2">
-      <div class="h-4 animate-pulse rounded bg-white" />
-      <div class="h-4 w-4/5 animate-pulse rounded bg-white" />
-      <div class="h-4 w-2/3 animate-pulse rounded bg-white" />
+      <div class="h-4 animate-pulse rounded bg-surface" />
+      <div class="h-4 w-4/5 animate-pulse rounded bg-surface" />
+      <div class="h-4 w-2/3 animate-pulse rounded bg-surface" />
     </div>
 
     <div
       v-else-if="!hasLoaded"
-      class="mt-5 flex-1 rounded-[18px] bg-white p-4"
+      class="mt-5 flex-1 rounded-[18px] bg-surface p-4"
     >
-      <p class="text-sm leading-6 text-[#b42318]">{{ errorMessage }}</p>
+      <p class="text-sm leading-6 text-danger">{{ errorMessage }}</p>
       <button
         class="mt-3 inline-flex items-center gap-2 text-sm font-medium text-brand"
         type="button"
@@ -124,7 +124,7 @@ watch(
           </p>
         </div>
       </template>
-      <p v-else class="text-sm leading-6 text-[#7a7385]">
+      <p v-else class="text-sm leading-6 text-muted">
         Belum ada catatan. Buka editor untuk menulis ringkasan atau poin penting
         dari materi ini.
       </p>

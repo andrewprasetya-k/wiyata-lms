@@ -151,8 +151,8 @@ onMounted(loadAssignments);
 </script>
 
 <template>
-  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
-    <header class="border-b border-border bg-white">
+  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-background">
+    <header class="border-b border-border bg-surface">
       <div class="px-5 py-5 sm:px-6 lg:px-8">
         <h1 class="text-2xl font-semibold text-foreground sm:text-3xl">
           Tugas Saya
@@ -172,11 +172,11 @@ onMounted(loadAssignments);
           <div
             v-for="item in 4"
             :key="item"
-            class="h-24 animate-pulse rounded-xl border border-border bg-white"
+            class="h-24 animate-pulse rounded-xl border border-border bg-surface"
           />
         </div>
         <div
-          class="h-72 animate-pulse rounded-xl border border-border bg-white"
+          class="h-72 animate-pulse rounded-xl border border-border bg-surface"
         />
       </section>
 
@@ -197,7 +197,7 @@ onMounted(loadAssignments);
               <h2 class="text-base font-semibold text-foreground">
                 Tugas tidak dapat dimuat
               </h2>
-              <p class="mt-1 text-sm leading-6 text-[#7a7385]">
+              <p class="mt-1 text-sm leading-6 text-muted">
                 {{ errorMessage }}
               </p>
               <button
@@ -214,42 +214,42 @@ onMounted(loadAssignments);
 
       <template v-else>
         <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <article class="rounded-xl border border-border bg-white shadow-sm p-4">
+          <article class="rounded-xl border border-border bg-surface shadow-sm p-4">
             <PhClipboardText
               :size="21"
               class="text-brand"
               weight="duotone"
             />
-            <p class="mt-3 text-xs text-[#7a7385]">Total tugas</p>
+            <p class="mt-3 text-xs text-muted">Total tugas</p>
             <p class="mt-1 text-2xl font-medium text-foreground">
               {{ summary.totalAssignments }}
             </p>
           </article>
-          <article class="rounded-xl border border-border bg-white shadow-sm p-4">
+          <article class="rounded-xl border border-border bg-surface shadow-sm p-4">
             <PhCalendarBlank
               :size="21"
               class="text-[#059669]"
               weight="duotone"
             />
-            <p class="mt-3 text-xs text-[#7a7385]">Tugas aktif</p>
+            <p class="mt-3 text-xs text-muted">Tugas aktif</p>
             <p class="mt-1 text-2xl font-medium text-foreground">
               {{ summary.activeAssignments }}
             </p>
           </article>
-          <article class="rounded-xl border border-border bg-white shadow-sm p-4">
+          <article class="rounded-xl border border-border bg-surface shadow-sm p-4">
             <PhWarningCircle
               :size="21"
               class="text-[#ea580c]"
               weight="duotone"
             />
-            <p class="mt-3 text-xs text-[#7a7385]">Perlu dinilai</p>
+            <p class="mt-3 text-xs text-muted">Perlu dinilai</p>
             <p class="mt-1 text-2xl font-medium text-foreground">
               {{ summary.pendingReviewCount }}
             </p>
           </article>
-          <article class="rounded-xl border border-border bg-white shadow-sm p-4">
+          <article class="rounded-xl border border-border bg-surface shadow-sm p-4">
             <PhCheckCircle :size="21" class="text-[#4f8ef7]" weight="duotone" />
-            <p class="mt-3 text-xs text-[#7a7385]">Total pengumpulan</p>
+            <p class="mt-3 text-xs text-muted">Total pengumpulan</p>
             <p class="mt-1 text-2xl font-medium text-foreground">
               {{ summary.totalSubmissions }}
             </p>
@@ -257,14 +257,14 @@ onMounted(loadAssignments);
         </section>
 
         <section
-          class="mt-5 min-w-0 rounded-xl border border-border bg-white shadow-sm p-4 sm:p-5"
+          class="mt-5 min-w-0 rounded-xl border border-border bg-surface shadow-sm p-4 sm:p-5"
         >
           <div
             class="flex flex-col gap-4 border-b border-border pb-4 lg:flex-row lg:items-end lg:justify-between"
           >
             <div class="min-w-0">
               <h2 class="text-sm font-semibold text-foreground">Daftar tugas</h2>
-              <p class="mt-1 text-xs text-[#7a7385] sm:text-sm">
+              <p class="mt-1 text-xs text-muted sm:text-sm">
                 {{ assignments.length }} tugas dari mata pelajaran yang Anda
                 ajar.
               </p>
@@ -278,7 +278,7 @@ onMounted(loadAssignments);
                 :class="
                   activeFilter === tab.id
                     ? 'bg-brand text-white'
-                    : 'bg-[#fbfaf8] text-muted hover:bg-brand-soft hover:text-brand'
+                    : 'bg-surface-subtle text-muted hover:bg-brand-soft hover:text-brand'
                 "
                 @click="activeFilter = tab.id"
               >
@@ -370,7 +370,7 @@ onMounted(loadAssignments);
                       >
                         {{ item.item.assignmentTitle }}
                       </h3>
-                      <p class="mt-1 text-xs text-[#7a7385]">
+                      <p class="mt-1 text-xs text-muted">
                         {{ item.item.categoryName || "Tanpa kategori" }} ·
                         Tenggat {{ formatDate(item.item.deadline) }}
                       </p>
@@ -387,7 +387,7 @@ onMounted(loadAssignments);
               </div>
 
               <dl class="mt-4 grid grid-cols-3 gap-2 text-xs sm:max-w-lg">
-                <div class="rounded-lg bg-[#fbfaf8] p-3">
+                <div class="rounded-lg bg-surface-subtle p-3">
                   <dt class="text-[#8a8494]">Pengumpulan</dt>
                   <dd class="mt-1 text-base font-medium text-foreground">
                     {{ item.submissionCount }}
@@ -399,7 +399,7 @@ onMounted(loadAssignments);
                     {{ item.pendingCount }}
                   </dd>
                 </div>
-                <div class="rounded-lg bg-[#f0fdf4] p-3">
+                <div class="rounded-lg bg-success-soft p-3">
                   <dt class="text-success">Sudah dinilai</dt>
                   <dd class="mt-1 text-base font-medium text-success">
                     {{ item.gradedCount }}
@@ -426,7 +426,7 @@ onMounted(loadAssignments);
                       asgId: item.item.assignmentId,
                     },
                   }"
-                  class="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-brand hover:text-brand"
+                  class="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground-secondary transition hover:border-brand hover:text-brand"
                 >
                   <PhPencilSimple :size="16" />
                   Edit
@@ -436,7 +436,7 @@ onMounted(loadAssignments);
                     name: 'teacher-subject-detail',
                     params: { subjectClassId: item.item.subjectClassId },
                   }"
-                  class="inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-sm font-medium text-muted transition hover:bg-[#f3f1ec] hover:text-foreground"
+                  class="inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-sm font-medium text-muted transition hover:bg-surface-strong hover:text-foreground"
                 >
                   Lihat di ruang kerja
                 </RouterLink>

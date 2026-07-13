@@ -49,8 +49,8 @@ onMounted(loadMaterial);
 </script>
 
 <template>
-  <main class="min-h-screen min-w-0 flex-1 bg-[#f8f7f4]">
-    <header class="border-b border-border bg-white">
+  <main class="min-h-screen min-w-0 flex-1 bg-background">
+    <header class="border-b border-border bg-surface">
       <div
         class="flex min-w-0 items-center gap-2 px-5 py-5 text-xs text-muted sm:px-6 lg:px-8"
       >
@@ -76,14 +76,14 @@ onMounted(loadMaterial);
     >
       <div class="space-y-4">
         <div
-          class="h-52 animate-pulse rounded-xl border border-border bg-white"
+          class="h-52 animate-pulse rounded-xl border border-border bg-surface"
         />
         <div
-          class="h-80 animate-pulse rounded-xl border border-border bg-white"
+          class="h-80 animate-pulse rounded-xl border border-border bg-surface"
         />
       </div>
       <div
-        class="h-112 animate-pulse rounded-xl border border-border bg-white"
+        class="h-112 animate-pulse rounded-xl border border-border bg-surface"
       />
     </section>
 
@@ -104,7 +104,7 @@ onMounted(loadMaterial);
             <h1 class="text-base font-semibold text-foreground">
               Tidak bisa memuat materi
             </h1>
-            <p class="mt-1 text-sm leading-6 text-[#7a7385]">
+            <p class="mt-1 text-sm leading-6 text-muted">
               {{ errorMessage }}
             </p>
             <button
@@ -124,7 +124,7 @@ onMounted(loadMaterial);
       class="flex min-h-[calc(100vh-49px)] items-center justify-center px-5 py-10"
     >
       <article
-        class="w-full max-w-xl rounded-xl border border-border bg-white p-8 text-center"
+        class="w-full max-w-xl rounded-xl border border-border bg-surface p-8 text-center"
       >
         <div
           class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
@@ -134,7 +134,7 @@ onMounted(loadMaterial);
         <h1 class="mt-4 text-base font-semibold text-foreground">
           Materi tidak ditemukan
         </h1>
-        <p class="mx-auto mt-1 max-w-md text-sm leading-6 text-[#7a7385]">
+        <p class="mx-auto mt-1 max-w-md text-sm leading-6 text-muted">
           Materi ini tidak tersedia atau sudah tidak dapat diakses.
         </p>
         <RouterLink
@@ -152,7 +152,7 @@ onMounted(loadMaterial);
       class="mx-auto grid w-full max-w-screen min-w-0 items-start gap-5 px-5 py-5 sm:px-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:px-8 lg:py-6"
     >
       <div class="min-w-0 space-y-4">
-        <article class="rounded-xl border border-border bg-white shadow-sm p-5 sm:p-6">
+        <article class="rounded-xl border border-border bg-surface shadow-sm p-5 sm:p-6">
           <div class="flex min-w-0 items-start gap-4">
             <div
               class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand"
@@ -169,7 +169,7 @@ onMounted(loadMaterial);
                 </span>
                 <span
                   v-if="material.subjectName"
-                  class="rounded-full bg-[#f8f7f4] px-2.5 py-1 text-[11px] text-muted"
+                  class="rounded-full bg-background px-2.5 py-1 text-[11px] text-muted"
                 >
                   {{ material.subjectName }}
                 </span>
@@ -199,13 +199,13 @@ onMounted(loadMaterial);
             >
               {{ material.materialDesc }}
             </p>
-            <p v-else class="mt-3 text-sm leading-6 text-[#7a7385]">
+            <p v-else class="mt-3 text-sm leading-6 text-muted">
               Deskripsi materi belum tersedia.
             </p>
           </div>
         </article>
 
-        <article class="rounded-xl border border-border bg-white shadow-sm p-5 sm:p-6">
+        <article class="rounded-xl border border-border bg-surface shadow-sm p-5 sm:p-6">
           <div class="flex items-center justify-between gap-3">
             <div class="flex items-center gap-2">
               <PhPaperclip :size="18" class="text-brand" />
@@ -215,12 +215,12 @@ onMounted(loadMaterial);
             </div>
             <span
               v-if="material.attachments?.length"
-              class="shrink-0 rounded-full bg-[#f8f7f4] px-2.5 py-1 text-[11px] text-muted"
+              class="shrink-0 rounded-full bg-background px-2.5 py-1 text-[11px] text-muted"
             >
               {{ material.attachments.length }} file
             </span>
           </div>
-          <p class="mt-1 text-xs leading-5 text-[#7a7385]">
+          <p class="mt-1 text-xs leading-5 text-muted">
             Buka atau pelajari file pembelajaran yang dibagikan guru.
           </p>
           <AttachmentPreviewList
@@ -232,9 +232,9 @@ onMounted(loadMaterial);
           />
         </article>
 
-        <!-- <article class="rounded-xl border border-border bg-white p-5">
+        <!-- <article class="rounded-xl border border-border bg-surface p-5">
           <h2 class="text-sm font-semibold text-foreground">Progress materi</h2>
-          <p class="mt-1 text-sm leading-6 text-[#7a7385]">
+          <p class="mt-1 text-sm leading-6 text-muted">
             Progress materi direncanakan setelah MVP sekolah. Membuka materi
             belum menandai progres selesai.
           </p>

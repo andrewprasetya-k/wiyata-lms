@@ -81,8 +81,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
-    <header class="border-b border-border bg-white">
+  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-background">
+    <header class="border-b border-border bg-surface">
       <div
         class="flex min-w-0 flex-col gap-3 px-5 py-5 sm:px-6 lg:flex-row lg:items-end lg:justify-between lg:px-8"
       >
@@ -98,7 +98,7 @@ onMounted(() => {
         </div>
         <button
           type="button"
-          class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+          class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground-secondary transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
           :disabled="isLoading"
           @click="loadUsers(1)"
         >
@@ -114,7 +114,7 @@ onMounted(() => {
       <div class="flex min-w-0 flex-col gap-6">
         <section class="grid gap-3 sm:grid-cols-3">
           <article
-            class="rounded-xl border border-border bg-white p-4 shadow-sm"
+            class="rounded-xl border border-border bg-surface p-4 shadow-sm"
           >
             <p class="text-xs font-medium text-muted">Total akun</p>
             <p class="mt-2 text-2xl font-semibold text-foreground">
@@ -122,10 +122,10 @@ onMounted(() => {
             </p>
           </article>
           <article
-            class="col-span-2 rounded-xl border border-border bg-white p-4 shadow-sm"
+            class="col-span-2 rounded-xl border border-border bg-surface p-4 shadow-sm"
           >
             <p class="text-xs font-medium text-muted">Halaman ini</p>
-            <p class="mt-2 text-sm leading-6 text-[#374151]">
+            <p class="mt-2 text-sm leading-6 text-foreground-secondary">
               Menampilkan {{ users.length }} dari {{ totalItems }} akun.
               Gunakan pencarian untuk menyaring hasil.
             </p>
@@ -133,7 +133,7 @@ onMounted(() => {
         </section>
 
         <section
-          class="rounded-xl border border-border bg-white p-5 shadow-sm"
+          class="rounded-xl border border-border bg-surface p-5 shadow-sm"
         >
           <div
             class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"
@@ -151,13 +151,13 @@ onMounted(() => {
             <label class="relative block w-full lg:max-w-xs">
               <PhMagnifyingGlass
                 :size="17"
-                class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#9ca3af]"
+                class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted"
               />
               <input
                 v-model="searchQuery"
                 type="search"
                 placeholder="Cari nama atau email..."
-                class="w-full rounded-lg border border-[#e5e7eb] bg-white py-2.5 pl-10 pr-3 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                class="w-full rounded-lg border border-[#e5e7eb] bg-surface py-2.5 pl-10 pr-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
                 @input="onSearchInput"
               />
             </label>
@@ -168,7 +168,7 @@ onMounted(() => {
               <div
                 v-for="item in 3"
                 :key="item"
-                class="h-20 animate-pulse rounded-lg bg-[#fbfaf8]"
+                class="h-20 animate-pulse rounded-lg bg-surface-subtle"
               />
             </div>
 
@@ -176,10 +176,10 @@ onMounted(() => {
               v-else-if="errorMessage"
               class="rounded-lg border border-danger-line bg-danger-soft px-4 py-4"
             >
-              <p class="text-sm leading-6 text-[#a8665d]">{{ errorMessage }}</p>
+              <p class="text-sm leading-6 text-danger">{{ errorMessage }}</p>
               <button
                 type="button"
-                class="mt-3 inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-white px-3 py-2 text-sm font-medium text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
+                class="mt-3 inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-foreground-secondary transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
                 @click="loadUsers(1)"
               >
                 Coba lagi
@@ -188,9 +188,9 @@ onMounted(() => {
 
             <div
               v-else-if="users.length === 0 && !searchQuery"
-              class="rounded-lg bg-[#fbfaf8] px-5 py-8 text-center"
+              class="rounded-lg bg-surface-subtle px-5 py-8 text-center"
             >
-              <PhUsers class="mx-auto h-7 w-7 text-[#9ca3af]" weight="duotone" />
+              <PhUsers class="mx-auto h-7 w-7 text-muted" weight="duotone" />
               <h3 class="mt-3 text-sm font-semibold text-foreground">
                 Belum ada akun global
               </h3>
@@ -201,10 +201,10 @@ onMounted(() => {
 
             <div
               v-else-if="users.length === 0 && searchQuery"
-              class="rounded-lg bg-[#fbfaf8] px-5 py-8 text-center"
+              class="rounded-lg bg-surface-subtle px-5 py-8 text-center"
             >
               <PhMagnifyingGlass
-                class="mx-auto h-7 w-7 text-[#9ca3af]"
+                class="mx-auto h-7 w-7 text-muted"
                 weight="duotone"
               />
               <h3 class="mt-3 text-sm font-semibold text-foreground">
@@ -251,7 +251,7 @@ onMounted(() => {
                       </p>
                     </div>
 
-                    <p class="shrink-0 text-xs leading-5 text-[#9ca3af]">
+                    <p class="shrink-0 text-xs leading-5 text-muted">
                       Dibuat {{ user.createdAt }}
                     </p>
                   </div>
@@ -272,7 +272,7 @@ onMounted(() => {
 
       <aside class="min-w-0">
         <section
-          class="rounded-xl border border-border bg-white p-5 shadow-sm xl:sticky xl:top-6"
+          class="rounded-xl border border-border bg-surface p-5 shadow-sm xl:sticky xl:top-6"
         >
           <div class="flex items-start justify-between gap-4">
             <div class="min-w-0">
@@ -334,9 +334,9 @@ onMounted(() => {
             </article>
 
             <article
-              class="rounded-lg border border-[#fed7aa] bg-warning-soft p-4"
+              class="rounded-lg border border-warning-line bg-warning-soft p-4"
             >
-              <p class="text-xs leading-5 text-[#9a3412]">
+              <p class="text-xs leading-5 text-warning">
                 Operasional akademik setiap sekolah tetap dikelola oleh Admin
                 Sekolah.
               </p>

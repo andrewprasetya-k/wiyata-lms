@@ -86,7 +86,7 @@ onMounted(loadInvitation);
 </script>
 
 <template>
-  <main class="min-h-screen bg-[#fbfaf8] px-6 py-8 text-foreground">
+  <main class="min-h-screen bg-surface-subtle px-6 py-8 text-foreground">
     <div class="mx-auto flex w-full max-w-4xl items-center justify-between">
       <RouterLink to="/home" class="flex items-center gap-3">
         <img src="/logo_fix.svg" alt="Wiyata" class="h-9 w-9 rounded-lg" />
@@ -94,7 +94,7 @@ onMounted(loadInvitation);
       </RouterLink>
       <RouterLink
         to="/login"
-        class="rounded-lg border border-border bg-white px-4 py-2 text-sm font-medium text-[#5f5968] transition hover:text-foreground"
+        class="rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-[#5f5968] transition hover:text-foreground"
       >
         Masuk
       </RouterLink>
@@ -102,7 +102,7 @@ onMounted(loadInvitation);
 
     <section class="mx-auto mt-12 max-w-4xl">
       <div
-        class="rounded-xl border border-border bg-white p-6 shadow-sm md:p-8"
+        class="rounded-xl border border-border bg-surface p-6 shadow-sm md:p-8"
       >
         <div v-if="loading" class="space-y-5">
           <div class="h-5 w-36 animate-pulse rounded bg-border" />
@@ -138,7 +138,7 @@ onMounted(loadInvitation);
             <p class="text-lg font-semibold text-[#9f2a1d]">
               Undangan tidak bisa dibuka.
             </p>
-            <p class="mt-2 text-sm leading-6 text-[#b42318]">
+            <p class="mt-2 text-sm leading-6 text-danger">
               {{ errorMessage }}
             </p>
           </div>
@@ -165,7 +165,7 @@ onMounted(loadInvitation);
             </p>
 
             <dl
-              class="mt-6 space-y-4 rounded-xl border border-border bg-[#fbfaf8] p-5 text-sm"
+              class="mt-6 space-y-4 rounded-xl border border-border bg-surface-subtle p-5 text-sm"
             >
               <div>
                 <dt class="text-[#8a8394]">Sekolah</dt>
@@ -201,7 +201,7 @@ onMounted(loadInvitation);
               </span>
               <input
                 v-model="form.name"
-                class="h-11 w-full rounded-lg border border-border bg-[#fbfaf8] px-3 text-sm outline-none transition focus:border-brand focus:bg-white"
+                class="h-11 w-full rounded-lg border border-border bg-surface-subtle px-3 text-sm outline-none transition focus:border-brand focus:bg-surface"
                 type="text"
                 autocomplete="name"
                 placeholder="Budi Santoso"
@@ -214,7 +214,7 @@ onMounted(loadInvitation);
               </span>
               <input
                 v-model="form.password"
-                class="h-11 w-full rounded-lg border border-border bg-[#fbfaf8] px-3 text-sm outline-none transition focus:border-brand focus:bg-white"
+                class="h-11 w-full rounded-lg border border-border bg-surface-subtle px-3 text-sm outline-none transition focus:border-brand focus:bg-surface"
                 type="password"
                 autocomplete="new-password"
                 placeholder="Minimal 6 karakter"
@@ -227,7 +227,7 @@ onMounted(loadInvitation);
               </span>
               <input
                 v-model="form.confirmPassword"
-                class="h-11 w-full rounded-lg border border-border bg-[#fbfaf8] px-3 text-sm outline-none transition focus:border-brand focus:bg-white"
+                class="h-11 w-full rounded-lg border border-border bg-surface-subtle px-3 text-sm outline-none transition focus:border-brand focus:bg-surface"
                 type="password"
                 autocomplete="new-password"
                 placeholder="Ulangi password"
@@ -236,7 +236,7 @@ onMounted(loadInvitation);
 
             <p
               v-if="errorMessage"
-              class="rounded-lg border border-[#ffd7d2] bg-[#fff7f5] px-4 py-3 text-sm text-[#b42318]"
+              class="rounded-lg border border-[#ffd7d2] bg-[#fff7f5] px-4 py-3 text-sm text-danger"
             >
               {{ errorMessage }}
             </p>

@@ -180,24 +180,24 @@ function formatSize(bytes: number) {
 
 <template>
   <div class="media-uploader">
-    <label class="flex h-32 w-full cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-border bg-[#fbfaf8] transition hover:border-[#c7d2fe] hover:bg-white focus-within:border-brand focus-within:bg-white focus-within:ring-2 focus-within:ring-brand/15">
+    <label class="flex h-32 w-full cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-border bg-surface-subtle transition hover:border-brand-line hover:bg-surface focus-within:border-brand focus-within:bg-surface focus-within:ring-2 focus-within:ring-brand/15">
       <div class="flex flex-col items-center justify-center px-4 py-5 text-center">
         <PhUploadSimple :size="30" class="mb-2 text-[#8b8592]" />
         <p class="mb-1 text-sm font-medium text-foreground">Klik untuk unggah atau seret file</p>
-        <p class="text-xs text-[#7a7385]">PDF, video, atau dokumen (maks. {{ maxSizeMb }}MB)</p>
+        <p class="text-xs text-muted">PDF, video, atau dokumen (maks. {{ maxSizeMb }}MB)</p>
       </div>
       <input type="file" class="hidden" multiple @change="handleFileChange" />
     </label>
 
     <div v-if="files.length > 0" class="mt-4 space-y-2">
-      <div v-for="(file, index) in files" :key="index" class="flex max-w-full items-center justify-between gap-3 overflow-hidden rounded-xl border border-border bg-white p-3">
+      <div v-for="(file, index) in files" :key="index" class="flex max-w-full items-center justify-between gap-3 overflow-hidden rounded-xl border border-border bg-surface p-3">
         <div class="flex min-w-0 flex-1 items-center gap-3 overflow-hidden">
           <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#f3f0ea]">
             <PhFile :size="20" class="text-[#6b6475]" />
           </div>
           <div class="min-w-0 flex-1 overflow-hidden">
             <p class="truncate text-sm font-medium text-foreground">{{ file.name }}</p>
-            <p class="text-xs text-[#7a7385]">{{ formatSize(file.size) }}</p>
+            <p class="text-xs text-muted">{{ formatSize(file.size) }}</p>
           </div>
         </div>
 

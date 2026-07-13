@@ -52,7 +52,7 @@ function goBack() {
       </RouterLink>
       <button
         type="button"
-        class="inline-flex h-11 items-center justify-center rounded-xl border border-[#ddd6cb] bg-white px-5 text-sm font-medium text-foreground transition hover:bg-[#f8f7f4]"
+        class="inline-flex h-11 items-center justify-center rounded-xl border border-[#ddd6cb] bg-surface px-5 text-sm font-medium text-foreground transition hover:bg-background"
         @click="goBack"
       >
         Kembali ke halaman sebelumnya

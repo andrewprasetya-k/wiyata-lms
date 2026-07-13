@@ -16,7 +16,7 @@ const variantConfig = computed(() => {
       iconBg: "bg-danger-soft",
       iconColor: "text-danger",
       confirmClass:
-        "bg-danger text-white hover:bg-[#b91c1c] focus-visible:ring-danger",
+        "bg-danger text-white hover:bg-danger-hover focus-visible:ring-danger",
     };
   if (v === "warning")
     return {
@@ -119,7 +119,7 @@ onUnmounted(() => window.removeEventListener("keydown", handleKeydown));
         >
           <div
             v-if="store.open"
-            class="relative w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl shadow-black/20 ring-1 ring-black/5"
+            class="relative w-full max-w-sm rounded-2xl bg-surface p-6 shadow-2xl shadow-black/20 ring-1 ring-black/5"
           >
             <!-- Icon -->
             <div
@@ -158,7 +158,7 @@ onUnmounted(() => window.removeEventListener("keydown", handleKeydown));
               <button
                 ref="cancelRef"
                 type="button"
-                class="flex-1 rounded-xl border border-border bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-[#d1d5db] hover:bg-[#f9f8f7] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 sm:flex-none sm:min-w-22"
+                class="flex-1 rounded-xl border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground-secondary transition hover:border-strong hover:bg-[#f9f8f7] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 sm:flex-none sm:min-w-22"
                 @click="store.dismiss()"
               >
                 {{ store.options.cancelLabel ?? "Batal" }}

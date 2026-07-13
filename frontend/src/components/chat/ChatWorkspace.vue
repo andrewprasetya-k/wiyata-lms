@@ -1226,30 +1226,30 @@ function formatDateTime(value?: string | null) {
 </script>
 
 <template>
-  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
+  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-background">
     <section class="px-0 py-0 sm:px-0 lg:px-0">
       <div
         class="mx-auto flex max-h-screen min-h-screen max-w-screen flex-col gap-5"
       >
         <div
           v-if="isBooting"
-          class="grid min-h-screen gap-4 overflow-hidden rounded-xl bg-white p-4 lg:grid-cols-[300px_minmax(0,1fr)]"
+          class="grid min-h-screen gap-4 overflow-hidden rounded-xl bg-surface p-4 lg:grid-cols-[300px_minmax(0,1fr)]"
         >
           <div class="space-y-3 border-border lg:border-r lg:pr-4">
             <div class="h-16 animate-pulse rounded-xl bg-[#f1eee8]" />
-            <div class="h-20 animate-pulse rounded-xl bg-[#f8f7f4]" />
-            <div class="h-20 animate-pulse rounded-xl bg-[#f8f7f4]" />
+            <div class="h-20 animate-pulse rounded-xl bg-background" />
+            <div class="h-20 animate-pulse rounded-xl bg-background" />
           </div>
           <div class="flex flex-col gap-3">
             <div class="h-16 animate-pulse rounded-xl bg-[#f1eee8]" />
-            <div class="flex-1 animate-pulse rounded-xl bg-[#f8f7f4]" />
+            <div class="flex-1 animate-pulse rounded-xl bg-background" />
             <div class="h-16 animate-pulse rounded-xl bg-[#f1eee8]" />
           </div>
         </div>
 
         <div
           v-else-if="accessError"
-          class="flex min-h-105 flex-col items-center justify-center rounded-xl bg-white px-6 py-12 text-center"
+          class="flex min-h-105 flex-col items-center justify-center rounded-xl bg-surface px-6 py-12 text-center"
         >
           <div
             class="flex h-12 w-12 items-center justify-center rounded-lg bg-danger-soft text-danger"
@@ -1273,11 +1273,11 @@ function formatDateTime(value?: string | null) {
 
         <div
           v-else
-          class="grid h-[calc(100vh-1.5rem)] min-h-155 flex-1 overflow-hidden rounded-xl bg-white lg:grid-cols-[300px_minmax(0,1fr)]"
+          class="grid h-[calc(100vh-1.5rem)] min-h-155 flex-1 overflow-hidden rounded-xl bg-surface lg:grid-cols-[300px_minmax(0,1fr)]"
         >
           <aside
             ref="roomListEl"
-            class="min-w-0 overflow-y-auto border-border bg-[#fbfaf8] lg:border-r"
+            class="min-w-0 overflow-y-auto border-border bg-surface-subtle lg:border-r"
           >
             <div class="px-4 py-4 sm:px-5">
               <div class="flex items-center justify-between gap-3">
@@ -1296,13 +1296,13 @@ function formatDateTime(value?: string | null) {
               <input
                 v-model="roomSearch"
                 type="search"
-                class="min-w-0 flex-1 rounded-lg border border-transparent bg-[#f3f1ec] px-3 py-2 text-xs text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-[#c7d2fe] focus:bg-white focus:ring-2 focus:ring-brand/15"
+                class="min-w-0 flex-1 rounded-lg border border-transparent bg-surface-strong px-3 py-2 text-xs text-foreground outline-none transition placeholder:text-muted focus:border-brand-line focus:bg-surface focus:ring-2 focus:ring-brand/15"
                 placeholder="Cari ruang..."
                 @keydown.enter.prevent="searchRooms"
               />
               <button
                 type="button"
-                class="rounded-lg border border-[#d8d2c8] px-3 py-2 text-xs font-semibold text-brand transition hover:border-brand"
+                class="rounded-lg border border-border px-3 py-2 text-xs font-semibold text-brand transition hover:border-brand"
                 @click="searchRooms"
               >
                 Cari
@@ -1314,13 +1314,13 @@ function formatDateTime(value?: string | null) {
                 v-for="room in conversationList"
                 :key="room.roomId"
                 type="button"
-                class="flex w-full min-w-0 items-center gap-3 rounded-lg border px-3 py-3 text-left transition hover:bg-white"
+                class="flex w-full min-w-0 items-center gap-3 rounded-lg border px-3 py-3 text-left transition hover:bg-surface"
                 :class="
                   selectedRoom?.roomId === room.roomId
-                    ? 'border-[#d7d1ff] bg-white'
+                    ? 'border-[#d7d1ff] bg-surface'
                     : room.unreadCount > 0
-                      ? 'border-[#c7d2fe] bg-white'
-                      : 'border-border bg-[#fbfaf8]'
+                      ? 'border-brand-line bg-surface'
+                      : 'border-border bg-surface-subtle'
                 "
                 @click="
                   selectedRoom = room;
@@ -1360,7 +1360,7 @@ function formatDateTime(value?: string | null) {
                   </span>
                 </span>
                 <span class="flex shrink-0 flex-col items-end gap-1">
-                  <span class="text-[11px] text-[#9ca3af]">{{
+                  <span class="text-[11px] text-muted">{{
                     formatTime(room.lastMessageAt)
                   }}</span>
                   <span
@@ -1375,10 +1375,10 @@ function formatDateTime(value?: string | null) {
 
               <div
                 v-if="conversationList.length === 0"
-                class="rounded-lg bg-[#fbfaf8] px-4 py-8 text-center"
+                class="rounded-lg bg-surface-subtle px-4 py-8 text-center"
               >
                 <PhChatCircleText
-                  class="mx-auto h-7 w-7 text-[#9ca3af]"
+                  class="mx-auto h-7 w-7 text-muted"
                   weight="duotone"
                 />
                 <p class="mt-3 text-sm font-semibold text-foreground">
@@ -1389,7 +1389,7 @@ function formatDateTime(value?: string | null) {
           </aside>
 
           <section
-            class="relative flex min-h-0 min-w-0 flex-col bg-[#fbfaf8]"
+            class="relative flex min-h-0 min-w-0 flex-col bg-surface-subtle"
             @dragenter="handleDragEnter"
             @dragover="handleDragOver"
             @dragleave="handleDragLeave"
@@ -1426,7 +1426,7 @@ function formatDateTime(value?: string | null) {
                 class="pointer-events-none absolute inset-4 z-20 flex items-center justify-center rounded-2xl border-2 border-dashed border-brand bg-brand-soft/80"
               >
                 <div
-                  class="rounded-2xl bg-white px-5 py-4 text-center shadow-sm"
+                  class="rounded-2xl bg-surface px-5 py-4 text-center shadow-sm"
                 >
                   <p class="text-sm font-semibold text-foreground">
                     Lepas file di sini
@@ -1438,7 +1438,7 @@ function formatDateTime(value?: string | null) {
                 </div>
               </div>
               <div
-                class="flex items-center gap-3 border-b border-border bg-white px-4 py-3 sm:px-5"
+                class="flex items-center gap-3 border-b border-border bg-surface px-4 py-3 sm:px-5"
               >
                 <div
                   class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-brand text-sm font-semibold text-white"
@@ -1475,7 +1475,7 @@ function formatDateTime(value?: string | null) {
                   <button
                     v-if="hasMore"
                     type="button"
-                    class="mx-auto rounded-full border border-[#d8d2c8] bg-white px-4 py-2 text-xs font-semibold text-brand transition hover:border-brand disabled:opacity-60"
+                    class="mx-auto rounded-full border border-border bg-surface px-4 py-2 text-xs font-semibold text-brand transition hover:border-brand disabled:opacity-60"
                     :disabled="isLoadingOlder"
                     @click="loadOlderMessages"
                   >
@@ -1484,19 +1484,19 @@ function formatDateTime(value?: string | null) {
 
                   <div v-if="isLoadingMessages" class="space-y-3">
                     <div
-                      class="h-12 w-2/3 animate-pulse rounded-2xl bg-white"
+                      class="h-12 w-2/3 animate-pulse rounded-2xl bg-surface"
                     />
                     <div
                       class="ml-auto h-12 w-1/2 animate-pulse rounded-2xl bg-[#dfe3ff]"
                     />
                     <div
-                      class="h-16 w-3/4 animate-pulse rounded-2xl bg-white"
+                      class="h-16 w-3/4 animate-pulse rounded-2xl bg-surface"
                     />
                   </div>
 
                   <div
                     v-else-if="threadError"
-                    class="rounded-2xl border border-red-100 bg-white px-4 py-6 text-center"
+                    class="rounded-2xl border border-red-100 bg-surface px-4 py-6 text-center"
                   >
                     <p class="text-sm font-semibold text-red-600">
                       {{ threadError }}
@@ -1542,7 +1542,7 @@ function formatDateTime(value?: string | null) {
                       >
                         <div class="h-px flex-1 bg-[#e7e1d7]" />
                         <span
-                          class="shrink-0 rounded-full bg-white px-3 py-1 text-[11px] font-medium text-[#8b8592]"
+                          class="shrink-0 rounded-full bg-surface px-3 py-1 text-[11px] font-medium text-[#8b8592]"
                         >
                           {{ formatDateDivider(message.createdAt) }}
                         </span>
@@ -1588,7 +1588,7 @@ function formatDateTime(value?: string | null) {
                                     isGroupedWithNext(message, index)
                                       ? 'rounded-bl-lg'
                                       : 'rounded-bl-md',
-                                    'border border-border bg-white text-foreground',
+                                    'border border-border bg-surface text-foreground',
                                   ]
                             "
                           >
@@ -1618,8 +1618,8 @@ function formatDateTime(value?: string | null) {
                                 class="group overflow-hidden rounded-xl text-left"
                                 :class="
                                   message.isMine
-                                    ? 'bg-white/10 text-white ring-1 ring-white/20'
-                                    : 'border border-border bg-[#fbfaf8] text-foreground'
+                                    ? 'bg-surface/10 text-white ring-1 ring-white/20'
+                                    : 'border border-border bg-surface-subtle text-foreground'
                                 "
                                 @click="openAttachment(attachment)"
                                 :aria-label="
@@ -1646,8 +1646,8 @@ function formatDateTime(value?: string | null) {
                                     class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
                                     :class="
                                       message.isMine
-                                        ? 'bg-white/15'
-                                        : 'bg-white text-brand'
+                                        ? 'bg-surface/15'
+                                        : 'bg-surface text-brand'
                                     "
                                   >
                                     <component
@@ -1708,24 +1708,24 @@ function formatDateTime(value?: string | null) {
                             </div>
                           </div>
                           <p
-                            class="flex items-center gap-2 px-2 text-[11px] text-[#9ca3af]"
+                            class="flex items-center gap-2 px-2 text-[11px] text-muted"
                           >
                             <span>{{ formatDateTime(message.createdAt) }}</span>
                             <span
                               v-if="message.deliveryStatus === 'uploading'"
-                              class="inline-flex items-center gap-1.5 font-medium text-[#9ca3af]"
+                              class="inline-flex items-center gap-1.5 font-medium text-muted"
                             >
                               <PhSpinnerGap class="h-3.5 w-3.5 animate-spin" />
                               Mengunggah...
                             </span>
                             <span
                               v-else-if="message.deliveryStatus === 'sending'"
-                              class="inline-flex items-center gap-1.5 font-medium text-[#9ca3af]"
+                              class="inline-flex items-center gap-1.5 font-medium text-muted"
                             >
                               <PhCheck
                                 :size="13"
                                 weight="bold"
-                                class="text-[#9ca3af]"
+                                class="text-muted"
                               />
                             </span>
                             <button
@@ -1756,7 +1756,7 @@ function formatDateTime(value?: string | null) {
                                 v-else
                                 :size="13"
                                 weight="bold"
-                                class="text-[#9ca3af]"
+                                class="text-muted"
                               />
                               <span
                                 v-if="readIndicatorCount(message)"
@@ -1779,7 +1779,7 @@ function formatDateTime(value?: string | null) {
               >
                 <button
                   type="button"
-                  class="pointer-events-auto inline-flex items-center gap-2 rounded-full border border-[#d7d1ff] bg-white px-3 py-2 text-xs font-semibold text-brand shadow-sm transition hover:border-brand hover:bg-brand-soft"
+                  class="pointer-events-auto inline-flex items-center gap-2 rounded-full border border-[#d7d1ff] bg-surface px-3 py-2 text-xs font-semibold text-brand shadow-sm transition hover:border-brand hover:bg-brand-soft"
                   aria-label="Lompat ke pesan terbaru"
                   @click="scrollToBottom"
                 >
@@ -1802,7 +1802,7 @@ function formatDateTime(value?: string | null) {
                   <div
                     v-for="(attachment, index) in selectedFiles"
                     :key="attachment.id"
-                    class="min-w-0 overflow-hidden rounded-xl border border-border bg-[#fbfaf8]"
+                    class="min-w-0 overflow-hidden rounded-xl border border-border bg-surface-subtle"
                   >
                     <img
                       v-if="attachment.previewUrl"
@@ -1812,7 +1812,7 @@ function formatDateTime(value?: string | null) {
                     />
                     <div class="flex min-w-0 items-center gap-3 p-3">
                       <span
-                        class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-brand"
+                        class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-surface text-brand"
                       >
                         <component
                           :is="
@@ -1845,7 +1845,7 @@ function formatDateTime(value?: string | null) {
                       </span>
                       <button
                         type="button"
-                        class="rounded-lg p-1.5 text-[#9ca3af] transition hover:bg-white hover:text-danger"
+                        class="rounded-lg p-1.5 text-muted transition hover:bg-surface hover:text-danger"
                         title="Hapus lampiran"
                         aria-label="Hapus lampiran"
                         @click="removeSelectedFile(index)"
@@ -1865,7 +1865,7 @@ function formatDateTime(value?: string | null) {
                   />
                   <button
                     type="button"
-                    class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border text-muted transition hover:border-[#c7d2fe] hover:text-brand focus:outline-none focus:ring-2 focus:ring-brand/15 disabled:cursor-not-allowed disabled:opacity-60"
+                    class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border text-muted transition hover:border-brand-line hover:text-brand focus:outline-none focus:ring-2 focus:ring-brand/15 disabled:cursor-not-allowed disabled:opacity-60"
                     :disabled="
                       !selectedRoom?.canSend ||
                       selectedFiles.length >= maxChatAttachments
@@ -1879,7 +1879,7 @@ function formatDateTime(value?: string | null) {
                   <textarea
                     v-model="draft"
                     rows="1"
-                    class="max-h-32 min-h-11 flex-1 resize-none rounded-xl border border-transparent bg-[#f3f1ec] px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-[#aaa29a] focus:border-[#c7d2fe] focus:bg-white focus:ring-2 focus:ring-brand/15"
+                    class="max-h-32 min-h-11 flex-1 resize-none rounded-xl border border-transparent bg-surface-strong px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-[#aaa29a] focus:border-brand-line focus:bg-surface focus:ring-2 focus:ring-brand/15"
                     placeholder="Tulis pesan..."
                     :disabled="!selectedRoom?.canSend"
                     @keydown="handleComposerKeydown"
@@ -1894,7 +1894,7 @@ function formatDateTime(value?: string | null) {
                   </button>
                 </div>
                 <p
-                  class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#9ca3af]"
+                  class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted"
                 >
                   <span>Enter untuk kirim, Shift+Enter untuk baris baru.</span>
                   <span

@@ -530,8 +530,8 @@ onMounted(async () => {
 </script>
 
 <template>
-  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
-    <header class="border-b border-border bg-white">
+  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-background">
+    <header class="border-b border-border bg-surface">
       <div
         class="flex min-w-0 flex-col gap-3 px-5 py-5 sm:px-6 lg:flex-row lg:items-end lg:justify-between lg:px-8"
       >
@@ -551,7 +551,7 @@ onMounted(async () => {
             {{ currentSchool.schoolName || "Sekolah belum tersedia" }}
           </span>
           <span
-            class="rounded-lg bg-[#f3f1ec] px-3 py-2 font-medium text-muted"
+            class="rounded-lg bg-surface-strong px-3 py-2 font-medium text-muted"
           >
             {{ currentSchool.schoolCode || "Kode belum tersedia" }}
           </span>
@@ -573,7 +573,7 @@ onMounted(async () => {
 
       <div class="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
         <section
-          class="order-2 min-w-0 rounded-xl border border-border bg-white shadow-sm lg:order-1"
+          class="order-2 min-w-0 rounded-xl border border-border bg-surface shadow-sm lg:order-1"
         >
           <div
             class="flex flex-col gap-4 border-b border-border p-5"
@@ -605,13 +605,13 @@ onMounted(async () => {
             <div class="relative min-w-0">
               <PhMagnifyingGlass
                 :size="17"
-                class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9ca3af]"
+                class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted"
               />
               <input
                 v-model="memberSearch"
                 type="search"
                 placeholder="Cari nama atau email warga sekolah"
-                class="w-full rounded-lg border border-border bg-[#fbfaf8] py-2.5 pl-10 pr-3.5 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-brand focus:bg-white"
+                class="w-full rounded-lg border border-border bg-surface-subtle py-2.5 pl-10 pr-3.5 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:bg-surface"
               />
             </div>
           </div>
@@ -621,7 +621,7 @@ onMounted(async () => {
               <div
                 v-for="item in 3"
                 :key="item"
-                class="h-28 animate-pulse rounded-lg bg-[#fbfaf8]"
+                class="h-28 animate-pulse rounded-lg bg-surface-subtle"
               />
             </div>
 
@@ -642,7 +642,7 @@ onMounted(async () => {
               </p>
               <button
                 type="button"
-                class="mt-4 inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
+                class="mt-4 inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground-secondary transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
                 @click="rolesError ? loadRoles() : loadMembers()"
               >
                 Coba lagi
@@ -651,10 +651,10 @@ onMounted(async () => {
 
             <div
               v-else-if="members.length === 0"
-              class="rounded-lg bg-[#fbfaf8] px-5 py-8 text-center"
+              class="rounded-lg bg-surface-subtle px-5 py-8 text-center"
             >
               <PhUsers
-                class="mx-auto h-7 w-7 text-[#9ca3af]"
+                class="mx-auto h-7 w-7 text-muted"
                 weight="duotone"
               />
               <h3 class="mt-3 text-sm font-semibold text-foreground">
@@ -698,7 +698,7 @@ onMounted(async () => {
                       <p class="mt-1 break-all text-xs text-muted">
                         {{ member.email || "Email tidak tersedia" }}
                       </p>
-                      <p class="mt-2 text-[11px] text-[#9ca3af]">
+                      <p class="mt-2 text-[11px] text-muted">
                         Bergabung {{ formatDateTime(member.createdAt) }}
                       </p>
                       <p
@@ -709,7 +709,7 @@ onMounted(async () => {
                       </p>
                       <p
                         v-if="hasMultipleAllowedRoles(member)"
-                        class="mt-2 rounded-lg border border-[#fde68a] bg-warning-soft px-3 py-2 text-xs leading-5 text-[#92400e]"
+                        class="mt-2 rounded-lg border border-[#fde68a] bg-warning-soft px-3 py-2 text-xs leading-5 text-warning-hover"
                       >
                         Data lama memiliki lebih dari satu peran. Saat
                         diperbarui, satu peran utama akan disimpan.
@@ -717,11 +717,11 @@ onMounted(async () => {
                     </div>
                   </div>
 
-                  <div class="min-w-0 rounded-lg bg-[#fbfaf8] p-3">
+                  <div class="min-w-0 rounded-lg bg-surface-subtle p-3">
                     <label class="block text-xs font-medium text-muted">
                       Peran sekolah
                       <select
-                        class="mt-2 w-full rounded-lg border border-border bg-white px-3 py-2.5 text-sm text-foreground outline-none transition focus:border-brand"
+                        class="mt-2 w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-foreground outline-none transition focus:border-brand"
                         :value="memberRoleDrafts[member.schoolUserId] ?? ''"
                         :disabled="rolesLoading || allowedRoles.length === 0"
                         @change="
@@ -764,7 +764,7 @@ onMounted(async () => {
                     </button>
                     <button
                       type="button"
-                      class="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-danger-line bg-white px-3 py-2 text-sm font-medium text-danger transition hover:bg-danger-soft disabled:cursor-not-allowed disabled:opacity-60"
+                      class="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-danger-line bg-surface px-3 py-2 text-sm font-medium text-danger transition hover:bg-danger-soft disabled:cursor-not-allowed disabled:opacity-60"
                       :disabled="removingSchoolUserId === member.schoolUserId"
                       @click="removeMember(member)"
                     >
@@ -792,7 +792,7 @@ onMounted(async () => {
 
         <aside class="order-1 min-w-0 lg:order-2">
           <section
-            class="rounded-xl border border-border bg-white shadow-sm p-5 lg:sticky lg:top-6"
+            class="rounded-xl border border-border bg-surface shadow-sm p-5 lg:sticky lg:top-6"
           >
             <div class="flex items-start justify-between gap-3">
               <div>
@@ -818,7 +818,7 @@ onMounted(async () => {
             </div>
 
             <div
-              class="mt-5 grid rounded-lg bg-[#fbfaf8] p-1 text-xs font-medium text-muted sm:grid-cols-2"
+              class="mt-5 grid rounded-lg bg-surface-subtle p-1 text-xs font-medium text-muted sm:grid-cols-2"
               role="tablist"
               aria-label="Mode tambah warga sekolah"
             >
@@ -827,7 +827,7 @@ onMounted(async () => {
                 class="rounded-md px-3 py-2 transition"
                 :class="
                   memberEntryMode === 'invite'
-                    ? 'bg-white text-foreground shadow-sm'
+                    ? 'bg-surface text-foreground shadow-sm'
                     : 'hover:text-foreground'
                 "
                 :aria-selected="memberEntryMode === 'invite'"
@@ -841,7 +841,7 @@ onMounted(async () => {
                 class="rounded-md px-3 py-2 transition"
                 :class="
                   memberEntryMode === 'direct'
-                    ? 'bg-white text-foreground shadow-sm'
+                    ? 'bg-surface text-foreground shadow-sm'
                     : 'hover:text-foreground'
                 "
                 :aria-selected="memberEntryMode === 'direct'"
@@ -863,7 +863,7 @@ onMounted(async () => {
                   v-model="inviteForm.fullName"
                   type="text"
                   placeholder="Nama guru atau siswa"
-                  class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-brand focus:bg-white"
+                  class="mt-2 w-full rounded-lg border border-border bg-surface-subtle px-3.5 py-2.5 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:bg-surface"
                 />
               </label>
               <label class="block text-xs font-medium text-muted">
@@ -872,14 +872,14 @@ onMounted(async () => {
                   v-model="inviteForm.email"
                   type="email"
                   placeholder="email@sekolah.sch.id"
-                  class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-brand focus:bg-white"
+                  class="mt-2 w-full rounded-lg border border-border bg-surface-subtle px-3.5 py-2.5 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:bg-surface"
                 />
               </label>
               <label class="block text-xs font-medium text-muted">
                 Peran
                 <select
                   v-model="inviteForm.role"
-                  class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-brand focus:bg-white"
+                  class="mt-2 w-full rounded-lg border border-border bg-surface-subtle px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-brand focus:bg-surface"
                 >
                   <option value="student">Siswa</option>
                   <option value="teacher">Guru</option>
@@ -891,7 +891,7 @@ onMounted(async () => {
                   v-model="inviteForm.classCode"
                   type="text"
                   placeholder="Wajib untuk siswa"
-                  class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-brand focus:bg-white disabled:cursor-not-allowed disabled:opacity-60"
+                  class="mt-2 w-full rounded-lg border border-border bg-surface-subtle px-3.5 py-2.5 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:bg-surface disabled:cursor-not-allowed disabled:opacity-60"
                   :disabled="inviteForm.role !== 'student'"
                 />
               </label>
@@ -916,7 +916,7 @@ onMounted(async () => {
 
               <div
                 v-if="inviteResult"
-                class="rounded-lg border border-success-line bg-[#f0fdf4] p-3 text-xs leading-5 text-[#166534]"
+                class="rounded-lg border border-success-line bg-success-soft p-3 text-xs leading-5 text-success"
               >
                 <p class="font-semibold">Undangan berhasil dibuat.</p>
                 <p class="mt-1">
@@ -925,12 +925,12 @@ onMounted(async () => {
                 </p>
                 <div
                   v-if="inviteLink"
-                  class="mt-3 rounded-lg border border-[#dcfce7] bg-white p-2 text-[#374151]"
+                  class="mt-3 rounded-lg border border-[#dcfce7] bg-surface p-2 text-foreground-secondary"
                 >
                   <p class="break-all text-[11px]">{{ inviteLink }}</p>
                   <button
                     type="button"
-                    class="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
+                    class="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground-secondary transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
                     @click="copyInviteLink"
                   >
                     <PhCopy :size="15" weight="duotone" />
@@ -951,7 +951,7 @@ onMounted(async () => {
                   v-model="manualForm.fullName"
                   type="text"
                   placeholder="Nama warga sekolah"
-                  class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-brand focus:bg-white"
+                  class="mt-2 w-full rounded-lg border border-border bg-surface-subtle px-3.5 py-2.5 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:bg-surface"
                 />
               </label>
               <label class="block text-xs font-medium text-muted">
@@ -960,7 +960,7 @@ onMounted(async () => {
                   v-model="manualForm.email"
                   type="email"
                   placeholder="email@sekolah.sch.id"
-                  class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-brand focus:bg-white"
+                  class="mt-2 w-full rounded-lg border border-border bg-surface-subtle px-3.5 py-2.5 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:bg-surface"
                 />
               </label>
               <label class="block text-xs font-medium text-muted">
@@ -969,14 +969,14 @@ onMounted(async () => {
                   v-model="manualForm.password"
                   type="password"
                   placeholder="Minimal 6 karakter"
-                  class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-brand focus:bg-white"
+                  class="mt-2 w-full rounded-lg border border-border bg-surface-subtle px-3.5 py-2.5 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:bg-surface"
                 />
               </label>
               <label class="block text-xs font-medium text-muted">
                 Peran
                 <select
                   v-model="manualForm.role"
-                  class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-brand focus:bg-white"
+                  class="mt-2 w-full rounded-lg border border-border bg-surface-subtle px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-brand focus:bg-surface"
                 >
                   <option value="student">Siswa</option>
                   <option value="teacher">Guru</option>
@@ -989,12 +989,12 @@ onMounted(async () => {
                   v-model="manualForm.classCode"
                   type="text"
                   placeholder="Opsional untuk siswa"
-                  class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-brand focus:bg-white disabled:cursor-not-allowed disabled:opacity-60"
+                  class="mt-2 w-full rounded-lg border border-border bg-surface-subtle px-3.5 py-2.5 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:bg-surface disabled:cursor-not-allowed disabled:opacity-60"
                   :disabled="manualForm.role !== 'student'"
                 />
               </label>
               <p
-                class="rounded-lg border border-[#fed7aa] bg-warning-soft px-3 py-2 text-xs leading-5 text-[#92400e]"
+                class="rounded-lg border border-warning-line bg-warning-soft px-3 py-2 text-xs leading-5 text-warning-hover"
               >
                 Password awal hanya dipakai untuk akun baru. Jika email sudah
                 terdaftar, password tidak akan diubah dan pengguna login
@@ -1034,7 +1034,7 @@ onMounted(async () => {
                 <div class="grid gap-2 sm:grid-cols-2">
                   <button
                     type="button"
-                    class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
+                    class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground-secondary transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
                     @click="downloadTemplate"
                   >
                     <PhDownloadSimple :size="17" weight="duotone" />
@@ -1043,7 +1043,7 @@ onMounted(async () => {
 
                   <button
                     type="button"
-                    class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
+                    class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground-secondary transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
                     @click="downloadExcelTemplate"
                   >
                     <PhDownloadSimple :size="17" weight="duotone" />
@@ -1056,7 +1056,7 @@ onMounted(async () => {
                   <input
                     type="file"
                     accept=".csv,text/csv,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                    class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition file:mr-3 file:rounded-md file:border-0 file:bg-[#fff4ee] file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-[#ea580c] focus:border-brand focus:bg-white"
+                    class="mt-2 w-full rounded-lg border border-border bg-surface-subtle px-3.5 py-2.5 text-sm text-foreground outline-none transition file:mr-3 file:rounded-md file:border-0 file:bg-[#fff4ee] file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-[#ea580c] focus:border-brand focus:bg-surface"
                     @change="handleImportFileChange"
                   />
                 </label>
@@ -1067,12 +1067,12 @@ onMounted(async () => {
                     v-model="importDefaultPassword"
                     type="password"
                     placeholder="Minimal 6 karakter"
-                    class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-brand focus:bg-white"
+                    class="mt-2 w-full rounded-lg border border-border bg-surface-subtle px-3.5 py-2.5 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:bg-surface"
                   />
                 </label>
 
                 <p
-                  class="rounded-lg border border-[#fed7aa] bg-warning-soft px-3 py-2 text-xs leading-5 text-[#92400e]"
+                  class="rounded-lg border border-warning-line bg-warning-soft px-3 py-2 text-xs leading-5 text-warning-hover"
                 >
                   Password awal hanya dipakai untuk akun baru. Jika email sudah
                   terdaftar, password tidak akan diubah dan pengguna login
@@ -1098,7 +1098,7 @@ onMounted(async () => {
                 <button
                   v-if="importPreview || importResult || importFile"
                   type="button"
-                  class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
+                  class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground-secondary transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
                   :disabled="importCommitLoading || importPreviewLoading"
                   @click="resetImportState"
                 >
@@ -1116,20 +1116,20 @@ onMounted(async () => {
               </p>
               <p
                 v-else-if="importPreviewLoading"
-                class="rounded-lg bg-[#fbfaf8] px-3 py-3 text-xs leading-5 text-muted"
+                class="rounded-lg bg-surface-subtle px-3 py-3 text-xs leading-5 text-muted"
               >
                 Memvalidasi file import...
               </p>
               <p
                 v-else-if="!importPreview"
-                class="rounded-lg bg-[#fbfaf8] px-3 py-3 text-xs leading-5 text-muted"
+                class="rounded-lg bg-surface-subtle px-3 py-3 text-xs leading-5 text-muted"
               >
                 Pilih file CSV untuk melihat preview validasi.
               </p>
 
               <div
                 v-if="importPreview"
-                class="rounded-lg bg-[#fbfaf8] p-3"
+                class="rounded-lg bg-surface-subtle p-3"
               >
                 <div class="flex flex-wrap gap-2 text-xs">
                   <span
@@ -1148,7 +1148,7 @@ onMounted(async () => {
                   <article
                     v-for="row in importPreview.rows"
                     :key="row.rowNumber"
-                    class="rounded-lg border bg-white p-3"
+                    class="rounded-lg border bg-surface p-3"
                     :class="
                       row.status === 'valid'
                         ? 'border-success-line'
@@ -1196,7 +1196,7 @@ onMounted(async () => {
 
               <div
                 v-if="importResult"
-                class="rounded-lg border border-success-line bg-[#f0fdf4] p-3 text-xs leading-5 text-[#166534]"
+                class="rounded-lg border border-success-line bg-success-soft p-3 text-xs leading-5 text-success"
               >
                 <p class="font-semibold">Import selesai</p>
                 <p class="mt-1">
@@ -1211,14 +1211,14 @@ onMounted(async () => {
                   <article
                     v-for="result in importResult.results"
                     :key="`${result.rowNumber}-${result.email}`"
-                    class="rounded-md border border-success-line bg-white/70 px-3 py-2"
+                    class="rounded-md border border-success-line bg-surface/70 px-3 py-2"
                   >
                     <div class="flex items-start justify-between gap-3">
                       <div class="min-w-0">
                         <p class="truncate font-semibold text-[#14532d]">
                           {{ result.fullName || result.email }}
                         </p>
-                        <p class="mt-0.5 break-all text-[#166534]">
+                        <p class="mt-0.5 break-all text-success">
                           {{ result.email }}
                         </p>
                       </div>
@@ -1226,10 +1226,10 @@ onMounted(async () => {
                         class="shrink-0 rounded-full px-2 py-1 text-[10px] font-semibold"
                         :class="
                           result.status === 'imported'
-                            ? 'bg-[#dcfce7] text-[#166534]'
+                            ? 'bg-[#dcfce7] text-success'
                             : result.status === 'skipped'
-                              ? 'bg-[#fef3c7] text-[#92400e]'
-                              : 'bg-[#fee2e2] text-[#b91c1c]'
+                              ? 'bg-[#fef3c7] text-warning-hover'
+                              : 'bg-[#fee2e2] text-danger-hover'
                         "
                       >
                         {{
@@ -1241,7 +1241,7 @@ onMounted(async () => {
                         }}
                       </span>
                     </div>
-                    <p class="mt-2 text-[#166534]">
+                    <p class="mt-2 text-success">
                       {{ importResultNote(result) }}
                     </p>
                     <p

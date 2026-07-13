@@ -128,7 +128,7 @@ const quickActions = [
     icon: PhUsers,
     to: "/admin/users",
     color: "bg-brand-soft text-brand",
-    border: "hover:border-[#c7d2fe]",
+    border: "hover:border-brand-line",
   },
   {
     label: "Tambah Guru",
@@ -144,15 +144,15 @@ const quickActions = [
     icon: PhBookOpen,
     to: "/admin/classes",
     color: "bg-warning-soft text-[#ea580c]",
-    border: "hover:border-[#fed7aa]",
+    border: "hover:border-warning-line",
   },
   {
     label: "Penempatan Kelas",
     description: "Masukkan siswa ke kelas",
     icon: PhClipboardText,
     to: "/admin/enrollments",
-    color: "bg-[#f3f1ec] text-muted",
-    border: "hover:border-[#d1d5db]",
+    color: "bg-surface-strong text-muted",
+    border: "hover:border-strong",
   },
   {
     label: "Ruang Mengajar",
@@ -204,12 +204,12 @@ onMounted(loadDashboard);
 
 <template>
   <main
-    class="grid min-h-screen min-w-0 flex-1 grid-cols-1 overflow-x-hidden bg-[#f8f7f4] xl:grid-cols-[minmax(0,1fr)_320px]"
+    class="grid min-h-screen min-w-0 flex-1 grid-cols-1 overflow-x-hidden bg-background xl:grid-cols-[minmax(0,1fr)_320px]"
   >
     <!-- Main content -->
     <section class="min-w-0">
       <!-- SECTION 1 — Greeting header -->
-      <header class="border-b border-border bg-white">
+      <header class="border-b border-border bg-surface">
         <div
           class="flex min-w-0 flex-col gap-3 px-5 py-5 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8"
         >
@@ -237,7 +237,7 @@ onMounted(loadDashboard);
               <p class="text-sm font-medium text-foreground">
                 Dashboard tidak dapat dimuat
               </p>
-              <p class="mt-1 text-sm leading-6 text-[#7a7385]">
+              <p class="mt-1 text-sm leading-6 text-muted">
                 {{ errorMessage }}
               </p>
               <button
@@ -258,14 +258,14 @@ onMounted(loadDashboard);
               <div
                 v-for="i in 4"
                 :key="i"
-                class="h-28 animate-pulse rounded-xl border border-border bg-white shadow-sm"
+                class="h-28 animate-pulse rounded-xl border border-border bg-surface shadow-sm"
               />
             </template>
             <template v-else>
               <article
                 v-for="card in statCards"
                 :key="card.label"
-                class="rounded-xl border border-border bg-white shadow-sm p-4"
+                class="rounded-xl border border-border bg-surface shadow-sm p-4"
               >
                 <div
                   class="flex h-10 w-10 items-center justify-center rounded-xl"
@@ -284,7 +284,7 @@ onMounted(loadDashboard);
 
         <!-- SECTION 3 — Setup Progress -->
         <section
-          class="rounded-xl border border-border bg-white shadow-sm p-5"
+          class="rounded-xl border border-border bg-surface shadow-sm p-5"
           :class="{ 'animate-pulse': loading }"
         >
           <div class="mb-4 flex items-center justify-between gap-3">
@@ -298,7 +298,7 @@ onMounted(loadDashboard);
             </div>
             <span
               v-if="!loading && isSetupComplete"
-              class="shrink-0 rounded-full bg-[#f0fdf4] px-3 py-1 text-xs font-semibold text-[#059669]"
+              class="shrink-0 rounded-full bg-success-soft px-3 py-1 text-xs font-semibold text-success"
             >
               Lengkap
             </span>
@@ -317,7 +317,7 @@ onMounted(loadDashboard);
             <div
               v-for="i in 6"
               :key="i"
-              class="h-9 animate-pulse rounded-lg bg-[#f3f1ec]"
+              class="h-9 animate-pulse rounded-lg bg-surface-strong"
             />
           </div>
 
@@ -335,8 +335,8 @@ onMounted(loadDashboard);
                 class="shrink-0 transition"
                 :class="
                   step.done
-                    ? 'text-[#059669]'
-                    : 'text-[#d1d5db] group-hover:text-[#9ca3af]'
+                    ? 'text-success'
+                    : 'text-[#d1d5db] group-hover:text-muted'
                 "
               />
               <span class="min-w-0 flex-1">
@@ -346,7 +346,7 @@ onMounted(loadDashboard);
                 >
                   {{ step.label }}
                 </span>
-                <span class="block text-xs text-[#9ca3af]">
+                <span class="block text-xs text-muted">
                   {{ step.detail }}
                 </span>
               </span>
@@ -359,9 +359,9 @@ onMounted(loadDashboard);
 
           <div
             v-if="!loading && isSetupComplete"
-            class="mt-4 rounded-lg bg-[#f0fdf4] px-4 py-3"
+            class="mt-4 rounded-lg bg-success-soft px-4 py-3"
           >
-            <p class="text-sm font-medium text-[#059669]">
+            <p class="text-sm font-medium text-success">
               Sekolah siap digunakan.
             </p>
             <p class="mt-0.5 text-xs text-[#065f46]">
@@ -379,7 +379,7 @@ onMounted(loadDashboard);
               v-for="action in quickActions"
               :key="action.label"
               :to="action.to"
-              class="group flex flex-col gap-3 rounded-xl border border-border bg-white shadow-sm p-4 transition hover:-translate-y-0.5 hover:shadow-md"
+              class="group flex flex-col gap-3 rounded-xl border border-border bg-surface shadow-sm p-4 transition hover:-translate-y-0.5 hover:shadow-md"
               :class="action.border"
             >
               <div
@@ -406,7 +406,7 @@ onMounted(loadDashboard);
 
         <!-- SECTION 5 — Recent Activity -->
         <section
-          class="rounded-xl border border-border bg-white shadow-sm p-5"
+          class="rounded-xl border border-border bg-surface shadow-sm p-5"
         >
           <div class="mb-4 flex items-center gap-2">
             <PhClockCountdown
@@ -423,13 +423,13 @@ onMounted(loadDashboard);
             <div
               v-for="i in 5"
               :key="i"
-              class="h-10 animate-pulse rounded-lg bg-[#f3f1ec]"
+              class="h-10 animate-pulse rounded-lg bg-surface-strong"
             />
           </div>
 
           <div
             v-else-if="!stats?.recentActivities?.length"
-            class="rounded-lg bg-[#fbfaf8] px-4 py-8 text-center"
+            class="rounded-lg bg-surface-subtle px-4 py-8 text-center"
           >
             <PhClockCountdown
               class="mx-auto h-7 w-7 text-[#d1d5db]"
@@ -450,7 +450,7 @@ onMounted(loadDashboard);
               class="flex items-start gap-3 py-3 first:pt-0 last:pb-0"
             >
               <div
-                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#f3f1ec] text-[10px] font-semibold text-muted"
+                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-surface-strong text-[10px] font-semibold text-muted"
               >
                 {{ activity.userName?.charAt(0)?.toUpperCase() ?? "?" }}
               </div>
@@ -460,7 +460,7 @@ onMounted(loadDashboard);
                   {{ " " }}
                   <span class="text-muted">{{ activity.action }}</span>
                 </p>
-                <p class="mt-0.5 text-xs text-[#9ca3af]">
+                <p class="mt-0.5 text-xs text-muted">
                   {{ formatDateTime(activity.timestamp) }}
                 </p>
               </div>
@@ -472,7 +472,7 @@ onMounted(loadDashboard);
 
     <!-- Right sidebar -->
     <aside
-      class="min-w-0 border-t border-border bg-white xl:sticky xl:top-0 xl:h-dvh xl:min-h-0 xl:overflow-y-auto xl:border-l xl:border-t-0"
+      class="min-w-0 border-t border-border bg-surface xl:sticky xl:top-0 xl:h-dvh xl:min-h-0 xl:overflow-y-auto xl:border-l xl:border-t-0"
     >
       <div class="flex flex-col gap-5 p-5">
         <!-- Chat -->
@@ -480,7 +480,7 @@ onMounted(loadDashboard);
 
         <!-- Enrollment distribution -->
         <section
-          class="rounded-xl border border-border bg-white shadow-sm p-4"
+          class="rounded-xl border border-border bg-surface shadow-sm p-4"
         >
           <h3 class="mb-3 text-sm font-semibold text-foreground">
             Distribusi Kelas
@@ -490,13 +490,13 @@ onMounted(loadDashboard);
             <div
               v-for="i in 4"
               :key="i"
-              class="h-8 animate-pulse rounded-lg bg-[#f3f1ec]"
+              class="h-8 animate-pulse rounded-lg bg-surface-strong"
             />
           </div>
 
           <div
             v-else-if="!stats?.enrollmentTrends?.length"
-            class="rounded-lg bg-[#fbfaf8] px-3 py-5 text-center"
+            class="rounded-lg bg-surface-subtle px-3 py-5 text-center"
           >
             <p class="text-xs text-muted">
               Belum ada data distribusi kelas.
@@ -510,7 +510,7 @@ onMounted(loadDashboard);
               class="min-w-0"
             >
               <div class="flex items-center justify-between gap-2 text-xs">
-                <span class="truncate font-medium text-[#374151]">
+                <span class="truncate font-medium text-foreground-secondary">
                   {{ trend.className }}
                 </span>
                 <span class="shrink-0 text-muted">
@@ -518,7 +518,7 @@ onMounted(loadDashboard);
                 </span>
               </div>
               <div
-                class="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-[#f3f1ec]"
+                class="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-surface-strong"
               >
                 <div
                   class="h-full rounded-full bg-brand transition-all"

@@ -110,8 +110,8 @@ onMounted(loadInbox);
 </script>
 
 <template>
-  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
-    <header class="border-b border-border bg-white">
+  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-background">
+    <header class="border-b border-border bg-surface">
       <div class="px-5 py-5 sm:px-6 lg:px-8">
         <div
           class="mt-2 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
@@ -138,11 +138,11 @@ onMounted(loadInbox);
           <div
             v-for="index in 4"
             :key="index"
-            class="h-28 animate-pulse rounded-xl border border-border bg-white"
+            class="h-28 animate-pulse rounded-xl border border-border bg-surface"
           />
         </section>
         <section
-          class="h-56 animate-pulse rounded-xl border border-border bg-white"
+          class="h-56 animate-pulse rounded-xl border border-border bg-surface"
         />
       </template>
 
@@ -173,7 +173,7 @@ onMounted(loadInbox);
       <template v-else>
         <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <article
-            class="rounded-xl border border-border bg-white shadow-sm p-4"
+            class="rounded-xl border border-border bg-surface shadow-sm p-4"
           >
             <div class="flex items-center justify-between gap-3">
               <p class="text-sm text-[#6b6475]">Total pengumpulan</p>
@@ -188,7 +188,7 @@ onMounted(loadInbox);
             </p>
           </article>
           <article
-            class="rounded-xl border border-border bg-white shadow-sm p-4"
+            class="rounded-xl border border-border bg-surface shadow-sm p-4"
           >
             <div class="flex items-center justify-between gap-3">
               <p class="text-sm text-[#6b6475]">Perlu dinilai</p>
@@ -203,7 +203,7 @@ onMounted(loadInbox);
             </p>
           </article>
           <article
-            class="rounded-xl border border-border bg-white shadow-sm p-4"
+            class="rounded-xl border border-border bg-surface shadow-sm p-4"
           >
             <div class="flex items-center justify-between gap-3">
               <p class="text-sm text-[#6b6475]">Sudah dinilai</p>
@@ -218,7 +218,7 @@ onMounted(loadInbox);
             </p>
           </article>
           <article
-            class="rounded-xl border border-border bg-white shadow-sm p-4"
+            class="rounded-xl border border-border bg-surface shadow-sm p-4"
           >
             <div class="flex items-center justify-between gap-3">
               <p class="text-sm text-[#6b6475]">Terlambat</p>
@@ -230,7 +230,7 @@ onMounted(loadInbox);
           </article>
         </section>
 
-        <section class="rounded-xl border border-border bg-white">
+        <section class="rounded-xl border border-border bg-surface">
           <div
             class="flex flex-col gap-4 border-b border-border px-4 py-4 sm:px-5 lg:flex-row lg:items-end lg:justify-between"
           >

@@ -153,8 +153,8 @@ onMounted(loadData);
 </script>
 
 <template>
-  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
-    <header class="border-b border-border bg-white">
+  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-background">
+    <header class="border-b border-border bg-surface">
       <div
         class="flex min-w-0 items-center gap-2 px-5 py-3 text-xs text-muted sm:px-6 lg:px-8"
       >
@@ -196,7 +196,7 @@ onMounted(loadData);
         >
           <button
             type="button"
-            class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-white text-muted transition hover:bg-[#f3f1ec] hover:text-foreground disabled:cursor-not-allowed disabled:opacity-30"
+            class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface text-muted transition hover:bg-surface-strong hover:text-foreground disabled:cursor-not-allowed disabled:opacity-30"
             :disabled="activeIndex === 0"
             title="Siswa sebelumnya"
             @click="prevStudent"
@@ -204,14 +204,14 @@ onMounted(loadData);
             <PhCaretLeft :size="16" />
           </button>
           <span
-            class="min-w-24 rounded-lg bg-[#faf8f4] px-3 py-2 text-center text-xs font-medium text-[#374151]"
+            class="min-w-24 rounded-lg bg-[#faf8f4] px-3 py-2 text-center text-xs font-medium text-foreground-secondary"
           >
             {{ submissions.length > 0 ? activeIndex + 1 : 0 }} /
             {{ submissions.length }} siswa
           </span>
           <button
             type="button"
-            class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-white text-muted transition hover:bg-[#f3f1ec] hover:text-foreground disabled:cursor-not-allowed disabled:opacity-30"
+            class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface text-muted transition hover:bg-surface-strong hover:text-foreground disabled:cursor-not-allowed disabled:opacity-30"
             :disabled="
               submissions.length === 0 ||
               activeIndex === submissions.length - 1
@@ -230,14 +230,14 @@ onMounted(loadData);
         <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
           <div class="space-y-4">
             <div
-              class="h-28 animate-pulse rounded-xl border border-border bg-white"
+              class="h-28 animate-pulse rounded-xl border border-border bg-surface"
             />
             <div
-              class="h-80 animate-pulse rounded-xl border border-border bg-white"
+              class="h-80 animate-pulse rounded-xl border border-border bg-surface"
             />
           </div>
           <div
-            class="h-96 animate-pulse rounded-xl border border-border bg-white"
+            class="h-96 animate-pulse rounded-xl border border-border bg-surface"
           />
         </div>
       </template>
@@ -268,7 +268,7 @@ onMounted(loadData);
 
       <section
         v-else-if="submissions.length === 0"
-        class="mx-auto max-w-xl rounded-xl border border-border bg-white px-5 py-10 text-center"
+        class="mx-auto max-w-xl rounded-xl border border-border bg-surface px-5 py-10 text-center"
       >
         <div
           class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
@@ -289,7 +289,7 @@ onMounted(loadData);
         class="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_340px]"
       >
         <div class="min-w-0 space-y-5">
-          <article class="rounded-xl border border-border bg-white shadow-sm p-5">
+          <article class="rounded-xl border border-border bg-surface shadow-sm p-5">
             <div
               class="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
             >
@@ -318,7 +318,7 @@ onMounted(loadData);
                   :class="
                     currentSubmission.isLate
                       ? 'bg-danger-soft text-danger'
-                      : 'bg-[#f0fdf4] text-[#059669]'
+                      : 'bg-success-soft text-success'
                   "
                 >
                   {{
@@ -327,7 +327,7 @@ onMounted(loadData);
                 </span>
                 <span
                   v-if="currentSubmission.assessment"
-                  class="inline-flex items-center gap-1.5 rounded-lg bg-[#f0fdf4] px-2.5 py-1.5 text-[11px] font-medium text-[#059669]"
+                  class="inline-flex items-center gap-1.5 rounded-lg bg-success-soft px-2.5 py-1.5 text-[11px] font-medium text-success"
                 >
                   <PhCheckCircle :size="14" weight="bold" />
                   Sudah dinilai
@@ -336,7 +336,7 @@ onMounted(loadData);
             </div>
           </article>
 
-          <article class="rounded-xl border border-border bg-white shadow-sm p-5 sm:p-6">
+          <article class="rounded-xl border border-border bg-surface shadow-sm p-5 sm:p-6">
             <div
               class="flex flex-col gap-2 border-b border-[#f3f1ec] pb-4 sm:flex-row sm:items-center sm:justify-between"
             >
@@ -361,11 +361,11 @@ onMounted(loadData);
 
         <aside class="min-w-0">
           <div class="space-y-4 lg:sticky lg:top-6">
-            <section class="rounded-xl border border-border bg-white shadow-sm p-5">
+            <section class="rounded-xl border border-border bg-surface shadow-sm p-5">
               <div class="flex items-center justify-between gap-3">
                 <div>
                   <p
-                    class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#9ca3af]"
+                    class="text-[10px] font-medium uppercase tracking-[0.08em] text-muted"
                   >
                     Penilaian
                   </p>
@@ -375,7 +375,7 @@ onMounted(loadData);
                 </div>
                 <span
                   v-if="currentSubmission.assessment"
-                  class="rounded-lg bg-[#f0fdf4] px-2.5 py-1 text-[11px] font-medium text-[#059669]"
+                  class="rounded-lg bg-success-soft px-2.5 py-1 text-[11px] font-medium text-success"
                 >
                   Tersimpan
                 </span>
@@ -395,10 +395,10 @@ onMounted(loadData);
                     type="number"
                     min="0"
                     max="100"
-                    class="w-24 rounded-lg border border-border bg-[#fbfaf8] px-3 py-2.5 text-center text-2xl font-semibold text-foreground outline-none transition focus:border-brand focus:bg-white"
+                    class="w-24 rounded-lg border border-border bg-surface-subtle px-3 py-2.5 text-center text-2xl font-semibold text-foreground outline-none transition focus:border-brand focus:bg-surface"
                     placeholder="0"
                   />
-                  <span class="mb-2.5 text-sm text-[#9ca3af]">/ 100</span>
+                  <span class="mb-2.5 text-sm text-muted">/ 100</span>
                 </div>
               </div>
 
@@ -413,7 +413,7 @@ onMounted(loadData);
                   id="submission-feedback"
                   v-model="feedback"
                   rows="6"
-                  class="mt-2 w-full resize-none rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-3 text-sm leading-6 text-[#374151] outline-none transition placeholder:text-[#a09aa8] focus:border-brand focus:bg-white"
+                  class="mt-2 w-full resize-none rounded-lg border border-border bg-surface-subtle px-3.5 py-3 text-sm leading-6 text-foreground-secondary outline-none transition placeholder:text-[#a09aa8] focus:border-brand focus:bg-surface"
                   placeholder="Tuliskan masukan untuk siswa..."
                 />
               </div>
@@ -440,7 +440,7 @@ onMounted(loadData);
               </button>
             </section>
 
-            <section class="rounded-xl border border-border bg-white shadow-sm p-4">
+            <section class="rounded-xl border border-border bg-surface shadow-sm p-4">
               <div class="flex items-center justify-between gap-3 px-1">
                 <h2 class="text-sm font-semibold text-foreground">
                   Daftar siswa
@@ -457,8 +457,8 @@ onMounted(loadData);
                   class="flex w-full min-w-0 items-center justify-between gap-3 rounded-lg border p-3 text-left transition"
                   :class="
                     activeIndex === index
-                      ? 'border-[#c7d2fe] bg-brand-soft'
-                      : 'border-transparent hover:bg-[#f3f1ec]'
+                      ? 'border-brand-line bg-brand-soft'
+                      : 'border-transparent hover:bg-surface-strong'
                   "
                   @click="activeIndex = index"
                 >
@@ -479,12 +479,12 @@ onMounted(loadData);
                         :class="
                           activeIndex === index
                             ? 'text-brand'
-                            : 'text-[#374151]'
+                            : 'text-foreground-secondary'
                         "
                       >
                         {{ sub.studentName }}
                       </p>
-                      <p class="mt-0.5 text-[10px] text-[#9ca3af]">
+                      <p class="mt-0.5 text-[10px] text-muted">
                         {{
                           sub.assessment
                             ? `Nilai ${sub.assessment.score}`
@@ -496,7 +496,7 @@ onMounted(loadData);
                   <span
                     class="h-2 w-2 shrink-0 rounded-full"
                     :class="
-                      sub.assessment ? 'bg-[#059669]' : 'bg-[#ea580c]'
+                      sub.assessment ? 'bg-success' : 'bg-[#ea580c]'
                     "
                   />
                 </button>
@@ -508,7 +508,7 @@ onMounted(loadData);
 
       <section
         v-else
-        class="mx-auto max-w-xl rounded-xl border border-border bg-white px-5 py-10 text-center"
+        class="mx-auto max-w-xl rounded-xl border border-border bg-surface px-5 py-10 text-center"
       >
         <h2 class="text-lg font-semibold text-foreground">
           Pengumpulan belum dipilih

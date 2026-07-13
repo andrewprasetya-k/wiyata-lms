@@ -76,13 +76,13 @@ onBeforeUnmount(() => {
 
 <template>
   <div
-    class="rounded-xl border border-border bg-[#fbfaf8] p-4"
+    class="rounded-xl border border-border bg-surface-subtle p-4"
   >
     <div class="flex flex-wrap items-start justify-between gap-3">
       <div class="min-w-0">
         <div class="flex items-center gap-2">
           <span
-            class="inline-flex items-center gap-1.5 rounded-full border border-[#ddd7ee] bg-white px-2.5 py-1 text-xs font-semibold text-brand"
+            class="inline-flex items-center gap-1.5 rounded-full border border-[#ddd7ee] bg-surface px-2.5 py-1 text-xs font-semibold text-brand"
           >
             <PhSparkle :size="15" class="text-brand" weight="duotone" />
             AI Summary
@@ -90,7 +90,7 @@ onBeforeUnmount(() => {
         </div>
         <p
           v-if="sourceName"
-          class="mt-2 truncate text-xs leading-5 text-[#7a7385]"
+          class="mt-2 truncate text-xs leading-5 text-muted"
           :title="sourceName"
         >
           Dirangkum dari: {{ sourceName }}
@@ -98,7 +98,7 @@ onBeforeUnmount(() => {
       </div>
 
       <button
-        class="inline-flex items-center rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-medium text-[#5b4b7a] transition hover:border-[#d8d1c5] hover:bg-[#f8f7f4] focus:outline-none focus:ring-2 focus:ring-brand/25 disabled:cursor-not-allowed disabled:opacity-50"
+        class="inline-flex items-center rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-medium text-[#5b4b7a] transition hover:border-[#d8d1c5] hover:bg-background focus:outline-none focus:ring-2 focus:ring-brand/25 disabled:cursor-not-allowed disabled:opacity-50"
         type="button"
         :disabled="!trimmedSummary"
         @click="copySummary"
@@ -112,7 +112,7 @@ onBeforeUnmount(() => {
       class="ai-summary-content mt-4 text-sm leading-7 text-[#4a4356]"
       v-html="sanitizedHtml"
     />
-    <p v-else class="mt-4 text-sm leading-6 text-[#7a7385]">
+    <p v-else class="mt-4 text-sm leading-6 text-muted">
       Rangkuman belum tersedia.
     </p>
   </div>

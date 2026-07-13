@@ -1,30 +1,72 @@
-@import '@fontsource-variable/plus-jakarta-sans';
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import "@fontsource-variable/plus-jakarta-sans";
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
 @import "tailwindcss";
 
 @theme {
+  /* ---------- Base surfaces ---------- */
+  --color-background: #f8f7f4;
+  --color-surface: #ffffff;
+  --color-surface-subtle: #fbfaf8;
+  --color-surface-strong: #f0ede8;
+
+  /* ---------- Neutral / text ---------- */
+  --color-foreground: #171322;
+  --color-foreground-secondary: #374151;
+  --color-muted: #6b7280;
+  --color-border: #ebe7df;
+  --color-border-strong: #d1d5db;
+
+  /* ---------- Brand (indigo) ---------- */
   --color-brand: #4f46e5;
   --color-brand-hover: #4338ca;
   --color-brand-soft: #eef2ff;
-  --color-foreground: #171322;
-  --color-border: #ebe7df;
-  --color-muted: #6b7280;
-  --color-danger: #dc2626;
-  --color-danger-soft: #fef2f2;
-  --color-danger-line: #fecaca;
-  --color-warning: #b45309;
-  --color-warning-soft: #fff7ed;
+  --color-brand-line: #c7d2fe;
+
+  /* ---------- Info (biru netral, terpisah dari brand) ---------- */
+  --color-info: #2563eb;
+  --color-info-hover: #1d4ed8;
+  --color-info-soft: #eff6ff;
+  --color-info-line: #bfdbfe;
+
+  /* ---------- Success ---------- */
   --color-success: #027a48;
+  --color-success-hover: #026640;
   --color-success-soft: #ecfdf3;
   --color-success-line: #bbf7d0;
+
+  /* ---------- Warning ---------- */
+  --color-warning: #b45309;
+  --color-warning-hover: #92400e;
+  --color-warning-soft: #fff7ed;
+  --color-warning-line: #fdba74;
+
+  /* ---------- Danger ---------- */
+  --color-danger: #dc2626;
+  --color-danger-hover: #b91c1c;
+  --color-danger-soft: #fef2f2;
+  --color-danger-line: #fecaca;
 }
 
 :root {
-  font-family: 'Plus Jakarta Sans Variable', 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:
+    "Plus Jakarta Sans Variable",
+    "Poppins",
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
 }
 
 body {
-  font-family: 'Plus Jakarta Sans Variable', 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:
+    "Plus Jakarta Sans Variable",
+    "Poppins",
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
 }
 
 @layer components {

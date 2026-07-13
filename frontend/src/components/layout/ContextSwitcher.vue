@@ -205,8 +205,8 @@ function isSameContext(
     <button
       ref="triggerEl"
       type="button"
-      class="flex items-center gap-2.5 rounded-xl border border-border bg-[#fbfaf8] px-2.5 py-2 text-left transition hover:border-[#d8d2c6] hover:bg-[#f3f1ec] focus:outline-none focus:ring-2 focus:ring-[#c7d2fe] focus:ring-offset-2 focus:ring-offset-white disabled:cursor-default disabled:opacity-80"
-      :class="isOpen ? 'border-[#c7d2fe] bg-brand-soft' : ''"
+      class="flex items-center gap-2.5 rounded-xl border border-border bg-surface-subtle px-2.5 py-2 text-left transition hover:border-[#d8d2c6] hover:bg-surface-strong focus:outline-none focus:ring-2 focus:ring-brand-line focus:ring-offset-2 focus:ring-offset-white disabled:cursor-default disabled:opacity-80"
+      :class="isOpen ? 'border-brand-line bg-brand-soft' : ''"
       :disabled="!hasMultipleContexts || isSwitching"
       :aria-haspopup="hasMultipleContexts ? 'menu' : undefined"
       :aria-expanded="hasMultipleContexts ? isOpen : undefined"
@@ -243,7 +243,7 @@ function isSameContext(
         v-if="isOpen"
         :id="menuId"
         role="menu"
-        class="absolute left-0 top-full z-50 mt-1.5 w-72 rounded-xl border border-border bg-white p-2 text-left shadow-xl shadow-[#2f2b3a]/10"
+        class="absolute left-0 top-full z-50 mt-1.5 w-72 rounded-xl border border-border bg-surface p-2 text-left shadow-xl shadow-[#2f2b3a]/10"
         aria-label="Pilih konteks sekolah dan peran"
       >
         <div class="border-b border-border px-3 py-2">
@@ -274,13 +274,13 @@ function isSameContext(
                 :key="`${option.context.schoolUserId}-${option.context.role}`"
                 type="button"
                 role="menuitem"
-                class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition hover:bg-[#f8f7f4] focus:bg-[#f8f7f4] focus:outline-none disabled:cursor-default disabled:bg-brand-soft"
+                class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition hover:bg-background focus:bg-background focus:outline-none disabled:cursor-default disabled:bg-brand-soft"
                 :disabled="option.isActive || isSwitching"
                 :aria-current="option.isActive ? 'true' : undefined"
                 @click="selectContext(option.context)"
               >
                 <span
-                  class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#f3f1ec] text-[11px] font-semibold text-[#575269]"
+                  class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface-strong text-[11px] font-semibold text-[#575269]"
                 >
                   {{ group.initials }}
                 </span>
@@ -316,7 +316,7 @@ function isSameContext(
             <button
               type="button"
               role="menuitem"
-              class="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition hover:bg-[#f8f7f4] focus:bg-[#f8f7f4] focus:outline-none disabled:cursor-default disabled:bg-brand-soft"
+              class="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition hover:bg-background focus:bg-background focus:outline-none disabled:cursor-default disabled:bg-brand-soft"
               :disabled="isPlatformActive || isSwitching"
               :aria-current="isPlatformActive ? 'true' : undefined"
               @click="selectContext(platformContext)"

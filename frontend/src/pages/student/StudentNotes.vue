@@ -117,15 +117,15 @@ onMounted(loadNotes);
 </script>
 
 <template>
-  <main class="min-h-screen min-w-0 flex-1 bg-[#f8f7f4]">
+  <main class="min-h-screen min-w-0 flex-1 bg-background">
     <header
-      class="border-b border-border bg-white px-5 py-4 sm:px-6 lg:px-8"
+      class="border-b border-border bg-surface px-5 py-4 sm:px-6 lg:px-8"
     >
       <div
         class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
       >
         <div>
-          <p class="text-xs font-medium uppercase tracking-wide text-[#9ca3af]">
+          <p class="text-xs font-medium uppercase tracking-wide text-muted">
             Ruang belajar pribadi
           </p>
           <h1 class="mt-1 text-2xl font-medium text-foreground">Catatan Saya</h1>
@@ -133,7 +133,7 @@ onMounted(loadNotes);
             Baca kembali catatan materi yang masih tersedia di kelas aktifmu.
           </p>
         </div>
-        <p v-if="!isLoading && !errorMessage" class="text-xs text-[#9ca3af]">
+        <p v-if="!isLoading && !errorMessage" class="text-xs text-muted">
           {{ notes.length }} catatan tersimpan
         </p>
       </div>
@@ -143,19 +143,19 @@ onMounted(loadNotes);
       v-if="isLoading"
       class="grid min-h-[calc(100vh-116px)] lg:grid-cols-[300px_minmax(0,1fr)]"
     >
-      <div class="border-r border-border bg-white p-4">
+      <div class="border-r border-border bg-surface p-4">
         <div class="h-5 w-28 animate-pulse rounded bg-[#f1efeb]" />
         <div class="mt-5 space-y-3">
           <div
             v-for="item in 5"
             :key="item"
-            class="h-24 animate-pulse rounded-xl bg-[#f8f7f4]"
+            class="h-24 animate-pulse rounded-xl bg-background"
           />
         </div>
       </div>
       <div class="p-5 sm:p-6 lg:p-8">
         <div
-          class="mx-auto h-full min-h-120 max-w-4xl animate-pulse rounded-[22px] border border-border bg-white"
+          class="mx-auto h-full min-h-120 max-w-4xl animate-pulse rounded-[22px] border border-border bg-surface"
         />
       </div>
     </section>
@@ -197,7 +197,7 @@ onMounted(loadNotes);
       class="flex min-h-[calc(100vh-116px)] items-center justify-center px-5 py-10"
     >
       <article
-        class="w-full max-w-xl rounded-[22px] border border-border bg-white p-8 text-center"
+        class="w-full max-w-xl rounded-[22px] border border-border bg-surface p-8 text-center"
       >
         <div
           class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
@@ -226,11 +226,11 @@ onMounted(loadNotes);
       class="grid min-h-[calc(100vh-116px)] lg:h-[calc(100vh-116px)] lg:grid-cols-[300px_minmax(0,1fr)] lg:overflow-hidden"
     >
       <aside
-        class="min-w-0 border-b border-border bg-white lg:border-b-0 lg:border-r"
+        class="min-w-0 border-b border-border bg-surface lg:border-b-0 lg:border-r"
       >
         <div class="flex items-center justify-between px-4 py-3">
           <p class="text-sm font-medium text-foreground">Semua catatan</p>
-          <span class="text-xs text-[#9ca3af]">{{ notes.length }}</span>
+          <span class="text-xs text-muted">{{ notes.length }}</span>
         </div>
 
         <div
@@ -242,7 +242,7 @@ onMounted(loadNotes);
             class="mb-4 last:mb-0"
           >
             <p
-              class="px-2 pb-2 text-[10px] font-medium uppercase tracking-wide text-[#9ca3af]"
+              class="px-2 pb-2 text-[10px] font-medium uppercase tracking-wide text-muted"
               :title="groupLabel(group)"
             >
               {{ group.subjectName || "Mata pelajaran" }}
@@ -257,7 +257,7 @@ onMounted(loadNotes);
                 :class="
                   selectedNote?.noteId === note.noteId
                     ? 'bg-brand-soft'
-                    : 'hover:bg-[#f8f7f4]'
+                    : 'hover:bg-background'
                 "
                 type="button"
                 @click="selectNote(note.noteId)"
@@ -279,7 +279,7 @@ onMounted(loadNotes);
                   {{ note.materialTitle }}
                 </p>
                 <p
-                  class="mt-1 truncate whitespace-pre-line text-xs text-[#9ca3af]"
+                  class="mt-1 truncate whitespace-pre-line text-xs text-muted"
                 >
                   {{ note.content }}
                 </p>
@@ -294,7 +294,7 @@ onMounted(loadNotes);
 
       <article
         v-if="selectedNote"
-        class="min-w-0 bg-[#fbfaf8] p-4 sm:p-6 lg:overflow-y-auto lg:p-8"
+        class="min-w-0 bg-surface-subtle p-4 sm:p-6 lg:overflow-y-auto lg:p-8"
       >
         <div class="mx-auto flex min-h-full w-full max-w-4xl flex-col">
           <header
@@ -302,7 +302,7 @@ onMounted(loadNotes);
           >
             <div class="min-w-0">
               <div
-                class="flex flex-wrap items-center gap-2 text-xs text-[#7a7385]"
+                class="flex flex-wrap items-center gap-2 text-xs text-muted"
               >
                 <span>{{ selectedNote.subjectName || "Mata pelajaran" }}</span>
                 <span class="text-[#d1ccd5]">/</span>
@@ -314,7 +314,7 @@ onMounted(loadNotes);
                 {{ selectedNote.materialTitle }}
               </h2>
               <p
-                class="mt-2 inline-flex items-center gap-2 text-xs text-[#9ca3af]"
+                class="mt-2 inline-flex items-center gap-2 text-xs text-muted"
               >
                 <PhClock :size="14" />
                 Diperbarui {{ formatDateTime(selectedNote.updatedAt) }}
@@ -335,7 +335,7 @@ onMounted(loadNotes);
             :to="`/student/subjects/${selectedNote.subjectClassId}/materials/${selectedNote.materialId}`"
           >
             <span
-              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-brand"
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-surface text-brand"
             >
               <PhFileText :size="20" weight="duotone" />
             </span>
@@ -354,7 +354,7 @@ onMounted(loadNotes);
           </RouterLink>
 
           <div
-            class="mt-5 min-h-64 flex-1 rounded-[18px] border border-border bg-white p-5 sm:p-6"
+            class="mt-5 min-h-64 flex-1 rounded-[18px] border border-border bg-surface p-5 sm:p-6"
           >
             <p
               class="whitespace-pre-wrap wrap-break-word text-sm leading-7 text-[#3f3a4a]"
@@ -364,7 +364,7 @@ onMounted(loadNotes);
           </div>
 
           <footer
-            class="mt-4 flex flex-col gap-3 text-xs text-[#9ca3af] sm:flex-row sm:items-center sm:justify-between"
+            class="mt-4 flex flex-col gap-3 text-xs text-muted sm:flex-row sm:items-center sm:justify-between"
           >
             <span>
               {{ selectedNote.subjectCode || selectedNote.subjectName }}

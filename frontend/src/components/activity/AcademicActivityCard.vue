@@ -133,7 +133,7 @@ function isInternalLink(link?: string | null) {
 
 <template>
   <article
-    class="min-w-0 rounded-xl border border-border bg-white p-4 sm:p-5 shadow-sm"
+    class="min-w-0 rounded-xl border border-border bg-surface p-4 sm:p-5 shadow-sm"
     aria-labelledby="academic-activity-title"
   >
     <div class="mb-4 flex min-w-0 items-start justify-between gap-3">
@@ -159,7 +159,7 @@ function isInternalLink(link?: string | null) {
       <div
         v-for="item in 4"
         :key="item"
-        class="flex min-w-0 gap-3 rounded-lg border border-border bg-[#fbfaf8] p-3"
+        class="flex min-w-0 gap-3 rounded-lg border border-border bg-surface-subtle p-3"
       >
         <div class="mt-1 h-2 w-2 shrink-0 rounded-full bg-[#e5e7eb]" />
         <div class="min-w-0 flex-1 space-y-2">
@@ -172,14 +172,14 @@ function isInternalLink(link?: string | null) {
 
     <div
       v-else-if="error"
-      class="rounded-lg bg-[#fbfaf8] p-4 text-sm leading-6 text-[#7a7385]"
+      class="rounded-lg bg-surface-subtle p-4 text-sm leading-6 text-muted"
     >
       Aktivitas belum bisa dimuat. Dashboard lain tetap dapat digunakan.
     </div>
 
     <div
       v-else-if="visibleActivities.length === 0"
-      class="rounded-lg border border-border bg-[#fbfaf8] p-4"
+      class="rounded-lg border border-border bg-surface-subtle p-4"
     >
       <div
         class="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-brand-soft text-brand"
@@ -195,7 +195,7 @@ function isInternalLink(link?: string | null) {
       </p>
       <RouterLink
         :to="activityRoute"
-        class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-2 text-xs font-medium text-brand transition hover:border-brand hover:bg-brand-soft"
+        class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-2 text-xs font-medium text-brand transition hover:border-brand hover:bg-brand-soft"
       >
         Lihat semua aktivitas
         <PhArrowRight :size="13" />
@@ -220,7 +220,7 @@ function isInternalLink(link?: string | null) {
           <RouterLink
             v-if="isInternalLink(activity.link)"
             :to="activity.link || ''"
-            class="group flex min-w-0 gap-3 rounded-lg p-1 -m-1 transition hover:bg-[#fbfaf8] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+            class="group flex min-w-0 gap-3 rounded-lg p-1 -m-1 transition hover:bg-surface-subtle focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
             :aria-label="`${typeLabel(activity.type)}: ${activity.title}`"
           >
             <span
@@ -236,7 +236,7 @@ function isInternalLink(link?: string | null) {
                 >
                   {{ typeLabel(activity.type) }}
                 </span>
-                <span class="text-[11px] text-[#9ca3af]">
+                <span class="text-[11px] text-muted">
                   {{ timelineLabel(activity) }}
                 </span>
                 <span
@@ -257,7 +257,7 @@ function isInternalLink(link?: string | null) {
               >
                 {{ activity.title }}
               </span>
-              <span class="mt-1 line-clamp-2 text-xs leading-5 text-[#7a7385]">
+              <span class="mt-1 line-clamp-2 text-xs leading-5 text-muted">
                 {{ activity.description }}
               </span>
             </span>
@@ -282,7 +282,7 @@ function isInternalLink(link?: string | null) {
                 >
                   {{ typeLabel(activity.type) }}
                 </span>
-                <span class="text-[11px] text-[#9ca3af]">
+                <span class="text-[11px] text-muted">
                   {{ timelineLabel(activity) }}
                 </span>
                 <span
@@ -301,7 +301,7 @@ function isInternalLink(link?: string | null) {
               <p class="mt-1 line-clamp-2 text-sm font-medium text-foreground">
                 {{ activity.title }}
               </p>
-              <p class="mt-1 line-clamp-2 text-xs leading-5 text-[#7a7385]">
+              <p class="mt-1 line-clamp-2 text-xs leading-5 text-muted">
                 {{ activity.description }}
               </p>
             </div>

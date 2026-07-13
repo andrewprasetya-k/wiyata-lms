@@ -120,7 +120,7 @@ function formatTime(value?: string | null) {
     :class="
       embedded
         ? 'bg-transparent'
-        : 'border border-border bg-white p-4 sm:p-5'
+        : 'border border-border bg-surface p-4 sm:p-5'
     "
   >
     <div class="mb-4 flex items-center justify-between gap-3">
@@ -137,7 +137,7 @@ function formatTime(value?: string | null) {
       <div
         v-for="item in 3"
         :key="item"
-        class="h-14 animate-pulse bg-[#f3f1ec]"
+        class="h-14 animate-pulse bg-surface-strong"
       />
     </div>
 
@@ -146,7 +146,7 @@ function formatTime(value?: string | null) {
       class="flex gap-3 rounded-lg border border-danger-line bg-[#fffafa] p-3"
     >
       <PhWarningCircle :size="18" class="mt-0.5 shrink-0 text-danger" />
-      <p class="text-xs leading-5 text-[#7a7385]">
+      <p class="text-xs leading-5 text-muted">
         Ringkasan chat belum bisa dimuat. Halaman lain tetap dapat digunakan.
       </p>
     </div>
@@ -156,7 +156,7 @@ function formatTime(value?: string | null) {
         v-for="room in visibleRooms"
         :key="room.roomId"
         :to="to"
-        class="flex h-16 min-w-0 max-w-full overflow-hidden items-center gap-1 border-b border-border bg-[#fbfaf8] transition hover:border-[#c7d2fe] hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+        class="flex h-16 min-w-0 max-w-full overflow-hidden items-center gap-1 border-b border-border bg-surface-subtle transition hover:border-brand-line hover:bg-surface focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
       >
         <span class="min-w-0 flex-1 overflow-hidden">
           <span
@@ -170,7 +170,7 @@ function formatTime(value?: string | null) {
             :class="
               room.unreadCount > 0
                 ? 'font-semibold text-[#3f3a4a]'
-                : 'text-[#7a7385]'
+                : 'text-muted'
             "
           >
             {{ roomPreview(room) }}
@@ -179,7 +179,7 @@ function formatTime(value?: string | null) {
         <span
           class="flex w-12 shrink-0 flex-col items-end gap-1 overflow-hidden"
         >
-          <span class="w-full truncate text-right text-[11px] text-[#9ca3af]">
+          <span class="w-full truncate text-right text-[11px] text-muted">
             {{ formatTime(room.lastMessageAt) }}
           </span>
           <span

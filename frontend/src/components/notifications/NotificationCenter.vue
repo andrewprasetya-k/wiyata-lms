@@ -230,10 +230,10 @@ onMounted(() => {
 </script>
 
 <template>
-  <main class="min-h-full bg-[#f8f7f4] px-4 py-6 sm:px-6 lg:px-8">
+  <main class="min-h-full bg-background px-4 py-6 sm:px-6 lg:px-8">
     <section class="mx-auto flex w-full max-w-5xl flex-col gap-5">
       <header
-        class="rounded-xl border border-border bg-white px-5 py-5 sm:px-6"
+        class="rounded-xl border border-border bg-surface px-5 py-5 sm:px-6"
       >
         <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div class="min-w-0">
@@ -243,14 +243,14 @@ onMounted(() => {
             <h1 class="mt-2 text-2xl font-semibold text-foreground">
               Notifikasi
             </h1>
-            <p class="mt-2 max-w-2xl text-sm leading-6 text-[#7a7385]">
+            <p class="mt-2 max-w-2xl text-sm leading-6 text-muted">
               {{ subtitle }}
             </p>
           </div>
 
           <button
             type="button"
-            class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-border bg-[#fbfaf8] px-3 py-2 text-sm font-medium text-brand transition hover:border-brand hover:bg-brand-soft disabled:cursor-not-allowed disabled:opacity-60"
+            class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-border bg-surface-subtle px-3 py-2 text-sm font-medium text-brand transition hover:border-brand hover:bg-brand-soft disabled:cursor-not-allowed disabled:opacity-60"
             :disabled="markingAll || notificationUnread.unreadCount.value <= 0"
             @click="markAllRead"
           >
@@ -260,12 +260,12 @@ onMounted(() => {
         </div>
       </header>
 
-      <section class="rounded-xl border border-border bg-white">
+      <section class="rounded-xl border border-border bg-surface">
         <div
           class="flex flex-col gap-3 border-b border-border px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5"
         >
           <div
-            class="inline-flex w-full rounded-lg bg-[#f8f7f4] p-1 sm:w-auto"
+            class="inline-flex w-full rounded-lg bg-background p-1 sm:w-auto"
             role="tablist"
             aria-label="Filter notifikasi"
           >
@@ -274,8 +274,8 @@ onMounted(() => {
               class="flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition sm:flex-none"
               :class="
                 activeFilter === 'all'
-                  ? 'bg-white text-foreground shadow-sm'
-                  : 'text-[#7a7385] hover:text-foreground'
+                  ? 'bg-surface text-foreground shadow-sm'
+                  : 'text-muted hover:text-foreground'
               "
               :aria-pressed="activeFilter === 'all'"
               @click="selectFilter('all')"
@@ -287,8 +287,8 @@ onMounted(() => {
               class="flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition sm:flex-none"
               :class="
                 activeFilter === 'unread'
-                  ? 'bg-white text-foreground shadow-sm'
-                  : 'text-[#7a7385] hover:text-foreground'
+                  ? 'bg-surface text-foreground shadow-sm'
+                  : 'text-muted hover:text-foreground'
               "
               :aria-pressed="activeFilter === 'unread'"
               @click="selectFilter('unread')"
@@ -304,11 +304,11 @@ onMounted(() => {
 
         <div v-if="loading" class="space-y-0 divide-y divide-border">
           <div v-for="item in 5" :key="item" class="flex gap-3 px-4 py-4 sm:px-5">
-            <div class="h-10 w-10 shrink-0 animate-pulse rounded-full bg-[#f0ede8]" />
+            <div class="h-10 w-10 shrink-0 animate-pulse rounded-full bg-surface-strong" />
             <div class="min-w-0 flex-1 space-y-2">
-              <div class="h-3 w-28 animate-pulse rounded-full bg-[#f0ede8]" />
-              <div class="h-4 w-3/5 animate-pulse rounded-full bg-[#f0ede8]" />
-              <div class="h-3 w-4/5 animate-pulse rounded-full bg-[#f0ede8]" />
+              <div class="h-3 w-28 animate-pulse rounded-full bg-surface-strong" />
+              <div class="h-4 w-3/5 animate-pulse rounded-full bg-surface-strong" />
+              <div class="h-3 w-4/5 animate-pulse rounded-full bg-surface-strong" />
             </div>
           </div>
         </div>
@@ -326,13 +326,13 @@ onMounted(() => {
             <h2 class="text-sm font-semibold text-foreground">
               Notifikasi belum bisa dimuat
             </h2>
-            <p class="mt-1 text-sm leading-6 text-[#7a7385]">
+            <p class="mt-1 text-sm leading-6 text-muted">
               {{ error }}
             </p>
           </div>
           <button
             type="button"
-            class="inline-flex items-center gap-2 rounded-lg border border-border bg-white px-3 py-2 text-sm font-medium text-brand transition hover:border-brand hover:bg-brand-soft"
+            class="inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-brand transition hover:border-brand hover:bg-brand-soft"
             @click="loadNotifications(true)"
           >
             <PhArrowClockwise :size="16" />
@@ -364,14 +364,14 @@ onMounted(() => {
             v-for="item in notifications"
             :key="item.notificationId"
             type="button"
-            class="flex w-full min-w-0 gap-3 px-4 py-4 text-left transition hover:bg-[#f8f7f4] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-75 sm:px-5"
-            :class="!item.isRead ? 'bg-[#f5f7ff]' : 'bg-white'"
+            class="flex w-full min-w-0 gap-3 px-4 py-4 text-left transition hover:bg-background focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-75 sm:px-5"
+            :class="!item.isRead ? 'bg-[#f5f7ff]' : 'bg-surface'"
             :disabled="markingNotificationIds.has(item.notificationId)"
             :aria-label="`${item.isRead ? 'Buka' : 'Buka dan tandai dibaca'} ${notificationTitle(item)}`"
             @click="openNotification(item)"
           >
             <div
-              class="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-[#fbfaf8] text-brand"
+              class="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-surface-subtle text-brand"
               aria-hidden="true"
             >
               <PhBell :size="18" weight="duotone" />
@@ -380,7 +380,7 @@ onMounted(() => {
             <div class="min-w-0 flex-1">
               <div class="flex min-w-0 flex-wrap items-center gap-2">
                 <span
-                  class="rounded-full bg-[#f8f7f4] px-2 py-0.5 text-[11px] font-medium text-[#7a7385]"
+                  class="rounded-full bg-background px-2 py-0.5 text-[11px] font-medium text-muted"
                 >
                   {{ notificationTypeLabel(item) }}
                 </span>
@@ -402,7 +402,7 @@ onMounted(() => {
                   >
                     {{ notificationTitle(item) }}
                   </h2>
-                  <p class="mt-1 line-clamp-2 text-sm leading-6 text-[#7a7385]">
+                  <p class="mt-1 line-clamp-2 text-sm leading-6 text-muted">
                     {{ notificationMessage(item) }}
                   </p>
                 </div>
@@ -428,7 +428,7 @@ onMounted(() => {
           <button
             v-if="hasMore"
             type="button"
-            class="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-white px-3 py-2 text-sm font-medium text-brand transition hover:border-brand hover:bg-brand-soft disabled:cursor-wait disabled:opacity-60"
+            class="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-brand transition hover:border-brand hover:bg-brand-soft disabled:cursor-wait disabled:opacity-60"
             :disabled="loadingMore"
             @click="loadNotifications(false)"
           >

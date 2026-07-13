@@ -148,8 +148,8 @@ onMounted(loadAssignments);
 </script>
 
 <template>
-  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
-    <header class="border-b border-border bg-white">
+  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-background">
+    <header class="border-b border-border bg-surface">
       <div
         class="flex min-w-0 flex-col gap-3 px-8 py-5 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8"
       >
@@ -173,11 +173,11 @@ onMounted(loadAssignments);
           <div
             v-for="item in 5"
             :key="item"
-            class="h-28 animate-pulse rounded-xl border border-border bg-white"
+            class="h-28 animate-pulse rounded-xl border border-border bg-surface"
           />
         </div>
         <div
-          class="h-64 animate-pulse rounded-xl border border-border bg-white"
+          class="h-64 animate-pulse rounded-xl border border-border bg-surface"
         />
       </section>
 
@@ -198,7 +198,7 @@ onMounted(loadAssignments);
               <h2 class="text-base font-semibold text-foreground">
                 Tugas tidak dapat dimuat
               </h2>
-              <p class="mt-1 text-sm leading-6 text-[#7a7385]">
+              <p class="mt-1 text-sm leading-6 text-muted">
                 {{ errorMessage }}
               </p>
               <button
@@ -215,7 +215,7 @@ onMounted(loadAssignments);
 
       <template v-else>
         <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-          <article class="rounded-xl border border-border bg-white shadow-sm p-4">
+          <article class="rounded-xl border border-border bg-surface shadow-sm p-4">
             <PhClipboardText
               :size="22"
               class="text-brand"
@@ -226,28 +226,28 @@ onMounted(loadAssignments);
               {{ summary.totalAssignments }}
             </p>
           </article>
-          <article class="rounded-xl border border-border bg-white shadow-sm p-4">
+          <article class="rounded-xl border border-border bg-surface shadow-sm p-4">
             <PhClock :size="22" class="text-[#ea580c]" weight="duotone" />
             <p class="mt-3 text-xs text-[#8b8592]">Belum dikumpulkan</p>
             <p class="mt-1 text-2xl font-medium text-warning">
               {{ summary.notSubmittedCount }}
             </p>
           </article>
-          <article class="rounded-xl border border-border bg-white shadow-sm p-4">
+          <article class="rounded-xl border border-border bg-surface shadow-sm p-4">
             <PhCheckCircle :size="22" class="text-brand" weight="duotone" />
             <p class="mt-3 text-xs text-[#8b8592]">Sudah dikumpulkan</p>
             <p class="mt-1 text-2xl font-medium text-brand">
               {{ summary.submittedCount }}
             </p>
           </article>
-          <article class="rounded-xl border border-border bg-white shadow-sm p-4">
+          <article class="rounded-xl border border-border bg-surface shadow-sm p-4">
             <PhSealCheck :size="22" class="text-[#059669]" weight="duotone" />
             <p class="mt-3 text-xs text-[#8b8592]">Sudah dinilai</p>
             <p class="mt-1 text-2xl font-medium text-success">
               {{ summary.gradedCount }}
             </p>
           </article>
-          <article class="rounded-xl border border-border bg-white shadow-sm p-4">
+          <article class="rounded-xl border border-border bg-surface shadow-sm p-4">
             <PhWarningCircle
               :size="22"
               class="text-danger"
@@ -261,14 +261,14 @@ onMounted(loadAssignments);
         </section>
 
         <section
-          class="mt-5 min-w-0 rounded-xl border border-border bg-white shadow-sm p-4 sm:p-5"
+          class="mt-5 min-w-0 rounded-xl border border-border bg-surface shadow-sm p-4 sm:p-5"
         >
           <div
             class="flex flex-col gap-4 border-b border-border pb-4 lg:flex-row lg:items-end lg:justify-between"
           >
             <div class="min-w-0">
               <p class="text-sm font-semibold text-foreground">Daftar tugas</p>
-              <p class="mt-1 text-sm text-[#7a7385]">
+              <p class="mt-1 text-sm text-muted">
                 {{ items.length }} tugas dari kelas aktif di sekolah ini.
               </p>
             </div>
@@ -281,7 +281,7 @@ onMounted(loadAssignments);
                 :class="
                   activeFilter === tab.id
                     ? 'bg-brand text-white'
-                    : 'bg-[#fbfaf8] text-muted hover:bg-brand-soft hover:text-brand'
+                    : 'bg-surface-subtle text-muted hover:bg-brand-soft hover:text-brand'
                 "
                 @click="activeFilter = tab.id"
               >
@@ -324,7 +324,7 @@ onMounted(loadAssignments);
             <article
               v-for="item in filteredItems"
               :key="`${item.subjectClassId}-${item.assignmentId}`"
-              class="min-w-0 rounded-lg border border-border bg-[#fbfaf8] p-4 sm:p-5"
+              class="min-w-0 rounded-lg border border-border bg-surface-subtle p-4 sm:p-5"
             >
               <div
                 class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"
@@ -338,12 +338,12 @@ onMounted(loadAssignments);
                     </span>
                     <span
                       v-if="item.subjectCode"
-                      class="rounded-full bg-white px-3 py-1.5 text-muted"
+                      class="rounded-full bg-surface px-3 py-1.5 text-muted"
                     >
                       {{ item.subjectCode }}
                     </span>
                     <span
-                      class="rounded-full bg-white px-3 py-1.5 text-muted"
+                      class="rounded-full bg-surface px-3 py-1.5 text-muted"
                     >
                       {{ item.className || item.classCode || "Kelas" }}
                     </span>
@@ -352,7 +352,7 @@ onMounted(loadAssignments);
                   <h2 class="mt-4 text-lg font-semibold text-foreground">
                     {{ item.assignmentTitle }}
                   </h2>
-                  <p class="mt-2 text-sm text-[#7a7385]">
+                  <p class="mt-2 text-sm text-muted">
                     <span v-if="item.categoryName">{{
                       item.categoryName
                     }}</span>

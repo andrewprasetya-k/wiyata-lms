@@ -30,7 +30,7 @@ function ariaLabel() {
     class="group flex min-w-0 gap-3 rounded-lg border p-4 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
     :class="activity.type === 'assignment_overdue'
       ? 'border-danger-line bg-danger-soft hover:bg-[#fee2e2]'
-      : 'border-border bg-white hover:border-[#c7d2fe] hover:bg-[#fbfaf8]'"
+      : 'border-border bg-surface hover:border-brand-line hover:bg-surface-subtle'"
     :aria-label="ariaLabel()"
   >
     <span
@@ -49,7 +49,7 @@ function ariaLabel() {
         </span>
         <span
           v-if="activity.type === 'assignment_overdue'"
-          class="rounded-full bg-white px-2 py-0.5 text-[10px] font-medium text-danger"
+          class="rounded-full bg-surface px-2 py-0.5 text-[10px] font-medium text-danger"
         >
           Tenggat terlewat
         </span>
@@ -65,12 +65,12 @@ function ariaLabel() {
       >
         {{ activity.title }}
       </span>
-      <span class="mt-1 line-clamp-2 text-xs leading-5 text-[#7a7385]">
+      <span class="mt-1 line-clamp-2 text-xs leading-5 text-muted">
         {{ activity.description }}
       </span>
       <span
         v-if="activity.class?.name || activity.subject?.name"
-        class="mt-2 block truncate text-[11px] text-[#9ca3af]"
+        class="mt-2 block truncate text-[11px] text-muted"
       >
         {{ activity.subject?.name || "Mata pelajaran" }}
         <template v-if="activity.class?.name"> · {{ activity.class.name }}</template>
@@ -88,7 +88,7 @@ function ariaLabel() {
     class="flex min-w-0 gap-3 rounded-lg border p-4"
     :class="activity.type === 'assignment_overdue'
       ? 'border-danger-line bg-danger-soft'
-      : 'border-border bg-white'"
+      : 'border-border bg-surface'"
   >
     <span
       class="mt-2 h-2.5 w-2.5 shrink-0 rounded-full"
@@ -106,7 +106,7 @@ function ariaLabel() {
         </span>
         <span
           v-if="activity.type === 'assignment_overdue'"
-          class="rounded-full bg-white px-2 py-0.5 text-[10px] font-medium text-danger"
+          class="rounded-full bg-surface px-2 py-0.5 text-[10px] font-medium text-danger"
         >
           Tenggat terlewat
         </span>
@@ -120,12 +120,12 @@ function ariaLabel() {
       <h3 class="mt-2 line-clamp-2 text-sm font-medium text-foreground">
         {{ activity.title }}
       </h3>
-      <p class="mt-1 line-clamp-2 text-xs leading-5 text-[#7a7385]">
+      <p class="mt-1 line-clamp-2 text-xs leading-5 text-muted">
         {{ activity.description }}
       </p>
       <p
         v-if="activity.class?.name || activity.subject?.name"
-        class="mt-2 truncate text-[11px] text-[#9ca3af]"
+        class="mt-2 truncate text-[11px] text-muted"
       >
         {{ activity.subject?.name || "Mata pelajaran" }}
         <template v-if="activity.class?.name"> · {{ activity.class.name }}</template>

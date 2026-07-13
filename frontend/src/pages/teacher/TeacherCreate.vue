@@ -67,14 +67,14 @@ onMounted(loadSubjects);
 
       <section
         v-if="loading"
-        class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5"
+        class="rounded-[22px] bg-surface p-5 shadow-sm ring-1 ring-black/5"
       >
         <p class="text-sm text-[#6b6475]">Memuat mata pelajaran yang diajar...</p>
       </section>
 
       <section
         v-else-if="errorMessage"
-        class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5"
+        class="rounded-[22px] bg-surface p-5 shadow-sm ring-1 ring-black/5"
       >
         <div
           class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
@@ -106,7 +106,7 @@ onMounted(loadSubjects);
 
       <section
         v-else-if="!hasSubjects"
-        class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5"
+        class="rounded-[22px] bg-surface p-5 shadow-sm ring-1 ring-black/5"
       >
         <div class="flex items-start gap-3">
           <div
@@ -130,7 +130,7 @@ onMounted(loadSubjects);
         <article
           v-for="subject in subjects"
           :key="subject.subjectClassId"
-          class="rounded-[22px] bg-white p-5 shadow-sm ring-1 ring-black/5"
+          class="rounded-[22px] bg-surface p-5 shadow-sm ring-1 ring-black/5"
         >
           <div class="flex items-start justify-between gap-4">
             <div

@@ -36,7 +36,7 @@ function isActive(to: string) {
 
 <template>
   <aside
-    class="flex h-full flex-col border-r border-border bg-white/95 transition-[width] duration-200 ease-in-out"
+    class="flex h-full flex-col border-r border-border bg-surface/95 transition-[width] duration-200 ease-in-out"
     :class="isCollapsed ? 'w-18' : 'w-62'"
   >
     <!-- ── Header: logo + brand + toggle -->
@@ -65,7 +65,7 @@ function isActive(to: string) {
 
       <!-- Collapse / expand toggle -->
       <button
-        class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-[#a3a1aa] transition hover:bg-[#f3f1ec] hover:text-[#3f3a4a]"
+        class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-[#a3a1aa] transition hover:bg-surface-strong hover:text-[#3f3a4a]"
         :title="isCollapsed ? 'Buka sidebar' : 'Tutup sidebar'"
         type="button"
         @click="toggle"
@@ -87,11 +87,11 @@ function isActive(to: string) {
         v-for="item in items"
         :key="item.label"
         :title="isCollapsed ? item.label : undefined"
-        class="relative flex h-10 items-center rounded-xl text-[#a3a1aa] transition hover:bg-[#f3f1ec] hover:text-gray-700 cursor-pointer"
+        class="relative flex h-10 items-center rounded-xl text-[#a3a1aa] transition hover:bg-surface-strong hover:text-gray-700 cursor-pointer"
         :class="[
           isCollapsed ? 'mx-auto w-4 justify-center px-6' : 'w-full gap-3 px-3',
           isActive(item.to)
-            ? 'bg-[#f3f1ec] text-foreground'
+            ? 'bg-surface-strong text-foreground'
             : item.emphasized
               ? 'text-[#575269]'
               : '',
@@ -183,7 +183,7 @@ function isActive(to: string) {
         :to="profileTo"
         :title="isCollapsed ? 'Buka profil' : undefined"
         :aria-label="isCollapsed ? 'Buka profil' : undefined"
-        class="relative flex h-10 items-center rounded-xl transition hover:bg-[#f3f1ec]"
+        class="relative flex h-10 items-center rounded-xl transition hover:bg-surface-strong"
         :class="
           isCollapsed ? 'mx-auto w-5 justify-center px-6' : 'w-full gap-3 px-3'
         "
@@ -192,7 +192,7 @@ function isActive(to: string) {
           class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand text-[11px] font-medium text-white transition hover:bg-brand-hover"
           :class="
             isActive(profileTo)
-              ? 'ring-2 ring-[#c7d2fe] ring-offset-2 ring-offset-white'
+              ? 'ring-2 ring-brand-line ring-offset-2 ring-offset-white'
               : ''
           "
         >

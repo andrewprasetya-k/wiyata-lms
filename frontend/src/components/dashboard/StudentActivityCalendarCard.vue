@@ -182,19 +182,19 @@ onMounted(() => {
 </script>
 
 <template>
-  <section class="shrink-0 rounded-xl bg-white p-3">
+  <section class="shrink-0 rounded-xl bg-surface p-3">
     <div class="mb-2 flex items-center justify-between">
       <p class="text-sm font-medium text-foreground">{{ currentMonth }}</p>
       <div class="flex gap-1">
         <button
-          class="rounded-lg border border-border p-1.5 text-[#7a7385] transition hover:bg-[#fbfaf8]"
+          class="rounded-lg border border-border p-1.5 text-muted transition hover:bg-surface-subtle"
           type="button"
           @click="changeMonth(-1)"
         >
           <PhCaretLeft :size="14" />
         </button>
         <button
-          class="rounded-lg border border-border p-1.5 text-[#7a7385] transition hover:bg-[#fbfaf8]"
+          class="rounded-lg border border-border p-1.5 text-muted transition hover:bg-surface-subtle"
           type="button"
           @click="changeMonth(1)"
         >
@@ -220,8 +220,8 @@ onMounted(() => {
             day.isToday
               ? 'bg-brand font-medium text-white'
               : day.isCurrentMonth
-                ? 'text-[#4a4356] hover:bg-[#fbfaf8]'
-                : 'text-[#c0bac8] hover:bg-[#fbfaf8]',
+                ? 'text-[#4a4356] hover:bg-surface-subtle'
+                : 'text-[#c0bac8] hover:bg-surface-subtle',
             selectedDate === day.dateKey
               ? 'ring-2 ring-brand ring-offset-1'
               : '',
@@ -249,7 +249,7 @@ onMounted(() => {
             <span
               v-if="day.extraCount"
               class="ml-0.5 text-[9px] font-medium"
-              :class="day.isToday ? 'text-white' : 'text-[#7a7385]'"
+              :class="day.isToday ? 'text-white' : 'text-muted'"
             >
               +{{ day.extraCount }}
             </span>
@@ -270,21 +270,21 @@ onMounted(() => {
       <div class="h-32 overflow-y-auto pr-1">
         <div
           v-if="calendarActivitiesLoading"
-          class="rounded-lg bg-[#fbfaf8] p-3 text-xs leading-5 text-[#7a7385]"
+          class="rounded-lg bg-surface-subtle p-3 text-xs leading-5 text-muted"
         >
           Memuat deadline...
         </div>
 
         <div
           v-else-if="calendarActivitiesError"
-          class="rounded-lg bg-[#fbfaf8] p-3 text-xs leading-5 text-[#7a7385]"
+          class="rounded-lg bg-surface-subtle p-3 text-xs leading-5 text-muted"
         >
           {{ calendarActivitiesError }}
         </div>
 
         <div
           v-else-if="selectedDatePreview.length === 0"
-          class="border-b border-border bg-[#fbfaf8] p-3 text-xs leading-5 text-[#7a7385]"
+          class="border-b border-border bg-surface-subtle p-3 text-xs leading-5 text-muted"
         >
           Tidak ada deadline tugas pada tanggal ini.
         </div>
@@ -302,7 +302,7 @@ onMounted(() => {
             <RouterLink
               v-if="isInternalActivityLink(activity.link)"
               :to="activity.link || ''"
-              class="group flex min-w-0 items-start gap-2 border-b border-border bg-[#fbfaf8] p-3 transition hover:border-[#c7d2fe] hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+              class="group flex min-w-0 items-start gap-2 border-b border-border bg-surface-subtle p-3 transition hover:border-brand-line hover:bg-surface focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
               :aria-label="`${activityTypeLabel(activity.type, 'student')}: ${activity.title}`"
             >
               <span
@@ -321,7 +321,7 @@ onMounted(() => {
                   <span class="text-[11px] font-medium text-brand">
                     {{ activityTypeLabel(activity.type, "student") }}
                   </span>
-                  <span class="shrink-0 text-[10px] text-[#9ca3af]">
+                  <span class="shrink-0 text-[10px] text-muted">
                     {{ calendarActivityTime(activity) }}
                   </span>
                 </span>
@@ -335,7 +335,7 @@ onMounted(() => {
 
             <article
               v-else
-              class="flex min-w-0 items-start gap-2 rounded-lg bg-[#fbfaf8] p-3"
+              class="flex min-w-0 items-start gap-2 rounded-lg bg-surface-subtle p-3"
             >
               <span
                 class="mt-1.5 h-2 w-2 shrink-0 rounded-full"
@@ -353,7 +353,7 @@ onMounted(() => {
                   <span class="text-[11px] font-medium text-brand">
                     {{ activityTypeLabel(activity.type, "student") }}
                   </span>
-                  <span class="shrink-0 text-[10px] text-[#9ca3af]">
+                  <span class="shrink-0 text-[10px] text-muted">
                     {{ calendarActivityTime(activity) }}
                   </span>
                 </div>

@@ -180,8 +180,8 @@ onMounted(loadWorkspace);
 </script>
 
 <template>
-  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
-    <header class="border-b border-border bg-white">
+  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-background">
+    <header class="border-b border-border bg-surface">
       <div class="px-5 py-5 sm:px-6 lg:px-8">
         <div class="flex min-w-0 items-center gap-2 text-xs text-muted">
           <RouterLink
@@ -251,11 +251,11 @@ onMounted(loadWorkspace);
           <div
             v-for="item in 4"
             :key="item"
-            class="h-24 animate-pulse rounded-xl border border-border bg-white"
+            class="h-24 animate-pulse rounded-xl border border-border bg-surface"
           />
         </div>
         <div
-          class="h-72 animate-pulse rounded-xl border border-border bg-white"
+          class="h-72 animate-pulse rounded-xl border border-border bg-surface"
         />
       </section>
 
@@ -276,7 +276,7 @@ onMounted(loadWorkspace);
               <h2 class="text-base font-semibold text-foreground">
                 Ruang kerja tidak dapat dimuat
               </h2>
-              <p class="mt-1 text-sm leading-6 text-[#7a7385]">
+              <p class="mt-1 text-sm leading-6 text-muted">
                 {{ errorMessage }}
               </p>
               <button
@@ -296,7 +296,7 @@ onMounted(loadWorkspace);
         class="flex min-h-[55vh] items-center justify-center"
       >
         <article
-          class="w-full max-w-xl rounded-xl border border-border bg-white p-8 text-center"
+          class="w-full max-w-xl rounded-xl border border-border bg-surface p-8 text-center"
         >
           <div
             class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
@@ -315,38 +315,38 @@ onMounted(loadWorkspace);
 
       <template v-else>
         <section class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <article class="rounded-xl border border-border bg-white shadow-sm p-4">
+          <article class="rounded-xl border border-border bg-surface shadow-sm p-4">
             <PhUsersThree :size="21" class="text-[#059669]" weight="duotone" />
-            <p class="mt-3 text-xs text-[#7a7385]">Siswa</p>
+            <p class="mt-3 text-xs text-muted">Siswa</p>
             <p class="mt-1 text-2xl font-semibold text-foreground">
               {{ subject.studentCount }}
             </p>
           </article>
-          <article class="rounded-xl border border-border bg-white shadow-sm p-4">
+          <article class="rounded-xl border border-border bg-surface shadow-sm p-4">
             <PhFileText :size="21" class="text-[#4f8ef7]" weight="duotone" />
-            <p class="mt-3 text-xs text-[#7a7385]">Materi</p>
+            <p class="mt-3 text-xs text-muted">Materi</p>
             <p class="mt-1 text-2xl font-semibold text-foreground">
               {{ subject.materialCount }}
             </p>
           </article>
-          <article class="rounded-xl border border-border bg-white shadow-sm p-4">
+          <article class="rounded-xl border border-border bg-surface shadow-sm p-4">
             <PhClipboardText
               :size="21"
               class="text-brand"
               weight="duotone"
             />
-            <p class="mt-3 text-xs text-[#7a7385]">Tugas</p>
+            <p class="mt-3 text-xs text-muted">Tugas</p>
             <p class="mt-1 text-2xl font-semibold text-foreground">
               {{ subject.assignmentCount }}
             </p>
           </article>
-          <article class="rounded-xl border border-border bg-white shadow-sm p-4">
+          <article class="rounded-xl border border-border bg-surface shadow-sm p-4">
             <PhWarningCircle
               :size="21"
               class="text-[#ea580c]"
               weight="duotone"
             />
-            <p class="mt-3 text-xs text-[#7a7385]">Perlu dinilai</p>
+            <p class="mt-3 text-xs text-muted">Perlu dinilai</p>
             <p class="mt-1 text-2xl font-semibold text-foreground">
               {{ subject.pendingSubmissions }}
             </p>
@@ -354,7 +354,7 @@ onMounted(loadWorkspace);
         </section>
 
         <section
-          class="mt-5 min-w-0 rounded-xl border border-border bg-white shadow-sm p-4 sm:p-5"
+          class="mt-5 min-w-0 rounded-xl border border-border bg-surface shadow-sm p-4 sm:p-5"
         >
           <div
             class="flex min-w-0 gap-1 overflow-x-auto border-b border-border"
@@ -367,7 +367,7 @@ onMounted(loadWorkspace);
               :class="
                 activeTab === tab.id
                   ? 'border-brand font-medium text-brand'
-                  : 'border-transparent text-muted hover:text-[#374151]'
+                  : 'border-transparent text-muted hover:text-foreground-secondary'
               "
               @click="activeTab = tab.id"
             >
@@ -379,7 +379,7 @@ onMounted(loadWorkspace);
             <div v-if="activeTab === 'materials'" class="space-y-3">
               <div
                 v-if="materials.length === 0"
-                class="rounded-lg border border-border bg-[#fbfaf8] p-8 text-center"
+                class="rounded-lg border border-border bg-surface-subtle p-8 text-center"
               >
                 <div
                   class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
@@ -406,7 +406,7 @@ onMounted(loadWorkspace);
                     matId: material.materialId,
                   },
                 }"
-                class="group block min-w-0 rounded-lg border border-border bg-[#fbfaf8] p-4 transition hover:bg-white hover:shadow-[0_8px_24px_rgba(66,55,40,0.08)]"
+                class="group block min-w-0 rounded-lg border border-border bg-surface-subtle p-4 transition hover:bg-surface hover:shadow-[0_8px_24px_rgba(66,55,40,0.08)]"
               >
                 <div
                   class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
@@ -424,7 +424,7 @@ onMounted(loadWorkspace);
                     </h2>
                     <p
                       v-if="material.materialDesc"
-                      class="mt-2 line-clamp-2 text-sm leading-6 text-[#7a7385]"
+                      class="mt-2 line-clamp-2 text-sm leading-6 text-muted"
                     >
                       {{ material.materialDesc }}
                     </p>
@@ -437,14 +437,14 @@ onMounted(loadWorkspace);
                   class="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted"
                 >
                   <span
-                    class="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-2"
+                    class="inline-flex items-center gap-1.5 rounded-lg bg-surface px-3 py-2"
                   >
                     <PhPaperclip :size="14" weight="duotone" />
                     {{ materialAttachmentLabel(material) }}
                   </span>
                   <span
                     v-if="material.creatorName"
-                    class="rounded-lg bg-white px-3 py-2"
+                    class="rounded-lg bg-surface px-3 py-2"
                   >
                     Oleh {{ material.creatorName }}
                   </span>
@@ -455,7 +455,7 @@ onMounted(loadWorkspace);
             <div v-else-if="activeTab === 'assignments'" class="space-y-3">
               <div
                 v-if="assignments.length === 0"
-                class="rounded-lg border border-border bg-[#fbfaf8] p-8 text-center"
+                class="rounded-lg border border-border bg-surface-subtle p-8 text-center"
               >
                 <div
                   class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
@@ -475,7 +475,7 @@ onMounted(loadWorkspace);
                 v-for="assignment in assignments"
                 v-else
                 :key="assignment.assignmentId"
-                class="min-w-0 rounded-lg border border-border bg-[#fbfaf8] p-4"
+                class="min-w-0 rounded-lg border border-border bg-surface-subtle p-4"
               >
                 <div
                   class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
@@ -500,7 +500,7 @@ onMounted(loadWorkspace);
                     </RouterLink>
                     <p
                       v-if="assignment.assignmentDescription"
-                      class="mt-2 line-clamp-2 text-sm leading-6 text-[#7a7385]"
+                      class="mt-2 line-clamp-2 text-sm leading-6 text-muted"
                     >
                       {{ assignment.assignmentDescription }}
                     </p>
@@ -544,7 +544,7 @@ onMounted(loadWorkspace);
                           asgId: assignment.assignmentId,
                         },
                       }"
-                      class="inline-flex items-center justify-center rounded-lg border border-border bg-white p-2 text-muted transition hover:border-brand hover:text-brand"
+                      class="inline-flex items-center justify-center rounded-lg border border-border bg-surface p-2 text-muted transition hover:border-brand hover:text-brand"
                       title="Edit Tugas"
                     >
                       <PhPencilSimple :size="16" weight="bold" />
@@ -554,7 +554,7 @@ onMounted(loadWorkspace);
                       :disabled="
                         deletingAssignmentId === assignment.assignmentId
                       "
-                      class="inline-flex items-center justify-center rounded-lg border border-border bg-white p-2 text-muted transition hover:border-danger hover:text-danger disabled:opacity-50"
+                      class="inline-flex items-center justify-center rounded-lg border border-border bg-surface p-2 text-muted transition hover:border-danger hover:text-danger disabled:opacity-50"
                       title="Hapus Tugas"
                     >
                       <PhTrash :size="16" weight="bold" />
@@ -600,14 +600,14 @@ onMounted(loadWorkspace);
 
               <div
                 v-if="submissionsLoading"
-                class="rounded-lg border border-border bg-white p-5 text-sm text-[#6b6475]"
+                class="rounded-lg border border-border bg-surface p-5 text-sm text-[#6b6475]"
               >
                 Memuat pengumpulan...
               </div>
 
               <div
                 v-else-if="submissionsError"
-                class="rounded-lg border border-border bg-white p-5"
+                class="rounded-lg border border-border bg-surface p-5"
               >
                 <h2 class="text-lg font-semibold text-foreground">
                   Pengumpulan gagal dimuat
@@ -619,7 +619,7 @@ onMounted(loadWorkspace);
 
               <div
                 v-else-if="submissionCount === 0"
-                class="rounded-lg border border-border bg-white p-8 text-center"
+                class="rounded-lg border border-border bg-surface p-8 text-center"
               >
                 <div
                   class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
@@ -639,7 +639,7 @@ onMounted(loadWorkspace);
                 v-for="group in visibleSubmissionGroups"
                 v-else
                 :key="group.assignment.assignmentId"
-                class="rounded-lg border border-border bg-white p-5"
+                class="rounded-lg border border-border bg-surface p-5"
               >
                 <div
                   class="flex flex-col gap-3 border-b border-[#ece8df] pb-4 sm:flex-row sm:items-start sm:justify-between"
@@ -711,7 +711,7 @@ onMounted(loadWorkspace);
                     <div
                       class="flex flex-wrap items-center gap-2 text-xs font-medium text-[#6b6475]"
                     >
-                      <span class="rounded-lg bg-white px-3 py-2">
+                      <span class="rounded-lg bg-surface px-3 py-2">
                         {{ submission.attachments?.length ?? 0 }} lampiran
                       </span>
                       <span
@@ -722,7 +722,7 @@ onMounted(loadWorkspace);
                       </span>
                       <span
                         v-if="submission.assessment"
-                        class="rounded-lg bg-white px-3 py-2"
+                        class="rounded-lg bg-surface px-3 py-2"
                       >
                         Nilai {{ submission.assessment.score }}
                       </span>

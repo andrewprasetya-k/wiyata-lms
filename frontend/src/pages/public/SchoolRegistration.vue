@@ -73,7 +73,7 @@ async function submit() {
 </script>
 
 <template>
-  <main class="min-h-screen bg-[#fbfaf8] px-6 py-8 text-foreground">
+  <main class="min-h-screen bg-surface-subtle px-6 py-8 text-foreground">
     <div class="mx-auto flex w-full max-w-5xl items-center justify-between">
       <RouterLink to="/home" class="flex items-center gap-3">
         <img src="/logo_fix.svg" alt="Wiyata" class="h-9 w-9 rounded-lg" />
@@ -81,7 +81,7 @@ async function submit() {
       </RouterLink>
       <RouterLink
         to="/login"
-        class="rounded-lg border border-border bg-white px-4 py-2 text-sm font-medium text-[#5f5968] transition hover:text-foreground"
+        class="rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-[#5f5968] transition hover:text-foreground"
       >
         Masuk
       </RouterLink>
@@ -101,7 +101,7 @@ async function submit() {
         </p>
       </div>
 
-      <div class="rounded-xl border border-border bg-white p-6 shadow-sm">
+      <div class="rounded-xl border border-border bg-surface p-6 shadow-sm">
         <div v-if="submittedEmail" class="space-y-5">
           <div class="rounded-xl border border-[#dbe7d5] bg-[#f5fbf2] p-5">
             <p class="text-base font-semibold text-[#1f3d25]">
@@ -123,7 +123,7 @@ async function submit() {
         <form v-else class="space-y-5" @submit.prevent="submit">
           <div>
             <h2 class="text-xl font-semibold">Data sekolah</h2>
-            <p class="mt-1 text-sm text-[#7a7385]">
+            <p class="mt-1 text-sm text-muted">
               Isi informasi dasar untuk proses review.
             </p>
           </div>
@@ -134,7 +134,7 @@ async function submit() {
             </span>
             <input
               v-model="form.schoolName"
-              class="h-11 w-full rounded-lg border border-border bg-[#fbfaf8] px-3 text-sm outline-none transition focus:border-brand focus:bg-white"
+              class="h-11 w-full rounded-lg border border-border bg-surface-subtle px-3 text-sm outline-none transition focus:border-brand focus:bg-surface"
               type="text"
               autocomplete="organization"
               placeholder="SMA Wiyata Mandala"
@@ -144,11 +144,11 @@ async function submit() {
           <label class="block">
             <span class="mb-2 block text-sm font-medium text-[#5f5968]">
               NPSN
-              <span class="font-normal text-[#9ca3af]">opsional</span>
+              <span class="font-normal text-muted">opsional</span>
             </span>
             <input
               v-model="form.npsn"
-              class="h-11 w-full rounded-lg border border-border bg-[#fbfaf8] px-3 text-sm outline-none transition focus:border-brand focus:bg-white"
+              class="h-11 w-full rounded-lg border border-border bg-surface-subtle px-3 text-sm outline-none transition focus:border-brand focus:bg-surface"
               type="text"
               placeholder="12345678"
             />
@@ -161,7 +161,7 @@ async function submit() {
               </span>
               <input
                 v-model="form.picName"
-                class="h-11 w-full rounded-lg border border-border bg-[#fbfaf8] px-3 text-sm outline-none transition focus:border-brand focus:bg-white"
+                class="h-11 w-full rounded-lg border border-border bg-surface-subtle px-3 text-sm outline-none transition focus:border-brand focus:bg-surface"
                 type="text"
                 autocomplete="name"
                 placeholder="Budi Santoso"
@@ -174,7 +174,7 @@ async function submit() {
               </span>
               <input
                 v-model="form.picEmail"
-                class="h-11 w-full rounded-lg border border-border bg-[#fbfaf8] px-3 text-sm outline-none transition focus:border-brand focus:bg-white"
+                class="h-11 w-full rounded-lg border border-border bg-surface-subtle px-3 text-sm outline-none transition focus:border-brand focus:bg-surface"
                 type="email"
                 autocomplete="email"
                 placeholder="budi@sekolah.sch.id"
@@ -186,11 +186,11 @@ async function submit() {
             <label class="block">
               <span class="mb-2 block text-sm font-medium text-[#5f5968]">
                 Nomor HP
-                <span class="font-normal text-[#9ca3af]">opsional</span>
+                <span class="font-normal text-muted">opsional</span>
               </span>
               <input
                 v-model="form.picPhone"
-                class="h-11 w-full rounded-lg border border-border bg-[#fbfaf8] px-3 text-sm outline-none transition focus:border-brand focus:bg-white"
+                class="h-11 w-full rounded-lg border border-border bg-surface-subtle px-3 text-sm outline-none transition focus:border-brand focus:bg-surface"
                 type="tel"
                 autocomplete="tel"
                 placeholder="081234567890"
@@ -200,11 +200,11 @@ async function submit() {
             <label class="block">
               <span class="mb-2 block text-sm font-medium text-[#5f5968]">
                 Peran PIC
-                <span class="font-normal text-[#9ca3af]">opsional</span>
+                <span class="font-normal text-muted">opsional</span>
               </span>
               <input
                 v-model="form.picRole"
-                class="h-11 w-full rounded-lg border border-border bg-[#fbfaf8] px-3 text-sm outline-none transition focus:border-brand focus:bg-white"
+                class="h-11 w-full rounded-lg border border-border bg-surface-subtle px-3 text-sm outline-none transition focus:border-brand focus:bg-surface"
                 type="text"
                 placeholder="Kepala sekolah"
               />
@@ -214,18 +214,18 @@ async function submit() {
           <label class="block">
             <span class="mb-2 block text-sm font-medium text-[#5f5968]">
               Catatan
-              <span class="font-normal text-[#9ca3af]">opsional</span>
+              <span class="font-normal text-muted">opsional</span>
             </span>
             <textarea
               v-model="form.message"
-              class="min-h-28 w-full resize-y rounded-lg border border-border bg-[#fbfaf8] px-3 py-3 text-sm outline-none transition focus:border-brand focus:bg-white"
+              class="min-h-28 w-full resize-y rounded-lg border border-border bg-surface-subtle px-3 py-3 text-sm outline-none transition focus:border-brand focus:bg-surface"
               placeholder="Ceritakan kebutuhan sekolah secara singkat."
             />
           </label>
 
           <p
             v-if="errorMessage"
-            class="rounded-lg border border-[#ffd7d2] bg-[#fff7f5] px-4 py-3 text-sm text-[#b42318]"
+            class="rounded-lg border border-[#ffd7d2] bg-[#fff7f5] px-4 py-3 text-sm text-danger"
           >
             {{ errorMessage }}
           </p>

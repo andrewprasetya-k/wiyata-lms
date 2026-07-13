@@ -126,8 +126,8 @@ onMounted(loadSubject);
 </script>
 
 <template>
-  <main class="min-h-screen min-w-0 flex-1 bg-[#f8f7f4]">
-    <header class="border-b border-border bg-white">
+  <main class="min-h-screen min-w-0 flex-1 bg-background">
+    <header class="border-b border-border bg-surface">
       <div
         class="flex min-w-0 items-center gap-2 px-5 py-5 text-xs text-muted sm:px-6 lg:px-8"
       >
@@ -177,7 +177,7 @@ onMounted(loadSubject);
             :class="
               activeTab === tab.key
                 ? 'border-brand font-medium text-brand'
-                : 'border-transparent text-muted hover:border-[#d8d5df] hover:text-[#374151]'
+                : 'border-transparent text-muted hover:border-[#d8d5df] hover:text-foreground-secondary'
             "
             type="button"
             @click="activeTab = tab.key"
@@ -207,7 +207,7 @@ onMounted(loadSubject);
                     : "Catatan materi saya"
               }}
             </h2>
-            <p class="mt-0.5 text-xs text-[#7a7385]">
+            <p class="mt-0.5 text-xs text-muted">
               {{
                 activeTab === "materials"
                   ? "Pelajari materi dan buka lampiran yang dibagikan guru."
@@ -227,7 +227,7 @@ onMounted(loadSubject);
             <div
               v-for="item in 6"
               :key="item"
-              class="h-48 animate-pulse rounded-xl border border-border bg-white"
+              class="h-48 animate-pulse rounded-xl border border-border bg-surface"
             />
           </div>
 
@@ -245,7 +245,7 @@ onMounted(loadSubject);
                 <p class="text-sm font-semibold text-foreground">
                   Tidak bisa memuat materi
                 </p>
-                <p class="mt-1 text-sm leading-6 text-[#7a7385]">
+                <p class="mt-1 text-sm leading-6 text-muted">
                   {{ errorMessage }}
                 </p>
                 <button
@@ -261,7 +261,7 @@ onMounted(loadSubject);
 
           <article
             v-else-if="materials.length === 0"
-            class="rounded-xl border border-border bg-white p-6 text-center"
+            class="rounded-xl border border-border bg-surface p-6 text-center"
           >
             <div
               class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
@@ -281,7 +281,7 @@ onMounted(loadSubject);
             <article
               v-for="material in materials"
               :key="material.materialId"
-              class="group flex min-w-0 cursor-pointer flex-col rounded-xl border border-border bg-white p-4 transition hover:-translate-y-0.5 hover:border-[#c7c3ef] hover:shadow-[0_14px_30px_rgba(66,55,40,0.07)]"
+              class="group flex min-w-0 cursor-pointer flex-col rounded-xl border border-border bg-surface p-4 transition hover:-translate-y-0.5 hover:border-[#c7c3ef] hover:shadow-[0_14px_30px_rgba(66,55,40,0.07)]"
               tabindex="0"
               @click="
                 router.push(
@@ -319,7 +319,7 @@ onMounted(loadSubject);
                 >
                   {{ material.materialDesc }}
                 </p>
-                <p v-else class="mt-2 text-xs leading-5 text-[#9ca3af]">
+                <p v-else class="mt-2 text-xs leading-5 text-muted">
                   Buka materi untuk melihat konten pembelajaran.
                 </p>
               </div>
@@ -327,7 +327,7 @@ onMounted(loadSubject);
               <div
                 class="mt-4 flex min-w-0 items-center justify-between gap-3 border-t border-[#f0ede8] pt-3"
               >
-                <div class="min-w-0 text-[11px] text-[#9ca3af]">
+                <div class="min-w-0 text-[11px] text-muted">
                   <p class="truncate">
                     {{ material.creatorName || "Guru" }}
                   </p>
@@ -364,7 +364,7 @@ onMounted(loadSubject);
             <div
               v-for="item in 4"
               :key="item"
-              class="h-24 animate-pulse rounded-xl border border-border bg-white"
+              class="h-24 animate-pulse rounded-xl border border-border bg-surface"
             />
           </div>
 
@@ -382,7 +382,7 @@ onMounted(loadSubject);
                 <p class="text-sm font-semibold text-foreground">
                   Tidak bisa memuat tugas
                 </p>
-                <p class="mt-1 text-sm leading-6 text-[#7a7385]">
+                <p class="mt-1 text-sm leading-6 text-muted">
                   {{ errorMessage }}
                 </p>
                 <button
@@ -398,7 +398,7 @@ onMounted(loadSubject);
 
           <article
             v-else-if="assignments.length === 0"
-            class="rounded-xl border border-border bg-white p-6 text-center"
+            class="rounded-xl border border-border bg-surface p-6 text-center"
           >
             <div
               class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
@@ -418,7 +418,7 @@ onMounted(loadSubject);
             <article
               v-for="assignment in assignments"
               :key="assignment.assignmentId"
-              class="group cursor-pointer rounded-xl border border-border bg-white p-4 transition hover:border-[#c7c3ef] hover:shadow-[0_10px_24px_rgba(66,55,40,0.06)]"
+              class="group cursor-pointer rounded-xl border border-border bg-surface p-4 transition hover:border-[#c7c3ef] hover:shadow-[0_10px_24px_rgba(66,55,40,0.06)]"
               tabindex="0"
               @click="
                 router.push(
@@ -459,7 +459,7 @@ onMounted(loadSubject);
                     {{ assignment.assignmentDescription }}
                   </p>
                   <div
-                    class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-[#7a7385]"
+                    class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-muted"
                   >
                     <span class="inline-flex items-center gap-1.5">
                       <PhCalendarBlank :size="14" />
@@ -482,11 +482,11 @@ onMounted(loadSubject);
                 <div
                   class="flex shrink-0 items-center justify-between gap-3 sm:justify-end"
                 >
-                  <span class="text-xs text-[#9ca3af]">
+                  <span class="text-xs text-muted">
                     Status tersedia di detail
                   </span>
                   <span
-                    class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[#ddd8e4] text-brand transition group-hover:border-brand group-hover:bg-brand-soft"
+                    class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border text-brand transition group-hover:border-brand group-hover:bg-brand-soft"
                     title="Buka tugas"
                   >
                     <PhArrowRight :size="16" />
@@ -502,7 +502,7 @@ onMounted(loadSubject);
             <div
               v-for="item in 4"
               :key="item"
-              class="h-44 animate-pulse rounded-xl border border-border bg-white"
+              class="h-44 animate-pulse rounded-xl border border-border bg-surface"
             />
           </div>
 
@@ -520,7 +520,7 @@ onMounted(loadSubject);
                 <p class="text-sm font-semibold text-foreground">
                   Tidak bisa memuat catatan
                 </p>
-                <p class="mt-1 text-sm leading-6 text-[#7a7385]">
+                <p class="mt-1 text-sm leading-6 text-muted">
                   {{ notesError }}
                 </p>
                 <button
@@ -536,7 +536,7 @@ onMounted(loadSubject);
 
           <article
             v-else-if="notes.length === 0"
-            class="rounded-xl border border-border bg-white p-6 text-center"
+            class="rounded-xl border border-border bg-surface p-6 text-center"
           >
             <div
               class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
@@ -555,7 +555,7 @@ onMounted(loadSubject);
             <article
               v-for="note in notes"
               :key="note.noteId"
-              class="flex min-w-0 flex-col rounded-xl border border-border bg-white shadow-sm p-4"
+              class="flex min-w-0 flex-col rounded-xl border border-border bg-surface shadow-sm p-4"
             >
               <div class="flex min-w-0 items-start gap-3">
                 <div
@@ -567,7 +567,7 @@ onMounted(loadSubject);
                   <h3 class="truncate text-sm font-semibold text-foreground">
                     {{ note.materialTitle }}
                   </h3>
-                  <p class="mt-0.5 text-[11px] text-[#9ca3af]">
+                  <p class="mt-0.5 text-[11px] text-muted">
                     Diperbarui {{ formatDateTime(note.updatedAt) }}
                   </p>
                 </div>
@@ -583,7 +583,7 @@ onMounted(loadSubject);
                 class="mt-4 flex flex-wrap items-center gap-2 border-t border-[#f0ede8] pt-3"
               >
                 <button
-                  class="rounded-lg border border-[#ddd8e4] px-3 py-2 text-xs font-medium text-[#6b6475] transition hover:bg-[#f8f7f4]"
+                  class="rounded-lg border border-border px-3 py-2 text-xs font-medium text-[#6b6475] transition hover:bg-background"
                   type="button"
                   @click="
                     router.push(

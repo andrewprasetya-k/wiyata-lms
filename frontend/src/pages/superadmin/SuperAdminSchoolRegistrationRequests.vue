@@ -84,7 +84,7 @@ function statusLabel(status: SchoolRegistrationStatus) {
 
 function statusClass(status: SchoolRegistrationStatus) {
   if (status === 'approved') return 'bg-success-soft text-success'
-  if (status === 'rejected') return 'bg-danger-soft text-[#b42318]'
+  if (status === 'rejected') return 'bg-danger-soft text-danger'
   return 'bg-warning-soft text-warning'
 }
 
@@ -242,8 +242,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
-    <header class="border-b border-border bg-white">
+  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-background">
+    <header class="border-b border-border bg-surface">
       <div
         class="flex min-w-0 flex-col gap-3 px-5 py-5 sm:px-6 lg:flex-row lg:items-end lg:justify-between lg:px-8"
       >
@@ -261,7 +261,7 @@ onMounted(() => {
         </div>
         <button
           type="button"
-          class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+          class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground-secondary transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
           :disabled="isLoading"
           @click="loadRequests()"
         >
@@ -274,7 +274,7 @@ onMounted(() => {
     <section
       class="grid w-full max-w-none gap-6 px-5 py-6 sm:px-6 lg:px-8 xl:grid-cols-[minmax(0,1fr)_420px]"
     >
-      <section class="min-w-0 rounded-xl border border-border bg-white p-5 shadow-sm">
+      <section class="min-w-0 rounded-xl border border-border bg-surface p-5 shadow-sm">
         <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <p class="eyebrow">
@@ -296,7 +296,7 @@ onMounted(() => {
               :class="
                 activeStatus === tab.value
                   ? 'border-[#ea580c] bg-warning-soft text-[#c2410c]'
-                  : 'border-[#e5e7eb] bg-white text-muted hover:text-foreground'
+                  : 'border-[#e5e7eb] bg-surface text-muted hover:text-foreground'
               "
               @click="selectStatus(tab.value)"
             >
@@ -307,17 +307,17 @@ onMounted(() => {
 
         <div class="mt-5 space-y-3">
           <div v-if="isLoading" class="space-y-3">
-            <div v-for="item in 3" :key="item" class="h-20 animate-pulse rounded-xl bg-[#fbfaf8]" />
+            <div v-for="item in 3" :key="item" class="h-20 animate-pulse rounded-xl bg-surface-subtle" />
           </div>
 
           <div
             v-else-if="errorMessage"
             class="rounded-lg border border-danger-line bg-danger-soft px-4 py-4"
           >
-            <p class="text-sm leading-6 text-[#a8665d]">{{ errorMessage }}</p>
+            <p class="text-sm leading-6 text-danger">{{ errorMessage }}</p>
             <button
               type="button"
-              class="mt-3 inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-white px-3 py-2 text-sm font-medium text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
+              class="mt-3 inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-foreground-secondary transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
               @click="loadRequests()"
             >
               Coba lagi
@@ -326,10 +326,10 @@ onMounted(() => {
 
           <div
             v-else-if="requests.length === 0"
-            class="rounded-lg bg-[#fbfaf8] px-5 py-8 text-center"
+            class="rounded-lg bg-surface-subtle px-5 py-8 text-center"
           >
             <PhClipboardText
-              class="mx-auto h-7 w-7 text-[#9ca3af]"
+              class="mx-auto h-7 w-7 text-muted"
               weight="duotone"
             />
             <h3 class="mt-3 text-sm font-semibold text-foreground">
@@ -362,14 +362,14 @@ onMounted(() => {
                 <div class="mt-3 grid gap-1 text-sm leading-6 text-muted md:grid-cols-2">
                   <p class="truncate">PIC: {{ request.picName }}</p>
                   <p class="truncate">{{ request.picEmail }}</p>
-                  <p class="text-xs text-[#9ca3af] md:col-span-2">
+                  <p class="text-xs text-muted md:col-span-2">
                     Masuk {{ formatDate(request.createdAt) }}
                   </p>
                 </div>
               </div>
               <button
                 type="button"
-                class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-border bg-white px-3 py-2 text-sm font-medium text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
+                class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-foreground-secondary transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
                 :disabled="detailLoading"
                 @click="openDetail(request.requestId)"
               >
@@ -385,7 +385,7 @@ onMounted(() => {
         >
           <button
             type="button"
-            class="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-white px-3 py-2 text-sm font-medium text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
+            class="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-foreground-secondary transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
             :disabled="page <= 1"
             @click="loadRequests(page - 1)"
           >
@@ -394,7 +394,7 @@ onMounted(() => {
           <span class="text-muted">Halaman {{ page }} dari {{ totalPages }}</span>
           <button
             type="button"
-            class="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-white px-3 py-2 text-sm font-medium text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
+            class="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-foreground-secondary transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
             :disabled="page >= totalPages"
             @click="loadRequests(page + 1)"
           >
@@ -404,7 +404,7 @@ onMounted(() => {
       </section>
 
       <aside class="min-w-0">
-        <section class="rounded-xl border border-border bg-white p-5 shadow-sm xl:sticky xl:top-6">
+        <section class="rounded-xl border border-border bg-surface p-5 shadow-sm xl:sticky xl:top-6">
           <div class="flex items-start justify-between gap-4">
             <div>
               <p class="eyebrow">
@@ -420,14 +420,14 @@ onMounted(() => {
           </div>
 
           <div v-if="detailLoading" class="mt-5 space-y-3">
-            <div v-for="item in 4" :key="item" class="h-8 animate-pulse rounded-lg bg-[#fbfaf8]" />
+            <div v-for="item in 4" :key="item" class="h-8 animate-pulse rounded-lg bg-surface-subtle" />
           </div>
 
           <div
             v-else-if="!selectedRequest"
             class="mt-5 rounded-lg border border-dashed border-[#d1d5db] bg-[#fafafa] px-4 py-8 text-center"
           >
-            <PhClipboardText class="mx-auto h-7 w-7 text-[#9ca3af]" weight="duotone" />
+            <PhClipboardText class="mx-auto h-7 w-7 text-muted" weight="duotone" />
             <p class="mt-3 text-sm font-semibold text-foreground">Belum ada request dipilih</p>
             <p class="mt-1 text-sm text-muted">Pilih salah satu request dari daftar untuk melihat detail dan tindakan.</p>
           </div>
@@ -447,34 +447,34 @@ onMounted(() => {
               </div>
               <dl class="grid gap-3 text-sm">
                 <div>
-                  <dt class="text-xs text-[#9ca3af]">NPSN</dt>
-                  <dd class="mt-1 text-[#374151]">{{ selectedRequest.npsn || '-' }}</dd>
+                  <dt class="text-xs text-muted">NPSN</dt>
+                  <dd class="mt-1 text-foreground-secondary">{{ selectedRequest.npsn || '-' }}</dd>
                 </div>
                 <div>
-                  <dt class="text-xs text-[#9ca3af]">PIC</dt>
-                  <dd class="mt-1 text-[#374151]">
+                  <dt class="text-xs text-muted">PIC</dt>
+                  <dd class="mt-1 text-foreground-secondary">
                     {{ selectedRequest.picName }} · {{ selectedRequest.picEmail }}
                   </dd>
                 </div>
                 <div>
-                  <dt class="text-xs text-[#9ca3af]">Kontak</dt>
-                  <dd class="mt-1 text-[#374151]">
+                  <dt class="text-xs text-muted">Kontak</dt>
+                  <dd class="mt-1 text-foreground-secondary">
                     {{ selectedRequest.picPhone || '-' }} · {{ selectedRequest.picRole || '-' }}
                   </dd>
                 </div>
                 <div>
-                  <dt class="text-xs text-[#9ca3af]">Pesan</dt>
-                  <dd class="mt-1 whitespace-pre-wrap text-[#374151]">
+                  <dt class="text-xs text-muted">Pesan</dt>
+                  <dd class="mt-1 whitespace-pre-wrap text-foreground-secondary">
                     {{ selectedRequest.message || '-' }}
                   </dd>
                 </div>
                 <div>
-                  <dt class="text-xs text-[#9ca3af]">Dibuat</dt>
-                  <dd class="mt-1 text-[#374151]">{{ formatDate(selectedRequest.createdAt) }}</dd>
+                  <dt class="text-xs text-muted">Dibuat</dt>
+                  <dd class="mt-1 text-foreground-secondary">{{ formatDate(selectedRequest.createdAt) }}</dd>
                 </div>
                 <div v-if="selectedRequest.reviewedAt || selectedRequest.reviewNote">
-                  <dt class="text-xs text-[#9ca3af]">Review</dt>
-                  <dd class="mt-1 text-[#374151]">
+                  <dt class="text-xs text-muted">Review</dt>
+                  <dd class="mt-1 text-foreground-secondary">
                     {{ formatDate(selectedRequest.reviewedAt) }}
                     <span v-if="selectedRequest.reviewNote">
                       · {{ selectedRequest.reviewNote }}
@@ -486,27 +486,27 @@ onMounted(() => {
 
             <div
               v-if="approveResult"
-              class="rounded-xl border border-success-line bg-[#f0fdf4] p-4"
+              class="rounded-xl border border-success-line bg-success-soft p-4"
             >
               <div class="flex items-start gap-3">
                 <PhCheckCircle :size="22" class="mt-0.5 shrink-0 text-success" weight="duotone" />
                 <div class="min-w-0">
-                  <p class="text-sm font-semibold text-[#166534]">
+                  <p class="text-sm font-semibold text-success">
                     Request disetujui
                   </p>
-                  <p class="mt-1 text-xs leading-5 text-[#166534]">
+                  <p class="mt-1 text-xs leading-5 text-success">
                     Bagikan link undangan ini secara manual ke PIC. Email otomatis belum aktif.
                   </p>
                 </div>
               </div>
-              <div class="mt-4 rounded-lg border border-success-line bg-white p-3">
-                <p class="break-all text-xs leading-5 text-[#166534]">
+              <div class="mt-4 rounded-lg border border-success-line bg-surface p-3">
+                <p class="break-all text-xs leading-5 text-success">
                   {{ invitationLink }}
                 </p>
               </div>
               <button
                 type="button"
-                class="mt-3 inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-white px-3 py-2 text-sm font-medium text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
+                class="mt-3 inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-foreground-secondary transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
                 @click="copyInvitationLink"
               >
                 <PhCopy :size="16" weight="bold" />
@@ -525,7 +525,7 @@ onMounted(() => {
               </button>
               <button
                 type="button"
-                class="inline-flex items-center justify-center gap-2 rounded-lg border border-danger-line bg-white px-3 py-2 text-sm font-medium text-danger transition hover:bg-danger-soft disabled:cursor-not-allowed disabled:opacity-60"
+                class="inline-flex items-center justify-center gap-2 rounded-lg border border-danger-line bg-surface px-3 py-2 text-sm font-medium text-danger transition hover:bg-danger-soft disabled:cursor-not-allowed disabled:opacity-60"
                 @click="actionMode = actionMode === 'reject' ? null : 'reject'"
               >
                 <PhXCircle :size="16" weight="bold" />
@@ -539,42 +539,42 @@ onMounted(() => {
               @submit.prevent="submitApprove"
             >
               <p class="text-sm font-semibold text-foreground">Approve request</p>
-              <label class="block text-sm font-medium text-[#374151]">
+              <label class="block text-sm font-medium text-foreground-secondary">
                 Kode sekolah
                 <input
                   v-model="approveForm.schoolCode"
-                  class="mt-2 w-full rounded-lg border border-[#d1d5db] bg-white px-3 py-2.5 text-sm outline-none focus:border-success"
+                  class="mt-2 w-full rounded-lg border border-[#d1d5db] bg-surface px-3 py-2.5 text-sm outline-none focus:border-success"
                   placeholder="SMWM"
                 />
               </label>
-              <label class="block text-sm font-medium text-[#374151]">
+              <label class="block text-sm font-medium text-foreground-secondary">
                 Nama sekolah
                 <input
                   v-model="approveForm.schoolName"
-                  class="mt-2 w-full rounded-lg border border-[#d1d5db] bg-white px-3 py-2.5 text-sm outline-none focus:border-success"
+                  class="mt-2 w-full rounded-lg border border-[#d1d5db] bg-surface px-3 py-2.5 text-sm outline-none focus:border-success"
                 />
               </label>
-              <label class="block text-sm font-medium text-[#374151]">
+              <label class="block text-sm font-medium text-foreground-secondary">
                 Nama admin
                 <input
                   v-model="approveForm.adminName"
-                  class="mt-2 w-full rounded-lg border border-[#d1d5db] bg-white px-3 py-2.5 text-sm outline-none focus:border-success"
+                  class="mt-2 w-full rounded-lg border border-[#d1d5db] bg-surface px-3 py-2.5 text-sm outline-none focus:border-success"
                 />
               </label>
-              <label class="block text-sm font-medium text-[#374151]">
+              <label class="block text-sm font-medium text-foreground-secondary">
                 Email admin
                 <input
                   v-model="approveForm.adminEmail"
                   type="email"
-                  class="mt-2 w-full rounded-lg border border-[#d1d5db] bg-white px-3 py-2.5 text-sm outline-none focus:border-success"
+                  class="mt-2 w-full rounded-lg border border-[#d1d5db] bg-surface px-3 py-2.5 text-sm outline-none focus:border-success"
                 />
               </label>
-              <label class="block text-sm font-medium text-[#374151]">
+              <label class="block text-sm font-medium text-foreground-secondary">
                 Catatan
                 <textarea
                   v-model="approveForm.note"
                   rows="3"
-                  class="mt-2 w-full resize-none rounded-lg border border-[#d1d5db] bg-white px-3 py-2.5 text-sm outline-none focus:border-success"
+                  class="mt-2 w-full resize-none rounded-lg border border-[#d1d5db] bg-surface px-3 py-2.5 text-sm outline-none focus:border-success"
                   placeholder="Opsional"
                 />
               </label>
@@ -593,18 +593,18 @@ onMounted(() => {
               @submit.prevent="submitReject"
             >
               <p class="text-sm font-semibold text-foreground">Reject request</p>
-              <label class="block text-sm font-medium text-[#374151]">
+              <label class="block text-sm font-medium text-foreground-secondary">
                 Alasan
                 <textarea
                   v-model="rejectForm.reason"
                   rows="4"
-                  class="mt-2 w-full resize-none rounded-lg border border-danger-line bg-white px-3 py-2.5 text-sm outline-none focus:border-[#b42318]"
+                  class="mt-2 w-full resize-none rounded-lg border border-danger-line bg-surface px-3 py-2.5 text-sm outline-none focus:border-danger"
                   placeholder="Opsional"
                 />
               </label>
               <button
                 type="submit"
-                class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-danger px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#b91c1c] disabled:cursor-not-allowed disabled:opacity-60"
+                class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-danger px-4 py-2.5 text-sm font-medium text-white transition hover:bg-danger-hover disabled:cursor-not-allowed disabled:opacity-60"
                 :disabled="actionLoading"
               >
                 {{ actionLoading ? 'Memproses...' : 'Reject request' }}

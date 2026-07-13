@@ -251,8 +251,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
-    <header class="border-b border-border bg-white">
+  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-background">
+    <header class="border-b border-border bg-surface">
       <div
         class="flex min-w-0 flex-col gap-3 px-5 py-5 sm:px-6 lg:flex-row lg:items-end lg:justify-between lg:px-8"
       >
@@ -272,7 +272,7 @@ onMounted(() => {
         </div>
         <button
           type="button"
-          class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+          class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground-secondary transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
           :disabled="isLoading || isBootstrapping"
           @click="refreshPage"
         >
@@ -288,7 +288,7 @@ onMounted(() => {
       <div class="flex min-w-0 flex-col gap-6">
         <section class="grid gap-3 sm:grid-cols-3">
           <article
-            class="rounded-xl border border-border bg-white p-4 shadow-sm"
+            class="rounded-xl border border-border bg-surface p-4 shadow-sm"
           >
             <p class="text-xs font-medium text-muted">Total sekolah</p>
             <p class="mt-2 text-2xl font-semibold text-foreground">
@@ -296,7 +296,7 @@ onMounted(() => {
             </p>
           </article>
           <article
-            class="rounded-xl border border-border bg-white p-4 shadow-sm"
+            class="rounded-xl border border-border bg-surface p-4 shadow-sm"
           >
             <p class="text-xs font-medium text-muted">Aktif</p>
             <p class="mt-2 text-2xl font-semibold text-success">
@@ -304,7 +304,7 @@ onMounted(() => {
             </p>
           </article>
           <article
-            class="rounded-xl border border-border bg-white p-4 shadow-sm"
+            class="rounded-xl border border-border bg-surface p-4 shadow-sm"
           >
             <p class="text-xs font-medium text-muted">Diarsipkan</p>
             <p class="mt-2 text-2xl font-semibold text-warning">
@@ -315,13 +315,13 @@ onMounted(() => {
 
         <p
           v-if="summaryError"
-          class="rounded-lg border border-[#fed7aa] bg-warning-soft px-4 py-3 text-sm leading-6 text-[#9a3412]"
+          class="rounded-lg border border-warning-line bg-warning-soft px-4 py-3 text-sm leading-6 text-warning"
         >
           {{ summaryError }}
         </p>
 
         <section
-          class="rounded-xl border border-border bg-white p-5 shadow-sm"
+          class="rounded-xl border border-border bg-surface p-5 shadow-sm"
         >
           <div
             class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"
@@ -343,13 +343,13 @@ onMounted(() => {
             <label class="relative block w-full lg:max-w-xs">
               <PhMagnifyingGlass
                 :size="17"
-                class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#9ca3af]"
+                class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted"
               />
               <input
                 v-model="searchQuery"
                 type="search"
                 placeholder="Cari nama, kode, email..."
-                class="w-full rounded-lg border border-[#e5e7eb] bg-white py-2.5 pl-10 pr-3 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                class="w-full rounded-lg border border-[#e5e7eb] bg-surface py-2.5 pl-10 pr-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
                 @input="onSearchInput"
               />
             </label>
@@ -357,17 +357,17 @@ onMounted(() => {
 
           <div class="mt-5 flex flex-col gap-4">
             <div v-if="isLoading" class="space-y-3">
-              <div v-for="item in 3" :key="item" class="h-24 animate-pulse rounded-xl bg-[#fbfaf8]" />
+              <div v-for="item in 3" :key="item" class="h-24 animate-pulse rounded-xl bg-surface-subtle" />
             </div>
 
             <div
               v-else-if="errorMessage"
               class="rounded-lg border border-danger-line bg-danger-soft px-4 py-4"
             >
-              <p class="text-sm leading-6 text-[#a8665d]">{{ errorMessage }}</p>
+              <p class="text-sm leading-6 text-danger">{{ errorMessage }}</p>
               <button
                 type="button"
-                class="mt-3 inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-white px-3 py-2 text-sm font-medium text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
+                class="mt-3 inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-foreground-secondary transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
                 @click="loadSchools(1)"
               >
                 Coba lagi
@@ -376,10 +376,10 @@ onMounted(() => {
 
             <div
               v-else-if="schools.length === 0 && !searchQuery"
-              class="rounded-lg bg-[#fbfaf8] px-5 py-8 text-center"
+              class="rounded-lg bg-surface-subtle px-5 py-8 text-center"
             >
               <PhBuildings
-                class="mx-auto h-7 w-7 text-[#9ca3af]"
+                class="mx-auto h-7 w-7 text-muted"
                 weight="duotone"
               />
               <h3 class="mt-3 text-sm font-semibold text-foreground">
@@ -392,10 +392,10 @@ onMounted(() => {
 
             <div
               v-else-if="schools.length === 0 && searchQuery"
-              class="rounded-lg bg-[#fbfaf8] px-5 py-8 text-center"
+              class="rounded-lg bg-surface-subtle px-5 py-8 text-center"
             >
               <PhMagnifyingGlass
-                class="mx-auto h-7 w-7 text-[#9ca3af]"
+                class="mx-auto h-7 w-7 text-muted"
                 weight="duotone"
               />
               <h3 class="mt-3 text-sm font-semibold text-foreground">
@@ -434,7 +434,7 @@ onMounted(() => {
                         {{ school.isDeleted ? "Diarsipkan" : "Aktif" }}
                       </span>
                       <span
-                        class="rounded-full bg-[#f3f1ec] px-2.5 py-1 text-xs font-semibold text-muted"
+                        class="rounded-full bg-surface-strong px-2.5 py-1 text-xs font-semibold text-muted"
                       >
                         {{ school.schoolCode || "Kode otomatis" }}
                       </span>
@@ -471,7 +471,7 @@ onMounted(() => {
                     </div>
                   </div>
 
-                  <p class="shrink-0 text-xs leading-5 text-[#9ca3af]">
+                  <p class="shrink-0 text-xs leading-5 text-muted">
                     Dibuat {{ school.createdAt }}
                   </p>
                 </div>
@@ -491,7 +491,7 @@ onMounted(() => {
 
       <aside class="min-w-0">
         <section
-          class="rounded-xl border border-border bg-white p-5 shadow-sm xl:sticky xl:top-6"
+          class="rounded-xl border border-border bg-surface p-5 shadow-sm xl:sticky xl:top-6"
         >
           <div class="flex items-start justify-between gap-4">
             <div>
@@ -517,7 +517,7 @@ onMounted(() => {
 
           <div
             v-if="bootstrapResult"
-            class="mt-5 rounded-xl border border-success-line bg-[#f0fdf4] p-4"
+            class="mt-5 rounded-xl border border-success-line bg-success-soft p-4"
           >
             <div class="flex items-start gap-3">
               <PhCheckCircle
@@ -526,10 +526,10 @@ onMounted(() => {
                 weight="duotone"
               />
               <div class="min-w-0">
-                <p class="text-sm font-semibold text-[#166534]">
+                <p class="text-sm font-semibold text-success">
                   Setup berhasil
                 </p>
-                <p class="mt-1 text-xs leading-5 text-[#166534]">
+                <p class="mt-1 text-xs leading-5 text-success">
                   {{ bootstrapResult.school.schoolName }} sudah dibuat dan
                   {{ bootstrapResult.adminUser.fullName }} mendapat role admin
                   sekolah.
@@ -550,62 +550,62 @@ onMounted(() => {
                 </p>
               </div>
 
-              <label class="block text-sm font-medium text-[#374151]">
+              <label class="block text-sm font-medium text-foreground-secondary">
                 Nama sekolah
                 <input
                   v-model="schoolForm.schoolName"
                   type="text"
-                  class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                  class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
                   placeholder="Contoh: SMA Wiyata"
                 />
               </label>
 
-              <label class="block text-sm font-medium text-[#374151]">
+              <label class="block text-sm font-medium text-foreground-secondary">
                 Kode sekolah
                 <input
                   v-model="schoolForm.schoolCode"
                   type="text"
-                  class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                  class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
                   placeholder="Kosongkan untuk kode otomatis"
                 />
               </label>
 
-              <label class="block text-sm font-medium text-[#374151]">
+              <label class="block text-sm font-medium text-foreground-secondary">
                 Email sekolah
                 <input
                   v-model="schoolForm.schoolEmail"
                   type="email"
-                  class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                  class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
                   placeholder="admin@sekolah.sch.id"
                 />
               </label>
 
-              <label class="block text-sm font-medium text-[#374151]">
+              <label class="block text-sm font-medium text-foreground-secondary">
                 Telepon sekolah
                 <input
                   v-model="schoolForm.schoolPhone"
                   type="tel"
-                  class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                  class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
                   placeholder="081234567890"
                 />
               </label>
 
-              <label class="block text-sm font-medium text-[#374151]">
+              <label class="block text-sm font-medium text-foreground-secondary">
                 Website
                 <input
                   v-model="schoolForm.schoolWebsite"
                   type="url"
-                  class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                  class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
                   placeholder="https://sekolah.sch.id"
                 />
               </label>
 
-              <label class="block text-sm font-medium text-[#374151]">
+              <label class="block text-sm font-medium text-foreground-secondary">
                 Alamat sekolah
                 <textarea
                   v-model="schoolForm.schoolAddress"
                   rows="4"
-                  class="mt-2 w-full resize-none rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                  class="mt-2 w-full resize-none rounded-lg border border-[#e5e7eb] bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
                   placeholder="Alamat lengkap sekolah"
                 />
               </label>
@@ -625,7 +625,7 @@ onMounted(() => {
                   :class="
                     adminMode === 'new'
                       ? 'border-[#ea580c] bg-warning-soft'
-                      : 'border-[#e5e7eb] bg-white hover:bg-[#fafafa]'
+                      : 'border-[#e5e7eb] bg-surface hover:bg-[#fafafa]'
                   "
                 >
                   <input
@@ -649,7 +649,7 @@ onMounted(() => {
                   :class="
                     adminMode === 'existing'
                       ? 'border-[#ea580c] bg-warning-soft'
-                      : 'border-[#e5e7eb] bg-white hover:bg-[#fafafa]'
+                      : 'border-[#e5e7eb] bg-surface hover:bg-[#fafafa]'
                   "
                 >
                   <input
@@ -670,44 +670,44 @@ onMounted(() => {
               </div>
 
               <div v-if="adminMode === 'new'" class="space-y-4">
-                <label class="block text-sm font-medium text-[#374151]">
+                <label class="block text-sm font-medium text-foreground-secondary">
                   Nama admin sekolah
                   <input
                     v-model="newAdminForm.fullName"
                     type="text"
-                    class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                    class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
                     placeholder="Admin Sekolah"
                   />
                 </label>
 
-                <label class="block text-sm font-medium text-[#374151]">
+                <label class="block text-sm font-medium text-foreground-secondary">
                   Email admin sekolah
                   <input
                     v-model="newAdminForm.email"
                     type="email"
-                    class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                    class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
                     placeholder="admin@sma.sch.id"
                   />
                 </label>
 
-                <label class="block text-sm font-medium text-[#374151]">
+                <label class="block text-sm font-medium text-foreground-secondary">
                   Password awal
                   <input
                     v-model="newAdminForm.password"
                     type="password"
-                    class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                    class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
                     placeholder="Minimal 6 karakter"
                   />
                 </label>
               </div>
 
               <div v-else class="space-y-3">
-                <label class="block text-sm font-medium text-[#374151]">
+                <label class="block text-sm font-medium text-foreground-secondary">
                   User ID akun global
                   <input
                     v-model="existingAdminForm.userId"
                     type="text"
-                    class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
+                    class="mt-2 w-full rounded-lg border border-[#e5e7eb] bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-[#ea580c] focus:ring-2 focus:ring-[#fed7aa]"
                     placeholder="UUID user global"
                   />
                 </label>

@@ -232,12 +232,12 @@ watch(
 
 <template>
   <div v-if="open" class="fixed inset-0 z-50 flex justify-end bg-black/30">
-    <div class="flex h-full w-full max-w-lg flex-col overflow-hidden bg-white">
+    <div class="flex h-full w-full max-w-lg flex-col overflow-hidden bg-surface">
       <div class="border-b border-border px-5 py-4">
         <div class="flex items-start justify-between gap-4">
           <div class="min-w-0">
             <p
-              class="text-xs font-semibold uppercase tracking-[0.06em] text-[#9ca3af]"
+              class="text-xs font-semibold uppercase tracking-[0.06em] text-muted"
             >
               Info grup
             </p>
@@ -251,7 +251,7 @@ watch(
           </div>
           <button
             type="button"
-            class="rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm font-medium text-muted transition hover:bg-[#fbfaf8]"
+            class="rounded-lg border border-border px-3 py-2 text-sm font-medium text-muted transition hover:bg-surface-subtle"
             @click="emit('update:open', false)"
           >
             Tutup
@@ -261,9 +261,9 @@ watch(
 
       <div class="min-h-0 flex-1 overflow-y-auto px-5 py-4">
         <div v-if="isLoadingGroupInfo" class="space-y-3">
-          <div class="h-16 animate-pulse rounded-xl bg-[#f3f1ec]" />
-          <div class="h-32 animate-pulse rounded-xl bg-[#f3f1ec]" />
-          <div class="h-40 animate-pulse rounded-xl bg-[#f3f1ec]" />
+          <div class="h-16 animate-pulse rounded-xl bg-surface-strong" />
+          <div class="h-32 animate-pulse rounded-xl bg-surface-strong" />
+          <div class="h-40 animate-pulse rounded-xl bg-surface-strong" />
         </div>
 
         <div
@@ -288,7 +288,7 @@ watch(
             {{ groupActionError }}
           </p>
 
-          <section class="rounded-xl border border-border bg-[#fbfaf8] p-4">
+          <section class="rounded-xl border border-border bg-surface-subtle p-4">
             <p class="text-sm font-semibold text-foreground">Dibuat oleh</p>
             <div class="mt-3 flex items-center gap-3">
               <span
@@ -315,21 +315,21 @@ watch(
                 </span>
               </span>
             </div>
-            <p class="mt-3 text-xs text-[#9ca3af]">
+            <p class="mt-3 text-xs text-muted">
               Dibuat {{ formatDateTime(groupInfo?.createdAt) }}
             </p>
           </section>
 
           <section
             v-if="currentUserIsGroupAdmin"
-            class="mt-4 rounded-xl border border-border bg-white p-4"
+            class="mt-4 rounded-xl border border-border bg-surface p-4"
           >
             <p class="text-sm font-semibold text-foreground">Ubah nama grup</p>
             <form class="mt-3 flex gap-2" @submit.prevent="submitRenameGroup">
               <input
                 v-model="renameRoomName"
                 type="text"
-                class="min-w-0 flex-1 rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm text-foreground outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/15"
+                class="min-w-0 flex-1 rounded-lg border border-border px-3 py-2 text-sm text-foreground outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/15"
                 placeholder="Nama ruang grup"
               />
               <button
@@ -344,7 +344,7 @@ watch(
 
           <section
             v-if="currentUserIsGroupAdmin"
-            class="mt-4 rounded-xl border border-border bg-white p-4"
+            class="mt-4 rounded-xl border border-border bg-surface p-4"
           >
             <p class="text-sm font-semibold text-foreground">Tambah anggota</p>
             <p class="mt-1 text-xs text-muted">
@@ -354,13 +354,13 @@ watch(
               <input
                 v-model="addMemberSearch"
                 type="search"
-                class="min-w-0 flex-1 rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm text-foreground outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/15"
+                class="min-w-0 flex-1 rounded-lg border border-border px-3 py-2 text-sm text-foreground outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/15"
                 placeholder="Cari nama atau email..."
                 @keydown.enter.prevent="loadEligibleMembers"
               />
               <button
                 type="button"
-                class="rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm font-medium text-brand transition hover:border-brand disabled:opacity-60"
+                class="rounded-lg border border-border px-3 py-2 text-sm font-medium text-brand transition hover:border-brand disabled:opacity-60"
                 :disabled="isLoadingAddMembers"
                 @click="loadEligibleMembers"
               >
@@ -370,12 +370,12 @@ watch(
 
             <div class="mt-3 rounded-lg border border-border">
               <div v-if="isLoadingAddMembers" class="space-y-2 p-3">
-                <div class="h-10 animate-pulse rounded-lg bg-[#f3f1ec]" />
-                <div class="h-10 animate-pulse rounded-lg bg-[#f3f1ec]" />
+                <div class="h-10 animate-pulse rounded-lg bg-surface-strong" />
+                <div class="h-10 animate-pulse rounded-lg bg-surface-strong" />
               </div>
               <div
                 v-else-if="addMemberResults.length === 0"
-                class="rounded-lg bg-[#fbfaf8] p-3 text-sm leading-6 text-muted"
+                class="rounded-lg bg-surface-subtle p-3 text-sm leading-6 text-muted"
               >
                 Tidak ada warga yang bisa ditambahkan.
               </div>
@@ -383,11 +383,11 @@ watch(
                 <label
                   v-for="member in addMemberResults"
                   :key="member.userId"
-                  class="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 hover:bg-[#fbfaf8]"
+                  class="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 hover:bg-surface-subtle"
                 >
                   <input
                     type="checkbox"
-                    class="h-4 w-4 rounded border-[#d8d2c8] text-brand"
+                    class="h-4 w-4 rounded border-border text-brand"
                     :checked="selectedAddMemberIds.includes(member.userId)"
                     @change="toggleAddMember(member.userId)"
                   />
@@ -425,7 +425,7 @@ watch(
             </div>
           </section>
 
-          <section class="mt-4 rounded-xl border border-border bg-white">
+          <section class="mt-4 rounded-xl border border-border bg-surface">
             <div class="border-b border-border px-4 py-3">
               <p class="text-sm font-semibold text-foreground">Anggota</p>
             </div>
@@ -455,7 +455,7 @@ watch(
                   :class="
                     member.role === 'admin'
                       ? 'bg-brand-soft text-brand'
-                      : 'bg-[#f3f1ec] text-muted'
+                      : 'bg-surface-strong text-muted'
                   "
                 >
                   {{ member.role === "admin" ? "Admin" : "Anggota" }}

@@ -78,8 +78,8 @@ onMounted(loadMaterial)
 </script>
 
 <template>
-  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
-    <header class="border-b border-border bg-white">
+  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-background">
+    <header class="border-b border-border bg-surface">
       <div
         class="flex min-w-0 items-center gap-2 px-5 py-3 text-xs text-muted sm:px-6 lg:px-8"
       >
@@ -137,10 +137,10 @@ onMounted(loadMaterial)
         class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]"
       >
         <div
-          class="h-80 animate-pulse rounded-xl border border-border bg-white"
+          class="h-80 animate-pulse rounded-xl border border-border bg-surface"
         />
         <div
-          class="h-64 animate-pulse rounded-xl border border-border bg-white"
+          class="h-64 animate-pulse rounded-xl border border-border bg-surface"
         />
       </section>
 
@@ -170,7 +170,7 @@ onMounted(loadMaterial)
 
       <section
         v-else-if="didLoad && !material"
-        class="mx-auto max-w-xl rounded-xl border border-border bg-white px-5 py-10 text-center"
+        class="mx-auto max-w-xl rounded-xl border border-border bg-surface px-5 py-10 text-center"
       >
         <div
           class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
@@ -186,7 +186,7 @@ onMounted(loadMaterial)
         </p>
         <RouterLink
           :to="`/teacher/subjects/${subjectClassId}`"
-          class="mt-5 inline-flex items-center gap-2 rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-brand transition hover:border-brand hover:bg-brand-soft"
+          class="mt-5 inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-4 py-2.5 text-sm font-medium text-brand transition hover:border-brand hover:bg-brand-soft"
         >
           <PhArrowLeft :size="16" />
           Kembali ke mata pelajaran
@@ -198,9 +198,9 @@ onMounted(loadMaterial)
         class="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_300px]"
       >
         <div class="min-w-0 space-y-5">
-          <article class="rounded-xl border border-border bg-white shadow-sm p-5 sm:p-6">
+          <article class="rounded-xl border border-border bg-surface shadow-sm p-5 sm:p-6">
             <p
-              class="text-[10px] font-medium uppercase tracking-[0.08em] text-[#9ca3af]"
+              class="text-[10px] font-medium uppercase tracking-[0.08em] text-muted"
             >
               Deskripsi materi
             </p>
@@ -212,13 +212,13 @@ onMounted(loadMaterial)
             </p>
             <div
               v-else
-              class="mt-3 rounded-lg bg-[#fbfaf8] px-4 py-5 text-sm leading-6 text-[#8a8494]"
+              class="mt-3 rounded-lg bg-surface-subtle px-4 py-5 text-sm leading-6 text-[#8a8494]"
             >
               Deskripsi materi belum tersedia.
             </div>
           </article>
 
-          <article class="rounded-xl border border-border bg-white shadow-sm p-5 sm:p-6">
+          <article class="rounded-xl border border-border bg-surface shadow-sm p-5 sm:p-6">
             <div class="flex items-center justify-between gap-3">
               <div>
                 <h2 class="text-base font-semibold text-foreground">Lampiran</h2>
@@ -247,7 +247,7 @@ onMounted(loadMaterial)
 
         <aside class="min-w-0">
           <div class="space-y-4 lg:sticky lg:top-6">
-            <article class="rounded-xl border border-border bg-white shadow-sm p-5">
+            <article class="rounded-xl border border-border bg-surface shadow-sm p-5">
               <h2 class="text-sm font-semibold text-foreground">
                 Informasi materi
               </h2>
@@ -260,7 +260,7 @@ onMounted(loadMaterial)
                   />
                   <div class="min-w-0">
                     <dt class="text-xs text-[#8a8494]">Dibuat oleh</dt>
-                    <dd class="mt-1 wrap-break-word text-sm text-[#374151]">
+                    <dd class="mt-1 wrap-break-word text-sm text-foreground-secondary">
                       {{ material.creatorName || 'Pengirim tidak tersedia' }}
                     </dd>
                   </div>
@@ -273,7 +273,7 @@ onMounted(loadMaterial)
                   />
                   <div class="min-w-0">
                     <dt class="text-xs text-[#8a8494]">Dibuat</dt>
-                    <dd class="mt-1 text-sm text-[#374151]">
+                    <dd class="mt-1 text-sm text-foreground-secondary">
                       {{ formatDateTime(material.createdAt) }}
                     </dd>
                   </div>
@@ -286,7 +286,7 @@ onMounted(loadMaterial)
                   />
                   <div class="min-w-0">
                     <dt class="text-xs text-[#8a8494]">Lampiran</dt>
-                    <dd class="mt-1 text-sm text-[#374151]">
+                    <dd class="mt-1 text-sm text-foreground-secondary">
                       {{ material.attachments?.length ?? 0 }} lampiran
                     </dd>
                   </div>
@@ -294,8 +294,8 @@ onMounted(loadMaterial)
               </dl>
             </article>
 
-            <article class="rounded-xl border border-border bg-white p-4">
-              <p class="text-xs font-medium uppercase tracking-wide text-[#9ca3af]">
+            <article class="rounded-xl border border-border bg-surface p-4">
+              <p class="text-xs font-medium uppercase tracking-wide text-muted">
                 Kelola materi
               </p>
               <div class="mt-3 grid gap-2">
@@ -308,7 +308,7 @@ onMounted(loadMaterial)
                 </RouterLink>
                 <button
                   type="button"
-                  class="inline-flex items-center justify-center gap-2 rounded-lg border border-danger-line bg-white px-4 py-2.5 text-sm font-medium text-danger transition hover:bg-danger-soft disabled:opacity-50"
+                  class="inline-flex items-center justify-center gap-2 rounded-lg border border-danger-line bg-surface px-4 py-2.5 text-sm font-medium text-danger transition hover:bg-danger-soft disabled:opacity-50"
                   :disabled="isDeleting"
                   @click="handleDelete"
                 >

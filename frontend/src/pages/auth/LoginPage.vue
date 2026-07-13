@@ -68,14 +68,14 @@ async function submit() {
         </p>
       </div>
 
-      <div class="text-xs text-[#9ca3af]">
+      <div class="text-xs text-muted">
         &copy; 2026 Wiyata. All rights reserved.
       </div>
     </section>
 
     <!-- Right Side: Login Form -->
     <section
-      class="flex h-screen items-center justify-center bg-white px-6 py-8 sm:px-12"
+      class="flex h-screen items-center justify-center bg-surface px-6 py-8 sm:px-12"
     >
       <div class="w-full max-w-md">
         <div class="mb-8">
@@ -94,7 +94,7 @@ async function submit() {
           </div>
 
           <h2 class="text-3xl font-medium text-foreground">Login</h2>
-          <p class="mt-3 text-sm text-[#7a7385]">
+          <p class="mt-3 text-sm text-muted">
             Gunakan akun Wiyata yang sudah terdaftar.
           </p>
         </div>
@@ -106,7 +106,7 @@ async function submit() {
             </span>
             <input
               v-model="email"
-              class="h-12 w-full rounded-2xl border border-[#e7e2da] bg-[#fbfaf8] px-4 text-sm outline-none transition focus:border-brand focus:bg-white"
+              class="h-12 w-full rounded-2xl border border-border bg-surface-subtle px-4 text-sm outline-none transition focus:border-brand focus:bg-surface"
               type="email"
               autocomplete="email"
               placeholder="nama@sekolah.sch.id"
@@ -119,7 +119,7 @@ async function submit() {
             </span>
             <input
               v-model="password"
-              class="h-12 w-full rounded-2xl border border-[#e7e2da] bg-[#fbfaf8] px-4 text-sm outline-none transition focus:border-brand focus:bg-white"
+              class="h-12 w-full rounded-2xl border border-border bg-surface-subtle px-4 text-sm outline-none transition focus:border-brand focus:bg-surface"
               type="password"
               autocomplete="current-password"
               placeholder="••••••••"
@@ -128,7 +128,7 @@ async function submit() {
 
           <p
             v-if="errorMessage"
-            class="rounded-2xl bg-danger-soft px-4 py-3 text-sm text-[#b42318]"
+            class="rounded-2xl bg-danger-soft px-4 py-3 text-sm text-danger"
           >
             {{ errorMessage }}
           </p>

@@ -438,8 +438,8 @@ onMounted(async () => {
 </script>
 
 <template>
-  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
-    <header class="border-b border-border bg-white">
+  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-background">
+    <header class="border-b border-border bg-surface">
       <div
         class="flex min-w-0 flex-col gap-3 px-5 py-5 sm:px-6 lg:flex-row lg:items-end lg:justify-between lg:px-8"
       >
@@ -459,7 +459,7 @@ onMounted(async () => {
             {{ currentSchool.schoolName || "Sekolah belum tersedia" }}
           </span>
           <span
-            class="rounded-lg bg-[#f3f1ec] px-3 py-2 font-medium text-muted"
+            class="rounded-lg bg-surface-strong px-3 py-2 font-medium text-muted"
           >
             {{ currentSchool.schoolCode || "Kode belum tersedia" }}
           </span>
@@ -481,7 +481,7 @@ onMounted(async () => {
 
       <div class="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
         <section
-          class="order-2 min-w-0 rounded-xl border border-border bg-white shadow-sm lg:order-1"
+          class="order-2 min-w-0 rounded-xl border border-border bg-surface shadow-sm lg:order-1"
         >
           <div
             class="flex flex-col gap-3 border-b border-border p-5 sm:flex-row sm:items-start sm:justify-between"
@@ -524,7 +524,7 @@ onMounted(async () => {
               <div
                 v-for="item in 3"
                 :key="item"
-                class="h-24 animate-pulse rounded-lg bg-[#fbfaf8]"
+                class="h-24 animate-pulse rounded-lg bg-surface-subtle"
               />
             </div>
 
@@ -545,7 +545,7 @@ onMounted(async () => {
               </p>
               <button
                 type="button"
-                class="mt-4 inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
+                class="mt-4 inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground-secondary transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
                 @click="loadEnrollments"
               >
                 Coba lagi
@@ -554,10 +554,10 @@ onMounted(async () => {
 
             <div
               v-else-if="!selectedClassId"
-              class="rounded-lg bg-[#fbfaf8] px-5 py-8 text-center"
+              class="rounded-lg bg-surface-subtle px-5 py-8 text-center"
             >
               <PhCalendarBlank
-                class="mx-auto h-7 w-7 text-[#9ca3af]"
+                class="mx-auto h-7 w-7 text-muted"
                 weight="duotone"
               />
               <h3 class="mt-3 text-sm font-semibold text-foreground">
@@ -571,10 +571,10 @@ onMounted(async () => {
 
             <div
               v-else-if="enrollments.length === 0"
-              class="rounded-lg bg-[#fbfaf8] px-5 py-8 text-center"
+              class="rounded-lg bg-surface-subtle px-5 py-8 text-center"
             >
               <PhUsers
-                class="mx-auto h-7 w-7 text-[#9ca3af]"
+                class="mx-auto h-7 w-7 text-muted"
                 weight="duotone"
               />
               <h3 class="mt-3 text-sm font-semibold text-foreground">
@@ -629,7 +629,7 @@ onMounted(async () => {
                       <p class="mt-1 break-all text-xs text-muted">
                         {{ enrollment.userEmail || "Email tidak tersedia" }}
                       </p>
-                      <p class="mt-1 text-[11px] text-[#9ca3af]">
+                      <p class="mt-1 text-[11px] text-muted">
                         Ditempatkan {{ formatDateTime(enrollment.joinedAt) }}
                       </p>
                     </div>
@@ -657,7 +657,7 @@ onMounted(async () => {
                   <div class="mt-3 flex flex-wrap gap-2">
                     <button
                       type="button"
-                      class="inline-flex items-center justify-center gap-2 rounded-lg bg-danger px-3 py-2 text-sm font-medium text-white transition hover:bg-[#b91c1c] disabled:cursor-not-allowed disabled:opacity-60"
+                      class="inline-flex items-center justify-center gap-2 rounded-lg bg-danger px-3 py-2 text-sm font-medium text-white transition hover:bg-danger-hover disabled:cursor-not-allowed disabled:opacity-60"
                       :disabled="unenrollingId === enrollment.enrollmentId"
                       @click="confirmUnenroll(enrollment)"
                     >
@@ -684,7 +684,7 @@ onMounted(async () => {
 
         <aside class="order-1 min-w-0 lg:order-2">
           <div class="space-y-5 lg:sticky lg:top-6">
-            <section class="rounded-xl border border-border bg-white shadow-sm p-5">
+            <section class="rounded-xl border border-border bg-surface shadow-sm p-5">
               <div class="flex items-start justify-between gap-3">
                 <div>
                   <p
@@ -708,7 +708,7 @@ onMounted(async () => {
                   Tahun ajaran
                   <select
                     v-model="selectedAcademicYearId"
-                    class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-brand focus:bg-white"
+                    class="mt-2 w-full rounded-lg border border-border bg-surface-subtle px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-brand focus:bg-surface"
                     :disabled="yearsLoading || academicYears.length === 0"
                     @change="handleAcademicYearChange"
                   >
@@ -727,7 +727,7 @@ onMounted(async () => {
                   Semester
                   <select
                     v-model="selectedTermId"
-                    class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-brand focus:bg-white"
+                    class="mt-2 w-full rounded-lg border border-border bg-surface-subtle px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-brand focus:bg-surface"
                     :disabled="termsLoading || terms.length === 0"
                     @change="handleTermChange"
                   >
@@ -745,7 +745,7 @@ onMounted(async () => {
                   Kelas
                   <select
                     v-model="selectedClassId"
-                    class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-brand focus:bg-white"
+                    class="mt-2 w-full rounded-lg border border-border bg-surface-subtle px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-brand focus:bg-surface"
                     :disabled="classesLoading || classes.length === 0"
                     @change="handleClassChange"
                   >
@@ -789,26 +789,26 @@ onMounted(async () => {
                 </div>
                 <p
                   v-else-if="academicYears.length === 0"
-                  class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-muted"
+                  class="rounded-lg bg-surface-subtle px-3 py-2 text-muted"
                 >
                   Belum ada tahun ajaran.
                 </p>
                 <p
                   v-else-if="selectedAcademicYearId && terms.length === 0"
-                  class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-muted"
+                  class="rounded-lg bg-surface-subtle px-3 py-2 text-muted"
                 >
                   Belum ada semester untuk tahun ajaran ini.
                 </p>
                 <p
                   v-else-if="selectedTermId && classes.length === 0"
-                  class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-muted"
+                  class="rounded-lg bg-surface-subtle px-3 py-2 text-muted"
                 >
                   Belum ada kelas untuk semester ini.
                 </p>
               </div>
             </section>
 
-            <section class="rounded-xl border border-border bg-white shadow-sm p-5">
+            <section class="rounded-xl border border-border bg-surface shadow-sm p-5">
               <div class="flex items-start justify-between gap-3">
                 <div>
                   <p
@@ -838,11 +838,11 @@ onMounted(async () => {
                       v-model="memberSearch"
                       type="search"
                       placeholder="Nama atau email"
-                      class="min-w-0 flex-1 rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-brand focus:bg-white"
+                      class="min-w-0 flex-1 rounded-lg border border-border bg-surface-subtle px-3.5 py-2.5 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:bg-surface"
                     />
                     <button
                       type="button"
-                      class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-white text-muted transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
+                      class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface text-muted transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
                       :disabled="membersLoading"
                       @click="loadMembers"
                     >
@@ -857,7 +857,7 @@ onMounted(async () => {
                   <div
                     v-for="item in 2"
                     :key="item"
-                    class="h-20 animate-pulse rounded-lg bg-[#fbfaf8]"
+                    class="h-20 animate-pulse rounded-lg bg-surface-subtle"
                   />
                 </div>
                 <div
@@ -875,19 +875,19 @@ onMounted(async () => {
                 </div>
                 <div
                   v-else-if="!selectedClassId"
-                  class="rounded-lg bg-[#fbfaf8] p-3 text-xs leading-5 text-muted"
+                  class="rounded-lg bg-surface-subtle p-3 text-xs leading-5 text-muted"
                 >
                   Pilih kelas sebelum menambahkan warga sekolah.
                 </div>
                 <div
                   v-else-if="availableMembers.length === 0"
-                  class="rounded-lg bg-[#fbfaf8] p-3 text-xs leading-5 text-muted"
+                  class="rounded-lg bg-surface-subtle p-3 text-xs leading-5 text-muted"
                 >
                   Tidak ada warga sekolah yang dapat ditambahkan ke kelas ini.
                 </div>
                 <div
                   v-else-if="eligibleAvailableMembers.length === 0"
-                  class="rounded-lg bg-[#fbfaf8] p-3 text-xs leading-5 text-muted"
+                  class="rounded-lg bg-surface-subtle p-3 text-xs leading-5 text-muted"
                 >
                   Belum ada siswa atau guru yang dapat ditempatkan. Tambahkan
                   peran Siswa atau Guru di Warga Sekolah terlebih dahulu.
@@ -896,10 +896,10 @@ onMounted(async () => {
                   <label
                     v-for="member in availableMembers"
                     :key="member.schoolUserId"
-                    class="flex items-start gap-3 rounded-lg border border-border bg-[#fbfaf8] p-3 transition"
+                    class="flex items-start gap-3 rounded-lg border border-border bg-surface-subtle p-3 transition"
                     :class="
                       inferPlacementRole(member)
-                        ? 'cursor-pointer hover:border-[#d1d5db]'
+                        ? 'cursor-pointer hover:border-strong'
                         : 'cursor-not-allowed opacity-65'
                     "
                   >
@@ -928,7 +928,7 @@ onMounted(async () => {
                             ? 'bg-brand-soft text-brand'
                             : inferPlacementRole(member) === 'student'
                               ? 'bg-[#f0fdf4] text-[#059669]'
-                              : 'bg-[#f3f1ec] text-muted'
+                              : 'bg-surface-strong text-muted'
                         "
                       >
                         {{ placementRoleLabel(member) }}
@@ -961,7 +961,7 @@ onMounted(async () => {
       <RouterLink
         v-if="enrollments.length > 0"
         to="/admin/subject-classes"
-        class="mt-5 flex items-center justify-between gap-4 rounded-xl border border-border bg-white p-5 transition hover:border-brand hover:shadow-sm"
+        class="mt-5 flex items-center justify-between gap-4 rounded-xl border border-border bg-surface p-5 transition hover:border-brand hover:shadow-sm"
       >
         <div>
           <p class="eyebrow">

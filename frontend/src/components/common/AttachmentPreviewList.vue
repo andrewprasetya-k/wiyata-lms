@@ -184,7 +184,7 @@ function responseStatus(error: unknown) {
 
 <template>
   <div>
-    <p v-if="attachments.length === 0" class="text-sm leading-6 text-[#7a7385]">
+    <p v-if="attachments.length === 0" class="text-sm leading-6 text-muted">
       {{ emptyText }}
     </p>
 
@@ -192,7 +192,7 @@ function responseStatus(error: unknown) {
       <article
         v-for="attachment in attachments"
         :key="attachment.mediaId"
-        class="overflow-hidden rounded-[18px] border border-border bg-[#fbfaf8]"
+        class="overflow-hidden rounded-[18px] border border-border bg-surface-subtle"
       >
         <div
           v-if="
@@ -201,7 +201,7 @@ function responseStatus(error: unknown) {
             !failedImages[attachment.mediaId] &&
             isPreviewExpanded(attachment)
           "
-          class="border-b border-border bg-white"
+          class="border-b border-border bg-surface"
         >
           <a
             v-if="isSafeURL(attachment.fileUrl)"
@@ -232,10 +232,10 @@ function responseStatus(error: unknown) {
             isSafeURL(attachment.fileUrl) &&
             isPreviewExpanded(attachment)
           "
-          class="border-b border-border bg-white p-2 sm:p-3"
+          class="border-b border-border bg-surface p-2 sm:p-3"
         >
           <iframe
-            class="h-105 w-full rounded-xl bg-white sm:h-130"
+            class="h-105 w-full rounded-xl bg-surface sm:h-130"
             :src="attachment.fileUrl"
             :title="`Preview ${attachment.mediaName || 'PDF'}`"
             loading="lazy"
@@ -246,7 +246,7 @@ function responseStatus(error: unknown) {
           class="flex min-w-0 flex-col gap-3 p-4 sm:flex-row sm:items-center"
         >
           <div
-            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-brand"
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface text-brand"
           >
             <PhImage v-if="isImage(attachment)" :size="20" weight="duotone" />
             <PhFilePdf
@@ -281,7 +281,7 @@ function responseStatus(error: unknown) {
           >
             <button
               v-if="canSummarize(attachment)"
-              class="inline-flex items-center gap-2 rounded-xl border border-border bg-white px-3 py-2 text-xs font-medium text-[#5b4b7a] transition hover:border-[#d8d1c5] hover:bg-[#f8f7f4] focus:outline-none focus:ring-2 focus:ring-brand/25 disabled:cursor-not-allowed disabled:opacity-60"
+              class="inline-flex items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-xs font-medium text-[#5b4b7a] transition hover:border-[#d8d1c5] hover:bg-background focus:outline-none focus:ring-2 focus:ring-brand/25 disabled:cursor-not-allowed disabled:opacity-60"
               type="button"
               :disabled="isSummaryLoading(attachment.mediaId)"
               @click="summarizeAttachment(attachment)"
@@ -301,7 +301,7 @@ function responseStatus(error: unknown) {
             </button>
             <a
               v-if="isSafeURL(attachment.fileUrl)"
-              class="inline-flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-xs font-medium text-brand transition hover:bg-brand-soft focus:outline-none focus:ring-2 focus:ring-brand/30"
+              class="inline-flex items-center gap-2 rounded-xl bg-surface px-3 py-2 text-xs font-medium text-brand transition hover:bg-brand-soft focus:outline-none focus:ring-2 focus:ring-brand/30"
               :href="attachment.fileUrl"
               rel="noopener noreferrer"
               target="_blank"
@@ -321,7 +321,7 @@ function responseStatus(error: unknown) {
               summaryError(attachment.mediaId) ||
               summaryResult(attachment.mediaId))
           "
-          class="border-t border-border bg-white px-4 py-4"
+          class="border-t border-border bg-surface px-4 py-4"
         >
           <div
             v-if="isSummaryLoading(attachment.mediaId)"
@@ -339,7 +339,7 @@ function responseStatus(error: unknown) {
               {{ summaryError(attachment.mediaId) }}
             </p>
             <button
-              class="mt-3 inline-flex items-center gap-2 rounded-lg border border-[#ead5d0] bg-white px-3 py-2 text-xs font-medium text-[#8a463f] transition hover:bg-[#fff1ef] focus:outline-none focus:ring-2 focus:ring-[#d97757]/25"
+              class="mt-3 inline-flex items-center gap-2 rounded-lg border border-[#ead5d0] bg-surface px-3 py-2 text-xs font-medium text-[#8a463f] transition hover:bg-[#fff1ef] focus:outline-none focus:ring-2 focus:ring-[#d97757]/25"
               type="button"
               @click="summarizeAttachment(attachment)"
             >

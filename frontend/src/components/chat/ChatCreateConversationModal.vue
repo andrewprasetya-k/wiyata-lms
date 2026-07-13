@@ -162,7 +162,7 @@ watch(activeCreateTab, (tab) => {
     class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4 py-6"
     @click.self="close"
   >
-    <div class="max-h-[90vh] w-full max-w-xl overflow-hidden rounded-xl bg-white">
+    <div class="max-h-[90vh] w-full max-w-xl overflow-hidden rounded-xl bg-surface">
       <!-- Header -->
       <div class="px-5 py-4">
         <div class="flex items-center justify-between">
@@ -171,7 +171,7 @@ watch(activeCreateTab, (tab) => {
           </h2>
           <button
             type="button"
-            class="rounded-lg p-1.5 text-[#9ca3af] transition hover:bg-[#f3f1ec] hover:text-foreground"
+            class="rounded-lg p-1.5 text-muted transition hover:bg-surface-strong hover:text-foreground"
             aria-label="Tutup"
             @click="close"
           >
@@ -179,13 +179,13 @@ watch(activeCreateTab, (tab) => {
           </button>
         </div>
         <!-- Tab bar -->
-        <div class="mt-3 flex gap-1 rounded-lg bg-[#f3f1ec] p-1">
+        <div class="mt-3 flex gap-1 rounded-lg bg-surface-strong p-1">
           <button
             type="button"
             class="flex-1 rounded-md py-1.5 text-sm font-medium transition"
             :class="
               activeCreateTab === 'dm'
-                ? 'bg-white text-foreground shadow-sm'
+                ? 'bg-surface text-foreground shadow-sm'
                 : 'text-muted hover:text-foreground'
             "
             @click="activeCreateTab = 'dm'"
@@ -197,7 +197,7 @@ watch(activeCreateTab, (tab) => {
             class="flex-1 rounded-md py-1.5 text-sm font-medium transition"
             :class="
               activeCreateTab === 'group'
-                ? 'bg-white text-foreground shadow-sm'
+                ? 'bg-surface text-foreground shadow-sm'
                 : 'text-muted hover:text-foreground'
             "
             @click="activeCreateTab = 'group'"
@@ -226,13 +226,13 @@ watch(activeCreateTab, (tab) => {
                 id="chat-dm-search"
                 v-model="dmSearch"
                 type="text"
-                class="min-w-0 flex-1 rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm text-foreground outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/15"
+                class="min-w-0 flex-1 rounded-lg border border-border px-3 py-2 text-sm text-foreground outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/15"
                 placeholder="Cari warga sekolah..."
                 @keydown.enter.prevent="loadDMTargets"
               />
               <button
                 type="button"
-                class="rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm font-medium text-brand transition hover:border-brand disabled:opacity-60"
+                class="rounded-lg border border-border px-3 py-2 text-sm font-medium text-brand transition hover:border-brand disabled:opacity-60"
                 :disabled="isLoadingDMTargets"
                 @click="loadDMTargets"
               >
@@ -250,17 +250,17 @@ watch(activeCreateTab, (tab) => {
 
           <div class="rounded-lg border border-border">
             <div
-              class="border-b border-border bg-[#fbfaf8] px-3 py-2 text-xs font-semibold uppercase tracking-[0.06em] text-[#9ca3af]"
+              class="border-b border-border bg-surface-subtle px-3 py-2 text-xs font-semibold uppercase tracking-[0.06em] text-muted"
             >
               Warga sekolah
             </div>
             <div v-if="isLoadingDMTargets" class="space-y-2 p-3">
-              <div class="h-10 animate-pulse rounded-lg bg-[#f3f1ec]" />
-              <div class="h-10 animate-pulse rounded-lg bg-[#f3f1ec]" />
+              <div class="h-10 animate-pulse rounded-lg bg-surface-strong" />
+              <div class="h-10 animate-pulse rounded-lg bg-surface-strong" />
             </div>
             <div
               v-else-if="dmResults.length === 0"
-              class="rounded-lg bg-[#fbfaf8] p-3 text-sm leading-6 text-muted"
+              class="rounded-lg bg-surface-subtle p-3 text-sm leading-6 text-muted"
             >
               Tidak ada warga sekolah yang cocok.
             </div>
@@ -268,13 +268,13 @@ watch(activeCreateTab, (tab) => {
               <label
                 v-for="member in dmResults"
                 :key="member.userId"
-                class="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 hover:bg-[#fbfaf8]"
+                class="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 hover:bg-surface-subtle"
               >
                 <input
                   v-model="selectedDMTargetId"
                   type="radio"
                   name="dm-target"
-                  class="h-4 w-4 border-[#d8d2c8] text-brand"
+                  class="h-4 w-4 border-border text-brand"
                   :value="member.userId"
                 />
                 <span
@@ -300,7 +300,7 @@ watch(activeCreateTab, (tab) => {
         <div class="flex flex-col gap-2 px-5 py-4 sm:flex-row sm:justify-end">
           <button
             type="button"
-            class="rounded-lg border border-[#d8d2c8] px-4 py-2 text-sm font-medium text-muted transition hover:bg-[#fbfaf8]"
+            class="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted transition hover:bg-surface-subtle"
             :disabled="isOpeningDM"
             @click="close"
           >
@@ -334,7 +334,7 @@ watch(activeCreateTab, (tab) => {
               id="chat-group-name"
               v-model="groupRoomName"
               type="text"
-              class="mt-1 w-full rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm text-foreground outline-none transition focus:border-blue focus:ring-1 focus:ring-brand"
+              class="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm text-foreground outline-none transition focus:border-blue focus:ring-1 focus:ring-brand"
               placeholder="Contoh: Grup Belajar Fisika"
             />
           </div>
@@ -351,13 +351,13 @@ watch(activeCreateTab, (tab) => {
                 id="chat-member-search"
                 v-model="memberSearch"
                 type="text"
-                class="min-w-0 flex-1 rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm text-foreground outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/15"
+                class="min-w-0 flex-1 rounded-lg border border-border px-3 py-2 text-sm text-foreground outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/15"
                 placeholder="Cari nama atau email..."
                 @keydown.enter.prevent="loadChatMembers"
               />
               <button
                 type="button"
-                class="rounded-lg border border-[#d8d2c8] px-3 py-2 text-sm font-medium text-brand transition hover:border-brand disabled:opacity-60"
+                class="rounded-lg border border-border px-3 py-2 text-sm font-medium text-brand transition hover:border-brand disabled:opacity-60"
                 :disabled="isLoadingMembers"
                 @click="loadChatMembers"
               >
@@ -375,17 +375,17 @@ watch(activeCreateTab, (tab) => {
 
           <div class="rounded-lg border border-border">
             <div
-              class="border-b border-border bg-[#fbfaf8] px-3 py-2 text-xs font-semibold uppercase tracking-[0.06em] text-[#9ca3af]"
+              class="border-b border-border bg-surface-subtle px-3 py-2 text-xs font-semibold uppercase tracking-[0.06em] text-muted"
             >
               Anggota
             </div>
             <div v-if="isLoadingMembers" class="space-y-2 p-3">
-              <div class="h-10 animate-pulse rounded-lg bg-[#f3f1ec]" />
-              <div class="h-10 animate-pulse rounded-lg bg-[#f3f1ec]" />
+              <div class="h-10 animate-pulse rounded-lg bg-surface-strong" />
+              <div class="h-10 animate-pulse rounded-lg bg-surface-strong" />
             </div>
             <div
               v-else-if="memberResults.length === 0"
-              class="rounded-lg bg-[#fbfaf8] p-3 text-sm leading-6 text-muted"
+              class="rounded-lg bg-surface-subtle p-3 text-sm leading-6 text-muted"
             >
               Tidak ada warga yang cocok.
             </div>
@@ -393,11 +393,11 @@ watch(activeCreateTab, (tab) => {
               <label
                 v-for="member in memberResults"
                 :key="member.userId"
-                class="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 hover:bg-[#fbfaf8]"
+                class="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 hover:bg-surface-subtle"
               >
                 <input
                   type="checkbox"
-                  class="h-4 w-4 rounded border-[#d8d2c8] text-brand"
+                  class="h-4 w-4 rounded border-border text-brand"
                   :checked="selectedMemberIds.includes(member.userId)"
                   @change="toggleMember(member.userId)"
                 />
@@ -426,7 +426,7 @@ watch(activeCreateTab, (tab) => {
         >
           <button
             type="button"
-            class="rounded-lg border border-[#d8d2c8] px-4 py-2 text-sm font-medium text-muted transition hover:bg-[#fbfaf8]"
+            class="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted transition hover:bg-surface-subtle"
             :disabled="isCreatingGroup"
             @click="close"
           >

@@ -36,8 +36,8 @@ onMounted(loadSubjects);
 </script>
 
 <template>
-  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
-    <header class="border-b border-border bg-white">
+  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-background">
+    <header class="border-b border-border bg-surface">
       <div class="px-5 py-5 sm:px-6 lg:px-8">
         <h1 class="text-2xl font-semibold text-foreground sm:text-3xl">
           Mata Pelajaran yang Diajar
@@ -56,7 +56,7 @@ onMounted(loadSubjects);
         <div
           v-for="item in 6"
           :key="item"
-          class="h-56 animate-pulse rounded-xl border border-border bg-white"
+          class="h-56 animate-pulse rounded-xl border border-border bg-surface"
         />
       </section>
 
@@ -77,7 +77,7 @@ onMounted(loadSubjects);
               <h2 class="text-base font-semibold text-foreground">
                 Mata pelajaran tidak dapat dimuat
               </h2>
-              <p class="mt-1 text-sm leading-6 text-[#7a7385]">
+              <p class="mt-1 text-sm leading-6 text-muted">
                 {{ errorMessage }}
               </p>
               <button
@@ -97,7 +97,7 @@ onMounted(loadSubjects);
         class="flex min-h-[55vh] items-center justify-center"
       >
         <article
-          class="w-full max-w-xl rounded-xl border border-border bg-white p-8 text-center"
+          class="w-full max-w-xl rounded-xl border border-border bg-surface p-8 text-center"
         >
           <div
             class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
@@ -119,7 +119,7 @@ onMounted(loadSubjects);
           <h2 class="text-sm font-semibold text-foreground">
             Daftar mata pelajaran
           </h2>
-          <p class="mt-1 text-xs text-[#7a7385] sm:text-sm">
+          <p class="mt-1 text-xs text-muted sm:text-sm">
             {{ subjects.length }} mata pelajaran tersedia.
           </p>
         </div>
@@ -129,7 +129,7 @@ onMounted(loadSubjects);
             v-for="subject in subjects"
             :key="subject.subjectClassId"
             :to="`/teacher/subjects/${subject.subjectClassId}`"
-            class="group min-w-0 overflow-hidden rounded-xl border border-border bg-white transition hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(66,55,40,0.08)]"
+            class="group min-w-0 overflow-hidden rounded-xl border border-border bg-surface transition hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(66,55,40,0.08)]"
           >
             <div
               class="h-1.5 w-full"
@@ -148,7 +148,7 @@ onMounted(loadSubjects);
                   <PhBookOpen :size="20" weight="duotone" />
                 </div>
                 <div class="min-w-0 flex-1">
-                  <p class="truncate text-xs text-[#7a7385]">
+                  <p class="truncate text-xs text-muted">
                     {{ subject.className || subject.classCode || "Kelas" }}
                   </p>
                   <h2
@@ -174,7 +174,7 @@ onMounted(loadSubjects);
               </div>
 
               <dl class="mt-4 grid grid-cols-2 gap-2 text-xs">
-                <div class="rounded-lg bg-[#fbfaf8] p-3">
+                <div class="rounded-lg bg-surface-subtle p-3">
                   <dt class="flex items-center gap-1.5 text-[#8a8494]">
                     <PhUsersThree :size="15" weight="duotone" />
                     Siswa
@@ -183,7 +183,7 @@ onMounted(loadSubjects);
                     {{ subject.studentCount }}
                   </dd>
                 </div>
-                <div class="rounded-lg bg-[#fbfaf8] p-3">
+                <div class="rounded-lg bg-surface-subtle p-3">
                   <dt class="flex items-center gap-1.5 text-[#8a8494]">
                     <PhFileText :size="15" weight="duotone" />
                     Materi
@@ -192,7 +192,7 @@ onMounted(loadSubjects);
                     {{ subject.materialCount }}
                   </dd>
                 </div>
-                <div class="rounded-lg bg-[#fbfaf8] p-3">
+                <div class="rounded-lg bg-surface-subtle p-3">
                   <dt class="flex items-center gap-1.5 text-[#8a8494]">
                     <PhClipboardText :size="15" weight="duotone" />
                     Tugas

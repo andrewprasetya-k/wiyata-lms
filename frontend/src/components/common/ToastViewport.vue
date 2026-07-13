@@ -13,13 +13,13 @@ const toastStore = useToastStore();
 const variantMeta = computed(() => ({
   success: {
     icon: PhCheckCircle,
-    className: "border-[#BBF7D0] bg-[#ECFDF5] text-[#065F46]",
-    iconClass: "text-[#059669]",
+    className: "border-success-line bg-[#ECFDF5] text-[#065F46]",
+    iconClass: "text-success",
   },
   error: {
     icon: PhWarningCircle,
-    className: "border-[#FECACA] bg-[#FEF2F2] text-[#991B1B]",
-    iconClass: "text-[#DC2626]",
+    className: "border-danger-line bg-danger-soft text-[#991B1B]",
+    iconClass: "text-danger",
   },
   info: {
     icon: PhInfo,
@@ -58,7 +58,7 @@ function getMeta(toast: ToastItem) {
       </p>
       <button
         type="button"
-        class="mt-0.5 rounded-md p-1 text-current opacity-70 transition hover:bg-white/60 hover:opacity-100"
+        class="mt-0.5 rounded-md p-1 text-current opacity-70 transition hover:bg-surface/60 hover:opacity-100"
         aria-label="Tutup notifikasi"
         @click="toastStore.remove(toast.id)"
       >

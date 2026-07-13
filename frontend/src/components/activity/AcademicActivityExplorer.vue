@@ -129,8 +129,8 @@ function selectRange(value: "today" | "7d" | "30d") {
 </script>
 
 <template>
-  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
-    <header class="border-b border-border bg-white">
+  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-background">
+    <header class="border-b border-border bg-surface">
       <div class="px-5 py-5 sm:px-6 lg:px-8">
         <div class="max-w-5xl">
           <h1 class="mt-2 text-xl font-medium text-foreground sm:text-2xl">
@@ -147,7 +147,7 @@ function selectRange(value: "today" | "7d" | "30d") {
       class="grid gap-4 px-5 py-5 sm:px-6 lg:px-8 lg:py-6 xl:grid-cols-[minmax(0,1fr)_300px]"
     >
       <div class="min-w-0 space-y-4">
-        <section class="rounded-xl border border-border bg-white p-4 sm:p-5">
+        <section class="rounded-xl border border-border bg-surface p-4 sm:p-5">
           <div
             class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"
           >
@@ -166,7 +166,7 @@ function selectRange(value: "today" | "7d" | "30d") {
                 :class="
                   selectedRange === range.value
                     ? 'border-brand bg-brand-soft text-brand'
-                    : 'border-border bg-white text-muted hover:bg-[#fbfaf8]'
+                    : 'border-border bg-surface text-muted hover:bg-surface-subtle'
                 "
                 :aria-pressed="selectedRange === range.value"
                 :disabled="loading"
@@ -186,7 +186,7 @@ function selectRange(value: "today" | "7d" | "30d") {
               :class="
                 selectedFilter === filter.value
                   ? 'border-brand bg-brand-soft text-brand'
-                  : 'border-border bg-white text-muted hover:bg-[#fbfaf8]'
+                  : 'border-border bg-surface text-muted hover:bg-surface-subtle'
               "
               :aria-pressed="selectedFilter === filter.value"
               @click="selectedFilter = filter.value"
@@ -198,13 +198,13 @@ function selectRange(value: "today" | "7d" | "30d") {
 
         <section
           v-if="loading"
-          class="space-y-3 rounded-xl border border-border bg-white p-4 sm:p-5"
+          class="space-y-3 rounded-xl border border-border bg-surface p-4 sm:p-5"
           aria-label="Memuat aktivitas akademik"
         >
           <div
             v-for="item in 5"
             :key="item"
-            class="flex gap-3 rounded-lg border border-border bg-[#fbfaf8] p-4"
+            class="flex gap-3 rounded-lg border border-border bg-surface-subtle p-4"
           >
             <div class="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-[#e5e7eb]" />
             <div class="min-w-0 flex-1 space-y-2">
@@ -217,7 +217,7 @@ function selectRange(value: "today" | "7d" | "30d") {
 
         <section
           v-else-if="errorMessage"
-          class="rounded-xl border border-danger-line bg-white p-5"
+          class="rounded-xl border border-danger-line bg-surface p-5"
         >
           <div
             class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
@@ -232,7 +232,7 @@ function selectRange(value: "today" | "7d" | "30d") {
                 <h2 class="text-sm font-medium text-foreground">
                   Aktivitas tidak dapat dimuat
                 </h2>
-                <p class="mt-1 text-sm leading-6 text-[#7a7385]">
+                <p class="mt-1 text-sm leading-6 text-muted">
                   {{ errorMessage }}
                 </p>
               </div>
@@ -250,10 +250,10 @@ function selectRange(value: "today" | "7d" | "30d") {
 
         <section
           v-else-if="groupedActivities.length === 0"
-          class="rounded-lg bg-[#fbfaf8] px-5 py-8 text-center"
+          class="rounded-lg bg-surface-subtle px-5 py-8 text-center"
         >
           <PhCalendarCheck
-            class="mx-auto h-7 w-7 text-[#9ca3af]"
+            class="mx-auto h-7 w-7 text-muted"
             weight="duotone"
           />
           <h2 class="mt-3 text-sm font-semibold text-foreground">
@@ -268,17 +268,17 @@ function selectRange(value: "today" | "7d" | "30d") {
       </div>
 
       <aside class="min-w-0 space-y-3">
-        <section class="rounded-xl border border-border bg-white p-4 sm:p-5">
+        <section class="rounded-xl border border-border bg-surface p-4 sm:p-5">
           <h2 class="text-sm font-medium text-foreground">Ringkasan</h2>
           <dl class="mt-4 space-y-3 text-sm">
             <div class="flex items-center justify-between gap-3">
-              <dt class="text-[#7a7385]">Total aktivitas</dt>
+              <dt class="text-muted">Total aktivitas</dt>
               <dd class="font-medium text-foreground">
                 {{ filteredActivities.length }}
               </dd>
             </div>
             <div class="flex items-center justify-between gap-3">
-              <dt class="text-[#7a7385]">Prioritas</dt>
+              <dt class="text-muted">Prioritas</dt>
               <dd class="font-medium text-foreground">
                 {{ highPriorityCount }}
               </dd>

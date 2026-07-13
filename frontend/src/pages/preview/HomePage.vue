@@ -17,7 +17,9 @@ import {
 import Lenis from "lenis";
 
 const auth = useAuthStore();
-const isSchoolless = computed(() => auth.isAuthenticated && !auth.activeContext);
+const isSchoolless = computed(
+  () => auth.isAuthenticated && !auth.activeContext,
+);
 
 // ── Mobile menu state
 const mobileOpen = ref(false);
@@ -177,7 +179,9 @@ const screenshotSlots = [
 </script>
 
 <template>
-  <main class="relative isolate overflow-x-hidden bg-[#fbfaf8] text-foreground">
+  <main
+    class="relative isolate overflow-x-hidden bg-surface-subtle text-foreground"
+  >
     <!-- ── Global decorative background -->
     <div class="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
       <!-- Indigo glow — hero anchor -->
@@ -216,7 +220,9 @@ const screenshotSlots = [
             alt="Wiyata"
             class="h-7 w-7 rounded-lg object-contain"
           />
-          <span class="text-[15px] font-semibold tracking-tight text-foreground">
+          <span
+            class="text-[15px] font-semibold tracking-tight text-foreground"
+          >
             Wiyata Academic Workspace
           </span>
         </RouterLink>
@@ -249,7 +255,7 @@ const screenshotSlots = [
             </span>
             <button
               type="button"
-              class="rounded-lg border border-[#e7e2da] bg-white px-4 py-2 text-sm font-medium text-[#5f5968] transition-colors hover:text-foreground"
+              class="rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-[#5f5968] transition-colors hover:text-foreground"
               @click="auth.logout()"
             >
               Keluar
@@ -258,7 +264,7 @@ const screenshotSlots = [
           <template v-else>
             <RouterLink
               to="/school-registration"
-              class="hidden rounded-lg border border-[#e7e2da] bg-white px-4 py-2 text-sm font-medium text-[#5f5968] transition-colors hover:text-foreground sm:inline-flex"
+              class="hidden rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-[#5f5968] transition-colors hover:text-foreground sm:inline-flex"
             >
               Daftarkan Sekolah
             </RouterLink>
@@ -271,7 +277,7 @@ const screenshotSlots = [
           </template>
           <button
             id="nav-mobile-toggle"
-            class="flex h-9 w-9 items-center justify-center rounded-lg border border-[#e7e2da] bg-white md:hidden"
+            class="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-surface md:hidden"
             aria-label="Buka menu"
             @click="mobileOpen = !mobileOpen"
           >
@@ -289,11 +295,11 @@ const screenshotSlots = [
         leave-from-class="opacity-100 translate-y-0"
         leave-to-class="opacity-0 -translate-y-1"
       >
-        <nav v-if="mobileOpen" class="border-[#e7e2da] bg-white md:hidden">
+        <nav v-if="mobileOpen" class="border-border bg-surface md:hidden">
           <div class="flex flex-col gap-1 px-6 py-4">
             <a
               href="#fitur"
-              class="rounded-md px-3 py-2.5 text-sm text-muted hover:bg-[#f8f7f4] hover:text-foreground"
+              class="rounded-md px-3 py-2.5 text-sm text-muted hover:bg-background hover:text-foreground"
               @click="
                 mobileOpen = false;
                 handleAnchorClick($event, '#fitur');
@@ -302,7 +308,7 @@ const screenshotSlots = [
             >
             <a
               href="#peran"
-              class="rounded-md px-3 py-2.5 text-sm text-muted hover:bg-[#f8f7f4] hover:text-foreground"
+              class="rounded-md px-3 py-2.5 text-sm text-muted hover:bg-background hover:text-foreground"
               @click="
                 mobileOpen = false;
                 handleAnchorClick($event, '#peran');
@@ -311,7 +317,7 @@ const screenshotSlots = [
             >
             <a
               href="#preview"
-              class="rounded-md px-3 py-2.5 text-sm text-muted hover:bg-[#f8f7f4] hover:text-foreground"
+              class="rounded-md px-3 py-2.5 text-sm text-muted hover:bg-background hover:text-foreground"
               @click="
                 mobileOpen = false;
                 handleAnchorClick($event, '#preview');
@@ -320,13 +326,16 @@ const screenshotSlots = [
             >
             <template v-if="isSchoolless">
               <div class="mt-2 border-t border-[#f0ece5] pt-2">
-                <p class="px-3 py-1.5 text-xs text-[#9ca3af]">
+                <p class="px-3 py-1.5 text-xs text-muted">
                   {{ auth.user?.fullName }}
                 </p>
                 <button
                   type="button"
-                  class="w-full rounded-md px-3 py-2.5 text-left text-sm text-muted hover:bg-[#f8f7f4] hover:text-foreground"
-                  @click="auth.logout(); mobileOpen = false"
+                  class="w-full rounded-md px-3 py-2.5 text-left text-sm text-muted hover:bg-background hover:text-foreground"
+                  @click="
+                    auth.logout();
+                    mobileOpen = false;
+                  "
                 >
                   Keluar
                 </button>
@@ -359,10 +368,10 @@ const screenshotSlots = [
           Selamat datang di Wiyata
         </h1>
         <p class="mt-6 max-w-2xl text-lg leading-8 text-muted">
-          Akunmu berhasil dibuat dan kamu sudah masuk ke Wiyata. Saat ini
-          akunmu belum terhubung ke sekolah mana pun. Setelah bergabung ke
-          sekolah, kamu dapat mengakses kelas, materi, tugas, nilai, dan
-          aktivitas akademik.
+          Akunmu berhasil dibuat dan kamu sudah masuk ke Wiyata. Saat ini akunmu
+          belum terhubung ke sekolah mana pun. Setelah bergabung ke sekolah,
+          kamu dapat mengakses kelas, materi, tugas, nilai, dan aktivitas
+          akademik.
         </p>
         <div class="mt-9 flex flex-wrap items-center gap-4">
           <RouterLink
@@ -371,9 +380,9 @@ const screenshotSlots = [
           >
             Daftarkan Sekolah
           </RouterLink>
-          <p class="max-w-sm text-sm leading-6 text-[#9ca3af]">
-            Sudah mendapat undangan? Buka link undangan yang dikirim ke
-            emailmu untuk bergabung ke sekolah.
+          <p class="max-w-sm text-sm leading-6 text-muted">
+            Sudah mendapat undangan? Buka link undangan yang dikirim ke emailmu
+            untuk bergabung ke sekolah.
           </p>
         </div>
       </template>
@@ -401,7 +410,7 @@ const screenshotSlots = [
           <RouterLink
             to="/login"
             id="hero-cta-masuk"
-            class="inline-flex h-11 items-center justify-center rounded-lg border border-[#e7e2da] bg-white px-6 text-sm font-medium text-[#5f5968] transition-colors hover:bg-[#f8f7f4] hover:text-foreground"
+            class="inline-flex h-11 items-center justify-center rounded-lg border border-border bg-surface px-6 text-sm font-medium text-[#5f5968] transition-colors hover:bg-background hover:text-foreground"
           >
             Masuk ke Wiyata
           </RouterLink>
@@ -411,7 +420,7 @@ const screenshotSlots = [
       <!-- ── Product mockup (dashboard UI) ── -->
       <div class="mt-16">
         <div
-          class="relative overflow-hidden rounded-2xl border border-[#e7e2da] bg-white shadow-[0_28px_90px_-30px_rgba(79,70,229,0.32)] ring-1 ring-white/70"
+          class="relative overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_28px_90px_-30px_rgba(79,70,229,0.32)] ring-1 ring-white/70"
         >
           <!-- Browser chrome -->
           <div
@@ -421,7 +430,7 @@ const screenshotSlots = [
             <span class="h-3 w-3 rounded-full bg-[#fcd34d]" />
             <span class="h-3 w-3 rounded-full bg-[#86efac]" />
             <div
-              class="ml-3 flex h-6 max-w-xs flex-1 items-center rounded-md bg-[#f0ece5] px-3 text-xs text-[#9ca3af]"
+              class="ml-3 flex h-6 max-w-xs flex-1 items-center rounded-md bg-[#f0ece5] px-3 text-xs text-muted"
             >
               app.wiyata.id/student/dashboard
             </div>
@@ -429,17 +438,19 @@ const screenshotSlots = [
 
           <!-- Placeholder content area -->
           <div
-            class="flex aspect-video w-full flex-col items-center justify-center gap-4 bg-[#f8f7f4] px-8 text-center"
+            class="flex aspect-video w-full flex-col items-center justify-center gap-4 bg-background px-8 text-center"
             style="min-height: 380px"
           >
             <div
-              class="flex h-14 w-14 items-center justify-center rounded-xl border border-[#e7e2da] bg-white shadow-sm"
+              class="flex h-14 w-14 items-center justify-center rounded-xl border border-border bg-surface shadow-sm"
             >
               <PhMonitor :size="26" class="text-brand" />
             </div>
             <div>
-              <p class="text-base font-medium text-foreground">Preview Wiyata</p>
-              <p class="mt-1.5 max-w-sm text-sm leading-relaxed text-[#9ca3af]">
+              <p class="text-base font-medium text-foreground">
+                Preview Wiyata
+              </p>
+              <p class="mt-1.5 max-w-sm text-sm leading-relaxed text-muted">
                 Screenshot dashboard Wiyata akan segera ditambahkan.
               </p>
             </div>
@@ -452,7 +463,7 @@ const screenshotSlots = [
           </div>
         </div>
 
-        <p class="mt-3 text-center text-xs text-[#9ca3af]">
+        <p class="mt-3 text-center text-xs text-muted">
           Tampilan dashboard siswa Wiyata.
         </p>
       </div>
@@ -461,7 +472,7 @@ const screenshotSlots = [
     <!-- ───────────── FEATURE STORY ───────────── -->
     <section
       id="fitur"
-      class="relative mx-auto max-w-7xl scroll-mt-24 border-t border-[#e7e2da] px-6 py-32 lg:px-8"
+      class="relative mx-auto max-w-7xl scroll-mt-24 border-t border-border px-6 py-32 lg:px-8"
     >
       <div class="max-w-2xl">
         <p class="text-sm font-medium text-brand">Fitur utama</p>
@@ -502,10 +513,7 @@ const screenshotSlots = [
                 :key="point"
                 class="flex items-start gap-2.5 text-sm text-muted"
               >
-                <PhCheckCircle
-                  :size="16"
-                  class="mt-0.5 shrink-0 text-brand"
-                />
+                <PhCheckCircle :size="16" class="mt-0.5 shrink-0 text-brand" />
                 {{ point }}
               </li>
             </ul>
@@ -515,7 +523,7 @@ const screenshotSlots = [
     </section>
 
     <!-- ───────────── ROLE SECTION ───────────── -->
-    <section id="peran" class="relative bg-white scroll-mt-24">
+    <section id="peran" class="relative bg-surface scroll-mt-24">
       <div
         class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(79,70,229,0.07),transparent_32%),radial-gradient(circle_at_80%_30%,rgba(245,158,11,0.06),transparent_28%)]"
         aria-hidden="true"
@@ -540,7 +548,7 @@ const screenshotSlots = [
             v-for="role in mainRoles"
             :id="role.anchor"
             :key="role.title"
-            class="rounded-2xl border border-[#e7e2da] bg-white px-8 py-9 transition hover:border-[#c7c3d7] hover:shadow-md"
+            class="rounded-2xl border border-border bg-surface px-8 py-9 transition hover:border-[#c7c3d7] hover:shadow-md"
           >
             <p
               class="text-xs font-semibold uppercase tracking-widest text-brand"
@@ -569,7 +577,7 @@ const screenshotSlots = [
     </section>
 
     <!-- ───────────── PREVIEW / MEDIA ───────────── -->
-    <section id="preview" class="relative bg-[#fbfaf8] scroll-mt-24">
+    <section id="preview" class="relative bg-surface-subtle scroll-mt-24">
       <div
         class="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(251,250,248,1)_0%,rgba(245,243,255,0.80)_45%,rgba(251,250,248,1)_100%)]"
         aria-hidden="true"
@@ -609,7 +617,7 @@ const screenshotSlots = [
               <button
                 disabled
                 aria-label="Video belum tersedia"
-                class="flex h-16 w-16 cursor-default items-center justify-center rounded-full border border-white/20 bg-white/10"
+                class="flex h-16 w-16 cursor-default items-center justify-center rounded-full border border-white/20 bg-surface/10"
               >
                 <PhPlay :size="22" weight="fill" class="ml-1 text-white/70" />
               </button>
@@ -623,13 +631,13 @@ const screenshotSlots = [
               </div>
             </div>
             <div
-              class="absolute bottom-4 right-4 rounded-md bg-white/10 px-2.5 py-1 text-xs text-white/50"
+              class="absolute bottom-4 right-4 rounded-md bg-surface/10 px-2.5 py-1 text-xs text-white/50"
             >
               ~2 menit
             </div>
           </div>
 
-          <p class="mt-4 text-center text-xs text-[#9ca3af]">
+          <p class="mt-4 text-center text-xs text-muted">
             Preview video produk sedang disiapkan dan akan ditampilkan di bagian
             ini.
           </p>
@@ -640,11 +648,11 @@ const screenshotSlots = [
           <div
             v-for="slot in screenshotSlots"
             :key="slot.label"
-            class="flex aspect-4/3 flex-col items-center justify-center gap-3 rounded-xl border border-[#e7e2da] bg-white text-center shadow-sm"
+            class="flex aspect-4/3 flex-col items-center justify-center gap-3 rounded-xl border border-border bg-surface text-center shadow-sm"
           >
             <component :is="slot.icon" :size="22" class="text-[#d1cde5]" />
             <div>
-              <p class="text-xs font-medium text-[#9ca3af]">{{ slot.label }}</p>
+              <p class="text-xs font-medium text-muted">{{ slot.label }}</p>
               <p class="mt-0.5 text-[10px] text-[#c4bfcc]">{{ slot.note }}</p>
             </div>
           </div>
@@ -653,7 +661,7 @@ const screenshotSlots = [
     </section>
 
     <!-- ───────────── FINAL CTA ───────────── -->
-    <section class="relative overflow-hidden bg-[#fbfaf8]">
+    <section class="relative overflow-hidden bg-surface-subtle">
       <!-- Backdrop blobs — exist in section behind the card so backdrop-blur has something to blur -->
       <div
         class="pointer-events-none absolute right-0 top-2/7 h-40 w-lg -translate-y-1/2 translate-x-1/3 rounded-full bg-brand/22 blur-3xl"
@@ -667,7 +675,7 @@ const screenshotSlots = [
       <div class="mx-auto max-w-7xl px-6 py-20 lg:px-8">
         <!-- Glass card — backdrop-blur now blurs the section blobs behind it -->
         <div
-          class="relative rounded-3xl bg-white/40 px-8 py-12 shadow-[0_2px_24px_-4px_rgba(79,70,229,0.09),inset_0_1px_0_rgba(255,255,255,0.85)] backdrop-blur-3xl backdrop-saturate-250 lg:px-14 lg:py-14"
+          class="relative rounded-3xl bg-surface/40 px-8 py-12 shadow-[0_2px_24px_-4px_rgba(79,70,229,0.09),inset_0_1px_0_rgba(255,255,255,0.85)] backdrop-blur-3xl backdrop-saturate-250 lg:px-14 lg:py-14"
         >
           <div class="grid gap-10 lg:grid-cols-[1fr_auto] lg:items-center">
             <div class="max-w-2xl">
@@ -684,7 +692,7 @@ const screenshotSlots = [
                 aktivitas belajar, mengajar, atau operasional sekolah dari satu
                 tempat yang sama.
               </p>
-              <p class="mt-3 text-sm text-[#9ca3af]">
+              <p class="mt-3 text-sm text-muted">
                 Untuk pengguna yang sudah memiliki akun Wiyata.
               </p>
             </div>
@@ -701,7 +709,7 @@ const screenshotSlots = [
               <RouterLink
                 to="/login"
                 id="final-cta-masuk"
-                class="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-[#e0daf7] bg-white/70 px-7 text-sm font-medium text-muted transition-colors hover:border-[#c7c3d7] hover:text-foreground"
+                class="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-[#e0daf7] bg-surface/70 px-7 text-sm font-medium text-muted transition-colors hover:border-[#c7c3d7] hover:text-foreground"
               >
                 Masuk ke Wiyata
                 <PhArrowRight :size="15" />
@@ -713,7 +721,7 @@ const screenshotSlots = [
     </section>
 
     <!-- ───────────── FOOTER ───────────── -->
-    <footer class="border-t border-[#e7e2da] bg-[#fbfaf8]">
+    <footer class="border-t border-border bg-surface-subtle">
       <div class="mx-auto max-w-7xl px-6 py-10 lg:px-8">
         <div
           class="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between"
@@ -727,7 +735,7 @@ const screenshotSlots = [
             <span class="text-sm font-semibold text-foreground">Wiyata</span>
           </div>
 
-          <nav class="flex flex-wrap gap-x-7 gap-y-2 text-sm text-[#9ca3af]">
+          <nav class="flex flex-wrap gap-x-7 gap-y-2 text-sm text-muted">
             <a
               href="#fitur"
               class="hover:text-muted"
@@ -746,9 +754,7 @@ const screenshotSlots = [
               @click="handleAnchorClick($event, '#preview')"
               >Preview</a
             >
-            <RouterLink to="/login" class="hover:text-muted"
-              >Masuk</RouterLink
-            >
+            <RouterLink to="/login" class="hover:text-muted">Masuk</RouterLink>
             <RouterLink to="/school-registration" class="hover:text-muted">
               Daftarkan Sekolah
             </RouterLink>
@@ -756,7 +762,7 @@ const screenshotSlots = [
         </div>
 
         <div
-          class="mt-8 flex flex-col gap-1 border-t border-[#e7e2da] pt-6 text-xs text-[#c4bfcc] sm:flex-row sm:justify-between"
+          class="mt-8 flex flex-col gap-1 border-t border-border pt-6 text-xs text-[#c4bfcc] sm:flex-row sm:justify-between"
         >
           <p>© 2026 Wiyata Academic Workspace. All rights reserved.</p>
           <p>Learning Management System by Loka Wiyata</p>

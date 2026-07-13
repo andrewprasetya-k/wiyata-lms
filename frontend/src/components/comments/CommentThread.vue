@@ -300,10 +300,10 @@ onMounted(() => {
       }}
     </button>
 
-    <div v-if="isExpanded" class="mt-3 space-y-3 rounded-2xl bg-white/70 p-3">
+    <div v-if="isExpanded" class="mt-3 space-y-3 rounded-2xl bg-surface/70 p-3">
       <div
         v-if="isLoading"
-        class="space-y-3 rounded-xl border border-border bg-[#fbfaf8] p-3"
+        class="space-y-3 rounded-xl border border-border bg-surface-subtle p-3"
         aria-label="Memuat komentar"
       >
         <div v-for="item in 2" :key="item" class="flex animate-pulse gap-3">
@@ -319,9 +319,9 @@ onMounted(() => {
       </div>
 
       <div v-else-if="errorMessage" class="rounded-2xl bg-warning-soft p-3">
-        <p class="text-xs leading-5 text-[#9a3412]">{{ errorMessage }}</p>
+        <p class="text-xs leading-5 text-warning">{{ errorMessage }}</p>
         <button
-          class="mt-3 inline-flex items-center gap-2 rounded-2xl border border-[#fed7aa] px-3 py-2 text-xs font-medium text-[#9a3412] transition hover:bg-[#ffedd5]"
+          class="mt-3 inline-flex items-center gap-2 rounded-2xl border border-warning-line px-3 py-2 text-xs font-medium text-warning transition hover:bg-[#ffedd5]"
           type="button"
           @click="() => loadComments()"
         >
@@ -331,14 +331,14 @@ onMounted(() => {
       </div>
 
       <div v-else class="space-y-3">
-        <div v-if="comments.length === 0" class="rounded-2xl bg-[#fbfaf8] p-3">
-          <p class="text-xs text-[#7a7385]">Belum ada komentar.</p>
+        <div v-if="comments.length === 0" class="rounded-2xl bg-surface-subtle p-3">
+          <p class="text-xs text-muted">Belum ada komentar.</p>
         </div>
 
         <div
           v-for="comment in comments"
           :key="comment.commentId"
-          class="rounded-2xl bg-[#fbfaf8] p-3"
+          class="rounded-2xl bg-surface-subtle p-3"
         >
           <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
@@ -359,7 +359,7 @@ onMounted(() => {
                 !comment.optimisticStatus &&
                 !comment.localOnly
               "
-              class="inline-flex shrink-0 items-center gap-1 rounded-xl px-2 py-1 text-[11px] font-medium text-[#b42318] transition hover:bg-danger-soft disabled:cursor-not-allowed disabled:opacity-60"
+              class="inline-flex shrink-0 items-center gap-1 rounded-xl px-2 py-1 text-[11px] font-medium text-danger transition hover:bg-danger-soft disabled:cursor-not-allowed disabled:opacity-60"
               type="button"
               :disabled="deletingCommentIds.has(comment.commentId)"
               @click="removeComment(comment)"
@@ -381,13 +381,13 @@ onMounted(() => {
         <textarea
           :id="discussionId"
           v-model="commentText"
-          class="min-h-20 w-full resize-y rounded-2xl border border-border bg-white px-3 py-2 text-xs leading-5 text-foreground outline-none transition placeholder:text-[#a09aa8] focus:border-brand"
+          class="min-h-20 w-full resize-y rounded-2xl border border-border bg-surface px-3 py-2 text-xs leading-5 text-foreground outline-none transition placeholder:text-[#a09aa8] focus:border-brand"
           maxlength="800"
           placeholder="Tulis komentar singkat..."
         />
         <p
           v-if="submitErrorMessage"
-          class="text-[11px] font-medium text-[#b42318]"
+          class="text-[11px] font-medium text-danger"
         >
           {{ submitErrorMessage }}
         </p>
@@ -408,20 +408,20 @@ onMounted(() => {
     </div>
   </div>
 
-  <article v-else class="rounded-xl border border-border bg-white p-5 sm:p-6">
+  <article v-else class="rounded-xl border border-border bg-surface p-5 sm:p-6">
     <div class="flex items-start justify-between gap-3">
       <div class="min-w-0">
         <div class="flex items-center gap-2">
           <PhChatsCircle :size="18" class="text-brand" weight="duotone" />
           <h2 class="text-sm font-medium text-foreground">{{ title }}</h2>
         </div>
-        <p class="mt-1 text-xs leading-5 text-[#7a7385]">
+        <p class="mt-1 text-xs leading-5 text-muted">
           Ajukan pertanyaan atau lanjutkan pembahasan terkait konten ini.
         </p>
       </div>
       <span
         v-if="hasLoaded"
-        class="shrink-0 rounded-full bg-[#f8f7f4] px-2.5 py-1 text-[11px] text-muted"
+        class="shrink-0 rounded-full bg-background px-2.5 py-1 text-[11px] text-muted"
       >
         {{ comments.length }} komentar
       </span>
@@ -429,7 +429,7 @@ onMounted(() => {
 
     <div
       v-if="isLoading"
-      class="mt-4 space-y-3 rounded-xl border border-border bg-[#fbfaf8] p-3"
+      class="mt-4 space-y-3 rounded-xl border border-border bg-surface-subtle p-3"
       aria-label="Memuat diskusi"
     >
       <div v-for="item in 2" :key="item" class="flex animate-pulse gap-3">
@@ -445,9 +445,9 @@ onMounted(() => {
     </div>
 
     <div v-else-if="errorMessage" class="mt-4 rounded-xl bg-warning-soft p-4">
-      <p class="text-sm leading-6 text-[#9a3412]">{{ errorMessage }}</p>
+      <p class="text-sm leading-6 text-warning">{{ errorMessage }}</p>
       <button
-        class="mt-3 inline-flex items-center gap-2 rounded-lg border border-[#fed7aa] px-3 py-2 text-xs font-medium text-[#9a3412] transition hover:bg-[#ffedd5]"
+        class="mt-3 inline-flex items-center gap-2 rounded-lg border border-warning-line px-3 py-2 text-xs font-medium text-warning transition hover:bg-[#ffedd5]"
         type="button"
         @click="() => loadComments()"
       >
@@ -457,14 +457,14 @@ onMounted(() => {
     </div>
 
     <div v-else class="mt-4 space-y-3">
-      <div v-if="comments.length === 0" class="rounded-lg bg-[#fbfaf8] p-3">
+      <div v-if="comments.length === 0" class="rounded-lg bg-surface-subtle p-3">
         <p class="text-sm leading-6 text-muted">{{ emptyText }}</p>
       </div>
 
       <div
         v-for="comment in comments"
         :key="comment.commentId"
-        class="rounded-xl bg-[#fbfaf8] p-4"
+        class="rounded-xl bg-surface-subtle p-4"
       >
         <div class="flex items-start justify-between gap-3">
           <div class="min-w-0">
@@ -483,7 +483,7 @@ onMounted(() => {
             v-if="
               comment.isMine && !comment.optimisticStatus && !comment.localOnly
             "
-            class="inline-flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-[#b42318] transition hover:bg-danger-soft disabled:cursor-not-allowed disabled:opacity-60"
+            class="inline-flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-danger transition hover:bg-danger-soft disabled:cursor-not-allowed disabled:opacity-60"
             type="button"
             :disabled="deletingCommentIds.has(comment.commentId)"
             @click="removeComment(comment)"
@@ -505,11 +505,11 @@ onMounted(() => {
       <textarea
         :id="discussionId"
         v-model="commentText"
-        class="min-h-24 w-full resize-y rounded-xl border border-border bg-white px-3 py-2 text-sm leading-6 text-foreground outline-none transition placeholder:text-[#a09aa8] focus:border-brand"
+        class="min-h-24 w-full resize-y rounded-xl border border-border bg-surface px-3 py-2 text-sm leading-6 text-foreground outline-none transition placeholder:text-[#a09aa8] focus:border-brand"
         maxlength="800"
         :placeholder="placeholder"
       />
-      <p v-if="submitErrorMessage" class="text-xs font-medium text-[#b42318]">
+      <p v-if="submitErrorMessage" class="text-xs font-medium text-danger">
         {{ submitErrorMessage }}
       </p>
       <div class="flex items-center justify-between gap-3">

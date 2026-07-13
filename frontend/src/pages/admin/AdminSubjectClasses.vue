@@ -414,8 +414,8 @@ onMounted(async () => {
 </script>
 
 <template>
-  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
-    <header class="border-b border-border bg-white">
+  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-background">
+    <header class="border-b border-border bg-surface">
       <div
         class="flex min-w-0 flex-col gap-3 px-5 py-5 sm:px-6 lg:flex-row lg:items-end lg:justify-between lg:px-8"
       >
@@ -435,7 +435,7 @@ onMounted(async () => {
             {{ currentSchool.schoolName || "Sekolah belum tersedia" }}
           </span>
           <span
-            class="rounded-lg bg-[#f3f1ec] px-3 py-2 font-medium text-muted"
+            class="rounded-lg bg-surface-strong px-3 py-2 font-medium text-muted"
           >
             {{ currentSchool.schoolCode || "Kode belum tersedia" }}
           </span>
@@ -457,7 +457,7 @@ onMounted(async () => {
 
       <div class="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
         <section
-          class="order-2 min-w-0 rounded-xl border border-border bg-white shadow-sm lg:order-1"
+          class="order-2 min-w-0 rounded-xl border border-border bg-surface shadow-sm lg:order-1"
         >
           <div
             class="flex flex-col gap-3 border-b border-border p-5 sm:flex-row sm:items-start sm:justify-between"
@@ -500,7 +500,7 @@ onMounted(async () => {
               <div
                 v-for="item in 3"
                 :key="item"
-                class="h-24 animate-pulse rounded-lg bg-[#fbfaf8]"
+                class="h-24 animate-pulse rounded-lg bg-surface-subtle"
               />
             </div>
 
@@ -521,7 +521,7 @@ onMounted(async () => {
               </p>
               <button
                 type="button"
-                class="mt-4 inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
+                class="mt-4 inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground-secondary transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
                 @click="loadClassContext"
               >
                 Coba lagi
@@ -530,11 +530,11 @@ onMounted(async () => {
 
             <div
               v-else-if="!selectedClassId"
-              class="rounded-lg bg-[#fbfaf8] px-5 py-8 text-center"
+              class="rounded-lg bg-surface-subtle px-5 py-8 text-center"
             >
               <PhCalendarBlank
                 :size="28"
-                class="mx-auto text-[#9ca3af]"
+                class="mx-auto text-muted"
                 weight="duotone"
               />
               <h3 class="mt-3 text-sm font-semibold text-foreground">
@@ -548,11 +548,11 @@ onMounted(async () => {
 
             <div
               v-else-if="subjectClasses.length === 0"
-              class="rounded-lg bg-[#fbfaf8] px-5 py-8 text-center"
+              class="rounded-lg bg-surface-subtle px-5 py-8 text-center"
             >
               <PhBookOpen
                 :size="28"
-                class="mx-auto text-[#9ca3af]"
+                class="mx-auto text-muted"
                 weight="duotone"
               />
               <h3 class="mt-3 text-sm font-semibold text-foreground">
@@ -590,7 +590,7 @@ onMounted(async () => {
                           }}
                         </h3>
                         <span
-                          class="rounded-lg bg-[#f3f1ec] px-2 py-1 text-[11px] font-medium text-muted"
+                          class="rounded-lg bg-surface-strong px-2 py-1 text-[11px] font-medium text-muted"
                         >
                           {{
                             subjectClass.subjectCode || "Kode tidak tersedia"
@@ -599,7 +599,7 @@ onMounted(async () => {
                       </div>
                       <p class="mt-1 text-xs text-muted">
                         Guru:
-                        <span class="font-medium text-[#374151]">
+                        <span class="font-medium text-foreground-secondary">
                           {{
                             subjectClass.teacherName || "Guru tidak tersedia"
                           }}
@@ -633,7 +633,7 @@ onMounted(async () => {
                   <div class="mt-3 flex flex-wrap gap-2">
                     <button
                       type="button"
-                      class="inline-flex items-center justify-center gap-2 rounded-lg bg-danger px-3 py-2 text-sm font-medium text-white transition hover:bg-[#b91c1c] disabled:cursor-not-allowed disabled:opacity-60"
+                      class="inline-flex items-center justify-center gap-2 rounded-lg bg-danger px-3 py-2 text-sm font-medium text-white transition hover:bg-danger-hover disabled:cursor-not-allowed disabled:opacity-60"
                       :disabled="unassigningId === subjectClass.subjectClassId"
                       @click="confirmUnassign(subjectClass)"
                     >
@@ -660,7 +660,7 @@ onMounted(async () => {
 
         <aside class="order-1 min-w-0 lg:order-2">
           <div class="space-y-5 lg:sticky lg:top-6">
-            <section class="rounded-xl border border-border bg-white shadow-sm p-5">
+            <section class="rounded-xl border border-border bg-surface shadow-sm p-5">
               <div class="flex items-start justify-between gap-3">
                 <div>
                   <p
@@ -684,7 +684,7 @@ onMounted(async () => {
                   Tahun ajaran
                   <select
                     v-model="selectedAcademicYearId"
-                    class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-brand focus:bg-white"
+                    class="mt-2 w-full rounded-lg border border-border bg-surface-subtle px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-brand focus:bg-surface"
                     :disabled="yearsLoading || academicYears.length === 0"
                     @change="handleAcademicYearChange"
                   >
@@ -703,7 +703,7 @@ onMounted(async () => {
                   Semester
                   <select
                     v-model="selectedTermId"
-                    class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-brand focus:bg-white"
+                    class="mt-2 w-full rounded-lg border border-border bg-surface-subtle px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-brand focus:bg-surface"
                     :disabled="termsLoading || terms.length === 0"
                     @change="handleTermChange"
                   >
@@ -721,7 +721,7 @@ onMounted(async () => {
                   Kelas
                   <select
                     v-model="selectedClassId"
-                    class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-brand focus:bg-white"
+                    class="mt-2 w-full rounded-lg border border-border bg-surface-subtle px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-brand focus:bg-surface"
                     :disabled="classesLoading || classes.length === 0"
                     @change="handleClassChange"
                   >
@@ -765,26 +765,26 @@ onMounted(async () => {
                 </div>
                 <p
                   v-else-if="academicYears.length === 0"
-                  class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-muted"
+                  class="rounded-lg bg-surface-subtle px-3 py-2 text-muted"
                 >
                   Belum ada tahun ajaran.
                 </p>
                 <p
                   v-else-if="selectedAcademicYearId && terms.length === 0"
-                  class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-muted"
+                  class="rounded-lg bg-surface-subtle px-3 py-2 text-muted"
                 >
                   Belum ada semester untuk tahun ajaran ini.
                 </p>
                 <p
                   v-else-if="selectedTermId && classes.length === 0"
-                  class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-muted"
+                  class="rounded-lg bg-surface-subtle px-3 py-2 text-muted"
                 >
                   Belum ada kelas untuk semester ini.
                 </p>
               </div>
             </section>
 
-            <section class="rounded-xl border border-border bg-white shadow-sm p-5">
+            <section class="rounded-xl border border-border bg-surface shadow-sm p-5">
               <div class="flex items-start justify-between gap-3">
                 <div>
                   <p
@@ -811,7 +811,7 @@ onMounted(async () => {
                   Mata pelajaran
                   <select
                     v-model="selectedSubjectId"
-                    class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-brand focus:bg-white"
+                    class="mt-2 w-full rounded-lg border border-border bg-surface-subtle px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-brand focus:bg-surface"
                     :disabled="
                       subjectsLoading || availableSubjects.length === 0
                     "
@@ -831,7 +831,7 @@ onMounted(async () => {
                   Guru pengampu
                   <select
                     v-model="selectedTeacherSchoolUserId"
-                    class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-brand focus:bg-white"
+                    class="mt-2 w-full rounded-lg border border-border bg-surface-subtle px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-brand focus:bg-surface"
                     :disabled="
                       enrollmentsLoading ||
                       membersLoading ||
@@ -852,7 +852,7 @@ onMounted(async () => {
 
                 <div
                   v-if="selectedSubject || selectedTeacher"
-                  class="rounded-lg bg-[#fbfaf8] p-3"
+                  class="rounded-lg bg-surface-subtle p-3"
                 >
                   <p
                     class="eyebrow-muted"
@@ -898,7 +898,7 @@ onMounted(async () => {
                   </div>
                   <p
                     v-else-if="subjects.length === 0"
-                    class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-muted"
+                    class="rounded-lg bg-surface-subtle px-3 py-2 text-muted"
                   >
                     Belum ada mata pelajaran pada Struktur Akademik.
                   </p>
@@ -906,7 +906,7 @@ onMounted(async () => {
                     v-else-if="
                       selectedClassId && availableSubjects.length === 0
                     "
-                    class="rounded-lg bg-[#fbfaf8] px-3 py-2 text-muted"
+                    class="rounded-lg bg-surface-subtle px-3 py-2 text-muted"
                   >
                     Semua mata pelajaran sudah ditugaskan untuk kelas ini.
                   </p>
@@ -933,7 +933,7 @@ onMounted(async () => {
                     v-else-if="
                       selectedClassId && teacherCandidates.length === 0
                     "
-                    class="rounded-lg bg-warning-soft px-3 py-2 text-[#92400e]"
+                    class="rounded-lg bg-warning-soft px-3 py-2 text-warning-hover"
                   >
                     Belum ada guru aktif yang dapat ditugaskan pada kelas ini.
                   </p>
@@ -961,10 +961,10 @@ onMounted(async () => {
 
       <div
         v-if="subjectClasses.length > 0"
-        class="mt-5 flex items-center gap-4 rounded-xl border border-success-line bg-[#f0fdf4] p-5"
+        class="mt-5 flex items-center gap-4 rounded-xl border border-success-line bg-success-soft p-5"
       >
         <span
-          class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#dcfce7] text-[#059669]"
+          class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#dcfce7] text-success"
         >
           <PhChecks :size="22" weight="duotone" />
         </span>

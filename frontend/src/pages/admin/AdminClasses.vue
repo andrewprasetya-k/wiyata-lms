@@ -268,8 +268,8 @@ onMounted(async () => {
 </script>
 
 <template>
-  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
-    <header class="border-b border-border bg-white">
+  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-background">
+    <header class="border-b border-border bg-surface">
       <div
         class="flex min-w-0 flex-col gap-3 px-5 py-5 sm:px-6 lg:flex-row lg:items-end lg:justify-between lg:px-8"
       >
@@ -289,7 +289,7 @@ onMounted(async () => {
             {{ currentSchool.schoolName || "Sekolah belum tersedia" }}
           </span>
           <span
-            class="rounded-lg bg-[#f3f1ec] px-3 py-2 font-medium text-muted"
+            class="rounded-lg bg-surface-strong px-3 py-2 font-medium text-muted"
           >
             {{ currentSchool.schoolCode || "Kode belum tersedia" }}
           </span>
@@ -311,7 +311,7 @@ onMounted(async () => {
 
       <div class="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
         <section
-          class="order-2 min-w-0 rounded-xl border border-border bg-white shadow-sm lg:order-1"
+          class="order-2 min-w-0 rounded-xl border border-border bg-surface shadow-sm lg:order-1"
         >
           <div
             class="flex flex-col gap-3 border-b border-border p-5 sm:flex-row sm:items-start sm:justify-between"
@@ -346,7 +346,7 @@ onMounted(async () => {
               <div
                 v-for="item in 3"
                 :key="item"
-                class="h-28 animate-pulse rounded-lg bg-[#fbfaf8]"
+                class="h-28 animate-pulse rounded-lg bg-surface-subtle"
               />
             </div>
 
@@ -367,7 +367,7 @@ onMounted(async () => {
               </p>
               <button
                 type="button"
-                class="mt-4 inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
+                class="mt-4 inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground-secondary transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
                 @click="loadClasses"
               >
                 Coba lagi
@@ -376,10 +376,10 @@ onMounted(async () => {
 
             <div
               v-else-if="!selectedTermId"
-              class="rounded-lg bg-[#fbfaf8] px-5 py-8 text-center"
+              class="rounded-lg bg-surface-subtle px-5 py-8 text-center"
             >
               <PhCalendarBlank
-                class="mx-auto h-7 w-7 text-[#9ca3af]"
+                class="mx-auto h-7 w-7 text-muted"
                 weight="duotone"
               />
               <h3 class="mt-3 text-sm font-semibold text-foreground">
@@ -392,10 +392,10 @@ onMounted(async () => {
 
             <div
               v-else-if="classes.length === 0"
-              class="rounded-lg bg-[#fbfaf8] px-5 py-8 text-center"
+              class="rounded-lg bg-surface-subtle px-5 py-8 text-center"
             >
               <PhBookOpen
-                class="mx-auto h-7 w-7 text-[#9ca3af]"
+                class="mx-auto h-7 w-7 text-muted"
                 weight="duotone"
               />
               <h3 class="mt-3 text-sm font-semibold text-foreground">
@@ -416,7 +416,7 @@ onMounted(async () => {
                 <template v-if="editingClassId === classItem.classId">
                   <div class="flex min-w-0 flex-wrap items-center gap-2">
                     <span
-                      class="rounded-lg bg-[#f3f1ec] px-2 py-1 text-[11px] font-medium text-muted"
+                      class="rounded-lg bg-surface-strong px-2 py-1 text-[11px] font-medium text-muted"
                     >
                       {{ classItem.classCode }}
                     </span>
@@ -424,8 +424,8 @@ onMounted(async () => {
                       class="rounded-lg px-2.5 py-1 text-[11px] font-medium"
                       :class="
                         classItem.isActive
-                          ? 'bg-[#f0fdf4] text-[#059669]'
-                          : 'bg-[#f3f1ec] text-muted'
+                          ? 'bg-success-soft text-success'
+                          : 'bg-surface-strong text-muted'
                       "
                     >
                       {{ classItem.isActive ? "Aktif" : "Nonaktif" }}
@@ -437,7 +437,7 @@ onMounted(async () => {
                       <input
                         v-model="editForm.classTitle"
                         type="text"
-                        class="mt-1.5 w-full rounded-lg border border-border bg-[#fbfaf8] px-3 py-2 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-brand focus:bg-white"
+                        class="mt-1.5 w-full rounded-lg border border-border bg-surface-subtle px-3 py-2 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:bg-surface"
                       />
                     </label>
                     <label class="block text-xs font-medium text-muted">
@@ -445,7 +445,7 @@ onMounted(async () => {
                       <textarea
                         v-model="editForm.classDesc"
                         rows="2"
-                        class="mt-1.5 w-full resize-none rounded-lg border border-border bg-[#fbfaf8] px-3 py-2 text-sm leading-6 text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-brand focus:bg-white"
+                        class="mt-1.5 w-full resize-none rounded-lg border border-border bg-surface-subtle px-3 py-2 text-sm leading-6 text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:bg-surface"
                       />
                     </label>
                     <InlineFormError :message="editFormError" />
@@ -461,7 +461,7 @@ onMounted(async () => {
                       </button>
                       <button
                         type="button"
-                        class="inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-2 text-xs font-medium text-[#374151] transition hover:border-danger hover:text-danger disabled:cursor-not-allowed disabled:opacity-60"
+                        class="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-2 text-xs font-medium text-foreground-secondary transition hover:border-danger hover:text-danger disabled:cursor-not-allowed disabled:opacity-60"
                         :disabled="isSavingEdit"
                         @click="cancelEdit"
                       >
@@ -485,7 +485,7 @@ onMounted(async () => {
                           {{ classItem.classTitle }}
                         </h3>
                         <span
-                          class="rounded-lg bg-[#f3f1ec] px-2 py-1 text-[11px] font-medium text-muted"
+                          class="rounded-lg bg-surface-strong px-2 py-1 text-[11px] font-medium text-muted"
                         >
                           {{ classItem.classCode }}
                         </span>
@@ -502,8 +502,8 @@ onMounted(async () => {
                       class="shrink-0 self-start rounded-lg px-2.5 py-1 text-[11px] font-medium"
                       :class="
                         classItem.isActive
-                          ? 'bg-[#f0fdf4] text-[#059669]'
-                          : 'bg-[#f3f1ec] text-muted'
+                          ? 'bg-success-soft text-success'
+                          : 'bg-surface-strong text-muted'
                       "
                     >
                       {{ classItem.isActive ? "Aktif" : "Nonaktif" }}
@@ -511,20 +511,20 @@ onMounted(async () => {
                   </div>
 
                   <dl
-                    class="mt-3 grid min-w-0 gap-x-5 gap-y-2 rounded-lg bg-[#fbfaf8] p-3 text-xs sm:grid-cols-2"
+                    class="mt-3 grid min-w-0 gap-x-5 gap-y-2 rounded-lg bg-surface-subtle p-3 text-xs sm:grid-cols-2"
                   >
                     <div class="min-w-0">
-                      <dt class="text-[#9ca3af]">Semester</dt>
+                      <dt class="text-muted">Semester</dt>
                       <dd
-                        class="mt-0.5 wrap-break-word text-[#374151]"
+                        class="mt-0.5 wrap-break-word text-foreground-secondary"
                       >
                         {{ classItem.termName || selectedTerm?.termName || "-" }}
                       </dd>
                     </div>
                     <div class="min-w-0">
-                      <dt class="text-[#9ca3af]">Tahun ajaran</dt>
+                      <dt class="text-muted">Tahun ajaran</dt>
                       <dd
-                        class="mt-0.5 wrap-break-word text-[#374151]"
+                        class="mt-0.5 wrap-break-word text-foreground-secondary"
                       >
                         {{
                           classItem.academicYearName ||
@@ -534,17 +534,17 @@ onMounted(async () => {
                       </dd>
                     </div>
                     <div class="min-w-0">
-                      <dt class="text-[#9ca3af]">Dibuat</dt>
+                      <dt class="text-muted">Dibuat</dt>
                       <dd
-                        class="mt-0.5 wrap-break-word text-[#374151]"
+                        class="mt-0.5 wrap-break-word text-foreground-secondary"
                       >
                         {{ formatDateTime(classItem.createdAt) }}
                       </dd>
                     </div>
                     <div class="min-w-0">
-                      <dt class="text-[#9ca3af]">Dibuat oleh</dt>
+                      <dt class="text-muted">Dibuat oleh</dt>
                       <dd
-                        class="mt-0.5 wrap-break-word text-[#374151]"
+                        class="mt-0.5 wrap-break-word text-foreground-secondary"
                       >
                         {{ classItem.creatorName || "Tidak tersedia" }}
                       </dd>
@@ -561,7 +561,7 @@ onMounted(async () => {
                     </RouterLink>
                     <button
                       type="button"
-                      class="inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-medium text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
+                      class="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground-secondary transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
                       :disabled="togglingClassId === classItem.classId"
                       @click="startEdit(classItem)"
                     >
@@ -573,8 +573,8 @@ onMounted(async () => {
                       class="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition disabled:cursor-not-allowed disabled:opacity-60"
                       :class="
                         classItem.isActive
-                          ? 'border-danger-line bg-white text-danger hover:bg-danger-soft'
-                          : 'border-success-line bg-white text-[#059669] hover:bg-[#f0fdf4]'
+                          ? 'border-danger-line bg-surface text-danger hover:bg-danger-soft'
+                          : 'border-success-line bg-surface text-success hover:bg-success-soft'
                       "
                       :disabled="togglingClassId === classItem.classId"
                       @click="toggleActive(classItem)"
@@ -601,7 +601,7 @@ onMounted(async () => {
 
         <aside class="order-1 min-w-0 lg:order-2">
           <div class="space-y-5 lg:sticky lg:top-6">
-            <section class="rounded-xl border border-border bg-white shadow-sm p-5">
+            <section class="rounded-xl border border-border bg-surface shadow-sm p-5">
               <div class="flex items-start justify-between gap-3">
                 <div>
                   <p
@@ -625,7 +625,7 @@ onMounted(async () => {
                   Tahun ajaran
                   <select
                     v-model="selectedAcademicYearId"
-                    class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-brand focus:bg-white"
+                    class="mt-2 w-full rounded-lg border border-border bg-surface-subtle px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-brand focus:bg-surface"
                     :disabled="yearsLoading || academicYears.length === 0"
                     @change="handleAcademicYearChange"
                   >
@@ -645,7 +645,7 @@ onMounted(async () => {
                   Semester
                   <select
                     v-model="selectedTermId"
-                    class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-brand focus:bg-white"
+                    class="mt-2 w-full rounded-lg border border-border bg-surface-subtle px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-brand focus:bg-surface"
                     :disabled="termsLoading || terms.length === 0"
                     @change="handleTermChange"
                   >
@@ -672,7 +672,7 @@ onMounted(async () => {
                   <p class="text-muted">Belum ada tahun ajaran.</p>
                   <RouterLink
                     to="/admin/academic-years"
-                    class="inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-2 text-xs font-medium text-brand transition hover:border-brand hover:bg-brand-soft"
+                    class="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-2 text-xs font-medium text-brand transition hover:border-brand hover:bg-brand-soft"
                   >
                     Buka Struktur Akademik
                     <PhArrowRight :size="13" />
@@ -692,7 +692,7 @@ onMounted(async () => {
                 </p>
               </div>
 
-              <div class="mt-4 rounded-lg bg-[#fbfaf8] p-3">
+              <div class="mt-4 rounded-lg bg-surface-subtle p-3">
                 <p
                   class="eyebrow-muted"
                 >
@@ -709,7 +709,7 @@ onMounted(async () => {
               </div>
             </section>
 
-            <section class="rounded-xl border border-border bg-white shadow-sm p-5">
+            <section class="rounded-xl border border-border bg-surface shadow-sm p-5">
               <div class="flex items-start justify-between gap-3">
                 <div>
                   <p
@@ -735,7 +735,7 @@ onMounted(async () => {
                     v-model="classForm.classCode"
                     type="text"
                     placeholder="Contoh: X-IPA-1"
-                    class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-brand focus:bg-white"
+                    class="mt-2 w-full rounded-lg border border-border bg-surface-subtle px-3.5 py-2.5 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:bg-surface"
                   />
                 </label>
                 <label class="block text-xs font-medium text-muted">
@@ -744,7 +744,7 @@ onMounted(async () => {
                     v-model="classForm.classTitle"
                     type="text"
                     placeholder="Nama kelas"
-                    class="mt-2 w-full rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-brand focus:bg-white"
+                    class="mt-2 w-full rounded-lg border border-border bg-surface-subtle px-3.5 py-2.5 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:bg-surface"
                   />
                 </label>
                 <label class="block text-xs font-medium text-muted">
@@ -753,7 +753,7 @@ onMounted(async () => {
                     v-model="classForm.classDesc"
                     rows="3"
                     placeholder="Deskripsi singkat, opsional"
-                    class="mt-2 w-full resize-none rounded-lg border border-border bg-[#fbfaf8] px-3.5 py-2.5 text-sm leading-6 text-foreground outline-none transition placeholder:text-[#9ca3af] focus:border-brand focus:bg-white"
+                    class="mt-2 w-full resize-none rounded-lg border border-border bg-surface-subtle px-3.5 py-2.5 text-sm leading-6 text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:bg-surface"
                   />
                 </label>
                 <InlineFormError :message="classFormError" />
@@ -776,7 +776,7 @@ onMounted(async () => {
       <RouterLink
         v-if="classes.length > 0"
         to="/admin/enrollments"
-        class="mt-5 flex items-center justify-between gap-4 rounded-xl border border-border bg-white shadow-sm p-5 transition hover:border-brand hover:shadow-sm"
+        class="mt-5 flex items-center justify-between gap-4 rounded-xl border border-border bg-surface shadow-sm p-5 transition hover:border-brand hover:shadow-sm"
       >
         <div>
           <p class="eyebrow">

@@ -66,10 +66,10 @@ const statCards = computed(() => [
     to: "/teacher/submissions",
     colorIcon: hasPendingReviews.value
       ? "bg-warning-soft text-[#ea580c]"
-      : "bg-[#f0fdf4] text-[#059669]",
+      : "bg-success-soft text-success",
     colorValue: hasPendingReviews.value ? "text-[#ea580c]" : "text-foreground",
     border: hasPendingReviews.value
-      ? "border-[#fed7aa] hover:border-[#fb923c]"
+      ? "border-warning-line hover:border-[#fb923c]"
       : "border-border hover:border-success-line",
   },
   {
@@ -139,12 +139,12 @@ onMounted(() => {
 
 <template>
   <main
-    class="grid min-h-screen min-w-0 flex-1 grid-cols-1 overflow-x-hidden bg-[#f8f7f4] xl:grid-cols-[minmax(0,1fr)_300px]"
+    class="grid min-h-screen min-w-0 flex-1 grid-cols-1 overflow-x-hidden bg-background xl:grid-cols-[minmax(0,1fr)_300px]"
   >
     <!-- Main content -->
     <section class="min-w-0">
       <!-- Header -->
-      <header class="border-b border-border bg-white">
+      <header class="border-b border-border bg-surface">
         <div
           class="flex min-w-0 flex-col gap-3 px-5 py-5 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8"
         >
@@ -164,7 +164,7 @@ onMounted(() => {
           class="flex min-h-[55vh] items-center justify-center"
         >
           <article
-            class="w-full max-w-xl rounded-xl border border-border bg-white shadow-sm p-8 text-center"
+            class="w-full max-w-xl rounded-xl border border-border bg-surface shadow-sm p-8 text-center"
           >
             <div
               class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-warning-soft text-[#ea580c]"
@@ -174,7 +174,7 @@ onMounted(() => {
             <h2 class="mt-3 text-lg font-medium text-foreground">
               Konteks guru belum tersedia
             </h2>
-            <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-[#7a7385]">
+            <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-muted">
               Pastikan akun guru memiliki akses aktif pada sekolah yang sedang
               digunakan.
             </p>
@@ -188,7 +188,7 @@ onMounted(() => {
               <div
                 v-for="i in 3"
                 :key="i"
-                class="h-28 animate-pulse rounded-xl border border-border bg-white shadow-sm"
+                class="h-28 animate-pulse rounded-xl border border-border bg-surface shadow-sm"
               />
             </template>
             <template v-else>
@@ -197,7 +197,7 @@ onMounted(() => {
                 v-for="card in statCards"
                 :key="card.label"
                 v-bind="card.to ? { to: card.to } : {}"
-                class="group rounded-xl border bg-white shadow-sm p-4 transition"
+                class="group rounded-xl border bg-surface shadow-sm p-4 transition"
                 :class="[
                   card.border,
                   card.to ? 'hover:-translate-y-0.5 hover:shadow-md' : '',
@@ -233,7 +233,7 @@ onMounted(() => {
           <RouterLink
             v-if="!loading && hasPendingReviews"
             to="/teacher/submissions"
-            class="group flex items-center gap-4 rounded-xl border border-[#fed7aa] bg-warning-soft px-5 py-4 transition hover:border-[#fb923c] hover:bg-[#ffedd5]"
+            class="group flex items-center gap-4 rounded-xl border border-warning-line bg-warning-soft px-5 py-4 transition hover:border-[#fb923c] hover:bg-[#ffedd5]"
           >
             <div
               class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#ea580c] text-white"
@@ -241,7 +241,7 @@ onMounted(() => {
               <PhClipboardText :size="20" weight="duotone" />
             </div>
             <div class="min-w-0 flex-1">
-              <p class="text-sm font-semibold text-[#9a3412]">
+              <p class="text-sm font-semibold text-warning">
                 {{ pendingReviews }} pengumpulan menunggu penilaian
               </p>
               <p class="mt-0.5 text-xs text-[#c2410c]">
@@ -269,7 +269,7 @@ onMounted(() => {
                 <p class="text-sm font-medium text-foreground">
                   Dashboard tidak dapat dimuat
                 </p>
-                <p class="mt-1 text-sm leading-6 text-[#7a7385]">
+                <p class="mt-1 text-sm leading-6 text-muted">
                   {{ errorMessage }}
                 </p>
                 <button
@@ -285,7 +285,7 @@ onMounted(() => {
 
           <!-- Class performance -->
           <section
-            class="rounded-xl border border-border bg-white shadow-sm p-5"
+            class="rounded-xl border border-border bg-surface shadow-sm p-5"
           >
             <div class="mb-4 flex items-center justify-between gap-3">
               <div>
@@ -309,7 +309,7 @@ onMounted(() => {
               <div
                 v-for="i in 4"
                 :key="i"
-                class="h-28 animate-pulse rounded-lg bg-[#f3f1ec]"
+                class="h-28 animate-pulse rounded-lg bg-surface-strong"
               />
             </div>
 
@@ -320,7 +320,7 @@ onMounted(() => {
               <article
                 v-for="item in summary.classPerformance"
                 :key="`${item.classId}-${item.subjectName}`"
-                class="min-w-0 rounded-lg bg-[#fbfaf8] p-4"
+                class="min-w-0 rounded-lg bg-surface-subtle p-4"
               >
                 <div class="flex min-w-0 items-start gap-3">
                   <div
@@ -349,18 +349,18 @@ onMounted(() => {
                   class="mt-4 grid grid-cols-3 gap-2 border-t border-border pt-3 text-xs"
                 >
                   <div>
-                    <dt class="text-[#9ca3af]">Siswa</dt>
+                    <dt class="text-muted">Siswa</dt>
                     <dd class="mt-1 font-semibold text-foreground">
                       {{ item.totalStudents }}
                     </dd>
                   </div>
                   <div>
-                    <dt class="text-[#9ca3af]">Terkumpul</dt>
+                    <dt class="text-muted">Terkumpul</dt>
                     <dd
                       class="mt-1 font-semibold"
                       :class="
                         item.submissionRate >= 80
-                          ? 'text-[#059669]'
+                          ? 'text-success'
                           : item.submissionRate >= 50
                             ? 'text-[#ea580c]'
                             : 'text-danger'
@@ -370,7 +370,7 @@ onMounted(() => {
                     </dd>
                   </div>
                   <div>
-                    <dt class="text-[#9ca3af]">Rata-rata</dt>
+                    <dt class="text-muted">Rata-rata</dt>
                     <dd class="mt-1 font-semibold text-foreground">
                       {{ item.averageScore.toFixed(1) }}
                     </dd>
@@ -379,7 +379,7 @@ onMounted(() => {
               </article>
             </div>
 
-            <div v-else class="rounded-lg bg-[#fbfaf8] px-4 py-8 text-center">
+            <div v-else class="rounded-lg bg-surface-subtle px-4 py-8 text-center">
               <PhChalkboardTeacher
                 class="mx-auto h-7 w-7 text-[#d1d5db]"
                 weight="duotone"
@@ -393,7 +393,7 @@ onMounted(() => {
               </p>
               <RouterLink
                 to="/teacher/subjects"
-                class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-2 text-xs font-medium text-brand transition hover:border-brand hover:bg-brand-soft"
+                class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-2 text-xs font-medium text-brand transition hover:border-brand hover:bg-brand-soft"
               >
                 Lihat mata pelajaran
                 <PhArrowRight :size="13" />
@@ -406,7 +406,7 @@ onMounted(() => {
 
     <!-- Right sidebar -->
     <aside
-      class="min-w-0 border-t border-border bg-[#f8f7f4] xl:sticky xl:top-0 xl:h-dvh xl:min-h-0 xl:overflow-y-auto xl:border-l xl:border-t-0 xl:bg-white"
+      class="min-w-0 border-t border-border bg-background xl:sticky xl:top-0 xl:h-dvh xl:min-h-0 xl:overflow-y-auto xl:border-l xl:border-t-0 xl:bg-surface"
     >
       <div class="flex flex-col gap-4 p-5">
         <AcademicActivityCard

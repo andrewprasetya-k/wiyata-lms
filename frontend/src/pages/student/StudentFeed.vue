@@ -122,8 +122,8 @@ function getInitials(name?: string) {
 </script>
 
 <template>
-  <main class="min-h-screen max--screen flex-1 bg-[#f8f7f4]">
-    <header class="border-b border-border bg-white">
+  <main class="min-h-screen max--screen flex-1 bg-background">
+    <header class="border-b border-border bg-surface">
       <div class="px-5 py-5 sm:px-6 lg:px-8">
         <div class="flex min-w-0 items-center gap-2 text-xs text-muted">
           <RouterLink
@@ -167,7 +167,7 @@ function getInitials(name?: string) {
         <div
           v-for="item in 3"
           :key="item"
-          class="h-48 animate-pulse rounded-xl border border-border bg-white"
+          class="h-48 animate-pulse rounded-xl border border-border bg-surface"
         />
       </div>
     </section>
@@ -189,7 +189,7 @@ function getInitials(name?: string) {
             <h2 class="text-base font-medium text-foreground">
               Feed kelas tidak dapat dimuat
             </h2>
-            <p class="mt-1 text-sm leading-6 text-[#7a7385]">
+            <p class="mt-1 text-sm leading-6 text-muted">
               {{ errorMessage }}
             </p>
             <button
@@ -210,7 +210,7 @@ function getInitials(name?: string) {
     >
       <div class="min-w-0">
         <div
-          class="mb-4 flex min-w-0 items-center justify-between gap-3 rounded-xl border border-border bg-white px-4 py-3"
+          class="mb-4 flex min-w-0 items-center justify-between gap-3 rounded-xl border border-border bg-surface px-4 py-3"
         >
           <div class="flex min-w-0 items-center gap-3">
             <span
@@ -221,7 +221,7 @@ function getInitials(name?: string) {
               <p class="truncate text-sm font-medium text-foreground">
                 {{ classTitle }}
               </p>
-              <p class="mt-0.5 text-[11px] text-[#9ca3af]">
+              <p class="mt-0.5 text-[11px] text-muted">
                 Pengumuman terbaru ditampilkan lebih dulu.
               </p>
             </div>
@@ -235,7 +235,7 @@ function getInitials(name?: string) {
 
         <article
           v-if="posts.length === 0"
-          class="rounded-xl border border-border bg-white p-8 text-center"
+          class="rounded-xl border border-border bg-surface p-8 text-center"
         >
           <div
             class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
@@ -256,7 +256,7 @@ function getInitials(name?: string) {
             v-for="post in posts"
             :key="post.feedId"
             :id="`post-${post.feedId}`"
-            class="min-w-0 rounded-xl border border-border bg-white p-4 sm:p-5 transition-shadow"
+            class="min-w-0 rounded-xl border border-border bg-surface p-4 sm:p-5 transition-shadow"
           >
             <div class="flex min-w-0 items-start gap-3">
               <div
@@ -273,34 +273,34 @@ function getInitials(name?: string) {
                     <p class="truncate text-sm font-medium text-foreground">
                       {{ post.creatorName || "Pengirim tidak tersedia" }}
                     </p>
-                    <p class="mt-0.5 text-[11px] text-[#9ca3af]">
+                    <p class="mt-0.5 text-[11px] text-muted">
                       {{ classTitle }}
                       <span v-if="classCode"> · {{ classCode }}</span>
                     </p>
                   </div>
-                  <span class="shrink-0 text-[11px] text-[#9ca3af]">
+                  <span class="shrink-0 text-[11px] text-muted">
                     {{ formatDateTime(post.createdAt) }}
                   </span>
                 </div>
 
                 <p
-                  class="mt-3 whitespace-pre-line wrap-break-word text-sm leading-7 text-[#374151]"
+                  class="mt-3 whitespace-pre-line wrap-break-word text-sm leading-7 text-foreground-secondary"
                 >
                   {{ post.content }}
                 </p>
 
                 <div
                   v-if="post.attachments?.length"
-                  class="mt-4 rounded-xl border border-border bg-[#fbfaf8] p-3"
+                  class="mt-4 rounded-xl border border-border bg-surface-subtle p-3"
                 >
                   <div class="flex items-center justify-between gap-3">
                     <p
-                      class="inline-flex items-center gap-1.5 text-xs font-medium text-[#374151]"
+                      class="inline-flex items-center gap-1.5 text-xs font-medium text-foreground-secondary"
                     >
                       <PhPaperclip :size="15" class="text-brand" />
                       Lampiran
                     </p>
-                    <span class="text-[11px] text-[#9ca3af]">
+                    <span class="text-[11px] text-muted">
                       {{ post.attachments.length }} file
                     </span>
                   </div>
@@ -323,14 +323,14 @@ function getInitials(name?: string) {
       </div>
 
       <!-- <aside class="min-w-0 space-y-3 lg:sticky lg:top-6">
-        <article class="rounded-xl border border-border bg-white p-4">
+        <article class="rounded-xl border border-border bg-surface p-4">
           <div class="flex items-center gap-2">
             <PhMegaphone :size="17" class="text-brand" weight="duotone" />
             <h2 class="text-sm font-medium text-foreground">Info kelas</h2>
           </div>
           <dl class="mt-3 divide-y divide-[#f0ede8]">
             <div class="flex items-start justify-between gap-4 py-3">
-              <dt class="text-xs text-[#7a7385]">Kelas aktif</dt>
+              <dt class="text-xs text-muted">Kelas aktif</dt>
               <dd
                 class="max-w-[58%] text-right text-xs font-medium text-foreground"
               >
@@ -338,7 +338,7 @@ function getInitials(name?: string) {
               </dd>
             </div>
             <div class="flex items-start justify-between gap-4 py-3">
-              <dt class="text-xs text-[#7a7385]">Pengumuman</dt>
+              <dt class="text-xs text-muted">Pengumuman</dt>
               <dd class="text-right text-xs font-medium text-foreground">
                 {{ posts.length }} post
               </dd>
@@ -372,7 +372,7 @@ function getInitials(name?: string) {
       class="flex min-h-[calc(100vh-109px)] items-center justify-center px-5 py-10"
     >
       <article
-        class="w-full max-w-xl rounded-xl border border-border bg-white p-8 text-center"
+        class="w-full max-w-xl rounded-xl border border-border bg-surface p-8 text-center"
       >
         <div
           class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
@@ -386,7 +386,7 @@ function getInitials(name?: string) {
           Feed kelas akan tersedia setelah kamu ditempatkan pada kelas aktif.
         </p>
         <RouterLink
-          class="mt-5 inline-flex items-center gap-2 rounded-lg border border-[#ddd8e4] px-4 py-2 text-sm font-medium text-brand transition hover:bg-brand-soft"
+          class="mt-5 inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium text-brand transition hover:bg-brand-soft"
           to="/student/subjects"
         >
           Lihat mata pelajaran

@@ -111,8 +111,8 @@ onMounted(loadGrades);
 </script>
 
 <template>
-  <main class="min-h-screen min-w-0 flex-1 bg-[#f8f7f4]">
-    <header class="border-b border-border bg-white">
+  <main class="min-h-screen min-w-0 flex-1 bg-background">
+    <header class="border-b border-border bg-surface">
       <div
         class="flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8"
       >
@@ -126,10 +126,10 @@ onMounted(loadGrades);
         </div>
 
         <div class="flex min-w-0 flex-col gap-2 sm:items-end">
-          <span class="text-[11px] text-[#9ca3af]">Kelas aktif</span>
+          <span class="text-[11px] text-muted">Kelas aktif</span>
           <div class="flex min-w-0 items-center gap-2">
             <div
-              class="flex min-w-0 items-center gap-2 rounded-lg border border-border bg-[#fbfaf8] px-3 py-2"
+              class="flex min-w-0 items-center gap-2 rounded-lg border border-border bg-surface-subtle px-3 py-2"
             >
               <div
                 class="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-brand text-[10px] font-medium text-white"
@@ -144,7 +144,7 @@ onMounted(loadGrades);
                     "Belum ada kelas aktif"
                   }}
                 </p>
-                <p class="truncate text-[10px] text-[#7a7385]">
+                <p class="truncate text-[10px] text-muted">
                   {{ schoolName }}
                 </p>
               </div>
@@ -152,7 +152,7 @@ onMounted(loadGrades);
             </div>
             <select
               v-if="activeClassStore.classes.length > 1"
-              class="min-w-0 rounded-lg border border-border bg-white px-3 py-2 text-xs text-[#3f3a4a] outline-none transition focus:border-brand"
+              class="min-w-0 rounded-lg border border-border bg-surface px-3 py-2 text-xs text-[#3f3a4a] outline-none transition focus:border-brand"
               :value="activeClassStore.activeClassId ?? ''"
               aria-label="Pilih kelas"
               @change="
@@ -178,14 +178,14 @@ onMounted(loadGrades);
           <div
             v-for="item in 4"
             :key="item"
-            class="h-24 animate-pulse rounded-xl border border-border bg-white"
+            class="h-24 animate-pulse rounded-xl border border-border bg-surface"
           />
         </div>
         <div class="space-y-3">
           <div
             v-for="item in 3"
             :key="item"
-            class="h-40 animate-pulse rounded-xl border border-border bg-white"
+            class="h-40 animate-pulse rounded-xl border border-border bg-surface"
           />
         </div>
       </section>
@@ -207,7 +207,7 @@ onMounted(loadGrades);
               <h2 class="text-base font-semibold text-foreground">
                 Nilai tidak dapat dimuat
               </h2>
-              <p class="mt-1 text-sm leading-6 text-[#7a7385]">
+              <p class="mt-1 text-sm leading-6 text-muted">
                 {{ errorMessage }}
               </p>
               <button
@@ -227,7 +227,7 @@ onMounted(loadGrades);
         class="flex min-h-[55vh] items-center justify-center"
       >
         <article
-          class="w-full max-w-xl rounded-xl border border-border bg-white p-8 text-center"
+          class="w-full max-w-xl rounded-xl border border-border bg-surface p-8 text-center"
         >
           <div
             class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
@@ -248,7 +248,7 @@ onMounted(loadGrades);
         class="flex min-h-[55vh] items-center justify-center"
       >
         <article
-          class="w-full max-w-xl rounded-xl border border-border bg-white p-8 text-center"
+          class="w-full max-w-xl rounded-xl border border-border bg-surface p-8 text-center"
         >
           <div
             class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
@@ -267,27 +267,27 @@ onMounted(loadGrades);
 
       <section v-else class="space-y-5">
         <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <article class="rounded-xl bg-white px-4 py-3">
+          <article class="rounded-xl bg-surface px-4 py-3">
             <div class="flex items-center justify-between gap-3">
-              <p class="text-xs text-[#7a7385]">Mata pelajaran</p>
+              <p class="text-xs text-muted">Mata pelajaran</p>
               <PhBookOpen :size="17" class="text-brand" weight="duotone" />
             </div>
             <p class="mt-2 text-2xl font-medium text-foreground">
               {{ gradebook?.summary.subjectCount ?? subjects.length }}
             </p>
           </article>
-          <article class="rounded-xl bg-white px-4 py-3">
+          <article class="rounded-xl bg-surface px-4 py-3">
             <div class="flex items-center justify-between gap-3">
-              <p class="text-xs text-[#7a7385]">Sudah dinilai</p>
+              <p class="text-xs text-muted">Sudah dinilai</p>
               <PhSealCheck :size="17" class="text-success" weight="duotone" />
             </div>
             <p class="mt-2 text-2xl font-medium text-success">
               {{ gradebook?.summary.gradedAssignmentCount ?? 0 }}
             </p>
           </article>
-          <article class="rounded-xl bg-white px-4 py-3">
+          <article class="rounded-xl bg-surface px-4 py-3">
             <div class="flex items-center justify-between gap-3">
-              <p class="text-xs text-[#7a7385]">Sudah dikumpulkan</p>
+              <p class="text-xs text-muted">Sudah dikumpulkan</p>
               <PhCheckCircle
                 :size="17"
                 class="text-brand"
@@ -299,10 +299,10 @@ onMounted(loadGrades);
             </p>
           </article>
           <article
-            class="rounded-xl border border-border bg-white shadow-sm px-4 py-3"
+            class="rounded-xl border border-border bg-surface shadow-sm px-4 py-3"
           >
             <div class="flex items-center justify-between gap-3">
-              <p class="text-xs text-[#7a7385]">Menunggu nilai</p>
+              <p class="text-xs text-muted">Menunggu nilai</p>
               <PhClock :size="17" class="text-warning" weight="duotone" />
             </div>
             <p class="mt-2 text-2xl font-semibold text-warning">
@@ -313,7 +313,7 @@ onMounted(loadGrades);
 
         <article
           v-if="!hasAssignments"
-          class="rounded-xl border border-border bg-white p-6 text-center"
+          class="rounded-xl border border-border bg-surface p-6 text-center"
         >
           <div
             class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
@@ -333,7 +333,7 @@ onMounted(loadGrades);
           <article
             v-for="subject in subjects"
             :key="subject.subjectClassId"
-            class="overflow-hidden rounded-xl border border-border bg-white shadow-sm"
+            class="overflow-hidden rounded-xl border border-border bg-surface shadow-sm"
           >
             <header
               class="flex min-w-0 flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between"
@@ -354,7 +354,7 @@ onMounted(loadGrades);
                   <h2 class="truncate text-sm font-semibold text-foreground">
                     {{ subject.subjectName || "Mata pelajaran" }}
                   </h2>
-                  <p class="mt-0.5 text-[11px] text-[#7a7385]">
+                  <p class="mt-0.5 text-[11px] text-muted">
                     {{ subject.subjectCode || "Kode belum tersedia" }}
                     · {{ subject.assignments.length }} tugas
                   </p>
@@ -365,7 +365,7 @@ onMounted(loadGrades);
                 class="flex shrink-0 items-center justify-between gap-4 sm:justify-end"
               >
                 <div class="text-right">
-                  <p class="text-[10px] uppercase tracking-wide text-[#9ca3af]">
+                  <p class="text-[10px] uppercase tracking-wide text-muted">
                     Rata-rata berbobot
                   </p>
                   <p class="mt-0.5 text-xl font-medium text-foreground">
@@ -382,7 +382,7 @@ onMounted(loadGrades);
             </header>
 
             <div
-              class="grid gap-2 border-y border-[#f0ede8] bg-[#fbfaf8] px-4 py-3 sm:grid-cols-3"
+              class="grid gap-2 border-y border-[#f0ede8] bg-surface-subtle px-4 py-3 sm:grid-cols-3"
             >
               <span class="text-xs text-success">
                 <strong class="font-medium">{{ subject.gradedCount }}</strong>
@@ -401,7 +401,7 @@ onMounted(loadGrades);
             </div>
 
             <div
-              class="border-[#f0ede8] bg-white px-4 py-3 text-xs leading-5 text-[#7a7385]"
+              class="border-[#f0ede8] bg-surface px-4 py-3 text-xs leading-5 text-muted"
             >
               <p
                 v-if="
@@ -420,7 +420,7 @@ onMounted(loadGrades);
 
             <div v-if="subject.assignments.length === 0" class="px-4 py-5">
               <p class="text-sm font-medium text-foreground">Belum ada tugas</p>
-              <p class="mt-1 text-sm leading-6 text-[#7a7385]">
+              <p class="mt-1 text-sm leading-6 text-muted">
                 Nilai akan muncul setelah guru membuat dan menilai tugas pada
                 mata pelajaran ini.
               </p>
@@ -444,12 +444,12 @@ onMounted(loadGrades);
                       {{ statusLabel(assignment) }}
                     </span>
                   </div>
-                  <p class="mt-1 text-xs text-[#7a7385]">
+                  <p class="mt-1 text-xs text-muted">
                     {{ assignment.categoryName || "Kategori belum tersedia" }}
                   </p>
 
                   <div
-                    class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-[#7a7385]"
+                    class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-muted"
                   >
                     <span class="inline-flex items-center gap-1.5">
                       <PhClock :size="13" />
@@ -478,9 +478,9 @@ onMounted(loadGrades);
 
                   <div
                     v-if="assignment.feedback"
-                    class="mt-3 rounded-lg bg-[#fbfaf8] px-3 py-2.5"
+                    class="mt-3 rounded-lg bg-surface-subtle px-3 py-2.5"
                   >
-                    <p class="text-[10px] font-medium text-[#7a7385]">
+                    <p class="text-[10px] font-medium text-muted">
                       Feedback
                     </p>
                     <p
@@ -492,9 +492,9 @@ onMounted(loadGrades);
                 </div>
 
                 <div
-                  class="flex items-center justify-between rounded-lg bg-[#fbfaf8] px-3 py-3 md:block md:text-right"
+                  class="flex items-center justify-between rounded-lg bg-surface-subtle px-3 py-3 md:block md:text-right"
                 >
-                  <p class="text-[10px] uppercase tracking-wide text-[#9ca3af]">
+                  <p class="text-[10px] uppercase tracking-wide text-muted">
                     Skor
                   </p>
                   <p class="text-lg font-medium text-foreground md:mt-1">
@@ -502,7 +502,7 @@ onMounted(loadGrades);
                   </p>
                   <p
                     v-if="assignment.assessorName"
-                    class="text-[11px] text-[#7a7385] md:mt-1"
+                    class="text-[11px] text-muted md:mt-1"
                   >
                     oleh {{ assignment.assessorName }}
                   </p>

@@ -35,7 +35,7 @@ const overviewCards = [
     description:
       "Super Admin menjaga akses platform. Operasional akademik tetap berada di area Admin Sekolah.",
     icon: PhShieldCheck,
-    tone: "bg-[#f3f1ec] text-muted",
+    tone: "bg-surface-strong text-muted",
   },
 ];
 
@@ -70,8 +70,8 @@ const quickActions = [
 </script>
 
 <template>
-  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-[#f8f7f4]">
-    <header class="border-b border-border bg-white">
+  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-background">
+    <header class="border-b border-border bg-surface">
       <div
         class="flex min-w-0 flex-col gap-3 px-5 py-5 sm:px-6 lg:flex-row lg:items-end lg:justify-between lg:px-8"
       >
@@ -104,7 +104,7 @@ const quickActions = [
     >
       <div class="flex min-w-0 flex-col gap-6">
         <section
-          class="rounded-xl border border-border bg-white p-5 shadow-sm"
+          class="rounded-xl border border-border bg-surface p-5 shadow-sm"
         >
           <p
             class="eyebrow"
@@ -124,7 +124,7 @@ const quickActions = [
           <article
             v-for="item in overviewCards"
             :key="item.title"
-            class="rounded-xl border border-border bg-white p-4 shadow-sm"
+            class="rounded-xl border border-border bg-surface p-4 shadow-sm"
           >
             <div
               class="flex h-10 w-10 items-center justify-center rounded-xl"
@@ -145,7 +145,7 @@ const quickActions = [
           class="grid gap-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]"
         >
           <article
-            class="rounded-xl border border-border bg-white p-5 shadow-sm"
+            class="rounded-xl border border-border bg-surface p-5 shadow-sm"
           >
             <div class="flex items-start justify-between gap-4">
               <div class="min-w-0">
@@ -175,7 +175,7 @@ const quickActions = [
                 >
                   {{ index + 1 }}
                 </span>
-                <p class="min-w-0 text-sm leading-6 text-[#374151]">
+                <p class="min-w-0 text-sm leading-6 text-foreground-secondary">
                   {{ item }}
                 </p>
               </div>
@@ -183,7 +183,7 @@ const quickActions = [
           </article>
 
           <article
-            class="rounded-xl border border-border bg-white p-5 shadow-sm"
+            class="rounded-xl border border-border bg-surface p-5 shadow-sm"
           >
             <p class="text-sm font-semibold text-foreground">
               Batas tanggung jawab
@@ -194,9 +194,9 @@ const quickActions = [
               area Admin Sekolah.
             </p>
             <div
-              class="mt-4 rounded-lg border border-[#fed7aa] bg-warning-soft px-4 py-3"
+              class="mt-4 rounded-lg border border-warning-line bg-warning-soft px-4 py-3"
             >
-              <p class="text-xs leading-5 text-[#9a3412]">
+              <p class="text-xs leading-5 text-warning">
                 Halaman sekolah dan akun global masih menggunakan navigasi yang
                 sudah ada. Implementasi operasionalnya akan dilakukan terpisah.
               </p>
@@ -207,7 +207,7 @@ const quickActions = [
 
       <aside class="flex min-w-0 flex-col gap-5">
         <section
-          class="rounded-xl border border-border bg-white p-5 shadow-sm"
+          class="rounded-xl border border-border bg-surface p-5 shadow-sm"
         >
           <p class="text-sm font-semibold text-foreground">Aksi cepat</p>
           <p class="mt-1 text-xs leading-5 text-muted">
@@ -219,7 +219,7 @@ const quickActions = [
               v-for="item in quickActions"
               :key="item.to"
               :to="item.to"
-              class="flex items-center gap-3 rounded-lg p-3 transition hover:bg-[#f3f1ec]"
+              class="flex items-center gap-3 rounded-lg p-3 transition hover:bg-surface-strong"
             >
               <span
                 class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fff4ee] text-[#ea580c]"
@@ -234,13 +234,13 @@ const quickActions = [
                   {{ item.description }}
                 </span>
               </span>
-              <PhArrowRight :size="16" class="shrink-0 text-[#9ca3af]" />
+              <PhArrowRight :size="16" class="shrink-0 text-muted" />
             </RouterLink>
           </div>
         </section>
 
         <section
-          class="rounded-xl border border-border bg-white p-5 shadow-sm"
+          class="rounded-xl border border-border bg-surface p-5 shadow-sm"
         >
           <p class="text-sm font-semibold text-foreground">
             Prinsip akses platform

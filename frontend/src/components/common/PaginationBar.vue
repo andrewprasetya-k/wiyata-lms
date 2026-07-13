@@ -38,19 +38,19 @@ function to() {
     <div class="flex items-center gap-2">
       <button
         type="button"
-        class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-white text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-40"
+        class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-surface text-foreground-secondary transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-40"
         :disabled="page <= 1"
         aria-label="Halaman sebelumnya"
         @click="emit('change', page - 1)"
       >
         <PhCaretLeft :size="14" weight="bold" />
       </button>
-      <span class="text-xs font-medium text-[#374151]">
+      <span class="text-xs font-medium text-foreground-secondary">
         {{ page }} / {{ totalPages }}
       </span>
       <button
         type="button"
-        class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-white text-[#374151] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-40"
+        class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-surface text-foreground-secondary transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-40"
         :disabled="page >= totalPages"
         aria-label="Halaman berikutnya"
         @click="emit('change', page + 1)"

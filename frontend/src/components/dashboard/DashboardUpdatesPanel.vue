@@ -52,7 +52,7 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
 
 <template>
   <section
-    class="flex min-h-0 flex-col bg-white"
+    class="flex min-h-0 flex-col bg-surface"
     aria-labelledby="updates-panel-title"
   >
     <div class="shrink-0 px-2">
@@ -74,7 +74,7 @@ function handleTabKeydown(event: KeyboardEvent, index: number) {
           :class="
             activeTab === tab.key
               ? 'border-brand text-brand'
-              : 'border-transparent text-[#7a7385] hover:text-foreground'
+              : 'border-transparent text-muted hover:text-foreground'
           "
           :aria-selected="activeTab === tab.key"
           :aria-controls="`updates-panel-${tab.key}`"

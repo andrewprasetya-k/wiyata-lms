@@ -229,8 +229,8 @@ async function handleWithdraw() {
 </script>
 
 <template>
-  <main class="min-h-screen min-w-0 flex-1 bg-[#f8f7f4]">
-    <header class="border-b border-border bg-white">
+  <main class="min-h-screen min-w-0 flex-1 bg-background">
+    <header class="border-b border-border bg-surface">
       <div
         class="flex min-w-0 items-center gap-2 px-5 py-5 text-xs text-muted sm:px-6 lg:px-8"
       >
@@ -266,14 +266,14 @@ async function handleWithdraw() {
     >
       <div class="space-y-4">
         <div
-          class="h-52 animate-pulse rounded-xl border border-border bg-white"
+          class="h-52 animate-pulse rounded-xl border border-border bg-surface"
         />
         <div
-          class="h-72 animate-pulse rounded-xl border border-border bg-white"
+          class="h-72 animate-pulse rounded-xl border border-border bg-surface"
         />
       </div>
       <div
-        class="h-96 animate-pulse rounded-xl border border-border bg-white"
+        class="h-96 animate-pulse rounded-xl border border-border bg-surface"
       />
     </section>
 
@@ -294,7 +294,7 @@ async function handleWithdraw() {
             <h1 class="text-base font-semibold text-foreground">
               Tidak bisa memuat tugas
             </h1>
-            <p class="mt-1 text-sm leading-6 text-[#7a7385]">
+            <p class="mt-1 text-sm leading-6 text-muted">
               {{ errorMessage }}
             </p>
             <button
@@ -314,7 +314,7 @@ async function handleWithdraw() {
       class="flex min-h-[calc(100vh-49px)] items-center justify-center px-5 py-10"
     >
       <article
-        class="w-full max-w-xl rounded-xl border border-border bg-white p-6 text-center"
+        class="w-full max-w-xl rounded-xl border border-border bg-surface p-6 text-center"
       >
         <div
           class="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-brand-soft text-brand"
@@ -324,7 +324,7 @@ async function handleWithdraw() {
         <h1 class="mt-4 text-base font-semibold text-foreground">
           Tugas tidak ditemukan
         </h1>
-        <p class="mt-1 text-sm leading-6 text-[#7a7385]">
+        <p class="mt-1 text-sm leading-6 text-muted">
           Tugas ini tidak tersedia atau sudah tidak dapat diakses.
         </p>
         <RouterLink
@@ -343,7 +343,7 @@ async function handleWithdraw() {
     >
       <div class="min-w-0 space-y-4">
         <article
-          class="rounded-xl border border-border bg-white shadow-sm p-5 sm:p-6"
+          class="rounded-xl border border-border bg-surface shadow-sm p-5 sm:p-6"
         >
           <div class="flex min-w-0 items-start gap-4">
             <div
@@ -361,7 +361,7 @@ async function handleWithdraw() {
                 </span>
                 <span
                   v-if="assignment.subjectName || assignment.subjectCode"
-                  class="rounded-full bg-[#f8f7f4] px-2.5 py-1 text-[11px] text-muted"
+                  class="rounded-full bg-background px-2.5 py-1 text-[11px] text-muted"
                 >
                   {{ assignment.subjectName || assignment.subjectCode }}
                 </span>
@@ -403,14 +403,14 @@ async function handleWithdraw() {
             >
               {{ assignment.assignmentDescription }}
             </p>
-            <p v-else class="mt-3 text-sm leading-6 text-[#7a7385]">
+            <p v-else class="mt-3 text-sm leading-6 text-muted">
               Instruksi tugas belum tersedia.
             </p>
           </div>
         </article>
 
         <article
-          class="rounded-xl border border-border bg-white shadow-sm p-5 sm:p-6"
+          class="rounded-xl border border-border bg-surface shadow-sm p-5 sm:p-6"
         >
           <div class="flex items-center gap-2">
             <PhPaperclip :size="18" class="text-brand" />
@@ -418,7 +418,7 @@ async function handleWithdraw() {
               Lampiran dari guru
             </h2>
           </div>
-          <p class="mt-1 text-xs leading-5 text-[#7a7385]">
+          <p class="mt-1 text-xs leading-5 text-muted">
             Buka file pendukung yang disertakan pada tugas ini.
           </p>
           <AttachmentPreviewList
@@ -438,7 +438,7 @@ async function handleWithdraw() {
       </div>
 
       <aside class="min-w-0 lg:sticky lg:top-6">
-        <article class="rounded-xl border border-border bg-white shadow-sm p-5">
+        <article class="rounded-xl border border-border bg-surface shadow-sm p-5">
           <div class="flex items-start justify-between gap-3">
             <div>
               <p class="text-sm font-semibold text-foreground">
@@ -471,10 +471,10 @@ async function handleWithdraw() {
           </div>
 
           <dl
-            class="mt-4 divide-y divide-[#f0ede8] rounded-lg bg-[#fbfaf8] px-3"
+            class="mt-4 divide-y divide-[#f0ede8] rounded-lg bg-surface-subtle px-3"
           >
             <div class="flex items-start justify-between gap-4 py-3">
-              <dt class="text-xs text-[#7a7385]">Tenggat</dt>
+              <dt class="text-xs text-muted">Tenggat</dt>
               <dd class="text-right text-xs font-medium text-foreground">
                 {{
                   assignment.deadline
@@ -487,7 +487,7 @@ async function handleWithdraw() {
               v-if="assignment.createdAt"
               class="flex items-start justify-between gap-4 py-3"
             >
-              <dt class="text-xs text-[#7a7385]">Dibuat</dt>
+              <dt class="text-xs text-muted">Dibuat</dt>
               <dd class="text-right text-xs font-medium text-foreground">
                 {{ formatDateTime(assignment.createdAt) }}
               </dd>
@@ -496,18 +496,18 @@ async function handleWithdraw() {
 
           <div
             v-if="isSubmissionLoading"
-            class="mt-4 h-28 animate-pulse rounded-xl bg-[#fbfaf8]"
+            class="mt-4 h-28 animate-pulse rounded-xl bg-surface-subtle"
           />
 
           <div
             v-else-if="submissionError"
             class="mt-4 rounded-xl bg-danger-soft p-4"
           >
-            <p class="text-sm leading-6 text-[#b42318]">
+            <p class="text-sm leading-6 text-danger">
               {{ submissionError }}
             </p>
             <button
-              class="mt-3 rounded-lg bg-white px-3 py-2 text-xs font-medium text-brand transition hover:bg-brand-soft"
+              class="mt-3 rounded-lg bg-surface px-3 py-2 text-xs font-medium text-brand transition hover:bg-brand-soft"
               type="button"
               @click="loadMySubmissionStatus"
             >
@@ -555,7 +555,7 @@ async function handleWithdraw() {
                 submissionStatus.status === 'graded' &&
                 submissionStatus.submission?.assessment
               "
-              class="rounded-xl border border-[#c7d2fe] bg-brand-soft p-4"
+              class="rounded-xl border border-brand-line bg-brand-soft p-4"
             >
               <p class="text-xs font-medium text-brand">Nilai dan feedback</p>
               <p class="mt-2 text-3xl font-medium text-foreground">
@@ -563,11 +563,11 @@ async function handleWithdraw() {
               </p>
               <p
                 v-if="submissionStatus.submission.assessment.feedback"
-                class="mt-3 border-t border-[#c7d2fe] pt-3 whitespace-pre-line wrap-break-word text-sm leading-6 text-[#4a4356]"
+                class="mt-3 border-t border-brand-line pt-3 whitespace-pre-line wrap-break-word text-sm leading-6 text-[#4a4356]"
               >
                 {{ submissionStatus.submission.assessment.feedback }}
               </p>
-              <p class="mt-3 text-[11px] leading-5 text-[#7a7385]">
+              <p class="mt-3 text-[11px] leading-5 text-muted">
                 Dinilai oleh
                 {{
                   submissionStatus.submission.assessment.assessorName || "Guru"
@@ -596,7 +596,7 @@ async function handleWithdraw() {
 
             <button
               v-if="canWithdraw"
-              class="w-full rounded-lg border border-border px-3 py-2 text-xs font-medium text-[#4a4356] transition hover:bg-[#fbfaf8] disabled:cursor-not-allowed disabled:opacity-60"
+              class="w-full rounded-lg bg-danger cursor-pointer px-3 py-2 text-xs font-medium text-white transition hover:bg-danger-hover disabled:cursor-not-allowed disabled:opacity-60"
               type="button"
               :disabled="isWithdrawing"
               @click="handleWithdraw"
@@ -607,11 +607,11 @@ async function handleWithdraw() {
 
           <template v-else>
             <div
-              class="mt-4 rounded-xl border border-dashed border-[#d8d2c8] bg-[#fbfaf8] p-4 text-center"
+              class="mt-4 rounded-xl border border-dashed border-border bg-surface-subtle p-4 text-center"
             >
               <PhPaperclip
                 :size="24"
-                class="mx-auto text-[#9ca3af]"
+                class="mx-auto text-muted"
                 weight="duotone"
               />
               <p class="mt-2 text-sm font-medium text-[#3f3a4a]">
@@ -621,7 +621,7 @@ async function handleWithdraw() {
                 Kamu dapat memilih lebih dari satu file.
               </p>
               <label
-                class="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-lg border border-[#ddd8e4] bg-white px-3 py-2 text-xs font-medium text-brand transition hover:bg-brand-soft"
+                class="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-xs font-medium text-brand transition hover:bg-brand-soft"
               >
                 <PhPaperclip :size="16" />
                 Pilih file
@@ -638,7 +638,7 @@ async function handleWithdraw() {
               <div
                 v-for="(file, index) in selectedFiles"
                 :key="`${file.name}-${file.size}-${index}`"
-                class="flex max-w-full items-center justify-between gap-3 overflow-hidden rounded-lg border border-border bg-white px-3 py-3"
+                class="flex max-w-full items-center justify-between gap-3 overflow-hidden rounded-lg border border-border bg-surface px-3 py-3"
               >
                 <div class="min-w-0 flex-1 overflow-hidden">
                   <p class="truncate text-xs font-medium text-[#3f3a4a]">
@@ -661,7 +661,7 @@ async function handleWithdraw() {
 
             <p
               v-if="submitError"
-              class="mt-4 rounded-lg bg-danger-soft p-3 text-sm leading-5 text-[#b42318]"
+              class="mt-4 rounded-lg bg-danger-soft p-3 text-sm leading-5 text-danger"
             >
               {{ submitError }}
             </p>
