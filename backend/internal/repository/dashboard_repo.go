@@ -217,28 +217,28 @@ func (r *dashboardRepository) GetClassPerformance(schoolUserID string) ([]map[st
 func (r *dashboardRepository) GetSchoolStatistics(schoolID string) (map[string]int, error) {
 	stats := make(map[string]int)
 
-	// The student/teacher counts require different JOIN shapes (teacher requires
-	// an extra subject_classes join), so they can't share one FROM/FILTER clause.
-	// They're combined into one round-trip via independent scalar subqueries
-	// instead; the two classes counts do share the same FROM, so those use
-	// COUNT(*) FILTER (WHERE ...) directly.
 	var totalStudents, totalTeachers, totalClasses, activeClasses int64
+
+	// totalStudents and totalTeachers each need a different JOIN shape (teacher requires an extra subject_classes join to link teacher to class)
+	r.db.Table("edv.school_users su").
+		Joins("JOIN edv.enrollments e ON su.scu_id = e.enr_scu_id").
+		Where("su.scu_sch_id = ? AND su.deleted_at IS NULL AND e.enr_role = 'student' AND e.left_at IS NULL", schoolID).
+		Count(&totalStudents)
+
+	r.db.Table("edv.school_users su").
+		Joins("JOIN edv.subject_classes sc ON su.scu_id = sc.scl_scu_id").
+		Joins("JOIN edv.enrollments e ON e.enr_cls_id = sc.scl_cls_id AND e.enr_scu_id = sc.scl_scu_id").
+		Where("su.scu_sch_id = ? AND su.deleted_at IS NULL AND e.enr_role = 'teacher' AND e.left_at IS NULL", schoolID).
+		Count(&totalTeachers)
+
+	// totalClasses and activeClasses share the same FROM/WHERE base, so these
+	// are combined into a single query using COUNT(*) FILTER (...).
 	r.db.Raw(`
-		SELECT
-			(SELECT COUNT(*)
-				FROM edv.school_users su
-				JOIN edv.enrollments e ON su.scu_id = e.enr_scu_id
-				WHERE su.scu_sch_id = ? AND su.deleted_at IS NULL AND e.enr_role = 'student' AND e.left_at IS NULL
-			) AS total_students,
-			(SELECT COUNT(*)
-				FROM edv.school_users su
-				JOIN edv.subject_classes sc ON su.scu_id = sc.scl_scu_id
-				JOIN edv.enrollments e ON e.enr_cls_id = sc.scl_cls_id AND e.enr_scu_id = sc.scl_scu_id
-				WHERE su.scu_sch_id = ? AND su.deleted_at IS NULL AND e.enr_role = 'teacher' AND e.left_at IS NULL
-			) AS total_teachers,
-			(SELECT COUNT(*) FROM edv.classes WHERE cls_sch_id = ? AND deleted_at IS NULL) AS total_classes,
-			(SELECT COUNT(*) FILTER (WHERE is_active = true) FROM edv.classes WHERE cls_sch_id = ? AND deleted_at IS NULL) AS active_classes
-	`, schoolID, schoolID, schoolID, schoolID).Row().Scan(&totalStudents, &totalTeachers, &totalClasses, &activeClasses)
+		SELECT COUNT(*) AS total_classes,
+			COUNT(*) FILTER (WHERE is_active = true) AS active_classes
+		FROM edv.classes
+		WHERE cls_sch_id = ? AND deleted_at IS NULL
+	`, schoolID).Row().Scan(&totalClasses, &activeClasses)
 
 	stats["totalStudents"] = int(totalStudents)
 	stats["totalTeachers"] = int(totalTeachers)
