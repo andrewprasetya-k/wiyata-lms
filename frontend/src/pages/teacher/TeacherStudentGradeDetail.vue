@@ -10,6 +10,7 @@ import {
   PhWarningCircle,
 } from "@phosphor-icons/vue";
 import { getStudentGradeDetail } from "../../services/teacherGrades";
+import { getMyTeachingSubjectClasses } from "../../services/teacherSubjects";
 import type {
   StudentGradeAssignment,
   StudentGradeDetailResponse,
@@ -25,6 +26,20 @@ const studentId = computed(() => String(route.params.studentId ?? ""));
 const detail = ref<StudentGradeDetailResponse | null>(null);
 const loading = ref(false);
 const errorMessage = ref("");
+
+const subjectClassId = ref("");
+
+async function resolveSubjectClassId() {
+  try {
+    const subjects = await getMyTeachingSubjectClasses();
+    subjectClassId.value =
+      subjects.find(
+        (s) => s.classId === classId.value && s.subjectId === subjectId.value,
+      )?.subjectClassId ?? "";
+  } catch {
+    subjectClassId.value = "";
+  }
+}
 
 const breakdown = computed(() => detail.value?.breakdown ?? []);
 const assignments = computed(() => detail.value?.assignments ?? []);
@@ -77,7 +92,10 @@ function statusClasses(assignment: StudentGradeAssignment) {
   return "bg-warning-soft text-warning";
 }
 
-onMounted(loadDetail);
+onMounted(() => {
+  loadDetail();
+  resolveSubjectClassId();
+});
 </script>
 
 <template>
@@ -86,6 +104,19 @@ onMounted(loadDetail);
       <div class="px-5 py-5 sm:px-6 lg:px-8">
         <div class="flex min-w-0 items-center gap-2 text-xs text-muted">
           <RouterLink
+            v-if="subjectClassId"
+            :to="{
+              name: 'teacher-subject-detail',
+              params: { subjectClassId: subjectClassId },
+              query: { tab: 'grades' },
+            }"
+            class="inline-flex shrink-0 items-center gap-1.5 transition hover:text-brand"
+          >
+            <PhArrowLeft :size="15" />
+            Kembali
+          </RouterLink>
+          <RouterLink
+            v-else
             :to="{
               name: 'teacher-class-grade-report',
               params: { classId: classId, subjectId: subjectId },

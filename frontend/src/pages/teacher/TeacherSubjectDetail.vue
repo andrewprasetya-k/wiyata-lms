@@ -45,7 +45,9 @@ const subjectClassId = computed(() =>
   String(route.params.subjectClassId ?? ""),
 );
 
-const activeTab = ref<WorkspaceTab>("materials");
+const initialTab: WorkspaceTab =
+  route.query.tab === "grades" ? "grades" : "materials";
+const activeTab = ref<WorkspaceTab>(initialTab);
 const subject = ref<TeacherSubjectClass | null>(null);
 const materials = ref<MaterialItem[]>([]);
 const assignments = ref<AssignmentItem[]>([]);
@@ -91,9 +93,8 @@ const tabs = computed(() => [
   },
 ]);
 
-// Grades tab fetches lazily: only mounted the first time it's opened, then
-// kept mounted (toggled via v-show) so switching tabs never re-fetches.
-const gradesTabVisited = ref(false);
+// Grades tab fetches lazily: only mounted the first time it's opened
+const gradesTabVisited = ref(initialTab === "grades");
 watch(activeTab, (tab) => {
   if (tab === "grades") gradesTabVisited.value = true;
 });
