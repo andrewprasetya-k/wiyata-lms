@@ -15,6 +15,7 @@ type SubjectClassService interface {
 	GetByID(id string) (*domain.SubjectClass, error)
 	GetByIDInSchool(id string, schoolID string) (*domain.SubjectClass, error)
 	TeacherOwnsSubjectClass(userID string, schoolID string, subjectClassID string) (bool, error)
+	TeacherOwnsClassSubject(userID string, schoolID string, classID string, subjectID string) (bool, error)
 	UserCanAccessSubjectClass(userID string, schoolID string, subjectClassID string, roles []string) (bool, error)
 	Update(scl *domain.SubjectClass) error
 	UpdateInSchool(scl *domain.SubjectClass, schoolID string) error
@@ -103,6 +104,10 @@ func (s *subjectClassService) GetByIDInSchool(id string, schoolID string) (*doma
 
 func (s *subjectClassService) TeacherOwnsSubjectClass(userID string, schoolID string, subjectClassID string) (bool, error) {
 	return s.repo.TeacherOwnsSubjectClass(userID, schoolID, subjectClassID)
+}
+
+func (s *subjectClassService) TeacherOwnsClassSubject(userID string, schoolID string, classID string, subjectID string) (bool, error) {
+	return s.repo.TeacherOwnsClassSubject(userID, schoolID, classID, subjectID)
 }
 
 func (s *subjectClassService) UserCanAccessSubjectClass(userID string, schoolID string, subjectClassID string, roles []string) (bool, error) {

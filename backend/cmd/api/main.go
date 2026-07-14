@@ -150,7 +150,7 @@ func main() {
 		subjectRepo,
 		classRepo,
 		userRepo,
-	))
+	), subjectClassService)
 
 	logRepo := repository.NewLogRepository(db)
 	logService := service.NewLogService(logRepo)
@@ -460,6 +460,7 @@ func main() {
 			gradeAPI.POST("/weights", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin"), gradeHandler.ConfigureWeights)
 			gradeAPI.GET("/weights/subject/:subjectId", middleware.RequireSchoolMember(schoolService), gradeHandler.GetWeightsBySubject)
 			gradeAPI.GET("/class/:classId/subject/:subjectId", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "teacher", "admin"), gradeHandler.GetClassGradeReport)
+			gradeAPI.GET("/class/:classId/subject/:subjectId/student/:studentId", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "teacher", "admin", "student"), gradeHandler.GetStudentGradeDetail)
 			gradeAPI.GET("/my-grades/:classId", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "student"), gradeHandler.GetMyGradebookByClass)
 		}
 

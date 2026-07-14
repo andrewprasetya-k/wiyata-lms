@@ -20,6 +20,7 @@ type GradeService interface {
 	CalculateFinalGrade(studentID string, subjectID string) (*dto.GradeReportDTO, error)
 	GetClassGradeReport(classID, subjectID, schoolID string) (*dto.ClassGradeReportDTO, error)
 	GetMyGradebookByClass(userID string, schoolID string, classID string) (*dto.MyGradebookResponseDTO, error)
+	GetStudentGradeDetail(classID, subjectID, studentID, schoolID string) (*dto.StudentGradeDetailDTO, error)
 }
 
 type gradeService struct {
@@ -288,6 +289,88 @@ func (s *gradeService) GetClassGradeReport(classID, subjectID, schoolID string) 
 			SubjectCode: subject.Code,
 		},
 		Students: studentGrades,
+	}, nil
+}
+
+
+func (s *gradeService) GetStudentGradeDetail(classID, subjectID, studentID, schoolID string) (*dto.StudentGradeDetailDTO, error) {
+	classRow, err := s.gradeRepo.GetStudentGradebookClass(studentID, schoolID, classID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrStudentNotEnrolledInClass
+		}
+		return nil, err
+	}
+
+	subject, err := s.subjectRepo.GetByID(subjectID)
+	if err != nil {
+		return nil, err
+	}
+	if subject.SchoolID != schoolID {
+		return nil, fmt.Errorf("forbidden: subject does not belong to active school")
+	}
+
+	report, err := s.CalculateFinalGrade(studentID, subjectID)
+	if err != nil {
+		return nil, err
+	}
+
+	student, err := s.userRepo.GetByID(studentID)
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := s.gradeRepo.GetStudentGradebookRows(studentID, schoolID, classID)
+	if err != nil {
+		return nil, err
+	}
+
+	assignments := []dto.MyGradebookAssignmentDTO{}
+	for _, row := range rows {
+		if row.SubjectID != subjectID || row.AssignmentID == nil {
+			continue
+		}
+
+		status := "not_submitted"
+		if row.SubmissionID != nil {
+			status = "submitted"
+		}
+		if row.Score != nil {
+			status = "graded"
+		}
+
+		assignments = append(assignments, dto.MyGradebookAssignmentDTO{
+			AssignmentID:    *row.AssignmentID,
+			AssignmentTitle: stringValue(row.AssignmentTitle),
+			CategoryName:    stringValue(row.CategoryName),
+			Deadline:        row.Deadline,
+			Status:          status,
+			SubmittedAt:     formatTimePointer(row.SubmittedAt),
+			Score:           row.Score,
+			Feedback:        row.Feedback,
+			AssessedAt:      formatTimePointer(row.AssessedAt),
+			AssessorName:    row.AssessorName,
+		})
+	}
+
+	return &dto.StudentGradeDetailDTO{
+		StudentID:    studentID,
+		StudentName:  student.FullName,
+		StudentEmail: student.Email,
+		Class: dto.ClassHeaderDTO{
+			ID:    classRow.ClassID,
+			Title: classRow.ClassName,
+			Code:  classRow.ClassCode,
+		},
+		Subject: dto.SubjectHeaderDTO{
+			SubjectID:   subject.ID,
+			SubjectName: subject.Name,
+			SubjectCode: subject.Code,
+		},
+		FinalGrade:  report.FinalGrade,
+		LetterGrade: report.LetterGrade,
+		Breakdown:   report.Breakdown,
+		Assignments: assignments,
 	}, nil
 }
 

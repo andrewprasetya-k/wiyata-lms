@@ -320,6 +320,18 @@ type StudentGradeSummaryDTO struct {
 	LetterGrade  string  `json:"letterGrade"`
 }
 
+type StudentGradeDetailDTO struct {
+	StudentID    string                     `json:"studentId"`
+	StudentName  string                     `json:"studentName"`
+	StudentEmail string                     `json:"studentEmail"`
+	Class        ClassHeaderDTO             `json:"class"`
+	Subject      SubjectHeaderDTO           `json:"subject"`
+	FinalGrade   float64                    `json:"finalGrade"`
+	LetterGrade  string                     `json:"letterGrade"`
+	Breakdown    []CategoryBreakdownDTO     `json:"breakdown"`
+	Assignments  []MyGradebookAssignmentDTO `json:"assignments"`
+}
+
 type MyGradebookResponseDTO struct {
 	Class    MyGradebookClassDTO     `json:"class"`
 	Subjects []MyGradebookSubjectDTO `json:"subjects"`

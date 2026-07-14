@@ -19,6 +19,7 @@ type SubjectClassRepository interface {
 	TeacherTeachesInClass(schoolUserID string, classID string) (bool, error)
 	UserTeachesClass(userID string, schoolID string, classID string) (bool, error)
 	TeacherOwnsSubjectClass(userID string, schoolID string, subjectClassID string) (bool, error)
+	TeacherOwnsClassSubject(userID string, schoolID string, classID string, subjectID string) (bool, error)
 	ClassBelongsToSchool(classID string, schoolID string) (bool, error)
 	SubjectBelongsToSchool(subjectID string, schoolID string) (bool, error)
 	SubjectClassBelongsToSchool(subjectClassID string, schoolID string) (bool, error)
@@ -295,6 +296,22 @@ func (r *subjectClassRepository) TeacherOwnsSubjectClass(userID string, schoolID
 		Joins("JOIN edv.classes c ON c.cls_id = sc.scl_cls_id").
 		Joins("JOIN edv.subjects sub ON sub.sub_id = sc.scl_sub_id").
 		Where("sc.scl_id = ?", subjectClassID).
+		Where("teacher_scu.scu_usr_id = ? AND teacher_scu.scu_sch_id = ? AND teacher_scu.deleted_at IS NULL", userID, schoolID).
+		Where("e.enr_sch_id = ? AND e.enr_role = ? AND e.left_at IS NULL", schoolID, "teacher").
+		Where("c.cls_sch_id = ? AND sub.sub_sch_id = ?", schoolID, schoolID).
+		Where("c.deleted_at IS NULL").
+		Count(&count).Error
+	return count > 0, err
+}
+
+func (r *subjectClassRepository) TeacherOwnsClassSubject(userID string, schoolID string, classID string, subjectID string) (bool, error) {
+	var count int64
+	err := r.db.Table("edv.subject_classes sc").
+		Joins("JOIN edv.school_users teacher_scu ON teacher_scu.scu_id = sc.scl_scu_id AND teacher_scu.deleted_at IS NULL").
+		Joins("JOIN edv.enrollments e ON e.enr_cls_id = sc.scl_cls_id AND e.enr_scu_id = sc.scl_scu_id").
+		Joins("JOIN edv.classes c ON c.cls_id = sc.scl_cls_id").
+		Joins("JOIN edv.subjects sub ON sub.sub_id = sc.scl_sub_id").
+		Where("sc.scl_cls_id = ? AND sc.scl_sub_id = ?", classID, subjectID).
 		Where("teacher_scu.scu_usr_id = ? AND teacher_scu.scu_sch_id = ? AND teacher_scu.deleted_at IS NULL", userID, schoolID).
 		Where("e.enr_sch_id = ? AND e.enr_role = ? AND e.left_at IS NULL", schoolID, "teacher").
 		Where("c.cls_sch_id = ? AND sub.sub_sch_id = ?", schoolID, schoolID).

@@ -11,11 +11,12 @@ import (
 )
 
 type GradeHandler struct {
-	service service.GradeService
+	service             service.GradeService
+	subjectClassService service.SubjectClassService
 }
 
-func NewGradeHandler(service service.GradeService) *GradeHandler {
-	return &GradeHandler{service: service}
+func NewGradeHandler(service service.GradeService, subjectClassService service.SubjectClassService) *GradeHandler {
+	return &GradeHandler{service: service, subjectClassService: subjectClassService}
 }
 
 func (h *GradeHandler) ConfigureWeights(c *gin.Context) {
@@ -83,6 +84,85 @@ func (h *GradeHandler) GetClassGradeReport(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, report)
+}
+
+func (h *GradeHandler) GetStudentGradeDetail(c *gin.Context) {
+	classID := c.Param("classId")
+	subjectID := c.Param("subjectId")
+	studentID := c.Param("studentId")
+	if classID == "" || subjectID == "" || studentID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "classId, subjectId, and studentId are required"})
+		return
+	}
+
+	schoolID, ok := getGradeActiveSchoolID(c)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required (SchoolId header)"})
+		return
+	}
+
+	if !h.authorizeStudentGradeDetailAccess(c, schoolID, classID, subjectID, studentID) {
+		return
+	}
+
+	detail, err := h.service.GetStudentGradeDetail(classID, subjectID, studentID, schoolID)
+	if err != nil {
+		if errors.Is(err, service.ErrStudentNotEnrolledInClass) {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: student is not enrolled in this class"})
+			return
+		}
+		HandleError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, detail)
+}
+
+// authorizeStudentGradeDetailAccess allows: admin (school-scoped); teacher,
+// only if they actually teach this class+subject (TeacherOwnsClassSubject,
+// same ownership pattern used by assignment/material endpoints); student,
+// only for their own studentID. This is intentionally stricter than
+// GetClassGradeReport (which only checks the school-level "teacher" role) —
+// see grade_handler.go's GetStudentGradeDetail for rationale.
+func (h *GradeHandler) authorizeStudentGradeDetailAccess(c *gin.Context, schoolID, classID, subjectID, studentID string) bool {
+	userID := middleware.GetUserID(c)
+	if userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return false
+	}
+
+	roles := getGradeActiveRoles(c)
+	for _, role := range roles {
+		switch role {
+		case "admin":
+			return true
+		case "student":
+			if userID == studentID {
+				return true
+			}
+		case "teacher":
+			owns, err := h.subjectClassService.TeacherOwnsClassSubject(userID, schoolID, classID, subjectID)
+			if err != nil {
+				HandleError(c, err)
+				return false
+			}
+			if owns {
+				return true
+			}
+		}
+	}
+
+	c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: you cannot access this student's grade detail"})
+	return false
+}
+
+func getGradeActiveRoles(c *gin.Context) []string {
+	if raw, exists := c.Get("user_roles"); exists {
+		if roles, ok := raw.([]string); ok {
+			return roles
+		}
+	}
+	return nil
 }
 
 func (h *GradeHandler) GetMyGradebookByClass(c *gin.Context) {
