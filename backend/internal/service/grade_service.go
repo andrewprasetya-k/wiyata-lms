@@ -213,7 +213,7 @@ func (s *gradeService) GetClassGradeReport(classID, subjectID, schoolID string) 
 		return nil, err
 	}
 
-	studentGrades := make([]dto.StudentGradeSummaryDTO, 0, len(students))
+	studentGrades := []dto.StudentGradeSummaryDTO{}
 
 	weights, err := s.weightRepo.GetBySubject(subjectID)
 
