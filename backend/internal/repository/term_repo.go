@@ -34,7 +34,13 @@ func (r *termRepository) FindAll(schoolID string, search string, page int, limit
 	var terms []*domain.Term
 	var total int64
 
-	query := r.db.Model(&domain.Term{}).Preload("AcademicYear.School").
+	query := r.db.Model(&domain.Term{}).
+		Preload("AcademicYear", func(db *gorm.DB) *gorm.DB {
+			return db.Select("acy_id", "acy_name", "acy_sch_id")
+		}).
+		Preload("AcademicYear.School", func(db *gorm.DB) *gorm.DB {
+			return db.Select("sch_id", "sch_name")
+		}).
 		Joins("JOIN edv.academic_years ON edv.academic_years.acy_id = edv.terms.trm_acy_id").
 		Where("edv.academic_years.acy_sch_id = ?", schoolID)
 
@@ -54,7 +60,13 @@ func (r *termRepository) FindAll(schoolID string, search string, page int, limit
 
 func (r *termRepository) GetByAcademicYear(acyID string, schoolID string) ([]*domain.Term, error) {
 	var terms []*domain.Term
-	err := r.db.Preload("AcademicYear.School").
+	err := r.db.
+		Preload("AcademicYear", func(db *gorm.DB) *gorm.DB {
+			return db.Select("acy_id", "acy_name", "acy_sch_id")
+		}).
+		Preload("AcademicYear.School", func(db *gorm.DB) *gorm.DB {
+			return db.Select("sch_id", "sch_name")
+		}).
 		Joins("JOIN edv.academic_years ON edv.academic_years.acy_id = edv.terms.trm_acy_id").
 		Where("edv.terms.trm_acy_id = ? AND edv.academic_years.acy_sch_id = ?", acyID, schoolID).
 		Order("edv.terms.created_at asc").Find(&terms).Error
@@ -63,7 +75,14 @@ func (r *termRepository) GetByAcademicYear(acyID string, schoolID string) ([]*do
 
 func (r *termRepository) GetByID(id string) (*domain.Term, error) {
 	var term domain.Term
-	err := r.db.Preload("AcademicYear.School").Where("trm_id = ?", id).First(&term).Error
+	err := r.db.
+		Preload("AcademicYear", func(db *gorm.DB) *gorm.DB {
+			return db.Select("acy_id", "acy_name", "acy_sch_id")
+		}).
+		Preload("AcademicYear.School", func(db *gorm.DB) *gorm.DB {
+			return db.Select("sch_id", "sch_name")
+		}).
+		Where("trm_id = ?", id).First(&term).Error
 	return &term, err
 }
 

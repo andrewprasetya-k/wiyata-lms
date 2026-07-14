@@ -34,9 +34,12 @@ func (r *materialRepository) FindAll(search string, subjectClassID string, page 
 	var total int64
 
 	query := r.db.Model(&domain.Material{}).
-		Preload("SubjectClass.Subject").
-		Preload("SubjectClass.Class").
-		Preload("Creator")
+		Preload("SubjectClass.Subject", func(db *gorm.DB) *gorm.DB {
+			return db.Select("sub_id", "sub_name", "sub_color")
+		}).
+		Preload("Creator", func(db *gorm.DB) *gorm.DB {
+			return db.Select("usr_id", "usr_nama_lengkap")
+		})
 
 	if subjectClassID != "" {
 		query = query.Where("mat_scl_id = ?", subjectClassID)
@@ -57,9 +60,12 @@ func (r *materialRepository) FindAll(search string, subjectClassID string, page 
 
 func (r *materialRepository) GetByID(id string) (*domain.Material, error) {
 	var mat domain.Material
-	err := r.db.Preload("SubjectClass.Subject").
-		Preload("SubjectClass.Class").
-		Preload("Creator").
+	err := r.db.Preload("SubjectClass.Subject", func(db *gorm.DB) *gorm.DB {
+		return db.Select("sub_id", "sub_name", "sub_color")
+	}).
+		Preload("Creator", func(db *gorm.DB) *gorm.DB {
+			return db.Select("usr_id", "usr_nama_lengkap")
+		}).
 		Where("mat_id = ?", id).First(&mat).Error
 	return &mat, err
 }

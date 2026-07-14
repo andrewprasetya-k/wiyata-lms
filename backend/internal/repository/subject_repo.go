@@ -34,7 +34,9 @@ func (r *subjectRepository) FindAll(schoolID string, search string, page int, li
 	var subjects []*domain.Subject
 	var total int64
 
-	query := r.db.Model(&domain.Subject{}).Preload("School").Where("sub_sch_id = ?", schoolID)
+	query := r.db.Model(&domain.Subject{}).Preload("School", func(db *gorm.DB) *gorm.DB {
+		return db.Select("sch_id", "sch_name", "sch_code")
+	}).Where("sub_sch_id = ?", schoolID)
 
 	if search != "" {
 		searchTerm := "%" + search + "%"
@@ -52,19 +54,25 @@ func (r *subjectRepository) FindAll(schoolID string, search string, page int, li
 
 func (r *subjectRepository) GetBySchool(schoolID string) ([]*domain.Subject, error) {
 	var subjects []*domain.Subject
-	err := r.db.Preload("School").Where("sub_sch_id = ?", schoolID).Order("created_at asc").Find(&subjects).Error
+	err := r.db.Preload("School", func(db *gorm.DB) *gorm.DB {
+		return db.Select("sch_id", "sch_name", "sch_code")
+	}).Where("sub_sch_id = ?", schoolID).Order("created_at asc").Find(&subjects).Error
 	return subjects, err
 }
 
 func (r *subjectRepository) GetByID(id string) (*domain.Subject, error) {
 	var subject domain.Subject
-	err := r.db.Preload("School").Where("sub_id = ?", id).First(&subject).Error
+	err := r.db.Preload("School", func(db *gorm.DB) *gorm.DB {
+		return db.Select("sch_id", "sch_name", "sch_code")
+	}).Where("sub_id = ?", id).First(&subject).Error
 	return &subject, err
 }
 
 func (r *subjectRepository) GetByCode(schoolID string, code string) (*domain.Subject, error) {
 	var subject domain.Subject
-	err := r.db.Preload("School").Where("sub_sch_id = ? AND sub_code = ?", schoolID, code).First(&subject).Error
+	err := r.db.Preload("School", func(db *gorm.DB) *gorm.DB {
+		return db.Select("sch_id", "sch_name", "sch_code")
+	}).Where("sub_sch_id = ? AND sub_code = ?", schoolID, code).First(&subject).Error
 	return &subject, err
 }
 
