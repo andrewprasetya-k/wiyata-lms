@@ -167,12 +167,11 @@ func (r *schoolRepository) CheckPhoneExists(phone string, excludeID string) (boo
 }
 
 func (r *schoolRepository) GetSchoolSummary() (active int64, deleted int64, total int64, err error) {
-	// Total Active
-	if err = r.db.Model(&domain.School{}).Count(&active).Error; err != nil {
-		return
-	}
-	// Total Deleted
-	if err = r.db.Model(&domain.School{}).Unscoped().Where("deleted_at IS NOT NULL").Count(&deleted).Error; err != nil {
+	// Single scan over the table using FILTER instead of two separate Count() round-trips.
+	row := r.db.Model(&domain.School{}).Unscoped().
+		Select("COUNT(*) FILTER (WHERE deleted_at IS NULL) AS active, COUNT(*) FILTER (WHERE deleted_at IS NOT NULL) AS deleted").
+		Row()
+	if err = row.Scan(&active, &deleted); err != nil {
 		return
 	}
 	total = active + deleted
