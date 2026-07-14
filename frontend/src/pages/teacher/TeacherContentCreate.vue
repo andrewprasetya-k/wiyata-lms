@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import {
   PhArrowLeft,
-  PhClipboardText,
   PhFileText,
   PhPaperPlaneTilt,
   PhInfo,
@@ -12,6 +11,7 @@ import {
 } from "@phosphor-icons/vue";
 import { useAuthStore } from "../../stores/auth";
 import { useToastStore } from "../../stores/toast";
+import { useConfirmStore } from "../../stores/confirm";
 import { getMyTeachingSubjectClassById } from "../../services/teacherSubjects";
 import {
   getAssignmentCategories,
@@ -25,20 +25,51 @@ import { deleteMedia } from "../../services/media";
 import MediaUploader from "../../components/common/MediaUploader.vue";
 import type { TeacherSubjectClass } from "../../types/teacherSubjects";
 import type { AssignmentCategory } from "../../types/teacherAssignment";
+import type { MaterialItem } from "../../types/teacherMaterial";
+import type { AssignmentItem } from "../../types/assignment";
 import { formatDateInputValue, formatTimeInputValue } from "../../utils/date";
+
+const props = withDefaults(
+  defineProps<{
+    mode?: "page" | "embedded";
+    // Dependency injection for embedded usage — when provided, these take
+    // priority over route params/query and skip the matching fetch below.
+    // Route stays as fallback so the 3 standalone routes need zero changes.
+    subjectClassId?: string;
+    subject?: TeacherSubjectClass | null;
+    initialTab?: "material" | "assignment";
+    initialMaterial?: MaterialItem | null;
+    initialAssignment?: AssignmentItem | null;
+  }>(),
+  {
+    mode: "page",
+  },
+);
+
+const emit = defineEmits<{
+  submitted: [];
+  cancel: [];
+  "dirty-change": [value: boolean];
+}>();
 
 const route = useRoute();
 const router = useRouter();
 const auth = useAuthStore();
 const toast = useToastStore();
+const confirm = useConfirmStore();
 
-const subjectClassId = computed(() =>
-  String(route.params.subjectClassId ?? ""),
+const subjectClassId = computed(
+  () => props.subjectClassId || String(route.params.subjectClassId ?? ""),
 );
 const subject = ref<TeacherSubjectClass | null>(null);
 const categories = ref<AssignmentCategory[]>([]);
-const materialId = computed(() => String(route.params.matId ?? ""));
-const assignmentId = computed(() => String(route.params.asgId ?? ""));
+const materialId = computed(
+  () => props.initialMaterial?.materialId || String(route.params.matId ?? ""),
+);
+const assignmentId = computed(
+  () =>
+    props.initialAssignment?.assignmentId || String(route.params.asgId ?? ""),
+);
 const isEditMode = computed(() => !!materialId.value || !!assignmentId.value);
 const activeTab = ref<"material" | "assignment">("material");
 const existingAttachments = ref<any[]>([]);
@@ -87,6 +118,35 @@ const form = ref({
   mediaIds: [] as string[],
 });
 
+// Dirty tracking — lightweight snapshot comparison, captured once
+// loadInitialData finishes (so prefilled/default values never count as a
+// change). No library: just a JSON string comparison of the fields a user
+// can actually edit.
+function captureFormSnapshot() {
+  return JSON.stringify({
+    title: form.value.title,
+    description: form.value.description,
+    materialType: form.value.materialType,
+    categoryId: form.value.categoryId,
+    deadlineDate: form.value.deadlineDate,
+    deadlineTime: form.value.deadlineTime,
+    allowLate: form.value.allowLate,
+    mediaIds: [...form.value.mediaIds].sort(),
+  });
+}
+
+const initialFormSnapshot = ref("");
+const isDirty = computed(
+  () => captureFormSnapshot() !== initialFormSnapshot.value,
+);
+const hasUnsavedChanges = computed(
+  () => isUploadingMedia.value || isDirty.value,
+);
+
+watch(hasUnsavedChanges, (value) => {
+  emit("dirty-change", value);
+});
+
 async function loadInitialData() {
   loading.value = true;
   errorMessage.value = "";
@@ -94,7 +154,8 @@ async function loadInitialData() {
 
   if (!isEditMode.value) {
     activeTab.value =
-      route.query.type === "assignment" ? "assignment" : "material";
+      props.initialTab ??
+      (route.query.type === "assignment" ? "assignment" : "material");
   }
 
   try {
@@ -109,15 +170,19 @@ async function loadInitialData() {
       return;
     }
 
-    const subjectData = await getMyTeachingSubjectClassById(
-      subjectClassId.value,
-    );
-    if (!subjectData) {
-      errorMessage.value =
-        "Subject ini tidak tersedia untuk akun guru pada school aktif.";
-      return;
+    if (props.subject) {
+      subject.value = props.subject;
+    } else {
+      const subjectData = await getMyTeachingSubjectClassById(
+        subjectClassId.value,
+      );
+      if (!subjectData) {
+        errorMessage.value =
+          "Subject ini tidak tersedia untuk akun guru pada school aktif.";
+        return;
+      }
+      subject.value = subjectData;
     }
-    subject.value = subjectData;
 
     if (!activeSchoolCode.value) {
       categoryErrorMessage.value =
@@ -141,7 +206,8 @@ async function loadInitialData() {
     if (isEditMode.value) {
       if (materialId.value) {
         activeTab.value = "material";
-        const mat = await getMaterialById(materialId.value);
+        const mat =
+          props.initialMaterial ?? (await getMaterialById(materialId.value));
         if (mat) {
           form.value.title = mat.materialTitle;
           form.value.description = mat.materialDesc || "";
@@ -158,12 +224,15 @@ async function loadInitialData() {
         }
       } else if (assignmentId.value) {
         activeTab.value = "assignment";
-        const asgData = await getSubjectAssignmentDetail(
-          subjectClassId.value,
-          assignmentId.value,
-        );
-        if (asgData && asgData.assignment) {
-          const asg = asgData.assignment;
+        const asg =
+          props.initialAssignment ??
+          (
+            await getSubjectAssignmentDetail(
+              subjectClassId.value,
+              assignmentId.value,
+            )
+          ).assignment;
+        if (asg) {
           form.value.title = asg.assignmentTitle;
           form.value.description = asg.assignmentDescription || "";
           form.value.allowLate = asg.allowLateSubmission ?? false;
@@ -194,6 +263,7 @@ async function loadInitialData() {
     errorMessage.value = "Gagal memuat data pendukung. Coba refresh halaman.";
   } finally {
     loading.value = false;
+    initialFormSnapshot.value = captureFormSnapshot();
   }
 }
 
@@ -281,7 +351,11 @@ async function handleSubmit() {
       }
     }
 
-    router.push(`/teacher/subjects/${subjectClassId.value}`);
+    if (props.mode === "embedded") {
+      emit("submitted");
+    } else {
+      router.push(`/teacher/subjects/${subjectClassId.value}`);
+    }
   } catch (err) {
     const uploadedMediaIds = [...form.value.mediaIds];
     if (uploadedMediaIds.length > 0) {
@@ -312,6 +386,28 @@ async function handleSubmit() {
   }
 }
 
+async function handleCancel() {
+  if (props.mode === "embedded") {
+    if (hasUnsavedChanges.value) {
+      const ok = await confirm.confirm({
+        title: isUploadingMedia.value
+          ? "Upload masih berjalan"
+          : "Batalkan perubahan?",
+        description: isUploadingMedia.value
+          ? "Ada file yang masih diunggah. Menutup form sekarang akan menghentikan proses ini."
+          : "Perubahan yang belum disimpan akan hilang.",
+        confirmLabel: "Tutup form",
+        cancelLabel: "Tetap di sini",
+        variant: "danger",
+      });
+      if (!ok) return;
+    }
+    emit("cancel");
+    return;
+  }
+  router.back();
+}
+
 function getErrorMessage(error: unknown) {
   if (typeof error === "object" && error !== null && "response" in error) {
     const response = (
@@ -327,13 +423,13 @@ onMounted(loadInitialData);
 
 <template>
   <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-background">
-    <header class="border-b border-border bg-surface">
+    <header v-if="mode === 'page'" class="border-b border-border bg-surface">
       <div class="px-5 py-5 sm:px-6 lg:px-8">
         <div class="flex min-w-0 items-center gap-2 text-xs text-muted">
           <button
             type="button"
             class="inline-flex shrink-0 items-center gap-1.5 transition hover:text-brand"
-            @click="router.back()"
+            @click="handleCancel"
           >
             <PhArrowLeft :size="15" />
             Mata pelajaran
@@ -410,49 +506,6 @@ onMounted(loadInitialData);
       </template>
 
       <template v-else>
-        <div
-          class="mb-5 flex max-w-full gap-2 overflow-x-auto rounded-xl border border-border bg-surface p-1.5 sm:w-fit"
-        >
-          <button
-            type="button"
-            class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition sm:min-w-28"
-            :class="[
-              activeTab === 'material'
-                ? 'bg-brand-soft text-brand'
-                : 'text-muted',
-              !isEditMode && activeTab !== 'material'
-                ? 'cursor-pointer hover:bg-surface-strong hover:text-foreground'
-                : isEditMode && activeTab !== 'material'
-                  ? 'cursor-not-allowed opacity-50'
-                  : '',
-            ]"
-            :disabled="isEditMode"
-            @click="!isEditMode && (activeTab = 'material')"
-          >
-            <PhFileText :size="17" weight="duotone" />
-            Materi
-          </button>
-          <button
-            type="button"
-            class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition sm:min-w-28"
-            :class="[
-              activeTab === 'assignment'
-                ? 'bg-brand-soft text-brand'
-                : 'text-muted',
-              !isEditMode && activeTab !== 'assignment'
-                ? 'cursor-pointer hover:bg-surface-strong hover:text-foreground'
-                : isEditMode && activeTab !== 'assignment'
-                  ? 'cursor-not-allowed opacity-50'
-                  : '',
-            ]"
-            :disabled="isEditMode"
-            @click="!isEditMode && (activeTab = 'assignment')"
-          >
-            <PhClipboardText :size="17" weight="duotone" />
-            Tugas
-          </button>
-        </div>
-
         <div class="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
           <div class="min-w-0 space-y-5">
             <section
@@ -722,7 +775,7 @@ onMounted(loadInitialData);
                   <button
                     type="button"
                     class="inline-flex w-full items-center justify-center rounded-lg border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground-secondary transition hover:bg-surface-strong"
-                    @click="router.back()"
+                    @click="handleCancel"
                   >
                     Batal
                   </button>

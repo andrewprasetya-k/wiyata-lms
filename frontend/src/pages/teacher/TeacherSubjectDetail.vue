@@ -17,6 +17,7 @@ import {
 } from "@phosphor-icons/vue";
 import AttachmentPreviewList from "../../components/common/AttachmentPreviewList.vue";
 import TeacherClassGradeReportTab from "../../components/teacher/TeacherClassGradeReportTab.vue";
+import TeacherContentCreate from "./TeacherContentCreate.vue";
 import { getSubjectAssignments } from "../../services/assignment";
 import {
   getSubjectClassSubmissions,
@@ -58,6 +59,10 @@ const submissionsLoading = ref(false);
 const errorMessage = ref("");
 const submissionsError = ref("");
 const deletingAssignmentId = ref<string | null>(null);
+const isCreatingMaterial = ref(false);
+const isCreatingAssignment = ref(false);
+const isMaterialFormUnsaved = ref(false);
+const isAssignmentFormUnsaved = ref(false);
 const subjectAccentColor = computed(() =>
   subject.value
     ? resolveSubjectColor(subject.value)
@@ -117,13 +122,7 @@ async function loadWorkspace() {
 
     if (!subjectData) return;
 
-    const [materialData, assignmentData] = await Promise.all([
-      getSubjectMaterials(subjectClassId.value),
-      getSubjectAssignments(subjectClassId.value, 1, 50),
-    ]);
-
-    materials.value = materialData.data?.data ?? [];
-    assignments.value = assignmentData.data?.data ?? [];
+    await Promise.all([loadMaterials(), loadAssignments()]);
 
     await loadSubmissions();
   } catch {
@@ -132,6 +131,73 @@ async function loadWorkspace() {
   } finally {
     loading.value = false;
   }
+}
+
+async function loadMaterials() {
+  const materialData = await getSubjectMaterials(subjectClassId.value);
+  materials.value = materialData.data?.data ?? [];
+}
+
+function handleMaterialCreateCancel() {
+  isCreatingMaterial.value = false;
+  isMaterialFormUnsaved.value = false;
+}
+
+async function handleMaterialCreated() {
+  isCreatingMaterial.value = false;
+  isMaterialFormUnsaved.value = false;
+  await loadMaterials();
+}
+
+async function loadAssignments() {
+  const assignmentData = await getSubjectAssignments(
+    subjectClassId.value,
+    1,
+    50,
+  );
+  assignments.value = assignmentData.data?.data ?? [];
+}
+
+function handleAssignmentCreateCancel() {
+  isCreatingAssignment.value = false;
+  isAssignmentFormUnsaved.value = false;
+}
+
+async function handleAssignmentCreated() {
+  isCreatingAssignment.value = false;
+  isAssignmentFormUnsaved.value = false;
+  await loadAssignments();
+}
+
+async function handleTabClick(nextTab: WorkspaceTab) {
+  if (nextTab === activeTab.value) return;
+
+  const leavingUnsavedMaterialForm =
+    activeTab.value === "materials" &&
+    isCreatingMaterial.value &&
+    isMaterialFormUnsaved.value;
+  const leavingUnsavedAssignmentForm =
+    activeTab.value === "assignments" &&
+    isCreatingAssignment.value &&
+    isAssignmentFormUnsaved.value;
+
+  if (leavingUnsavedMaterialForm || leavingUnsavedAssignmentForm) {
+    const ok = await confirm.confirm({
+      title: "Tinggalkan form yang belum disimpan?",
+      description:
+        "Perubahan yang belum disimpan akan hilang jika Anda pindah tab.",
+      confirmLabel: "Tinggalkan",
+      cancelLabel: "Tetap di sini",
+      variant: "danger",
+    });
+    if (!ok) return;
+  }
+
+  isCreatingMaterial.value = false;
+  isCreatingAssignment.value = false;
+  isMaterialFormUnsaved.value = false;
+  isAssignmentFormUnsaved.value = false;
+  activeTab.value = nextTab;
 }
 
 async function loadSubmissions() {
@@ -388,7 +454,7 @@ onMounted(loadWorkspace);
                   ? 'border-brand font-medium text-brand'
                   : 'border-transparent text-muted hover:text-foreground-secondary'
               "
-              @click="activeTab = tab.id"
+              @click="handleTabClick(tab.id)"
             >
               {{ tab.label }}
             </button>
@@ -396,6 +462,30 @@ onMounted(loadWorkspace);
 
           <div class="pt-4">
             <div v-if="activeTab === 'materials'" class="space-y-3">
+              <div class="flex items-center justify-between gap-3">
+                <p class="text-sm font-medium text-foreground">Materi</p>
+                <button
+                  v-if="!isCreatingMaterial"
+                  type="button"
+                  class="inline-flex shrink-0 items-center gap-2 rounded-lg bg-brand px-3 py-2 text-xs font-medium text-white transition hover:bg-brand-hover"
+                  @click="isCreatingMaterial = true"
+                >
+                  <PhPlusCircle :size="15" weight="duotone" />
+                  Buat Materi Baru
+                </button>
+              </div>
+
+              <TeacherContentCreate
+                v-if="isCreatingMaterial && subject"
+                mode="embedded"
+                :subject-class-id="subjectClassId"
+                :subject="subject"
+                initial-tab="material"
+                @cancel="handleMaterialCreateCancel"
+                @submitted="handleMaterialCreated"
+                @dirty-change="isMaterialFormUnsaved = $event"
+              />
+
               <div
                 v-if="materials.length === 0"
                 class="rounded-lg p-8 text-center"
@@ -472,6 +562,30 @@ onMounted(loadWorkspace);
             </div>
 
             <div v-else-if="activeTab === 'assignments'" class="space-y-3">
+              <div class="flex items-center justify-between gap-3">
+                <p class="text-sm font-medium text-foreground">Tugas</p>
+                <button
+                  v-if="!isCreatingAssignment"
+                  type="button"
+                  class="inline-flex shrink-0 items-center gap-2 rounded-lg bg-brand px-3 py-2 text-xs font-medium text-white transition hover:bg-brand-hover"
+                  @click="isCreatingAssignment = true"
+                >
+                  <PhPlusCircle :size="15" weight="duotone" />
+                  Buat Tugas Baru
+                </button>
+              </div>
+
+              <TeacherContentCreate
+                v-if="isCreatingAssignment && subject"
+                mode="embedded"
+                :subject-class-id="subjectClassId"
+                :subject="subject"
+                initial-tab="assignment"
+                @cancel="handleAssignmentCreateCancel"
+                @submitted="handleAssignmentCreated"
+                @dirty-change="isAssignmentFormUnsaved = $event"
+              />
+
               <div
                 v-if="assignments.length === 0"
                 class="rounded-lg p-8 text-center"
