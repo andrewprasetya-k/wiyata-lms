@@ -289,7 +289,6 @@ type GradeReportDTO struct {
 	SubjectName string                 `json:"subjectName"`
 	Breakdown   []CategoryBreakdownDTO `json:"breakdown"`
 	FinalGrade  float64                `json:"finalGrade"`
-	LetterGrade string                 `json:"letterGrade"`
 }
 
 type ConfigureWeightsDTO struct {
@@ -317,7 +316,6 @@ type StudentGradeSummaryDTO struct {
 	StudentName  string  `json:"studentName"`
 	StudentEmail string  `json:"studentEmail"`
 	FinalGrade   float64 `json:"finalGrade"`
-	LetterGrade  string  `json:"letterGrade"`
 }
 
 type StudentGradeDetailDTO struct {
@@ -327,7 +325,6 @@ type StudentGradeDetailDTO struct {
 	Class        ClassHeaderDTO             `json:"class"`
 	Subject      SubjectHeaderDTO           `json:"subject"`
 	FinalGrade   float64                    `json:"finalGrade"`
-	LetterGrade  string                     `json:"letterGrade"`
 	Breakdown    []CategoryBreakdownDTO     `json:"breakdown"`
 	Assignments  []MyGradebookAssignmentDTO `json:"assignments"`
 }
@@ -344,7 +341,6 @@ type StudentReportDTO struct {
 type StudentReportSubjectDTO struct {
 	Subject     SubjectHeaderDTO           `json:"subject"`
 	FinalGrade  float64                    `json:"finalGrade"`
-	LetterGrade string                     `json:"letterGrade"`
 	Breakdown   []CategoryBreakdownDTO     `json:"breakdown"`
 	Assignments []MyGradebookAssignmentDTO `json:"assignments"`
 }
@@ -372,7 +368,6 @@ type MyGradebookSubjectDTO struct {
 	SubjectName    string                     `json:"subjectName"`
 	SubjectCode    string                     `json:"subjectCode"`
 	FinalGrade     *float64                   `json:"finalGrade"`
-	LetterGrade    *string                    `json:"letterGrade"`
 	GradedCount    int                        `json:"gradedCount"`
 	SubmittedCount int                        `json:"submittedCount"`
 	PendingCount   int                        `json:"pendingCount"`

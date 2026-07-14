@@ -183,7 +183,6 @@ func (s *gradeService) CalculateFinalGrade(student *domain.User, subjectID strin
 		SubjectName: subjectName,
 		Breakdown:   breakdown,
 		FinalGrade:  finalGrade,
-		LetterGrade: convertToLetterGrade(finalGrade),
 	}, nil
 }
 
@@ -247,7 +246,6 @@ func (s *gradeService) GetClassGradeReport(classID, subjectID, schoolID string) 
 			StudentName:  student.FullName,
 			StudentEmail: student.Email,
 			FinalGrade:   finalGrade,
-			LetterGrade:  convertToLetterGrade(finalGrade),
 		})
 	}
 
@@ -358,7 +356,6 @@ func (s *gradeService) GetStudentGradeDetail(classID, subjectID, studentID, scho
 			SubjectCode: subject.Code,
 		},
 		FinalGrade:  report.FinalGrade,
-		LetterGrade: report.LetterGrade,
 		Breakdown:   report.Breakdown,
 		Assignments: assignments,
 	}, nil
@@ -457,7 +454,6 @@ func (s *gradeService) GetStudentReport(classID, studentID, schoolID string) (*d
 		subjects = append(subjects, dto.StudentReportSubjectDTO{
 			Subject:     acc.header,
 			FinalGrade:  report.FinalGrade,
-			LetterGrade: report.LetterGrade,
 			Breakdown:   report.Breakdown,
 			Assignments: acc.assignments,
 		})
@@ -574,9 +570,8 @@ func (s *gradeService) GetMyGradebookByClass(userID string, schoolID string, cla
 	for i := range response.Subjects {
 		subject := &response.Subjects[i]
 		response.Summary.SubjectCount++
-		finalGrade, letterGrade := s.calculateSubjectFinalGrade(weightsBySubject[subject.SubjectID], categoryScoresBySubject[subject.SubjectClassID])
+		finalGrade := s.calculateSubjectFinalGrade(weightsBySubject[subject.SubjectID], categoryScoresBySubject[subject.SubjectClassID])
 		subject.FinalGrade = finalGrade
-		subject.LetterGrade = letterGrade
 	}
 
 	return response, nil
@@ -594,13 +589,13 @@ func calculateAverage(scores []float64) float64 {
 	return sum / float64(len(scores))
 }
 
-func (s *gradeService) calculateSubjectFinalGrade(weights []*domain.AssessmentWeight, categoryScores map[string][]float64) (*float64, *string) {
+func (s *gradeService) calculateSubjectFinalGrade(weights []*domain.AssessmentWeight, categoryScores map[string][]float64) (*float64) {
 	if len(categoryScores) == 0 {
-		return nil, nil
+		return nil
 	}
 
 	if len(weights) == 0 {
-		return nil, nil
+		return nil
 	}
 
 	finalGrade := 0.0
@@ -615,11 +610,10 @@ func (s *gradeService) calculateSubjectFinalGrade(weights []*domain.AssessmentWe
 	}
 
 	if !hasWeightedScore {
-		return nil, nil
+		return nil
 	}
 
-	letterGrade := convertToLetterGrade(finalGrade)
-	return &finalGrade, &letterGrade
+	return &finalGrade
 }
 
 func formatTimePointer(value *time.Time) *string {
@@ -631,19 +625,4 @@ func stringValue(value *string) string {
 		return ""
 	}
 	return *value
-}
-
-func convertToLetterGrade(score float64) string {
-	switch {
-	case score >= 90:
-		return "A"
-	case score >= 80:
-		return "B"
-	case score >= 70:
-		return "C"
-	case score >= 60:
-		return "D"
-	default:
-		return "E"
-	}
 }

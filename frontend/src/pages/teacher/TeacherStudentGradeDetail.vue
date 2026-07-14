@@ -149,9 +149,7 @@ onMounted(loadDetail);
       </div>
     </header>
 
-    <section
-      class="mx-auto max-w-screen px-5 py-5 sm:px-6 lg:px-8 lg:py-6"
-    >
+    <section class="mx-auto max-w-screen px-5 py-5 sm:px-6 lg:px-8 lg:py-6">
       <section v-if="loading" class="space-y-5">
         <div class="grid gap-3 sm:grid-cols-2">
           <div
@@ -204,26 +202,20 @@ onMounted(loadDetail);
       <section v-else-if="detail" class="space-y-5">
         <!-- Card Ringkasan -->
         <div class="grid gap-3 sm:grid-cols-2">
-          <article class="rounded-xl border border-border bg-surface shadow-sm px-4 py-3">
+          <article
+            class="rounded-xl border border-border bg-surface shadow-sm px-4 py-3"
+          >
             <p class="text-xs text-muted">Final Grade</p>
             <p class="mt-2 text-2xl font-medium text-foreground">
               {{ formatScore(detail.finalGrade) }}
             </p>
           </article>
-          <article class="rounded-xl border border-border bg-surface shadow-sm px-4 py-3">
-            <p class="text-xs text-muted">Letter Grade</p>
-            <p class="mt-2">
-              <span
-                class="rounded-full bg-brand-soft px-3 py-1.5 text-lg font-medium text-brand"
-              >
-                {{ detail.letterGrade }}
-              </span>
-            </p>
-          </article>
         </div>
 
         <!-- Category Breakdown -->
-        <article class="rounded-xl border border-border bg-surface shadow-sm p-4 sm:p-5">
+        <article
+          class="rounded-xl border border-border bg-surface shadow-sm p-4 sm:p-5"
+        >
           <h2 class="text-sm font-semibold text-foreground">
             Rincian per Kategori
           </h2>
@@ -269,11 +261,16 @@ onMounted(loadDetail);
 
         <!-- Assignment List -->
         <article class="rounded-xl border border-border bg-surface shadow-sm">
-          <h2 class="px-4 pt-4 text-sm font-semibold text-foreground sm:px-5 sm:pt-5">
+          <h2
+            class="px-4 pt-4 text-sm font-semibold text-foreground sm:px-5 sm:pt-5"
+          >
             Daftar Tugas
           </h2>
 
-          <div v-if="assignments.length === 0" class="px-4 py-8 text-center sm:px-5">
+          <div
+            v-if="assignments.length === 0"
+            class="px-4 py-8 text-center sm:px-5"
+          >
             <div
               class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
             >
@@ -283,8 +280,8 @@ onMounted(loadDetail);
               Belum ada tugas
             </h3>
             <p class="mt-1 text-sm leading-6 text-muted">
-              Nilai akan muncul setelah guru membuat dan menilai tugas pada
-              mata pelajaran ini.
+              Nilai akan muncul setelah guru membuat dan menilai tugas pada mata
+              pelajaran ini.
             </p>
           </div>
 

@@ -106,9 +106,7 @@ onMounted(loadReport);
       </div>
     </header>
 
-    <section
-      class="mx-auto max-w-screen px-5 py-5 sm:px-6 lg:px-8 lg:py-6"
-    >
+    <section class="mx-auto max-w-screen px-5 py-5 sm:px-6 lg:px-8 lg:py-6">
       <section v-if="loading" class="space-y-3">
         <div
           v-for="item in 4"
@@ -183,7 +181,6 @@ onMounted(loadReport);
               <th class="px-4 py-3 font-medium">Nama</th>
               <th class="px-4 py-3 font-medium">Email</th>
               <th class="px-4 py-3 font-medium">Final Grade</th>
-              <th class="px-4 py-3 font-medium">Letter Grade</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-border">
@@ -206,13 +203,6 @@ onMounted(loadReport);
               <td class="px-4 py-3 text-muted">{{ student.studentEmail }}</td>
               <td class="px-4 py-3 text-foreground">
                 {{ formatScore(student.finalGrade) }}
-              </td>
-              <td class="px-4 py-3">
-                <span
-                  class="rounded-full bg-brand-soft px-3 py-1.5 text-xs font-medium text-brand"
-                >
-                  {{ student.letterGrade }}
-                </span>
               </td>
             </tr>
           </tbody>

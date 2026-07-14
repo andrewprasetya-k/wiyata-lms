@@ -255,11 +255,6 @@ onMounted(loadReport);
                     {{ formatScore(entry.finalGrade) }}
                   </p>
                 </div>
-                <span
-                  class="rounded-full bg-brand-soft px-3 py-1.5 text-xs font-medium text-brand"
-                >
-                  {{ entry.letterGrade }}
-                </span>
               </div>
             </header>
 

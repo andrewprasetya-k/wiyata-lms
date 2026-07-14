@@ -110,7 +110,7 @@ SchoolId: uuid-school-id
 - `SchoolId` header menentukan active school context.
 - Student hanya bisa melihat gradebook untuk class tempat dia ter-enroll sebagai student.
 - Response dikelompokkan berdasarkan `subjectClassId`.
-- `finalGrade` dan `letterGrade` bernilai `null` jika bobot nilai belum dikonfigurasi atau belum ada nilai yang bisa dihitung.
+- `finalGrade` bernilai `null` jika bobot nilai belum dikonfigurasi atau belum ada nilai yang bisa dihitung.
 - Untuk MVP, field `finalGrade` adalah nilai berbobot sementara/provisional. Nilai ini dihitung dari assignment yang sudah dinilai dan kategori yang memiliki bobot tersedia.
 - Assignment yang belum dikumpulkan atau sudah dikumpulkan tetapi belum dinilai tidak masuk ke kalkulasi `finalGrade` saat ini.
 - `finalGrade` belum berarti nilai rapor/final resmi karena belum ada policy finalisasi term, `max_score`, late penalty, atau rilis nilai resmi.
@@ -130,7 +130,6 @@ SchoolId: uuid-school-id
       "subjectName": "Matematika",
       "subjectCode": "MTK",
       "finalGrade": 90,
-      "letterGrade": "A",
       "gradedCount": 2,
       "submittedCount": 3,
       "pendingCount": 1,
@@ -196,15 +195,13 @@ Retrieve provisional weighted grades untuk seluruh student di kelas untuk mata p
       "studentId": "uuid",
       "studentName": "John Doe",
       "studentEmail": "john@example.com",
-      "finalGrade": 82.50,
-      "letterGrade": "A"
+      "finalGrade": 82.50
     },
     {
       "studentId": "uuid",
       "studentName": "Jane Smith", 
       "studentEmail": "jane@example.com",
-      "finalGrade": 78.25,
-      "letterGrade": "B"
+      "finalGrade": 78.25
     }
   ]
 }
@@ -247,7 +244,6 @@ Retrieve provisional weighted grade detail untuk **satu siswa** pada **satu mata
     "subjectCode": "MTK"
   },
   "finalGrade": 82.5,
-  "letterGrade": "B",
   "breakdown": [
     {
       "categoryId": "c1d2e3f4-1111-2222-3333-444455556666",
@@ -356,7 +352,6 @@ Retrieve rapor lengkap **satu siswa** untuk **seluruh mata pelajaran** yang diam
         "subjectCode": "MTK"
       },
       "finalGrade": 82.5,
-      "letterGrade": "B",
       "breakdown": [
         {
           "categoryId": "c1d2e3f4-1111-2222-3333-444455556666",
@@ -389,7 +384,6 @@ Retrieve rapor lengkap **satu siswa** untuk **seluruh mata pelajaran** yang diam
         "subjectCode": "FIS"
       },
       "finalGrade": 88,
-      "letterGrade": "B",
       "breakdown": [],
       "assignments": []
     }
@@ -429,24 +423,12 @@ Retrieve rapor lengkap **satu siswa** untuk **seluruh mata pelajaran** yang diam
 
 Kedua endpoint baru ini menyusun response dari kombinasi DTO yang sudah ada, bukan mendefinisikan ulang struktur breakdown/assignment dari nol:
 
-- **`StudentGradeDetailDTO`** (response endpoint #5): `studentId`, `studentName`, `studentEmail` (string) + `class` (reuse `ClassHeaderDTO`) + `subject` (reuse `SubjectHeaderDTO`) + `finalGrade` (float64) + `letterGrade` (string) + `breakdown` (reuse `[]CategoryBreakdownDTO`, sama seperti yang dipakai internal `CalculateFinalGrade`) + `assignments` (reuse `[]MyGradebookAssignmentDTO`, struktur sama persis dengan `assignments[]` di endpoint My Gradebook #3).
+- **`StudentGradeDetailDTO`** (response endpoint #5): `studentId`, `studentName`, `studentEmail` (string) + `class` (reuse `ClassHeaderDTO`) + `subject` (reuse `SubjectHeaderDTO`) + `finalGrade` (float64) + `breakdown` (reuse `[]CategoryBreakdownDTO`, sama seperti yang dipakai internal `CalculateFinalGrade`) + `assignments` (reuse `[]MyGradebookAssignmentDTO`, struktur sama persis dengan `assignments[]` di endpoint My Gradebook #3).
 - **`StudentReportDTO`** (response endpoint #6): `studentId`, `studentName`, `studentEmail` (string) + `class` (reuse `ClassHeaderDTO`) + `subjects` (list `StudentReportSubjectDTO`) + `summary` (`StudentReportSummaryDTO`).
-- **`StudentReportSubjectDTO`** (satu entry di `subjects[]`): `subject` (reuse `SubjectHeaderDTO`) + `finalGrade`/`letterGrade` + `breakdown` (reuse `[]CategoryBreakdownDTO`) + `assignments` (reuse `[]MyGradebookAssignmentDTO`).
+- **`StudentReportSubjectDTO`** (satu entry di `subjects[]`): `subject` (reuse `SubjectHeaderDTO`) + `finalGrade` + `breakdown` (reuse `[]CategoryBreakdownDTO`) + `assignments` (reuse `[]MyGradebookAssignmentDTO`).
 - **`StudentReportSummaryDTO`**: `totalSubjects` (int) — jumlah subject yang berhasil dihitung nilainya; `averageFinalGrade` (float64) — rata-rata `finalGrade` dari subject-subject tersebut. Tidak ada field jumlah "lulus"/"belum lulus" — project ini tidak punya konsep passing grade/KKM di manapun di domain model, jadi field tersebut sengaja tidak dibuat.
 
 DTO yang di-reuse (didefinisikan di tempat lain, tidak diulang di sini): `ClassHeaderDTO` (`classId`, `classTitle`, `classCode`), `SubjectHeaderDTO` (`subjectId`, `subjectName`, `subjectCode`, `subjectColor` opsional), `CategoryBreakdownDTO` (`categoryId`, `categoryName`, `averageScore`, `weightedScore`, `weight`, `assignmentCount`), `MyGradebookAssignmentDTO` (`assignmentId`, `assignmentTitle`, `categoryName`, `deadline`, `status`, `submittedAt`, `score`, `feedback`, `assessedAt`, `assessorName` — lihat definisi lengkap di section #3 My Gradebook di atas).
-
----
-
-## Letter Grade Conversion
-
-| Score Range | Letter Grade |
-|-------------|--------------|
-| 90-100      | A            |
-| 80-89       | B            |
-| 70-79       | C            |
-| 60-69       | D            |
-| 0-59        | E            |
 
 ---
 

@@ -311,12 +311,6 @@ onMounted(loadGrades);
                     {{ formatScore(subject.finalGrade) }}
                   </p>
                 </div>
-                <span
-                  v-if="subject.letterGrade"
-                  class="rounded-full bg-brand-soft px-3 py-1.5 text-xs font-medium text-brand"
-                >
-                  {{ subject.letterGrade }}
-                </span>
               </div>
             </header>
 
