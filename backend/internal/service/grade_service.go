@@ -243,9 +243,6 @@ func (s *gradeService) GetClassGradeReport(classID, subjectID, schoolID string) 
 					finalGrade += avgScore * (weight.Weight / 100.0)
 				}
 
-				// student.FullName/student.Email already come from
-				// GetStudentsBySubjectClass above, so no per-student user
-				// lookup is needed here.
 				studentGrades = append(studentGrades, dto.StudentGradeSummaryDTO{
 					StudentID:    student.ID,
 					StudentName:  student.FullName,
