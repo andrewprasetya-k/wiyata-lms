@@ -5,7 +5,6 @@ import {
   PhArrowClockwise,
   PhArrowRight,
   PhBookOpen,
-  PhClipboardText,
   PhWarningCircle,
 } from "@phosphor-icons/vue";
 import { useAuthStore } from "../../stores/auth";
@@ -554,11 +553,6 @@ onMounted(() => {
           >
             <div class="mb-4 flex shrink-0 items-center justify-between gap-3">
               <div class="flex min-w-0 items-start gap-3">
-                <div
-                  class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-soft text-brand"
-                >
-                  <PhClipboardText :size="19" weight="duotone" />
-                </div>
                 <div class="min-w-0">
                   <p class="text-sm font-medium text-foreground">Tugas Saya</p>
                   <p class="mt-1 text-xs text-muted">
