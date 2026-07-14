@@ -284,7 +284,7 @@ onMounted(() => {
 
         <div
           v-else-if="selectedDatePreview.length === 0"
-          class="border-b border-border bg-surface-subtle p-3 text-xs leading-5 text-muted"
+          class="border-b border-border p-3 text-xs leading-5 text-muted"
         >
           Tidak ada deadline tugas pada tanggal ini.
         </div>
@@ -315,9 +315,7 @@ onMounted(() => {
                 aria-hidden="true"
               />
               <span class="min-w-0 flex-1">
-                <span
-                  class="flex min-w-0 items-center justify-between gap-2"
-                >
+                <span class="flex min-w-0 items-center justify-between gap-2">
                   <span class="text-[11px] font-medium text-brand">
                     {{ activityTypeLabel(activity.type, "student") }}
                   </span>
@@ -347,9 +345,7 @@ onMounted(() => {
                 aria-hidden="true"
               />
               <div class="min-w-0 flex-1">
-                <div
-                  class="flex min-w-0 items-center justify-between gap-2"
-                >
+                <div class="flex min-w-0 items-center justify-between gap-2">
                   <span class="text-[11px] font-medium text-brand">
                     {{ activityTypeLabel(activity.type, "student") }}
                   </span>
@@ -357,9 +353,7 @@ onMounted(() => {
                     {{ calendarActivityTime(activity) }}
                   </span>
                 </div>
-                <p
-                  class="mt-1 truncate text-xs font-medium text-foreground"
-                >
+                <p class="mt-1 truncate text-xs font-medium text-foreground">
                   {{ activity.title }}
                 </p>
               </div>
@@ -369,14 +363,12 @@ onMounted(() => {
 
         <p
           v-if="
-            selectedDateDeadlineActivities.length >
-            selectedDatePreview.length
+            selectedDateDeadlineActivities.length > selectedDatePreview.length
           "
           class="mt-3 text-xs text-muted"
         >
           +{{
-            selectedDateDeadlineActivities.length -
-            selectedDatePreview.length
+            selectedDateDeadlineActivities.length - selectedDatePreview.length
           }}
           deadline lainnya
         </p>

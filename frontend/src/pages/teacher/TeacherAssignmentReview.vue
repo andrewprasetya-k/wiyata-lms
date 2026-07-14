@@ -29,7 +29,9 @@ const router = useRouter();
 const toast = useToastStore();
 
 const assignmentId = computed(() => String(route.params.assignmentId ?? ""));
-const assignment = ref<AssignmentWithSubmissionsResponse["assignment"] | null>(null);
+const assignment = ref<AssignmentWithSubmissionsResponse["assignment"] | null>(
+  null,
+);
 const submissions = ref<TeacherSubmission[]>([]);
 const loading = ref(false);
 const submitting = ref(false);
@@ -55,7 +57,9 @@ async function loadData() {
 
     const targetSubmissionId = route.query.submission as string | undefined;
     if (targetSubmissionId) {
-      const idx = submissions.value.findIndex((s) => s.submissionId === targetSubmissionId);
+      const idx = submissions.value.findIndex(
+        (s) => s.submissionId === targetSubmissionId,
+      );
       activeIndex.value = idx >= 0 ? idx : 0;
     } else if (activeIndex.value >= submissions.value.length) {
       activeIndex.value = Math.max(submissions.value.length - 1, 0);
@@ -72,7 +76,8 @@ async function loadData() {
 
 function getLoadErrorMessage(error: unknown) {
   if (typeof error === "object" && error !== null && "response" in error) {
-    const status = (error as { response?: { status?: number } }).response?.status;
+    const status = (error as { response?: { status?: number } }).response
+      ?.status;
     if (status === 403) return "Anda tidak memiliki akses ke tugas ini.";
     if (status === 404) return "Tugas tidak ditemukan.";
   }
@@ -92,7 +97,10 @@ function updateGradingForm() {
 
 watch(activeIndex, updateGradingForm);
 
-function patchCurrentSubmissionAssessment(scoreValue: number, feedbackValue: string) {
+function patchCurrentSubmissionAssessment(
+  scoreValue: number,
+  feedbackValue: string,
+) {
   const submissionId = currentSubmission.value?.submissionId;
   if (!submissionId) return;
 
@@ -166,9 +174,9 @@ onMounted(loadData);
           <PhArrowLeft :size="15" />
           Mata pelajaran
         </button>
-        <span class="text-[#d1d5db]">/</span>
+        <span class="text-border-strong">/</span>
         <span class="shrink-0">Tugas</span>
-        <span class="text-[#d1d5db]">/</span>
+        <span class="text-border-strong">/</span>
         <span class="min-w-0 truncate font-medium text-foreground">
           Nilai pengumpulan
         </span>
@@ -191,9 +199,7 @@ onMounted(loadData);
           </p>
         </div>
 
-        <div
-          class="flex min-w-0 items-center gap-2 self-start lg:self-center"
-        >
+        <div class="flex min-w-0 items-center gap-2 self-start lg:self-center">
           <button
             type="button"
             class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface text-muted transition hover:bg-surface-strong hover:text-foreground disabled:cursor-not-allowed disabled:opacity-30"
@@ -213,8 +219,7 @@ onMounted(loadData);
             type="button"
             class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface text-muted transition hover:bg-surface-strong hover:text-foreground disabled:cursor-not-allowed disabled:opacity-30"
             :disabled="
-              submissions.length === 0 ||
-              activeIndex === submissions.length - 1
+              submissions.length === 0 || activeIndex === submissions.length - 1
             "
             title="Siswa berikutnya"
             @click="nextStudent"
@@ -289,7 +294,9 @@ onMounted(loadData);
         class="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_340px]"
       >
         <div class="min-w-0 space-y-5">
-          <article class="rounded-xl border border-border bg-surface shadow-sm p-5">
+          <article
+            class="rounded-xl border border-border bg-surface shadow-sm p-5"
+          >
             <div
               class="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
             >
@@ -321,9 +328,7 @@ onMounted(loadData);
                       : 'bg-success-soft text-success'
                   "
                 >
-                  {{
-                    currentSubmission.isLate ? "Terlambat" : "Tepat waktu"
-                  }}
+                  {{ currentSubmission.isLate ? "Terlambat" : "Tepat waktu" }}
                 </span>
                 <span
                   v-if="currentSubmission.assessment"
@@ -336,7 +341,9 @@ onMounted(loadData);
             </div>
           </article>
 
-          <article class="rounded-xl border border-border bg-surface shadow-sm p-5 sm:p-6">
+          <article
+            class="rounded-xl border border-border bg-surface shadow-sm p-5 sm:p-6"
+          >
             <div
               class="flex flex-col gap-2 border-b border-[#f3f1ec] pb-4 sm:flex-row sm:items-center sm:justify-between"
             >
@@ -361,7 +368,9 @@ onMounted(loadData);
 
         <aside class="min-w-0">
           <div class="space-y-4 lg:sticky lg:top-6">
-            <section class="rounded-xl border border-border bg-surface shadow-sm p-5">
+            <section
+              class="rounded-xl border border-border bg-surface shadow-sm p-5"
+            >
               <div class="flex items-center justify-between gap-3">
                 <div>
                   <p
@@ -425,11 +434,7 @@ onMounted(loadData);
                 :disabled="submitting"
                 @click="handleGrade"
               >
-                <PhPaperPlaneTilt
-                  v-if="!submitting"
-                  :size="17"
-                  weight="bold"
-                />
+                <PhPaperPlaneTilt v-if="!submitting" :size="17" weight="bold" />
                 {{
                   submitting
                     ? "Menyimpan..."
@@ -440,7 +445,9 @@ onMounted(loadData);
               </button>
             </section>
 
-            <section class="rounded-xl border border-border bg-surface shadow-sm p-4">
+            <section
+              class="rounded-xl border border-border bg-surface shadow-sm p-4"
+            >
               <div class="flex items-center justify-between gap-3 px-1">
                 <h2 class="text-sm font-semibold text-foreground">
                   Daftar siswa
@@ -466,9 +473,7 @@ onMounted(loadData);
                     <div
                       class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold text-white"
                       :class="
-                        activeIndex === index
-                          ? 'bg-brand'
-                          : 'bg-[#9ca3af]'
+                        activeIndex === index ? 'bg-brand' : 'bg-[#9ca3af]'
                       "
                     >
                       {{ sub.studentName?.charAt(0) }}
@@ -493,12 +498,13 @@ onMounted(loadData);
                       </p>
                     </div>
                   </div>
-                  <span
-                    class="h-2 w-2 shrink-0 rounded-full"
-                    :class="
-                      sub.assessment ? 'bg-success' : 'bg-[#ea580c]'
-                    "
-                  />
+                  <div class="flex items-center gap-2">
+                    <span
+                      :class="sub.assessment ? 'text-success' : 'text-red-500'"
+                    >
+                      {{ sub.assessment ? "Sudah dinilai" : "Belum dinilai" }}
+                    </span>
+                  </div>
                 </button>
               </div>
             </section>
