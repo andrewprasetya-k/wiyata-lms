@@ -49,6 +49,9 @@ func (h *SchoolUserHandler) GetMembersBySchool(c *gin.Context) {
 	schoolCode := c.Param("schoolCode")
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
+	if limit <= 0 || limit > 100 {
+		limit = 100
+	}
 	search := c.Query("search")
 
 	// 1. Ambil data sekolah (untuk header)

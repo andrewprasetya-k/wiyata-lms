@@ -190,6 +190,9 @@ func (h *AssignmentHandler) GetBySubjectClass(c *gin.Context) {
 	subjectClassID := c.Param("subjectClassId")
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
+	if limit <= 0 || limit > 100 {
+		limit = 100
+	}
 	search := c.Query("search")
 	if !h.authorizeUserForSubjectClassAccess(c, subjectClassID) {
 		return

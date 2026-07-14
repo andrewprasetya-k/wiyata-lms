@@ -56,6 +56,9 @@ func (h *SchoolMemberInvitationHandler) List(c *gin.Context) {
 
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
+	if limit <= 0 || limit > 100 {
+		limit = 100
+	}
 	response, err := h.service.List(schoolID, c.Query("status"), page, limit)
 	if err != nil {
 		handleSchoolMemberInvitationError(c, err)

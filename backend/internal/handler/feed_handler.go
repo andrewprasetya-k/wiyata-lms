@@ -142,6 +142,9 @@ func (h *FeedHandler) GetByClass(c *gin.Context) {
 	classID := c.Param("classId")
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+	if limit <= 0 || limit > 100 {
+		limit = 100
+	}
 	schoolID, ok := getFeedActiveSchoolID(c)
 	if !ok {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})

@@ -67,13 +67,18 @@ func (s *chatService) ListMyRooms(userID string, schoolID string, search string)
 		return nil, err
 	}
 
+	roomIDs := make([]string, 0, len(rows))
+	for _, row := range rows {
+		roomIDs = append(roomIDs, row.RoomID)
+	}
+	unreadByRoom, err := s.repo.UnreadCounts(roomIDs, userID)
+	if err != nil {
+		return nil, err
+	}
+
 	rooms := make([]dto.ChatRoomDTO, 0, len(rows))
 	for _, row := range rows {
-		unread, err := s.repo.UnreadCount(row.RoomID, userID)
-		if err != nil {
-			return nil, err
-		}
-		rooms = append(rooms, mapChatRoomRow(row, unread))
+		rooms = append(rooms, mapChatRoomRow(row, unreadByRoom[row.RoomID]))
 	}
 	return rooms, nil
 }

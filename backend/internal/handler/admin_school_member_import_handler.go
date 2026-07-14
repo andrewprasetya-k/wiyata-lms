@@ -81,6 +81,9 @@ func (h *AdminSchoolMemberImportHandler) ListMembers(c *gin.Context) {
 
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
+	if limit <= 0 || limit > 100 {
+		limit = 100
+	}
 	includeDeleted := c.DefaultQuery("includeDeleted", "false") == "true"
 
 	response, err := h.service.ListMembers(

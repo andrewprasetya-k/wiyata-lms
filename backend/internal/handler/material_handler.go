@@ -263,6 +263,9 @@ func (h *MaterialHandler) authorizeTeacherForSubjectClass(c *gin.Context, subjec
 func (h *MaterialHandler) FindAll(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+	if limit <= 0 || limit > 100 {
+		limit = 100
+	}
 	search := c.Query("search")
 	subjectClassID := c.Query("subjectClassId")
 	if subjectClassID == "" {

@@ -23,6 +23,9 @@ func (h *NotificationHandler) GetNotifications(c *gin.Context) {
 	// Parse query params
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
+	if limit <= 0 || limit > 100 {
+		limit = 100
+	}
 	unreadOnly := c.Query("unreadOnly") == "true"
 
 	notifications, err := h.service.GetByUserID(userID, page, limit, unreadOnly)

@@ -411,9 +411,14 @@ func (s *assignmentService) GetSubmissions(asgID string) ([]*domain.Submission, 
 		return nil, err
 	}
 
+	sourceIDs := make([]string, 0, len(results))
 	for _, sbm := range results {
-		atts, _ := s.attService.GetBySource(string(domain.SourceSubmission), sbm.ID)
-		for _, a := range atts {
+		sourceIDs = append(sourceIDs, sbm.ID)
+	}
+	attachmentsBySource, _ := s.attService.GetBySources(string(domain.SourceSubmission), sourceIDs)
+
+	for _, sbm := range results {
+		for _, a := range attachmentsBySource[sbm.ID] {
 			sbm.Attachments = append(sbm.Attachments, *a)
 		}
 	}

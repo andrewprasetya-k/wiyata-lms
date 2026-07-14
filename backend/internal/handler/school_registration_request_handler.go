@@ -39,6 +39,9 @@ func (h *SchoolRegistrationRequestHandler) Create(c *gin.Context) {
 func (h *SchoolRegistrationRequestHandler) List(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+	if limit <= 0 || limit > 100 {
+		limit = 100
+	}
 	status := c.Query("status")
 
 	response, err := h.service.List(status, page, limit)

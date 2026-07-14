@@ -56,6 +56,9 @@ func (h *ClassHandler) Create(c *gin.Context) {
 func (h *ClassHandler) FindAll(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+	if limit <= 0 || limit > 100 {
+		limit = 100
+	}
 	search := c.Query("search")
 	schoolCode := c.Query("schoolCode")
 	termID := c.Query("termId")

@@ -42,6 +42,9 @@ func (h *UserHandler) Create(c *gin.Context) {
 func (h *UserHandler) FindAll(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+	if limit <= 0 || limit > 100 {
+		limit = 100
+	}
 	search := c.Query("search")
 
 	users, total, err := h.service.FindAll(search, page, limit)

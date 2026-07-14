@@ -51,6 +51,9 @@ func (h *EnrollmentHandler) GetByClass(c *gin.Context) {
 	classID := c.Param("classId")
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
+	if limit <= 0 || limit > 100 {
+		limit = 100
+	}
 	search := c.Query("search")
 	schoolID, ok := getActiveSchoolID(c)
 	if !ok {

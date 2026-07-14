@@ -38,6 +38,7 @@ type ChatRepository interface {
 	ListSchoolRecipientUserIDs(schoolID string) ([]string, error)
 	ListRoomRecipientUserIDs(roomID string, schoolID string) ([]string, error)
 	UnreadCount(roomID string, userID string) (int64, error)
+	UnreadCounts(roomIDs []string, userID string) (map[string]int64, error)
 }
 
 type chatRepository struct {
@@ -1139,6 +1140,57 @@ func (r *chatRepository) UnreadCount(roomID string, userID string) (int64, error
 			)
 	`, userID, roomID, userID).Scan(&count).Error
 	return count, err
+}
+
+func (r *chatRepository) UnreadCounts(roomIDs []string, userID string) (map[string]int64, error) {
+	result := make(map[string]int64, len(roomIDs))
+	if len(roomIDs) == 0 {
+		return result, nil
+	}
+
+	var rows []struct {
+		RoomID string `gorm:"column:room_id"`
+		Count  int64  `gorm:"column:count"`
+	}
+	err := r.db.Raw(`
+		SELECT msg.msg_room_id AS room_id, COUNT(*) AS count
+		FROM edv.chat_messages msg
+		LEFT JOIN edv.chat_read_receipts rct
+			ON rct.rct_room_id = msg.msg_room_id
+			AND rct.rct_usr_id = ?
+		LEFT JOIN edv.chat_messages last_read_msg
+			ON last_read_msg.msg_id = rct.last_read_msg_id
+			AND last_read_msg.msg_room_id = msg.msg_room_id
+			AND last_read_msg.deleted_at IS NULL
+		WHERE msg.msg_room_id IN ?
+			AND msg.msg_usr_id <> ?
+			AND msg.msg_type IN ('text', 'file')
+			AND msg.deleted_at IS NULL
+			AND (
+				CASE
+					WHEN last_read_msg.created_at IS NOT NULL AND rct.last_read_at IS NOT NULL
+						THEN GREATEST(last_read_msg.created_at, rct.last_read_at)
+					WHEN last_read_msg.created_at IS NOT NULL
+						THEN last_read_msg.created_at
+					ELSE rct.last_read_at
+				END IS NULL
+				OR msg.created_at > CASE
+					WHEN last_read_msg.created_at IS NOT NULL AND rct.last_read_at IS NOT NULL
+						THEN GREATEST(last_read_msg.created_at, rct.last_read_at)
+					WHEN last_read_msg.created_at IS NOT NULL
+						THEN last_read_msg.created_at
+					ELSE rct.last_read_at
+				END
+			)
+		GROUP BY msg.msg_room_id
+	`, userID, roomIDs, userID).Scan(&rows).Error
+	if err != nil {
+		return nil, err
+	}
+	for _, row := range rows {
+		result[row.RoomID] = row.Count
+	}
+	return result, nil
 }
 
 func chatRoomListSelect() string {
