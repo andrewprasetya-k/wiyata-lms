@@ -17,7 +17,7 @@ var ErrStudentNotEnrolledInClass = errors.New("student is not enrolled in this c
 type GradeService interface {
 	ConfigureWeights(req *dto.ConfigureWeightsDTO, schoolID string) error
 	GetWeightsBySubject(subjectID string, schoolID string) (*dto.WeightResponseDTO, error)
-	CalculateFinalGrade(studentID string, subjectID string) (*dto.GradeReportDTO, error)
+	CalculateFinalGrade(student *domain.User, subjectID string, subjectName string, weights []*domain.AssessmentWeight, categoryScores map[string][]float64) (*dto.GradeReportDTO, error)
 	GetClassGradeReport(classID, subjectID, schoolID string) (*dto.ClassGradeReportDTO, error)
 	GetMyGradebookByClass(userID string, schoolID string, classID string) (*dto.MyGradebookResponseDTO, error)
 	GetStudentGradeDetail(classID, subjectID, studentID, schoolID string) (*dto.StudentGradeDetailDTO, error)
@@ -156,25 +156,9 @@ func (s *gradeService) ensureWeightCategoriesInSchool(categoryIDs []string, scho
 	return nil
 }
 
-func (s *gradeService) CalculateFinalGrade(studentID string, subjectID string) (*dto.GradeReportDTO, error) {
-	weights, err := s.weightRepo.GetBySubject(subjectID)
-	if err != nil {
-		return nil, err
-	}
-
+func (s *gradeService) CalculateFinalGrade(student *domain.User, subjectID string, subjectName string, weights []*domain.AssessmentWeight, categoryScores map[string][]float64) (*dto.GradeReportDTO, error) {
 	if len(weights) == 0 {
 		return nil, errors.New("no weights configured for this subject")
-	}
-
-	assessments, err := s.gradeRepo.GetAssessmentsByStudentAndSubject(studentID, subjectID)
-	if err != nil {
-		return nil, err
-	}
-
-	categoryScores := make(map[string][]float64)
-	for _, assessment := range assessments {
-		categoryID := assessment.Submission.Assignment.CategoryID
-		categoryScores[categoryID] = append(categoryScores[categoryID], assessment.Score)
 	}
 
 	breakdown := []dto.CategoryBreakdownDTO{}
@@ -196,16 +180,11 @@ func (s *gradeService) CalculateFinalGrade(studentID string, subjectID string) (
 		})
 	}
 
-	user, err := s.userRepo.GetByID(studentID)
-	if err != nil {
-		return nil, err
-	}
-
 	return &dto.GradeReportDTO{
-		StudentID:   studentID,
-		StudentName: user.FullName,
+		StudentID:   student.ID,
+		StudentName: student.FullName,
 		SubjectID:   subjectID,
-		SubjectName: weights[0].Subject.Name,
+		SubjectName: subjectName,
 		Breakdown:   breakdown,
 		FinalGrade:  finalGrade,
 		LetterGrade: convertToLetterGrade(finalGrade),
@@ -311,12 +290,28 @@ func (s *gradeService) GetStudentGradeDetail(classID, subjectID, studentID, scho
 		return nil, fmt.Errorf("forbidden: subject does not belong to active school")
 	}
 
-	report, err := s.CalculateFinalGrade(studentID, subjectID)
+	student, err := s.userRepo.GetByID(studentID)
 	if err != nil {
 		return nil, err
 	}
 
-	student, err := s.userRepo.GetByID(studentID)
+	weights, err := s.weightRepo.GetBySubject(subjectID)
+	if err != nil {
+		return nil, err
+	}
+
+	assessments, err := s.gradeRepo.GetAssessmentsByStudentAndSubject(studentID, subjectID)
+	if err != nil {
+		return nil, err
+	}
+
+	categoryScores := make(map[string][]float64)
+	for _, assessment := range assessments {
+		categoryID := assessment.Submission.Assignment.CategoryID
+		categoryScores[categoryID] = append(categoryScores[categoryID], assessment.Score)
+	}
+
+	report, err := s.CalculateFinalGrade(student, subjectID, subject.Name, weights, categoryScores)
 	if err != nil {
 		return nil, err
 	}
@@ -395,8 +390,9 @@ func (s *gradeService) GetStudentReport(classID, studentID, schoolID string) (*d
 	}
 
 	type subjectAccumulator struct {
-		header      dto.SubjectHeaderDTO
-		assignments []dto.MyGradebookAssignmentDTO
+		header         dto.SubjectHeaderDTO
+		assignments    []dto.MyGradebookAssignmentDTO
+		categoryScores map[string][]float64
 	}
 
 	subjectOrder := make([]string, 0)
@@ -411,7 +407,8 @@ func (s *gradeService) GetStudentReport(classID, studentID, schoolID string) (*d
 					SubjectName: row.SubjectName,
 					SubjectCode: row.SubjectCode,
 				},
-				assignments: []dto.MyGradebookAssignmentDTO{},
+				assignments:    []dto.MyGradebookAssignmentDTO{},
+				categoryScores: make(map[string][]float64),
 			}
 			bySubject[row.SubjectID] = acc
 			subjectOrder = append(subjectOrder, row.SubjectID)
@@ -427,6 +424,9 @@ func (s *gradeService) GetStudentReport(classID, studentID, schoolID string) (*d
 		}
 		if row.Score != nil {
 			status = "graded"
+			if row.CategoryID != nil {
+				acc.categoryScores[*row.CategoryID] = append(acc.categoryScores[*row.CategoryID], *row.Score)
+			}
 		}
 
 		acc.assignments = append(acc.assignments, dto.MyGradebookAssignmentDTO{
@@ -443,13 +443,18 @@ func (s *gradeService) GetStudentReport(classID, studentID, schoolID string) (*d
 		})
 	}
 
+	weightsBySubject, err := s.weightRepo.GetBySubjects(subjectOrder)
+	if err != nil {
+		return nil, err
+	}
+
 	subjects := make([]dto.StudentReportSubjectDTO, 0, len(subjectOrder))
 	totalFinalGrade := 0.0
 
 	for _, subjectID := range subjectOrder {
 		acc := bySubject[subjectID]
 
-		report, err := s.CalculateFinalGrade(studentID, subjectID)
+		report, err := s.CalculateFinalGrade(student, subjectID, acc.header.SubjectName, weightsBySubject[subjectID], acc.categoryScores)
 		if err != nil {
 			continue
 		}
