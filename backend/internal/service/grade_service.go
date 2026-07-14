@@ -213,9 +213,11 @@ func (s *gradeService) GetClassGradeReport(classID, subjectID, schoolID string) 
 		return nil, err
 	}
 
-	studentGrades := []dto.StudentGradeSummaryDTO{}
+	studentGrades := make([]dto.StudentGradeSummaryDTO, 0, len(students))
 
 	weights, err := s.weightRepo.GetBySubject(subjectID)
+
+	categoryScoresByStudent := make(map[string]map[string][]float64, len(students))
 	if err == nil && len(weights) > 0 {
 		studentIDs := make([]string, 0, len(students))
 		for _, student := range students {
@@ -224,7 +226,6 @@ func (s *gradeService) GetClassGradeReport(classID, subjectID, schoolID string) 
 
 		assessments, err := s.gradeRepo.GetAssessmentsByStudentsAndSubject(studentIDs, subjectID)
 		if err == nil {
-			categoryScoresByStudent := make(map[string]map[string][]float64, len(students))
 			for _, assessment := range assessments {
 				studentID := assessment.Submission.UserID
 				categoryID := assessment.Submission.Assignment.CategoryID
@@ -233,25 +234,25 @@ func (s *gradeService) GetClassGradeReport(classID, subjectID, schoolID string) 
 				}
 				categoryScoresByStudent[studentID][categoryID] = append(categoryScoresByStudent[studentID][categoryID], assessment.Score)
 			}
-
-			for _, student := range students {
-				categoryScores := categoryScoresByStudent[student.ID]
-
-				finalGrade := 0.0
-				for _, weight := range weights {
-					avgScore := calculateAverage(categoryScores[weight.CategoryID])
-					finalGrade += avgScore * (weight.Weight / 100.0)
-				}
-
-				studentGrades = append(studentGrades, dto.StudentGradeSummaryDTO{
-					StudentID:    student.ID,
-					StudentName:  student.FullName,
-					StudentEmail: student.Email,
-					FinalGrade:   finalGrade,
-					LetterGrade:  convertToLetterGrade(finalGrade),
-				})
-			}
 		}
+	}
+
+	for _, student := range students {
+		categoryScores := categoryScoresByStudent[student.ID]
+
+		finalGrade := 0.0
+		for _, weight := range weights {
+			avgScore := calculateAverage(categoryScores[weight.CategoryID])
+			finalGrade += avgScore * (weight.Weight / 100.0)
+		}
+
+		studentGrades = append(studentGrades, dto.StudentGradeSummaryDTO{
+			StudentID:    student.ID,
+			StudentName:  student.FullName,
+			StudentEmail: student.Email,
+			FinalGrade:   finalGrade,
+			LetterGrade:  convertToLetterGrade(finalGrade),
+		})
 	}
 
 	return &dto.ClassGradeReportDTO{

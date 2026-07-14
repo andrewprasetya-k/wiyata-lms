@@ -67,8 +67,7 @@ func (r *gradeRepository) GetStudentsBySubjectClass(subjectClassID string) ([]*d
 	err := r.db.
 		Joins("JOIN edv.school_users ON school_users.scu_usr_id = users.usr_id AND school_users.deleted_at IS NULL").
 		Joins("JOIN edv.enrollments ON enrollments.enr_scu_id = school_users.scu_id").
-		Joins("JOIN edv.subject_classes ON subject_classes.scl_cls_id = enrollments.enr_cls_id").
-		Where("subject_classes.scl_cls_id = ?", subjectClassID).
+		Where("enrollments.enr_cls_id = ?", subjectClassID).
 		Where("enrollments.enr_role = ?", "student").
 		Where("enrollments.left_at IS NULL").
 		Distinct().
