@@ -95,7 +95,6 @@ function mapTeachingClasses(subjects: TeacherSubjectClass[]) {
   );
 }
 
-
 function isForbiddenError(error: unknown) {
   return (
     typeof error === "object" &&
@@ -299,7 +298,10 @@ async function scrollToLinkedPost() {
   if (el) {
     el.scrollIntoView({ behavior: "smooth", block: "center" });
     el.classList.add("ring-2", "ring-brand", "ring-offset-2");
-    setTimeout(() => el.classList.remove("ring-2", "ring-brand", "ring-offset-2"), 3000);
+    setTimeout(
+      () => el.classList.remove("ring-2", "ring-brand", "ring-offset-2"),
+      3000,
+    );
   }
 }
 
@@ -521,9 +523,7 @@ function updatePostCommentCount(feedId: string, count: number) {
             v-else-if="feedError"
             class="mt-3 rounded-xl border border-warning-line bg-warning-soft p-5"
           >
-            <h3 class="text-sm font-semibold text-warning">
-              Terjadi kendala
-            </h3>
+            <h3 class="text-sm font-semibold text-warning">Terjadi kendala</h3>
             <p class="mt-2 text-sm leading-6 text-warning">
               {{ feedError }}
             </p>
@@ -592,13 +592,15 @@ function updatePostCommentCount(feedId: string, count: number) {
               >
                 {{ post.content }}
               </p>
-              <div class="border-t border-[#f3f1ec] px-4 pb-4 sm:px-5">
+              <div class="px-4 pb-4 sm:px-5">
                 <CommentThread
                   v-if="!isOptimisticFeed(post)"
                   source-type="feed"
                   :source-id="post.feedId"
                   :initial-count="post.commentCount"
-                  @count-change="(count) => updatePostCommentCount(post.feedId, count)"
+                  @count-change="
+                    (count) => updatePostCommentCount(post.feedId, count)
+                  "
                 />
                 <p v-else class="py-3 text-xs leading-5 text-muted">
                   Komentar tersedia setelah pengumuman tersimpan.
