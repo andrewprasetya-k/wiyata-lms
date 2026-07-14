@@ -273,7 +273,7 @@ onMounted(loadData);
 
       <section
         v-else-if="submissions.length === 0"
-        class="mx-auto max-w-xl rounded-xl border border-border bg-surface px-5 py-10 text-center"
+        class="mx-auto max-w-screen rounded-xl border border-border bg-surface px-5 py-10 text-center"
       >
         <div
           class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
@@ -283,7 +283,7 @@ onMounted(loadData);
         <h2 class="mt-3 text-lg font-semibold text-foreground">
           Belum ada pengumpulan
         </h2>
-        <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-muted">
+        <p class="mx-auto mt-2 max-w-screen text-sm leading-6 text-muted">
           Belum ada siswa yang mengumpulkan tugas ini. Daftar pengumpulan akan
           muncul setelah siswa mengirim jawaban.
         </p>
