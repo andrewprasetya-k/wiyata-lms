@@ -139,7 +139,7 @@ onMounted(loadSubject);
           <PhArrowLeft :size="15" />
           Mata pelajaran
         </button>
-        <span class="text-[#d1d5db]">/</span>
+        <span class="text-border-strong">/</span>
         <span class="min-w-0 truncate font-medium text-foreground">
           {{ subjectTitle }}
         </span>
@@ -152,7 +152,9 @@ onMounted(loadSubject);
             aria-hidden="true"
           />
           <div class="min-w-0">
-            <h1 class="truncate text-xl font-semibold text-foreground sm:text-2xl">
+            <h1
+              class="truncate text-xl font-semibold text-foreground sm:text-2xl"
+            >
               {{ subjectTitle }}
             </h1>
             <p
@@ -325,7 +327,7 @@ onMounted(loadSubject);
               </div>
 
               <div
-                class="mt-4 flex min-w-0 items-center justify-between gap-3 border-t border-[#f0ede8] pt-3"
+                class="mt-4 flex min-w-0 items-center justify-between gap-3 border-surface-strong pt-3"
               >
                 <div class="min-w-0 text-[11px] text-muted">
                   <p class="truncate">
@@ -447,7 +449,7 @@ onMounted(loadSubject);
                     </h3>
                     <span
                       v-if="assignment.categoryName"
-                      class="rounded-full bg-[#eff6ff] px-2 py-1 text-[10px] font-medium text-[#2563eb]"
+                      class="rounded-full bg-info-soft px-2 py-1 text-[10px] font-medium text-info"
                     >
                       {{ assignment.categoryName }}
                     </span>
@@ -580,7 +582,7 @@ onMounted(loadSubject);
               </p>
 
               <div
-                class="mt-4 flex flex-wrap items-center gap-2 border-t border-[#f0ede8] pt-3"
+                class="mt-4 flex flex-wrap items-center gap-2 border-t border-surface-strong pt-3"
               >
                 <button
                   class="rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted transition hover:bg-background"

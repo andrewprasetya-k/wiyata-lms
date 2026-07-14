@@ -118,10 +118,6 @@ const form = ref({
   mediaIds: [] as string[],
 });
 
-// Dirty tracking — lightweight snapshot comparison, captured once
-// loadInitialData finishes (so prefilled/default values never count as a
-// change). No library: just a JSON string comparison of the fields a user
-// can actually edit.
 function captureFormSnapshot() {
   return JSON.stringify({
     title: form.value.title,
@@ -422,7 +418,13 @@ onMounted(loadInitialData);
 </script>
 
 <template>
-  <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-background">
+  <main
+    :class="
+      mode === 'page'
+        ? 'min-h-screen min-w-0 flex-1 overflow-x-hidden bg-background'
+        : 'min-w-0'
+    "
+  >
     <header v-if="mode === 'page'" class="border-b border-border bg-surface">
       <div class="px-5 py-5 sm:px-6 lg:px-8">
         <div class="flex min-w-0 items-center gap-2 text-xs text-muted">
@@ -480,7 +482,9 @@ onMounted(loadInitialData);
       </div>
     </header>
 
-    <section class="px-5 py-5 sm:px-6 lg:px-8 lg:py-6">
+    <section
+      :class="mode === 'page' ? 'px-5 py-5 sm:px-6 lg:px-8 lg:py-6' : ''"
+    >
       <section
         v-if="errorMessage"
         class="mb-5 flex items-start gap-3 rounded-xl border border-danger-line bg-danger-soft p-4 text-sm leading-6 text-danger"
@@ -506,34 +510,22 @@ onMounted(loadInitialData);
       </template>
 
       <template v-else>
-        <div class="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <div
+          :class="
+            mode === 'page'
+              ? 'grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_320px]'
+              : 'min-w-0 space-y-5'
+          "
+        >
           <div class="min-w-0 space-y-5">
             <section
-              class="rounded-xl border border-border bg-surface p-5 sm:p-6"
+              :class="
+                mode === 'page'
+                  ? 'rounded-xl border border-border bg-surface p-5 sm:p-6'
+                  : ''
+              "
             >
-              <div class="flex items-start gap-3">
-                <div
-                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand"
-                >
-                  <PhInfo :size="20" weight="duotone" />
-                </div>
-                <div>
-                  <h2 class="text-base font-semibold text-foreground">
-                    Informasi utama
-                  </h2>
-                  <p class="mt-1 text-xs leading-5 text-muted">
-                    Isi judul dan
-                    {{
-                      activeTab === "material"
-                        ? "deskripsi materi"
-                        : "instruksi tugas"
-                    }}
-                    untuk siswa.
-                  </p>
-                </div>
-              </div>
-
-              <div class="mt-5 space-y-5">
+              <div class="space-y-5">
                 <div>
                   <label
                     class="block text-sm font-medium text-foreground-secondary"
@@ -575,9 +567,13 @@ onMounted(loadInitialData);
             </section>
 
             <section
-              class="rounded-xl border border-border bg-surface p-5 sm:p-6"
+              :class="
+                mode === 'page'
+                  ? 'rounded-xl border border-border bg-surface p-5 sm:p-6'
+                  : ''
+              "
             >
-              <div class="flex items-start gap-3">
+              <div v-if="mode === 'page'" class="flex items-start gap-3">
                 <div
                   class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-strong text-muted"
                 >
@@ -593,7 +589,7 @@ onMounted(loadInitialData);
                 </div>
               </div>
 
-              <div class="mt-5">
+              <div :class="mode === 'page' ? 'mt-5' : ''">
                 <MediaUploader
                   v-if="hasRequiredContext"
                   :key="uploaderKey"
@@ -630,18 +626,19 @@ onMounted(loadInitialData);
           </div>
 
           <aside class="min-w-0">
-            <div class="space-y-4 lg:sticky lg:top-6">
-              <section class="rounded-xl border border-border bg-surface p-5">
-                <p
-                  class="text-[10px] font-medium uppercase tracking-[0.08em] text-muted"
-                >
-                  Metadata
-                </p>
-                <h2 class="mt-1 text-base font-semibold text-foreground">
-                  Pengaturan konten
-                </h2>
-
-                <div v-if="activeTab === 'material'" class="mt-5">
+            <div
+              :class="
+                mode === 'page' ? 'space-y-4 lg:sticky lg:top-6' : 'space-y-4'
+              "
+            >
+              <section
+                :class="
+                  mode === 'page'
+                    ? 'rounded-xl border border-border bg-surface p-5'
+                    : ''
+                "
+              >
+                <div v-if="activeTab === 'material'">
                   <label
                     class="block text-xs font-medium text-muted"
                     for="material-type"
@@ -720,13 +717,13 @@ onMounted(loadInitialData);
                     </div>
                   </div>
 
-                  <div class="border-t border-[#f3f4f6] pt-4">
+                  <div class="">
                     <div class="flex items-center justify-between gap-3">
                       <div class="min-w-0">
                         <p
                           class="text-xs font-medium text-foreground-secondary"
                         >
-                          Izinkan terlambat
+                          Izinkan terlambat?
                         </p>
                         <p class="mt-1 text-[11px] leading-4 text-muted">
                           Siswa tetap dapat mengumpulkan setelah tenggat.
@@ -751,7 +748,13 @@ onMounted(loadInitialData);
                 </div>
               </section>
 
-              <section class="rounded-xl border border-border bg-surface p-4">
+              <section
+                :class="
+                  mode === 'page'
+                    ? 'rounded-xl border border-border bg-surface p-4'
+                    : ''
+                "
+              >
                 <div class="grid gap-2">
                   <button
                     type="button"

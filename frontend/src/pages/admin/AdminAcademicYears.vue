@@ -93,7 +93,7 @@ const termFormError = ref("");
 const subjectFormError = ref("");
 const categoryFormError = ref("");
 const activeAction = ref("");
-const activeTab = ref<'periode' | 'mapel'>('periode');
+const activeTab = ref<"periode" | "mapel">("periode");
 const mapelLoaded = ref(false);
 
 const academicYearForm = ref({ academicYearName: "" });
@@ -197,7 +197,6 @@ function formatWeight(value: number) {
     maximumFractionDigits: 2,
   }).format(value);
 }
-
 
 function getApiStatus(error: unknown) {
   if (typeof error === "object" && error !== null && "response" in error) {
@@ -311,9 +310,9 @@ async function loadCategories() {
   }
 }
 
-async function switchTab(tab: 'periode' | 'mapel') {
+async function switchTab(tab: "periode" | "mapel") {
   activeTab.value = tab;
-  if (tab === 'mapel' && !mapelLoaded.value) {
+  if (tab === "mapel" && !mapelLoaded.value) {
     mapelLoaded.value = true;
     await Promise.all([loadSubjects(), loadCategories()]);
     await loadAssessmentWeights();
@@ -431,7 +430,8 @@ async function submitSubject() {
   }
   const color = normalizeSubjectColor(subjectForm.value.color);
   if (color && !isValidSubjectColor(color)) {
-    subjectFormError.value = "Warna mata pelajaran harus berupa hex, contoh #4f46e5.";
+    subjectFormError.value =
+      "Warna mata pelajaran harus berupa hex, contoh #4f46e5.";
     return;
   }
 
@@ -640,11 +640,17 @@ watch(selectedWeightSubjectId, () => {
         akses sekolah yang valid.
       </div>
 
-      <div class="flex gap-1 self-start rounded-xl border border-border bg-surface-strong p-1">
+      <div
+        class="flex gap-1 self-start rounded-xl border border-border bg-surface-strong p-1"
+      >
         <button
           type="button"
           class="rounded-lg px-4 py-2 text-sm font-medium transition"
-          :class="activeTab === 'periode' ? 'bg-surface text-foreground shadow-sm' : 'text-muted hover:text-foreground-secondary'"
+          :class="
+            activeTab === 'periode'
+              ? 'bg-surface text-foreground shadow-sm'
+              : 'text-muted hover:text-foreground-secondary'
+          "
           @click="switchTab('periode')"
         >
           Periode Akademik
@@ -652,7 +658,11 @@ watch(selectedWeightSubjectId, () => {
         <button
           type="button"
           class="rounded-lg px-4 py-2 text-sm font-medium transition"
-          :class="activeTab === 'mapel' ? 'bg-surface text-foreground shadow-sm' : 'text-muted hover:text-foreground-secondary'"
+          :class="
+            activeTab === 'mapel'
+              ? 'bg-surface text-foreground shadow-sm'
+              : 'text-muted hover:text-foreground-secondary'
+          "
           @click="switchTab('mapel')"
         >
           Mata Pelajaran
@@ -660,717 +670,767 @@ watch(selectedWeightSubjectId, () => {
       </div>
 
       <template v-if="activeTab === 'periode'">
-      <section class="grid gap-5 lg:grid-cols-2">
-        <article
-          class="rounded-xl border border-border bg-surface shadow-sm p-5"
-        >
-          <div class="flex items-start justify-between gap-4">
-            <div class="min-w-0">
-              <p
-                class="eyebrow"
-              >
-                Tahun ajaran
-              </p>
-              <h2 class="mt-2 text-xl font-semibold text-foreground">
-                Tahun ajaran
-              </h2>
-              <p class="mt-2 text-sm leading-6 text-muted">
-                Buka atau tutup periode akademik yang digunakan oleh semester
-                dan kelas.
-              </p>
-            </div>
-            <span
-              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#fff4ee] text-[#ea580c]"
-            >
-              <PhCalendarBlank :size="22" weight="duotone" />
-            </span>
-          </div>
-
-          <form
-            class="mt-5 flex flex-col gap-3 sm:flex-row"
-            @submit.prevent="submitAcademicYear"
+        <section class="grid gap-5 lg:grid-cols-2">
+          <article
+            class="rounded-xl border border-border bg-surface shadow-sm p-5"
           >
-            <input
-              v-model="academicYearForm.academicYearName"
-              type="text"
-              placeholder="Contoh: 2026/2027"
-              class="min-w-0 flex-1 rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand-line"
-            />
-            <button
-              type="submit"
-              class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#ea580c] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#c2410c] disabled:cursor-not-allowed disabled:opacity-60"
-              :disabled="
-                activeAction === 'academic-year-create' ||
-                !currentSchool.hasContext
-              "
-            >
-              <PhPlusCircle :size="18" weight="duotone" />
-              Tambah
-            </button>
-          </form>
-          <InlineFormError :message="academicYearFormError" class="mt-2" />
-
-          <div class="mt-5 space-y-3">
-            <div v-if="academicYearsLoading" class="space-y-3">
-              <div v-for="item in 2" :key="item" class="h-14 animate-pulse rounded-lg bg-surface-subtle" />
-            </div>
-            <p
-              v-else-if="academicYearsError"
-              class="rounded-lg border border-danger-line bg-danger-soft px-4 py-3 text-sm text-danger"
-            >
-              {{ academicYearsError }}
-            </p>
-            <div
-              v-else-if="academicYears.length === 0"
-              class="rounded-lg border border-dashed border-border-strong bg-surface-subtle px-4 py-8 text-center"
-            >
-              <PhCalendarBlank class="mx-auto h-7 w-7 text-muted" weight="duotone" />
-              <p class="mt-3 text-sm font-semibold text-foreground">Belum ada tahun ajaran</p>
-              <p class="mt-1 text-sm text-muted">Buat tahun ajaran pertama menggunakan form di atas.</p>
-            </div>
-
-            <article
-              v-for="year in academicYears"
-              :key="year.academicYearId"
-              class="rounded-lg bg-surface-subtle p-4"
-            >
-              <div
-                class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
-              >
-                <div class="min-w-0">
-                  <div class="flex flex-wrap items-center gap-2">
-                    <h3 class="truncate text-base font-semibold text-foreground">
-                      {{ year.academicYearName }}
-                    </h3>
-                    <span
-                      class="rounded-full px-2.5 py-1 text-xs font-semibold"
-                      :class="
-                        year.isActive
-                          ? 'bg-success-soft text-success'
-                          : 'bg-surface-strong text-muted'
-                      "
-                    >
-                      {{ year.isActive ? "Aktif" : "Nonaktif" }}
-                    </span>
-                  </div>
-                  <p class="mt-2 text-sm text-muted">
-                    {{ year.schoolCode || currentSchool.schoolCode }} • dibuat
-                    {{ formatDateTime(year.createdAt) }}
-                  </p>
-                </div>
-
-                <button
-                  type="button"
-                  class="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground-secondary transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
-                  :disabled="isAcademicYearActionPending(year.academicYearId)"
-                  @click="toggleAcademicYear(year)"
-                >
-                  <PhChecks v-if="!year.isActive" :size="16" weight="duotone" />
-                  <PhWarningCircle v-else :size="16" weight="duotone" />
-                  {{ year.isActive ? "Nonaktifkan" : "Aktifkan" }}
-                </button>
+            <div class="flex items-start justify-between gap-4">
+              <div class="min-w-0">
+                <p class="eyebrow">Tahun ajaran</p>
+                <h2 class="mt-2 text-xl font-semibold text-foreground">
+                  Tahun ajaran
+                </h2>
+                <p class="mt-2 text-sm leading-6 text-muted">
+                  Buka atau tutup periode akademik yang digunakan oleh semester
+                  dan kelas.
+                </p>
               </div>
-            </article>
-          </div>
-        </article>
-
-        <article
-          class="rounded-xl border border-border bg-surface shadow-sm p-5"
-        >
-          <div class="flex items-start justify-between gap-4">
-            <div class="min-w-0">
-              <p
-                class="eyebrow"
+              <span
+                class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#fff4ee] text-[#ea580c]"
               >
-                Semester
-              </p>
-              <h2 class="mt-2 text-xl font-semibold text-foreground">
-                Semester
-              </h2>
-              <p class="mt-2 text-sm leading-6 text-muted">
-                Pilih tahun ajaran, lalu buat atau aktifkan semester.
-              </p>
+                <PhCalendarBlank :size="22" weight="duotone" />
+              </span>
             </div>
-            <span
-              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-success-soft text-success"
-            >
-              <PhCalendarBlank :size="22" weight="duotone" />
-            </span>
-          </div>
 
-          <label class="mt-5 block text-sm font-medium text-foreground">
-            Tahun ajaran
-            <select
-              v-model="selectedAcademicYearId"
-              class="mt-2 w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition focus:border-brand focus:ring-2 focus:ring-brand-line"
-              @change="loadTerms"
+            <form
+              class="mt-5 flex flex-col gap-3 sm:flex-row"
+              @submit.prevent="submitAcademicYear"
             >
-              <option value="" disabled>Pilih tahun ajaran</option>
-              <option
+              <input
+                v-model="academicYearForm.academicYearName"
+                type="text"
+                placeholder="Contoh: 2026/2027"
+                class="min-w-0 flex-1 rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand-line"
+              />
+              <button
+                type="submit"
+                class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#ea580c] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#c2410c] disabled:cursor-not-allowed disabled:opacity-60"
+                :disabled="
+                  activeAction === 'academic-year-create' ||
+                  !currentSchool.hasContext
+                "
+              >
+                <PhPlusCircle :size="18" weight="duotone" />
+                Tambah
+              </button>
+            </form>
+            <InlineFormError :message="academicYearFormError" class="mt-2" />
+
+            <div class="mt-5 space-y-3">
+              <div v-if="academicYearsLoading" class="space-y-3">
+                <div
+                  v-for="item in 2"
+                  :key="item"
+                  class="h-14 animate-pulse rounded-lg bg-surface-subtle"
+                />
+              </div>
+              <p
+                v-else-if="academicYearsError"
+                class="rounded-lg border border-danger-line bg-danger-soft px-4 py-3 text-sm text-danger"
+              >
+                {{ academicYearsError }}
+              </p>
+              <div
+                v-else-if="academicYears.length === 0"
+                class="rounded-lg border border-dashed border-border-strong bg-surface-subtle px-4 py-8 text-center"
+              >
+                <PhCalendarBlank
+                  class="mx-auto h-7 w-7 text-muted"
+                  weight="duotone"
+                />
+                <p class="mt-3 text-sm font-semibold text-foreground">
+                  Belum ada tahun ajaran
+                </p>
+                <p class="mt-1 text-sm text-muted">
+                  Buat tahun ajaran pertama menggunakan form di atas.
+                </p>
+              </div>
+
+              <article
                 v-for="year in academicYears"
                 :key="year.academicYearId"
-                :value="year.academicYearId"
+                class="rounded-lg bg-surface-subtle p-4"
               >
-                {{ year.academicYearName }}
-              </option>
-            </select>
-          </label>
-
-          <form
-            class="mt-4 flex flex-col gap-3 sm:flex-row"
-            @submit.prevent="submitTerm"
-          >
-            <input
-              v-model="termForm.termName"
-              type="text"
-              placeholder="Contoh: Semester Ganjil"
-              class="min-w-0 flex-1 rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand-line"
-            />
-            <button
-              type="submit"
-              class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#ea580c] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#c2410c] disabled:cursor-not-allowed disabled:opacity-60"
-              :disabled="
-                activeAction === 'term-create' || !selectedAcademicYearId
-              "
-            >
-              <PhPlusCircle :size="18" weight="duotone" />
-              Tambah
-            </button>
-          </form>
-          <InlineFormError :message="termFormError" class="mt-2" />
-
-          <div class="mt-5 space-y-3">
-            <div v-if="termsLoading" class="space-y-3">
-              <div v-for="item in 2" :key="item" class="h-14 animate-pulse rounded-lg bg-surface-subtle" />
-            </div>
-            <p
-              v-else-if="termsError"
-              class="rounded-lg border border-danger-line bg-danger-soft px-4 py-3 text-sm text-danger"
-            >
-              {{ termsError }}
-            </p>
-            <div
-              v-else-if="!selectedAcademicYearId"
-              class="rounded-lg border border-dashed border-border-strong bg-surface-subtle px-4 py-8 text-center"
-            >
-              <PhCalendarBlank class="mx-auto h-7 w-7 text-muted" weight="duotone" />
-              <p class="mt-3 text-sm font-semibold text-foreground">Pilih tahun ajaran</p>
-              <p class="mt-1 text-sm text-muted">Pilih tahun ajaran di atas untuk melihat dan mengelola semester.</p>
-            </div>
-            <div
-              v-else-if="terms.length === 0"
-              class="rounded-lg border border-dashed border-border-strong bg-surface-subtle px-4 py-8 text-center"
-            >
-              <PhCalendarBlank class="mx-auto h-7 w-7 text-muted" weight="duotone" />
-              <p class="mt-3 text-sm font-semibold text-foreground">Belum ada semester</p>
-              <p class="mt-1 text-sm text-muted">Buat semester pertama untuk tahun ajaran ini menggunakan form di atas.</p>
-            </div>
-
-            <article
-              v-for="term in terms"
-              :key="term.termId"
-              class="rounded-lg bg-surface-subtle p-4"
-            >
-              <div
-                class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
-              >
-                <div class="min-w-0">
-                  <div class="flex flex-wrap items-center gap-2">
-                    <h3 class="truncate text-base font-semibold text-foreground">
-                      {{ term.termName }}
-                    </h3>
-                    <span
-                      class="rounded-full px-2.5 py-1 text-xs font-semibold"
-                      :class="
-                        term.isActive
-                          ? 'bg-success-soft text-success'
-                          : 'bg-surface-strong text-muted'
-                      "
-                    >
-                      {{ term.isActive ? "Aktif" : "Nonaktif" }}
-                    </span>
-                  </div>
-                  <p class="mt-2 text-sm text-muted">
-                    {{
-                      term.academicYearName ||
-                      selectedAcademicYear?.academicYearName ||
-                      "Tahun ajaran"
-                    }}
-                    •
-                    {{ formatDateTime(term.createdAt) }}
-                  </p>
-                </div>
-
-                <button
-                  type="button"
-                  class="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground-secondary transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
-                  :disabled="isTermActionPending(term.termId)"
-                  @click="toggleTerm(term)"
+                <div
+                  class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
                 >
-                  <PhChecks v-if="!term.isActive" :size="16" weight="duotone" />
-                  <PhWarningCircle v-else :size="16" weight="duotone" />
-                  {{ term.isActive ? "Nonaktifkan" : "Aktifkan" }}
-                </button>
-              </div>
-            </article>
-          </div>
-        </article>
-      </section>
-
-      <RouterLink
-        v-if="terms.length > 0"
-        to="/admin/classes"
-        class="flex items-center justify-between gap-4 rounded-xl border border-border bg-surface shadow-sm p-5 transition hover:border-brand hover:shadow-sm"
-      >
-        <div>
-          <p class="eyebrow">
-            Langkah berikutnya
-          </p>
-          <p class="mt-1 text-base font-semibold text-foreground">Buat Kelas</p>
-          <p class="mt-1 text-sm text-muted">
-            Semester sudah siap — buat kelas untuk tiap tingkat dan semester.
-          </p>
-        </div>
-        <PhArrowRight :size="20" class="shrink-0 text-brand" weight="bold" />
-      </RouterLink>
-      </template>
-
-      <template v-if="activeTab === 'mapel'">
-      <section class="grid gap-5 lg:grid-cols-2">
-        <article
-          class="rounded-xl border border-border bg-surface shadow-sm p-5"
-        >
-          <div class="flex items-start justify-between gap-4">
-            <div class="min-w-0">
-              <p
-                class="eyebrow"
-              >
-                Mata pelajaran
-              </p>
-              <h2 class="mt-2 text-xl font-semibold text-foreground">
-                Mata pelajaran
-              </h2>
-              <p class="mt-2 text-sm leading-6 text-muted">
-                Daftarkan mata pelajaran yang akan dipakai pada penugasan
-                mengajar dan konten belajar.
-              </p>
-            </div>
-            <span
-              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#eff6ff] text-[#2563eb]"
-            >
-              <PhBookOpen :size="22" weight="duotone" />
-            </span>
-          </div>
-
-          <form
-            class="mt-5 grid gap-3 sm:grid-cols-2"
-            @submit.prevent="submitSubject"
-          >
-            <input
-              v-model="subjectForm.subjectName"
-              type="text"
-              placeholder="Nama mata pelajaran"
-              class="min-w-0 rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand-line"
-            />
-            <input
-              v-model="subjectForm.subjectCode"
-              type="text"
-              placeholder="Kode"
-              class="min-w-0 rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand-line"
-            />
-            <div class="sm:col-span-2">
-              <label class="text-xs font-semibold text-muted">
-                Warna mata pelajaran
-              </label>
-              <div class="mt-2 grid gap-3 sm:grid-cols-[auto_minmax(0,1fr)]">
-                <input
-                  v-model="subjectColorPickerValue"
-                  type="color"
-                  class="h-11 w-14 rounded-lg border border-border bg-surface p-1"
-                  aria-label="Pilih warna mata pelajaran"
-                />
-                <div class="flex min-w-0 items-center gap-3">
-                  <span
-                    class="h-8 w-8 shrink-0 rounded-full border border-border"
-                    :style="{ backgroundColor: subjectColorPreview }"
-                    aria-hidden="true"
-                  />
-                  <input
-                    v-model="subjectForm.color"
-                    type="text"
-                    placeholder="#4f46e5"
-                    class="min-w-0 flex-1 rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand-line"
-                  />
-                </div>
-              </div>
-              <p class="mt-2 text-xs leading-5 text-muted">
-                Opsional. Kosongkan untuk memakai warna fallback otomatis.
-              </p>
-            </div>
-            <button
-              type="submit"
-              class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#ea580c] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#c2410c] disabled:cursor-not-allowed disabled:opacity-60 sm:col-span-2"
-              :disabled="
-                activeAction === 'subject-create' ||
-                activeAction === `subject-update-${editingSubjectId}` ||
-                !currentSchool.hasContext
-              "
-            >
-              <PhPlusCircle :size="18" weight="duotone" />
-              {{
-                editingSubjectId
-                  ? "Simpan mata pelajaran"
-                  : "Tambah mata pelajaran"
-              }}
-            </button>
-            <button
-              v-if="editingSubjectId"
-              type="button"
-              class="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground-secondary transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60 sm:col-span-2"
-              @click="resetSubjectForm"
-            >
-              <PhX :size="18" weight="duotone" />
-              Batalkan edit
-            </button>
-          </form>
-          <InlineFormError :message="subjectFormError" class="mt-2" />
-
-          <div class="mt-5 space-y-3">
-            <div v-if="subjectsLoading" class="space-y-3">
-              <div v-for="item in 2" :key="item" class="h-14 animate-pulse rounded-lg bg-surface-subtle" />
-            </div>
-            <p
-              v-else-if="subjectsError"
-              class="rounded-lg border border-danger-line bg-danger-soft px-4 py-3 text-sm text-danger"
-            >
-              {{ subjectsError }}
-            </p>
-            <div
-              v-else-if="subjects.length === 0"
-              class="rounded-lg border border-dashed border-border-strong bg-surface-subtle px-4 py-8 text-center"
-            >
-              <PhBookOpen class="mx-auto h-7 w-7 text-muted" weight="duotone" />
-              <p class="mt-3 text-sm font-semibold text-foreground">Belum ada mata pelajaran</p>
-              <p class="mt-1 text-sm text-muted">Tambah mata pelajaran pertama menggunakan form di atas.</p>
-            </div>
-
-            <article
-              v-for="subject in subjects"
-              :key="subject.subjectId"
-              class="rounded-lg bg-surface-subtle p-4"
-            >
-              <div class="flex min-w-0 items-start justify-between gap-3">
-                <div class="flex min-w-0 items-start gap-3">
-                  <span
-                    class="mt-1 h-3 w-3 shrink-0 rounded-full"
-                    :style="{ backgroundColor: subjectDisplayColor(subject) }"
-                    aria-hidden="true"
-                  />
                   <div class="min-w-0">
-                    <h3 class="truncate text-base font-semibold text-foreground">
-                      {{ subject.subjectName }}
-                    </h3>
-                    <p class="mt-2 text-sm text-muted">
-                      {{ subject.subjectCode }} •
-                      {{ subject.schoolCode || currentSchool.schoolCode }} •
-                      dibuat {{ formatDateTime(subject.createdAt) }}
-                    </p>
-                    <p class="mt-1 text-xs text-muted">
-                      Warna:
-                      <span class="font-medium text-foreground">
-                        {{ subject.color || "fallback otomatis" }}
+                    <div class="flex flex-wrap items-center gap-2">
+                      <h3
+                        class="truncate text-base font-semibold text-foreground"
+                      >
+                        {{ year.academicYearName }}
+                      </h3>
+                      <span
+                        class="rounded-full px-2.5 py-1 text-xs font-semibold"
+                        :class="
+                          year.isActive
+                            ? 'bg-success-soft text-success'
+                            : 'bg-surface-strong text-muted'
+                        "
+                      >
+                        {{ year.isActive ? "Aktif" : "Nonaktif" }}
                       </span>
+                    </div>
+                    <p class="mt-2 text-sm text-muted">
+                      {{ year.schoolCode || currentSchool.schoolCode }} • dibuat
+                      {{ formatDateTime(year.createdAt) }}
                     </p>
                   </div>
+
+                  <button
+                    type="button"
+                    class="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground-secondary transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
+                    :disabled="isAcademicYearActionPending(year.academicYearId)"
+                    @click="toggleAcademicYear(year)"
+                  >
+                    <PhChecks
+                      v-if="!year.isActive"
+                      :size="16"
+                      weight="duotone"
+                    />
+                    <PhWarningCircle v-else :size="16" weight="duotone" />
+                    {{ year.isActive ? "Nonaktifkan" : "Aktifkan" }}
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-xs font-medium text-foreground-secondary transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
-                  @click="editSubject(subject)"
-                >
-                  <PhPencilSimple :size="16" weight="duotone" />
-                  Edit
-                </button>
+              </article>
+            </div>
+          </article>
+
+          <article
+            class="rounded-xl border border-border bg-surface shadow-sm p-5"
+          >
+            <div class="flex items-start justify-between gap-4">
+              <div class="min-w-0">
+                <p class="eyebrow">Semester</p>
+                <h2 class="mt-2 text-xl font-semibold text-foreground">
+                  Semester
+                </h2>
+                <p class="mt-2 text-sm leading-6 text-muted">
+                  Pilih tahun ajaran, lalu buat atau aktifkan semester.
+                </p>
               </div>
-            </article>
-          </div>
-        </article>
-
-        <article
-          class="rounded-xl border border-border bg-surface shadow-sm p-5"
-        >
-          <div class="flex items-start justify-between gap-4">
-            <div class="min-w-0">
-              <p
-                class="eyebrow"
+              <span
+                class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-success-soft text-success"
               >
-                Kategori tugas
-              </p>
-              <h2 class="mt-2 text-xl font-semibold text-foreground">
-                Kategori tugas
-              </h2>
-              <p class="mt-2 text-sm leading-6 text-muted">
-                Siapkan kategori yang digunakan saat guru membuat tugas dan
-                admin mengatur bobot penilaian.
-              </p>
-            </div>
-            <span
-              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-danger-soft text-danger"
-            >
-              <PhTag :size="22" weight="duotone" />
-            </span>
-          </div>
-
-          <form
-            class="mt-5 flex flex-col gap-3 sm:flex-row"
-            @submit.prevent="submitCategory"
-          >
-            <input
-              v-model="categoryForm.categoryName"
-              type="text"
-              placeholder="Contoh: Kuis"
-              class="min-w-0 flex-1 rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand-line"
-            />
-            <button
-              type="submit"
-              class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#ea580c] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#c2410c] disabled:cursor-not-allowed disabled:opacity-60"
-              :disabled="
-                activeAction === 'category-create' || !currentSchool.hasContext
-              "
-            >
-              <PhPlusCircle :size="18" weight="duotone" />
-              Tambah
-            </button>
-          </form>
-          <InlineFormError :message="categoryFormError" class="mt-2" />
-
-          <div class="mt-5 space-y-3">
-            <div v-if="categoriesLoading" class="space-y-3">
-              <div v-for="item in 2" :key="item" class="h-14 animate-pulse rounded-lg bg-surface-subtle" />
-            </div>
-            <p
-              v-else-if="categoriesError"
-              class="rounded-lg border border-danger-line bg-danger-soft px-4 py-3 text-sm text-danger"
-            >
-              {{ categoriesError }}
-            </p>
-            <div
-              v-else-if="categories.length === 0"
-              class="rounded-lg border border-dashed border-border-strong bg-surface-subtle px-4 py-8 text-center"
-            >
-              <PhTag class="mx-auto h-7 w-7 text-muted" weight="duotone" />
-              <p class="mt-3 text-sm font-semibold text-foreground">Belum ada kategori tugas</p>
-              <p class="mt-1 text-sm text-muted">Tambah kategori seperti "Kuis" atau "UTS" untuk dipakai di bobot penilaian.</p>
+                <PhCalendarBlank :size="22" weight="duotone" />
+              </span>
             </div>
 
-            <article
-              v-for="category in categories"
-              :key="category.categoryId"
-              class="rounded-lg bg-surface-subtle p-4"
-            >
-              <h3 class="truncate text-base font-semibold text-foreground">
-                {{ category.categoryName }}
-              </h3>
-              <p class="mt-2 text-sm text-muted">
-                Dibuat {{ formatDateTime(category.createdAt) }}
-              </p>
-            </article>
-          </div>
-        </article>
-      </section>
-
-      <section
-        class="rounded-xl border border-border bg-surface shadow-sm p-5"
-      >
-        <div
-          class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"
-        >
-          <div class="max-w-3xl">
-            <p
-              class="eyebrow"
-            >
-              Bobot penilaian
-            </p>
-            <h2 class="mt-2 text-xl font-semibold text-foreground">
-              Bobot penilaian
-            </h2>
-            <p class="mt-2 text-sm leading-6 text-muted">
-              Bobot berlaku per mata pelajaran dan digunakan untuk menghitung
-              rata-rata berbobot sementara. Ini bukan nilai rapor final resmi.
-            </p>
-          </div>
-          <div
-            class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#fff4ee] text-[#ea580c]"
-          >
-            <PhChartBar :size="22" weight="duotone" />
-          </div>
-        </div>
-
-        <div
-          v-if="subjects.length === 0"
-          class="mt-5 rounded-lg border border-dashed border-border-strong bg-surface-subtle p-4 text-sm leading-6 text-muted"
-        >
-          Tambahkan mata pelajaran terlebih dahulu sebelum mengatur bobot nilai.
-        </div>
-
-        <div
-          v-else-if="categories.length === 0"
-          class="mt-5 rounded-lg border border-dashed border-border-strong bg-surface-subtle p-4 text-sm leading-6 text-muted"
-        >
-          Tambahkan kategori tugas terlebih dahulu sebelum mengatur bobot nilai.
-        </div>
-
-        <div
-          v-else
-          class="mt-5 grid gap-5 xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]"
-        >
-          <div class="rounded-lg bg-surface-subtle p-4">
-            <label class="block text-sm font-medium text-foreground">
-              Mata pelajaran
+            <label class="mt-5 block text-sm font-medium text-foreground">
+              Tahun ajaran
               <select
-                v-model="selectedWeightSubjectId"
+                v-model="selectedAcademicYearId"
                 class="mt-2 w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition focus:border-brand focus:ring-2 focus:ring-brand-line"
+                @change="loadTerms"
               >
-                <option value="" disabled>Pilih mata pelajaran</option>
+                <option value="" disabled>Pilih tahun ajaran</option>
                 <option
-                  v-for="subject in subjects"
-                  :key="subject.subjectId"
-                  :value="subject.subjectId"
+                  v-for="year in academicYears"
+                  :key="year.academicYearId"
+                  :value="year.academicYearId"
                 >
-                  {{ subject.subjectName }} · {{ subject.subjectCode }}
+                  {{ year.academicYearName }}
                 </option>
               </select>
             </label>
 
-            <div class="mt-4 rounded-lg border border-border bg-surface p-4">
-              <p class="text-xs font-medium text-muted">Total bobot</p>
-              <div class="mt-2 flex flex-wrap items-end justify-between gap-3">
-                <p
-                  class="text-3xl font-semibold"
-                  :class="
-                    isWeightTotalValid ? 'text-success' : 'text-warning'
-                  "
-                >
-                  {{ formatWeight(totalWeight) }}%
-                </p>
-                <span
-                  class="rounded-full px-3 py-1 text-xs font-semibold"
-                  :class="
-                    isWeightTotalValid
-                      ? 'bg-success-soft text-success'
-                      : 'bg-warning-soft text-warning'
-                  "
-                >
-                  {{ isWeightTotalValid ? "Valid" : "Harus 100%" }}
-                </span>
-              </div>
-              <p class="mt-3 text-xs leading-5 text-muted">
-                Total bobot harus 100% sebelum disimpan.
-              </p>
-            </div>
-
-            <p
-              v-if="selectedWeightSubject"
-              class="mt-4 rounded-lg border border-warning-line bg-warning-soft px-4 py-3 text-xs leading-5 text-warning"
+            <form
+              class="mt-4 flex flex-col gap-3 sm:flex-row"
+              @submit.prevent="submitTerm"
             >
-              Bobot yang disimpan akan berlaku untuk semua kelas pada mata
-              pelajaran {{ selectedWeightSubject.subjectName }}.
+              <input
+                v-model="termForm.termName"
+                type="text"
+                placeholder="Contoh: Semester Ganjil"
+                class="min-w-0 flex-1 rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand-line"
+              />
+              <button
+                type="submit"
+                class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#ea580c] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#c2410c] disabled:cursor-not-allowed disabled:opacity-60"
+                :disabled="
+                  activeAction === 'term-create' || !selectedAcademicYearId
+                "
+              >
+                <PhPlusCircle :size="18" weight="duotone" />
+                Tambah
+              </button>
+            </form>
+            <InlineFormError :message="termFormError" class="mt-2" />
+
+            <div class="mt-5 space-y-3">
+              <div v-if="termsLoading" class="space-y-3">
+                <div
+                  v-for="item in 2"
+                  :key="item"
+                  class="h-14 animate-pulse rounded-lg bg-surface-subtle"
+                />
+              </div>
+              <p
+                v-else-if="termsError"
+                class="rounded-lg border border-danger-line bg-danger-soft px-4 py-3 text-sm text-danger"
+              >
+                {{ termsError }}
+              </p>
+              <div
+                v-else-if="!selectedAcademicYearId"
+                class="rounded-lg border border-dashed border-border-strong bg-surface-subtle px-4 py-8 text-center"
+              >
+                <PhCalendarBlank
+                  class="mx-auto h-7 w-7 text-muted"
+                  weight="duotone"
+                />
+                <p class="mt-3 text-sm font-semibold text-foreground">
+                  Pilih tahun ajaran
+                </p>
+                <p class="mt-1 text-sm text-muted">
+                  Pilih tahun ajaran di atas untuk melihat dan mengelola
+                  semester.
+                </p>
+              </div>
+              <div
+                v-else-if="terms.length === 0"
+                class="rounded-lg border border-dashed border-border-strong bg-surface-subtle px-4 py-8 text-center"
+              >
+                <PhCalendarBlank
+                  class="mx-auto h-7 w-7 text-muted"
+                  weight="duotone"
+                />
+                <p class="mt-3 text-sm font-semibold text-foreground">
+                  Belum ada semester
+                </p>
+                <p class="mt-1 text-sm text-muted">
+                  Buat semester pertama untuk tahun ajaran ini menggunakan form
+                  di atas.
+                </p>
+              </div>
+
+              <article
+                v-for="term in terms"
+                :key="term.termId"
+                class="rounded-lg bg-surface-subtle p-4"
+              >
+                <div
+                  class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
+                >
+                  <div class="min-w-0">
+                    <div class="flex flex-wrap items-center gap-2">
+                      <h3
+                        class="truncate text-base font-semibold text-foreground"
+                      >
+                        {{ term.termName }}
+                      </h3>
+                      <span
+                        class="rounded-full px-2.5 py-1 text-xs font-semibold"
+                        :class="
+                          term.isActive
+                            ? 'bg-success-soft text-success'
+                            : 'bg-surface-strong text-muted'
+                        "
+                      >
+                        {{ term.isActive ? "Aktif" : "Nonaktif" }}
+                      </span>
+                    </div>
+                    <p class="mt-2 text-sm text-muted">
+                      {{
+                        term.academicYearName ||
+                        selectedAcademicYear?.academicYearName ||
+                        "Tahun ajaran"
+                      }}
+                      •
+                      {{ formatDateTime(term.createdAt) }}
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    class="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground-secondary transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
+                    :disabled="isTermActionPending(term.termId)"
+                    @click="toggleTerm(term)"
+                  >
+                    <PhChecks
+                      v-if="!term.isActive"
+                      :size="16"
+                      weight="duotone"
+                    />
+                    <PhWarningCircle v-else :size="16" weight="duotone" />
+                    {{ term.isActive ? "Nonaktifkan" : "Aktifkan" }}
+                  </button>
+                </div>
+              </article>
+            </div>
+          </article>
+        </section>
+
+        <RouterLink
+          v-if="terms.length > 0"
+          to="/admin/classes"
+          class="flex items-center justify-between gap-4 rounded-xl border border-border bg-surface shadow-sm p-5 transition hover:border-brand hover:shadow-sm"
+        >
+          <div>
+            <p class="eyebrow">Langkah berikutnya</p>
+            <p class="mt-1 text-base font-semibold text-foreground">
+              Buat Kelas
+            </p>
+            <p class="mt-1 text-sm text-muted">
+              Semester sudah siap — buat kelas untuk tiap tingkat dan semester.
             </p>
           </div>
+          <PhArrowRight :size="20" class="shrink-0 text-brand" weight="bold" />
+        </RouterLink>
+      </template>
 
-          <form
-            class="rounded-lg bg-surface-subtle p-4"
-            @submit.prevent="submitAssessmentWeights"
+      <template v-if="activeTab === 'mapel'">
+        <section class="grid gap-5 lg:grid-cols-2">
+          <article
+            class="rounded-xl border border-border bg-surface shadow-sm p-5"
           >
-            <div
-              class="flex flex-col gap-3 border-b border-border pb-4 sm:flex-row sm:items-start sm:justify-between"
-            >
-              <div>
-                <p class="text-sm font-semibold text-foreground">
-                  Kategori dan bobot
+            <div class="flex items-start justify-between gap-4">
+              <div class="min-w-0">
+                <p class="eyebrow">Mata pelajaran</p>
+                <h2 class="mt-2 text-xl font-semibold text-foreground">
+                  Mata pelajaran
+                </h2>
+                <p class="mt-2 text-sm leading-6 text-muted">
+                  Daftarkan mata pelajaran yang akan dipakai pada penugasan
+                  mengajar dan konten belajar.
                 </p>
-                <p class="mt-1 text-xs leading-5 text-muted">
-                  Kosong dianggap 0. Setiap kategori hanya muncul satu kali.
+              </div>
+              <span
+                class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-info-soft text-info"
+              >
+                <PhBookOpen :size="22" weight="duotone" />
+              </span>
+            </div>
+
+            <form
+              class="mt-5 grid gap-3 sm:grid-cols-2"
+              @submit.prevent="submitSubject"
+            >
+              <input
+                v-model="subjectForm.subjectName"
+                type="text"
+                placeholder="Nama mata pelajaran"
+                class="min-w-0 rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand-line"
+              />
+              <input
+                v-model="subjectForm.subjectCode"
+                type="text"
+                placeholder="Kode"
+                class="min-w-0 rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand-line"
+              />
+              <div class="sm:col-span-2">
+                <label class="text-xs font-semibold text-muted">
+                  Warna mata pelajaran
+                </label>
+                <div class="mt-2 grid gap-3 sm:grid-cols-[auto_minmax(0,1fr)]">
+                  <input
+                    v-model="subjectColorPickerValue"
+                    type="color"
+                    class="h-11 w-14 rounded-lg border border-border bg-surface p-1"
+                    aria-label="Pilih warna mata pelajaran"
+                  />
+                  <div class="flex min-w-0 items-center gap-3">
+                    <span
+                      class="h-8 w-8 shrink-0 rounded-full border border-border"
+                      :style="{ backgroundColor: subjectColorPreview }"
+                      aria-hidden="true"
+                    />
+                    <input
+                      v-model="subjectForm.color"
+                      type="text"
+                      placeholder="#4f46e5"
+                      class="min-w-0 flex-1 rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand-line"
+                    />
+                  </div>
+                </div>
+                <p class="mt-2 text-xs leading-5 text-muted">
+                  Opsional. Kosongkan untuk memakai warna fallback otomatis.
                 </p>
               </div>
               <button
-                class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#ea580c] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#c2410c] disabled:cursor-not-allowed disabled:opacity-60"
                 type="submit"
-                :disabled="!canSubmitWeights"
+                class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#ea580c] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#c2410c] disabled:cursor-not-allowed disabled:opacity-60 sm:col-span-2"
+                :disabled="
+                  activeAction === 'subject-create' ||
+                  activeAction === `subject-update-${editingSubjectId}` ||
+                  !currentSchool.hasContext
+                "
               >
-                <PhChecks :size="16" weight="duotone" />
+                <PhPlusCircle :size="18" weight="duotone" />
                 {{
-                  activeAction === "weights-save"
-                    ? "Menyimpan..."
-                    : "Simpan bobot"
+                  editingSubjectId
+                    ? "Simpan mata pelajaran"
+                    : "Tambah mata pelajaran"
                 }}
               </button>
+              <button
+                v-if="editingSubjectId"
+                type="button"
+                class="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground-secondary transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60 sm:col-span-2"
+                @click="resetSubjectForm"
+              >
+                <PhX :size="18" weight="duotone" />
+                Batalkan edit
+              </button>
+            </form>
+            <InlineFormError :message="subjectFormError" class="mt-2" />
+
+            <div class="mt-5 space-y-3">
+              <div v-if="subjectsLoading" class="space-y-3">
+                <div
+                  v-for="item in 2"
+                  :key="item"
+                  class="h-14 animate-pulse rounded-lg bg-surface-subtle"
+                />
+              </div>
+              <p
+                v-else-if="subjectsError"
+                class="rounded-lg border border-danger-line bg-danger-soft px-4 py-3 text-sm text-danger"
+              >
+                {{ subjectsError }}
+              </p>
+              <div
+                v-else-if="subjects.length === 0"
+                class="rounded-lg border border-dashed border-border-strong bg-surface-subtle px-4 py-8 text-center"
+              >
+                <PhBookOpen
+                  class="mx-auto h-7 w-7 text-muted"
+                  weight="duotone"
+                />
+                <p class="mt-3 text-sm font-semibold text-foreground">
+                  Belum ada mata pelajaran
+                </p>
+                <p class="mt-1 text-sm text-muted">
+                  Tambah mata pelajaran pertama menggunakan form di atas.
+                </p>
+              </div>
+
+              <article
+                v-for="subject in subjects"
+                :key="subject.subjectId"
+                class="rounded-lg bg-surface-subtle p-4"
+              >
+                <div class="flex min-w-0 items-start justify-between gap-3">
+                  <div class="flex min-w-0 items-start gap-3">
+                    <span
+                      class="mt-1 h-3 w-3 shrink-0 rounded-full"
+                      :style="{ backgroundColor: subjectDisplayColor(subject) }"
+                      aria-hidden="true"
+                    />
+                    <div class="min-w-0">
+                      <h3
+                        class="truncate text-base font-semibold text-foreground"
+                      >
+                        {{ subject.subjectName }}
+                      </h3>
+                      <p class="mt-2 text-sm text-muted">
+                        {{ subject.subjectCode }} •
+                        {{ subject.schoolCode || currentSchool.schoolCode }} •
+                        dibuat {{ formatDateTime(subject.createdAt) }}
+                      </p>
+                      <p class="mt-1 text-xs text-muted">
+                        Warna:
+                        <span class="font-medium text-foreground">
+                          {{ subject.color || "fallback otomatis" }}
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-xs font-medium text-foreground-secondary transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
+                    @click="editSubject(subject)"
+                  >
+                    <PhPencilSimple :size="16" weight="duotone" />
+                    Edit
+                  </button>
+                </div>
+              </article>
+            </div>
+          </article>
+
+          <article
+            class="rounded-xl border border-border bg-surface shadow-sm p-5"
+          >
+            <div class="flex items-start justify-between gap-4">
+              <div class="min-w-0">
+                <p class="eyebrow">Kategori tugas</p>
+                <h2 class="mt-2 text-xl font-semibold text-foreground">
+                  Kategori tugas
+                </h2>
+                <p class="mt-2 text-sm leading-6 text-muted">
+                  Siapkan kategori yang digunakan saat guru membuat tugas dan
+                  admin mengatur bobot penilaian.
+                </p>
+              </div>
+              <span
+                class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-danger-soft text-danger"
+              >
+                <PhTag :size="22" weight="duotone" />
+              </span>
             </div>
 
-            <div v-if="weightsLoading" class="mt-4 space-y-3">
-              <div
-                v-for="item in 3"
-                :key="item"
-                class="h-14 animate-pulse rounded-lg bg-surface"
+            <form
+              class="mt-5 flex flex-col gap-3 sm:flex-row"
+              @submit.prevent="submitCategory"
+            >
+              <input
+                v-model="categoryForm.categoryName"
+                type="text"
+                placeholder="Contoh: Kuis"
+                class="min-w-0 flex-1 rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:ring-2 focus:ring-brand-line"
               />
-            </div>
-
-            <div v-else class="mt-4 space-y-3">
-              <p
-                v-if="weightsError"
-                class="rounded-lg border border-danger-line bg-danger-soft px-4 py-3 text-sm leading-6 text-danger"
+              <button
+                type="submit"
+                class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#ea580c] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#c2410c] disabled:cursor-not-allowed disabled:opacity-60"
+                :disabled="
+                  activeAction === 'category-create' ||
+                  !currentSchool.hasContext
+                "
               >
-                {{ weightsError }}
-              </p>
-              <p
-                v-else-if="weightsInfoMessage"
-                class="rounded-lg border border-warning-line bg-warning-soft px-4 py-3 text-sm leading-6 text-warning"
-              >
-                {{ weightsInfoMessage }}
-              </p>
+                <PhPlusCircle :size="18" weight="duotone" />
+                Tambah
+              </button>
+            </form>
+            <InlineFormError :message="categoryFormError" class="mt-2" />
 
+            <div class="mt-5 space-y-3">
+              <div v-if="categoriesLoading" class="space-y-3">
+                <div
+                  v-for="item in 2"
+                  :key="item"
+                  class="h-14 animate-pulse rounded-lg bg-surface-subtle"
+                />
+              </div>
+              <p
+                v-else-if="categoriesError"
+                class="rounded-lg border border-danger-line bg-danger-soft px-4 py-3 text-sm text-danger"
+              >
+                {{ categoriesError }}
+              </p>
               <div
+                v-else-if="categories.length === 0"
+                class="rounded-lg border border-dashed border-border-strong bg-surface-subtle px-4 py-8 text-center"
+              >
+                <PhTag class="mx-auto h-7 w-7 text-muted" weight="duotone" />
+                <p class="mt-3 text-sm font-semibold text-foreground">
+                  Belum ada kategori tugas
+                </p>
+                <p class="mt-1 text-sm text-muted">
+                  Tambah kategori seperti "Kuis" atau "UTS" untuk dipakai di
+                  bobot penilaian.
+                </p>
+              </div>
+
+              <article
                 v-for="category in categories"
                 :key="category.categoryId"
-                class="grid gap-3 rounded-lg border border-border bg-surface p-4 sm:grid-cols-[minmax(0,1fr)_140px]"
+                class="rounded-lg bg-surface-subtle p-4"
               >
-                <div class="min-w-0">
-                  <p class="truncate text-sm font-semibold text-foreground">
-                    {{ category.categoryName }}
+                <h3 class="truncate text-base font-semibold text-foreground">
+                  {{ category.categoryName }}
+                </h3>
+                <p class="mt-2 text-sm text-muted">
+                  Dibuat {{ formatDateTime(category.createdAt) }}
+                </p>
+              </article>
+            </div>
+          </article>
+        </section>
+
+        <section
+          class="rounded-xl border border-border bg-surface shadow-sm p-5"
+        >
+          <div
+            class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"
+          >
+            <div class="max-w-3xl">
+              <p class="eyebrow">Bobot penilaian</p>
+              <h2 class="mt-2 text-xl font-semibold text-foreground">
+                Bobot penilaian
+              </h2>
+              <p class="mt-2 text-sm leading-6 text-muted">
+                Bobot berlaku per mata pelajaran dan digunakan untuk menghitung
+                rata-rata berbobot sementara. Ini bukan nilai rapor final resmi.
+              </p>
+            </div>
+            <div
+              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#fff4ee] text-[#ea580c]"
+            >
+              <PhChartBar :size="22" weight="duotone" />
+            </div>
+          </div>
+
+          <div
+            v-if="subjects.length === 0"
+            class="mt-5 rounded-lg border border-dashed border-border-strong bg-surface-subtle p-4 text-sm leading-6 text-muted"
+          >
+            Tambahkan mata pelajaran terlebih dahulu sebelum mengatur bobot
+            nilai.
+          </div>
+
+          <div
+            v-else-if="categories.length === 0"
+            class="mt-5 rounded-lg border border-dashed border-border-strong bg-surface-subtle p-4 text-sm leading-6 text-muted"
+          >
+            Tambahkan kategori tugas terlebih dahulu sebelum mengatur bobot
+            nilai.
+          </div>
+
+          <div
+            v-else
+            class="mt-5 grid gap-5 xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]"
+          >
+            <div class="rounded-lg bg-surface-subtle p-4">
+              <label class="block text-sm font-medium text-foreground">
+                Mata pelajaran
+                <select
+                  v-model="selectedWeightSubjectId"
+                  class="mt-2 w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition focus:border-brand focus:ring-2 focus:ring-brand-line"
+                >
+                  <option value="" disabled>Pilih mata pelajaran</option>
+                  <option
+                    v-for="subject in subjects"
+                    :key="subject.subjectId"
+                    :value="subject.subjectId"
+                  >
+                    {{ subject.subjectName }} · {{ subject.subjectCode }}
+                  </option>
+                </select>
+              </label>
+
+              <div class="mt-4 rounded-lg border border-border bg-surface p-4">
+                <p class="text-xs font-medium text-muted">Total bobot</p>
+                <div
+                  class="mt-2 flex flex-wrap items-end justify-between gap-3"
+                >
+                  <p
+                    class="text-3xl font-semibold"
+                    :class="
+                      isWeightTotalValid ? 'text-success' : 'text-warning'
+                    "
+                  >
+                    {{ formatWeight(totalWeight) }}%
                   </p>
-                  <p class="mt-1 text-xs text-muted">
-                    Kategori tugas sekolah aktif
-                  </p>
+                  <span
+                    class="rounded-full px-3 py-1 text-xs font-semibold"
+                    :class="
+                      isWeightTotalValid
+                        ? 'bg-success-soft text-success'
+                        : 'bg-warning-soft text-warning'
+                    "
+                  >
+                    {{ isWeightTotalValid ? "Valid" : "Harus 100%" }}
+                  </span>
                 </div>
-                <label class="text-xs font-medium text-muted">
-                  Bobot (%)
-                  <input
-                    v-model="weightInputs[category.categoryId]"
-                    type="number"
-                    min="0"
-                    max="100"
-                    step="0.01"
-                    class="mt-1 w-full rounded-lg border border-border bg-surface-subtle px-3 py-2 text-right text-sm text-foreground outline-none transition focus:border-brand focus:ring-2 focus:ring-brand-line"
-                  />
-                </label>
+                <p class="mt-3 text-xs leading-5 text-muted">
+                  Total bobot harus 100% sebelum disimpan.
+                </p>
               </div>
 
               <p
-                v-if="hasInvalidWeight"
-                class="rounded-lg border border-danger-line bg-danger-soft px-4 py-3 text-sm leading-6 text-danger"
+                v-if="selectedWeightSubject"
+                class="mt-4 rounded-lg border border-warning-line bg-warning-soft px-4 py-3 text-xs leading-5 text-warning"
               >
-                Bobot harus berada di antara 0 sampai 100.
-              </p>
-              <p
-                v-else-if="!isWeightTotalValid"
-                class="rounded-lg border border-warning-line bg-warning-soft px-4 py-3 text-sm leading-6 text-warning"
-              >
-                Total bobot harus 100%.
+                Bobot yang disimpan akan berlaku untuk semua kelas pada mata
+                pelajaran {{ selectedWeightSubject.subjectName }}.
               </p>
             </div>
-          </form>
-        </div>
-      </section>
+
+            <form
+              class="rounded-lg bg-surface-subtle p-4"
+              @submit.prevent="submitAssessmentWeights"
+            >
+              <div
+                class="flex flex-col gap-3 border-b border-border pb-4 sm:flex-row sm:items-start sm:justify-between"
+              >
+                <div>
+                  <p class="text-sm font-semibold text-foreground">
+                    Kategori dan bobot
+                  </p>
+                  <p class="mt-1 text-xs leading-5 text-muted">
+                    Kosong dianggap 0. Setiap kategori hanya muncul satu kali.
+                  </p>
+                </div>
+                <button
+                  class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#ea580c] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#c2410c] disabled:cursor-not-allowed disabled:opacity-60"
+                  type="submit"
+                  :disabled="!canSubmitWeights"
+                >
+                  <PhChecks :size="16" weight="duotone" />
+                  {{
+                    activeAction === "weights-save"
+                      ? "Menyimpan..."
+                      : "Simpan bobot"
+                  }}
+                </button>
+              </div>
+
+              <div v-if="weightsLoading" class="mt-4 space-y-3">
+                <div
+                  v-for="item in 3"
+                  :key="item"
+                  class="h-14 animate-pulse rounded-lg bg-surface"
+                />
+              </div>
+
+              <div v-else class="mt-4 space-y-3">
+                <p
+                  v-if="weightsError"
+                  class="rounded-lg border border-danger-line bg-danger-soft px-4 py-3 text-sm leading-6 text-danger"
+                >
+                  {{ weightsError }}
+                </p>
+                <p
+                  v-else-if="weightsInfoMessage"
+                  class="rounded-lg border border-warning-line bg-warning-soft px-4 py-3 text-sm leading-6 text-warning"
+                >
+                  {{ weightsInfoMessage }}
+                </p>
+
+                <div
+                  v-for="category in categories"
+                  :key="category.categoryId"
+                  class="grid gap-3 rounded-lg border border-border bg-surface p-4 sm:grid-cols-[minmax(0,1fr)_140px]"
+                >
+                  <div class="min-w-0">
+                    <p class="truncate text-sm font-semibold text-foreground">
+                      {{ category.categoryName }}
+                    </p>
+                    <p class="mt-1 text-xs text-muted">
+                      Kategori tugas sekolah aktif
+                    </p>
+                  </div>
+                  <label class="text-xs font-medium text-muted">
+                    Bobot (%)
+                    <input
+                      v-model="weightInputs[category.categoryId]"
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="0.01"
+                      class="mt-1 w-full rounded-lg border border-border bg-surface-subtle px-3 py-2 text-right text-sm text-foreground outline-none transition focus:border-brand focus:ring-2 focus:ring-brand-line"
+                    />
+                  </label>
+                </div>
+
+                <p
+                  v-if="hasInvalidWeight"
+                  class="rounded-lg border border-danger-line bg-danger-soft px-4 py-3 text-sm leading-6 text-danger"
+                >
+                  Bobot harus berada di antara 0 sampai 100.
+                </p>
+                <p
+                  v-else-if="!isWeightTotalValid"
+                  class="rounded-lg border border-warning-line bg-warning-soft px-4 py-3 text-sm leading-6 text-warning"
+                >
+                  Total bobot harus 100%.
+                </p>
+              </div>
+            </form>
+          </div>
+        </section>
       </template>
     </section>
   </main>

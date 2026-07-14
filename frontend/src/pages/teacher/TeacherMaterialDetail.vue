@@ -90,9 +90,9 @@ onMounted(loadMaterial)
           <PhArrowLeft :size="15" />
           Mata pelajaran
         </RouterLink>
-        <span class="text-[#d1d5db]">/</span>
+        <span class="text-border-strong">/</span>
         <span class="shrink-0">Materi</span>
-        <span class="text-[#d1d5db]">/</span>
+        <span class="text-border-strong">/</span>
         <span class="min-w-0 truncate font-medium text-foreground">
           {{
             material?.materialTitle ??
