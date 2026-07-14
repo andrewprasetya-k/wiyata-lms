@@ -3,7 +3,6 @@ import { computed, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import {
   PhArrowLeft,
-  PhClipboardText,
   PhFileText,
   PhPaperPlaneTilt,
   PhInfo,
@@ -410,49 +409,6 @@ onMounted(loadInitialData);
       </template>
 
       <template v-else>
-        <div
-          class="mb-5 flex max-w-full gap-2 overflow-x-auto rounded-xl border border-border bg-surface p-1.5 sm:w-fit"
-        >
-          <button
-            type="button"
-            class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition sm:min-w-28"
-            :class="[
-              activeTab === 'material'
-                ? 'bg-brand-soft text-brand'
-                : 'text-muted',
-              !isEditMode && activeTab !== 'material'
-                ? 'cursor-pointer hover:bg-surface-strong hover:text-foreground'
-                : isEditMode && activeTab !== 'material'
-                  ? 'cursor-not-allowed opacity-50'
-                  : '',
-            ]"
-            :disabled="isEditMode"
-            @click="!isEditMode && (activeTab = 'material')"
-          >
-            <PhFileText :size="17" weight="duotone" />
-            Materi
-          </button>
-          <button
-            type="button"
-            class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition sm:min-w-28"
-            :class="[
-              activeTab === 'assignment'
-                ? 'bg-brand-soft text-brand'
-                : 'text-muted',
-              !isEditMode && activeTab !== 'assignment'
-                ? 'cursor-pointer hover:bg-surface-strong hover:text-foreground'
-                : isEditMode && activeTab !== 'assignment'
-                  ? 'cursor-not-allowed opacity-50'
-                  : '',
-            ]"
-            :disabled="isEditMode"
-            @click="!isEditMode && (activeTab = 'assignment')"
-          >
-            <PhClipboardText :size="17" weight="duotone" />
-            Tugas
-          </button>
-        </div>
-
         <div class="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
           <div class="min-w-0 space-y-5">
             <section
@@ -466,7 +422,7 @@ onMounted(loadInitialData);
                 </div>
                 <div>
                   <h2 class="text-base font-semibold text-foreground">
-                    Informasi utama
+                    Deskripsi konten
                   </h2>
                   <p class="mt-1 text-xs leading-5 text-muted">
                     Isi judul dan
@@ -579,11 +535,6 @@ onMounted(loadInitialData);
           <aside class="min-w-0">
             <div class="space-y-4 lg:sticky lg:top-6">
               <section class="rounded-xl border border-border bg-surface p-5">
-                <p
-                  class="text-[10px] font-medium uppercase tracking-[0.08em] text-muted"
-                >
-                  Metadata
-                </p>
                 <h2 class="mt-1 text-base font-semibold text-foreground">
                   Pengaturan konten
                 </h2>
