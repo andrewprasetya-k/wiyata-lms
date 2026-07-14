@@ -189,12 +189,19 @@ onMounted(loadReport);
           <tbody class="divide-y divide-border">
             <tr v-for="student in students" :key="student.studentId">
               <td class="px-4 py-3 font-medium text-foreground">
-                <!-- TODO(Sprint UI-3): navigate to Student Grade Detail
-                     (GET /grades/class/:classId/subject/:subjectId/student/:studentId)
-                     once that page exists. Placeholder only for now. -->
-                <span class="cursor-not-allowed opacity-70">
+                <RouterLink
+                  :to="{
+                    name: 'teacher-student-grade-detail',
+                    params: {
+                      classId: classId,
+                      subjectId: subjectId,
+                      studentId: student.studentId,
+                    },
+                  }"
+                  class="transition hover:text-brand"
+                >
                   {{ student.studentName }}
-                </span>
+                </RouterLink>
               </td>
               <td class="px-4 py-3 text-muted">{{ student.studentEmail }}</td>
               <td class="px-4 py-3 text-foreground">

@@ -23,6 +23,7 @@ import StudentActivity from "../pages/student/StudentActivity.vue";
 import TeacherDashboard from "../pages/teacher/TeacherDashboard.vue";
 import TeacherSubjectDetail from "../pages/teacher/TeacherSubjectDetail.vue";
 import TeacherClassGradeReport from "../pages/teacher/TeacherClassGradeReport.vue";
+import TeacherStudentGradeDetail from "../pages/teacher/TeacherStudentGradeDetail.vue";
 import TeacherSubjects from "../pages/teacher/TeacherSubjects.vue";
 import TeacherActivity from "../pages/teacher/TeacherActivity.vue";
 import AdminDashboard from "../pages/admin/AdminDashboard.vue";
@@ -263,6 +264,12 @@ const router = createRouter({
           name: "teacher-class-grade-report",
           component: TeacherClassGradeReport,
           meta: { title: "Nilai Kelas" },
+        },
+        {
+          path: "grades/class/:classId/subject/:subjectId/student/:studentId",
+          name: "teacher-student-grade-detail",
+          component: TeacherStudentGradeDetail,
+          meta: { title: "Detail Nilai Siswa" },
         },
         {
           path: "assignments/:assignmentId/review",
