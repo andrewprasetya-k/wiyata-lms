@@ -332,6 +332,28 @@ type StudentGradeDetailDTO struct {
 	Assignments  []MyGradebookAssignmentDTO `json:"assignments"`
 }
 
+type StudentReportDTO struct {
+	StudentID    string                    `json:"studentId"`
+	StudentName  string                    `json:"studentName"`
+	StudentEmail string                    `json:"studentEmail"`
+	Class        ClassHeaderDTO            `json:"class"`
+	Subjects     []StudentReportSubjectDTO `json:"subjects"`
+	Summary      StudentReportSummaryDTO   `json:"summary"`
+}
+
+type StudentReportSubjectDTO struct {
+	Subject     SubjectHeaderDTO           `json:"subject"`
+	FinalGrade  float64                    `json:"finalGrade"`
+	LetterGrade string                     `json:"letterGrade"`
+	Breakdown   []CategoryBreakdownDTO     `json:"breakdown"`
+	Assignments []MyGradebookAssignmentDTO `json:"assignments"`
+}
+
+type StudentReportSummaryDTO struct {
+	TotalSubjects     int     `json:"totalSubjects"`
+	AverageFinalGrade float64 `json:"averageFinalGrade"`
+}
+
 type MyGradebookResponseDTO struct {
 	Class    MyGradebookClassDTO     `json:"class"`
 	Subjects []MyGradebookSubjectDTO `json:"subjects"`

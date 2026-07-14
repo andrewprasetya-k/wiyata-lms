@@ -21,6 +21,7 @@ type GradeService interface {
 	GetClassGradeReport(classID, subjectID, schoolID string) (*dto.ClassGradeReportDTO, error)
 	GetMyGradebookByClass(userID string, schoolID string, classID string) (*dto.MyGradebookResponseDTO, error)
 	GetStudentGradeDetail(classID, subjectID, studentID, schoolID string) (*dto.StudentGradeDetailDTO, error)
+	GetStudentReport(classID, studentID, schoolID string) (*dto.StudentReportDTO, error)
 }
 
 type gradeService struct {
@@ -371,6 +372,117 @@ func (s *gradeService) GetStudentGradeDetail(classID, subjectID, studentID, scho
 		LetterGrade: report.LetterGrade,
 		Breakdown:   report.Breakdown,
 		Assignments: assignments,
+	}, nil
+}
+
+func (s *gradeService) GetStudentReport(classID, studentID, schoolID string) (*dto.StudentReportDTO, error) {
+	classRow, err := s.gradeRepo.GetStudentGradebookClass(studentID, schoolID, classID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrStudentNotEnrolledInClass
+		}
+		return nil, err
+	}
+
+	student, err := s.userRepo.GetByID(studentID)
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := s.gradeRepo.GetStudentGradebookRows(studentID, schoolID, classID)
+	if err != nil {
+		return nil, err
+	}
+
+	type subjectAccumulator struct {
+		header      dto.SubjectHeaderDTO
+		assignments []dto.MyGradebookAssignmentDTO
+	}
+
+	subjectOrder := make([]string, 0)
+	bySubject := make(map[string]*subjectAccumulator)
+
+	for _, row := range rows {
+		acc, exists := bySubject[row.SubjectID]
+		if !exists {
+			acc = &subjectAccumulator{
+				header: dto.SubjectHeaderDTO{
+					SubjectID:   row.SubjectID,
+					SubjectName: row.SubjectName,
+					SubjectCode: row.SubjectCode,
+				},
+				assignments: []dto.MyGradebookAssignmentDTO{},
+			}
+			bySubject[row.SubjectID] = acc
+			subjectOrder = append(subjectOrder, row.SubjectID)
+		}
+
+		if row.AssignmentID == nil {
+			continue
+		}
+
+		status := "not_submitted"
+		if row.SubmissionID != nil {
+			status = "submitted"
+		}
+		if row.Score != nil {
+			status = "graded"
+		}
+
+		acc.assignments = append(acc.assignments, dto.MyGradebookAssignmentDTO{
+			AssignmentID:    *row.AssignmentID,
+			AssignmentTitle: stringValue(row.AssignmentTitle),
+			CategoryName:    stringValue(row.CategoryName),
+			Deadline:        row.Deadline,
+			Status:          status,
+			SubmittedAt:     formatTimePointer(row.SubmittedAt),
+			Score:           row.Score,
+			Feedback:        row.Feedback,
+			AssessedAt:      formatTimePointer(row.AssessedAt),
+			AssessorName:    row.AssessorName,
+		})
+	}
+
+	subjects := make([]dto.StudentReportSubjectDTO, 0, len(subjectOrder))
+	totalFinalGrade := 0.0
+
+	for _, subjectID := range subjectOrder {
+		acc := bySubject[subjectID]
+
+		report, err := s.CalculateFinalGrade(studentID, subjectID)
+		if err != nil {
+			continue
+		}
+
+		totalFinalGrade += report.FinalGrade
+		subjects = append(subjects, dto.StudentReportSubjectDTO{
+			Subject:     acc.header,
+			FinalGrade:  report.FinalGrade,
+			LetterGrade: report.LetterGrade,
+			Breakdown:   report.Breakdown,
+			Assignments: acc.assignments,
+		})
+	}
+
+	averageFinalGrade := 0.0
+	if len(subjects) > 0 {
+		averageFinalGrade = totalFinalGrade / float64(len(subjects))
+	}
+
+	return &dto.StudentReportDTO{
+		StudentID:    studentID,
+		StudentName:  student.FullName,
+		StudentEmail: student.Email,
+		Class: dto.ClassHeaderDTO{
+			ID:    classRow.ClassID,
+			Title: classRow.ClassName,
+			Code:  classRow.ClassCode,
+		},
+		Subjects: subjects,
+		Summary: dto.StudentReportSummaryDTO{
+			TotalSubjects:     len(subjects),
+			AverageFinalGrade: averageFinalGrade,
+		},
 	}, nil
 }
 
