@@ -157,10 +157,6 @@ func (s *gradeService) ensureWeightCategoriesInSchool(categoryIDs []string, scho
 }
 
 func (s *gradeService) CalculateFinalGrade(student *domain.User, subjectID string, subjectName string, weights []*domain.AssessmentWeight, categoryScores map[string][]float64) (*dto.GradeReportDTO, error) {
-	if len(weights) == 0 {
-		return nil, errors.New("no weights configured for this subject")
-	}
-
 	breakdown := []dto.CategoryBreakdownDTO{}
 	finalGrade := 0.0
 
