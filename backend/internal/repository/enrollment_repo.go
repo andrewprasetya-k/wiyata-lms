@@ -79,7 +79,7 @@ func (r *enrollmentRepository) GetByClass(classID string, search string, page in
 
 func (r *enrollmentRepository) GetByMember(schoolUserID string) ([]*domain.Enrollment, error) {
 	var results []*domain.Enrollment
-	err := r.db.Preload("Class.School").Preload("Class.Term.AcademicYear").
+	err := r.db.Preload("Class").
 		Where("enr_scu_id = ? AND left_at IS NULL", schoolUserID).Find(&results).Error
 	return results, err
 }
