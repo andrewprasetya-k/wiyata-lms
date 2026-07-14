@@ -59,3 +59,25 @@ export interface StudentGradeDetailResponse {
   breakdown: StudentGradeCategoryBreakdown[]
   assignments: StudentGradeAssignment[]
 }
+
+export interface StudentReportSubjectEntry {
+  subject: ClassGradeReportSubject
+  finalGrade: number
+  letterGrade: string
+  breakdown: StudentGradeCategoryBreakdown[]
+  assignments: StudentGradeAssignment[]
+}
+
+export interface StudentReportSummary {
+  totalSubjects: number
+  averageFinalGrade: number
+}
+
+export interface StudentReportResponse {
+  studentId: string
+  studentName: string
+  studentEmail: string
+  class: ClassGradeReportClass
+  subjects: StudentReportSubjectEntry[]
+  summary: StudentReportSummary
+}

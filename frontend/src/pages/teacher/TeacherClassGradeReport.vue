@@ -175,7 +175,7 @@ onMounted(loadReport);
         v-else
         class="overflow-x-auto rounded-xl border border-border bg-surface shadow-sm"
       >
-        <table class="w-full min-w-[560px] text-left text-sm">
+        <table class="w-full min-w-140 text-left text-sm">
           <thead
             class="border-b border-border bg-surface-subtle text-xs uppercase tracking-wide text-muted"
           >

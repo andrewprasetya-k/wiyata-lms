@@ -101,34 +101,50 @@ onMounted(loadDetail);
           </span>
         </div>
 
-        <div class="mt-4 flex min-w-0 items-start gap-3">
-          <span
-            class="h-10 w-1 shrink-0 rounded-sm"
-            :style="{ backgroundColor: subjectAccentColor }"
-            aria-hidden="true"
-          />
-          <div class="min-w-0">
-            <h1
-              class="truncate text-xl font-semibold text-foreground sm:text-2xl"
-            >
-              {{
-                detail?.studentName ??
-                (loading ? "Memuat detail nilai..." : "Detail Nilai Siswa")
-              }}
-            </h1>
-            <p class="mt-1 truncate text-xs text-muted sm:text-sm">
-              {{ detail?.studentEmail ?? "" }}
-            </p>
-            <p class="mt-0.5 truncate text-xs text-muted sm:text-sm">
-              {{
-                detail
-                  ? [detail.subject.subjectName, detail.subject.subjectCode]
-                      .filter(Boolean)
-                      .join(" · ")
-                  : "Breakdown nilai berbobot dan daftar tugas siswa."
-              }}
-            </p>
+        <div
+          class="mt-4 flex min-w-0 flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"
+        >
+          <div class="flex min-w-0 items-start gap-3">
+            <span
+              class="h-10 w-1 shrink-0 rounded-sm"
+              :style="{ backgroundColor: subjectAccentColor }"
+              aria-hidden="true"
+            />
+            <div class="min-w-0">
+              <h1
+                class="truncate text-xl font-semibold text-foreground sm:text-2xl"
+              >
+                {{
+                  detail?.studentName ??
+                  (loading ? "Memuat detail nilai..." : "Detail Nilai Siswa")
+                }}
+              </h1>
+              <p class="mt-1 truncate text-xs text-muted sm:text-sm">
+                {{ detail?.studentEmail ?? "" }}
+              </p>
+              <p class="mt-0.5 truncate text-xs text-muted sm:text-sm">
+                {{
+                  detail
+                    ? [detail.subject.subjectName, detail.subject.subjectCode]
+                        .filter(Boolean)
+                        .join(" · ")
+                    : "Breakdown nilai berbobot dan daftar tugas siswa."
+                }}
+              </p>
+            </div>
           </div>
+
+          <RouterLink
+            v-if="detail"
+            :to="{
+              name: 'teacher-student-report',
+              params: { classId: classId, studentId: studentId },
+            }"
+            class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground transition hover:border-brand hover:text-brand lg:w-auto"
+          >
+            <PhClipboardText :size="17" weight="duotone" />
+            View Full Report
+          </RouterLink>
         </div>
       </div>
     </header>
