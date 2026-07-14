@@ -604,7 +604,7 @@ onMounted(() => {
                 v-for="assignment in assignmentPreview"
                 :key="`${assignment.subjectClassId}-${assignment.assignmentId}`"
                 :to="`/student/subjects/${assignment.subjectClassId}/assignments/${assignment.assignmentId}`"
-                class="group block min-w-0 py-3 first:pt-0 last:pb-0"
+                class="group block min-w-0 py-3 first:pt-0 last:pb-0 border-b border-border transition hover:bg-background"
               >
                 <div class="flex min-w-0 items-start justify-between gap-3">
                   <div class="min-w-0 flex-1">
@@ -619,7 +619,7 @@ onMounted(() => {
                         · {{ assignment.subjectCode }}
                       </span>
                     </p>
-                    <p class="mt-1.5 text-[11px] text-muted">
+                    <p class="mt-1.5 text-[11px] text-muted mb-2">
                       Tenggat {{ formatDate(assignment.deadline) }}
                     </p>
                   </div>
