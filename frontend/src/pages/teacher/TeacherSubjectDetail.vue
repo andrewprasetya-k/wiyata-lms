@@ -231,14 +231,31 @@ onMounted(loadWorkspace);
             </div>
           </div>
 
-          <RouterLink
-            v-if="subject"
-            :to="`/teacher/subjects/${subjectClassId}/create`"
-            class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white transition hover:bg-brand-hover sm:w-auto"
-          >
-            <PhPlusCircle :size="17" weight="duotone" />
-            Post di kelas ini
-          </RouterLink>
+          <div class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+            <RouterLink
+              v-if="subject"
+              :to="{
+                name: 'teacher-class-grade-report',
+                params: {
+                  classId: subject.classId,
+                  subjectId: subject.subjectId,
+                },
+              }"
+              class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground transition hover:border-brand hover:text-brand sm:w-auto"
+            >
+              <PhClipboardText :size="17" weight="duotone" />
+              Lihat Nilai
+            </RouterLink>
+
+            <RouterLink
+              v-if="subject"
+              :to="`/teacher/subjects/${subjectClassId}/create`"
+              class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white transition hover:bg-brand-hover sm:w-auto"
+            >
+              <PhPlusCircle :size="17" weight="duotone" />
+              Post di kelas ini
+            </RouterLink>
+          </div>
         </div>
       </div>
     </header>
