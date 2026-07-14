@@ -234,19 +234,46 @@ func (s *gradeService) GetClassGradeReport(classID, subjectID, schoolID string) 
 
 	studentGrades := []dto.StudentGradeSummaryDTO{}
 
-	for _, student := range students {
-		grade, err := s.CalculateFinalGrade(student.ID, subjectID)
-		if err != nil {
-			continue
+	weights, err := s.weightRepo.GetBySubject(subjectID)
+	if err == nil && len(weights) > 0 {
+		studentIDs := make([]string, 0, len(students))
+		for _, student := range students {
+			studentIDs = append(studentIDs, student.ID)
 		}
 
-		studentGrades = append(studentGrades, dto.StudentGradeSummaryDTO{
-			StudentID:    student.ID,
-			StudentName:  student.FullName,
-			StudentEmail: student.Email,
-			FinalGrade:   grade.FinalGrade,
-			LetterGrade:  grade.LetterGrade,
-		})
+		assessments, err := s.gradeRepo.GetAssessmentsByStudentsAndSubject(studentIDs, subjectID)
+		if err == nil {
+			categoryScoresByStudent := make(map[string]map[string][]float64, len(students))
+			for _, assessment := range assessments {
+				studentID := assessment.Submission.UserID
+				categoryID := assessment.Submission.Assignment.CategoryID
+				if categoryScoresByStudent[studentID] == nil {
+					categoryScoresByStudent[studentID] = make(map[string][]float64)
+				}
+				categoryScoresByStudent[studentID][categoryID] = append(categoryScoresByStudent[studentID][categoryID], assessment.Score)
+			}
+
+			for _, student := range students {
+				categoryScores := categoryScoresByStudent[student.ID]
+
+				finalGrade := 0.0
+				for _, weight := range weights {
+					avgScore := calculateAverage(categoryScores[weight.CategoryID])
+					finalGrade += avgScore * (weight.Weight / 100.0)
+				}
+
+				// student.FullName/student.Email already come from
+				// GetStudentsBySubjectClass above, so no per-student user
+				// lookup is needed here.
+				studentGrades = append(studentGrades, dto.StudentGradeSummaryDTO{
+					StudentID:    student.ID,
+					StudentName:  student.FullName,
+					StudentEmail: student.Email,
+					FinalGrade:   finalGrade,
+					LetterGrade:  convertToLetterGrade(finalGrade),
+				})
+			}
+		}
 	}
 
 	return &dto.ClassGradeReportDTO{

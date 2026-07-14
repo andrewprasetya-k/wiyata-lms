@@ -9,6 +9,7 @@ import (
 
 type GradeRepository interface {
 	GetAssessmentsByStudentAndSubject(userID string, subjectID string) ([]*domain.Assessment, error)
+	GetAssessmentsByStudentsAndSubject(userIDs []string, subjectID string) ([]*domain.Assessment, error)
 	GetStudentsBySubjectClass(subjectClassID string) ([]*domain.User, error)
 	GetStudentGradebookClass(userID string, schoolID string, classID string) (*dto.StudentGradebookClassRow, error)
 	GetStudentGradebookRows(userID string, schoolID string, classID string) ([]dto.StudentGradebookRow, error)
@@ -31,6 +32,27 @@ func (r *gradeRepository) GetAssessmentsByStudentAndSubject(userID string, subje
 		Joins("JOIN edv.subject_classes ON subject_classes.scl_id = assignments.asg_scl_id").
 		Preload("Submission.Assignment.Category").
 		Where("submissions.sbm_usr_id = ?", userID).
+		Where("subject_classes.scl_sub_id = ?", subjectID).
+		Where("submissions.deleted_at IS NULL").
+		Where("assignments.deleted_at IS NULL").
+		Find(&assessments).Error
+
+	return assessments, err
+}
+
+func (r *gradeRepository) GetAssessmentsByStudentsAndSubject(userIDs []string, subjectID string) ([]*domain.Assessment, error) {
+	if len(userIDs) == 0 {
+		return nil, nil
+	}
+
+	var assessments []*domain.Assessment
+
+	err := r.db.
+		Joins("JOIN edv.submissions ON submissions.sbm_id = assessments.asm_sbm_id").
+		Joins("JOIN edv.assignments ON assignments.asg_id = submissions.sbm_asg_id").
+		Joins("JOIN edv.subject_classes ON subject_classes.scl_id = assignments.asg_scl_id").
+		Preload("Submission.Assignment.Category").
+		Where("submissions.sbm_usr_id IN ?", userIDs).
 		Where("subject_classes.scl_sub_id = ?", subjectID).
 		Where("submissions.deleted_at IS NULL").
 		Where("assignments.deleted_at IS NULL").

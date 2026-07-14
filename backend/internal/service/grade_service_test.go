@@ -46,6 +46,9 @@ type gradeTestGradeRepoStub struct{}
 func (r *gradeTestGradeRepoStub) GetAssessmentsByStudentAndSubject(_, _ string) ([]*domain.Assessment, error) {
 	return nil, nil
 }
+func (r *gradeTestGradeRepoStub) GetAssessmentsByStudentsAndSubject(_ []string, _ string) ([]*domain.Assessment, error) {
+	return nil, nil
+}
 func (r *gradeTestGradeRepoStub) GetStudentsBySubjectClass(_ string) ([]*domain.User, error) {
 	return nil, nil
 }
