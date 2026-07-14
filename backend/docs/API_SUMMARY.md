@@ -297,7 +297,9 @@ notifications.
 - `GET /grades/my-grades/:classId` - Get current student's gradebook by active class, including provisional weighted grade when weights and graded assignments exist
 - `POST /grades/weights` - Admin-only configure active-school subject-level assessment weights
 - `GET /grades/weights/subject/:subjectId` - Get active-school subject weights
-- `GET /grades/class/:classId/subject/:subjectId` - Get class grade report
+- `GET /grades/class/:classId/subject/:subjectId` - Get class grade report (all students, one subject)
+- `GET /grades/class/:classId/subject/:subjectId/student/:studentId` - Get one student's grade detail for one subject, with category breakdown and assignment list (admin; teacher who owns that class+subject; or the student themselves)
+- `GET /grades/class/:classId/student/:studentId/report` - Get one student's full report across every subject in a class (admin; teacher who teaches at least one subject in that class; or the student themselves)
 
 ## 🔔 Notifications
 
