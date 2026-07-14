@@ -126,7 +126,7 @@ func (r *gradeRepository) GetStudentGradebookRows(userID string, schoolID string
 		Joins("LEFT JOIN edv.assignment_categories ac ON ac.asc_id = a.asg_asc_id").
 		Joins("LEFT JOIN edv.submissions s ON s.sbm_asg_id = a.asg_id AND s.sbm_usr_id = ? AND s.sbm_sch_id = ? AND s.deleted_at IS NULL", userID, schoolID).
 		Joins(`LEFT JOIN LATERAL (
-			SELECT *
+			SELECT latest_asm.asm_score, latest_asm.asm_feedback, latest_asm.assessed_at, latest_asm.assessed_by
 			FROM edv.assessments latest_asm
 			WHERE latest_asm.asm_sbm_id = s.sbm_id
 			ORDER BY latest_asm.assessed_at DESC, latest_asm.asm_id DESC

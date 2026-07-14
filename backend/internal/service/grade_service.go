@@ -370,10 +370,17 @@ func (s *gradeService) GetMyGradebookByClass(userID string, schoolID string, cla
 		})
 	}
 
+	// weights are fetched once for all subjects in this gradebook instead of once per subject 
+	subjectIDs := make([]string, 0, len(response.Subjects))
+	for i := range response.Subjects {
+		subjectIDs = append(subjectIDs, response.Subjects[i].SubjectID)
+	}
+	weightsBySubject, _ := s.weightRepo.GetBySubjects(subjectIDs)
+
 	for i := range response.Subjects {
 		subject := &response.Subjects[i]
 		response.Summary.SubjectCount++
-		finalGrade, letterGrade := s.calculateSubjectFinalGrade(subject.SubjectID, categoryScoresBySubject[subject.SubjectClassID])
+		finalGrade, letterGrade := s.calculateSubjectFinalGrade(weightsBySubject[subject.SubjectID], categoryScoresBySubject[subject.SubjectClassID])
 		subject.FinalGrade = finalGrade
 		subject.LetterGrade = letterGrade
 	}
@@ -393,13 +400,12 @@ func calculateAverage(scores []float64) float64 {
 	return sum / float64(len(scores))
 }
 
-func (s *gradeService) calculateSubjectFinalGrade(subjectID string, categoryScores map[string][]float64) (*float64, *string) {
+func (s *gradeService) calculateSubjectFinalGrade(weights []*domain.AssessmentWeight, categoryScores map[string][]float64) (*float64, *string) {
 	if len(categoryScores) == 0 {
 		return nil, nil
 	}
 
-	weights, err := s.weightRepo.GetBySubject(subjectID)
-	if err != nil || len(weights) == 0 {
+	if len(weights) == 0 {
 		return nil, nil
 	}
 

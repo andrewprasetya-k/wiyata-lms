@@ -9,6 +9,7 @@ import (
 type AssessmentWeightRepository interface {
 	Create(weight *domain.AssessmentWeight) error
 	GetBySubject(subjectID string) ([]*domain.AssessmentWeight, error)
+	GetBySubjects(subjectIDs []string) (map[string][]*domain.AssessmentWeight, error)
 	DeleteBySubject(subjectID string) error
 	ReplaceBySubject(subjectID string, weights []*domain.AssessmentWeight) error
 	GetTotalWeightBySubject(subjectID string) (float64, error)
@@ -36,6 +37,27 @@ func (r *assessmentWeightRepository) GetBySubject(subjectID string) ([]*domain.A
 		Where("asw_sub_id = ?", subjectID).
 		Find(&weights).Error
 	return weights, err
+}
+
+func (r *assessmentWeightRepository) GetBySubjects(subjectIDs []string) (map[string][]*domain.AssessmentWeight, error) {
+	result := make(map[string][]*domain.AssessmentWeight, len(subjectIDs))
+	if len(subjectIDs) == 0 {
+		return result, nil
+	}
+
+	var weights []*domain.AssessmentWeight
+	err := r.db.
+		Preload("Subject").
+		Preload("Category").
+		Where("asw_sub_id IN ?", subjectIDs).
+		Find(&weights).Error
+	if err != nil {
+		return nil, err
+	}
+	for _, w := range weights {
+		result[w.SubjectID] = append(result[w.SubjectID], w)
+	}
+	return result, nil
 }
 
 func (r *assessmentWeightRepository) DeleteBySubject(subjectID string) error {

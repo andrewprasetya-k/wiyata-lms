@@ -250,7 +250,7 @@ func (r *assignmentRepository) GetStudentAssignmentInbox(userID string, schoolID
 		Joins("JOIN edv.school_users scu ON scu.scu_id = e.enr_scu_id AND scu.deleted_at IS NULL").
 		Joins("LEFT JOIN edv.assignment_categories ac ON ac.asc_id = a.asg_asc_id").
 		Joins(`LEFT JOIN LATERAL (
-			SELECT *
+			SELECT latest_s.sbm_id, latest_s.submitted_at
 			FROM edv.submissions latest_s
 			WHERE latest_s.sbm_asg_id = a.asg_id
 				AND latest_s.sbm_usr_id = ?
@@ -260,7 +260,7 @@ func (r *assignmentRepository) GetStudentAssignmentInbox(userID string, schoolID
 			LIMIT 1
 		) s ON true`, userID, schoolID).
 		Joins(`LEFT JOIN LATERAL (
-			SELECT *
+			SELECT latest_asm.asm_sbm_id, latest_asm.asm_score
 			FROM edv.assessments latest_asm
 			WHERE latest_asm.asm_sbm_id = s.sbm_id
 			ORDER BY latest_asm.assessed_at DESC, latest_asm.asm_id DESC

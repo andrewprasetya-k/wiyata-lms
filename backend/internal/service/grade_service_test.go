@@ -36,6 +36,9 @@ func (r *gradeWeightRepoStub) ReplaceBySubject(_ string, weights []*domain.Asses
 }
 func (r *gradeWeightRepoStub) Create(_ *domain.AssessmentWeight) error                   { return nil }
 func (r *gradeWeightRepoStub) GetBySubject(_ string) ([]*domain.AssessmentWeight, error) { return nil, nil }
+func (r *gradeWeightRepoStub) GetBySubjects(_ []string) (map[string][]*domain.AssessmentWeight, error) {
+	return nil, nil
+}
 func (r *gradeWeightRepoStub) DeleteBySubject(_ string) error                            { return nil }
 func (r *gradeWeightRepoStub) GetTotalWeightBySubject(_ string) (float64, error)         { return 0, nil }
 
