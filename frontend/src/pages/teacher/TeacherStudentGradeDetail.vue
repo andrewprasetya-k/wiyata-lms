@@ -348,7 +348,7 @@ onMounted(loadDetail);
               </div>
 
               <div
-                class="flex items-center justify-between rounded-lg bg-surface-subtle px-3 py-3 md:block md:text-right"
+                class="flex items-center justify-between rounded-lg px-3 py-3 md:block md:text-right"
               >
                 <p class="text-[10px] uppercase tracking-wide text-muted">
                   Skor

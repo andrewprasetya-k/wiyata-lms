@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { RouterLink, useRoute } from "vue-router";
 import {
   PhArrowLeft,
@@ -16,6 +16,7 @@ import {
   PhTrash,
 } from "@phosphor-icons/vue";
 import AttachmentPreviewList from "../../components/common/AttachmentPreviewList.vue";
+import TeacherClassGradeReportTab from "../../components/teacher/TeacherClassGradeReportTab.vue";
 import { getSubjectAssignments } from "../../services/assignment";
 import {
   getSubjectClassSubmissions,
@@ -35,7 +36,7 @@ import { formatDate, formatDateTime } from "../../utils/date";
 import { useToastStore } from "../../stores/toast";
 import { useConfirmStore } from "../../stores/confirm";
 
-type WorkspaceTab = "materials" | "assignments" | "submissions";
+type WorkspaceTab = "materials" | "assignments" | "submissions" | "grades";
 
 const route = useRoute();
 const toast = useToastStore();
@@ -84,7 +85,18 @@ const tabs = computed(() => [
     id: "submissions" as const,
     label: "Pengumpulan",
   },
+  {
+    id: "grades" as const,
+    label: "Nilai",
+  },
 ]);
+
+// Grades tab fetches lazily: only mounted the first time it's opened, then
+// kept mounted (toggled via v-show) so switching tabs never re-fetches.
+const gradesTabVisited = ref(false);
+watch(activeTab, (tab) => {
+  if (tab === "grades") gradesTabVisited.value = true;
+});
 
 async function loadWorkspace() {
   loading.value = true;
@@ -232,21 +244,6 @@ onMounted(loadWorkspace);
           </div>
 
           <div class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
-            <RouterLink
-              v-if="subject"
-              :to="{
-                name: 'teacher-class-grade-report',
-                params: {
-                  classId: subject.classId,
-                  subjectId: subject.subjectId,
-                },
-              }"
-              class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground transition hover:border-brand hover:text-brand sm:w-auto"
-            >
-              <PhClipboardText :size="17" weight="duotone" />
-              Lihat Nilai
-            </RouterLink>
-
             <RouterLink
               v-if="subject"
               :to="`/teacher/subjects/${subjectClassId}/create`"
@@ -600,7 +597,7 @@ onMounted(loadWorkspace);
               </article>
             </div>
 
-            <div v-else class="space-y-3">
+            <div v-else-if="activeTab === 'submissions'" class="space-y-3">
               <div
                 v-if="submissionSummary"
                 class="flex flex-wrap gap-2 text-sm"
@@ -769,6 +766,14 @@ onMounted(loadWorkspace);
                   </div>
                 </div>
               </article>
+            </div>
+
+            <div v-if="gradesTabVisited" v-show="activeTab === 'grades'">
+              <TeacherClassGradeReportTab
+                v-if="subject"
+                :class-id="subject.classId"
+                :subject-id="subject.subjectId"
+              />
             </div>
           </div>
         </section>
