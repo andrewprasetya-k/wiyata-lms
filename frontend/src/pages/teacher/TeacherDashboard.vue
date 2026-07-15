@@ -19,6 +19,8 @@ import type { AcademicActivityItem } from "../../types/activity";
 import { resolveSubjectColor } from "../../utils/color";
 import LatestChatCard from "../../components/chat/LatestChatCard.vue";
 import AcademicActivityCard from "../../components/activity/AcademicActivityCard.vue";
+import ActivityCalendarCard from "../../components/dashboard/ActivityCalendarCard.vue";
+import NotificationsPanel from "../../components/dashboard/NotificationsPanel.vue";
 import ContextSwitcher from "../../components/layout/ContextSwitcher.vue";
 
 const auth = useAuthStore();
@@ -182,6 +184,14 @@ onMounted(() => {
         </section>
 
         <template v-else>
+          <AcademicActivityCard
+            :activities="activities"
+            :loading="activitiesLoading"
+            :error="activitiesError"
+            role="teacher"
+            :max-items="5"
+          />
+
           <!-- Stat cards -->
           <section class="grid gap-3 sm:grid-cols-3">
             <template v-if="loading">
@@ -387,13 +397,8 @@ onMounted(() => {
       class="min-w-0 border-t border-border bg-background xl:sticky xl:top-0 xl:h-dvh xl:min-h-0 xl:overflow-y-auto xl:border-l xl:border-t-0 xl:bg-surface"
     >
       <div class="flex flex-col gap-4 p-5">
-        <AcademicActivityCard
-          :activities="activities"
-          :loading="activitiesLoading"
-          :error="activitiesError"
-          role="teacher"
-          :max-items="5"
-        />
+        <ActivityCalendarCard role="teacher" />
+        <NotificationsPanel to="/teacher/notifications" />
         <LatestChatCard to="/teacher/chat" :limit="4" />
       </div>
     </aside>

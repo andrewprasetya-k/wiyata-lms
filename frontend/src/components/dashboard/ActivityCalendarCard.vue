@@ -14,6 +14,15 @@ import {
   parseActivityDate,
 } from "../activity/activityView";
 
+const props = withDefaults(
+  defineProps<{
+    role?: "student" | "teacher";
+  }>(),
+  {
+    role: "student",
+  },
+);
+
 const calendarActivityCache = ref<Record<string, AcademicActivityItem[]>>({});
 const calendarActivitiesLoading = ref(false);
 const calendarActivitiesError = ref("");
@@ -303,7 +312,7 @@ onMounted(() => {
               v-if="isInternalActivityLink(activity.link)"
               :to="activity.link || ''"
               class="group flex min-w-0 items-start gap-2 border-b border-border bg-surface-subtle p-3 transition hover:border-brand-line hover:bg-surface focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
-              :aria-label="`${activityTypeLabel(activity.type, 'student')}: ${activity.title}`"
+              :aria-label="`${activityTypeLabel(activity.type, props.role)}: ${activity.title}`"
             >
               <span
                 class="mt-1.5 h-2 w-2 shrink-0 rounded-full"
@@ -317,7 +326,7 @@ onMounted(() => {
               <span class="min-w-0 flex-1">
                 <span class="flex min-w-0 items-center justify-between gap-2">
                   <span class="text-[11px] font-medium text-brand">
-                    {{ activityTypeLabel(activity.type, "student") }}
+                    {{ activityTypeLabel(activity.type, props.role) }}
                   </span>
                   <span class="shrink-0 text-[10px] text-muted">
                     {{ calendarActivityTime(activity) }}
@@ -347,7 +356,7 @@ onMounted(() => {
               <div class="min-w-0 flex-1">
                 <div class="flex min-w-0 items-center justify-between gap-2">
                   <span class="text-[11px] font-medium text-brand">
-                    {{ activityTypeLabel(activity.type, "student") }}
+                    {{ activityTypeLabel(activity.type, props.role) }}
                   </span>
                   <span class="shrink-0 text-[10px] text-muted">
                     {{ calendarActivityTime(activity) }}

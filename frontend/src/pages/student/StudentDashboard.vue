@@ -31,7 +31,9 @@ import { useToastStore } from "../../stores/toast";
 import LatestChatCard from "../../components/chat/LatestChatCard.vue";
 import AcademicActivityCard from "../../components/activity/AcademicActivityCard.vue";
 import DashboardUpdatesPanel from "../../components/dashboard/DashboardUpdatesPanel.vue";
-import StudentActivityCalendarCard from "../../components/dashboard/StudentActivityCalendarCard.vue";
+
+import ActivityCalendarCard from "../../components/dashboard/ActivityCalendarCard.vue";
+
 import { getApiError } from "../../utils/error";
 import ContextSwitcher from "../../components/layout/ContextSwitcher.vue";
 import {
@@ -839,7 +841,7 @@ onMounted(() => {
           </template>
         </DashboardUpdatesPanel>
 
-        <StudentActivityCalendarCard />
+        <ActivityCalendarCard role="student" />
       </div>
     </aside>
   </main>
