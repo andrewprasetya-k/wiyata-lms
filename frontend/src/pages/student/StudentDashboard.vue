@@ -360,8 +360,10 @@ onMounted(() => {
   <main
     class="grid min-h-screen min-w-0 flex-1 grid-cols-1 overflow-x-hidden bg-background lg:grid-cols-[minmax(0,1fr)_320px]"
   >
-    <section class="min-w-0">
-      <header class="border-b border-border bg-surface">
+    <section
+      class="min-w-0 lg:flex lg:h-dvh lg:min-h-0 lg:flex-col lg:overflow-hidden"
+    >
+      <header class="border-b border-border bg-surface lg:shrink-0">
         <div
           class="flex min-w-0 flex-col gap-3 px-5 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8"
         >
@@ -377,8 +379,11 @@ onMounted(() => {
         </div>
       </header>
 
-      <div class="space-y-5 px-5 py-5 sm:px-6 lg:px-8 lg:py-6">
+      <div
+        class="space-y-5 px-5 py-5 sm:px-6 lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:overflow-hidden lg:px-8 lg:py-6"
+      >
         <AcademicActivityCard
+          class="lg:shrink-0"
           :activities="activities"
           :loading="activitiesLoading"
           :error="activitiesError"
@@ -453,11 +458,16 @@ onMounted(() => {
           </article>
         </section>
 
-        <section v-else class="grid min-w-0 gap-4 xl:grid-cols-[1.15fr_0.85fr]">
+        <section
+          v-else
+          class="flex min-w-0 flex-col gap-4 lg:min-h-0 lg:flex-1 xl:grid xl:grid-cols-[1.15fr_0.85fr]"
+        >
           <article
-            class="min-w-0 rounded-xl border border-border bg-surface shadow-sm p-4 sm:p-5"
+            class="min-w-0 rounded-xl border border-border bg-surface shadow-sm p-4 sm:p-5 lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:overflow-hidden"
           >
-            <div class="mb-4 flex min-w-0 items-center justify-between gap-3">
+            <div
+              class="mb-4 flex min-w-0 shrink-0 items-center justify-between gap-3"
+            >
               <div class="min-w-0">
                 <p class="text-sm font-medium text-foreground">
                   Daftar mata pelajaran
@@ -493,7 +503,7 @@ onMounted(() => {
 
             <div
               v-else-if="subjects.length > 0"
-              class="grid gap-3 sm:grid-cols-2 max-h-80 overflow-y-auto pr-1"
+              class="grid gap-3 sm:grid-cols-2 max-h-80 overflow-y-auto pr-1 lg:max-h-none lg:min-h-0 lg:flex-1"
             >
               <RouterLink
                 v-for="subject in subjects"
@@ -549,7 +559,7 @@ onMounted(() => {
           </article>
 
           <article
-            class="flex min-h-90 min-w-0 flex-col rounded-xl border border-border bg-surface shadow-sm p-4 sm:p-5 lg:max-h-130"
+            class="flex min-h-90 min-w-0 flex-col rounded-xl border border-border bg-surface shadow-sm p-4 sm:p-5 lg:min-h-0 lg:flex-1 lg:overflow-hidden"
           >
             <div class="mb-4 flex shrink-0 items-center justify-between gap-3">
               <div class="flex min-w-0 items-start gap-3">
