@@ -15,8 +15,6 @@ type DashboardRepository interface {
 
 	// Teacher
 	GetPendingReviewsCount(schoolUserID string) (int, error)
-	GetTotalStudentsByTeacher(schoolUserID string) (int, error)
-	GetSubmissionRateByTeacher(schoolUserID string) (float64, error)
 	GetClassPerformance(schoolUserID string) ([]map[string]interface{}, error)
 
 	// Admin
@@ -107,59 +105,6 @@ func (r *dashboardRepository) GetPendingReviewsCount(schoolUserID string) (int, 
 		Where("NOT EXISTS (SELECT 1 FROM edv.assessments asm WHERE asm.asm_sbm_id = s.sbm_id)").
 		Count(&count).Error
 	return int(count), err
-}
-
-func (r *dashboardRepository) GetTotalStudentsByTeacher(schoolUserID string) (int, error) {
-	var count int64
-	err := r.db.Raw(`
-		SELECT COUNT(DISTINCT e.enr_scu_id)
-		FROM edv.enrollments e
-		JOIN edv.subject_classes sc ON e.enr_cls_id = sc.scl_cls_id
-		JOIN edv.enrollments teacher_e ON teacher_e.enr_cls_id = sc.scl_cls_id AND teacher_e.enr_scu_id = sc.scl_scu_id
-		WHERE sc.scl_scu_id = ? AND e.enr_role = 'student' AND e.left_at IS NULL
-			AND teacher_e.enr_role = 'teacher' AND teacher_e.left_at IS NULL
-	`, schoolUserID).Scan(&count).Error
-	return int(count), err
-}
-
-func (r *dashboardRepository) GetSubmissionRateByTeacher(schoolUserID string) (float64, error) {
-	var rate float64
-	err := r.db.Raw(`
-		SELECT 
-			COALESCE(
-				(
-					COUNT(DISTINCT CASE
-						WHEN s.sbm_id IS NOT NULL THEN CONCAT(a.asg_id::text, ':', e.enr_scu_id::text)
-					END)::float
-					/
-					NULLIF(COUNT(DISTINCT CONCAT(a.asg_id::text, ':', e.enr_scu_id::text)), 0)
-				) * 100,
-				0
-			) as rate
-		FROM edv.assignments a
-		JOIN edv.subject_classes sc ON a.asg_scl_id = sc.scl_id
-		JOIN edv.classes c ON c.cls_id = sc.scl_cls_id
-		JOIN edv.enrollments teacher_e ON teacher_e.enr_cls_id = sc.scl_cls_id AND teacher_e.enr_scu_id = sc.scl_scu_id
-		JOIN edv.enrollments e ON e.enr_cls_id = sc.scl_cls_id
-			AND e.enr_role = 'student'
-			AND e.left_at IS NULL
-			AND e.enr_sch_id = teacher_e.enr_sch_id
-		JOIN edv.school_users student_scu ON student_scu.scu_id = e.enr_scu_id
-			AND student_scu.scu_sch_id = teacher_e.enr_sch_id
-			AND student_scu.deleted_at IS NULL
-		LEFT JOIN edv.submissions s ON a.asg_id = s.sbm_asg_id
-			AND s.sbm_usr_id = student_scu.scu_usr_id
-			AND s.sbm_sch_id = teacher_e.enr_sch_id
-			AND s.deleted_at IS NULL
-		WHERE sc.scl_scu_id = ?
-			AND teacher_e.enr_role = 'teacher'
-			AND teacher_e.left_at IS NULL
-			AND c.cls_sch_id = teacher_e.enr_sch_id
-			AND c.deleted_at IS NULL
-			AND a.asg_sch_id = teacher_e.enr_sch_id
-			AND a.deleted_at IS NULL
-	`, schoolUserID).Scan(&rate).Error
-	return rate, err
 }
 
 func (r *dashboardRepository) GetClassPerformance(schoolUserID string) ([]map[string]interface{}, error) {

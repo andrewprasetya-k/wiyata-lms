@@ -20,8 +20,6 @@ type AssignmentDeadlineDTO struct {
 // Teacher Dashboard
 type TeacherDashboardDTO struct {
 	PendingReviews   int                   `json:"pendingReviews"`
-	TotalStudents    int                   `json:"totalStudents"`
-	SubmissionRate   float64               `json:"submissionRate"`
 	ClassPerformance []ClassPerformanceDTO `json:"classPerformance"`
 }
 

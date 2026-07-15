@@ -4,10 +4,8 @@ import { RouterLink } from "vue-router";
 import {
   PhArrowRight,
   PhBookOpen,
-  PhChartLineUp,
   PhChalkboardTeacher,
   PhClipboardText,
-  PhUsers,
   PhWarningCircle,
 } from "@phosphor-icons/vue";
 import { useAuthStore } from "../../stores/auth";
@@ -62,47 +60,6 @@ function formatPercentage(value: number | null | undefined) {
   return `${Math.min(100, Math.max(0, value)).toFixed(1)}%`;
 }
 
-const statCards = computed(() => [
-  {
-    label: "Menunggu Penilaian",
-    value: loading.value ? "..." : String(pendingReviews.value),
-    helper: "Pengumpulan yang belum dinilai",
-    icon: PhClipboardText,
-    urgent: hasPendingReviews.value,
-    to: "/teacher/submissions",
-    colorIcon: hasPendingReviews.value
-      ? "bg-warning-soft text-[#ea580c]"
-      : "bg-success-soft text-success",
-    colorValue: hasPendingReviews.value ? "text-[#ea580c]" : "text-foreground",
-    border: hasPendingReviews.value
-      ? "border-warning-line hover:border-[#fb923c]"
-      : "border-border hover:border-success-line",
-  },
-  {
-    label: "Total Siswa",
-    value: loading.value ? "..." : String(summary.value?.totalStudents ?? 0),
-    helper: "Siswa dari semua kelas yang diajar",
-    icon: PhUsers,
-    urgent: false,
-    to: null,
-    colorIcon: "bg-brand-soft text-brand",
-    colorValue: "text-foreground",
-    border: "border-border",
-  },
-  {
-    label: "Pengumpulan Tugas",
-    value: loading.value
-      ? "..."
-      : formatPercentage(summary.value?.submissionRate),
-    helper: "Rata-rata pengumpulan dibanding siswa aktif",
-    icon: PhChartLineUp,
-    urgent: false,
-    to: null,
-    colorIcon: "bg-[#f0fdf4] text-[#16a34a]",
-    colorValue: "text-foreground",
-    border: "border-border",
-  },
-]);
 
 async function loadDashboard() {
   if (!schoolUserId.value) {
@@ -205,52 +162,54 @@ onMounted(() => {
             :max-items="5"
           />
 
-          <!-- Stat cards -->
-          <section class="grid gap-3 sm:grid-cols-3 xl:shrink-0">
-            <template v-if="loading">
+          <!-- Menunggu Penilaian: kartu highlight utama -->
+          <div
+            v-if="loading"
+            class="h-32 animate-pulse rounded-2xl border border-border bg-surface shadow-sm xl:shrink-0"
+          />
+          <RouterLink
+            v-else
+            to="/teacher/submissions"
+            class="group flex items-center justify-between gap-4 rounded-2xl border p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md xl:shrink-0"
+            :class="
+              hasPendingReviews
+                ? 'border-warning-line bg-warning-soft hover:border-[#fb923c]'
+                : 'border-success-line bg-success-soft hover:border-success'
+            "
+          >
+            <div class="flex min-w-0 items-center gap-4">
               <div
-                v-for="i in 3"
-                :key="i"
-                class="h-28 animate-pulse rounded-xl border border-border bg-surface shadow-sm"
-              />
-            </template>
-            <template v-else>
-              <component
-                :is="card.to ? RouterLink : 'article'"
-                v-for="card in statCards"
-                :key="card.label"
-                v-bind="card.to ? { to: card.to } : {}"
-                class="group rounded-xl border bg-surface shadow-sm p-4 transition"
-                :class="[
-                  card.border,
-                  card.to ? 'hover:-translate-y-0.5 hover:shadow-md' : '',
-                ]"
+                class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-surface shadow-sm"
+                :class="hasPendingReviews ? 'text-[#ea580c]' : 'text-success'"
               >
-                <div class="flex items-start justify-between gap-3">
-                  <div
-                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
-                    :class="card.colorIcon"
-                  >
-                    <component :is="card.icon" :size="20" weight="duotone" />
-                  </div>
-                  <PhArrowRight
-                    v-if="card.to"
-                    :size="15"
-                    class="mt-1 shrink-0 text-border-strong transition group-hover:translate-x-0.5 group-hover:text-brand"
-                  />
-                </div>
-                <p class="mt-3 text-2xl font-semibold" :class="card.colorValue">
-                  {{ card.value }}
+                <PhClipboardText :size="28" weight="duotone" />
+              </div>
+              <div class="min-w-0">
+                <p
+                  class="text-3xl font-bold"
+                  :class="hasPendingReviews ? 'text-[#ea580c]' : 'text-foreground'"
+                >
+                  {{ pendingReviews }}
                 </p>
-                <p class="mt-0.5 text-sm font-medium text-foreground">
-                  {{ card.label }}
+                <p class="mt-1 text-sm font-medium text-foreground">
+                  Menunggu Penilaian
                 </p>
-                <p class="mt-1 text-xs leading-5 text-muted">
-                  {{ card.helper }}
+                <p class="mt-0.5 text-xs leading-5 text-muted">
+                  Pengumpulan yang belum dinilai dari semua kelas
                 </p>
-              </component>
-            </template>
-          </section>
+              </div>
+            </div>
+            <div
+              class="hidden shrink-0 items-center gap-1.5 text-sm font-medium sm:flex"
+              :class="hasPendingReviews ? 'text-[#ea580c]' : 'text-success'"
+            >
+              Nilai sekarang
+              <PhArrowRight
+                :size="16"
+                class="transition group-hover:translate-x-0.5"
+              />
+            </div>
+          </RouterLink>
 
           <!-- Error state -->
           <section

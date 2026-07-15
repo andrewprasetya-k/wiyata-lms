@@ -116,16 +116,6 @@ func (s *dashboardService) GetTeacherDashboard(schoolUserID string) (*dto.Teache
 		return nil, err
 	}
 
-	totalStudents, err := s.repo.GetTotalStudentsByTeacher(schoolUserID)
-	if err != nil {
-		return nil, err
-	}
-
-	submissionRate, err := s.repo.GetSubmissionRateByTeacher(schoolUserID)
-	if err != nil {
-		return nil, err
-	}
-
 	performance, err := s.repo.GetClassPerformance(schoolUserID)
 	if err != nil {
 		return nil, err
@@ -146,8 +136,6 @@ func (s *dashboardService) GetTeacherDashboard(schoolUserID string) (*dto.Teache
 
 	return &dto.TeacherDashboardDTO{
 		PendingReviews:   pending,
-		TotalStudents:    totalStudents,
-		SubmissionRate:   safePercentage(submissionRate),
 		ClassPerformance: classPerformance,
 	}, nil
 }

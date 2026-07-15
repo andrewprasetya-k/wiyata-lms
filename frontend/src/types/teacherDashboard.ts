@@ -10,7 +10,5 @@ export interface TeacherClassPerformance {
 
 export interface TeacherDashboardSummary {
   pendingReviews: number
-  totalStudents: number
-  submissionRate: number
   classPerformance: TeacherClassPerformance[]
 }
