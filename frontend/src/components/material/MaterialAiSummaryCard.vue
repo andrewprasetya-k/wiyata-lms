@@ -75,9 +75,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div
-    class="rounded-xl border border-border bg-surface-subtle p-4"
-  >
+  <div class="rounded-xl bg-surface-subtle p-4">
     <div class="flex flex-wrap items-start justify-between gap-3">
       <div class="min-w-0">
         <div class="flex items-center gap-2">
