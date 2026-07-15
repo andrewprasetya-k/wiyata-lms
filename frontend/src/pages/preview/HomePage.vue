@@ -184,7 +184,7 @@ const previewSteps: PreviewStep[] = [
     image: {
       src: "/screenshots/preview-teacher-dashboard.webp",
       width: 2000,
-      height: 1157,
+      height: 1156,
     },
   },
   {

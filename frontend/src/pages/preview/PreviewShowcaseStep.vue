@@ -43,7 +43,7 @@ const visualScale = useTransform(
   <div ref="rootEl" class="mx-auto w-full px-6 lg:px-8">
     <!-- Teks -->
     <motion.div
-      class="mx-auto text-center"
+      class="mx-auto text-center mt-8 max-w-2xl"
       :class="maxW"
       :initial="{ opacity: 0, y: 16 }"
       :while-in-view="{ opacity: 1, y: 0 }"
