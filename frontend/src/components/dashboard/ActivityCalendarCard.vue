@@ -191,8 +191,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <section class="shrink-0 rounded-xl bg-surface p-3">
-    <div class="mb-2 flex items-center justify-between">
+  <section class="flex shrink-0 flex-col rounded-xl bg-surface p-3">
+    <div class="mb-2 flex shrink-0 items-center justify-between">
       <p class="text-sm font-medium text-foreground">{{ currentMonth }}</p>
       <div class="flex gap-1">
         <button
@@ -212,7 +212,8 @@ onMounted(() => {
       </div>
     </div>
 
-    <div class="grid grid-cols-7 gap-1 text-center">
+    <!-- Kalender bulanan: shrink-0, selalu tampil penuh, tidak pernah scroll -->
+    <div class="grid shrink-0 grid-cols-7 gap-1 text-center">
       <span
         v-for="day in ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']"
         :key="day"
@@ -268,120 +269,116 @@ onMounted(() => {
       </span>
     </div>
 
-    <div class="mt-3 border-t border-border pt-3">
+    <div class="mt-3 shrink-0 border-t border-border pt-3">
       <div class="mb-2 flex items-center justify-between gap-3">
         <p class="text-sm font-medium text-foreground">Deadline Tugas</p>
         <p class="shrink-0 text-xs text-muted">
           {{ formatActivityDate(selectedDate) }}
         </p>
       </div>
+    </div>
 
-      <div class="h-32 overflow-y-auto pr-1">
-        <div
-          v-if="calendarActivitiesLoading"
-          class="rounded-lg bg-surface-subtle p-3 text-xs leading-5 text-muted"
-        >
-          Memuat deadline...
-        </div>
+    <div class="h-38 min-h-0 flex-1 overflow-y-auto pr-1">
+      <div
+        v-if="calendarActivitiesLoading"
+        class="rounded-lg bg-surface-subtle p-3 text-xs leading-5 text-muted"
+      >
+        Memuat deadline...
+      </div>
 
-        <div
-          v-else-if="calendarActivitiesError"
-          class="rounded-lg bg-surface-subtle p-3 text-xs leading-5 text-muted"
-        >
-          {{ calendarActivitiesError }}
-        </div>
+      <div
+        v-else-if="calendarActivitiesError"
+        class="rounded-lg bg-surface-subtle p-3 text-xs leading-5 text-muted"
+      >
+        {{ calendarActivitiesError }}
+      </div>
 
-        <div
-          v-else-if="selectedDatePreview.length === 0"
-          class="border-b border-border p-3 text-xs leading-5 text-muted"
-        >
-          Tidak ada deadline tugas pada tanggal ini.
-        </div>
+      <div
+        v-else-if="selectedDatePreview.length === 0"
+        class="border-b border-border p-3 text-xs leading-5 text-muted"
+      >
+        Tidak ada deadline tugas pada tanggal ini.
+      </div>
 
-        <ul
-          v-else
-          class="space-y-2"
-          aria-label="Deadline tugas pada tanggal ini"
+      <ul v-else class="space-y-2" aria-label="Deadline tugas pada tanggal ini">
+        <li
+          v-for="activity in selectedDatePreview"
+          :key="activity.id"
+          class="min-w-0"
         >
-          <li
-            v-for="activity in selectedDatePreview"
-            :key="activity.id"
-            class="min-w-0"
+          <RouterLink
+            v-if="isInternalActivityLink(activity.link)"
+            :to="activity.link || ''"
+            class="group flex min-w-0 items-start gap-2 border-b border-border bg-surface-subtle p-3 transition hover:border-brand-line hover:bg-surface focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+            :aria-label="`${activityTypeLabel(activity.type, props.role)}: ${activity.title}`"
           >
-            <RouterLink
-              v-if="isInternalActivityLink(activity.link)"
-              :to="activity.link || ''"
-              class="group flex min-w-0 items-start gap-2 border-b border-border bg-surface-subtle p-3 transition hover:border-brand-line hover:bg-surface focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
-              :aria-label="`${activityTypeLabel(activity.type, props.role)}: ${activity.title}`"
-            >
-              <span
-                class="mt-1.5 h-2 w-2 shrink-0 rounded-full"
-                :style="{
-                  backgroundColor: activity.subject
-                    ? activitySubjectColor(activity)
-                    : '#a09aa8',
-                }"
-                aria-hidden="true"
-              />
-              <span class="min-w-0 flex-1">
-                <span class="flex min-w-0 items-center justify-between gap-2">
-                  <span class="text-[11px] font-medium text-brand">
-                    {{ activityTypeLabel(activity.type, props.role) }}
-                  </span>
-                  <span class="shrink-0 text-[10px] text-muted">
-                    {{ calendarActivityTime(activity) }}
-                  </span>
+            <span
+              class="mt-1.5 h-2 w-2 shrink-0 rounded-full"
+              :style="{
+                backgroundColor: activity.subject
+                  ? activitySubjectColor(activity)
+                  : '#a09aa8',
+              }"
+              aria-hidden="true"
+            />
+            <span class="min-w-0 flex-1">
+              <span class="flex min-w-0 items-center justify-between gap-2">
+                <span class="text-[11px] font-medium text-brand">
+                  {{ activityTypeLabel(activity.type, props.role) }}
                 </span>
-                <span
-                  class="mt-1 block truncate text-xs font-medium text-foreground transition group-hover:text-brand"
-                >
-                  {{ activity.title }}
+                <span class="shrink-0 text-[10px] text-muted">
+                  {{ calendarActivityTime(activity) }}
                 </span>
               </span>
-            </RouterLink>
-
-            <article
-              v-else
-              class="flex min-w-0 items-start gap-2 rounded-lg bg-surface-subtle p-3"
-            >
               <span
-                class="mt-1.5 h-2 w-2 shrink-0 rounded-full"
-                :style="{
-                  backgroundColor: activity.subject
-                    ? activitySubjectColor(activity)
-                    : '#a09aa8',
-                }"
-                aria-hidden="true"
-              />
-              <div class="min-w-0 flex-1">
-                <div class="flex min-w-0 items-center justify-between gap-2">
-                  <span class="text-[11px] font-medium text-brand">
-                    {{ activityTypeLabel(activity.type, props.role) }}
-                  </span>
-                  <span class="shrink-0 text-[10px] text-muted">
-                    {{ calendarActivityTime(activity) }}
-                  </span>
-                </div>
-                <p class="mt-1 truncate text-xs font-medium text-foreground">
-                  {{ activity.title }}
-                </p>
-              </div>
-            </article>
-          </li>
-        </ul>
+                class="mt-1 block truncate text-xs font-medium text-foreground transition group-hover:text-brand"
+              >
+                {{ activity.title }}
+              </span>
+            </span>
+          </RouterLink>
 
-        <p
-          v-if="
-            selectedDateDeadlineActivities.length > selectedDatePreview.length
-          "
-          class="mt-3 text-xs text-muted"
-        >
-          +{{
-            selectedDateDeadlineActivities.length - selectedDatePreview.length
-          }}
-          deadline lainnya
-        </p>
-      </div>
+          <article
+            v-else
+            class="flex min-w-0 items-start gap-2 rounded-lg bg-surface-subtle p-3"
+          >
+            <span
+              class="mt-1.5 h-2 w-2 shrink-0 rounded-full"
+              :style="{
+                backgroundColor: activity.subject
+                  ? activitySubjectColor(activity)
+                  : '#a09aa8',
+              }"
+              aria-hidden="true"
+            />
+            <div class="min-w-0 flex-1">
+              <div class="flex min-w-0 items-center justify-between gap-2">
+                <span class="text-[11px] font-medium text-brand">
+                  {{ activityTypeLabel(activity.type, props.role) }}
+                </span>
+                <span class="shrink-0 text-[10px] text-muted">
+                  {{ calendarActivityTime(activity) }}
+                </span>
+              </div>
+              <p class="mt-1 truncate text-xs font-medium text-foreground">
+                {{ activity.title }}
+              </p>
+            </div>
+          </article>
+        </li>
+      </ul>
+
+      <p
+        v-if="
+          selectedDateDeadlineActivities.length > selectedDatePreview.length
+        "
+        class="mt-3 text-xs text-muted"
+      >
+        +{{
+          selectedDateDeadlineActivities.length - selectedDatePreview.length
+        }}
+        deadline lainnya
+      </p>
     </div>
   </section>
 </template>

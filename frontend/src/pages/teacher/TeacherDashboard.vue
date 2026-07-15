@@ -355,9 +355,7 @@ onMounted(() => {
           </template>
         </DashboardUpdatesPanel>
 
-        <div class="max-h-96 shrink-0 overflow-y-auto">
-          <ActivityCalendarCard role="teacher" />
-        </div>
+        <ActivityCalendarCard role="teacher" />
       </div>
     </aside>
   </main>
