@@ -3,15 +3,21 @@ import { computed, ref } from "vue";
 
 type UpdateTab = "notifications" | "chat" | "feed";
 
-const props = defineProps<{
-  notificationBadge?: number;
-  chatBadge?: number;
-  feedBadge?: number;
-}>();
+const props = withDefaults(
+  defineProps<{
+    notificationBadge?: number;
+    chatBadge?: number;
+    feedBadge?: number;
+    tabs?: UpdateTab[];
+  }>(),
+  {
+    tabs: () => ["notifications", "chat", "feed"],
+  },
+);
 
-const activeTab = ref<UpdateTab>("notifications");
+const activeTab = ref<UpdateTab>(props.tabs[0] ?? "notifications");
 
-const tabs = computed(() => [
+const allTabs = computed(() => [
   {
     key: "notifications" as const,
     label: "Notifications",
@@ -20,6 +26,10 @@ const tabs = computed(() => [
   { key: "chat" as const, label: "Chat", badge: props.chatBadge ?? 0 },
   { key: "feed" as const, label: "Feed", badge: props.feedBadge ?? 0 },
 ]);
+
+const tabs = computed(() =>
+  allTabs.value.filter((tab) => props.tabs.includes(tab.key)),
+);
 
 function badgeLabel(value: number) {
   if (value <= 0) return "";

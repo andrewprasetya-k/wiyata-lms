@@ -13,6 +13,7 @@ import {
 import { useAuthStore } from "../../stores/auth";
 import { getTeacherDashboard } from "../../services/teacherDashboard";
 import { getAcademicActivities } from "../../services/activity";
+import { useNotificationUnreadCount } from "../../composables/useNotificationUnreadCount";
 import type { MembershipInfo } from "../../types/auth";
 import type { TeacherDashboardSummary } from "../../types/teacherDashboard";
 import type { AcademicActivityItem } from "../../types/activity";
@@ -21,9 +22,12 @@ import LatestChatCard from "../../components/chat/LatestChatCard.vue";
 import AcademicActivityCard from "../../components/activity/AcademicActivityCard.vue";
 import ActivityCalendarCard from "../../components/dashboard/ActivityCalendarCard.vue";
 import NotificationsPanel from "../../components/dashboard/NotificationsPanel.vue";
+import DashboardUpdatesPanel from "../../components/dashboard/DashboardUpdatesPanel.vue";
 import ContextSwitcher from "../../components/layout/ContextSwitcher.vue";
 
 const auth = useAuthStore();
+const notificationUnread = useNotificationUnreadCount();
+const chatPanelUnreadCount = ref(0);
 
 const loading = ref(false);
 const errorMessage = ref("");
@@ -119,6 +123,10 @@ async function loadDashboard() {
   }
 }
 
+function updateChatPanelUnreadCount(count: number) {
+  chatPanelUnreadCount.value = Math.max(0, count);
+}
+
 async function loadActivities() {
   activitiesLoading.value = true;
   activitiesError.value = "";
@@ -144,9 +152,11 @@ onMounted(() => {
     class="grid min-h-screen min-w-0 flex-1 grid-cols-1 overflow-x-hidden bg-background xl:grid-cols-[minmax(0,1fr)_300px]"
   >
     <!-- Main content -->
-    <section class="min-w-0">
+    <section
+      class="min-w-0 xl:flex xl:h-dvh xl:min-h-0 xl:flex-col xl:overflow-hidden"
+    >
       <!-- Header -->
-      <header class="border-b border-border bg-surface">
+      <header class="border-b border-border bg-surface xl:shrink-0">
         <div
           class="flex min-w-0 flex-col gap-3 px-5 py-5 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8"
         >
@@ -159,7 +169,9 @@ onMounted(() => {
         </div>
       </header>
 
-      <div class="space-y-5 px-5 py-5 sm:px-6 lg:px-8 lg:py-6">
+      <div
+        class="space-y-5 px-5 py-5 sm:px-6 xl:flex xl:min-h-0 xl:flex-1 xl:flex-col xl:overflow-hidden xl:px-8 xl:py-6"
+      >
         <!-- No school context -->
         <section
           v-if="!schoolUserId"
@@ -185,6 +197,7 @@ onMounted(() => {
 
         <template v-else>
           <AcademicActivityCard
+            class="xl:shrink-0"
             :activities="activities"
             :loading="activitiesLoading"
             :error="activitiesError"
@@ -193,7 +206,7 @@ onMounted(() => {
           />
 
           <!-- Stat cards -->
-          <section class="grid gap-3 sm:grid-cols-3">
+          <section class="grid gap-3 sm:grid-cols-3 xl:shrink-0">
             <template v-if="loading">
               <div
                 v-for="i in 3"
@@ -242,7 +255,7 @@ onMounted(() => {
           <!-- Error state -->
           <section
             v-if="errorMessage"
-            class="rounded-xl border border-danger-line bg-danger-soft p-5"
+            class="rounded-xl border border-danger-line bg-danger-soft p-5 xl:shrink-0"
           >
             <div class="flex items-start gap-3">
               <PhWarningCircle
@@ -270,9 +283,9 @@ onMounted(() => {
 
           <!-- Class performance -->
           <section
-            class="rounded-xl border border-border bg-surface shadow-sm p-5"
+            class="rounded-xl border border-border bg-surface shadow-sm p-5 xl:flex xl:min-h-0 xl:flex-1 xl:flex-col xl:overflow-hidden"
           >
-            <div class="mb-4 flex items-center justify-between gap-3">
+            <div class="mb-4 flex shrink-0 items-center justify-between gap-3">
               <div>
                 <h2 class="text-sm font-semibold text-foreground">
                   Kelas dan Mata Pelajaran
@@ -300,7 +313,7 @@ onMounted(() => {
 
             <div
               v-else-if="summary?.classPerformance?.length"
-              class="grid gap-3 md:grid-cols-2 max-h-96 overflow-y-auto pr-1"
+              class="grid gap-3 md:grid-cols-2 max-h-96 overflow-y-auto pr-1 xl:max-h-none xl:min-h-0 xl:flex-1"
             >
               <article
                 v-for="item in summary.classPerformance"
@@ -394,12 +407,31 @@ onMounted(() => {
 
     <!-- Right sidebar -->
     <aside
-      class="min-w-0 border-t border-border bg-background xl:sticky xl:top-0 xl:h-dvh xl:min-h-0 xl:overflow-y-auto xl:border-l xl:border-t-0 xl:bg-surface"
+      class="min-w-0 border-t border-border bg-background xl:sticky xl:top-0 xl:h-dvh xl:min-h-0 xl:overflow-hidden xl:border-l xl:border-t-0 xl:bg-surface"
     >
-      <div class="flex flex-col gap-4 p-5">
+      <div
+        class="flex flex-col gap-4 p-5 xl:h-full xl:min-h-0 xl:overflow-hidden"
+      >
+        <DashboardUpdatesPanel
+          class="xl:min-h-0 xl:flex-1 xl:overflow-hidden"
+          :tabs="['notifications', 'chat']"
+          :notification-badge="notificationUnread.unreadCount.value"
+          :chat-badge="chatPanelUnreadCount"
+        >
+          <template #notifications>
+            <NotificationsPanel embedded to="/teacher/notifications" />
+          </template>
+          <template #chat>
+            <LatestChatCard
+              to="/teacher/chat"
+              :limit="4"
+              embedded
+              @unread-change="updateChatPanelUnreadCount"
+            />
+          </template>
+        </DashboardUpdatesPanel>
+
         <ActivityCalendarCard role="teacher" />
-        <NotificationsPanel to="/teacher/notifications" />
-        <LatestChatCard to="/teacher/chat" :limit="4" />
       </div>
     </aside>
   </main>
