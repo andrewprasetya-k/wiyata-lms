@@ -354,7 +354,6 @@ onMounted(() => {
             />
           </template>
         </DashboardUpdatesPanel>
-
         <ActivityCalendarCard role="teacher" />
       </div>
     </aside>
