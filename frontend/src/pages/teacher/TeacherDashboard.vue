@@ -213,7 +213,7 @@ onMounted(() => {
                   <PhArrowRight
                     v-if="card.to"
                     :size="15"
-                    class="mt-1 shrink-0 text-[#d1d5db] transition group-hover:translate-x-0.5 group-hover:text-brand"
+                    class="mt-1 shrink-0 text-border-strong transition group-hover:translate-x-0.5 group-hover:text-brand"
                   />
                 </div>
                 <p class="mt-3 text-2xl font-semibold" :class="card.colorValue">
@@ -228,31 +228,6 @@ onMounted(() => {
               </component>
             </template>
           </section>
-
-          <!-- Urgent pending reviews banner -->
-          <RouterLink
-            v-if="!loading && hasPendingReviews"
-            to="/teacher/submissions"
-            class="group flex items-center gap-4 rounded-xl border border-warning-line bg-warning-soft px-5 py-4 transition hover:border-[#fb923c] hover:bg-[#ffedd5]"
-          >
-            <div
-              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#ea580c] text-white"
-            >
-              <PhClipboardText :size="20" weight="duotone" />
-            </div>
-            <div class="min-w-0 flex-1">
-              <p class="text-sm font-semibold text-warning">
-                {{ pendingReviews }} pengumpulan menunggu penilaian
-              </p>
-              <p class="mt-0.5 text-xs text-[#c2410c]">
-                Nilai sekarang agar siswa mendapat feedback lebih cepat.
-              </p>
-            </div>
-            <PhArrowRight
-              :size="16"
-              class="shrink-0 text-[#ea580c] transition group-hover:translate-x-0.5"
-            />
-          </RouterLink>
 
           <!-- Error state -->
           <section
@@ -379,9 +354,12 @@ onMounted(() => {
               </article>
             </div>
 
-            <div v-else class="rounded-lg bg-surface-subtle px-4 py-8 text-center">
+            <div
+              v-else
+              class="rounded-lg bg-surface-subtle px-4 py-8 text-center"
+            >
               <PhChalkboardTeacher
-                class="mx-auto h-7 w-7 text-[#d1d5db]"
+                class="mx-auto h-7 w-7 text-border-strong"
                 weight="duotone"
               />
               <p class="mt-3 text-sm font-semibold text-foreground">

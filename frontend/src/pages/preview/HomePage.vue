@@ -7,13 +7,8 @@ import {
   PhList,
   PhX,
   PhArrowRight,
-  PhPlay,
-  PhMonitor,
   PhCheckCircle,
   PhDot,
-  PhChalkboardTeacher,
-  PhShieldCheck,
-  PhChatCircle,
 } from "@phosphor-icons/vue";
 import Lenis from "lenis";
 
@@ -80,13 +75,13 @@ const features = [
     points: [
       "Materi per mata pelajaran & kelas",
       "Catatan pribadi siswa per materi",
-      "Alur yang sama untuk guru dan siswa",
+      "Konteks yang sama, akses sesuai peran",
     ],
   },
   {
     title: "Tugas & Penilaian",
     description:
-      "Buat tugas dengan tenggat waktu, terima pengumpulan, dan berikan nilai dan catatan umpan balik. Semua dalam satu alur yang terorganisir, tanpa berpindah halaman.",
+      "Buat tugas dengan tenggat waktu, terima pengumpulan, dan berikan nilai dan catatan umpan balik. Semua dalam satu alur yang terorganisir, tanpa harus bolak-balik ke banyak alat berbeda.",
     points: [
       "Pembuatan tugas dengan deadline",
       "Pengumpulan dan review oleh guru",
@@ -114,7 +109,7 @@ const features = [
     ],
   },
   {
-    title: "Multi-role Workspace",
+    title: "Akses Multi-Peran",
     description:
       "Satu platform untuk semua peran sekolah. Setiap pengguna mendapat tampilan dan akses yang sesuai dengan peran aktifnya — tanpa fitur yang tidak relevan menghalangi.",
     points: [
@@ -142,7 +137,7 @@ const mainRoles = [
   {
     anchor: "guru",
     eyebrow: "Untuk Guru",
-    title: "Mengajar tanpa alat yang tercerai",
+    title: "Mengajar tanpa alat yang tercerai-berai",
     description:
       "Materi, tugas, pengumpulan, penilaian, dan pengumuman tersusun dalam satu workspace — proses mengajar lebih mudah dipantau.",
     points: [
@@ -165,22 +160,22 @@ const mainRoles = [
   },
 ];
 
-// ── Screenshot slots
-const screenshotSlots = [
+// ── Preview showcase — screenshot asli dari aplikasi Wiyata
+const previewShots = [
   {
-    label: "Tampilan Guru",
-    note: "Preview halaman guru segera ditambahkan",
-    icon: PhChalkboardTeacher,
+    label: "Penilaian & Umpan Balik",
+    caption: "Guru memberi nilai dan catatan langsung ke siswa.",
+    src: "/screenshots/preview-penilaian.webp",
   },
   {
-    label: "Tampilan Admin",
-    note: "Preview halaman admin segera ditambahkan",
-    icon: PhShieldCheck,
+    label: "Materi & Catatan Pribadi",
+    caption: "Siswa membaca materi sekaligus menulis catatan sendiri.",
+    src: "/screenshots/preview-materi-catatan.webp",
   },
   {
-    label: "Tampilan Chat & Feed",
-    note: "Preview komunikasi kelas segera ditambahkan",
-    icon: PhChatCircle,
+    label: "Pengumpulan Tugas",
+    caption: "Status pengumpulan setiap siswa terlihat jelas.",
+    src: "/screenshots/preview-pengumpulan.webp",
   },
 ];
 </script>
@@ -399,8 +394,8 @@ const screenshotSlots = [
           Satu workspace untuk aktivitas akademik sekolah.
         </h1>
         <p class="mt-6 max-w-2xl text-lg leading-8 text-muted">
-          Kelola materi, tugas, komunikasi, dan penilaian dalam satu workspace
-          bagi murid, guru, dan sekolah.
+          Materi, tugas, komunikasi, dan penilaian ada dalam satu workspace yang
+          sama — untuk murid, guru, dan sekolah.
         </p>
         <!-- CTAs — three-tier hierarchy -->
         <div class="mt-9 flex flex-wrap items-center gap-3">
@@ -427,9 +422,7 @@ const screenshotSlots = [
           class="relative overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_28px_90px_-30px_rgba(79,70,229,0.32)] ring-1 ring-white/70"
         >
           <!-- Browser chrome -->
-          <div
-            class="flex items-center gap-2 border-b border-[#f0ece5] bg-[#faf9f7] px-5 py-3"
-          >
+          <div class="flex items-center gap-2 bg-[#faf9f7] px-5 py-3">
             <span class="h-3 w-3 rounded-full bg-[#fca5a5]" />
             <span class="h-3 w-3 rounded-full bg-[#fcd34d]" />
             <span class="h-3 w-3 rounded-full bg-[#86efac]" />
@@ -440,31 +433,14 @@ const screenshotSlots = [
             </div>
           </div>
 
-          <!-- Placeholder content area -->
-          <div
-            class="flex aspect-video w-full flex-col items-center justify-center gap-4 bg-background px-8 text-center"
-            style="min-height: 380px"
-          >
-            <div
-              class="flex h-14 w-14 items-center justify-center rounded-xl border border-border bg-surface shadow-sm"
-            >
-              <PhMonitor :size="26" class="text-brand" />
-            </div>
-            <div>
-              <p class="text-base font-medium text-foreground">
-                Preview Wiyata
-              </p>
-              <p class="mt-1.5 max-w-sm text-sm leading-relaxed text-muted">
-                Screenshot dashboard Wiyata akan segera ditambahkan.
-              </p>
-            </div>
-            <!-- Skeleton rows that signal "real UI is coming" -->
-            <div class="mt-4 w-full max-w-lg space-y-2.5 opacity-40">
-              <div class="h-2.5 rounded-full bg-[#e7e2da]" />
-              <div class="h-2.5 w-4/5 rounded-full bg-[#e7e2da]" />
-              <div class="h-2.5 w-3/5 rounded-full bg-[#e7e2da]" />
-            </div>
-          </div>
+          <!-- Screenshot asli: Student Dashboard -->
+          <img
+            src="/screenshots/hero-student-dashboard.webp"
+            alt="Dashboard siswa Wiyata menampilkan agenda mendatang, daftar mata pelajaran, tugas prioritas, notifikasi, dan kalender"
+            class="aspect-video w-full bg-background object-cover object-top"
+            width="2200"
+            height="1273"
+          />
         </div>
 
         <p class="mt-3 text-center text-xs text-muted">
@@ -592,74 +568,68 @@ const screenshotSlots = [
           <h2
             class="mt-4 text-4xl font-semibold tracking-tight text-foreground sm:text-5xl"
           >
-            Preview fitur Wiyata sedang disiapkan.
+            Begini Wiyata dipakai sehari-hari.
           </h2>
           <p class="mt-5 text-lg leading-8 text-muted">
-            Video showcase dan screenshot fitur utama Wiyata akan segera
-            ditambahkan.
+            Seluruh tampilan di bawah ini diambil langsung dari aplikasi Wiyata
+            yang sudah berjalan — bukan rancangan atau mockup.
           </p>
         </div>
 
-        <!-- Video placeholder -->
+        <!-- Flagship screenshot: Teacher Dashboard -->
         <div class="mx-auto mt-14 max-w-4xl">
           <div
-            class="relative flex aspect-video w-full flex-col items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-[#1a1830] shadow-[0_30px_90px_-40px_rgba(26,24,48,0.75)]"
+            class="relative overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_28px_90px_-30px_rgba(79,70,229,0.32)] ring-1 ring-white/70"
           >
-            <div
-              class="pointer-events-none absolute inset-0 opacity-[0.06]"
-              style="
-                background-image: radial-gradient(
-                  circle,
-                  #ffffff 1px,
-                  transparent 1px
-                );
-                background-size: 28px 28px;
-              "
-              aria-hidden="true"
-            />
-            <div class="relative flex flex-col items-center gap-5 text-center">
-              <button
-                disabled
-                aria-label="Video belum tersedia"
-                class="flex h-16 w-16 cursor-default items-center justify-center rounded-full border border-white/20 bg-surface/10"
+            <div class="flex items-center gap-2 bg-[#faf9f7] px-5 py-3">
+              <span class="h-3 w-3 rounded-full bg-[#fca5a5]" />
+              <span class="h-3 w-3 rounded-full bg-[#fcd34d]" />
+              <span class="h-3 w-3 rounded-full bg-[#86efac]" />
+              <div
+                class="ml-3 flex h-6 max-w-xs flex-1 items-center rounded-md bg-[#f0ece5] px-3 text-xs text-muted"
               >
-                <PhPlay :size="22" weight="fill" class="ml-1 text-white/70" />
-              </button>
-              <div>
-                <p class="text-sm font-medium text-white/80">
-                  Video showcase Wiyata akan segera diunggah
-                </p>
-                <p class="mt-1 text-xs text-white/40">
-                  Walkthrough singkat produk Wiyata sedang disiapkan
-                </p>
+                app.wiyata.id/teacher/dashboard
               </div>
             </div>
-            <div
-              class="absolute bottom-4 right-4 rounded-md bg-surface/10 px-2.5 py-1 text-xs text-white/50"
-            >
-              ~2 menit
-            </div>
+            <img
+              src="/screenshots/preview-teacher-dashboard.webp"
+              alt="Dashboard guru Wiyata menampilkan pengumpulan yang menunggu penilaian, jumlah siswa, rata-rata pengumpulan, dan performa tiap kelas"
+              class="aspect-video w-full object-cover object-top"
+              width="2200"
+              height="1273"
+            />
           </div>
-
-          <p class="mt-4 text-center text-xs text-muted">
-            Preview video produk sedang disiapkan dan akan ditampilkan di bagian
-            ini.
+          <p class="mt-3 text-center text-xs text-muted">
+            Dashboard guru — ringkasan kelas, tugas yang perlu dinilai, dan
+            aktivitas terbaru dalam satu layar.
           </p>
         </div>
 
-        <!-- Screenshot placeholders -->
+        <!-- Supporting screenshots -->
         <div class="mt-10 grid gap-4 sm:grid-cols-3">
-          <div
-            v-for="slot in screenshotSlots"
-            :key="slot.label"
-            class="flex aspect-4/3 flex-col items-center justify-center gap-3 rounded-xl border border-border bg-surface text-center shadow-sm"
+          <figure
+            v-for="shot in previewShots"
+            :key="shot.label"
+            class="overflow-hidden rounded-xl border border-border bg-surface shadow-sm"
           >
-            <component :is="slot.icon" :size="22" class="text-[#d1cde5]" />
-            <div>
-              <p class="text-xs font-medium text-muted">{{ slot.label }}</p>
-              <p class="mt-0.5 text-[10px] text-[#c4bfcc]">{{ slot.note }}</p>
+            <div class="aspect-4/3 overflow-hidden bg-background">
+              <img
+                :src="shot.src"
+                :alt="shot.caption"
+                class="h-full w-full object-cover object-top"
+                width="1600"
+                height="926"
+              />
             </div>
-          </div>
+            <figcaption class="p-4 text-center">
+              <p class="text-xs font-medium text-foreground">
+                {{ shot.label }}
+              </p>
+              <p class="mt-1 text-[11px] leading-relaxed text-muted">
+                {{ shot.caption }}
+              </p>
+            </figcaption>
+          </figure>
         </div>
       </div>
     </section>
