@@ -183,8 +183,8 @@ const previewSteps: PreviewStep[] = [
     url: "app.wiyata.id/teacher/dashboard",
     image: {
       src: "/screenshots/preview-teacher-dashboard.webp",
-      width: 3600,
-      height: 2082,
+      width: 2000,
+      height: 1157,
     },
   },
   {
@@ -194,8 +194,8 @@ const previewSteps: PreviewStep[] = [
     url: "app.wiyata.id/student/subjects/materi",
     image: {
       src: "/screenshots/preview-materi-catatan.webp",
-      width: 1800,
-      height: 1041,
+      width: 2000,
+      height: 1156,
     },
   },
   {
@@ -206,7 +206,7 @@ const previewSteps: PreviewStep[] = [
     image: {
       src: "/screenshots/preview-pengumpulan.webp",
       width: 2000,
-      height: 1157,
+      height: 1155,
     },
   },
   {
@@ -216,8 +216,8 @@ const previewSteps: PreviewStep[] = [
     url: "app.wiyata.id/teacher/assignments/review",
     image: {
       src: "/screenshots/preview-penilaian.webp",
-      width: 1800,
-      height: 1041,
+      width: 2000,
+      height: 1157,
     },
   },
   {
