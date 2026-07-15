@@ -11,6 +11,8 @@ import {
   PhDot,
 } from "@phosphor-icons/vue";
 import Lenis from "lenis";
+import { MotionConfig } from "motion-v";
+import PreviewShowcaseStep from "./PreviewShowcaseStep.vue";
 
 const auth = useAuthStore();
 const { confirmLogout } = useLogoutConfirm({ redirectTo: false });
@@ -160,23 +162,18 @@ const mainRoles = [
   },
 ];
 
-type PreviewSize = "hero" | "large" | "medium" | "compact" | "small";
-
 interface PreviewStep {
   label: string;
   caption: string;
   url: string;
-  size: PreviewSize;
   image: { src: string; width: number; height: number };
 }
 
-const previewSizeStyles: Record<PreviewSize, { maxW: string; minH: string }> = {
-  hero: { maxW: "max-w-6xl", minH: "md:min-h-screen" },
-  large: { maxW: "max-w-5xl", minH: "md:min-h-[85vh]" },
-  medium: { maxW: "max-w-4xl", minH: "md:min-h-[78vh]" },
-  compact: { maxW: "max-w-3xl", minH: "md:min-h-[70vh]" },
-  small: { maxW: "max-w-xl", minH: "md:min-h-[60vh]" },
-};
+// Product walkthrough, bukan galeri hero — satu "jendela aplikasi" dengan
+// ukuran konsisten untuk seluruh step, supaya yang berubah antar step adalah
+// halaman & cerita, bukan ukuran browser-nya.
+const PREVIEW_MAX_W = "max-w-5xl";
+const PREVIEW_MIN_H = "md:min-h-[85vh]";
 
 const previewSteps: PreviewStep[] = [
   {
@@ -184,7 +181,6 @@ const previewSteps: PreviewStep[] = [
     caption:
       "Ringkasan kelas, tugas yang perlu dinilai, dan aktivitas terbaru dalam satu layar.",
     url: "app.wiyata.id/teacher/dashboard",
-    size: "hero",
     image: {
       src: "/screenshots/preview-teacher-dashboard.webp",
       width: 3600,
@@ -196,7 +192,6 @@ const previewSteps: PreviewStep[] = [
     caption:
       "Siswa membaca materi sekaligus menulis catatan sendiri — tersimpan otomatis, hanya terlihat olehnya.",
     url: "app.wiyata.id/student/subjects/materi",
-    size: "compact",
     image: {
       src: "/screenshots/preview-materi-catatan.webp",
       width: 1800,
@@ -208,11 +203,10 @@ const previewSteps: PreviewStep[] = [
     caption:
       "Guru langsung tahu siapa yang sudah mengumpulkan dan siapa yang masih perlu dinilai, tanpa menghitung manual.",
     url: "app.wiyata.id/teacher/submissions",
-    size: "medium",
     image: {
       src: "/screenshots/preview-pengumpulan.webp",
-      width: 1600,
-      height: 926,
+      width: 2000,
+      height: 1157,
     },
   },
   {
@@ -220,7 +214,6 @@ const previewSteps: PreviewStep[] = [
     caption:
       "Guru menilai tugas dan menulis umpan balik langsung ke siswa, tanpa berpindah aplikasi.",
     url: "app.wiyata.id/teacher/assignments/review",
-    size: "compact",
     image: {
       src: "/screenshots/preview-penilaian.webp",
       width: 1800,
@@ -232,11 +225,10 @@ const previewSteps: PreviewStep[] = [
     caption:
       "Diskusi seputar tugas dan materi tetap dalam konteks kelas — bukan aplikasi chat terpisah.",
     url: "app.wiyata.id/student/chat",
-    size: "small",
     image: {
-      src: "/screenshots/preview-chat-crop.webp",
-      width: 1350,
-      height: 476,
+      src: "/screenshots/preview-chat.webp",
+      width: 2000,
+      height: 1157,
     },
   },
   {
@@ -244,7 +236,6 @@ const previewSteps: PreviewStep[] = [
     caption:
       "Struktur akademik, kelas, dan warga sekolah terkelola rapi — sekolah siap digunakan sejak hari pertama.",
     url: "app.wiyata.id/admin/dashboard",
-    size: "large",
     image: {
       src: "/screenshots/preview-admin-dashboard.webp",
       width: 2000,
@@ -647,69 +638,19 @@ const previewSteps: PreviewStep[] = [
         </div>
       </div>
 
-      <!-- Stacked walkthrough — tiap step sticky pada offset yang sama;
-           step berikutnya menyusul & menutupi step sebelumnya murni lewat
-           CSS (position: sticky + urutan DOM + z-index). Di mobile (<md)
-           sticky dimatikan, step hanya bertumpuk normal supaya tidak terasa
-           sempit di layar pendek. Setiap screenshot adalah halaman utuh,
-           jadi teks singkat ditampilkan di atas gambar (bukan disandingkan
-           dalam grid sempit) — lebar gambar mengikuti bobotnya sendiri
-           lewat previewSizeStyles, bukan diseragamkan. -->
-      <div class="relative mt-16">
-        <div
-          v-for="(step, i) in previewSteps"
-          :key="step.label"
-          class="bg-surface-subtle py-16 md:sticky md:top-28 md:flex md:items-center md:py-0"
-          :class="previewSizeStyles[step.size].minH"
-          :style="{ zIndex: i + 1 }"
-        >
-          <div class="mx-auto w-full px-6 lg:px-8">
-            <!-- Teks -->
-            <div
-              class="mx-auto text-center"
-              :class="previewSizeStyles[step.size].maxW"
-            >
-              <p
-                class="text-xs font-semibold uppercase tracking-widest text-brand"
-              >
-                {{ String(i + 1).padStart(2, "0") }} — {{ step.label }}
-              </p>
-              <p class="mx-auto mt-3 max-w-xl text-base leading-7 text-muted">
-                {{ step.caption }}
-              </p>
-            </div>
-
-            <!-- Visual -->
-            <div
-              class="mx-auto mt-8"
-              :class="previewSizeStyles[step.size].maxW"
-            >
-              <div
-                class="overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_28px_90px_-30px_rgba(79,70,229,0.28)]"
-              >
-                <div class="flex items-center gap-2 bg-[#faf9f7] px-5 py-3">
-                  <span class="h-3 w-3 rounded-full bg-[#fca5a5]" />
-                  <span class="h-3 w-3 rounded-full bg-[#fcd34d]" />
-                  <span class="h-3 w-3 rounded-full bg-[#86efac]" />
-                  <div
-                    class="ml-3 flex h-6 max-w-xs flex-1 items-center rounded-md bg-[#f0ece5] px-3 text-xs text-muted"
-                  >
-                    {{ step.url }}
-                  </div>
-                </div>
-
-                <img
-                  :src="step.image.src"
-                  :alt="step.caption"
-                  class="h-auto w-full"
-                  :width="step.image.width"
-                  :height="step.image.height"
-                />
-              </div>
-            </div>
+      <MotionConfig reduced-motion="user">
+        <div class="relative mt-16">
+          <div
+            v-for="(step, i) in previewSteps"
+            :key="step.label"
+            class="bg-surface-subtle py-16 md:sticky md:top-28 md:flex md:items-center md:py-0"
+            :class="PREVIEW_MIN_H"
+            :style="{ zIndex: i + 1 }"
+          >
+            <PreviewShowcaseStep :step="step" :index="i" :max-w="PREVIEW_MAX_W" />
           </div>
         </div>
-      </div>
+      </MotionConfig>
     </section>
 
     <!-- ───────────── FINAL CTA ───────────── -->
