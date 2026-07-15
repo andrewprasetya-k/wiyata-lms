@@ -2,6 +2,7 @@ package repository
 
 import (
 	"backend/internal/domain"
+
 	"gorm.io/gorm"
 )
 
@@ -71,7 +72,10 @@ func (r *materialRepository) GetByID(id string) (*domain.Material, error) {
 }
 
 func (r *materialRepository) Update(mat *domain.Material) error {
-	result := r.db.Save(mat)
+	result := r.db.Model(&domain.Material{}).
+		Where("mat_id = ?", mat.ID).
+		Select("mat_title", "mat_desc", "mat_types", "updated_at").
+		Updates(mat)
 	if result.Error != nil {
 		return result.Error
 	}
