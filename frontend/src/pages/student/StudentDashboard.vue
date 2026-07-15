@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
-import { RouterLink, useRouter } from "vue-router";
+import { RouterLink } from "vue-router";
 import {
   PhArrowClockwise,
   PhArrowRight,
@@ -14,11 +14,7 @@ import { getClassFeed } from "../../services/feed";
 import { getStudentAssignmentInbox } from "../../services/assignment";
 import { useFeedUnreadCount } from "../../composables/useFeedUnreadCount";
 import { useNotificationUnreadCount } from "../../composables/useNotificationUnreadCount";
-import {
-  getNotifications,
-  markAllNotificationsAsRead,
-  markNotificationAsRead,
-} from "../../services/notifications";
+import { getNotifications } from "../../services/notifications";
 import { getAcademicActivities } from "../../services/activity";
 import type { SubjectClassItem } from "../../types/classWorkspace";
 import type { FeedPost } from "../../types/feed";
@@ -26,33 +22,25 @@ import type { NotificationItem } from "../../types/dashboard";
 import type { StudentAssignmentInboxItem } from "../../types/assignment";
 import type { AcademicActivityItem } from "../../types/activity";
 import { formatDate, formatDateTime } from "../../utils/date";
-import { getSubjectColor, resolveSubjectColor } from "../../utils/color";
-import { useToastStore } from "../../stores/toast";
+import { resolveSubjectColor } from "../../utils/color";
 import LatestChatCard from "../../components/chat/LatestChatCard.vue";
 import AcademicActivityCard from "../../components/activity/AcademicActivityCard.vue";
 import DashboardUpdatesPanel from "../../components/dashboard/DashboardUpdatesPanel.vue";
 
 import ActivityCalendarCard from "../../components/dashboard/ActivityCalendarCard.vue";
 
-import { getApiError } from "../../utils/error";
 import ContextSwitcher from "../../components/layout/ContextSwitcher.vue";
 import {
   compareAssignments,
   assignmentStatusClasses,
   assignmentStatusLabel,
 } from "../../utils/studentAssignmentPreview";
-import {
-  isInternalNotificationLink,
-  notificationAriaLabel,
-  notificationBadge,
-  notificationMessage,
-  notificationTitle,
-} from "../../utils/studentNotificationPreview";
+
+import NotificationsPanel from "../../components/dashboard/NotificationsPanel.vue";
 
 const auth = useAuthStore();
 const activeClassStore = useActiveClassStore();
-const toast = useToastStore();
-const router = useRouter();
+
 const { unreadCount: feedPanelUnreadCount } = useFeedUnreadCount();
 const notificationUnread = useNotificationUnreadCount();
 
@@ -73,8 +61,7 @@ const activities = ref<AcademicActivityItem[]>([]);
 const activitiesLoading = ref(false);
 const activitiesError = ref("");
 const chatPanelUnreadCount = ref(0);
-const markingNotificationIds = ref<Set<string>>(new Set());
-const markingAllNotifications = ref(false);
+
 const errorMessage = ref("");
 let subjectPreviewRequestId = 0;
 let feedPreviewRequestId = 0;
@@ -268,88 +255,6 @@ function retryFeedPreview() {
   const activeClassId = activeClassStore.activeClassId;
   if (!activeClassId) return;
   void loadFeedPreview(activeClassId);
-}
-
-function markNotificationRead(item: NotificationItem) {
-  if (markingNotificationIds.value.has(item.notificationId)) {
-    return;
-  }
-
-  if (item.isRead) {
-    return;
-  }
-
-  const previousUnreadCount = notificationUnread.unreadCount.value;
-  const previousNotification = notifications.value.find(
-    (notification) => notification.notificationId === item.notificationId,
-  );
-
-  notifications.value = notifications.value.map((notification) =>
-    notification.notificationId === item.notificationId
-      ? { ...notification, isRead: true }
-      : notification,
-  );
-  notificationUnread.decrement();
-  markingNotificationIds.value = new Set([
-    ...markingNotificationIds.value,
-    item.notificationId,
-  ]);
-
-  void markNotificationAsRead(item.notificationId)
-    .catch((error) => {
-      if (previousNotification && !previousNotification.isRead) {
-        notifications.value = notifications.value.map((notification) =>
-          notification.notificationId === item.notificationId
-            ? { ...notification, isRead: false }
-            : notification,
-        );
-        notificationUnread.set(previousUnreadCount);
-      }
-      toast.error(getApiError(error));
-    })
-    .finally(() => {
-      const next = new Set(markingNotificationIds.value);
-      next.delete(item.notificationId);
-      markingNotificationIds.value = next;
-    });
-}
-
-async function handleNotificationClick(item: NotificationItem) {
-  markNotificationRead(item);
-  if (isInternalNotificationLink(item.link)) {
-    await router.push(item.link as string);
-  }
-}
-
-function markAllNotificationsRead() {
-  if (
-    notificationUnread.unreadCount.value <= 0 ||
-    markingAllNotifications.value
-  ) {
-    return;
-  }
-
-  const previousNotifications = notifications.value;
-  const previousUnreadCount = notificationUnread.unreadCount.value;
-  markingAllNotifications.value = true;
-  notifications.value = notifications.value.map((notification) => ({
-    ...notification,
-    isRead: true,
-  }));
-  notificationUnread.clear();
-
-  void markAllNotificationsAsRead()
-    .then(() => {
-      toast.success("Semua notifikasi ditandai sudah dibaca.");
-    })
-    .catch((error) => {
-      notifications.value = previousNotifications;
-      notificationUnread.set(previousUnreadCount);
-      toast.error(getApiError(error));
-    })
-    .finally(() => {
-      markingAllNotifications.value = false;
-    });
 }
 
 onMounted(() => {
@@ -668,105 +573,7 @@ onMounted(() => {
           :feed-badge="feedPanelUnreadCount"
         >
           <template #notifications>
-            <div class="mb-3 flex items-center justify-between gap-3">
-              <p class="text-xs text-muted">
-                {{ notificationUnread.unreadCount.value }} belum dibaca
-              </p>
-              <div class="flex items-center gap-2">
-                <RouterLink
-                  class="rounded-lg border border-border bg-surface px-1 py-1 text-xs font-medium text-brand transition hover:border-brand hover:bg-brand-soft"
-                  to="/student/notifications"
-                >
-                  Lihat semua
-                </RouterLink>
-                <button
-                  v-if="notificationUnread.unreadCount.value > 0"
-                  class="rounded-lg bg-brand-soft px-1 py-1 text-xs font-medium text-brand transition hover:bg-[#e0e7ff] disabled:cursor-not-allowed disabled:opacity-60"
-                  type="button"
-                  :disabled="markingAllNotifications"
-                  @click="markAllNotificationsRead"
-                >
-                  {{
-                    markingAllNotifications
-                      ? "Menyimpan..."
-                      : "Tandai semua dibaca"
-                  }}
-                </button>
-              </div>
-            </div>
-
-            <div v-if="notificationsLoading" class="space-y-2">
-              <div
-                v-for="item in 3"
-                :key="item"
-                class="h-16 animate-pulse rounded-lg bg-surface-strong"
-              />
-            </div>
-            <div
-              v-else-if="notificationsError"
-              class="rounded-lg bg-surface-subtle p-4 text-sm leading-6 text-muted"
-            >
-              <p>{{ notificationsError }}</p>
-              <button
-                type="button"
-                class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-medium text-brand transition hover:border-brand hover:bg-brand-soft disabled:cursor-not-allowed disabled:opacity-60"
-                :disabled="notificationsLoading"
-                @click="loadNotifications"
-              >
-                <PhArrowClockwise :size="14" />
-                Coba lagi
-              </button>
-            </div>
-            <div v-else-if="notifications.length > 0" class="space-y-1">
-              <button
-                v-for="item in notifications"
-                :key="item.notificationId"
-                class="flex min-w-0 w-full gap-3 p-3 text-left transition hover:bg-background disabled:cursor-wait disabled:opacity-75 border-b border-border"
-                :class="!item.isRead ? 'bg-[#f5f7ff]' : ''"
-                type="button"
-                :disabled="markingNotificationIds.has(item.notificationId)"
-                :aria-label="notificationAriaLabel(item)"
-                @click="handleNotificationClick(item)"
-              >
-                <div
-                  class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[11px] font-medium text-white"
-                  :style="{
-                    backgroundColor: getSubjectColor(
-                      item.type || item.notificationId,
-                    ),
-                  }"
-                >
-                  {{ notificationBadge(item) }}
-                </div>
-                <div class="min-w-0 flex-1">
-                  <div class="flex items-baseline justify-between gap-2">
-                    <p class="line-clamp-1 text-sm font-medium text-foreground">
-                      {{ notificationTitle(item) }}
-                    </p>
-                    <span class="shrink-0 text-[10px] text-muted">{{
-                      formatDateTime(item.createdAt)
-                    }}</span>
-                  </div>
-                  <p class="line-clamp-2 text-xs leading-5 text-muted">
-                    {{ notificationMessage(item) }}
-                  </p>
-                  <span
-                    v-if="!item.isRead"
-                    class="mt-1 inline-flex rounded-full bg-brand px-2 py-0.5 text-[10px] font-medium text-white"
-                  >
-                    baru
-                  </span>
-                </div>
-              </button>
-            </div>
-            <div v-else class="rounded-lg bg-surface-subtle p-4">
-              <p class="text-sm font-semibold text-foreground">
-                Belum ada notifikasi terbaru
-              </p>
-              <p class="mt-1 text-sm leading-6 text-muted">
-                Notifikasi baru dari kelas aktif akan tampil di sini.
-              </p>
-            </div>
+            <NotificationsPanel embedded to="/student/notifications" />
           </template>
 
           <template #chat>

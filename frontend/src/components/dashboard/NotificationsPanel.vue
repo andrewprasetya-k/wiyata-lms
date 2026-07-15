@@ -147,7 +147,9 @@ onMounted(loadNotifications);
   <section
     class="shrink-0 rounded-xl"
     :class="
-      embedded ? 'bg-transparent' : 'border border-border bg-surface shadow-sm p-4 sm:p-5'
+      embedded
+        ? 'bg-transparent'
+        : 'border border-border bg-surface shadow-sm p-4 sm:p-5'
     "
   >
     <div class="mb-3 flex items-center justify-between gap-3">

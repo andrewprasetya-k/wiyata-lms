@@ -5,7 +5,6 @@ import {
   PhArrowRight,
   PhBookOpen,
   PhChalkboardTeacher,
-  PhClipboardText,
   PhWarningCircle,
 } from "@phosphor-icons/vue";
 import { useAuthStore } from "../../stores/auth";
@@ -59,7 +58,6 @@ function formatPercentage(value: number | null | undefined) {
   if (typeof value !== "number" || !Number.isFinite(value)) return "0%";
   return `${Math.min(100, Math.max(0, value)).toFixed(1)}%`;
 }
-
 
 async function loadDashboard() {
   if (!schoolUserId.value) {
@@ -121,6 +119,22 @@ onMounted(() => {
             <h1 class="mt-1 text-2xl font-semibold text-foreground sm:text-3xl">
               Selamat mengajar, {{ firstName }}
             </h1>
+            <p class="mt-2 text-sm leading-6 text-muted">
+              <template v-if="loading">Memuat status pengumpulan...</template>
+              <template v-else-if="!hasPendingReviews">
+                Semua pengumpulan sudah selesai dinilai. 🎉
+              </template>
+              <template v-else>
+                Ada {{ pendingReviews }} pengumpulan yang perlu Anda nilai hari
+                ini.
+                <RouterLink
+                  to="/teacher/submissions"
+                  class="font-medium text-brand hover:text-brand-hover"
+                >
+                  Lihat detail →
+                </RouterLink>
+              </template>
+            </p>
           </div>
           <ContextSwitcher />
         </div>
@@ -161,55 +175,6 @@ onMounted(() => {
             role="teacher"
             :max-items="5"
           />
-
-          <!-- Menunggu Penilaian: kartu highlight utama -->
-          <div
-            v-if="loading"
-            class="h-32 animate-pulse rounded-2xl border border-border bg-surface shadow-sm xl:shrink-0"
-          />
-          <RouterLink
-            v-else
-            to="/teacher/submissions"
-            class="group flex items-center justify-between gap-4 rounded-2xl border p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md xl:shrink-0"
-            :class="
-              hasPendingReviews
-                ? 'border-warning-line bg-warning-soft hover:border-[#fb923c]'
-                : 'border-success-line bg-success-soft hover:border-success'
-            "
-          >
-            <div class="flex min-w-0 items-center gap-4">
-              <div
-                class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-surface shadow-sm"
-                :class="hasPendingReviews ? 'text-[#ea580c]' : 'text-success'"
-              >
-                <PhClipboardText :size="28" weight="duotone" />
-              </div>
-              <div class="min-w-0">
-                <p
-                  class="text-3xl font-bold"
-                  :class="hasPendingReviews ? 'text-[#ea580c]' : 'text-foreground'"
-                >
-                  {{ pendingReviews }}
-                </p>
-                <p class="mt-1 text-sm font-medium text-foreground">
-                  Menunggu Penilaian
-                </p>
-                <p class="mt-0.5 text-xs leading-5 text-muted">
-                  Pengumpulan yang belum dinilai dari semua kelas
-                </p>
-              </div>
-            </div>
-            <div
-              class="hidden shrink-0 items-center gap-1.5 text-sm font-medium sm:flex"
-              :class="hasPendingReviews ? 'text-[#ea580c]' : 'text-success'"
-            >
-              Nilai sekarang
-              <PhArrowRight
-                :size="16"
-                class="transition group-hover:translate-x-0.5"
-              />
-            </div>
-          </RouterLink>
 
           <!-- Error state -->
           <section
@@ -369,7 +334,7 @@ onMounted(() => {
       class="min-w-0 border-t border-border bg-background xl:sticky xl:top-0 xl:h-dvh xl:min-h-0 xl:overflow-hidden xl:border-l xl:border-t-0 xl:bg-surface"
     >
       <div
-        class="flex flex-col gap-4 p-5 xl:h-full xl:min-h-0 xl:overflow-hidden"
+        class="flex flex-col gap-3 p-4 xl:h-full xl:min-h-0 xl:overflow-hidden"
       >
         <DashboardUpdatesPanel
           class="xl:min-h-0 xl:flex-1 xl:overflow-hidden"
@@ -390,7 +355,9 @@ onMounted(() => {
           </template>
         </DashboardUpdatesPanel>
 
-        <ActivityCalendarCard role="teacher" />
+        <div class="max-h-96 shrink-0 overflow-y-auto">
+          <ActivityCalendarCard role="teacher" />
+        </div>
       </div>
     </aside>
   </main>
