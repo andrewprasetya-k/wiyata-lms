@@ -160,22 +160,96 @@ const mainRoles = [
   },
 ];
 
-// ── Preview showcase — screenshot asli dari aplikasi Wiyata
-const previewShots = [
+type PreviewSize = "hero" | "large" | "medium" | "compact" | "small";
+
+interface PreviewStep {
+  label: string;
+  caption: string;
+  url: string;
+  size: PreviewSize;
+  image: { src: string; width: number; height: number };
+}
+
+const previewSizeStyles: Record<PreviewSize, { maxW: string; minH: string }> = {
+  hero: { maxW: "max-w-6xl", minH: "md:min-h-screen" },
+  large: { maxW: "max-w-5xl", minH: "md:min-h-[85vh]" },
+  medium: { maxW: "max-w-4xl", minH: "md:min-h-[78vh]" },
+  compact: { maxW: "max-w-3xl", minH: "md:min-h-[70vh]" },
+  small: { maxW: "max-w-xl", minH: "md:min-h-[60vh]" },
+};
+
+const previewSteps: PreviewStep[] = [
   {
-    label: "Penilaian & Umpan Balik",
-    caption: "Guru memberi nilai dan catatan langsung ke siswa.",
-    src: "/screenshots/preview-penilaian.webp",
+    label: "Dashboard Guru",
+    caption:
+      "Ringkasan kelas, tugas yang perlu dinilai, dan aktivitas terbaru dalam satu layar.",
+    url: "app.wiyata.id/teacher/dashboard",
+    size: "hero",
+    image: {
+      src: "/screenshots/preview-teacher-dashboard.webp",
+      width: 3600,
+      height: 2082,
+    },
   },
   {
     label: "Materi & Catatan Pribadi",
-    caption: "Siswa membaca materi sekaligus menulis catatan sendiri.",
-    src: "/screenshots/preview-materi-catatan.webp",
+    caption:
+      "Siswa membaca materi sekaligus menulis catatan sendiri — tersimpan otomatis, hanya terlihat olehnya.",
+    url: "app.wiyata.id/student/subjects/materi",
+    size: "compact",
+    image: {
+      src: "/screenshots/preview-materi-catatan.webp",
+      width: 1800,
+      height: 1041,
+    },
   },
   {
     label: "Pengumpulan Tugas",
-    caption: "Status pengumpulan setiap siswa terlihat jelas.",
-    src: "/screenshots/preview-pengumpulan.webp",
+    caption:
+      "Guru langsung tahu siapa yang sudah mengumpulkan dan siapa yang masih perlu dinilai, tanpa menghitung manual.",
+    url: "app.wiyata.id/teacher/submissions",
+    size: "medium",
+    image: {
+      src: "/screenshots/preview-pengumpulan.webp",
+      width: 1600,
+      height: 926,
+    },
+  },
+  {
+    label: "Penilaian & Umpan Balik",
+    caption:
+      "Guru menilai tugas dan menulis umpan balik langsung ke siswa, tanpa berpindah aplikasi.",
+    url: "app.wiyata.id/teacher/assignments/review",
+    size: "compact",
+    image: {
+      src: "/screenshots/preview-penilaian.webp",
+      width: 1800,
+      height: 1041,
+    },
+  },
+  {
+    label: "Chat Akademik",
+    caption:
+      "Diskusi seputar tugas dan materi tetap dalam konteks kelas — bukan aplikasi chat terpisah.",
+    url: "app.wiyata.id/student/chat",
+    size: "small",
+    image: {
+      src: "/screenshots/preview-chat-crop.webp",
+      width: 1350,
+      height: 476,
+    },
+  },
+  {
+    label: "Dashboard Admin",
+    caption:
+      "Struktur akademik, kelas, dan warga sekolah terkelola rapi — sekolah siap digunakan sejak hari pertama.",
+    url: "app.wiyata.id/admin/dashboard",
+    size: "large",
+    image: {
+      src: "/screenshots/preview-admin-dashboard.webp",
+      width: 2000,
+      height: 1112,
+    },
   },
 ];
 </script>
@@ -570,66 +644,70 @@ const previewShots = [
           >
             Begini Wiyata dipakai sehari-hari.
           </h2>
-          <p class="mt-5 text-lg leading-8 text-muted">
-            Seluruh tampilan di bawah ini diambil langsung dari aplikasi Wiyata
-            yang sudah berjalan — bukan rancangan atau mockup.
-          </p>
         </div>
+      </div>
 
-        <!-- Flagship screenshot: Teacher Dashboard -->
-        <div class="mx-auto mt-14 max-w-4xl">
-          <div
-            class="relative overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_28px_90px_-30px_rgba(79,70,229,0.32)] ring-1 ring-white/70"
-          >
-            <div class="flex items-center gap-2 bg-[#faf9f7] px-5 py-3">
-              <span class="h-3 w-3 rounded-full bg-[#fca5a5]" />
-              <span class="h-3 w-3 rounded-full bg-[#fcd34d]" />
-              <span class="h-3 w-3 rounded-full bg-[#86efac]" />
-              <div
-                class="ml-3 flex h-6 max-w-xs flex-1 items-center rounded-md bg-[#f0ece5] px-3 text-xs text-muted"
+      <!-- Stacked walkthrough — tiap step sticky pada offset yang sama;
+           step berikutnya menyusul & menutupi step sebelumnya murni lewat
+           CSS (position: sticky + urutan DOM + z-index). Di mobile (<md)
+           sticky dimatikan, step hanya bertumpuk normal supaya tidak terasa
+           sempit di layar pendek. Setiap screenshot adalah halaman utuh,
+           jadi teks singkat ditampilkan di atas gambar (bukan disandingkan
+           dalam grid sempit) — lebar gambar mengikuti bobotnya sendiri
+           lewat previewSizeStyles, bukan diseragamkan. -->
+      <div class="relative mt-16">
+        <div
+          v-for="(step, i) in previewSteps"
+          :key="step.label"
+          class="bg-surface-subtle py-16 md:sticky md:top-28 md:flex md:items-center md:py-0"
+          :class="previewSizeStyles[step.size].minH"
+          :style="{ zIndex: i + 1 }"
+        >
+          <div class="mx-auto w-full px-6 lg:px-8">
+            <!-- Teks -->
+            <div
+              class="mx-auto text-center"
+              :class="previewSizeStyles[step.size].maxW"
+            >
+              <p
+                class="text-xs font-semibold uppercase tracking-widest text-brand"
               >
-                app.wiyata.id/teacher/dashboard
+                {{ String(i + 1).padStart(2, "0") }} — {{ step.label }}
+              </p>
+              <p class="mx-auto mt-3 max-w-xl text-base leading-7 text-muted">
+                {{ step.caption }}
+              </p>
+            </div>
+
+            <!-- Visual -->
+            <div
+              class="mx-auto mt-8"
+              :class="previewSizeStyles[step.size].maxW"
+            >
+              <div
+                class="overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_28px_90px_-30px_rgba(79,70,229,0.28)]"
+              >
+                <div class="flex items-center gap-2 bg-[#faf9f7] px-5 py-3">
+                  <span class="h-3 w-3 rounded-full bg-[#fca5a5]" />
+                  <span class="h-3 w-3 rounded-full bg-[#fcd34d]" />
+                  <span class="h-3 w-3 rounded-full bg-[#86efac]" />
+                  <div
+                    class="ml-3 flex h-6 max-w-xs flex-1 items-center rounded-md bg-[#f0ece5] px-3 text-xs text-muted"
+                  >
+                    {{ step.url }}
+                  </div>
+                </div>
+
+                <img
+                  :src="step.image.src"
+                  :alt="step.caption"
+                  class="h-auto w-full"
+                  :width="step.image.width"
+                  :height="step.image.height"
+                />
               </div>
             </div>
-            <img
-              src="/screenshots/preview-teacher-dashboard.webp"
-              alt="Dashboard guru Wiyata menampilkan pengumpulan yang menunggu penilaian, jumlah siswa, rata-rata pengumpulan, dan performa tiap kelas"
-              class="aspect-video w-full object-cover object-top"
-              width="2200"
-              height="1273"
-            />
           </div>
-          <p class="mt-3 text-center text-xs text-muted">
-            Dashboard guru — ringkasan kelas, tugas yang perlu dinilai, dan
-            aktivitas terbaru dalam satu layar.
-          </p>
-        </div>
-
-        <!-- Supporting screenshots -->
-        <div class="mt-10 grid gap-4 sm:grid-cols-3">
-          <figure
-            v-for="shot in previewShots"
-            :key="shot.label"
-            class="overflow-hidden rounded-xl border border-border bg-surface shadow-sm"
-          >
-            <div class="aspect-4/3 overflow-hidden bg-background">
-              <img
-                :src="shot.src"
-                :alt="shot.caption"
-                class="h-full w-full object-cover object-top"
-                width="1600"
-                height="926"
-              />
-            </div>
-            <figcaption class="p-4 text-center">
-              <p class="text-xs font-medium text-foreground">
-                {{ shot.label }}
-              </p>
-              <p class="mt-1 text-[11px] leading-relaxed text-muted">
-                {{ shot.caption }}
-              </p>
-            </figcaption>
-          </figure>
         </div>
       </div>
     </section>
