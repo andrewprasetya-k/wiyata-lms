@@ -16,7 +16,16 @@ type SchoolRegistrationRequestRepository interface {
 	List(status string, page int, limit int) ([]*domain.SchoolRegistrationRequest, int64, error)
 	GetByID(id string) (*domain.SchoolRegistrationRequest, error)
 	RejectPending(id string, reviewerID string, reviewedAt time.Time, reviewNote *string) error
-	ApprovePending(id string, school *domain.School, invitation *domain.Invitation, reviewerID string, reviewedAt time.Time, reviewNote *string) (*domain.SchoolRegistrationRequest, error)
+	ApprovePending(id string, school *domain.School, requesterUserID string, adminRoleName string, reviewerID string, reviewedAt time.Time, reviewNote *string) (*SchoolRegistrationApprovalResult, error)
+}
+
+// SchoolRegistrationApprovalResult is returned once a request has been
+// approved: the school and the SchoolUser+admin role membership created for
+// the requester in the same transaction.
+type SchoolRegistrationApprovalResult struct {
+	Request    *domain.SchoolRegistrationRequest
+	School     *domain.School
+	SchoolUser *domain.SchoolUser
 }
 
 type schoolRegistrationRequestRepository struct {
@@ -87,8 +96,8 @@ func (r *schoolRegistrationRequestRepository) RejectPending(id string, reviewerI
 	return nil
 }
 
-func (r *schoolRegistrationRequestRepository) ApprovePending(id string, school *domain.School, invitation *domain.Invitation, reviewerID string, reviewedAt time.Time, reviewNote *string) (*domain.SchoolRegistrationRequest, error) {
-	var updatedRequest *domain.SchoolRegistrationRequest
+func (r *schoolRegistrationRequestRepository) ApprovePending(id string, school *domain.School, requesterUserID string, adminRoleName string, reviewerID string, reviewedAt time.Time, reviewNote *string) (*SchoolRegistrationApprovalResult, error) {
+	var result *SchoolRegistrationApprovalResult
 
 	err := r.db.Transaction(func(tx *gorm.DB) error {
 		var request domain.SchoolRegistrationRequest
@@ -115,8 +124,23 @@ func (r *schoolRegistrationRequestRepository) ApprovePending(id string, school *
 			return err
 		}
 
-		invitation.SchoolID = school.ID
-		if err := tx.Create(invitation).Error; err != nil {
+		schoolUser := &domain.SchoolUser{
+			UserID:   requesterUserID,
+			SchoolID: school.ID,
+		}
+		if err := tx.Create(schoolUser).Error; err != nil {
+			return err
+		}
+
+		var adminRole domain.Role
+		if err := tx.Where("rol_name = ?", adminRoleName).First(&adminRole).Error; err != nil {
+			return err
+		}
+		userRole := domain.UserRole{
+			SchoolUserID: schoolUser.ID,
+			RoleID:       adminRole.ID,
+		}
+		if err := tx.Create(&userRole).Error; err != nil {
 			return err
 		}
 
@@ -136,12 +160,16 @@ func (r *schoolRegistrationRequestRepository) ApprovePending(id string, school *
 		if err := tx.Where("srr_id = ?", id).First(&refreshed).Error; err != nil {
 			return err
 		}
-		updatedRequest = &refreshed
+		result = &SchoolRegistrationApprovalResult{
+			Request:    &refreshed,
+			School:     school,
+			SchoolUser: schoolUser,
+		}
 		return nil
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	return updatedRequest, nil
+	return result, nil
 }

@@ -62,6 +62,7 @@ export type SchoolRegistrationStatus = 'pending' | 'approved' | 'rejected'
 
 export interface SchoolRegistrationRequestDetail {
   requestId: string
+  requesterUserId?: string
   schoolName: string
   npsn?: string
   picName: string
@@ -88,8 +89,6 @@ export interface SchoolRegistrationRequestListResponse {
 export interface ApproveSchoolRegistrationPayload {
   schoolCode: string
   schoolName?: string
-  adminName?: string
-  adminEmail?: string
   note?: string
 }
 
@@ -101,13 +100,12 @@ export interface ApproveSchoolRegistrationResponse {
     schoolCode: string
     schoolName: string
   }
-  invitation: {
-    invitationId: string
+  admin: {
+    userId: string
+    fullName: string
     email: string
+    schoolUserId: string
     role: string
-    expiresAt: string
-    acceptUrl: string
-    token: string
   }
 }
 

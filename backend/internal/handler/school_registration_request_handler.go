@@ -21,13 +21,19 @@ func NewSchoolRegistrationRequestHandler(service service.SchoolRegistrationReque
 }
 
 func (h *SchoolRegistrationRequestHandler) Create(c *gin.Context) {
+	userID := middleware.GetUserID(c)
+	if userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
 	var input dto.CreateSchoolRegistrationRequestDTO
 	if err := c.ShouldBindJSON(&input); err != nil {
 		HandleBindingError(c, err)
 		return
 	}
 
-	response, err := h.service.Create(input)
+	response, err := h.service.Create(input, userID)
 	if err != nil {
 		handleSchoolRegistrationRequestError(c, err)
 		return

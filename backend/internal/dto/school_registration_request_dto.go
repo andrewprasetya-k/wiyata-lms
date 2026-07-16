@@ -20,20 +20,21 @@ type SchoolRegistrationRequestSummaryDTO struct {
 }
 
 type SchoolRegistrationRequestDetailDTO struct {
-	RequestID  string  `json:"requestId"`
-	SchoolName string  `json:"schoolName"`
-	NPSN       *string `json:"npsn,omitempty"`
-	PICName    string  `json:"picName"`
-	PICEmail   string  `json:"picEmail"`
-	PICPhone   *string `json:"picPhone,omitempty"`
-	PICRole    *string `json:"picRole,omitempty"`
-	Message    *string `json:"message,omitempty"`
-	Status     string  `json:"status"`
-	ReviewedBy *string `json:"reviewedBy,omitempty"`
-	ReviewedAt *string `json:"reviewedAt,omitempty"`
-	ReviewNote *string `json:"reviewNote,omitempty"`
-	CreatedAt  string  `json:"createdAt"`
-	UpdatedAt  string  `json:"updatedAt"`
+	RequestID       string  `json:"requestId"`
+	RequesterUserID string  `json:"requesterUserId,omitempty"`
+	SchoolName      string  `json:"schoolName"`
+	NPSN            *string `json:"npsn,omitempty"`
+	PICName         string  `json:"picName"`
+	PICEmail        string  `json:"picEmail"`
+	PICPhone        *string `json:"picPhone,omitempty"`
+	PICRole         *string `json:"picRole,omitempty"`
+	Message         *string `json:"message,omitempty"`
+	Status          string  `json:"status"`
+	ReviewedBy      *string `json:"reviewedBy,omitempty"`
+	ReviewedAt      *string `json:"reviewedAt,omitempty"`
+	ReviewNote      *string `json:"reviewNote,omitempty"`
+	CreatedAt       string  `json:"createdAt"`
+	UpdatedAt       string  `json:"updatedAt"`
 }
 
 type CreateSchoolRegistrationRequestResponseDTO struct {
@@ -48,8 +49,6 @@ type RejectSchoolRegistrationRequestDTO struct {
 type ApproveSchoolRegistrationRequestDTO struct {
 	SchoolCode string  `json:"schoolCode"`
 	SchoolName *string `json:"schoolName"`
-	AdminName  *string `json:"adminName"`
-	AdminEmail *string `json:"adminEmail"`
 	Note       *string `json:"note"`
 }
 
@@ -67,18 +66,17 @@ type ApprovedSchoolDTO struct {
 	SchoolName string `json:"schoolName"`
 }
 
-type AdminInvitationDTO struct {
-	InvitationID string `json:"invitationId"`
+type ApprovedAdminDTO struct {
+	UserID       string `json:"userId"`
+	FullName     string `json:"fullName"`
 	Email        string `json:"email"`
+	SchoolUserID string `json:"schoolUserId"`
 	Role         string `json:"role"`
-	ExpiresAt    string `json:"expiresAt"`
-	AcceptURL    string `json:"acceptUrl"`
-	Token        string `json:"token"`
 }
 
 type ApproveSchoolRegistrationRequestResponseDTO struct {
-	Message    string                             `json:"message"`
-	Request    SchoolRegistrationRequestDetailDTO `json:"request"`
-	School     ApprovedSchoolDTO                  `json:"school"`
-	Invitation AdminInvitationDTO                 `json:"invitation"`
+	Message string                             `json:"message"`
+	Request SchoolRegistrationRequestDetailDTO `json:"request"`
+	School  ApprovedSchoolDTO                  `json:"school"`
+	Admin   ApprovedAdminDTO                   `json:"admin"`
 }

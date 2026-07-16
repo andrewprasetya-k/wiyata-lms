@@ -4,7 +4,6 @@ import {
   PhArrowClockwise,
   PhCheckCircle,
   PhClipboardText,
-  PhCopy,
   PhXCircle,
 } from '@phosphor-icons/vue'
 import { useToastStore } from '../../stores/toast'
@@ -46,8 +45,6 @@ let detailRequestVersion = 0
 const approveForm = reactive({
   schoolCode: '',
   schoolName: '',
-  adminName: '',
-  adminEmail: '',
   note: '',
 })
 
@@ -58,12 +55,6 @@ const rejectForm = reactive({
 const selectedIsPending = computed(
   () => selectedRequest.value?.status === 'pending',
 )
-
-const invitationLink = computed(() => {
-  const acceptUrl = approveResult.value?.invitation.acceptUrl
-  if (!acceptUrl) return ''
-  return `${window.location.origin}${acceptUrl}`
-})
 
 function formatDate(value?: string) {
   if (!value) return '-'
@@ -95,8 +86,6 @@ function resetForms() {
   if (selectedRequest.value) {
     approveForm.schoolCode = ''
     approveForm.schoolName = selectedRequest.value.schoolName
-    approveForm.adminName = selectedRequest.value.picName
-    approveForm.adminEmail = selectedRequest.value.picEmail
     approveForm.note = ''
   }
 }
@@ -190,8 +179,6 @@ async function submitApprove() {
       {
         schoolCode: approveForm.schoolCode.trim(),
         schoolName: approveForm.schoolName.trim() || undefined,
-        adminName: approveForm.adminName.trim() || undefined,
-        adminEmail: approveForm.adminEmail.trim() || undefined,
         note: approveForm.note.trim() || undefined,
       },
     )
@@ -226,16 +213,6 @@ async function submitReject() {
   }
 }
 
-async function copyInvitationLink() {
-  if (!invitationLink.value) return
-  try {
-    await navigator.clipboard.writeText(invitationLink.value)
-    toast.success('Link undangan disalin.')
-  } catch {
-    toast.error('Link belum bisa disalin otomatis.')
-  }
-}
-
 onMounted(() => {
   loadRequests()
 })
@@ -255,8 +232,8 @@ onMounted(() => {
             Permintaan Pendaftaran Sekolah
           </h1>
           <p class="mt-2 max-w-3xl text-sm leading-6 text-muted">
-            Review request dari landing page, lalu approve untuk membuat sekolah
-            dan token undangan admin.
+            Review request dari akun yang login, lalu approve untuk membuat
+            sekolah dan menjadikan pemohon sebagai Admin sekolah tersebut.
           </p>
         </div>
         <button
@@ -495,23 +472,12 @@ onMounted(() => {
                     Request disetujui
                   </p>
                   <p class="mt-1 text-xs leading-5 text-success">
-                    Bagikan link undangan ini secara manual ke PIC. Email otomatis belum aktif.
+                    {{ approveResult.admin.fullName }} ({{ approveResult.admin.email }})
+                    sudah ditambahkan sebagai Admin di {{ approveResult.school.schoolName }}.
+                    Notifikasi approval sudah dikirim ke email tersebut.
                   </p>
                 </div>
               </div>
-              <div class="mt-4 rounded-lg border border-success-line bg-surface p-3">
-                <p class="break-all text-xs leading-5 text-success">
-                  {{ invitationLink }}
-                </p>
-              </div>
-              <button
-                type="button"
-                class="mt-3 inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-foreground-secondary transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
-                @click="copyInvitationLink"
-              >
-                <PhCopy :size="16" weight="bold" />
-                Copy Link
-              </button>
             </div>
 
             <div v-if="selectedIsPending" class="flex flex-wrap gap-2">
@@ -554,21 +520,12 @@ onMounted(() => {
                   class="mt-2 w-full rounded-lg border border-border-strong bg-surface px-3 py-2.5 text-sm outline-none focus:border-success"
                 />
               </label>
-              <label class="block text-sm font-medium text-foreground-secondary">
-                Nama admin
-                <input
-                  v-model="approveForm.adminName"
-                  class="mt-2 w-full rounded-lg border border-border-strong bg-surface px-3 py-2.5 text-sm outline-none focus:border-success"
-                />
-              </label>
-              <label class="block text-sm font-medium text-foreground-secondary">
-                Email admin
-                <input
-                  v-model="approveForm.adminEmail"
-                  type="email"
-                  class="mt-2 w-full rounded-lg border border-border-strong bg-surface px-3 py-2.5 text-sm outline-none focus:border-success"
-                />
-              </label>
+              <p class="rounded-lg bg-surface-subtle px-3 py-2.5 text-xs leading-5 text-muted">
+                Admin sekolah akan otomatis diisi oleh akun pemohon:
+                <span class="font-medium text-foreground-secondary">
+                  {{ selectedRequest?.picName }} ({{ selectedRequest?.picEmail }})
+                </span>
+              </p>
               <label class="block text-sm font-medium text-foreground-secondary">
                 Catatan
                 <textarea
@@ -583,7 +540,7 @@ onMounted(() => {
                 class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#16a34a] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#15803d] disabled:cursor-not-allowed disabled:opacity-60"
                 :disabled="actionLoading"
               >
-                {{ actionLoading ? 'Memproses...' : 'Approve dan buat undangan' }}
+                {{ actionLoading ? 'Memproses...' : 'Approve dan jadikan Admin' }}
               </button>
             </form>
 

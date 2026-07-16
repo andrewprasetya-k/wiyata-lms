@@ -42,8 +42,11 @@ func main() {
 	schoolService := service.NewSchoolService(schoolRepo)
 	schoolHandler := handler.NewSchoolHandler(schoolService)
 	emailService := service.NewEmailServiceFromEnv()
+	userRepo := repository.NewUserRepository(db)
+	userService := service.NewUserService(userRepo)
+	userHandler := handler.NewUserHandler(userService)
 	schoolRegistrationRequestRepo := repository.NewSchoolRegistrationRequestRepository(db)
-	schoolRegistrationRequestService := service.NewSchoolRegistrationRequestService(schoolRegistrationRequestRepo, emailService)
+	schoolRegistrationRequestService := service.NewSchoolRegistrationRequestService(schoolRegistrationRequestRepo, emailService, userService)
 	schoolRegistrationRequestHandler := handler.NewSchoolRegistrationRequestHandler(schoolRegistrationRequestService)
 	invitationRepo := repository.NewInvitationRepository(db)
 	invitationService := service.NewInvitationService(invitationRepo)
@@ -56,10 +59,6 @@ func main() {
 	termRepo := repository.NewTermRepository(db)
 	termService := service.NewTermService(termRepo)
 	termHandler := handler.NewTermHandler(termService)
-
-	userRepo := repository.NewUserRepository(db)
-	userService := service.NewUserService(userRepo)
-	userHandler := handler.NewUserHandler(userService)
 
 	rbacRepo := repository.NewRBACRepository(db)
 	rbacService := service.NewRBACService(rbacRepo, userService, schoolRepo)
@@ -192,11 +191,10 @@ func main() {
 		// Rate-limited by IP (no school context exists yet at this point)
 		api.POST("/login", middleware.RateLimitPerTenant(rateLimiterStore), authHandler.Login)
 		api.POST("/register", middleware.RateLimitPerTenant(rateLimiterStore), authHandler.Register)
-		api.POST("/school-registration-requests", middleware.RateLimitPerTenant(rateLimiterStore), schoolRegistrationRequestHandler.Create)
 		// Not rate-limited: token-gated (guessing is already infeasible given token length/hashing)
 		api.GET("/invitations/:token", invitationHandler.GetMetadata)
 		api.POST("/invitations/:token/accept", invitationHandler.Accept)
-		// Not rate-limited: long-lived SSE/WebSocket connections 
+		// Not rate-limited: long-lived SSE/WebSocket connections
 		api.GET("/events/sidebar", sidebarStreamHandler.Stream)
 		api.GET("/ws/chat", chatWebSocketHandler.Chat)
 
@@ -208,6 +206,10 @@ func main() {
 		{
 			meAPI.GET("/context", authHandler.GetContext)
 		}
+
+		// School Registration must now be tied to the logged-in account —
+		// requesterUserID comes from the JWT (middleware.GetUserID), not client input.
+		api.POST("/school-registration-requests", schoolRegistrationRequestHandler.Create)
 
 		schoolAPI := api.Group("/schools")
 		{
