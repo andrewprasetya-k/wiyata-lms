@@ -10,7 +10,6 @@ import LoginPage from "../pages/auth/LoginPage.vue";
 import RegisterPage from "../pages/auth/RegisterPage.vue";
 import UnauthorizedPage from "../pages/auth/UnauthorizedPage.vue";
 import OnboardingPage from "../pages/onboarding/OnboardingPage.vue";
-import EnterInvitationCodePage from "../pages/onboarding/EnterInvitationCodePage.vue";
 import StudentDashboard from "../pages/student/StudentDashboard.vue";
 import StudentFeed from "../pages/student/StudentFeed.vue";
 import StudentSubjectDetail from "../pages/student/StudentSubjectDetail.vue";
@@ -75,7 +74,7 @@ const router = createRouter({
       path: "/school-registration",
       name: "school-registration",
       component: SchoolRegistration,
-      meta: { title: "Daftarkan Sekolah" },
+      meta: { requiresAuth: true, title: "Daftarkan Sekolah" },
     },
     {
       path: "/invite/:token",
@@ -88,12 +87,6 @@ const router = createRouter({
       name: "onboarding",
       component: OnboardingPage,
       meta: { requiresAuth: true, title: "Selamat Datang" },
-    },
-    {
-      path: "/onboarding/undangan",
-      name: "onboarding-invitation",
-      component: EnterInvitationCodePage,
-      meta: { requiresAuth: true, title: "Masukkan Kode Undangan" },
     },
     {
       path: "/",
@@ -490,11 +483,6 @@ declare module "vue-router" {
 
 const APP_NAME = "Wiyata";
 
-// Bagian dari flow onboarding ("belum punya sekolah") — halaman ini butuh
-// auth tapi TIDAK butuh activeContext, karena justru itu yang belum dimiliki
-// user pada tahap ini.
-const onboardingRouteNames = new Set(["onboarding", "onboarding-invitation"]);
-
 router.beforeEach(async (to) => {
   const auth = useAuthStore();
   auth.restoreSession();
@@ -512,10 +500,18 @@ router.beforeEach(async (to) => {
     await auth.ensureUserContext();
     const hasActiveContext = Boolean(auth.activeContext);
 
-    if (onboardingRouteNames.has(String(to.name))) {
+    // Onboarding butuh auth tapi TIDAK butuh activeContext, karena justru
+    // itu yang belum dimiliki user pada tahap ini.
+    if (to.name === "onboarding") {
       if (hasActiveContext) {
         return auth.landingRoute();
       }
+      return true;
+    }
+
+    // School Registration hanya butuh login, bukan activeContext — ini
+    // memang tujuan utama user yang belum punya sekolah sama sekali.
+    if (to.name === "school-registration") {
       return true;
     }
 
