@@ -9,30 +9,75 @@ const auth = useAuthStore();
 const route = useRoute();
 const router = useRouter();
 
+const fullName = ref("");
 const email = ref("");
 const password = ref("");
+const confirmPassword = ref("");
 const isSubmitting = ref(false);
 const errorMessage = ref("");
+
 const {
   visible: passwordVisible,
   inputType: passwordInputType,
   toggle: togglePasswordVisibility,
 } = usePasswordVisibility();
+const {
+  visible: confirmPasswordVisible,
+  inputType: confirmPasswordInputType,
+  toggle: toggleConfirmPasswordVisibility,
+} = usePasswordVisibility();
+
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const validationError = computed(() => {
+  if (fullName.value.trim() === "") return "Nama lengkap wajib diisi.";
+  if (!emailPattern.test(email.value.trim())) return "Email belum valid.";
+  if (password.value.length < 6) return "Password minimal 6 karakter.";
+  if (password.value !== confirmPassword.value)
+    return "Konfirmasi password belum sama.";
+  return "";
+});
 
 const canSubmit = computed(
-  () => email.value.trim() !== "" && password.value.trim() !== "",
+  () =>
+    fullName.value.trim() !== "" &&
+    email.value.trim() !== "" &&
+    password.value !== "" &&
+    confirmPassword.value !== "",
 );
 
+function errorFromResponse(error: unknown) {
+  const maybeError = error as { response?: { data?: { error?: string } } };
+  const message = maybeError.response?.data?.error;
+  if (!message) return "Registrasi belum bisa diproses. Coba lagi sebentar lagi.";
+  if (message.toLowerCase().includes("already registered")) {
+    return "Email ini sudah terdaftar. Silakan masuk dengan akun tersebut.";
+  }
+  return message;
+}
+
 async function submit() {
-  if (!canSubmit.value || isSubmitting.value) return;
+  if (isSubmitting.value) return;
+
+  if (validationError.value) {
+    errorMessage.value = validationError.value;
+    return;
+  }
+
   isSubmitting.value = true;
   errorMessage.value = "";
 
   try {
-    await auth.login({ email: email.value, password: password.value });
-    await router.push((route.query.redirect as string | undefined) ?? auth.landingRoute());
-  } catch {
-    errorMessage.value = "Email atau password tidak valid.";
+    await auth.register({
+      fullName: fullName.value.trim(),
+      email: email.value.trim(),
+      password: password.value,
+    });
+    await router.push(
+      (route.query.redirect as string | undefined) ?? auth.landingRoute(),
+    );
+  } catch (error) {
+    errorMessage.value = errorFromResponse(error);
   } finally {
     isSubmitting.value = false;
   }
@@ -66,11 +111,11 @@ async function submit() {
         <h1
           class="mt-4 text-4xl font-medium leading-tight text-foreground lg:text-6xl"
         >
-          Masuk ke ruang belajar yang lebih tenang.
+          Satu akun untuk seluruh ruang kerja sekolahmu.
         </h1>
         <p class="mt-6 text-base leading-7 text-muted">
-          Satu login untuk siswa, guru, admin sekolah, dan super admin. Wiyata
-          akan memilih ruang kerja berdasarkan role dan konteks sekolah.
+          Buat akun sekali, lalu daftarkan sekolah baru atau bergabung memakai
+          undangan yang diberikan administrator sekolahmu.
         </p>
       </div>
 
@@ -79,9 +124,9 @@ async function submit() {
       </div>
     </section>
 
-    <!-- Right Side: Login Form -->
+    <!-- Right Side: Register Form -->
     <section
-      class="flex h-screen items-center justify-center bg-surface px-6 py-8 sm:px-12"
+      class="flex h-screen items-center justify-center overflow-y-auto bg-surface px-6 py-8 sm:px-12"
     >
       <div class="w-full max-w-md">
         <div class="mb-8">
@@ -99,13 +144,26 @@ async function submit() {
             </div>
           </div>
 
-          <h2 class="text-3xl font-medium text-foreground">Login</h2>
+          <h2 class="text-3xl font-medium text-foreground">Buat akun</h2>
           <p class="mt-3 text-sm text-muted">
-            Gunakan akun Wiyata yang sudah terdaftar.
+            Mulai dengan akun Wiyata-mu sendiri.
           </p>
         </div>
 
         <form class="space-y-5" @submit.prevent="submit">
+          <label class="block">
+            <span class="mb-2 block text-sm font-medium text-foreground-secondary">
+              Nama lengkap
+            </span>
+            <input
+              v-model="fullName"
+              class="h-12 w-full rounded-2xl border border-border bg-surface-subtle px-4 text-sm outline-none transition focus:border-brand focus:bg-surface"
+              type="text"
+              autocomplete="name"
+              placeholder="Budi Santoso"
+            />
+          </label>
+
           <label class="block">
             <span class="mb-2 block text-sm font-medium text-foreground-secondary">
               Email
@@ -128,8 +186,8 @@ async function submit() {
                 v-model="password"
                 class="h-12 w-full rounded-2xl border border-border bg-surface-subtle px-4 pr-12 text-sm outline-none transition focus:border-brand focus:bg-surface"
                 :type="passwordInputType"
-                autocomplete="current-password"
-                placeholder="••••••••"
+                autocomplete="new-password"
+                placeholder="Minimal 6 karakter"
               />
               <button
                 type="button"
@@ -141,6 +199,35 @@ async function submit() {
                 @click="togglePasswordVisibility"
               >
                 <PhEyeSlash v-if="passwordVisible" :size="18" />
+                <PhEye v-else :size="18" />
+              </button>
+            </div>
+          </label>
+
+          <label class="block">
+            <span class="mb-2 block text-sm font-medium text-foreground-secondary">
+              Konfirmasi password
+            </span>
+            <div class="relative">
+              <input
+                v-model="confirmPassword"
+                class="h-12 w-full rounded-2xl border border-border bg-surface-subtle px-4 pr-12 text-sm outline-none transition focus:border-brand focus:bg-surface"
+                :type="confirmPasswordInputType"
+                autocomplete="new-password"
+                placeholder="Ulangi password"
+              />
+              <button
+                type="button"
+                class="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-muted transition hover:text-foreground"
+                :aria-label="
+                  confirmPasswordVisible
+                    ? 'Sembunyikan password'
+                    : 'Tampilkan password'
+                "
+                :aria-pressed="confirmPasswordVisible"
+                @click="toggleConfirmPasswordVisibility"
+              >
+                <PhEyeSlash v-if="confirmPasswordVisible" :size="18" />
                 <PhEye v-else :size="18" />
               </button>
             </div>
@@ -158,18 +245,18 @@ async function submit() {
             type="submit"
             :disabled="!canSubmit || isSubmitting"
           >
-            {{ isSubmitting ? "Memproses..." : "Masuk" }}
+            {{ isSubmitting ? "Memproses..." : "Buat akun" }}
             <PhArrowRight v-if="!isSubmitting" :size="18" />
           </button>
         </form>
 
         <p class="mt-6 text-center text-sm text-muted">
-          Belum punya akun?
+          Sudah punya akun?
           <RouterLink
-            to="/register"
+            to="/login"
             class="font-medium text-brand hover:text-brand-hover"
           >
-            Daftar
+            Masuk
           </RouterLink>
         </p>
       </div>

@@ -336,6 +336,12 @@ const previewSteps: PreviewStep[] = [
               Daftarkan Sekolah
             </RouterLink>
             <RouterLink
+              to="/register"
+              class="hidden text-sm font-medium text-foreground-secondary transition-colors hover:text-foreground sm:inline-flex"
+            >
+              Buat Akun
+            </RouterLink>
+            <RouterLink
               to="/login"
               class="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-hover"
             >

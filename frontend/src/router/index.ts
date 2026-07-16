@@ -7,7 +7,10 @@ import TeacherLayout from "../layouts/TeacherLayout.vue";
 import AdminLayout from "../layouts/AdminLayout.vue";
 import SuperAdminLayout from "../layouts/SuperAdminLayout.vue";
 import LoginPage from "../pages/auth/LoginPage.vue";
+import RegisterPage from "../pages/auth/RegisterPage.vue";
 import UnauthorizedPage from "../pages/auth/UnauthorizedPage.vue";
+import OnboardingPage from "../pages/onboarding/OnboardingPage.vue";
+import EnterInvitationCodePage from "../pages/onboarding/EnterInvitationCodePage.vue";
 import StudentDashboard from "../pages/student/StudentDashboard.vue";
 import StudentFeed from "../pages/student/StudentFeed.vue";
 import StudentSubjectDetail from "../pages/student/StudentSubjectDetail.vue";
@@ -81,6 +84,18 @@ const router = createRouter({
       meta: { title: "Terima Undangan" },
     },
     {
+      path: "/onboarding",
+      name: "onboarding",
+      component: OnboardingPage,
+      meta: { requiresAuth: true, title: "Selamat Datang" },
+    },
+    {
+      path: "/onboarding/undangan",
+      name: "onboarding-invitation",
+      component: EnterInvitationCodePage,
+      meta: { requiresAuth: true, title: "Masukkan Kode Undangan" },
+    },
+    {
       path: "/",
       component: AuthLayout,
       children: [
@@ -89,6 +104,12 @@ const router = createRouter({
           name: "login",
           component: LoginPage,
           meta: { title: "Login" },
+        },
+        {
+          path: "register",
+          name: "register",
+          component: RegisterPage,
+          meta: { title: "Daftar" },
         },
         {
           path: "unauthorized",
@@ -469,11 +490,16 @@ declare module "vue-router" {
 
 const APP_NAME = "Wiyata";
 
+// Bagian dari flow onboarding ("belum punya sekolah") — halaman ini butuh
+// auth tapi TIDAK butuh activeContext, karena justru itu yang belum dimiliki
+// user pada tahap ini.
+const onboardingRouteNames = new Set(["onboarding", "onboarding-invitation"]);
+
 router.beforeEach(async (to) => {
   const auth = useAuthStore();
   auth.restoreSession();
 
-  if (to.name === "login" && auth.isAuthenticated) {
+  if ((to.name === "login" || to.name === "register") && auth.isAuthenticated) {
     await auth.ensureUserContext();
     return auth.landingRoute();
   }
@@ -484,8 +510,17 @@ router.beforeEach(async (to) => {
 
   if (to.meta.requiresAuth) {
     await auth.ensureUserContext();
-    if (!auth.activeContext) {
-      return { path: "/home" };
+    const hasActiveContext = Boolean(auth.activeContext);
+
+    if (onboardingRouteNames.has(String(to.name))) {
+      if (hasActiveContext) {
+        return auth.landingRoute();
+      }
+      return true;
+    }
+
+    if (!hasActiveContext) {
+      return { name: "onboarding" };
     }
   }
 

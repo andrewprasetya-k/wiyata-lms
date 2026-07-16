@@ -14,6 +14,7 @@ import type {
   LoginPayload,
   LoginResponse,
   MembershipInfo,
+  RegisterPayload,
   RoleName,
   SchoolRole,
   UserInfo,
@@ -121,6 +122,12 @@ export const useAuthStore = defineStore("auth", () => {
 
   async function login(payload: LoginPayload) {
     const { data } = await api.post<LoginResponse>("/login", payload);
+    applySession(data);
+    return data;
+  }
+
+  async function register(payload: RegisterPayload) {
+    const { data } = await api.post<LoginResponse>("/register", payload);
     applySession(data);
     return data;
   }
@@ -382,6 +389,7 @@ export const useAuthStore = defineStore("auth", () => {
     isContextReady,
     allRoles,
     login,
+    register,
     logout,
     restoreSession,
     ensureUserContext,
@@ -414,6 +422,6 @@ function sameNullableContext(a: ActiveContext | null, b: ActiveContext | null) {
 }
 
 function landingRouteForContext(context: ActiveContext | null) {
-  if (!context) return "/home";
+  if (!context) return "/onboarding";
   return landingRouteByRole[context.role];
 }
