@@ -182,14 +182,20 @@ async function loadDashboard() {
 
     stats.value = dashboardData;
 
-    const foundActiveYear = yearsData.data.find((y) => y.isActive) ?? null;
+    // Defensive: never assume a collection response is an array. A new
+    // school has zero academic years, and a bare/never-appended-to Go slice
+    // serializes as JSON null rather than [] — never trust the network
+    // response shape alone.
+    const years = yearsData.data ?? [];
+    const foundActiveYear = years.find((y) => y.isActive) ?? null;
     activeYear.value = foundActiveYear;
 
     if (foundActiveYear) {
       const terms = await getTermsByAcademicYear(
         foundActiveYear.academicYearId,
       );
-      activeTerm.value = terms.find((t) => t.isActive) ?? null;
+      const termsList = terms ?? [];
+      activeTerm.value = termsList.find((t) => t.isActive) ?? null;
     }
   } catch {
     errorMessage.value =

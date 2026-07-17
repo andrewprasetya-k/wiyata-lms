@@ -95,7 +95,7 @@ func (h *AcademicYearHandler) GetBySchool(c *gin.Context) {
 		return
 	}
 
-	var data []dto.AcademicYearResponseDTO
+	data := []dto.AcademicYearResponseDTO{}
 	for _, y := range years {
 		data = append(data, h.mapToResponse(y))
 	}

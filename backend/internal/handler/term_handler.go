@@ -89,7 +89,7 @@ func (h *TermHandler) GetByAcademicYear(c *gin.Context) {
 		return
 	}
 
-	var response []dto.TermResponseDTO
+	response := []dto.TermResponseDTO{}
 	for _, t := range terms {
 		response = append(response, h.mapToResponse(t))
 	}
