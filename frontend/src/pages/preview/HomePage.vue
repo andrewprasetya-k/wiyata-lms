@@ -439,10 +439,10 @@ const previewSteps: PreviewStep[] = [
         </p>
         <div class="mt-9 flex flex-wrap items-center gap-4">
           <RouterLink
-            to="/school-registration"
+            to="/create-school"
             class="inline-flex h-12 items-center justify-center rounded-lg bg-brand px-8 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-hover"
           >
-            Daftarkan Sekolah
+            Buat Sekolah
           </RouterLink>
           <p class="max-w-sm text-sm leading-6 text-muted">
             Sudah mendapat undangan? Buka link undangan yang dikirim ke emailmu
@@ -465,11 +465,11 @@ const previewSteps: PreviewStep[] = [
         <!-- CTAs — three-tier hierarchy -->
         <div class="mt-9 flex flex-wrap items-center gap-3">
           <RouterLink
-            to="/school-registration"
+            to="/create-school"
             id="hero-cta-daftar-sekolah"
             class="inline-flex h-12 items-center justify-center rounded-lg bg-brand px-8 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-hover"
           >
-            Daftarkan Sekolah
+            Buat Sekolah
           </RouterLink>
           <RouterLink
             to="/login"
@@ -696,11 +696,11 @@ const previewSteps: PreviewStep[] = [
 
             <div class="flex flex-col items-start gap-3 lg:items-end">
               <RouterLink
-                to="/school-registration"
+                to="/create-school"
                 id="final-cta-daftar-sekolah"
                 class="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-brand px-8 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-hover"
               >
-                Daftarkan Sekolah
+                Buat Sekolah
                 <PhArrowRight :size="15" />
               </RouterLink>
               <RouterLink
@@ -752,8 +752,8 @@ const previewSteps: PreviewStep[] = [
               >Preview</a
             >
             <RouterLink to="/login" class="hover:text-muted">Masuk</RouterLink>
-            <RouterLink to="/school-registration" class="hover:text-muted">
-              Daftarkan Sekolah
+            <RouterLink to="/create-school" class="hover:text-muted">
+              Buat Sekolah
             </RouterLink>
           </nav>
         </div>

@@ -3,35 +3,42 @@ import { computed, reactive, ref } from "vue";
 import { RouterLink, useRouter } from "vue-router";
 import { PhArrowRight } from "@phosphor-icons/vue";
 import { createSchool } from "../../services/school";
+import { resendVerificationEmail } from "../../services/emailVerification";
 import { useAuthStore } from "../../stores/auth";
+import { useToastStore } from "../../stores/toast";
 import { getApiError } from "../../utils/error";
+import { classifyApiError } from "../../utils/errorPresentation";
+import InlineFormError from "../../components/common/InlineFormError.vue";
 
 const router = useRouter();
 const auth = useAuthStore();
+const toast = useToastStore();
 
 const form = reactive({
   schoolName: "",
 });
 
 const loading = ref(false);
-const errorMessage = ref("");
+const validationError = ref("");
+const verificationRequired = ref(false);
+const resending = ref(false);
 
 const canSubmit = computed(() => form.schoolName.trim() !== "");
 
 async function submit() {
+  validationError.value = "";
+  verificationRequired.value = false;
+
   if (!canSubmit.value || loading.value) {
-    errorMessage.value = "Isi nama sekolah terlebih dahulu.";
+    validationError.value = "Isi nama sekolah terlebih dahulu.";
     return;
   }
 
   loading.value = true;
-  errorMessage.value = "";
 
   try {
     const result = await createSchool({ schoolName: form.schoolName.trim() });
 
-    // Server already committed School + SchoolUser + Admin role atomically —
-    // refresh memberships first so switchContext() can find this school.
     await auth.refreshUserContext();
     const landingRoute = auth.switchContext({
       type: "school",
@@ -42,9 +49,31 @@ async function submit() {
 
     router.push(landingRoute ?? "/admin/dashboard");
   } catch (error) {
-    errorMessage.value = getApiError(error);
+    const category = classifyApiError(error);
+    if (category === "permission") {
+      verificationRequired.value = true;
+    } else if (category === "business_rule") {
+      toast.error(
+        "Sekolah belum bisa dibuat karena ada konflik data. Coba lagi sebentar lagi.",
+      );
+    } else {
+      toast.error(getApiError(error));
+    }
   } finally {
     loading.value = false;
+  }
+}
+
+async function resendVerification() {
+  if (resending.value) return;
+  resending.value = true;
+  try {
+    await resendVerificationEmail();
+    toast.success("Email verifikasi sudah dikirim ulang.");
+  } catch (error) {
+    toast.error(getApiError(error));
+  } finally {
+    resending.value = false;
   }
 }
 </script>
@@ -80,7 +109,9 @@ async function submit() {
         @submit.prevent="submit"
       >
         <label class="block">
-          <span class="mb-2 block text-sm font-medium text-foreground-secondary">
+          <span
+            class="mb-2 block text-sm font-medium text-foreground-secondary"
+          >
             Nama sekolah
           </span>
           <input
@@ -90,15 +121,28 @@ async function submit() {
             autocomplete="organization"
             placeholder="SMA Wiyata Mandala"
             autofocus
+            :disabled="loading"
           />
         </label>
 
-        <p
-          v-if="errorMessage"
-          class="rounded-lg border border-[#ffd7d2] bg-[#fff7f5] px-4 py-3 text-sm text-danger"
+        <InlineFormError :message="validationError" />
+
+        <div
+          v-if="verificationRequired"
+          class="space-y-3 rounded-lg border border-[#ffd7d2] bg-[#fff7f5] px-4 py-3 text-sm text-danger"
         >
-          {{ errorMessage }}
-        </p>
+          <p>
+            Silakan verifikasi email terlebih dahulu sebelum membuat sekolah.
+          </p>
+          <button
+            type="button"
+            class="font-medium underline underline-offset-2 transition hover:text-[#9f2a1d] disabled:cursor-not-allowed disabled:opacity-60"
+            :disabled="resending"
+            @click="resendVerification"
+          >
+            {{ resending ? "Mengirim..." : "Kirim ulang email verifikasi" }}
+          </button>
+        </div>
 
         <button
           type="submit"

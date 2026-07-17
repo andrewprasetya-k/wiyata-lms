@@ -114,7 +114,7 @@ async function submit() {
           Satu akun untuk seluruh ruang kerja sekolahmu.
         </h1>
         <p class="mt-6 text-base leading-7 text-muted">
-          Buat akun sekali, lalu daftarkan sekolah baru atau bergabung memakai
+          Buat akun sekali, lalu buat sekolah baru atau bergabung memakai
           undangan yang diberikan administrator sekolahmu.
         </p>
       </div>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RouterLink } from "vue-router";
-import { PhArrowRight, PhBuildings } from "@phosphor-icons/vue";
+import { PhArrowRight, PhBuildings, PhEnvelopeSimple } from "@phosphor-icons/vue";
 import { useAuthStore } from "../../stores/auth";
 import { useLogoutConfirm } from "../../composables/useLogoutConfirm";
 
@@ -40,37 +40,50 @@ const { confirmLogout } = useLogoutConfirm({ redirectTo: "/login" });
         untuk mulai menggunakan Wiyata.
       </p>
 
-      <RouterLink
-        to="/create-school"
-        class="group mt-8 flex flex-col rounded-2xl border border-border bg-surface p-8 shadow-sm transition hover:border-brand hover:shadow-md"
-      >
-        <div
-          class="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
+      <div class="mt-8 grid gap-5 sm:grid-cols-2">
+        <RouterLink
+          to="/create-school"
+          class="group flex flex-col rounded-2xl border border-border bg-surface p-8 shadow-sm transition hover:border-brand hover:shadow-md"
         >
-          <PhBuildings :size="24" weight="duotone" />
-        </div>
-        <h2 class="mt-6 text-xl font-semibold text-foreground">
-          Buat Sekolah Baru
-        </h2>
-        <p class="mt-2 text-sm leading-6 text-muted">
-          Sekolah langsung aktif setelah dibuat, dan kamu otomatis menjadi
-          Admin. Tidak ada proses persetujuan.
-        </p>
-        <span
-          class="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-brand"
-        >
-          Buat Sekolah
-          <PhArrowRight
-            :size="16"
-            class="transition group-hover:translate-x-0.5"
-          />
-        </span>
-      </RouterLink>
+          <div
+            class="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
+          >
+            <PhBuildings :size="24" weight="duotone" />
+          </div>
+          <h2 class="mt-6 text-xl font-semibold text-foreground">
+            Buat Sekolah
+          </h2>
+          <p class="mt-2 text-sm leading-6 text-muted">
+            Buat sekolah baru dan langsung mulai menggunakan Wiyata.
+          </p>
+          <span
+            class="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-brand"
+          >
+            Buat Sekolah
+            <PhArrowRight
+              :size="16"
+              class="transition group-hover:translate-x-0.5"
+            />
+          </span>
+        </RouterLink>
 
-      <p class="mt-8 text-sm leading-6 text-muted">
-        Sudah mendapat undangan dari sekolah? Gunakan tautan pada email undangan
-        yang dikirim administrator sekolah.
-      </p>
+        <div
+          class="flex flex-col rounded-2xl border border-border bg-surface p-8 shadow-sm"
+        >
+          <div
+            class="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand"
+          >
+            <PhEnvelopeSimple :size="24" weight="duotone" />
+          </div>
+          <h2 class="mt-6 text-xl font-semibold text-foreground">
+            Gabung ke Sekolah
+          </h2>
+          <p class="mt-2 text-sm leading-6 text-muted">
+            Sudah mendapat undangan dari sekolah? Buka tautan pada email
+            undangan yang dikirim administrator sekolah untuk bergabung.
+          </p>
+        </div>
+      </div>
     </section>
   </main>
 </template>
