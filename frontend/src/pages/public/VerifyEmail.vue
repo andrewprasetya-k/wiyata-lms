@@ -2,9 +2,11 @@
 import { computed, onMounted, ref } from "vue";
 import { RouterLink, useRoute } from "vue-router";
 import { verifyEmail } from "../../services/emailVerification";
+import { useAuthStore } from "../../stores/auth";
 import { getApiError } from "../../utils/error";
 
 const route = useRoute();
+const auth = useAuthStore();
 const token = computed(() => String(route.query.token ?? ""));
 
 const loading = ref(true);
@@ -33,6 +35,14 @@ async function runVerification() {
   try {
     const response = await verifyEmail(token.value);
     verifiedAt.value = response.emailVerifiedAt;
+
+    // If this browser still holds an active session (same device/tab that
+    // registered), sync it immediately instead of waiting for the next
+    // focus/visibility refresh. GET /me/context (via refreshUserContext)
+    // remains the only source of truth — never assign emailVerified here.
+    if (auth.isAuthenticated) {
+      await auth.refreshUserContext();
+    }
   } catch (error) {
     errorMessage.value = getApiError(error);
   } finally {
