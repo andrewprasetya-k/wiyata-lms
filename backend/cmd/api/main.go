@@ -45,6 +45,9 @@ func main() {
 	userRepo := repository.NewUserRepository(db)
 	userService := service.NewUserService(userRepo)
 	userHandler := handler.NewUserHandler(userService)
+	emailVerificationRepo := repository.NewEmailVerificationRepository(db)
+	emailVerificationService := service.NewEmailVerificationService(emailVerificationRepo, userRepo, emailService)
+	emailVerificationHandler := handler.NewEmailVerificationHandler(emailVerificationService)
 	schoolRegistrationRequestRepo := repository.NewSchoolRegistrationRequestRepository(db)
 	schoolRegistrationRequestService := service.NewSchoolRegistrationRequestService(schoolRegistrationRequestRepo, emailService, userService)
 	schoolRegistrationRequestHandler := handler.NewSchoolRegistrationRequestHandler(schoolRegistrationRequestService)
@@ -72,7 +75,7 @@ func main() {
 	schoolMemberInvitationService := service.NewSchoolMemberInvitationService(schoolMemberInvitationRepo, emailService)
 	schoolMemberInvitationHandler := handler.NewSchoolMemberInvitationHandler(schoolMemberInvitationService)
 
-	authService := service.NewAuthService(userRepo, schoolUserRepo)
+	authService := service.NewAuthService(userRepo, schoolUserRepo, emailVerificationService)
 	authHandler := handler.NewAuthHandler(authService)
 
 	subjectRepo := repository.NewSubjectRepository(db)
@@ -194,6 +197,7 @@ func main() {
 		// Not rate-limited: token-gated (guessing is already infeasible given token length/hashing)
 		api.GET("/invitations/:token", invitationHandler.GetMetadata)
 		api.POST("/invitations/:token/accept", invitationHandler.Accept)
+		api.POST("/verify-email", emailVerificationHandler.Verify)
 		// Not rate-limited: long-lived SSE/WebSocket connections
 		api.GET("/events/sidebar", sidebarStreamHandler.Stream)
 		api.GET("/ws/chat", chatWebSocketHandler.Chat)
@@ -205,6 +209,7 @@ func main() {
 		meAPI := api.Group("/me")
 		{
 			meAPI.GET("/context", authHandler.GetContext)
+			meAPI.POST("/resend-verification", emailVerificationHandler.Resend)
 		}
 
 		// School Registration must now be tied to the logged-in account —

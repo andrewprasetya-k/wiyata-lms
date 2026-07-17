@@ -35,6 +35,8 @@ export const useAuthStore = defineStore("auth", () => {
   const memberships = ref<MembershipInfo[]>([]);
   const globalRoles = ref<RoleName[]>([]);
   const defaultContext = ref<DefaultContext | undefined>();
+  const emailVerified = ref(false);
+  const emailVerifiedAt = ref<string | undefined>();
   const activeContext = ref<ActiveContext | null>(null);
   const isRestored = ref(false);
   const isContextReady = ref(false);
@@ -139,6 +141,8 @@ export const useAuthStore = defineStore("auth", () => {
     memberships.value = [];
     globalRoles.value = [];
     defaultContext.value = undefined;
+    emailVerified.value = false;
+    emailVerifiedAt.value = undefined;
     activeContext.value = null;
     isContextReady.value = false;
     isContextInitialized.value = false;
@@ -209,6 +213,8 @@ export const useAuthStore = defineStore("auth", () => {
         memberships.value = data.memberships ?? [];
         globalRoles.value = data.globalRoles ?? [];
         defaultContext.value = data.defaultContext;
+        emailVerified.value = data.emailVerified ?? false;
+        emailVerifiedAt.value = data.emailVerifiedAt;
         reconcileActiveContext();
         persistCurrentSession();
         return true;
@@ -377,6 +383,8 @@ export const useAuthStore = defineStore("auth", () => {
     memberships,
     globalRoles,
     defaultContext,
+    emailVerified,
+    emailVerifiedAt,
     activeContext,
     activeRole,
     activeSchoolId,

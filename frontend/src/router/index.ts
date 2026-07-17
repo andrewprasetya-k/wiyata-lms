@@ -55,6 +55,7 @@ import NotificationCenter from "../components/notifications/NotificationCenter.v
 import HomePage from "../pages/preview/HomePage.vue";
 import SchoolRegistration from "../pages/public/SchoolRegistration.vue";
 import AcceptInvitation from "../pages/public/AcceptInvitation.vue";
+import VerifyEmail from "../pages/public/VerifyEmail.vue";
 import NotFoundPage from "../pages/common/NotFoundPage.vue";
 
 const router = createRouter({
@@ -81,6 +82,12 @@ const router = createRouter({
       name: "accept-invitation",
       component: AcceptInvitation,
       meta: { title: "Terima Undangan" },
+    },
+    {
+      path: "/verify-email",
+      name: "verify-email",
+      component: VerifyEmail,
+      meta: { title: "Verifikasi Email" },
     },
     {
       path: "/onboarding",

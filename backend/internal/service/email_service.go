@@ -15,6 +15,7 @@ type EmailService interface {
 	SendSchoolMemberAccountCreated(toEmail string, schoolName string, role string) error
 	SendSchoolMemberAddedToSchool(toEmail string, schoolName string, role string) error
 	SendSchoolRegistrationApproved(toEmail string, schoolName string) error
+	SendEmailVerification(toEmail string, fullName string, verifyURL string) error
 }
 
 type noopEmailService struct{}
@@ -60,6 +61,16 @@ func (noopEmailService) SendSchoolMemberAddedToSchool(string, string, string) er
 }
 
 func (noopEmailService) SendSchoolRegistrationApproved(string, string) error {
+	return nil
+}
+
+func (noopEmailService) SendEmailVerification(toEmail string, fullName string, verifyURL string) error {
+	fmt.Println("EMAIL VERIFICATION")
+	fmt.Println()
+	fmt.Printf("User : %s <%s>\n", fullName, toEmail)
+	fmt.Println()
+	fmt.Println("Verify URL:")
+	fmt.Println(verifyURL)
 	return nil
 }
 
@@ -205,6 +216,31 @@ Akun Anda otomatis dijadikan Admin untuk sekolah ini. Password akun Anda tidak b
 Salam,
 Wiyata
 `, schoolName, schoolName)
+
+	return s.sendPlainText(toEmail, subject, body)
+}
+
+func (s *smtpEmailService) SendEmailVerification(toEmail string, fullName string, verifyURL string) error {
+	toEmail = strings.TrimSpace(toEmail)
+	fullName = strings.TrimSpace(fullName)
+	verifyURL = strings.TrimSpace(verifyURL)
+	if toEmail == "" || verifyURL == "" {
+		return fmt.Errorf("email verification fields are required")
+	}
+
+	subject := "Verifikasi Email Wiyata"
+	body := fmt.Sprintf(`Halo %s,
+
+Terima kasih sudah mendaftar di Wiyata. Verifikasi email Anda untuk mulai menggunakan Wiyata sepenuhnya.
+
+Gunakan link berikut untuk memverifikasi email:
+%s
+
+Link ini berlaku selama 24 jam. Jika Anda tidak mendaftar di Wiyata, abaikan email ini.
+
+Salam,
+Wiyata
+`, fullName, verifyURL)
 
 	return s.sendPlainText(toEmail, subject, body)
 }

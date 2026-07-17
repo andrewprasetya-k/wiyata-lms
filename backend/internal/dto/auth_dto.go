@@ -20,9 +20,11 @@ type LoginResponseDTO struct {
 }
 
 type AuthContextResponseDTO struct {
-	Memberships    []MembershipInfo `json:"memberships"`
-	GlobalRoles    []string         `json:"globalRoles"`
-	DefaultContext *DefaultContext  `json:"defaultContext,omitempty"`
+	Memberships     []MembershipInfo `json:"memberships"`
+	GlobalRoles     []string         `json:"globalRoles"`
+	DefaultContext  *DefaultContext  `json:"defaultContext,omitempty"`
+	EmailVerified   bool             `json:"emailVerified"`
+	EmailVerifiedAt *string          `json:"emailVerifiedAt,omitempty"`
 }
 
 type UserInfo struct {

@@ -130,12 +130,29 @@ usr_nama_lengkap varchar(150)
 usr_email varchar(150) [not null]
 usr_password varchar(255)
 is_active boolean [default: true]
+usr_email_verified_at timestamptz [note: 'Phase 0 (email verification). NULL = not verified. See scripts/migrations/0002_add_email_verification.sql']
 created_at timestamptz [default: `now()`]
 updated_at timestamptz [default: `now()`]
 deleted_at timestamptz
 
 indexes {
 (usr_email, deleted_at) [unique]
+}
+}
+
+Table email_verifications {
+evf_id uuid [pk, default: `gen_random_uuid()`]
+evf_usr_id uuid [ref: > users.usr_id]
+evf_token_hash text [note: 'SHA-256 hex hash of the raw token; raw token is never stored, mirrors invitations.inv_token_hash']
+evf_expires_at timestamptz [not null]
+evf_consumed_at timestamptz
+created_at timestamptz [default: `now()`]
+updated_at timestamptz [default: `now()`]
+
+indexes {
+(evf_token_hash) [unique, name: 'idx_email_verifications_token_hash']
+(evf_usr_id) [name: 'idx_email_verifications_user']
+(evf_usr_id) [name: 'idx_email_verifications_user_unconsumed', note: 'partial index — only WHERE evf_consumed_at IS NULL']
 }
 }
 

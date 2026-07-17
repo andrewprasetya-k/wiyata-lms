@@ -5,6 +5,7 @@ import (
 	"backend/internal/dto"
 	"backend/internal/repository"
 	"errors"
+	"fmt"
 	"os"
 	"time"
 
@@ -19,12 +20,13 @@ type AuthService interface {
 }
 
 type authService struct {
-	userRepo       repository.UserRepository
-	schoolUserRepo repository.SchoolUserRepository
+	userRepo             repository.UserRepository
+	schoolUserRepo       repository.SchoolUserRepository
+	emailVerificationSvc EmailVerificationService
 }
 
-func NewAuthService(userRepo repository.UserRepository, schoolUserRepo repository.SchoolUserRepository) AuthService {
-	return &authService{userRepo: userRepo, schoolUserRepo: schoolUserRepo}
+func NewAuthService(userRepo repository.UserRepository, schoolUserRepo repository.SchoolUserRepository, emailVerificationSvc EmailVerificationService) AuthService {
+	return &authService{userRepo: userRepo, schoolUserRepo: schoolUserRepo, emailVerificationSvc: emailVerificationSvc}
 }
 
 func (s *authService) Login(email string, password string) (*dto.LoginResponseDTO, error) {
@@ -86,6 +88,12 @@ func (s *authService) Register(fullName string, email string, password string) (
 		return nil, err
 	}
 
+	if s.emailVerificationSvc != nil {
+		if err := s.emailVerificationSvc.IssueForNewUser(user); err != nil {
+			fmt.Printf("[Email Verification Warning] failed to issue token for user_id=%s error=%s\n", user.ID, err.Error())
+		}
+	}
+
 	return s.Login(email, password) // Auto-login after registration
 }
 
@@ -120,8 +128,10 @@ func (s *authService) buildLoginResponse(token string, user *domain.User) (*dto.
 
 func (s *authService) buildAuthContext(user *domain.User) (*dto.AuthContextResponseDTO, error) {
 	response := &dto.AuthContextResponseDTO{
-		Memberships: []dto.MembershipInfo{},
-		GlobalRoles: []string{},
+		Memberships:     []dto.MembershipInfo{},
+		GlobalRoles:     []string{},
+		EmailVerified:   user.EmailVerifiedAt != nil,
+		EmailVerifiedAt: formatAPITimePtr(user.EmailVerifiedAt),
 	}
 
 	if s.schoolUserRepo == nil {

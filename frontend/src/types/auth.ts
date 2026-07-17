@@ -50,6 +50,8 @@ export interface AuthContextResponse {
   memberships: MembershipInfo[]
   globalRoles: RoleName[]
   defaultContext?: DefaultContext
+  emailVerified: boolean
+  emailVerifiedAt?: string
 }
 
 export interface LoginPayload {
