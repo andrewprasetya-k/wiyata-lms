@@ -53,6 +53,7 @@ deleted_at timestamptz
 
 Table school_registration_requests {
 srr_id uuid [pk, default: `gen_random_uuid()`]
+srr_usr_id uuid [ref: > users.usr_id, note: 'Phase 2+: account that submitted this request. Nullable — pre-Phase-2 rows have no linked account and cannot be auto-approved; see scripts/migrations/0001_add_school_registration_request_requester.sql']
 srr_school_name text [not null]
 srr_npsn text
 srr_pic_name text [not null]
@@ -71,6 +72,8 @@ indexes {
 (srr_status, created_at) [name: 'idx_school_registration_requests_status']
 (lower(srr_pic_email)) [unique, name: 'idx_school_registration_requests_pending_email', note: 'partial index — only enforced WHERE srr_status = \'pending\'; prevents duplicate pending requests from the same email']
 (lower(srr_school_name)) [unique, name: 'idx_school_registration_requests_pending_school_name', note: 'partial index — only enforced WHERE srr_status = \'pending\'; prevents duplicate pending requests for the same school name']
+(srr_usr_id) [unique, name: 'idx_school_registration_requests_pending_requester', note: 'partial index — only enforced WHERE srr_status = \'pending\' AND srr_usr_id IS NOT NULL; prevents a single account from having more than one pending request']
+(srr_usr_id) [name: 'idx_school_registration_requests_requester']
 }
 }
 

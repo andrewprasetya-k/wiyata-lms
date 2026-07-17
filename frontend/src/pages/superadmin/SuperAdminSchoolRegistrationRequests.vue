@@ -56,6 +56,13 @@ const selectedIsPending = computed(
   () => selectedRequest.value?.status === 'pending',
 )
 
+// Requests created before requesterUserId existed have no linked account and
+// cannot be auto-approved into a membership — they must be rejected so the
+// requester can resubmit while logged in.
+const selectedHasLinkedRequester = computed(() =>
+  Boolean(selectedRequest.value?.requesterUserId),
+)
+
 function formatDate(value?: string) {
   if (!value) return '-'
   const date = new Date(value)
@@ -480,10 +487,20 @@ onMounted(() => {
               </div>
             </div>
 
+            <div
+              v-if="selectedIsPending && !selectedHasLinkedRequester"
+              class="rounded-lg border border-warning-line bg-warning-soft px-3 py-2.5 text-xs leading-5 text-warning-hover"
+            >
+              Request ini dibuat sebelum sistem mengaitkan permintaan ke akun
+              pemohon, sehingga tidak bisa disetujui otomatis. Tolak request
+              ini dan minta pemohon mengajukan ulang setelah login.
+            </div>
+
             <div v-if="selectedIsPending" class="flex flex-wrap gap-2">
               <button
                 type="button"
                 class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#16a34a] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#15803d] disabled:cursor-not-allowed disabled:opacity-60"
+                :disabled="!selectedHasLinkedRequester"
                 @click="actionMode = actionMode === 'approve' ? null : 'approve'"
               >
                 <PhCheckCircle :size="16" weight="bold" />
@@ -500,7 +517,7 @@ onMounted(() => {
             </div>
 
             <form
-              v-if="selectedIsPending && actionMode === 'approve'"
+              v-if="selectedIsPending && actionMode === 'approve' && selectedHasLinkedRequester"
               class="space-y-4 rounded-xl border border-success-line bg-[#f6fef9] p-4"
               @submit.prevent="submitApprove"
             >

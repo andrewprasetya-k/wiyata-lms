@@ -14,6 +14,7 @@ type EmailService interface {
 	SendSchoolMemberInvitation(toEmail string, schoolName string, role string, acceptURL string) error
 	SendSchoolMemberAccountCreated(toEmail string, schoolName string, role string) error
 	SendSchoolMemberAddedToSchool(toEmail string, schoolName string, role string) error
+	SendSchoolRegistrationApproved(toEmail string, schoolName string) error
 }
 
 type noopEmailService struct{}
@@ -55,6 +56,10 @@ func (noopEmailService) SendSchoolMemberAccountCreated(string, string, string) e
 }
 
 func (noopEmailService) SendSchoolMemberAddedToSchool(string, string, string) error {
+	return nil
+}
+
+func (noopEmailService) SendSchoolRegistrationApproved(string, string) error {
 	return nil
 }
 
@@ -179,6 +184,27 @@ Password akun Anda tidak diubah. Silakan login menggunakan password akun Wiyata 
 Salam,
 Wiyata
 `, roleLabel, schoolName)
+
+	return s.sendPlainText(toEmail, subject, body)
+}
+
+func (s *smtpEmailService) SendSchoolRegistrationApproved(toEmail string, schoolName string) error {
+	toEmail = strings.TrimSpace(toEmail)
+	schoolName = strings.TrimSpace(schoolName)
+	if toEmail == "" || schoolName == "" {
+		return fmt.Errorf("email registration-approved fields are required")
+	}
+
+	subject := "Pendaftaran Sekolah Anda Disetujui"
+	body := fmt.Sprintf(`Halo,
+
+Pendaftaran sekolah %s di Wiyata sudah disetujui.
+
+Akun Anda otomatis dijadikan Admin untuk sekolah ini. Password akun Anda tidak berubah — silakan login menggunakan email dan password akun Wiyata yang sudah ada untuk mulai mengelola %s.
+
+Salam,
+Wiyata
+`, schoolName, schoolName)
 
 	return s.sendPlainText(toEmail, subject, body)
 }

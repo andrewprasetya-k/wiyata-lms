@@ -9,8 +9,8 @@ const { confirmLogout } = useLogoutConfirm({ redirectTo: "/login" });
 </script>
 
 <template>
-  <main class="min-h-screen bg-surface-subtle px-6 py-10 sm:py-16">
-    <div class="mx-auto flex w-full max-w-4xl items-center justify-between">
+  <main class="min-h-screen bg-surface-subtle px-6 p-6">
+    <div class="mx-auto flex w-full max-w-screen items-center justify-between">
       <div class="flex items-center gap-3">
         <img src="/logo_fix.svg" alt="Wiyata" class="h-9 w-9 rounded-lg" />
         <span class="text-sm font-semibold text-foreground">
@@ -26,14 +26,14 @@ const { confirmLogout } = useLogoutConfirm({ redirectTo: "/login" });
       </button>
     </div>
 
-    <section class="mx-auto mt-16 max-w-xl">
+    <section class="mx-auto mt-16 max-w-screen">
       <p class="text-sm font-medium text-brand">
         Halo, {{ auth.user?.fullName?.split(" ")[0] ?? "" }}
       </p>
       <h1
         class="mt-3 text-4xl font-semibold leading-tight tracking-tight text-foreground sm:text-5xl"
       >
-        Selamat datang di Wiyata 👋
+        Selamat datang di Wiyata
       </h1>
       <p class="mt-4 text-base leading-7 text-muted">
         Akun Anda berhasil dibuat. Langkah berikutnya adalah mendaftarkan
@@ -67,8 +67,8 @@ const { confirmLogout } = useLogoutConfirm({ redirectTo: "/login" });
       </RouterLink>
 
       <p class="mt-8 text-sm leading-6 text-muted">
-        Sudah mendapat undangan dari sekolah? Gunakan tautan pada email
-        undangan yang dikirim administrator sekolah.
+        Sudah mendapat undangan dari sekolah? Gunakan tautan pada email undangan
+        yang dikirim administrator sekolah.
       </p>
     </section>
   </main>

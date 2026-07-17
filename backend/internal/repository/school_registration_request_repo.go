@@ -12,16 +12,13 @@ import (
 
 type SchoolRegistrationRequestRepository interface {
 	Create(request *domain.SchoolRegistrationRequest) error
-	HasPendingDuplicate(schoolName string, picEmail string) (bool, error)
+	HasPendingDuplicate(schoolName string, requesterUserID string) (bool, error)
 	List(status string, page int, limit int) ([]*domain.SchoolRegistrationRequest, int64, error)
 	GetByID(id string) (*domain.SchoolRegistrationRequest, error)
 	RejectPending(id string, reviewerID string, reviewedAt time.Time, reviewNote *string) error
 	ApprovePending(id string, school *domain.School, requesterUserID string, adminRoleName string, reviewerID string, reviewedAt time.Time, reviewNote *string) (*SchoolRegistrationApprovalResult, error)
 }
 
-// SchoolRegistrationApprovalResult is returned once a request has been
-// approved: the school and the SchoolUser+admin role membership created for
-// the requester in the same transaction.
 type SchoolRegistrationApprovalResult struct {
 	Request    *domain.SchoolRegistrationRequest
 	School     *domain.School
@@ -40,14 +37,14 @@ func (r *schoolRegistrationRequestRepository) Create(request *domain.SchoolRegis
 	return r.db.Create(request).Error
 }
 
-func (r *schoolRegistrationRequestRepository) HasPendingDuplicate(schoolName string, picEmail string) (bool, error) {
+func (r *schoolRegistrationRequestRepository) HasPendingDuplicate(schoolName string, requesterUserID string) (bool, error) {
 	var count int64
 	err := r.db.Model(&domain.SchoolRegistrationRequest{}).
 		Where("srr_status = ?", domain.SchoolRegistrationPending).
 		Where(
-			"LOWER(TRIM(srr_school_name)) = ? OR LOWER(TRIM(srr_pic_email)) = ?",
+			"LOWER(TRIM(srr_school_name)) = ? OR srr_usr_id = ?",
 			strings.ToLower(strings.TrimSpace(schoolName)),
-			strings.ToLower(strings.TrimSpace(picEmail)),
+			requesterUserID,
 		).
 		Count(&count).Error
 	return count > 0, err

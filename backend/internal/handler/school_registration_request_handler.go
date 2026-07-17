@@ -111,7 +111,7 @@ func handleSchoolRegistrationRequestError(c *gin.Context, err error) {
 
 	switch {
 	case strings.Contains(errStr, "pending duplicate"):
-		c.JSON(http.StatusConflict, gin.H{"error": "A pending registration request already exists for this school or contact email"})
+		c.JSON(http.StatusConflict, gin.H{"error": "A pending registration request already exists for this school, or your account already has one pending"})
 	case strings.Contains(errStr, "duplicate school code"):
 		c.JSON(http.StatusConflict, gin.H{"error": "School code already exists"})
 	case strings.Contains(errStr, "is not pending"):

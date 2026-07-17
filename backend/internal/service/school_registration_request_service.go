@@ -57,7 +57,7 @@ func (s *schoolRegistrationRequestService) Create(input dto.CreateSchoolRegistra
 		return nil, err
 	}
 
-	duplicate, err := s.repo.HasPendingDuplicate(request.SchoolName, request.PICEmail)
+	duplicate, err := s.repo.HasPendingDuplicate(request.SchoolName, request.RequesterUserID)
 	if err != nil {
 		return nil, err
 	}
@@ -243,7 +243,7 @@ func (s *schoolRegistrationRequestService) Approve(id string, reviewerID string,
 		return nil, err
 	}
 
-	if err := s.emailService.SendSchoolMemberAddedToSchool(requester.Email, result.School.Name, "admin"); err != nil {
+	if err := s.emailService.SendSchoolRegistrationApproved(requester.Email, result.School.Name); err != nil {
 		fmt.Printf("[Email Warning] failed to send school registration approval notification school_id=%s email=%s error=%s\n", result.School.ID, maskEmail(requester.Email), err.Error())
 	}
 
