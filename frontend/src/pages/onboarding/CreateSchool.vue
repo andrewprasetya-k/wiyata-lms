@@ -93,7 +93,7 @@ async function resendVerification() {
       </RouterLink>
     </div>
 
-    <section class="mx-auto mt-16 max-w-xl">
+    <section class="mx-auto mt-16 max-w-screen">
       <p class="text-sm font-medium text-brand">Buat sekolah</p>
       <h1 class="mt-3 text-3xl font-semibold leading-tight sm:text-4xl">
         Beri nama sekolahmu untuk mulai.

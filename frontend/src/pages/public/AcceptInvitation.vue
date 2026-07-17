@@ -99,7 +99,7 @@ onMounted(loadInvitation);
 
 <template>
   <main class="min-h-screen bg-surface-subtle px-6 py-8 text-foreground">
-    <div class="mx-auto flex w-full max-w-4xl items-center justify-between">
+    <div class="mx-auto flex w-full max-w-screen items-center justify-between">
       <RouterLink to="/home" class="flex items-center gap-3">
         <img src="/logo_fix.svg" alt="Wiyata" class="h-9 w-9 rounded-lg" />
         <span class="text-sm font-semibold">Wiyata Academic Workspace</span>
@@ -112,7 +112,7 @@ onMounted(loadInvitation);
       </RouterLink>
     </div>
 
-    <section class="mx-auto mt-12 max-w-4xl">
+    <section class="mx-auto mt-12 max-w-screen">
       <div
         class="rounded-xl border border-border bg-surface p-6 shadow-sm md:p-8"
       >
@@ -208,7 +208,9 @@ onMounted(loadInvitation);
 
           <form class="space-y-5" @submit.prevent="submit">
             <label class="block">
-              <span class="mb-2 block text-sm font-medium text-foreground-secondary">
+              <span
+                class="mb-2 block text-sm font-medium text-foreground-secondary"
+              >
                 Nama lengkap
               </span>
               <input
@@ -221,7 +223,9 @@ onMounted(loadInvitation);
             </label>
 
             <label class="block">
-              <span class="mb-2 block text-sm font-medium text-foreground-secondary">
+              <span
+                class="mb-2 block text-sm font-medium text-foreground-secondary"
+              >
                 Password
               </span>
               <div class="relative">
@@ -236,7 +240,9 @@ onMounted(loadInvitation);
                   type="button"
                   class="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-muted transition hover:text-foreground"
                   :aria-label="
-                    passwordVisible ? 'Sembunyikan password' : 'Tampilkan password'
+                    passwordVisible
+                      ? 'Sembunyikan password'
+                      : 'Tampilkan password'
                   "
                   :aria-pressed="passwordVisible"
                   @click="togglePasswordVisibility"
@@ -248,7 +254,9 @@ onMounted(loadInvitation);
             </label>
 
             <label class="block">
-              <span class="mb-2 block text-sm font-medium text-foreground-secondary">
+              <span
+                class="mb-2 block text-sm font-medium text-foreground-secondary"
+              >
                 Konfirmasi password
               </span>
               <div class="relative">

@@ -336,7 +336,7 @@ onMounted(loadDashboard);
                 :class="
                   step.done
                     ? 'text-success'
-                    : 'text-[#d1d5db] group-hover:text-muted'
+                    : 'text-border-strong group-hover:text-muted'
                 "
               />
               <span class="min-w-0 flex-1">
@@ -352,7 +352,7 @@ onMounted(loadDashboard);
               </span>
               <PhArrowRight
                 :size="14"
-                class="shrink-0 text-[#d1d5db] transition group-hover:text-brand"
+                class="shrink-0 text-border-strong transition group-hover:text-brand"
               />
             </RouterLink>
           </div>
@@ -398,7 +398,7 @@ onMounted(loadDashboard);
               </div>
               <PhArrowRight
                 :size="14"
-                class="mt-auto text-[#d1d5db] transition group-hover:translate-x-0.5 group-hover:text-brand"
+                class="mt-auto text-border-strong transition group-hover:translate-x-0.5 group-hover:text-brand"
               />
             </RouterLink>
           </div>
@@ -409,11 +409,7 @@ onMounted(loadDashboard);
           class="rounded-xl border border-border bg-surface shadow-sm p-5"
         >
           <div class="mb-4 flex items-center gap-2">
-            <PhClockCountdown
-              :size="17"
-              weight="duotone"
-              class="text-muted"
-            />
+            <PhClockCountdown :size="17" weight="duotone" class="text-muted" />
             <h2 class="text-sm font-semibold text-foreground">
               Aktivitas Terbaru
             </h2>
@@ -432,7 +428,7 @@ onMounted(loadDashboard);
             class="rounded-lg bg-surface-subtle px-4 py-8 text-center"
           >
             <PhClockCountdown
-              class="mx-auto h-7 w-7 text-[#d1d5db]"
+              class="mx-auto h-7 w-7 text-border-strong"
               weight="duotone"
             />
             <p class="mt-3 text-sm font-medium text-foreground">
@@ -498,9 +494,7 @@ onMounted(loadDashboard);
             v-else-if="!stats?.enrollmentTrends?.length"
             class="rounded-lg bg-surface-subtle px-3 py-5 text-center"
           >
-            <p class="text-xs text-muted">
-              Belum ada data distribusi kelas.
-            </p>
+            <p class="text-xs text-muted">Belum ada data distribusi kelas.</p>
           </div>
 
           <div v-else class="space-y-2.5">

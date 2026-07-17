@@ -45,7 +45,7 @@ onMounted(runVerification);
 
 <template>
   <main class="min-h-screen bg-surface-subtle px-6 py-8 text-foreground">
-    <div class="mx-auto flex w-full max-w-4xl items-center justify-between">
+    <div class="mx-auto flex w-full max-w-screen items-center justify-between">
       <RouterLink to="/home" class="flex items-center gap-3">
         <img src="/logo_fix.svg" alt="Wiyata" class="h-9 w-9 rounded-lg" />
         <span class="text-sm font-semibold">Wiyata Academic Workspace</span>
@@ -58,7 +58,7 @@ onMounted(runVerification);
       </RouterLink>
     </div>
 
-    <section class="mx-auto mt-12 max-w-xl">
+    <section class="mx-auto mt-12 max-w-screen">
       <div
         class="rounded-xl border border-border bg-surface p-6 shadow-sm md:p-8"
       >
@@ -72,7 +72,7 @@ onMounted(runVerification);
         </div>
 
         <div v-else-if="verifiedAt" class="space-y-5">
-          <div class="rounded-xl border border-[#dbe7d5] bg-[#f5fbf2] p-5">
+          <div class="rounded-xl bg-[#f5fbf2] p-5">
             <p class="text-lg font-semibold text-[#1f3d25]">
               Email berhasil diverifikasi.
             </p>
@@ -95,7 +95,10 @@ onMounted(runVerification);
               Verifikasi belum berhasil.
             </p>
             <p class="mt-2 text-sm leading-6 text-danger">
-              {{ errorMessage || "Link verifikasi tidak valid atau sudah kedaluwarsa." }}
+              {{
+                errorMessage ||
+                "Link verifikasi tidak valid atau sudah kedaluwarsa."
+              }}
             </p>
           </div>
           <RouterLink
