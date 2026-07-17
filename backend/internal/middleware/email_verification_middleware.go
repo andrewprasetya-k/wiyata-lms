@@ -26,7 +26,7 @@ func RequireVerifiedUser(userRepo interface {
 		}
 
 		if user.EmailVerifiedAt == nil {
-			c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: email not verified"})
+			c.JSON(http.StatusForbidden, gin.H{"error": "Email verification required"})
 			c.Abort()
 			return
 		}

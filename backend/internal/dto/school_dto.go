@@ -4,9 +4,9 @@ type CreateSchoolDTO struct {
 	Name    string  `json:"schoolName" binding:"required"`
 	Code    string  `json:"schoolCode"`
 	LogoID  *string `json:"schoolLogo,omitempty"`
-	Address string  `json:"schoolAddress" binding:"required"`
-	Email   string  `json:"schoolEmail" binding:"required,email"`
-	Phone   string  `json:"schoolPhone" binding:"required,numeric,min=10"`
+	Address string  `json:"schoolAddress"`
+	Email   string  `json:"schoolEmail" binding:"omitempty,email"`
+	Phone   string  `json:"schoolPhone" binding:"omitempty,numeric,min=10"`
 	Website *string `json:"schoolWebsite,omitempty" binding:"omitempty,url"`
 }
 
@@ -32,6 +32,12 @@ type SchoolResponseDTO struct {
 	IsDeleted bool    `json:"isDeleted"`
 	CreatedAt string  `json:"createdAt"`
 	UpdatedAt string  `json:"updatedAt"`
+}
+
+type CreateSchoolResponseDTO struct {
+	School       SchoolResponseDTO `json:"school"`
+	SchoolUserID string            `json:"schoolUserId"`
+	Role         string            `json:"role"`
 }
 
 type SchoolHeaderDTO struct {

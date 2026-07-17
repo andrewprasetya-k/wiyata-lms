@@ -218,7 +218,9 @@ func main() {
 
 		schoolAPI := api.Group("/schools")
 		{
-			schoolAPI.POST("", middleware.RequireRole(schoolService, "super_admin"), schoolHandler.CreateSchool)
+			// Self-service Create School (Phase 1): any authenticated user with a
+			// verified email may create a school and becomes its Admin.
+			schoolAPI.POST("", middleware.RequireVerifiedUser(userRepo), schoolHandler.CreateSchool)
 			schoolAPI.GET("", middleware.RequireRole(schoolService, "super_admin"), schoolHandler.GetSchools)
 			schoolAPI.GET("/summary", middleware.RequireRole(schoolService, "super_admin"), schoolHandler.GetSchoolSummary)
 			schoolAPI.GET("/check-code/:schoolCode", schoolHandler.CheckCodeAvailability)

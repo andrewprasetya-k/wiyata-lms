@@ -14,7 +14,7 @@ import (
 )
 
 type SchoolService interface {
-	CreateSchool(school *domain.School) error
+	CreateSchool(school *domain.School, creatorUserID string) (*domain.SchoolUser, error)
 	GetSchools(search string, status string, page int, limit int, sortBy string, order string) ([]*domain.School, int64, error)
 	GetSchoolByCode(schoolCode string) (*domain.School, error)
 	GetSchoolByID(schoolID string) (*domain.School, error)
@@ -38,40 +38,50 @@ func NewSchoolService(repo repository.SchoolRepository) SchoolService {
 	return &schoolService{repo: repo}
 }
 
-func (s *schoolService) CreateSchool(school *domain.School) error {
+func (s *schoolService) CreateSchool(school *domain.School, creatorUserID string) (*domain.SchoolUser, error) {
+	if strings.TrimSpace(creatorUserID) == "" {
+		return nil, fmt.Errorf("creator user is required")
+	}
+
 	s.sanitizeInput(school)
 
-	// 1. Validasi Duplikasi Email
-	exists, err := s.repo.CheckEmailExists(school.Email, "")
-	if err != nil {
-		return err
-	}
-	if exists {
-		return fmt.Errorf("email sekolah '%s' sudah terdaftar", school.Email)
-	}
-
-	// 2. Validasi Duplikasi Telepon
-	exists, err = s.repo.CheckPhoneExists(school.Phone, "")
-	if err != nil {
-		return err
-	}
-	if exists {
-		return fmt.Errorf("nomor telepon sekolah '%s' sudah terdaftar", school.Phone)
+	// 1. Validasi duplikasi email — dilewati jika kosong (opsional untuk self-service).
+	if school.Email != "" {
+		exists, err := s.repo.CheckEmailExists(school.Email, "")
+		if err != nil {
+			return nil, err
+		}
+		if exists {
+			return nil, fmt.Errorf("email sekolah '%s' sudah terdaftar", school.Email)
+		}
 	}
 
-	// 3. Jika code kosong, generate otomatis dengan pengecekan keunikan
+	// 2. Validasi duplikasi telepon — dilewati jika kosong (opsional untuk self-service).
+	if school.Phone != "" {
+		exists, err := s.repo.CheckPhoneExists(school.Phone, "")
+		if err != nil {
+			return nil, err
+		}
+		if exists {
+			return nil, fmt.Errorf("nomor telepon sekolah '%s' sudah terdaftar", school.Phone)
+		}
+	}
+
+	// 3. Jika code kosong, generate otomatis dengan pengecekan keunikan.
+	// Nama sekolah sengaja tidak divalidasi unik (boleh sama).
 	if school.Code == "" {
 		school.Code = s.generateRandomCode()
 	} else {
 		_, err := s.repo.GetSchoolByCode(school.Code)
 		if err == nil {
-			return fmt.Errorf("school code '%s' already exists", school.Code)
+			return nil, fmt.Errorf("school code '%s' already exists", school.Code)
 		}
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			return err
+			return nil, err
 		}
 	}
-	return s.repo.CreateSchool(school)
+
+	return s.repo.CreateSchoolWithAdmin(school, creatorUserID)
 }
 
 func (s *schoolService) sanitizeInput(school *domain.School) {

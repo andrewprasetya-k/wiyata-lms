@@ -54,6 +54,7 @@ import TeacherChat from "../pages/teacher/TeacherChat.vue";
 import NotificationCenter from "../components/notifications/NotificationCenter.vue";
 import HomePage from "../pages/preview/HomePage.vue";
 import SchoolRegistration from "../pages/public/SchoolRegistration.vue";
+import CreateSchool from "../pages/onboarding/CreateSchool.vue";
 import AcceptInvitation from "../pages/public/AcceptInvitation.vue";
 import VerifyEmail from "../pages/public/VerifyEmail.vue";
 import NotFoundPage from "../pages/common/NotFoundPage.vue";
@@ -76,6 +77,12 @@ const router = createRouter({
       name: "school-registration",
       component: SchoolRegistration,
       meta: { requiresAuth: true, title: "Daftarkan Sekolah" },
+    },
+    {
+      path: "/create-school",
+      name: "create-school",
+      component: CreateSchool,
+      meta: { requiresAuth: true, title: "Buat Sekolah" },
     },
     {
       path: "/invite/:token",
@@ -516,9 +523,15 @@ router.beforeEach(async (to) => {
       return true;
     }
 
-    // School Registration hanya butuh login, bukan activeContext — ini
-    // memang tujuan utama user yang belum punya sekolah sama sekali.
+    // School Registration (lifecycle lama, belum dihapus) hanya butuh
+    // login, bukan activeContext.
     if (to.name === "school-registration") {
+      return true;
+    }
+
+    // Create School (lifecycle baru) hanya butuh login, bukan activeContext
+    // — ini memang tujuan utama user yang belum punya sekolah sama sekali.
+    if (to.name === "create-school") {
       return true;
     }
 

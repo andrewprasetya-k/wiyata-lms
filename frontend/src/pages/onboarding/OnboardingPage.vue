@@ -36,12 +36,12 @@ const { confirmLogout } = useLogoutConfirm({ redirectTo: "/login" });
         Selamat datang di Wiyata
       </h1>
       <p class="mt-4 text-base leading-7 text-muted">
-        Akun Anda berhasil dibuat. Langkah berikutnya adalah mendaftarkan
-        sekolah agar dapat mulai menggunakan Wiyata.
+        Akun Anda berhasil dibuat. Langkah berikutnya adalah membuat sekolah
+        untuk mulai menggunakan Wiyata.
       </p>
 
       <RouterLink
-        to="/school-registration"
+        to="/create-school"
         class="group mt-8 flex flex-col rounded-2xl border border-border bg-surface p-8 shadow-sm transition hover:border-brand hover:shadow-md"
       >
         <div
@@ -53,12 +53,13 @@ const { confirmLogout } = useLogoutConfirm({ redirectTo: "/login" });
           Buat Sekolah Baru
         </h2>
         <p class="mt-2 text-sm leading-6 text-muted">
-          Daftarkan sekolah Anda untuk mulai menggunakan Wiyata.
+          Sekolah langsung aktif setelah dibuat, dan kamu otomatis menjadi
+          Admin. Tidak ada proses persetujuan.
         </p>
         <span
           class="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-brand"
         >
-          Daftarkan Sekolah
+          Buat Sekolah
           <PhArrowRight
             :size="16"
             class="transition group-hover:translate-x-0.5"

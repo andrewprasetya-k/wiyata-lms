@@ -2,6 +2,7 @@ package repository
 
 import (
 	"backend/internal/domain"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -10,6 +11,7 @@ import (
 
 type SchoolRepository interface {
 	CreateSchool(school *domain.School) error
+	CreateSchoolWithAdmin(school *domain.School, adminUserID string) (*domain.SchoolUser, error)
 	GetSchools(search string, status string, page int, limit int, sortBy string, order string) ([]*domain.School, int64, error)
 	GetSchoolByCode(schoolCode string) (*domain.School, error)
 	GetSchoolByID(schoolID string) (*domain.School, error)
@@ -35,6 +37,49 @@ func NewSchoolRepository(db *gorm.DB) SchoolRepository {
 
 func (r *schoolRepository) CreateSchool(school *domain.School) error {
 	return r.db.Create(school).Error
+}
+
+func (r *schoolRepository) CreateSchoolWithAdmin(school *domain.School, adminUserID string) (*domain.SchoolUser, error) {
+	var schoolUser *domain.SchoolUser
+
+	err := r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(school).Error; err != nil {
+			return err
+		}
+
+		su := domain.SchoolUser{
+			UserID:   adminUserID,
+			SchoolID: school.ID,
+		}
+		if err := tx.Create(&su).Error; err != nil {
+			return err
+		}
+
+		var adminRole domain.Role
+		if err := tx.Where("rol_name = ?", "admin").First(&adminRole).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return fmt.Errorf("admin role not found")
+			}
+			return err
+		}
+
+		userRole := domain.UserRole{
+			SchoolUserID: su.ID,
+			RoleID:       adminRole.ID,
+		}
+		if err := tx.Create(&userRole).Error; err != nil {
+			return err
+		}
+
+		su.School = *school
+		schoolUser = &su
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return schoolUser, nil
 }
 
 func (r *schoolRepository) GetSchools(search string, status string, page int, limit int, sortBy string, order string) ([]*domain.School, int64, error) {

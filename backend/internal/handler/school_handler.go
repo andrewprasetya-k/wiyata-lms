@@ -3,6 +3,7 @@ package handler
 import (
 	"backend/internal/domain"
 	"backend/internal/dto"
+	"backend/internal/middleware"
 	"backend/internal/service"
 	"net/http"
 	"strconv"
@@ -18,11 +19,16 @@ func NewSchoolHandler(service service.SchoolService) *SchoolHandler {
 	return &SchoolHandler{service: service}
 }
 
-// Create
 func (h *SchoolHandler) CreateSchool(c *gin.Context) {
 	var input dto.CreateSchoolDTO
 	if err := c.ShouldBindJSON(&input); err != nil {
 		HandleBindingError(c, err)
+		return
+	}
+
+	userID := middleware.GetUserID(c)
+	if userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
 
@@ -36,12 +42,17 @@ func (h *SchoolHandler) CreateSchool(c *gin.Context) {
 		Website: input.Website,
 	}
 
-	if err := h.service.CreateSchool(&school); err != nil {
+	schoolUser, err := h.service.CreateSchool(&school, userID)
+	if err != nil {
 		HandleError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusCreated, h.mapToResponse(&school))
+	c.JSON(http.StatusCreated, dto.CreateSchoolResponseDTO{
+		School:       h.mapToResponse(&schoolUser.School),
+		SchoolUserID: schoolUser.ID,
+		Role:         "admin",
+	})
 }
 
 // Get Schools (with filter)

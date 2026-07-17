@@ -15,7 +15,9 @@ import (
 
 type subjectRouteSchoolServiceStub struct{}
 
-func (subjectRouteSchoolServiceStub) CreateSchool(*domain.School) error { return nil }
+func (subjectRouteSchoolServiceStub) CreateSchool(*domain.School, string) (*domain.SchoolUser, error) {
+	return nil, nil
+}
 func (subjectRouteSchoolServiceStub) GetSchools(string, string, int, int, string, string) ([]*domain.School, int64, error) {
 	return nil, 0, nil
 }
