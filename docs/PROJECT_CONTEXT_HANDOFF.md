@@ -97,7 +97,7 @@ Key entities:
 - `feeds`, `comments`, `attachments`, `medias`.
 - `notifications`.
 - chat rooms/messages/attachments/read receipts.
-- onboarding `school_registration_requests` and `invitations`.
+- onboarding `email_verifications` and `invitations`. (`school_registration_requests` table still exists in the database but is no longer used by the application — see section 13.)
 
 ## 8. Multi-Tenant and Global Identity Model
 
@@ -190,21 +190,18 @@ Singleton state reset/refetch on `wiyata:context-changed` exists for:
 - `useNotificationUnreadCount`
 - `useChatRoomSummary`
 
-## 13. School Registration and Approval
+## 13. Self-Service School Creation and Email Verification
 
-Public visitors submit:
+The old School Registration Request / super admin approval flow has been removed (application layer only — the `school_registration_requests` table itself is still present in the database, pending a separate drop). Any authenticated user with a verified email can create a school directly:
 
-- `POST /api/school-registration-requests`
+- `POST /register` — creates the user, auto-logs in, and issues a verification token/email (best-effort; failure never blocks registration).
+- `POST /verify-email` — consumes a single-use, hashed, expiring token and stamps `usr_email_verified_at`.
+- `POST /me/resend-verification` — reissues a token for an unverified user.
+- `POST /schools` — gated by `RequireVerifiedUser()` (not a role check). Creates the school, enrolls the caller as `SchoolUser`, and assigns the `admin` role, all in one DB transaction. No approval step, no admin-in-the-middle.
 
-Super admin can:
+Frontend then calls `refreshUserContext()` followed by `switchContext()` before redirecting to the new school's dashboard, so the membership is guaranteed to be visible before navigation.
 
-- list/detail requests,
-- reject pending requests,
-- approve pending requests.
-
-Approval creates a school, creates an admin invitation, marks the request approved, and sends invitation email best-effort after the transaction.
-
-The response still includes invitation token/link for manual fallback because email may be disabled or fail.
+`POST /super-admin/school-bootstrap` (manual provisioning by a super admin, including creating the first admin user) is unrelated to this flow and remains unchanged.
 
 ## 14. Member Invitation, Direct-Create, and Import
 
@@ -372,7 +369,7 @@ Check `frontend/src/router/index.ts` before adding or linking routes.
 ## 25. Recently Completed Work
 
 - Active school + active role backend/frontend foundation, visual ContextSwitcher, `Active-Role` CORS support, and keyed route remounting.
-- School registration, super admin approval/reject, admin invitation, public invitation accept, teacher/student member invitations, and best-effort emails.
+- Self-service school creation (`POST /schools`, gated by email verification — creator becomes Admin atomically), admin invitation, public invitation accept, teacher/student member invitations, and best-effort emails. The old School Registration Request / super admin approval flow has been removed (Phase 4A of the school-creation lifecycle refactor).
 - Notification Center, material/assignment discussions, Teacher Assignment Detail, AdminEnrollments frontend role inference, and `timestamptz`/RFC3339 timestamp migration.
 - **Hardening Phase 1 — Authorization:** Added `RequireSchoolMember + RequireRole` to previously unprotected endpoints (`GET /assignments/status/:id`, `GET /grades/class/:classId/subject/:subjectId`). Added handler-level ownership checks (`resource.SchoolID == activeSchoolID`) to academic year, term, subject, class, dashboard, and log mutation/read endpoints.
 - **Hardening Phase 2 — Assessment Weight Transaction:** `ConfigureWeights` now uses `ReplaceBySubject()` — a single atomic DB transaction — instead of separate delete + create calls.
@@ -455,7 +452,7 @@ Shell startup warnings from a developer's local profile are environment issues, 
 
 ## 33. Detailed Documentation Index
 
-Specialized docs to consult: `README.md`, `README_EN.md`, `TODO.md`, `backend/TODO.md`, `backend/schema.md`, `backend/docs/api/school_registration_requests.md`, `backend/docs/api/enrollment.md`, `backend/docs/api/notification.md`. Older analysis/reference docs in `docs/ANALYSIS_INDEX.md`, `docs/CODEBASE_ANALYSIS.md`, `docs/QUICK_REFERENCE.md`, and `docs/PRODUCT_SCOPE.md` must be verified against current code before relying on details.
+Specialized docs to consult: `README.md`, `README_EN.md`, `TODO.md`, `backend/TODO.md`, `backend/schema.md`, `backend/docs/api/enrollment.md`, `backend/docs/api/notification.md`. Older analysis/reference docs in `docs/ANALYSIS_INDEX.md`, `docs/CODEBASE_ANALYSIS.md`, `docs/QUICK_REFERENCE.md`, and `docs/PRODUCT_SCOPE.md` must be verified against current code before relying on details. (`backend/docs/api/school_registration_requests.md` documents the removed flow — see section 13 — and is now stale.)
 
 ## 34. Source-of-Truth Hierarchy
 

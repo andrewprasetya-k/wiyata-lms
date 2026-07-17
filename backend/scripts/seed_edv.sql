@@ -478,14 +478,6 @@ BEGIN
             v_user_admin_id, now() + interval '7 days', 'Calon Siswa Baru', v_class1_id);
 
     -- -----------------------------------------------------------------------
-    -- 19. school_registration_requests (contoh, independen dari sekolah di atas)
-    -- -----------------------------------------------------------------------
-    INSERT INTO "edv"."school_registration_requests"
-        ("srr_school_name", "srr_npsn", "srr_pic_name", "srr_pic_email", "srr_pic_phone", "srr_pic_role", "srr_message", "srr_status")
-    VALUES ('SMK Cendekia Bangsa', '12345678', 'Hendra Gunawan', 'hendra@cendekiabangsa.sch.id', '081234567890',
-            'Kepala Sekolah', 'Ingin menggunakan Wiyata untuk seluruh kelas TKJ.', 'pending');
-
-    -- -----------------------------------------------------------------------
     -- 20. logs
     -- -----------------------------------------------------------------------
     INSERT INTO "edv"."logs" ("log_sch_id", "log_usr_id", "log_action", "log_metadata")

@@ -39,7 +39,6 @@ import AdminUsers from "../pages/admin/AdminUsers.vue";
 import AdminChat from "../pages/admin/AdminChat.vue";
 import SuperAdminDashboard from "../pages/superadmin/SuperAdminDashboard.vue";
 import SuperAdminSchools from "../pages/superadmin/SuperAdminSchools.vue";
-import SuperAdminSchoolRegistrationRequests from "../pages/superadmin/SuperAdminSchoolRegistrationRequests.vue";
 import SuperAdminUsers from "../pages/superadmin/SuperAdminUsers.vue";
 import ReadProfile from "../pages/profile/ReadProfile.vue";
 import TeacherCreate from "../pages/teacher/TeacherCreate.vue";
@@ -53,7 +52,6 @@ import TeacherFeed from "../pages/teacher/TeacherFeed.vue";
 import TeacherChat from "../pages/teacher/TeacherChat.vue";
 import NotificationCenter from "../components/notifications/NotificationCenter.vue";
 import HomePage from "../pages/preview/HomePage.vue";
-import SchoolRegistration from "../pages/public/SchoolRegistration.vue";
 import CreateSchool from "../pages/onboarding/CreateSchool.vue";
 import AcceptInvitation from "../pages/public/AcceptInvitation.vue";
 import VerifyEmail from "../pages/public/VerifyEmail.vue";
@@ -71,12 +69,6 @@ const router = createRouter({
       name: "home",
       component: HomePage,
       meta: { title: "Satu workspace untuk aktivitas akademik sekolah." },
-    },
-    {
-      path: "/school-registration",
-      name: "school-registration",
-      component: SchoolRegistration,
-      meta: { requiresAuth: true, title: "Daftarkan Sekolah" },
     },
     {
       path: "/create-school",
@@ -453,12 +445,6 @@ const router = createRouter({
           meta: { title: "Sekolah" },
         },
         {
-          path: "school-registration-requests",
-          name: "superadmin-school-registration-requests",
-          component: SuperAdminSchoolRegistrationRequests,
-          meta: { title: "Permintaan Pendaftaran Sekolah" },
-        },
-        {
           path: "users",
           name: "superadmin-users",
           component: SuperAdminUsers,
@@ -523,14 +509,8 @@ router.beforeEach(async (to) => {
       return true;
     }
 
-    // School Registration (lifecycle lama, belum dihapus) hanya butuh
-    // login, bukan activeContext.
-    if (to.name === "school-registration") {
-      return true;
-    }
-
-    // Create School (lifecycle baru) hanya butuh login, bukan activeContext
-    // — ini memang tujuan utama user yang belum punya sekolah sama sekali.
+    // Create School hanya butuh login, bukan activeContext — ini memang
+    // tujuan utama user yang belum punya sekolah sama sekali.
     if (to.name === "create-school") {
       return true;
     }

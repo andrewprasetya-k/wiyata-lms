@@ -48,9 +48,6 @@ func main() {
 	emailVerificationRepo := repository.NewEmailVerificationRepository(db)
 	emailVerificationService := service.NewEmailVerificationService(emailVerificationRepo, userRepo, emailService)
 	emailVerificationHandler := handler.NewEmailVerificationHandler(emailVerificationService)
-	schoolRegistrationRequestRepo := repository.NewSchoolRegistrationRequestRepository(db)
-	schoolRegistrationRequestService := service.NewSchoolRegistrationRequestService(schoolRegistrationRequestRepo, emailService, userService)
-	schoolRegistrationRequestHandler := handler.NewSchoolRegistrationRequestHandler(schoolRegistrationRequestService)
 	invitationRepo := repository.NewInvitationRepository(db)
 	invitationService := service.NewInvitationService(invitationRepo)
 	invitationHandler := handler.NewInvitationHandler(invitationService)
@@ -212,10 +209,6 @@ func main() {
 			meAPI.POST("/resend-verification", emailVerificationHandler.Resend)
 		}
 
-		// School Registration must now be tied to the logged-in account —
-		// requesterUserID comes from the JWT (middleware.GetUserID), not client input.
-		api.POST("/school-registration-requests", schoolRegistrationRequestHandler.Create)
-
 		schoolAPI := api.Group("/schools")
 		{
 			// Self-service Create School (Phase 1): any authenticated user with a
@@ -330,10 +323,6 @@ func main() {
 		superAdminAPI := api.Group("/super-admin")
 		{
 			superAdminAPI.POST("/school-bootstrap", middleware.RequireSystemSuperAdmin(schoolService), superAdminBootstrapHandler.BootstrapSchool)
-			superAdminAPI.GET("/school-registration-requests", middleware.RequireSystemSuperAdmin(schoolService), schoolRegistrationRequestHandler.List)
-			superAdminAPI.GET("/school-registration-requests/:id", middleware.RequireSystemSuperAdmin(schoolService), schoolRegistrationRequestHandler.GetByID)
-			superAdminAPI.PATCH("/school-registration-requests/:id/approve", middleware.RequireSystemSuperAdmin(schoolService), schoolRegistrationRequestHandler.Approve)
-			superAdminAPI.PATCH("/school-registration-requests/:id/reject", middleware.RequireSystemSuperAdmin(schoolService), schoolRegistrationRequestHandler.Reject)
 		}
 
 		classAPI := api.Group("/classes")

@@ -7,7 +7,7 @@ import {
   getInvitation,
   type AcceptInvitationResponse,
   type InvitationMetadata,
-} from "../../services/onboarding";
+} from "../../services/invitation";
 import { usePasswordVisibility } from "../../composables/usePasswordVisibility";
 
 const route = useRoute();

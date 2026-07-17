@@ -45,7 +45,7 @@
 -- Urutan dependency (audit, untuk referensi — bukan urutan eksekusi karena
 -- semua tabel di-TRUNCATE bersamaan dalam satu statement):
 --   schools, roles
---     -> school_registration_requests, invitations, users
+--     -> invitations, users
 --       -> school_users
 --         -> user_roles
 --         -> subject_classes (lewat school_users sebagai guru)
@@ -71,7 +71,6 @@ TRUNCATE TABLE
     -- RBAC & sekolah
     "edv"."roles",
     "edv"."schools",
-    "edv"."school_registration_requests",
     "edv"."invitations",
     "edv"."users",
     "edv"."school_users",
