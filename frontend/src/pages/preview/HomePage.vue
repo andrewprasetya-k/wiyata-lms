@@ -330,12 +330,6 @@ const previewSteps: PreviewStep[] = [
           </template>
           <template v-else>
             <RouterLink
-              to="/school-registration"
-              class="hidden rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-foreground-secondary transition-colors hover:text-foreground sm:inline-flex"
-            >
-              Daftarkan Sekolah
-            </RouterLink>
-            <RouterLink
               to="/register"
               class="hidden text-sm font-medium text-foreground-secondary transition-colors hover:text-foreground sm:inline-flex"
             >
@@ -653,7 +647,11 @@ const previewSteps: PreviewStep[] = [
             :class="PREVIEW_MIN_H"
             :style="{ zIndex: i + 1 }"
           >
-            <PreviewShowcaseStep :step="step" :index="i" :max-w="PREVIEW_MAX_W" />
+            <PreviewShowcaseStep
+              :step="step"
+              :index="i"
+              :max-w="PREVIEW_MAX_W"
+            />
           </div>
         </div>
       </MotionConfig>
