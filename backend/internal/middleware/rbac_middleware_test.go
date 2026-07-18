@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"backend/internal/domain"
+	"backend/internal/repository"
 	"errors"
 	"net/http"
 	"net/http/httptest"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"gorm.io/gorm"
 )
 
 type rbacTestRepoStub struct {
@@ -33,6 +35,8 @@ func newRBACTestRepoStub() *rbacTestRepoStub {
 
 func (s *rbacTestRepoStub) CreateRole(*domain.Role) error                          { return nil }
 func (s *rbacTestRepoStub) GetRoleByID(string) (*domain.Role, error)               { return nil, nil }
+func (s *rbacTestRepoStub) GetRoleByName(string) (*domain.Role, error)             { return nil, nil }
+func (s *rbacTestRepoStub) WithTx(tx *gorm.DB) repository.RBACRepository           { return s }
 func (s *rbacTestRepoStub) GetAllRoles() ([]*domain.Role, error)                   { return nil, nil }
 func (s *rbacTestRepoStub) UpdateRole(*domain.Role) error                          { return nil }
 func (s *rbacTestRepoStub) DeleteRole(string) error                                { return nil }

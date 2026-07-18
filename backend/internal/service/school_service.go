@@ -6,9 +6,7 @@ import (
 	"backend/internal/repository"
 	"errors"
 	"fmt"
-	"math/rand"
 	"strings"
-	"time"
 
 	"gorm.io/gorm"
 )
@@ -70,7 +68,11 @@ func (s *schoolService) CreateSchool(school *domain.School, creatorUserID string
 	// 3. Jika code kosong, generate otomatis dengan pengecekan keunikan.
 	// Nama sekolah sengaja tidak divalidasi unik (boleh sama).
 	if school.Code == "" {
-		school.Code = s.generateRandomCode()
+		code, err := s.repo.GenerateUniqueCode()
+		if err != nil {
+			return nil, err
+		}
+		school.Code = code
 	} else {
 		_, err := s.repo.GetSchoolByCode(school.Code)
 		if err == nil {
@@ -95,25 +97,6 @@ func (s *schoolService) sanitizeInput(school *domain.School) {
 		trimmed := strings.TrimSpace(*school.Website)
 		school.Website = &trimmed
 	}
-}
-
-func (s *schoolService) generateRandomCode() string {
-	word := []rune("ABCDEFGHJKMNPQRSTUVWXYZ23456789")
-	seededRand := rand.New(rand.NewSource(time.Now().UnixNano()))
-
-	for range 10 { // Coba maksimal 10 kali
-		code := make([]rune, 6)
-		for j := range code {
-			code[j] = word[seededRand.Intn(len(word))]
-		}
-
-		// Cek keunikan
-		_, err := s.repo.GetSchoolByCode(string(code))
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return string(code)
-		}
-	}
-	return "" // Atau handle error jika gagal dapet kode unik
 }
 
 func (s *schoolService) GetSchools(search string, status string, page int, limit int, sortBy string, order string) ([]*domain.School, int64, error) {

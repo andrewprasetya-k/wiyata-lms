@@ -17,6 +17,9 @@ type SchoolUserRepository interface {
 	IsEnrolled(userID string, schoolID string) (bool, error)
 	BelongsToSchool(schoolUserID string, schoolID string) (bool, error)
 	FindByUserAndSchoolIncludingDeleted(userID string, schoolID string) (*domain.SchoolUser, error)
+	// WithTx returns a repository instance bound to an existing transaction, so
+	// callers can compose multiple repository operations into one atomic unit.
+	WithTx(tx *gorm.DB) SchoolUserRepository
 }
 
 type schoolUserRepository struct {
@@ -25,6 +28,10 @@ type schoolUserRepository struct {
 
 func NewSchoolUserRepository(db *gorm.DB) SchoolUserRepository {
 	return &schoolUserRepository{db: db}
+}
+
+func (r *schoolUserRepository) WithTx(tx *gorm.DB) SchoolUserRepository {
+	return &schoolUserRepository{db: tx}
 }
 
 func (r *schoolUserRepository) Create(scu *domain.SchoolUser) error {

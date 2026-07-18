@@ -3,6 +3,7 @@ package handler
 import (
 	"backend/internal/domain"
 	"backend/internal/middleware"
+	"backend/internal/repository"
 	"context"
 	"errors"
 	"io"
@@ -12,6 +13,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"gorm.io/gorm"
 )
 
 type mediaRouteServiceStub struct {
@@ -50,6 +52,8 @@ type mediaRouteRBACStub struct {
 
 func (s *mediaRouteRBACStub) CreateRole(*domain.Role) error                       { return nil }
 func (s *mediaRouteRBACStub) GetRoleByID(string) (*domain.Role, error)            { return nil, nil }
+func (s *mediaRouteRBACStub) GetRoleByName(string) (*domain.Role, error)          { return nil, nil }
+func (s *mediaRouteRBACStub) WithTx(tx *gorm.DB) repository.RBACRepository        { return s }
 func (s *mediaRouteRBACStub) GetAllRoles() ([]*domain.Role, error)                { return nil, nil }
 func (s *mediaRouteRBACStub) UpdateRole(*domain.Role) error                       { return nil }
 func (s *mediaRouteRBACStub) DeleteRole(string) error                             { return nil }

@@ -3,12 +3,11 @@ package service
 import (
 	"backend/internal/domain"
 	"backend/internal/dto"
+	"backend/internal/repository"
 	"errors"
 	"fmt"
-	"math/rand"
 	"net/mail"
 	"strings"
-	"time"
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -20,11 +19,24 @@ type SuperAdminBootstrapService interface {
 }
 
 type superAdminBootstrapService struct {
-	db *gorm.DB
+	db             *gorm.DB
+	schoolRepo     repository.SchoolRepository
+	schoolUserRepo repository.SchoolUserRepository
+	rbacRepo       repository.RBACRepository
 }
 
-func NewSuperAdminBootstrapService(db *gorm.DB) SuperAdminBootstrapService {
-	return &superAdminBootstrapService{db: db}
+func NewSuperAdminBootstrapService(
+	db *gorm.DB,
+	schoolRepo repository.SchoolRepository,
+	schoolUserRepo repository.SchoolUserRepository,
+	rbacRepo repository.RBACRepository,
+) SuperAdminBootstrapService {
+	return &superAdminBootstrapService{
+		db:             db,
+		schoolRepo:     schoolRepo,
+		schoolUserRepo: schoolUserRepo,
+		rbacRepo:       rbacRepo,
+	}
 }
 
 func (s *superAdminBootstrapService) BootstrapSchool(input dto.SchoolBootstrapRequestDTO) (*dto.SchoolBootstrapResponseDTO, error) {
@@ -45,12 +57,12 @@ func (s *superAdminBootstrapService) BootstrapSchool(input dto.SchoolBootstrapRe
 			UserID:   adminUser.ID,
 			SchoolID: school.ID,
 		}
-		if err := tx.Create(&schoolUser).Error; err != nil {
+		if err := s.schoolUserRepo.WithTx(tx).Create(&schoolUser); err != nil {
 			return err
 		}
 
-		var adminRole domain.Role
-		if err := tx.Where("rol_name = ?", "admin").First(&adminRole).Error; err != nil {
+		adminRole, err := s.rbacRepo.WithTx(tx).GetRoleByName("admin")
+		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return fmt.Errorf("bootstrap admin role not found")
 			}
@@ -61,7 +73,7 @@ func (s *superAdminBootstrapService) BootstrapSchool(input dto.SchoolBootstrapRe
 			SchoolUserID: schoolUser.ID,
 			RoleID:       adminRole.ID,
 		}
-		if err := tx.Create(&userRole).Error; err != nil {
+		if err := s.rbacRepo.WithTx(tx).AssignRole(&userRole); err != nil {
 			return err
 		}
 
@@ -104,24 +116,44 @@ func (s *superAdminBootstrapService) createBootstrapSchool(tx *gorm.DB, input dt
 		school.Website = &trimmed
 	}
 
-	if err := ensureNoSchoolConflict(tx, "sch_email", school.Email, "bootstrap duplicate school email"); err != nil {
-		return nil, err
-	}
-	if err := ensureNoSchoolConflict(tx, "sch_phone", school.Phone, "bootstrap duplicate school phone"); err != nil {
-		return nil, err
-	}
+	repo := s.schoolRepo.WithTx(tx)
 
-	if school.Code == "" {
-		code, err := generateBootstrapSchoolCode(tx)
+	if school.Email != "" {
+		exists, err := repo.CheckEmailExists(school.Email, "")
 		if err != nil {
 			return nil, err
 		}
-		school.Code = code
-	} else if err := ensureNoSchoolConflict(tx, "sch_code", school.Code, "bootstrap duplicate school code"); err != nil {
-		return nil, err
+		if exists {
+			return nil, fmt.Errorf("bootstrap duplicate school email")
+		}
+	}
+	if school.Phone != "" {
+		exists, err := repo.CheckPhoneExists(school.Phone, "")
+		if err != nil {
+			return nil, err
+		}
+		if exists {
+			return nil, fmt.Errorf("bootstrap duplicate school phone")
+		}
 	}
 
-	if err := tx.Create(&school).Error; err != nil {
+	if school.Code == "" {
+		code, err := repo.GenerateUniqueCode()
+		if err != nil {
+			return nil, fmt.Errorf("bootstrap school code generation failed")
+		}
+		school.Code = code
+	} else {
+		_, err := repo.GetSchoolByCode(school.Code)
+		if err == nil {
+			return nil, fmt.Errorf("bootstrap duplicate school code")
+		}
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, err
+		}
+	}
+
+	if err := repo.CreateSchool(&school); err != nil {
 		return nil, err
 	}
 	return &school, nil
@@ -198,43 +230,3 @@ func findExistingBootstrapAdminUser(tx *gorm.DB, userID string) (*domain.User, e
 	return &user, nil
 }
 
-func ensureNoSchoolConflict(tx *gorm.DB, column string, value string, message string) error {
-	if value == "" {
-		return nil
-	}
-
-	var count int64
-	query := tx.Model(&domain.School{})
-	if column == "sch_code" {
-		query = query.Unscoped()
-	}
-	if err := query.Where(column+" = ?", value).Count(&count).Error; err != nil {
-		return err
-	}
-	if count > 0 {
-		return errors.New(message)
-	}
-	return nil
-}
-
-func generateBootstrapSchoolCode(tx *gorm.DB) (string, error) {
-	word := []rune("ABCDEFGHJKMNPQRSTUVWXYZ23456789")
-	seededRand := rand.New(rand.NewSource(time.Now().UnixNano()))
-
-	for range 10 {
-		code := make([]rune, 6)
-		for i := range code {
-			code[i] = word[seededRand.Intn(len(word))]
-		}
-
-		var count int64
-		if err := tx.Unscoped().Model(&domain.School{}).Where("sch_code = ?", string(code)).Count(&count).Error; err != nil {
-			return "", err
-		}
-		if count == 0 {
-			return string(code), nil
-		}
-	}
-
-	return "", fmt.Errorf("bootstrap school code generation failed")
-}

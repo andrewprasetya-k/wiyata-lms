@@ -3,12 +3,14 @@ package handler
 import (
 	"backend/internal/domain"
 	"backend/internal/middleware"
+	"backend/internal/repository"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"gorm.io/gorm"
 )
 
 func TestMaterialSummaryRouteDoesNotConflictWithProgressRoute(t *testing.T) {
@@ -102,6 +104,10 @@ func (s *materialSummaryRBACStub) CreateRole(*domain.Role) error { return nil }
 func (s *materialSummaryRBACStub) GetRoleByID(string) (*domain.Role, error) {
 	return nil, nil
 }
+func (s *materialSummaryRBACStub) GetRoleByName(string) (*domain.Role, error) {
+	return nil, nil
+}
+func (s *materialSummaryRBACStub) WithTx(tx *gorm.DB) repository.RBACRepository { return s }
 func (s *materialSummaryRBACStub) GetAllRoles() ([]*domain.Role, error) { return nil, nil }
 func (s *materialSummaryRBACStub) UpdateRole(*domain.Role) error        { return nil }
 func (s *materialSummaryRBACStub) DeleteRole(string) error              { return nil }

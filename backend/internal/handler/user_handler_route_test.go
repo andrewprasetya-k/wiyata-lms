@@ -3,12 +3,14 @@ package handler
 import (
 	"backend/internal/domain"
 	"backend/internal/middleware"
+	"backend/internal/repository"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"gorm.io/gorm"
 )
 
 type userRouteServiceStub struct{}
@@ -37,6 +39,8 @@ type userRouteRBACStub struct {
 
 func (s *userRouteRBACStub) CreateRole(*domain.Role) error                       { return nil }
 func (s *userRouteRBACStub) GetRoleByID(string) (*domain.Role, error)            { return nil, nil }
+func (s *userRouteRBACStub) GetRoleByName(string) (*domain.Role, error)          { return nil, nil }
+func (s *userRouteRBACStub) WithTx(tx *gorm.DB) repository.RBACRepository        { return s }
 func (s *userRouteRBACStub) GetAllRoles() ([]*domain.Role, error)                { return nil, nil }
 func (s *userRouteRBACStub) UpdateRole(*domain.Role) error                       { return nil }
 func (s *userRouteRBACStub) DeleteRole(string) error                             { return nil }

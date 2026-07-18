@@ -80,7 +80,7 @@ func main() {
 	subjectHandler := handler.NewSubjectHandler(subjectService, schoolService)
 
 	rbacHandler := handler.NewRBACHandler(rbacService, schoolUserService)
-	superAdminBootstrapService := service.NewSuperAdminBootstrapService(db)
+	superAdminBootstrapService := service.NewSuperAdminBootstrapService(db, schoolRepo, schoolUserRepo, rbacRepo)
 	superAdminBootstrapHandler := handler.NewSuperAdminBootstrapHandler(superAdminBootstrapService)
 
 	classRepo := repository.NewClassRepository(db)

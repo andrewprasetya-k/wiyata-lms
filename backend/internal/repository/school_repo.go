@@ -4,7 +4,9 @@ import (
 	"backend/internal/domain"
 	"errors"
 	"fmt"
+	"math/rand"
 	"strings"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -24,6 +26,13 @@ type SchoolRepository interface {
 	CheckPhoneExists(phone string, excludeID string) (bool, error)
 	GetSchoolSummary() (active int64, deleted int64, total int64, err error)
 	EnrollUser(schoolUser *domain.SchoolUser) error
+	// GenerateUniqueCode produces a random, currently-unused school code.
+	// Shared by every caller that needs to auto-generate a code (self-service
+	// creation, super-admin bootstrap) instead of each maintaining its own copy.
+	GenerateUniqueCode() (string, error)
+	// WithTx returns a repository instance bound to an existing transaction, so
+	// callers can compose multiple repository operations into one atomic unit.
+	WithTx(tx *gorm.DB) SchoolRepository
 }
 
 type schoolRepository struct {
@@ -35,8 +44,34 @@ func NewSchoolRepository(db *gorm.DB) SchoolRepository {
 	return &schoolRepository{db: db}
 }
 
+func (r *schoolRepository) WithTx(tx *gorm.DB) SchoolRepository {
+	return &schoolRepository{db: tx}
+}
+
 func (r *schoolRepository) CreateSchool(school *domain.School) error {
 	return r.db.Create(school).Error
+}
+
+func (r *schoolRepository) GenerateUniqueCode() (string, error) {
+	alphabet := []rune("ABCDEFGHJKMNPQRSTUVWXYZ23456789")
+	seededRand := rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	for range 10 { // Coba maksimal 10 kali
+		code := make([]rune, 6)
+		for i := range code {
+			code[i] = alphabet[seededRand.Intn(len(alphabet))]
+		}
+
+		var count int64
+		if err := r.db.Unscoped().Model(&domain.School{}).Where("sch_code = ?", string(code)).Count(&count).Error; err != nil {
+			return "", err
+		}
+		if count == 0 {
+			return string(code), nil
+		}
+	}
+
+	return "", fmt.Errorf("failed to generate a unique school code")
 }
 
 func (r *schoolRepository) CreateSchoolWithAdmin(school *domain.School, adminUserID string) (*domain.SchoolUser, error) {

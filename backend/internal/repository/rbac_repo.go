@@ -10,6 +10,7 @@ type RBACRepository interface {
 	// Role operations
 	CreateRole(role *domain.Role) error
 	GetRoleByID(id string) (*domain.Role, error)
+	GetRoleByName(name string) (*domain.Role, error)
 	GetAllRoles() ([]*domain.Role, error)
 	UpdateRole(role *domain.Role) error
 	DeleteRole(id string) error
@@ -26,6 +27,10 @@ type RBACRepository interface {
 	IsUserInSchool(userID, schoolID string) (bool, error)
 	GetSchoolUserID(userID, schoolID string) (string, error)
 	IsSuperAdmin(userID string) (bool, error)
+
+	// WithTx returns a repository instance bound to an existing transaction, so
+	// callers can compose multiple repository operations into one atomic unit.
+	WithTx(tx *gorm.DB) RBACRepository
 }
 
 type rbacRepository struct {
@@ -36,6 +41,10 @@ func NewRBACRepository(db *gorm.DB) RBACRepository {
 	return &rbacRepository{db: db}
 }
 
+func (r *rbacRepository) WithTx(tx *gorm.DB) RBACRepository {
+	return &rbacRepository{db: tx}
+}
+
 func (r *rbacRepository) CreateRole(role *domain.Role) error {
 	return r.db.Create(role).Error
 }
@@ -43,6 +52,12 @@ func (r *rbacRepository) CreateRole(role *domain.Role) error {
 func (r *rbacRepository) GetRoleByID(id string) (*domain.Role, error) {
 	var role domain.Role
 	err := r.db.Where("rol_id = ?", id).First(&role).Error
+	return &role, err
+}
+
+func (r *rbacRepository) GetRoleByName(name string) (*domain.Role, error) {
+	var role domain.Role
+	err := r.db.Where("rol_name = ?", name).First(&role).Error
 	return &role, err
 }
 
