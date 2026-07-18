@@ -142,8 +142,8 @@ indexes {
 
 Table email_verifications {
 evf_id uuid [pk, default: `gen_random_uuid()`]
-evf_usr_id uuid [ref: > users.usr_id]
-evf_token_hash text [note: 'SHA-256 hex hash of the raw token; raw token is never stored, mirrors invitations.inv_token_hash']
+evf_usr_id uuid [not null, ref: > users.usr_id]
+evf_token_hash text [not null, note: 'SHA-256 hex hash of the raw token; raw token is never stored, mirrors invitations.inv_token_hash']
 evf_expires_at timestamptz [not null]
 evf_consumed_at timestamptz
 created_at timestamptz [default: `now()`]

@@ -41,7 +41,7 @@ Wiyata is a working multi-tenant Learning Management System (LMS) with a Go back
 
 Wiyata LMS integrates:
 
-- School onboarding, super admin approval, school admin invitations, and teacher/student invitations.
+- Self-service school creation (verify email, then create a school and become its Admin instantly) and teacher/student invitations.
 - School academic structure: academic years, terms, classes, and subjects.
 - Daily learning workspace per subject class.
 - Learning materials with progress tracking.

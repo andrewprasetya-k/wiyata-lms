@@ -88,33 +88,47 @@ Quickly check if a school code is already taken.
 
 ---
 
-## 4. Create School
+## 4. Create School (Self-Service)
 
-Register a new school. Input will be automatically trimmed of leading/trailing spaces.
+Any authenticated user with a verified email can create a school directly — there is no request/approval step. The caller is enrolled as `SchoolUser` and assigned the `admin` role atomically in the same transaction as the school itself. No limit on schools per user; school name does not need to be unique.
 
 - **URL:** `(base URL)`
 - **Method:** `POST`
+- **Authentication:** Required, plus verified email (`RequireVerifiedUser()` — a 403 if `usr_email_verified_at` is still null; see `backend/docs/api/auth.md` for the verify-email flow). This is **not** a role check — it replaced the old `super_admin`-only gate.
 - **Body:**
   | Field | Type | Required | Validation |
   | :--- | :--- | :--- | :--- |
   | `schoolName` | string | Yes | Min 1 char |
   | `schoolCode` | string | No | Unique, auto-generated if empty |
   | `schoolLogo` | uuid | No | Reference to Media ID |
-  | `schoolAddress`| string | Yes | Min 1 char |
-  | `schoolEmail` | string | Yes | Unique, valid email format |
-  | `schoolPhone` | string | Yes | Unique, numeric, min 10 chars |
+  | `schoolAddress`| string | No | — |
+  | `schoolEmail` | string | No | Unique if provided, valid email format |
+  | `schoolPhone` | string | No | Unique if provided, numeric, min 10 chars |
   | `schoolWebsite`| string | No | Valid URL format |
+
+  Only `schoolName` is required — the rest can be filled in later from the Edit School page.
 
 **Example Response (201 Created):**
 
 ```json
 {
-  "schoolId": "uuid",
-  "schoolName": "Wiyata Academy",
-  "schoolCode": "EDU01",
-  ...
+  "school": {
+    "schoolId": "uuid",
+    "schoolName": "Wiyata Academy",
+    "schoolCode": "EDU01",
+    "schoolAddress": "",
+    "schoolEmail": "",
+    "schoolPhone": "",
+    "isDeleted": false,
+    "createdAt": "2026-07-17T09:00:00Z",
+    "updatedAt": "2026-07-17T09:00:00Z"
+  },
+  "schoolUserId": "uuid",
+  "role": "admin"
 }
 ```
+
+Frontend should call `refreshUserContext()` then `switchContext()` with `schoolId`/`schoolUserId`/`role: "admin"` from this response before redirecting to the new school's dashboard, so the membership is guaranteed visible before navigation.
 
 ---
 

@@ -26,7 +26,11 @@ Create a new plain global user account and receive JWT token.
 - `password`: Required, minimum 6 characters
 - Registration does not accept `schoolId`, `schoolCode`, role, enrollment, or class fields.
 - Registration does not create `school_users`, assign roles, or grant school access.
-  School access is granted later by a school admin through membership and role assignment.
+  School access comes later either by creating a school directly (self-service, once the
+  email is verified — see section 4) or by accepting an invitation from an existing school admin.
+- Registration auto-logs in (this response is identical in shape to Login) and issues a
+  best-effort email verification token/email (see section 4). A failure to send the
+  verification email never blocks registration itself.
 
 **Response (201 Created):**
 
@@ -108,7 +112,59 @@ Authenticate user and receive JWT token.
 
 ---
 
-## 3. Refresh Auth Context
+## 3. Verify Email
+
+Consume a single-use, hashed, expiring email verification token and stamp `usr_email_verified_at`. Required before the user can create a school (see `backend/docs/api/school.md`, section 4).
+
+- **URL:** `/verify-email`
+- **Method:** `POST`
+- **Authentication:** Not required (the token itself is the credential; the browser opening the emailed link may not be logged in)
+- **Body:**
+
+```json
+{ "token": "raw-token-from-emailed-link" }
+```
+
+**Response (200 OK):**
+
+```json
+{
+  "message": "Email verified",
+  "emailVerifiedAt": "2026-07-17T09:00:00Z"
+}
+```
+
+- Every failure (unknown token, already consumed, expired) returns the same generic `400` message — the endpoint never reveals which case occurred.
+- Consuming a token invalidates every other outstanding token for that user.
+- If the browser has an active session, the frontend calls `refreshUserContext()` right after success so `emailVerified` reflects the change without a manual reload.
+
+**Error Responses:**
+
+- `400 Bad Request`: `{"error": "Verification link is invalid or expired"}` (covers all failure cases)
+
+---
+
+## 4. Resend Verification
+
+Reissue a verification token for the current user if not yet verified.
+
+- **URL:** `/me/resend-verification`
+- **Method:** `POST`
+- **Authentication:** Required
+
+**Response (200 OK):**
+
+```json
+{ "message": "Verification email sent" }
+```
+
+**Error Responses:**
+
+- `400 Bad Request`: `{"error": "Email is already verified"}`
+
+---
+
+## 5. Refresh Auth Context
 
 Return the authoritative school membership and role context for the current
 authenticated user.
@@ -138,12 +194,18 @@ authenticated user.
     "schoolId": "uuid",
     "schoolUserId": "uuid",
     "roles": ["teacher", "student"]
-  }
+  },
+  "emailVerified": true,
+  "emailVerifiedAt": "2026-07-17T09:00:00Z"
 }
 ```
 
 Soft-deleted `school_users` memberships are excluded. `defaultContext`, when
-present, always points to an active membership.
+present, always points to an active membership. `emailVerified`/`emailVerifiedAt`
+are the **only** source of truth the frontend uses for verification status —
+neither Login nor Register responses carry this field; the frontend must call
+this endpoint (via `refreshUserContext()`) to learn about a verification that
+happened elsewhere.
 
 ---
 
@@ -218,16 +280,19 @@ curl -X GET http://localhost:8080/api/schools \
 
 ## Protected Endpoints
 
-All endpoints except `/login` and `/register` require authentication.
-
 **Public (No Auth):**
 
 - `POST /api/login`
 - `POST /api/register`
+- `POST /api/verify-email`
+- `GET /api/invitations/:token`
+- `POST /api/invitations/:token/accept`
 
 **Protected (Auth Required):**
 
-- All `/api/schools/*` endpoints
+- `POST /api/me/resend-verification`
+- `POST /api/schools` — additionally requires a verified email (`RequireVerifiedUser()`), not a role
+- All other `/api/schools/*` endpoints
 - All `/api/users/*` endpoints
 - All `/api/materials/*` endpoints
 - All `/api/dashboard/*` endpoints
@@ -324,4 +389,4 @@ func (h *Handler) SomeEndpoint(c *gin.Context) {
 
 ---
 
-**Last Updated:** 2026-02-24
+**Last Updated:** 2026-07-17

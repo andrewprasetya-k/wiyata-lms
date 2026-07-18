@@ -25,7 +25,7 @@ POST   /api/register                        - Register new user
 ### 1.2 School Management Routes (Protected)
 
 ```
-POST   /api/schools                         - Create school (super_admin)
+POST   /api/schools                         - Self-service Create School (any authenticated user with verified email — no longer super_admin-only; see docs/PROJECT_CONTEXT_HANDOFF.md §13)
 GET    /api/schools                         - List schools (super_admin)
 GET    /api/schools/summary                 - School summary (super_admin)
 GET    /api/schools/check-code/:schoolCode  - Check code availability

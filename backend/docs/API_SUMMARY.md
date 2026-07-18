@@ -7,8 +7,8 @@ Base URL: `http://localhost:8080/api`
 **Public Endpoints (No Auth Required):**
 
 - `POST /login` - User login
-- `POST /register` - Public user self-registration (plain global account only)
-- `POST /school-registration-requests` - Submit a public school registration request for later super admin review
+- `POST /register` - Public user self-registration (plain global account only). Auto-logs in and issues a best-effort email verification token/email.
+- `POST /verify-email` - Consume a single-use, hashed, expiring email verification token; stamps `usr_email_verified_at`
 - `GET /invitations/:token` - Validate an invitation token and return safe invitation metadata
 - `POST /invitations/:token/accept` - Accept an invitation, set password for new/no-password users, and create membership
 
@@ -34,7 +34,8 @@ temporarily.
 
 **Protected Context Endpoint:**
 
-- `GET /me/context` - Refresh current memberships, global roles, and default context from backend authority
+- `GET /me/context` - Refresh current memberships, global roles, default context, and email verification status (`emailVerified`, `emailVerifiedAt`) from backend authority — the single source of truth the frontend relies on
+- `POST /me/resend-verification` - Reissue a verification token for the current (authenticated, not-yet-verified) user; invalidates prior outstanding tokens
 
 **Realtime Sidebar Stream:**
 
@@ -44,16 +45,11 @@ temporarily.
 
 ## 🏫 Schools
 
-- `POST /school-registration-requests` - Submit public school registration request for super admin review, approval/rejection, school creation, admin invitation, and best-effort email flow
-- `GET /super-admin/school-registration-requests` - List school registration requests by status (system super_admin only)
-- `GET /super-admin/school-registration-requests/:id` - Get school registration request detail (system super_admin only)
-- `PATCH /super-admin/school-registration-requests/:id/approve` - Approve a pending school registration request and issue an admin invitation token (system super_admin only)
-- `PATCH /super-admin/school-registration-requests/:id/reject` - Reject a pending school registration request (system super_admin only)
+- `POST /schools` - Self-service Create School. Gated by `RequireVerifiedUser()` (any authenticated user with a verified email, not a role check) — creates the school and enrolls the caller as its Admin atomically, in one DB transaction (School + SchoolUser + UserRole). Only `schoolName` is required; no approval step, no name uniqueness constraint, no limit on schools per user.
 - `POST /admin/school-member-invitations` - Create a teacher/student invitation token for the active school (school admin only)
 - `GET /admin/school-member-invitations` - List active-school member invitations by status (school admin only)
 - `PATCH /admin/school-member-invitations/:id/revoke` - Revoke a pending active-school member invitation (school admin only)
-- `POST /schools` - Create school
-- `POST /super-admin/school-bootstrap` - Atomically create school tenant and assign initial school admin (system super_admin only)
+- `POST /super-admin/school-bootstrap` - Atomically create school tenant and assign initial school admin (system super_admin only) — a separate, unrelated manual-provisioning path, not part of the self-service flow above
 - `GET /schools` - List all schools (with pagination)
 - `GET /schools/summary` - Get schools summary
 - `GET /schools/check-code/:schoolCode` - Check code availability
@@ -327,8 +323,9 @@ notifications.
 
 - JWT-based authentication
 - Token expiry: 24 hours
-- Public endpoints: login, register
+- Public endpoints: login, register, verify-email, invitation metadata/accept
 - All other endpoints protected
+- Self-service school creation (`POST /schools`) additionally requires a verified email (`RequireVerifiedUser()`), not a specific role
 
 ### Pagination
 
@@ -368,5 +365,5 @@ Most list endpoints support:
 
 ---
 
-**Last Updated:** 2026-07-07
-**Version:** 1.3
+**Last Updated:** 2026-07-17
+**Version:** 1.4

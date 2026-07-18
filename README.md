@@ -41,7 +41,7 @@ Wiyata adalah Learning Management System (LMS) multi-sekolah yang sudah memiliki
 
 Wiyata LMS adalah platform akademik yang mengintegrasikan:
 
-- Onboarding sekolah, approval super admin, undangan admin sekolah, dan undangan guru/siswa
+- Pembuatan sekolah self-service (verifikasi email lalu langsung buat sekolah dan otomatis menjadi Admin), undangan guru/siswa
 - Struktur akademik sekolah (tahun ajaran, semester, kelas, mata pelajaran)
 - Ruang kerja pembelajaran harian per mata pelajaran (subject class)
 - Materi pembelajaran dengan pelacakan progres

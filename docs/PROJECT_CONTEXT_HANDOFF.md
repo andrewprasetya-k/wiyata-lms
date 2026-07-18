@@ -1,6 +1,6 @@
 # Wiyata AI Handoff
 
-Last verified against codebase: 2026-07-05.
+Last verified against codebase: 2026-07-17.
 
 This document is a curated read-first guide for future AI coding agents working on Wiyata. It is not a raw merge of all existing documentation. Use it to orient quickly, then verify implementation details in code and tests before changing behavior.
 
@@ -177,10 +177,12 @@ Frontend session persistence uses:
 
 Important auth-store methods:
 
-- `ensureUserContext()` initializes context once per app session and waits for an in-flight context request.
-- `refreshUserContext()` is a forced refresh.
+- `ensureUserContext()` initializes context once per app session and waits for an in-flight context request. Once `isContextInitialized` is true, it never fetches again on its own for the rest of that session.
+- `refreshUserContext()` is a forced refresh — the only way to re-pull `GET /me/context` after the first automatic fetch. Used by `CreateSchool.vue` after school creation, by `VerifyEmail.vue` after a successful verify (if a session is already active in that browser), and by `useAuthContextSync()` (`frontend/src/composables/useAuthContextSync.ts`) on `visibilitychange`/`focus` with a 3s cooldown — the latter exists specifically so `auth.emailVerified` (and memberships/roles) catch up when the user verifies email or otherwise changes server-side state in a different tab/device and comes back.
 - In-flight context request protection prevents concurrent route guards from racing.
 - `switchContext(target)` validates target, persists it, increments `contextVersion`, emits `wiyata:context-changed`, resets active class state, and returns the landing route.
+
+`emailVerified`/`emailVerifiedAt` on the auth store come exclusively from `GET /me/context`. Never assign them directly — `LoginResponseDTO`/`VerifyEmailResponseDTO` intentionally do not carry this field; always go through `refreshUserContext()`.
 
 Role layouts key their child `RouterView` by `auth.contextVersion` so same-path switches like `/student/dashboard` remount and reload data.
 
@@ -329,13 +331,13 @@ Chat has DM/group/class-style room flows, unread summary, polling fallback, and 
 
 ## 21. Important Backend Endpoints
 
-Representative endpoints: `POST /api/login`, `GET /api/me/context`, `POST /api/school-registration-requests`, `/api/super-admin/school-registration-requests`, `GET /api/invitations/:token`, `POST /api/invitations/:token/accept`, `/api/admin/school-member-invitations`, `/api/admin/school-members`, `/api/admin/school-members/import/preview`, `/api/admin/school-members/import/commit`, `/api/enrollments`, `/api/subject-classes/assign`, `/api/subject-classes/my-teaching`, `/api/materials`, `POST /api/materials/:materialId/media/:mediaId/summary`, `/api/assignments`, `/api/comments`, `/api/feeds`, `/api/notifications`, `/api/chat/rooms`, `/api/ws/chat`.
+Representative endpoints: `POST /api/login`, `POST /api/register`, `POST /api/verify-email`, `GET /api/me/context`, `POST /api/me/resend-verification`, `POST /api/schools` (self-service Create School, see section 13), `GET /api/invitations/:token`, `POST /api/invitations/:token/accept`, `/api/admin/school-member-invitations`, `/api/admin/school-members`, `/api/admin/school-members/import/preview`, `/api/admin/school-members/import/commit`, `/api/enrollments`, `/api/subject-classes/assign`, `/api/subject-classes/my-teaching`, `/api/materials`, `POST /api/materials/:materialId/media/:mediaId/summary`, `/api/assignments`, `/api/comments`, `/api/feeds`, `/api/notifications`, `/api/chat/rooms`, `/api/ws/chat`.
 
 Use specialized docs in `backend/docs/api/` and route registration in `backend/cmd/api/main.go` for exact contracts.
 
 ## 22. Important Frontend Routes
 
-Representative routes: `/login`, `/school-registration`, `/invite/:token`, `/superadmin/dashboard`, `/super-admin/school-registration-requests`, `/admin/dashboard`, `/admin/users`, `/admin/enrollments`, `/admin/subject-classes`, `/teacher/dashboard`, `/teacher/subjects/:subjectClassId`, `/teacher/subjects/:subjectClassId/assignments/:assignmentId`, `/teacher/notifications`, `/student/dashboard`, `/student/subjects/:subjectClassId/materials/:materialId`, `/student/subjects/:subjectClassId/assignments/:assignmentId`, `/student/notifications`.
+Representative routes: `/login`, `/register`, `/verify-email`, `/onboarding`, `/create-school`, `/invite/:token`, `/superadmin/dashboard`, `/admin/dashboard`, `/admin/users`, `/admin/enrollments`, `/admin/subject-classes`, `/teacher/dashboard`, `/teacher/subjects/:subjectClassId`, `/teacher/subjects/:subjectClassId/assignments/:assignmentId`, `/teacher/notifications`, `/student/dashboard`, `/student/subjects/:subjectClassId/materials/:materialId`, `/student/subjects/:subjectClassId/assignments/:assignmentId`, `/student/notifications`. (`/school-registration` still exists but is unlinked from navigation — see section 13; `/superadmin/school-registration-requests` was removed entirely.)
 
 Check `frontend/src/router/index.ts` before adding or linking routes.
 
@@ -369,7 +371,9 @@ Check `frontend/src/router/index.ts` before adding or linking routes.
 ## 25. Recently Completed Work
 
 - Active school + active role backend/frontend foundation, visual ContextSwitcher, `Active-Role` CORS support, and keyed route remounting.
-- Self-service school creation (`POST /schools`, gated by email verification — creator becomes Admin atomically), admin invitation, public invitation accept, teacher/student member invitations, and best-effort emails. The old School Registration Request / super admin approval flow has been removed (Phase 4A of the school-creation lifecycle refactor).
+- Self-service school creation (`POST /schools`, gated by email verification — creator becomes Admin atomically), admin invitation, public invitation accept, teacher/student member invitations, and best-effort emails. The old School Registration Request / super admin approval flow has been removed from the application layer (Phase 4A); the `school_registration_requests` table itself is still present in the database, pending a separate drop.
+- Phase 4B: fixed `GET /academic-years/school/:schoolCode` and `GET /terms/academic-year/:id` returning `data: null` (nil Go slice) instead of `[]` for a brand-new school with zero academic years — this was crashing Admin Dashboard's `loadDashboard()` immediately after self-service Create School. Dashboard now loads correctly with a friendly empty state for schools with no academic year/term/class/student yet.
+- Phase 4C/4D: fixed the email-verification banner staying visible after successful verification. `VerifyEmail.vue` now calls `refreshUserContext()` when a session is active, and `useAuthContextSync()` refreshes auth context on tab focus/visibility (throttled) so verification done in another tab/device is picked up without a manual reload.
 - Notification Center, material/assignment discussions, Teacher Assignment Detail, AdminEnrollments frontend role inference, and `timestamptz`/RFC3339 timestamp migration.
 - **Hardening Phase 1 — Authorization:** Added `RequireSchoolMember + RequireRole` to previously unprotected endpoints (`GET /assignments/status/:id`, `GET /grades/class/:classId/subject/:subjectId`). Added handler-level ownership checks (`resource.SchoolID == activeSchoolID`) to academic year, term, subject, class, dashboard, and log mutation/read endpoints.
 - **Hardening Phase 2 — Assessment Weight Transaction:** `ConfigureWeights` now uses `ReplaceBySubject()` — a single atomic DB transaction — instead of separate delete + create calls.
@@ -452,7 +456,7 @@ Shell startup warnings from a developer's local profile are environment issues, 
 
 ## 33. Detailed Documentation Index
 
-Specialized docs to consult: `README.md`, `README_EN.md`, `TODO.md`, `backend/TODO.md`, `backend/schema.md`, `backend/docs/api/enrollment.md`, `backend/docs/api/notification.md`. Older analysis/reference docs in `docs/ANALYSIS_INDEX.md`, `docs/CODEBASE_ANALYSIS.md`, `docs/QUICK_REFERENCE.md`, and `docs/PRODUCT_SCOPE.md` must be verified against current code before relying on details. (`backend/docs/api/school_registration_requests.md` documents the removed flow — see section 13 — and is now stale.)
+Specialized docs to consult: `README.md`, `README_EN.md`, `TODO.md`, `backend/TODO.md`, `backend/schema.md`, `backend/docs/API_SUMMARY.md`, `backend/docs/api/enrollment.md`, `backend/docs/api/notification.md`. Older analysis/reference docs in `docs/ANALYSIS_INDEX.md`, `docs/CODEBASE_ANALYSIS.md`, `docs/QUICK_REFERENCE.md`, and `docs/PRODUCT_SCOPE.md` must be verified against current code before relying on details. (`backend/docs/api/school_registration_requests.md`, which documented the removed flow, has been deleted — see section 13 for the current self-service Create School flow.)
 
 ## 34. Source-of-Truth Hierarchy
 
