@@ -73,7 +73,7 @@ func (h *SchoolHandler) GetSchools(c *gin.Context) {
 		return
 	}
 
-	var response []dto.SchoolResponseDTO
+	response := []dto.SchoolResponseDTO{}
 	for _, s := range schools {
 		response = append(response, h.mapToResponse(s))
 	}

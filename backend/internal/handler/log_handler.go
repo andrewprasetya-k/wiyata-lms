@@ -42,7 +42,7 @@ func (h *LogHandler) GetBySchool(c *gin.Context) {
 		return
 	}
 
-	var response []dto.LogResponseDTO
+	response := []dto.LogResponseDTO{}
 	for _, l := range logs {
 		response = append(response, dto.LogResponseDTO{
 			ID:        l.ID,

@@ -54,7 +54,7 @@ func (h *RBACHandler) GetAllRoles(c *gin.Context) {
 		return
 	}
 
-	var response []dto.RoleResponseDTO
+	response := []dto.RoleResponseDTO{}
 	for _, r := range roles {
 		response = append(response, h.mapRoleToResponse(r))
 	}
@@ -159,7 +159,7 @@ func (h *RBACHandler) GetUserRoles(c *gin.Context) {
 		return
 	}
 
-	var response []dto.RoleResponseDTO
+	response := []dto.RoleResponseDTO{}
 	for _, ur := range userRoles {
 		response = append(response, h.mapRoleToResponse(&ur.Role))
 	}

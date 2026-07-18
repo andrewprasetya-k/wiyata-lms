@@ -68,7 +68,7 @@ func (h *SchoolUserHandler) GetMembersBySchool(c *gin.Context) {
 		return
 	}
 
-	var membersDTO []dto.SchoolUserResponseDTO
+	membersDTO := []dto.SchoolUserResponseDTO{}
 	for _, m := range members {
 		var roles []string
 		for _, ur := range m.Roles {
@@ -137,7 +137,7 @@ func (h *SchoolUserHandler) GetSchoolsByUser(c *gin.Context) {
 		return
 	}
 
-	var response []dto.SchoolUserResponseDTO
+	response := []dto.SchoolUserResponseDTO{}
 	for _, s := range schools {
 		response = append(response, dto.SchoolUserResponseDTO{
 			ID:         s.ID,

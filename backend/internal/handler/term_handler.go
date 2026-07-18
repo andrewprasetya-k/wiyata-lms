@@ -58,7 +58,7 @@ func (h *TermHandler) FindAll(c *gin.Context) {
 		return
 	}
 
-	var response []dto.TermResponseDTO
+	response := []dto.TermResponseDTO{}
 	for _, t := range terms {
 		response = append(response, h.mapToResponse(t))
 	}

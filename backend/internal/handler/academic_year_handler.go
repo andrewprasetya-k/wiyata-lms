@@ -62,7 +62,7 @@ func (h *AcademicYearHandler) FindAll(c *gin.Context) {
 		return
 	}
 
-	var response []dto.AcademicYearResponseDTO
+	response := []dto.AcademicYearResponseDTO{}
 	for _, y := range years {
 		response = append(response, h.mapToResponse(y))
 	}

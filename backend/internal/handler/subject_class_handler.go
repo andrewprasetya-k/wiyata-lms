@@ -59,7 +59,7 @@ func (h *SubjectClassHandler) GetByClass(c *gin.Context) {
 		return
 	}
 
-	var response []dto.SubjectClassResponseDTO
+	response := []dto.SubjectClassResponseDTO{}
 	for _, r := range results {
 		response = append(response, h.mapToResponse(r))
 	}

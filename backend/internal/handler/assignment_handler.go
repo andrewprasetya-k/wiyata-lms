@@ -65,7 +65,7 @@ func (h *AssignmentHandler) GetCategoriesBySchool(c *gin.Context) {
 		return
 	}
 
-	var response []dto.AssignmentCategoryResponseDTO
+	response := []dto.AssignmentCategoryResponseDTO{}
 	for _, cat := range cats {
 		response = append(response, dto.AssignmentCategoryResponseDTO{
 			ID:        cat.ID,
@@ -212,7 +212,7 @@ func (h *AssignmentHandler) GetBySubjectClass(c *gin.Context) {
 		return
 	}
 
-	var assignments []dto.AssignmentResponseDTO
+	assignments := []dto.AssignmentResponseDTO{}
 	for _, r := range results {
 		assignments = append(assignments, h.mapAsgToResponse(r))
 	}
@@ -478,7 +478,7 @@ func (h *AssignmentHandler) GetSubmissionsByAssignment(c *gin.Context) {
 		return
 	}
 
-	var submissionsDTO []dto.SubmissionResponseDTO
+	submissionsDTO := []dto.SubmissionResponseDTO{}
 	for _, s := range asg.Submissions {
 		var assessmentDTO *dto.AssessmentResponseDTO
 		if s.Assessment != nil {

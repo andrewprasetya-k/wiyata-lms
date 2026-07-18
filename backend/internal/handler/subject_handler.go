@@ -64,7 +64,7 @@ func (h *SubjectHandler) FindAll(c *gin.Context) {
 		return
 	}
 
-	var response []dto.SubjectResponseDTO
+	response := []dto.SubjectResponseDTO{}
 	for _, s := range subjects {
 		response = append(response, h.mapToResponse(s))
 	}
@@ -98,7 +98,7 @@ func (h *SubjectHandler) GetBySchool(c *gin.Context) {
 		return
 	}
 
-	var subjectsDTO []dto.SubjectResponseDTO
+	subjectsDTO := []dto.SubjectResponseDTO{}
 	for _, s := range subjects {
 		subjectsDTO = append(subjectsDTO, h.mapToResponse(s))
 	}

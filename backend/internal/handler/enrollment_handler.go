@@ -75,7 +75,7 @@ func (h *EnrollmentHandler) GetByClass(c *gin.Context) {
 		return
 	}
 
-	var membersDTO []dto.EnrollmentResponseDTO
+	membersDTO := []dto.EnrollmentResponseDTO{}
 	for _, r := range results {
 		membersDTO = append(membersDTO, h.mapToResponse(r))
 	}
@@ -114,7 +114,7 @@ func (h *EnrollmentHandler) GetByMember(c *gin.Context) {
 		return
 	}
 
-	var response []dto.EnrollmentResponseDTO
+	response := []dto.EnrollmentResponseDTO{}
 	for _, r := range results {
 		response = append(response, h.mapToResponse(r))
 	}

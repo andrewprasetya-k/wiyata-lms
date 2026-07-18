@@ -282,7 +282,7 @@ func (h *MaterialHandler) FindAll(c *gin.Context) {
 		return
 	}
 
-	var response []dto.MaterialResponseDTO
+	response := []dto.MaterialResponseDTO{}
 	for _, m := range materials {
 		response = append(response, h.mapToResponse(m))
 	}

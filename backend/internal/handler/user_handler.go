@@ -53,7 +53,7 @@ func (h *UserHandler) FindAll(c *gin.Context) {
 		return
 	}
 
-	var response []dto.UserResponseDTO
+	response := []dto.UserResponseDTO{}
 	for _, u := range users {
 		response = append(response, h.mapToResponse(u))
 	}

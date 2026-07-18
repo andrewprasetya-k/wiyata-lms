@@ -165,7 +165,7 @@ func (h *FeedHandler) GetByClass(c *gin.Context) {
 		return
 	}
 
-	var feedsDTO []dto.FeedResponseDTO
+	feedsDTO := []dto.FeedResponseDTO{}
 	for _, f := range feeds {
 		count, _ := h.commentService.CountBySource(string(domain.SourceFeed), f.ID, schoolID)
 		feedsDTO = append(feedsDTO, h.mapToResponse(f, count))

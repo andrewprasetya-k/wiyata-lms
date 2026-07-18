@@ -75,7 +75,7 @@ func (h *ClassHandler) FindAll(c *gin.Context) {
 		return
 	}
 
-	var data []dto.ClassResponseDTO
+	data := []dto.ClassResponseDTO{}
 	for _, cls := range classes {
 		data = append(data, h.mapToResponse(cls))
 	}
