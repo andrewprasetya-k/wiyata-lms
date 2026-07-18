@@ -1,3 +1,6 @@
+import type { SchoolHeader } from './adminAcademic'
+import type { SubjectClassHeader } from './assignment'
+
 export interface CreateAssignmentPayload {
   schoolId: string
   subjectClassId: string
@@ -17,12 +20,7 @@ export interface AssignmentCategory {
 }
 
 export interface SchoolCategoriesResponse {
-  school: {
-    schoolId: string
-    schoolName: string
-    schoolCode: string
-    schoolLogo?: string
-  }
+  school: SchoolHeader
   categories: AssignmentCategory[]
 }
 
@@ -71,15 +69,6 @@ export interface TeacherAssignmentHeader {
   deadline?: string
 }
 
-export interface TeacherSubjectClassHeader {
-  subjectClassId: string
-  subjectCode: string
-  subjectName?: string
-  subjectColor?: string
-  teacherId: string
-  teacherName?: string
-}
-
 export interface TeacherSubmissionGroup {
   assignment: TeacherAssignmentHeader
   submissionCount: number
@@ -97,7 +86,7 @@ export interface TeacherSubmissionSummary {
 }
 
 export interface TeacherSubjectClassSubmissionsResponse {
-  subjectClass: TeacherSubjectClassHeader
+  subjectClass: SubjectClassHeader
   assignments: TeacherSubmissionGroup[]
   summary: TeacherSubmissionSummary
 }

@@ -8,14 +8,14 @@ export interface SubjectClassItem {
   teacherName?: string;
 }
 
-export interface SubjectClassHeader {
+export interface ClassHeader {
   classId: string;
   classTitle: string;
   classCode: string;
 }
 
 export interface SubjectClassesByClassResponse {
-  class: SubjectClassHeader;
+  class: ClassHeader;
   subjects: SubjectClassItem[];
 }
 
