@@ -20,14 +20,6 @@ export async function createComment(payload: CreateCommentPayload) {
   return data;
 }
 
-export async function updateComment(commentId: string, content: string) {
-  const { data } = await api.patch<{ message: string }>(
-    `/comments/${commentId}`,
-    { content },
-  );
-  return data;
-}
-
 export async function deleteComment(commentId: string) {
   const { data } = await api.delete<{ message: string }>(
     `/comments/${commentId}`,

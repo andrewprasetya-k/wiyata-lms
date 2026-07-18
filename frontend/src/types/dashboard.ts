@@ -1,26 +1,3 @@
-export interface StudentDeadline {
-  assignmentId: string
-  assignmentTitle: string
-  subjectName: string
-  deadline: string
-  isSubmitted: boolean
-}
-
-export interface StudentDashboardSummary {
-  pendingAssignments: number
-  upcomingDeadlines: StudentDeadline[]
-  averageScore: number
-  completedMaterials: number
-  totalMaterials: number
-}
-
-export interface EnrollmentClass {
-  classId?: string
-  classTitle?: string
-  classCode?: string
-  subjectName?: string
-}
-
 export interface NotificationItem {
   notificationId: string
   type: string

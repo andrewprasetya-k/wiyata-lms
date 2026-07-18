@@ -1,7 +1,6 @@
 import { api } from "./api";
 import type {
   AdminUserPaginatedResponse,
-  EnrollUserToSchoolPayload,
   RoleItem,
   SchoolMembersResponse,
   SyncUserRolesPayload,
@@ -29,11 +28,6 @@ export async function getSchoolMembers(
       search: params.search || undefined,
     },
   });
-  return data;
-}
-
-export async function enrollUserToSchool(payload: EnrollUserToSchoolPayload) {
-  const { data } = await api.post("/school-users/enroll", payload);
   return data;
 }
 

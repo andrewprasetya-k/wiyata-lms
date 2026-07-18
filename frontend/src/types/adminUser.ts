@@ -39,11 +39,6 @@ export interface SchoolMembersResponse {
   };
 }
 
-export interface EnrollUserToSchoolPayload {
-  userId: string;
-  schoolId: string;
-}
-
 export interface RoleItem {
   roleId: string;
   roleName: string;

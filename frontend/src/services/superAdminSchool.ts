@@ -1,6 +1,5 @@
 import { api } from "./api";
 import type {
-  CreateSuperAdminSchoolPayload,
   SuperAdminSchoolBootstrapPayload,
   SuperAdminSchoolBootstrapResponse,
   SuperAdminSchoolSummary,
@@ -28,11 +27,6 @@ export async function getSuperAdminSchools(params: {
 
 export async function getSuperAdminSchoolSummary() {
   const { data } = await api.get<SuperAdminSchoolSummary>("/schools/summary");
-  return data;
-}
-
-export async function createSuperAdminSchool(payload: CreateSuperAdminSchoolPayload) {
-  const { data } = await api.post("/schools", payload);
   return data;
 }
 

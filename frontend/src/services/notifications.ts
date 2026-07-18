@@ -37,10 +37,3 @@ export async function markAllNotificationsAsRead() {
   )
   return data
 }
-
-export async function deleteNotification(notificationId: string) {
-  const { data } = await api.delete<{ message: string }>(
-    `/notifications/${notificationId}`,
-  )
-  return data
-}
