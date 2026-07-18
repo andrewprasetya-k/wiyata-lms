@@ -71,6 +71,8 @@ Backend code follows Handler → Service → Repository → Domain.
 - Repositories own GORM/SQL access.
 - Domain models define persisted structure and table names.
 
+Transaction ownership follows the same split: an operation confined to a single repository keeps its transaction inside that repository. An operation that must orchestrate several repositories atomically instead owns its transaction in the service layer, binding each repository to it with `repo.WithTx(tx)`. Services avoid raw GORM calls when an equivalent repository method already exists.
+
 Notifications and email are generally best-effort. The main DB action should succeed even when notification/email delivery fails, unless a specific workflow says otherwise.
 
 ## 6. Frontend Architecture

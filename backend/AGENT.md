@@ -44,6 +44,8 @@ This reports many files as not gofmt-formatted, including backend/cmd/api/main.g
    Use UUID internally and human-readable schoolCode/subjectCode externally; convert codes to IDs in service layer. Use centralized HandleError and HandleBindingError from backend/
    internal/handler/error_handler.go:13. Repositories should check RowsAffected == 0 on writes. Soft deletes are common. Response DTOs use app-specific JSON names like schoolId,
    schoolName, etc.
+   When a service must orchestrate multiple repositories inside one atomic transaction, the service owns the `db.Transaction(...)` block and binds each repository to it via
+   `repository.WithTx(tx)`. Repositories remain the only place for data access — services should not issue raw GORM queries when an equivalent repository method already exists.
 9. Potential Pitfalls
    Some docs say assignments belong to SubjectClass, but backend/schema.md:265 still shows asg_cls_id, while project context says asg_scl_id. Shell startup has an unrelated
    issue: /Users/andrewprasetya/.zprofile:13: unmatched " appears on every command. backend/tmp/main is a built binary artifact in the repo tree.

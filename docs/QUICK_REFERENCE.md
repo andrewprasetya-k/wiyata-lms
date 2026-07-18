@@ -119,6 +119,29 @@ for mediaID := range newMediaIDs {
 // Delete: Attachment orphaned (manual cleanup only)
 ```
 
+### Transaction Composition
+```go
+// Single repository: the repository owns the transaction.
+func (r *xRepository) DoThing() error {
+  return r.db.Transaction(func(tx *gorm.DB) error {
+    // ...
+    return nil
+  })
+}
+
+// Multiple repositories: the service owns the transaction and binds
+// each repository to it via WithTx(tx).
+s.db.Transaction(func(tx *gorm.DB) error {
+  if err := s.repoA.WithTx(tx).DoA(); err != nil {
+    return err
+  }
+  if err := s.repoB.WithTx(tx).DoB(); err != nil {
+    return err
+  }
+  return s.repoC.WithTx(tx).DoC()
+})
+```
+
 ### Multipart Form Handling (MaterialHandler)
 ```go
 // Two flows:
