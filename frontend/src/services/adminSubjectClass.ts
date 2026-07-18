@@ -1,14 +1,15 @@
 import { api } from "./api";
+import { getSubjectClassesByClass as getSubjectClassesByClassWorkspace } from "./classWorkspace";
 import type {
   AssignSubjectClassPayload,
   SubjectClassesByClassResponse,
 } from "../types/adminSubjectClass";
 
-export async function getSubjectClassesByClass(classId: string) {
-  const { data } = await api.get<SubjectClassesByClassResponse>(
-    `/subject-classes/class/${classId}`,
-  );
-  return data;
+
+export async function getSubjectClassesByClass(
+  classId: string,
+): Promise<SubjectClassesByClassResponse> {
+  return getSubjectClassesByClassWorkspace(classId);
 }
 
 export async function assignSubjectClass(payload: AssignSubjectClassPayload) {
