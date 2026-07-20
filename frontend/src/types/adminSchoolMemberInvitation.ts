@@ -32,3 +32,11 @@ export interface CreateSchoolMemberInvitationResponse {
   acceptUrl: string;
   token: string;
 }
+
+export interface SchoolMemberInvitationListResponse {
+  data: SchoolMemberInvitationItem[];
+  totalItems: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
