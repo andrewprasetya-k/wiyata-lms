@@ -9,6 +9,7 @@ import {
   PhClipboardText,
   PhClockCountdown,
   PhEnvelopeSimple,
+  PhScales,
   PhUsers,
   PhWarningCircle,
 } from "@phosphor-icons/vue";
@@ -68,6 +69,20 @@ const classesWithoutTeacher = computed(
 );
 const classesWithoutTeacherTotal = computed(
   () => stats.value?.classesWithoutTeacherTotal ?? 0,
+);
+
+const contentLessSubjectClasses = computed(
+  () => stats.value?.contentLessSubjectClasses ?? [],
+);
+const contentLessSubjectClassesTotal = computed(
+  () => stats.value?.contentLessSubjectClassesTotal ?? 0,
+);
+
+const subjectsWithoutAssessmentWeight = computed(
+  () => stats.value?.subjectsWithoutAssessmentWeight ?? [],
+);
+const subjectsWithoutAssessmentWeightTotal = computed(
+  () => stats.value?.subjectsWithoutAssessmentWeightTotal ?? 0,
 );
 
 const needsAttentionLoading = computed(
@@ -493,6 +508,139 @@ onMounted(() => {
                 class="min-w-0 flex-1 truncate text-sm font-medium text-foreground"
               >
                 {{ klass.className }}
+              </p>
+              <PhArrowRight :size="14" class="shrink-0 text-border-strong" />
+            </RouterLink>
+          </div>
+        </section>
+
+        <!-- SECTION 1E — Work Queue: Subject-classes without content -->
+        <section class="rounded-xl border border-border bg-surface shadow-sm p-5">
+          <div class="mb-4 flex items-center justify-between gap-3">
+            <div>
+              <h2 class="text-sm font-semibold text-foreground">
+                Subject-Class Tanpa Konten
+              </h2>
+              <p class="mt-0.5 text-xs text-muted">
+                Kelas dan mata pelajaran yang belum memiliki materi atau tugas.
+              </p>
+            </div>
+            <RouterLink
+              v-if="contentLessSubjectClassesTotal > 0"
+              to="/admin/subject-classes"
+              class="shrink-0 text-xs font-medium text-brand transition hover:text-brand-hover"
+            >
+              Lihat semua
+            </RouterLink>
+          </div>
+
+          <div v-if="loading" class="space-y-2">
+            <div
+              v-for="i in 3"
+              :key="i"
+              class="h-14 animate-pulse rounded-lg bg-surface-strong"
+            />
+          </div>
+
+          <div
+            v-else-if="errorMessage"
+            class="rounded-lg bg-surface-subtle p-4 text-sm leading-6 text-muted"
+          >
+            Subject-class tanpa konten belum bisa dimuat.
+          </div>
+
+          <div
+            v-else-if="contentLessSubjectClasses.length === 0"
+            class="rounded-lg bg-surface-subtle px-4 py-8 text-center"
+          >
+            <PhBookOpen
+              class="mx-auto h-7 w-7 text-border-strong"
+              weight="duotone"
+            />
+            <p class="mt-3 text-sm font-medium text-foreground">
+              Semua subject-class sudah memiliki konten.
+            </p>
+          </div>
+
+          <div v-else class="divide-y divide-[#f3f4f6]">
+            <RouterLink
+              v-for="item in contentLessSubjectClasses"
+              :key="item.subjectClassId"
+              to="/admin/subject-classes"
+              class="flex items-center justify-between gap-3 py-2.5 first:pt-0 last:pb-0"
+            >
+              <div class="min-w-0 flex-1">
+                <p class="truncate text-sm font-medium text-foreground">
+                  {{ item.subjectName }}
+                </p>
+                <p class="mt-0.5 truncate text-xs text-muted">
+                  {{ item.className }}
+                </p>
+              </div>
+              <PhArrowRight :size="14" class="shrink-0 text-border-strong" />
+            </RouterLink>
+          </div>
+        </section>
+
+        <!-- SECTION 1F — Work Queue: Subjects without assessment weight -->
+        <section class="rounded-xl border border-border bg-surface shadow-sm p-5">
+          <div class="mb-4 flex items-center justify-between gap-3">
+            <div>
+              <h2 class="text-sm font-semibold text-foreground">
+                Mata Pelajaran Belum Dikonfigurasi
+              </h2>
+              <p class="mt-0.5 text-xs text-muted">
+                Mata pelajaran yang belum memiliki bobot penilaian.
+              </p>
+            </div>
+            <RouterLink
+              v-if="subjectsWithoutAssessmentWeightTotal > 0"
+              to="/admin/subject-classes"
+              class="shrink-0 text-xs font-medium text-brand transition hover:text-brand-hover"
+            >
+              Lihat semua
+            </RouterLink>
+          </div>
+
+          <div v-if="loading" class="space-y-2">
+            <div
+              v-for="i in 3"
+              :key="i"
+              class="h-14 animate-pulse rounded-lg bg-surface-strong"
+            />
+          </div>
+
+          <div
+            v-else-if="errorMessage"
+            class="rounded-lg bg-surface-subtle p-4 text-sm leading-6 text-muted"
+          >
+            Mata pelajaran belum dikonfigurasi belum bisa dimuat.
+          </div>
+
+          <div
+            v-else-if="subjectsWithoutAssessmentWeight.length === 0"
+            class="rounded-lg bg-surface-subtle px-4 py-8 text-center"
+          >
+            <PhScales
+              class="mx-auto h-7 w-7 text-border-strong"
+              weight="duotone"
+            />
+            <p class="mt-3 text-sm font-medium text-foreground">
+              Semua mata pelajaran sudah dikonfigurasi.
+            </p>
+          </div>
+
+          <div v-else class="divide-y divide-[#f3f4f6]">
+            <RouterLink
+              v-for="subject in subjectsWithoutAssessmentWeight"
+              :key="subject.subjectId"
+              to="/admin/subject-classes"
+              class="flex items-center justify-between gap-3 py-2.5 first:pt-0 last:pb-0"
+            >
+              <p
+                class="min-w-0 flex-1 truncate text-sm font-medium text-foreground"
+              >
+                {{ subject.subjectName }}
               </p>
               <PhArrowRight :size="14" class="shrink-0 text-border-strong" />
             </RouterLink>

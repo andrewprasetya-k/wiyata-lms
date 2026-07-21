@@ -16,6 +16,17 @@ export interface AdminClassWithoutTeacher {
   className: string
 }
 
+export interface AdminContentLessSubjectClass {
+  subjectClassId: string
+  className: string
+  subjectName: string
+}
+
+export interface AdminSubjectWithoutAssessmentWeight {
+  subjectId: string
+  subjectName: string
+}
+
 export interface AdminDashboardSummary {
   totalStudents: number
   totalTeachers: number
@@ -25,4 +36,8 @@ export interface AdminDashboardSummary {
   recentActivities: AdminRecentActivity[]
   classesWithoutTeacher: AdminClassWithoutTeacher[]
   classesWithoutTeacherTotal: number
+  contentLessSubjectClasses: AdminContentLessSubjectClass[]
+  contentLessSubjectClassesTotal: number
+  subjectsWithoutAssessmentWeight: AdminSubjectWithoutAssessmentWeight[]
+  subjectsWithoutAssessmentWeightTotal: number
 }

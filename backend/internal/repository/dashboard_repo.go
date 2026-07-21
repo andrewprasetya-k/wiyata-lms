@@ -22,6 +22,8 @@ type DashboardRepository interface {
 	GetEnrollmentTrends(schoolID string) ([]map[string]interface{}, error)
 	GetRecentActivities(schoolID string, limit int) ([]map[string]interface{}, error)
 	GetClassesWithoutTeacher(schoolID string, limit int) (items []map[string]interface{}, total int, err error)
+	GetContentLessSubjectClasses(schoolID string, limit int) (items []map[string]interface{}, total int, err error)
+	GetSubjectsWithoutAssessmentWeight(schoolID string, limit int) (items []map[string]interface{}, total int, err error)
 
 	// Super Admin
 	GetSchoolsWithoutAdmin(limit int) (items []map[string]interface{}, total int, err error)
@@ -264,9 +266,69 @@ func (r *dashboardRepository) GetClassesWithoutTeacher(schoolID string, limit in
 	return results, int(total), err
 }
 
-// GetSchoolsWithoutAdmin finds active schools with zero active school_users
-// holding the "admin" role. user_roles has no soft-delete column, so only
-// school_users.deleted_at needs to be checked.
+func (r *dashboardRepository) GetContentLessSubjectClasses(schoolID string, limit int) ([]map[string]interface{}, int, error) {
+	var results []map[string]interface{}
+	err := r.db.Raw(`
+		SELECT sc.scl_id as subject_class_id, c.cls_title as class_name, sub.sub_name as subject_name
+		FROM edv.subject_classes sc
+		JOIN edv.classes c ON sc.scl_cls_id = c.cls_id
+		JOIN edv.subjects sub ON sc.scl_sub_id = sub.sub_id
+		LEFT JOIN edv.materials m ON m.mat_scl_id = sc.scl_id AND m.mat_sch_id = ? AND m.deleted_at IS NULL
+		LEFT JOIN edv.assignments a ON a.asg_scl_id = sc.scl_id AND a.asg_sch_id = ? AND a.deleted_at IS NULL
+		WHERE c.cls_sch_id = ? AND c.deleted_at IS NULL AND c.is_active = true
+		GROUP BY sc.scl_id, c.cls_title, sub.sub_name
+		HAVING COUNT(m.mat_id) = 0 AND COUNT(a.asg_id) = 0
+		ORDER BY c.cls_title, sub.sub_name
+		LIMIT ?
+	`, schoolID, schoolID, schoolID, limit).Scan(&results).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	var total int64
+	err = r.db.Raw(`
+		SELECT COUNT(*) FROM (
+			SELECT sc.scl_id
+			FROM edv.subject_classes sc
+			JOIN edv.classes c ON sc.scl_cls_id = c.cls_id
+			LEFT JOIN edv.materials m ON m.mat_scl_id = sc.scl_id AND m.mat_sch_id = ? AND m.deleted_at IS NULL
+			LEFT JOIN edv.assignments a ON a.asg_scl_id = sc.scl_id AND a.asg_sch_id = ? AND a.deleted_at IS NULL
+			WHERE c.cls_sch_id = ? AND c.deleted_at IS NULL AND c.is_active = true
+			GROUP BY sc.scl_id
+			HAVING COUNT(m.mat_id) = 0 AND COUNT(a.asg_id) = 0
+		) content_less
+	`, schoolID, schoolID, schoolID).Scan(&total).Error
+	return results, int(total), err
+}
+
+func (r *dashboardRepository) GetSubjectsWithoutAssessmentWeight(schoolID string, limit int) ([]map[string]interface{}, int, error) {
+	var results []map[string]interface{}
+	err := r.db.Raw(`
+		SELECT sub.sub_id as subject_id, sub.sub_name as subject_name
+		FROM edv.subjects sub
+		WHERE sub.sub_sch_id = ?
+			AND NOT EXISTS (
+				SELECT 1 FROM edv.assessments_weights aw WHERE aw.asw_sub_id = sub.sub_id
+			)
+		ORDER BY sub.created_at DESC
+		LIMIT ?
+	`, schoolID, limit).Scan(&results).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	var total int64
+	err = r.db.Raw(`
+		SELECT COUNT(*)
+		FROM edv.subjects sub
+		WHERE sub.sub_sch_id = ?
+			AND NOT EXISTS (
+				SELECT 1 FROM edv.assessments_weights aw WHERE aw.asw_sub_id = sub.sub_id
+			)
+	`, schoolID).Scan(&total).Error
+	return results, int(total), err
+}
+
 func (r *dashboardRepository) GetSchoolsWithoutAdmin(limit int) ([]map[string]interface{}, int, error) {
 	var results []map[string]interface{}
 	err := r.db.Raw(`

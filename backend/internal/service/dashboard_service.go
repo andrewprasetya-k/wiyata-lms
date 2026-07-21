@@ -189,15 +189,46 @@ func (s *dashboardService) GetAdminDashboard(schoolID string) (*dto.AdminDashboa
 		})
 	}
 
+	contentLessSubjectClasses, contentLessSubjectClassesTotal, err := s.repo.GetContentLessSubjectClasses(schoolID, 5)
+	if err != nil {
+		return nil, err
+	}
+
+	var contentLessSubjectClassDTOs []dto.ContentLessSubjectClassDTO
+	for _, c := range contentLessSubjectClasses {
+		contentLessSubjectClassDTOs = append(contentLessSubjectClassDTOs, dto.ContentLessSubjectClassDTO{
+			SubjectClassID: c["subject_class_id"].(string),
+			ClassName:      c["class_name"].(string),
+			SubjectName:    c["subject_name"].(string),
+		})
+	}
+
+	subjectsWithoutWeight, subjectsWithoutWeightTotal, err := s.repo.GetSubjectsWithoutAssessmentWeight(schoolID, 5)
+	if err != nil {
+		return nil, err
+	}
+
+	var subjectsWithoutWeightDTOs []dto.SubjectWithoutAssessmentWeightDTO
+	for _, sub := range subjectsWithoutWeight {
+		subjectsWithoutWeightDTOs = append(subjectsWithoutWeightDTOs, dto.SubjectWithoutAssessmentWeightDTO{
+			SubjectID:   sub["subject_id"].(string),
+			SubjectName: sub["subject_name"].(string),
+		})
+	}
+
 	return &dto.AdminDashboardDTO{
-		TotalStudents:              stats["totalStudents"],
-		TotalTeachers:              stats["totalTeachers"],
-		TotalClasses:               stats["totalClasses"],
-		ActiveClasses:              stats["activeClasses"],
-		EnrollmentTrends:           enrollmentTrends,
-		RecentActivities:           recentActivities,
-		ClassesWithoutTeacher:      classesWithoutTeacherDTOs,
-		ClassesWithoutTeacherTotal: classesWithoutTeacherTotal,
+		TotalStudents:                        stats["totalStudents"],
+		TotalTeachers:                        stats["totalTeachers"],
+		TotalClasses:                         stats["totalClasses"],
+		ActiveClasses:                        stats["activeClasses"],
+		EnrollmentTrends:                     enrollmentTrends,
+		RecentActivities:                     recentActivities,
+		ClassesWithoutTeacher:                classesWithoutTeacherDTOs,
+		ClassesWithoutTeacherTotal:           classesWithoutTeacherTotal,
+		ContentLessSubjectClasses:            contentLessSubjectClassDTOs,
+		ContentLessSubjectClassesTotal:       contentLessSubjectClassesTotal,
+		SubjectsWithoutAssessmentWeight:      subjectsWithoutWeightDTOs,
+		SubjectsWithoutAssessmentWeightTotal: subjectsWithoutWeightTotal,
 	}, nil
 }
 

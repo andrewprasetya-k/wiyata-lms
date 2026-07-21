@@ -35,14 +35,18 @@ type ClassPerformanceDTO struct {
 
 // Admin Dashboard
 type AdminDashboardDTO struct {
-	TotalStudents              int                      `json:"totalStudents"`
-	TotalTeachers              int                      `json:"totalTeachers"`
-	TotalClasses               int                      `json:"totalClasses"`
-	ActiveClasses              int                      `json:"activeClasses"`
-	EnrollmentTrends           []EnrollmentTrendDTO     `json:"enrollmentTrends"`
-	RecentActivities           []ActivityLogDTO         `json:"recentActivities"`
-	ClassesWithoutTeacher      []ClassWithoutTeacherDTO `json:"classesWithoutTeacher"`
-	ClassesWithoutTeacherTotal int                      `json:"classesWithoutTeacherTotal"`
+	TotalStudents                        int                                 `json:"totalStudents"`
+	TotalTeachers                        int                                 `json:"totalTeachers"`
+	TotalClasses                         int                                 `json:"totalClasses"`
+	ActiveClasses                        int                                 `json:"activeClasses"`
+	EnrollmentTrends                     []EnrollmentTrendDTO                `json:"enrollmentTrends"`
+	RecentActivities                     []ActivityLogDTO                    `json:"recentActivities"`
+	ClassesWithoutTeacher                []ClassWithoutTeacherDTO            `json:"classesWithoutTeacher"`
+	ClassesWithoutTeacherTotal           int                                 `json:"classesWithoutTeacherTotal"`
+	ContentLessSubjectClasses            []ContentLessSubjectClassDTO        `json:"contentLessSubjectClasses"`
+	ContentLessSubjectClassesTotal       int                                 `json:"contentLessSubjectClassesTotal"`
+	SubjectsWithoutAssessmentWeight      []SubjectWithoutAssessmentWeightDTO `json:"subjectsWithoutAssessmentWeight"`
+	SubjectsWithoutAssessmentWeightTotal int                                 `json:"subjectsWithoutAssessmentWeightTotal"`
 }
 
 type EnrollmentTrendDTO struct {
@@ -61,6 +65,17 @@ type ActivityLogDTO struct {
 type ClassWithoutTeacherDTO struct {
 	ClassID   string `json:"classId"`
 	ClassName string `json:"className"`
+}
+
+type ContentLessSubjectClassDTO struct {
+	SubjectClassID string `json:"subjectClassId"`
+	ClassName      string `json:"className"`
+	SubjectName    string `json:"subjectName"`
+}
+
+type SubjectWithoutAssessmentWeightDTO struct {
+	SubjectID   string `json:"subjectId"`
+	SubjectName string `json:"subjectName"`
 }
 
 // Super Admin Dashboard
