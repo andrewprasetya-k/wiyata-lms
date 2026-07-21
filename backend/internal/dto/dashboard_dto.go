@@ -47,6 +47,9 @@ type AdminDashboardDTO struct {
 	ContentLessSubjectClassesTotal       int                                 `json:"contentLessSubjectClassesTotal"`
 	SubjectsWithoutAssessmentWeight      []SubjectWithoutAssessmentWeightDTO `json:"subjectsWithoutAssessmentWeight"`
 	SubjectsWithoutAssessmentWeightTotal int                                 `json:"subjectsWithoutAssessmentWeightTotal"`
+	BacklogTotal                         int                                 `json:"backlogTotal"`
+	BacklogClasses                       []GradingBacklogClassDTO            `json:"backlogClasses"`
+	SchoolPerformanceRollup              []ClassPerformanceDTO               `json:"schoolPerformanceRollup"`
 }
 
 type EnrollmentTrendDTO struct {
@@ -76,6 +79,12 @@ type ContentLessSubjectClassDTO struct {
 type SubjectWithoutAssessmentWeightDTO struct {
 	SubjectID   string `json:"subjectId"`
 	SubjectName string `json:"subjectName"`
+}
+
+type GradingBacklogClassDTO struct {
+	ClassID      string `json:"classId"`
+	ClassName    string `json:"className"`
+	BacklogCount int    `json:"backlogCount"`
 }
 
 // Super Admin Dashboard

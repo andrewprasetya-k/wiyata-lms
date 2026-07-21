@@ -24,6 +24,7 @@ type DashboardRepository interface {
 	GetClassesWithoutTeacher(schoolID string, limit int) (items []map[string]interface{}, total int, err error)
 	GetContentLessSubjectClasses(schoolID string, limit int) (items []map[string]interface{}, total int, err error)
 	GetSubjectsWithoutAssessmentWeight(schoolID string, limit int) (items []map[string]interface{}, total int, err error)
+	GetGradingBacklog(schoolID string, classLimit int) (total int, classes []map[string]interface{}, err error)
 
 	// Super Admin
 	GetSchoolsWithoutAdmin(limit int) (items []map[string]interface{}, total int, err error)
@@ -329,8 +330,88 @@ func (r *dashboardRepository) GetSubjectsWithoutAssessmentWeight(schoolID string
 	return results, int(total), err
 }
 
-func (r *dashboardRepository) GetSchoolsWithoutAdmin(limit int) ([]map[string]interface{}, int, error) {
+// GetGradingBacklog counts submissions still waiting for grading, using the
+// same "no matching assessments row" definition already established by
+// GetPendingReviewsCount (teacher dashboard), just scoped by school instead
+// of by teacher via assignments.asg_sch_id.
+func (r *dashboardRepository) GetGradingBacklog(schoolID string, classLimit int) (int, []map[string]interface{}, error) {
+	var total int64
+	err := r.db.Table("edv.submissions s").
+		Joins("JOIN edv.assignments a ON s.sbm_asg_id = a.asg_id").
+		Where("a.asg_sch_id = ? AND a.deleted_at IS NULL AND s.deleted_at IS NULL", schoolID).
+		Where("NOT EXISTS (SELECT 1 FROM edv.assessments asm WHERE asm.asm_sbm_id = s.sbm_id)").
+		Count(&total).Error
+	if err != nil {
+		return 0, nil, err
+	}
+
+	var classes []map[string]interface{}
+	err = r.db.Raw(`
+		SELECT c.cls_id as class_id, c.cls_title as class_name, COUNT(*) as backlog_count
+		FROM edv.submissions s
+		JOIN edv.assignments a ON s.sbm_asg_id = a.asg_id
+		JOIN edv.subject_classes sc ON a.asg_scl_id = sc.scl_id
+		JOIN edv.classes c ON sc.scl_cls_id = c.cls_id
+		WHERE a.asg_sch_id = ? AND a.deleted_at IS NULL AND s.deleted_at IS NULL AND c.deleted_at IS NULL
+			AND NOT EXISTS (SELECT 1 FROM edv.assessments asm WHERE asm.asm_sbm_id = s.sbm_id)
+		GROUP BY c.cls_id, c.cls_title
+		ORDER BY backlog_count DESC
+		LIMIT ?
+	`, schoolID, classLimit).Scan(&classes).Error
+	return int(total), classes, err
+}
+
+func (r *dashboardRepository) GetSchoolPerformanceRollup(schoolID string, limit int) ([]map[string]interface{}, error) {
 	var results []map[string]interface{}
+	err := r.db.Raw(`
+		SELECT
+			c.cls_id as class_id,
+			c.cls_title as class_name,
+			sub.sub_name as subject_name,
+			COALESCE(sub.sub_color, '') as subject_color,
+			COALESCE(AVG(asm.asm_score), 0) as average_score,
+			COUNT(DISTINCT e.enr_scu_id) as total_students,
+			COALESCE(
+				(
+					COUNT(DISTINCT CASE
+						WHEN s.sbm_id IS NOT NULL THEN CONCAT(a.asg_id::text, ':', e.enr_scu_id::text)
+					END)::float
+					/
+					NULLIF(COUNT(DISTINCT CASE
+						WHEN a.asg_id IS NOT NULL AND e.enr_scu_id IS NOT NULL THEN CONCAT(a.asg_id::text, ':', e.enr_scu_id::text)
+					END), 0)
+				) * 100,
+				0
+			) as submission_rate
+		FROM edv.subject_classes sc
+		JOIN edv.classes c ON sc.scl_cls_id = c.cls_id
+		JOIN edv.subjects sub ON sc.scl_sub_id = sub.sub_id
+		LEFT JOIN edv.enrollments e ON c.cls_id = e.enr_cls_id
+			AND e.enr_role = 'student'
+			AND e.left_at IS NULL
+			AND e.enr_sch_id = c.cls_sch_id
+		LEFT JOIN edv.school_users student_scu ON student_scu.scu_id = e.enr_scu_id
+			AND student_scu.scu_sch_id = c.cls_sch_id
+			AND student_scu.deleted_at IS NULL
+		LEFT JOIN edv.assignments a ON sc.scl_id = a.asg_scl_id
+			AND a.asg_sch_id = c.cls_sch_id
+			AND a.deleted_at IS NULL
+		LEFT JOIN edv.submissions s ON a.asg_id = s.sbm_asg_id
+			AND s.sbm_usr_id = student_scu.scu_usr_id
+			AND s.sbm_sch_id = c.cls_sch_id
+			AND s.deleted_at IS NULL
+		LEFT JOIN edv.assessments asm ON s.sbm_id = asm.asm_sbm_id
+		WHERE c.cls_sch_id = ? AND c.deleted_at IS NULL AND c.is_active = true
+		GROUP BY sc.scl_id, c.cls_id, c.cls_title, sub.sub_name, sub.sub_color
+		HAVING COUNT(asm.asm_id) > 0
+		ORDER BY average_score ASC
+		LIMIT ?
+	`, schoolID, limit).Scan(&results).Error
+	return results, err
+}
+
+func (r *dashboardRepository) GetSchoolsWithoutAdmin(limit int) ([]map[string]interface{}, int, error) {
+	var results []map[string]any
 	err := r.db.Raw(`
 		SELECT s.sch_id as school_id, s.sch_name as school_name, s.sch_code as school_code, s.created_at as created_at
 		FROM edv.schools s

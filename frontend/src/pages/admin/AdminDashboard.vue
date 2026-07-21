@@ -9,6 +9,7 @@ import {
   PhClipboardText,
   PhClockCountdown,
   PhEnvelopeSimple,
+  PhListChecks,
   PhScales,
   PhUsers,
   PhWarningCircle,
@@ -85,11 +86,14 @@ const subjectsWithoutAssessmentWeightTotal = computed(
   () => stats.value?.subjectsWithoutAssessmentWeightTotal ?? 0,
 );
 
+const backlogTotal = computed(() => stats.value?.backlogTotal ?? 0);
+const backlogClasses = computed(() => stats.value?.backlogClasses ?? []);
+
 const needsAttentionLoading = computed(
   () => loading.value || invitationsLoading.value,
 );
-const needsAttentionPartialError = computed(
-  () => Boolean(errorMessage.value || invitationsError.value),
+const needsAttentionPartialError = computed(() =>
+  Boolean(errorMessage.value || invitationsError.value),
 );
 const hasAttentionItems = computed(
   () =>
@@ -263,112 +267,116 @@ onMounted(() => {
           </div>
 
           <template v-else>
-          <RouterLink
-            v-if="academicSetupIncomplete"
-            to="/admin/academic-years"
-            class="flex items-start gap-3 rounded-xl border border-warning-line bg-warning-soft p-4 transition hover:brightness-95"
-          >
-            <PhWarningCircle
-              :size="20"
-              weight="duotone"
-              class="mt-0.5 shrink-0 text-[#ea580c]"
-            />
-            <div class="min-w-0 flex-1">
-              <p class="text-sm font-medium text-foreground">
-                Tahun ajaran atau semester aktif belum diatur
-              </p>
-              <p class="mt-0.5 text-xs text-muted">
-                Sebagian fitur akademik memerlukan tahun ajaran dan semester
-                aktif. Atur sekarang.
-              </p>
-            </div>
-            <PhArrowRight :size="14" class="mt-1 shrink-0 text-[#ea580c]" />
-          </RouterLink>
+            <RouterLink
+              v-if="academicSetupIncomplete"
+              to="/admin/academic-years"
+              class="flex items-start gap-3 rounded-xl border border-warning-line bg-warning-soft p-4 transition hover:brightness-95"
+            >
+              <PhWarningCircle
+                :size="20"
+                weight="duotone"
+                class="mt-0.5 shrink-0 text-[#ea580c]"
+              />
+              <div class="min-w-0 flex-1">
+                <p class="text-sm font-medium text-foreground">
+                  Tahun ajaran atau semester aktif belum diatur
+                </p>
+                <p class="mt-0.5 text-xs text-muted">
+                  Sebagian fitur akademik memerlukan tahun ajaran dan semester
+                  aktif. Atur sekarang.
+                </p>
+              </div>
+              <PhArrowRight :size="14" class="mt-1 shrink-0 text-[#ea580c]" />
+            </RouterLink>
 
-          <RouterLink
-            v-if="pendingInvitations.length > 0"
-            to="/admin/users"
-            class="flex items-start gap-3 rounded-xl border p-4 transition hover:brightness-95"
-            :class="
-              invitationsExpiringSoon.length > 0
-                ? 'border-danger-line bg-danger-soft'
-                : 'border-warning-line bg-warning-soft'
-            "
-          >
-            <PhEnvelopeSimple
-              :size="20"
-              weight="duotone"
-              class="mt-0.5 shrink-0"
+            <RouterLink
+              v-if="pendingInvitations.length > 0"
+              to="/admin/users"
+              class="flex items-start gap-3 rounded-xl border p-4 transition hover:brightness-95"
               :class="
                 invitationsExpiringSoon.length > 0
-                  ? 'text-danger'
-                  : 'text-[#ea580c]'
+                  ? 'border-danger-line bg-danger-soft'
+                  : 'border-warning-line bg-warning-soft'
               "
-            />
-            <div class="min-w-0 flex-1">
+            >
+              <PhEnvelopeSimple
+                :size="20"
+                weight="duotone"
+                class="mt-0.5 shrink-0"
+                :class="
+                  invitationsExpiringSoon.length > 0
+                    ? 'text-danger'
+                    : 'text-[#ea580c]'
+                "
+              />
+              <div class="min-w-0 flex-1">
+                <p class="text-sm font-medium text-foreground">
+                  {{ pendingInvitations.length }} undangan menunggu diterima
+                </p>
+                <p class="mt-0.5 text-xs text-muted">
+                  <template v-if="invitationsExpiringSoon.length > 0">
+                    Termasuk {{ invitationsExpiringSoon.length }} undangan yang
+                    akan kedaluwarsa dalam 48 jam.
+                  </template>
+                  <template v-else>
+                    Undangan akan kedaluwarsa otomatis jika tidak diterima.
+                  </template>
+                </p>
+              </div>
+              <PhArrowRight
+                :size="14"
+                class="mt-1 shrink-0"
+                :class="
+                  invitationsExpiringSoon.length > 0
+                    ? 'text-danger'
+                    : 'text-[#ea580c]'
+                "
+              />
+            </RouterLink>
+
+            <RouterLink
+              v-if="classesWithoutTeacherTotal > 0"
+              to="/admin/classes"
+              class="flex items-start gap-3 rounded-xl border border-warning-line bg-warning-soft p-4 transition hover:brightness-95"
+            >
+              <PhChalkboardTeacher
+                :size="20"
+                weight="duotone"
+                class="mt-0.5 shrink-0 text-[#ea580c]"
+              />
+              <div class="min-w-0 flex-1">
+                <p class="text-sm font-medium text-foreground">
+                  {{ classesWithoutTeacherTotal }} kelas belum memiliki guru
+                </p>
+                <p class="mt-0.5 text-xs text-muted">
+                  Kelas ini belum bisa memulai pembelajaran sampai guru
+                  ditugaskan.
+                </p>
+              </div>
+              <PhArrowRight :size="14" class="mt-1 shrink-0 text-[#ea580c]" />
+            </RouterLink>
+
+            <div
+              v-if="!hasAttentionItems && !needsAttentionPartialError"
+              class="flex items-center gap-3 rounded-xl border border-success-line bg-success-soft p-4"
+            >
+              <PhCheckCircle
+                :size="20"
+                weight="duotone"
+                class="shrink-0 text-success"
+              />
               <p class="text-sm font-medium text-foreground">
-                {{ pendingInvitations.length }} undangan menunggu diterima
-              </p>
-              <p class="mt-0.5 text-xs text-muted">
-                <template v-if="invitationsExpiringSoon.length > 0">
-                  Termasuk {{ invitationsExpiringSoon.length }} undangan yang
-                  akan kedaluwarsa dalam 48 jam.
-                </template>
-                <template v-else>
-                  Undangan akan kedaluwarsa otomatis jika tidak diterima.
-                </template>
+                Semua beres. Tidak ada yang perlu ditindaklanjuti saat ini.
               </p>
             </div>
-            <PhArrowRight
-              :size="14"
-              class="mt-1 shrink-0"
-              :class="
-                invitationsExpiringSoon.length > 0
-                  ? 'text-danger'
-                  : 'text-[#ea580c]'
-              "
-            />
-          </RouterLink>
 
-          <RouterLink
-            v-if="classesWithoutTeacherTotal > 0"
-            to="/admin/classes"
-            class="flex items-start gap-3 rounded-xl border border-warning-line bg-warning-soft p-4 transition hover:brightness-95"
-          >
-            <PhChalkboardTeacher
-              :size="20"
-              weight="duotone"
-              class="mt-0.5 shrink-0 text-[#ea580c]"
-            />
-            <div class="min-w-0 flex-1">
-              <p class="text-sm font-medium text-foreground">
-                {{ classesWithoutTeacherTotal }} kelas belum memiliki guru
-              </p>
-              <p class="mt-0.5 text-xs text-muted">
-                Kelas ini belum bisa memulai pembelajaran sampai guru
-                ditugaskan.
-              </p>
+            <div
+              v-else-if="!hasAttentionItems && needsAttentionPartialError"
+              class="rounded-xl border border-border bg-surface-subtle p-4 text-sm leading-6 text-muted"
+            >
+              Sebagian data belum bisa dimuat, jadi status di atas mungkin belum
+              lengkap.
             </div>
-            <PhArrowRight :size="14" class="mt-1 shrink-0 text-[#ea580c]" />
-          </RouterLink>
-
-          <div
-            v-if="!hasAttentionItems && !needsAttentionPartialError"
-            class="flex items-center gap-3 rounded-xl border border-success-line bg-success-soft p-4"
-          >
-            <PhCheckCircle :size="20" weight="duotone" class="shrink-0 text-success" />
-            <p class="text-sm font-medium text-foreground">
-              Semua beres. Tidak ada yang perlu ditindaklanjuti saat ini.
-            </p>
-          </div>
-
-          <div
-            v-else-if="!hasAttentionItems && needsAttentionPartialError"
-            class="rounded-xl border border-border bg-surface-subtle p-4 text-sm leading-6 text-muted"
-          >
-            Sebagian data belum bisa dimuat, jadi status di atas mungkin belum
-            lengkap.
-          </div>
           </template>
         </section>
 
@@ -515,7 +523,9 @@ onMounted(() => {
         </section>
 
         <!-- SECTION 1E — Work Queue: Subject-classes without content -->
-        <section class="rounded-xl border border-border bg-surface shadow-sm p-5">
+        <section
+          class="rounded-xl border border-border bg-surface shadow-sm p-5"
+        >
           <div class="mb-4 flex items-center justify-between gap-3">
             <div>
               <h2 class="text-sm font-semibold text-foreground">
@@ -583,7 +593,9 @@ onMounted(() => {
         </section>
 
         <!-- SECTION 1F — Work Queue: Subjects without assessment weight -->
-        <section class="rounded-xl border border-border bg-surface shadow-sm p-5">
+        <section
+          class="rounded-xl border border-border bg-surface shadow-sm p-5"
+        >
           <div class="mb-4 flex items-center justify-between gap-3">
             <div>
               <h2 class="text-sm font-semibold text-foreground">
@@ -644,6 +656,69 @@ onMounted(() => {
               </p>
               <PhArrowRight :size="14" class="shrink-0 text-border-strong" />
             </RouterLink>
+          </div>
+        </section>
+
+        <!-- SECTION 1G — Work Queue: Grading Backlog -->
+        <section
+          class="rounded-xl border border-border bg-surface shadow-sm p-5"
+        >
+          <div class="mb-4">
+            <h2 class="text-sm font-semibold text-foreground">
+              Antrean Penilaian
+            </h2>
+            <p class="mt-0.5 text-xs text-muted">
+              Pengumpulan tugas di seluruh sekolah yang menunggu dinilai.
+            </p>
+          </div>
+
+          <div v-if="loading" class="space-y-2">
+            <div class="h-8 w-20 animate-pulse rounded bg-surface-strong" />
+            <div class="h-10 animate-pulse rounded-lg bg-surface-strong" />
+          </div>
+
+          <div
+            v-else-if="errorMessage"
+            class="rounded-lg bg-surface-subtle p-4 text-sm leading-6 text-muted"
+          >
+            Antrean penilaian belum bisa dimuat.
+          </div>
+
+          <div
+            v-else-if="backlogTotal === 0"
+            class="rounded-lg bg-surface-subtle px-4 py-8 text-center"
+          >
+            <PhListChecks
+              class="mx-auto h-7 w-7 text-border-strong"
+              weight="duotone"
+            />
+            <p class="mt-3 text-sm font-medium text-foreground">
+              Semua penilaian sudah selesai.
+            </p>
+          </div>
+
+          <div v-else>
+            <p class="text-2xl font-semibold text-foreground">
+              {{ backlogTotal }}
+            </p>
+            <p class="mt-1 text-xs text-muted">pengumpulan menunggu dinilai</p>
+
+            <div class="mt-4 divide-y divide-[#f3f4f6]">
+              <div
+                v-for="klass in backlogClasses"
+                :key="klass.classId"
+                class="flex items-center justify-between gap-3 py-2.5 first:pt-0 last:pb-0"
+              >
+                <p
+                  class="min-w-0 flex-1 truncate text-sm font-medium text-foreground"
+                >
+                  {{ klass.className }}
+                </p>
+                <span class="shrink-0 text-xs text-muted">
+                  {{ klass.backlogCount }} menunggu
+                </span>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -782,7 +857,9 @@ onMounted(() => {
             v-else-if="errorMessage"
             class="rounded-lg bg-surface-subtle px-3 py-5 text-center"
           >
-            <p class="text-xs text-muted">Distribusi kelas belum bisa dimuat.</p>
+            <p class="text-xs text-muted">
+              Distribusi kelas belum bisa dimuat.
+            </p>
           </div>
 
           <div

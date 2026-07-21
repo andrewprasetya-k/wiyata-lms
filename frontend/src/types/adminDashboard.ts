@@ -27,6 +27,22 @@ export interface AdminSubjectWithoutAssessmentWeight {
   subjectName: string
 }
 
+export interface AdminGradingBacklogClass {
+  classId: string
+  className: string
+  backlogCount: number
+}
+
+export interface AdminClassPerformance {
+  classId: string
+  className: string
+  subjectName: string
+  subjectColor?: string
+  averageScore: number
+  submissionRate: number
+  totalStudents: number
+}
+
 export interface AdminDashboardSummary {
   totalStudents: number
   totalTeachers: number
@@ -40,4 +56,7 @@ export interface AdminDashboardSummary {
   contentLessSubjectClassesTotal: number
   subjectsWithoutAssessmentWeight: AdminSubjectWithoutAssessmentWeight[]
   subjectsWithoutAssessmentWeightTotal: number
+  backlogTotal: number
+  backlogClasses: AdminGradingBacklogClass[]
+  schoolPerformanceRollup: AdminClassPerformance[]
 }

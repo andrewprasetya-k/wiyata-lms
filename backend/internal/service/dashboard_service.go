@@ -216,6 +216,20 @@ func (s *dashboardService) GetAdminDashboard(schoolID string) (*dto.AdminDashboa
 		})
 	}
 
+	backlogTotal, backlogClasses, err := s.repo.GetGradingBacklog(schoolID, 3)
+	if err != nil {
+		return nil, err
+	}
+
+	var backlogClassDTOs []dto.GradingBacklogClassDTO
+	for _, c := range backlogClasses {
+		backlogClassDTOs = append(backlogClassDTOs, dto.GradingBacklogClassDTO{
+			ClassID:      c["class_id"].(string),
+			ClassName:    c["class_name"].(string),
+			BacklogCount: int(c["backlog_count"].(int64)),
+		})
+	}
+
 	return &dto.AdminDashboardDTO{
 		TotalStudents:                        stats["totalStudents"],
 		TotalTeachers:                        stats["totalTeachers"],
@@ -229,6 +243,8 @@ func (s *dashboardService) GetAdminDashboard(schoolID string) (*dto.AdminDashboa
 		ContentLessSubjectClassesTotal:       contentLessSubjectClassesTotal,
 		SubjectsWithoutAssessmentWeight:      subjectsWithoutWeightDTOs,
 		SubjectsWithoutAssessmentWeightTotal: subjectsWithoutWeightTotal,
+		BacklogTotal:                         backlogTotal,
+		BacklogClasses:                       backlogClassDTOs,
 	}, nil
 }
 
