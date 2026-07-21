@@ -482,6 +482,7 @@ func main() {
 			dashboardAPI.GET("/student/:userId", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "student"), dashboardHandler.GetStudentDashboard)
 			dashboardAPI.GET("/teacher/:schoolUserId", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "teacher"), dashboardHandler.GetTeacherDashboard)
 			dashboardAPI.GET("/admin/:schoolId", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin"), dashboardHandler.GetAdminDashboard)
+			dashboardAPI.GET("/super-admin", middleware.RequireRole(schoolService, "super_admin"), dashboardHandler.GetSuperAdminDashboard)
 		}
 
 		activityAPI := api.Group("/academic-activity")

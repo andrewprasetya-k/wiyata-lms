@@ -35,12 +35,14 @@ type ClassPerformanceDTO struct {
 
 // Admin Dashboard
 type AdminDashboardDTO struct {
-	TotalStudents    int                  `json:"totalStudents"`
-	TotalTeachers    int                  `json:"totalTeachers"`
-	TotalClasses     int                  `json:"totalClasses"`
-	ActiveClasses    int                  `json:"activeClasses"`
-	EnrollmentTrends []EnrollmentTrendDTO `json:"enrollmentTrends"`
-	RecentActivities []ActivityLogDTO     `json:"recentActivities"`
+	TotalStudents              int                      `json:"totalStudents"`
+	TotalTeachers              int                      `json:"totalTeachers"`
+	TotalClasses               int                      `json:"totalClasses"`
+	ActiveClasses              int                      `json:"activeClasses"`
+	EnrollmentTrends           []EnrollmentTrendDTO     `json:"enrollmentTrends"`
+	RecentActivities           []ActivityLogDTO         `json:"recentActivities"`
+	ClassesWithoutTeacher      []ClassWithoutTeacherDTO `json:"classesWithoutTeacher"`
+	ClassesWithoutTeacherTotal int                      `json:"classesWithoutTeacherTotal"`
 }
 
 type EnrollmentTrendDTO struct {
@@ -54,4 +56,24 @@ type ActivityLogDTO struct {
 	UserName  string `json:"userName"`
 	Action    string `json:"action"`
 	Timestamp string `json:"timestamp"`
+}
+
+type ClassWithoutTeacherDTO struct {
+	ClassID   string `json:"classId"`
+	ClassName string `json:"className"`
+}
+
+// Super Admin Dashboard
+type SuperAdminDashboardDTO struct {
+	SchoolsWithoutAdmin      []SchoolNeedsAttentionDTO `json:"schoolsWithoutAdmin"`
+	SchoolsWithoutAdminTotal int                       `json:"schoolsWithoutAdminTotal"`
+	SchoolsWithoutSetup      []SchoolNeedsAttentionDTO `json:"schoolsWithoutSetup"`
+	SchoolsWithoutSetupTotal int                       `json:"schoolsWithoutSetupTotal"`
+}
+
+type SchoolNeedsAttentionDTO struct {
+	SchoolID   string `json:"schoolId"`
+	SchoolName string `json:"schoolName"`
+	SchoolCode string `json:"schoolCode"`
+	CreatedAt  string `json:"createdAt"`
 }

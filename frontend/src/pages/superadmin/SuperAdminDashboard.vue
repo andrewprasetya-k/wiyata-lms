@@ -1,22 +1,26 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import {
   PhArrowRight,
   PhBuildings,
+  PhCheckCircle,
   PhCompass,
   PhIdentificationBadge,
   PhShieldCheck,
   PhUsers,
+  PhWarningCircle,
 } from "@phosphor-icons/vue";
 import {
   getSuperAdminSchools,
   getSuperAdminSchoolSummary,
 } from "../../services/superAdminSchool";
 import { getAdminUsers } from "../../services/adminUser";
+import { getSuperAdminDashboard } from "../../services/superAdminDashboard";
 import type {
   SuperAdminSchoolItem,
   SuperAdminSchoolSummary,
 } from "../../types/superAdminSchool";
+import type { SuperAdminDashboardSummary } from "../../types/superAdminDashboard";
 import { formatDate } from "../../utils/date";
 
 const summary = ref<SuperAdminSchoolSummary | null>(null);
@@ -30,6 +34,23 @@ const recentSchoolsError = ref("");
 const totalUsers = ref<number | null>(null);
 const usersLoading = ref(true);
 const usersError = ref("");
+
+const attention = ref<SuperAdminDashboardSummary | null>(null);
+const attentionLoading = ref(true);
+const attentionError = ref("");
+
+const schoolsWithoutAdmin = computed(() => attention.value?.schoolsWithoutAdmin ?? []);
+const schoolsWithoutAdminTotal = computed(
+  () => attention.value?.schoolsWithoutAdminTotal ?? 0,
+);
+const schoolsWithoutSetup = computed(() => attention.value?.schoolsWithoutSetup ?? []);
+const schoolsWithoutSetupTotal = computed(
+  () => attention.value?.schoolsWithoutSetupTotal ?? 0,
+);
+
+const hasAttentionItems = computed(
+  () => schoolsWithoutAdminTotal.value > 0 || schoolsWithoutSetupTotal.value > 0,
+);
 
 async function loadSummary() {
   summaryLoading.value = true;
@@ -73,6 +94,19 @@ async function loadTotalUsers() {
     usersError.value = "Jumlah akun belum bisa dimuat.";
   } finally {
     usersLoading.value = false;
+  }
+}
+
+async function loadAttention() {
+  attentionLoading.value = true;
+  attentionError.value = "";
+  try {
+    attention.value = await getSuperAdminDashboard();
+  } catch {
+    attention.value = null;
+    attentionError.value = "Sekolah yang perlu tindak lanjut belum bisa dimuat.";
+  } finally {
+    attentionLoading.value = false;
   }
 }
 
@@ -140,6 +174,7 @@ onMounted(() => {
   loadSummary();
   loadRecentSchools();
   loadTotalUsers();
+  loadAttention();
 });
 </script>
 
@@ -177,6 +212,215 @@ onMounted(() => {
       class="grid w-full max-w-none gap-6 px-5 py-6 sm:px-6 lg:px-8 xl:grid-cols-[minmax(0,1fr)_340px]"
     >
       <div class="flex min-w-0 flex-col gap-6">
+        <!-- Needs Attention -->
+        <section class="space-y-2.5">
+          <h2 class="text-sm font-semibold text-foreground">Perlu Perhatian</h2>
+
+          <div
+            v-if="attentionLoading"
+            class="rounded-xl border border-border bg-surface shadow-sm p-4"
+          >
+            <div class="h-14 animate-pulse rounded-lg bg-surface-strong" />
+          </div>
+
+          <template v-else>
+          <RouterLink
+            v-if="schoolsWithoutAdminTotal > 0"
+            to="/superadmin/schools"
+            class="flex items-start gap-3 rounded-xl border border-warning-line bg-warning-soft p-4 transition hover:brightness-95"
+          >
+            <PhWarningCircle
+              :size="20"
+              weight="duotone"
+              class="mt-0.5 shrink-0 text-[#ea580c]"
+            />
+            <div class="min-w-0 flex-1">
+              <p class="text-sm font-medium text-foreground">
+                {{ schoolsWithoutAdminTotal }} sekolah belum memiliki admin
+              </p>
+              <p class="mt-0.5 text-xs text-muted">
+                Sekolah ini belum bisa melanjutkan pengaturan akademik tanpa
+                admin sekolah.
+              </p>
+            </div>
+            <PhArrowRight :size="14" class="mt-1 shrink-0 text-[#ea580c]" />
+          </RouterLink>
+
+          <RouterLink
+            v-if="schoolsWithoutSetupTotal > 0"
+            to="/superadmin/schools"
+            class="flex items-start gap-3 rounded-xl border border-warning-line bg-warning-soft p-4 transition hover:brightness-95"
+          >
+            <PhWarningCircle
+              :size="20"
+              weight="duotone"
+              class="mt-0.5 shrink-0 text-[#ea580c]"
+            />
+            <div class="min-w-0 flex-1">
+              <p class="text-sm font-medium text-foreground">
+                {{ schoolsWithoutSetupTotal }} sekolah belum memiliki tahun
+                ajaran aktif
+              </p>
+              <p class="mt-0.5 text-xs text-muted">
+                Admin sekolah belum menyelesaikan pengaturan tahun ajaran di
+                sekolah ini.
+              </p>
+            </div>
+            <PhArrowRight :size="14" class="mt-1 shrink-0 text-[#ea580c]" />
+          </RouterLink>
+
+          <div
+            v-if="!hasAttentionItems && !attentionError"
+            class="flex items-center gap-3 rounded-xl border border-success-line bg-success-soft p-4"
+          >
+            <PhCheckCircle :size="20" weight="duotone" class="shrink-0 text-success" />
+            <p class="text-sm font-medium text-foreground">
+              Semua beres. Tidak ada sekolah yang membutuhkan tindak lanjut.
+            </p>
+          </div>
+
+          <div
+            v-else-if="!hasAttentionItems && attentionError"
+            class="rounded-xl border border-border bg-surface-subtle p-4 text-sm leading-6 text-muted"
+          >
+            Sebagian data belum bisa dimuat, jadi status di atas mungkin belum
+            lengkap.
+          </div>
+          </template>
+        </section>
+
+        <!-- Work Queue: Schools without admin -->
+        <section class="rounded-xl border border-border bg-surface p-5 shadow-sm">
+          <div class="mb-4 flex items-center justify-between gap-3">
+            <div>
+              <p class="text-sm font-semibold text-foreground">
+                Sekolah Tanpa Admin
+              </p>
+              <p class="mt-0.5 text-xs text-muted">
+                Sekolah aktif yang belum memiliki akun dengan peran admin.
+              </p>
+            </div>
+            <RouterLink
+              v-if="schoolsWithoutAdminTotal > 0"
+              to="/superadmin/schools"
+              class="shrink-0 text-xs font-medium text-brand transition hover:text-brand-hover"
+            >
+              Lihat semua
+            </RouterLink>
+          </div>
+
+          <div v-if="attentionLoading" class="space-y-2">
+            <div
+              v-for="i in 3"
+              :key="i"
+              class="h-12 animate-pulse rounded-lg bg-surface-strong"
+            />
+          </div>
+
+          <div
+            v-else-if="attentionError"
+            class="rounded-lg bg-surface-subtle p-4 text-sm leading-6 text-muted"
+          >
+            {{ attentionError }}
+          </div>
+
+          <div
+            v-else-if="schoolsWithoutAdmin.length === 0"
+            class="rounded-lg bg-surface-subtle px-4 py-8 text-center"
+          >
+            <p class="text-sm font-medium text-foreground">
+              Semua sekolah sudah memiliki admin.
+            </p>
+          </div>
+
+          <div v-else class="divide-y divide-[#f3f4f6]">
+            <RouterLink
+              v-for="school in schoolsWithoutAdmin"
+              :key="school.schoolId"
+              to="/superadmin/schools"
+              class="flex items-center justify-between gap-3 py-2.5 first:pt-0 last:pb-0"
+            >
+              <div class="min-w-0 flex-1">
+                <p class="truncate text-sm font-medium text-foreground">
+                  {{ school.schoolName }}
+                </p>
+                <p class="mt-0.5 truncate text-xs text-muted">
+                  {{ school.schoolCode }}
+                </p>
+              </div>
+              <span class="shrink-0 text-xs text-muted">
+                Dibuat {{ formatDate(school.createdAt) }}
+              </span>
+            </RouterLink>
+          </div>
+        </section>
+
+        <!-- Work Queue: Schools without academic setup -->
+        <section class="rounded-xl border border-border bg-surface p-5 shadow-sm">
+          <div class="mb-4 flex items-center justify-between gap-3">
+            <div>
+              <p class="text-sm font-semibold text-foreground">
+                Sekolah Tanpa Setup Akademik
+              </p>
+              <p class="mt-0.5 text-xs text-muted">
+                Sekolah aktif yang belum memiliki tahun ajaran aktif.
+              </p>
+            </div>
+            <RouterLink
+              v-if="schoolsWithoutSetupTotal > 0"
+              to="/superadmin/schools"
+              class="shrink-0 text-xs font-medium text-brand transition hover:text-brand-hover"
+            >
+              Lihat semua
+            </RouterLink>
+          </div>
+
+          <div v-if="attentionLoading" class="space-y-2">
+            <div
+              v-for="i in 3"
+              :key="i"
+              class="h-12 animate-pulse rounded-lg bg-surface-strong"
+            />
+          </div>
+
+          <div
+            v-else-if="attentionError"
+            class="rounded-lg bg-surface-subtle p-4 text-sm leading-6 text-muted"
+          >
+            {{ attentionError }}
+          </div>
+
+          <div
+            v-else-if="schoolsWithoutSetup.length === 0"
+            class="rounded-lg bg-surface-subtle px-4 py-8 text-center"
+          >
+            <p class="text-sm font-medium text-foreground">
+              Semua sekolah sudah memiliki tahun ajaran aktif.
+            </p>
+          </div>
+
+          <div v-else class="divide-y divide-[#f3f4f6]">
+            <RouterLink
+              v-for="school in schoolsWithoutSetup"
+              :key="school.schoolId"
+              to="/superadmin/schools"
+              class="flex items-center justify-between gap-3 py-2.5 first:pt-0 last:pb-0"
+            >
+              <div class="min-w-0 flex-1">
+                <p class="truncate text-sm font-medium text-foreground">
+                  {{ school.schoolName }}
+                </p>
+                <p class="mt-0.5 truncate text-xs text-muted">
+                  {{ school.schoolCode }}
+                </p>
+              </div>
+              <span class="shrink-0 text-xs text-muted">
+                Dibuat {{ formatDate(school.createdAt) }}
+              </span>
+            </RouterLink>
+          </div>
+        </section>
+
         <!-- Overview: Total Schools + Total Users -->
         <section class="grid gap-3 sm:grid-cols-2">
           <RouterLink
@@ -231,7 +475,6 @@ onMounted(() => {
 
         <!-- Recently Created Schools -->
         <section
-          v-if="recentSchoolsLoading || recentSchools.length > 0 || recentSchoolsError"
           class="rounded-xl border border-border bg-surface p-5 shadow-sm"
         >
           <div class="mb-4 flex items-center justify-between gap-3">
@@ -265,6 +508,15 @@ onMounted(() => {
             class="rounded-lg bg-surface-subtle p-4 text-sm leading-6 text-muted"
           >
             {{ recentSchoolsError }}
+          </div>
+
+          <div
+            v-else-if="recentSchools.length === 0"
+            class="rounded-lg bg-surface-subtle px-4 py-8 text-center"
+          >
+            <p class="text-sm font-medium text-foreground">
+              Belum ada sekolah yang dibuat.
+            </p>
           </div>
 
           <div v-else class="divide-y divide-[#f3f4f6]">

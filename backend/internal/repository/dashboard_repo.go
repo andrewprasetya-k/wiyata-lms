@@ -21,6 +21,11 @@ type DashboardRepository interface {
 	GetSchoolStatistics(schoolID string) (map[string]int, error)
 	GetEnrollmentTrends(schoolID string) ([]map[string]interface{}, error)
 	GetRecentActivities(schoolID string, limit int) ([]map[string]interface{}, error)
+	GetClassesWithoutTeacher(schoolID string, limit int) (items []map[string]interface{}, total int, err error)
+
+	// Super Admin
+	GetSchoolsWithoutAdmin(limit int) (items []map[string]interface{}, total int, err error)
+	GetSchoolsWithoutSetup(limit int) (items []map[string]interface{}, total int, err error)
 }
 
 type dashboardRepository struct {
@@ -213,7 +218,7 @@ func (r *dashboardRepository) GetEnrollmentTrends(schoolID string) ([]map[string
 func (r *dashboardRepository) GetRecentActivities(schoolID string, limit int) ([]map[string]interface{}, error) {
 	var results []map[string]interface{}
 	err := r.db.Raw(`
-		SELECT 
+		SELECT
 			u.usr_nama_lengkap as user_name,
 			l.log_action as action,
 			l.created_at as timestamp
@@ -224,4 +229,106 @@ func (r *dashboardRepository) GetRecentActivities(schoolID string, limit int) ([
 		LIMIT ?
 	`, schoolID, limit).Scan(&results).Error
 	return results, err
+}
+
+// GetClassesWithoutTeacher finds active classes that have zero subject_classes
+// rows (subject_classes.scl_scu_id is non-nullable, so "no teacher" means the
+// class has no subject_classes row at all, not a null-teacher row).
+func (r *dashboardRepository) GetClassesWithoutTeacher(schoolID string, limit int) ([]map[string]interface{}, int, error) {
+	var results []map[string]interface{}
+	err := r.db.Raw(`
+		SELECT c.cls_id as class_id, c.cls_title as class_name
+		FROM edv.classes c
+		LEFT JOIN edv.subject_classes sc ON sc.scl_cls_id = c.cls_id
+		WHERE c.cls_sch_id = ? AND c.deleted_at IS NULL AND c.is_active = true
+		GROUP BY c.cls_id, c.cls_title
+		HAVING COUNT(sc.scl_id) = 0
+		ORDER BY c.created_at DESC
+		LIMIT ?
+	`, schoolID, limit).Scan(&results).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	var total int64
+	err = r.db.Raw(`
+		SELECT COUNT(*) FROM (
+			SELECT c.cls_id
+			FROM edv.classes c
+			LEFT JOIN edv.subject_classes sc ON sc.scl_cls_id = c.cls_id
+			WHERE c.cls_sch_id = ? AND c.deleted_at IS NULL AND c.is_active = true
+			GROUP BY c.cls_id
+			HAVING COUNT(sc.scl_id) = 0
+		) without_teacher
+	`, schoolID).Scan(&total).Error
+	return results, int(total), err
+}
+
+// GetSchoolsWithoutAdmin finds active schools with zero active school_users
+// holding the "admin" role. user_roles has no soft-delete column, so only
+// school_users.deleted_at needs to be checked.
+func (r *dashboardRepository) GetSchoolsWithoutAdmin(limit int) ([]map[string]interface{}, int, error) {
+	var results []map[string]interface{}
+	err := r.db.Raw(`
+		SELECT s.sch_id as school_id, s.sch_name as school_name, s.sch_code as school_code, s.created_at as created_at
+		FROM edv.schools s
+		WHERE s.deleted_at IS NULL
+			AND NOT EXISTS (
+				SELECT 1 FROM edv.school_users su
+				JOIN edv.user_roles ur ON ur.urol_scu_id = su.scu_id
+				JOIN edv.roles r ON r.rol_id = ur.urol_rol_id
+				WHERE su.scu_sch_id = s.sch_id AND su.deleted_at IS NULL AND r.rol_name = 'admin'
+			)
+		ORDER BY s.created_at DESC
+		LIMIT ?
+	`, limit).Scan(&results).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	var total int64
+	err = r.db.Raw(`
+		SELECT COUNT(*)
+		FROM edv.schools s
+		WHERE s.deleted_at IS NULL
+			AND NOT EXISTS (
+				SELECT 1 FROM edv.school_users su
+				JOIN edv.user_roles ur ON ur.urol_scu_id = su.scu_id
+				JOIN edv.roles r ON r.rol_id = ur.urol_rol_id
+				WHERE su.scu_sch_id = s.sch_id AND su.deleted_at IS NULL AND r.rol_name = 'admin'
+			)
+	`).Scan(&total).Error
+	return results, int(total), err
+}
+
+// GetSchoolsWithoutSetup finds active schools with no active academic year.
+// academic_years has no soft-delete column.
+func (r *dashboardRepository) GetSchoolsWithoutSetup(limit int) ([]map[string]interface{}, int, error) {
+	var results []map[string]interface{}
+	err := r.db.Raw(`
+		SELECT s.sch_id as school_id, s.sch_name as school_name, s.sch_code as school_code, s.created_at as created_at
+		FROM edv.schools s
+		WHERE s.deleted_at IS NULL
+			AND NOT EXISTS (
+				SELECT 1 FROM edv.academic_years ay
+				WHERE ay.acy_sch_id = s.sch_id AND ay.is_active = true
+			)
+		ORDER BY s.created_at DESC
+		LIMIT ?
+	`, limit).Scan(&results).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	var total int64
+	err = r.db.Raw(`
+		SELECT COUNT(*)
+		FROM edv.schools s
+		WHERE s.deleted_at IS NULL
+			AND NOT EXISTS (
+				SELECT 1 FROM edv.academic_years ay
+				WHERE ay.acy_sch_id = s.sch_id AND ay.is_active = true
+			)
+	`).Scan(&total).Error
+	return results, int(total), err
 }

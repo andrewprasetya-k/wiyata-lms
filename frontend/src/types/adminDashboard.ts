@@ -11,6 +11,11 @@ export interface AdminRecentActivity {
   timestamp: string
 }
 
+export interface AdminClassWithoutTeacher {
+  classId: string
+  className: string
+}
+
 export interface AdminDashboardSummary {
   totalStudents: number
   totalTeachers: number
@@ -18,4 +23,6 @@ export interface AdminDashboardSummary {
   activeClasses: number
   enrollmentTrends: AdminEnrollmentTrend[]
   recentActivities: AdminRecentActivity[]
+  classesWithoutTeacher: AdminClassWithoutTeacher[]
+  classesWithoutTeacherTotal: number
 }

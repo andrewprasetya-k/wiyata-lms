@@ -11,6 +11,7 @@ type DashboardService interface {
 	GetStudentDashboard(userID string) (*dto.StudentDashboardDTO, error)
 	GetTeacherDashboard(schoolUserID string) (*dto.TeacherDashboardDTO, error)
 	GetAdminDashboard(schoolID string) (*dto.AdminDashboardDTO, error)
+	GetSuperAdminDashboard() (*dto.SuperAdminDashboardDTO, error)
 }
 
 type dashboardService struct {
@@ -175,12 +176,59 @@ func (s *dashboardService) GetAdminDashboard(schoolID string) (*dto.AdminDashboa
 		})
 	}
 
+	classesWithoutTeacher, classesWithoutTeacherTotal, err := s.repo.GetClassesWithoutTeacher(schoolID, 5)
+	if err != nil {
+		return nil, err
+	}
+
+	var classesWithoutTeacherDTOs []dto.ClassWithoutTeacherDTO
+	for _, c := range classesWithoutTeacher {
+		classesWithoutTeacherDTOs = append(classesWithoutTeacherDTOs, dto.ClassWithoutTeacherDTO{
+			ClassID:   c["class_id"].(string),
+			ClassName: c["class_name"].(string),
+		})
+	}
+
 	return &dto.AdminDashboardDTO{
-		TotalStudents:    stats["totalStudents"],
-		TotalTeachers:    stats["totalTeachers"],
-		TotalClasses:     stats["totalClasses"],
-		ActiveClasses:    stats["activeClasses"],
-		EnrollmentTrends: enrollmentTrends,
-		RecentActivities: recentActivities,
+		TotalStudents:              stats["totalStudents"],
+		TotalTeachers:              stats["totalTeachers"],
+		TotalClasses:               stats["totalClasses"],
+		ActiveClasses:              stats["activeClasses"],
+		EnrollmentTrends:           enrollmentTrends,
+		RecentActivities:           recentActivities,
+		ClassesWithoutTeacher:      classesWithoutTeacherDTOs,
+		ClassesWithoutTeacherTotal: classesWithoutTeacherTotal,
 	}, nil
+}
+
+func (s *dashboardService) GetSuperAdminDashboard() (*dto.SuperAdminDashboardDTO, error) {
+	withoutAdmin, withoutAdminTotal, err := s.repo.GetSchoolsWithoutAdmin(5)
+	if err != nil {
+		return nil, err
+	}
+
+	withoutSetup, withoutSetupTotal, err := s.repo.GetSchoolsWithoutSetup(5)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.SuperAdminDashboardDTO{
+		SchoolsWithoutAdmin:      mapSchoolsNeedingAttention(withoutAdmin),
+		SchoolsWithoutAdminTotal: withoutAdminTotal,
+		SchoolsWithoutSetup:      mapSchoolsNeedingAttention(withoutSetup),
+		SchoolsWithoutSetupTotal: withoutSetupTotal,
+	}, nil
+}
+
+func mapSchoolsNeedingAttention(rows []map[string]interface{}) []dto.SchoolNeedsAttentionDTO {
+	var result []dto.SchoolNeedsAttentionDTO
+	for _, r := range rows {
+		result = append(result, dto.SchoolNeedsAttentionDTO{
+			SchoolID:   r["school_id"].(string),
+			SchoolName: r["school_name"].(string),
+			SchoolCode: r["school_code"].(string),
+			CreatedAt:  dashboardTimestampValue(r["created_at"]),
+		})
+	}
+	return result
 }

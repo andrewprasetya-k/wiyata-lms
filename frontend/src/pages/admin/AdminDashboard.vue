@@ -6,7 +6,6 @@ import {
   PhBookOpen,
   PhChalkboardTeacher,
   PhCheckCircle,
-  PhCircleDashed,
   PhClipboardText,
   PhClockCountdown,
   PhEnvelopeSimple,
@@ -44,7 +43,10 @@ const schoolCode = computed(() => auth.activeMembership?.school.code ?? "");
 const firstName = computed(() => auth.user?.fullName?.split(" ")[0] ?? "Admin");
 
 const academicSetupIncomplete = computed(
-  () => !loading.value && (!activeYear.value || !activeTerm.value),
+  () =>
+    !loading.value &&
+    !errorMessage.value &&
+    (!activeYear.value || !activeTerm.value),
 );
 
 const sortedPendingInvitations = computed(() =>
@@ -61,11 +63,24 @@ const invitationsExpiringSoon = computed(() =>
   ),
 );
 
-const showNeedsAttention = computed(
+const classesWithoutTeacher = computed(
+  () => stats.value?.classesWithoutTeacher ?? [],
+);
+const classesWithoutTeacherTotal = computed(
+  () => stats.value?.classesWithoutTeacherTotal ?? 0,
+);
+
+const needsAttentionLoading = computed(
+  () => loading.value || invitationsLoading.value,
+);
+const needsAttentionPartialError = computed(
+  () => Boolean(errorMessage.value || invitationsError.value),
+);
+const hasAttentionItems = computed(
   () =>
-    !loading.value &&
-    !invitationsLoading.value &&
-    (academicSetupIncomplete.value || pendingInvitations.value.length > 0),
+    academicSetupIncomplete.value ||
+    pendingInvitations.value.length > 0 ||
+    classesWithoutTeacherTotal.value > 0,
 );
 
 function invitationRoleLabel(role: string) {
@@ -73,63 +88,6 @@ function invitationRoleLabel(role: string) {
   if (role === "teacher") return "Guru";
   return role;
 }
-
-const setupSteps = computed(() => [
-  {
-    label: "Tahun Ajaran",
-    detail: activeYear.value
-      ? activeYear.value.academicYearName
-      : "Belum ada tahun ajaran aktif",
-    done: Boolean(activeYear.value),
-    link: "/admin/academic-years",
-  },
-  {
-    label: "Semester",
-    detail: activeTerm.value
-      ? activeTerm.value.termName
-      : "Belum ada semester aktif",
-    done: Boolean(activeTerm.value),
-    link: "/admin/academic-years",
-  },
-  {
-    label: "Kelas",
-    detail:
-      (stats.value?.totalClasses ?? 0) > 0
-        ? `${stats.value!.totalClasses} kelas dibuat`
-        : "Belum ada kelas",
-    done: (stats.value?.totalClasses ?? 0) > 0,
-    link: "/admin/classes",
-  },
-  {
-    label: "Kelas Aktif",
-    detail:
-      (stats.value?.activeClasses ?? 0) > 0
-        ? `${stats.value!.activeClasses} kelas aktif`
-        : "Belum ada kelas aktif",
-    done: (stats.value?.activeClasses ?? 0) > 0,
-    link: "/admin/classes",
-  },
-  {
-    label: "Siswa Terdaftar",
-    detail:
-      (stats.value?.totalStudents ?? 0) > 0
-        ? `${stats.value!.totalStudents} siswa`
-        : "Belum ada siswa",
-    done: (stats.value?.totalStudents ?? 0) > 0,
-    link: "/admin/enrollments",
-  },
-  {
-    label: "Guru Ditugaskan",
-    detail:
-      (stats.value?.totalTeachers ?? 0) > 0
-        ? `${stats.value!.totalTeachers} guru`
-        : "Belum ada guru",
-    done: (stats.value?.totalTeachers ?? 0) > 0,
-    link: "/admin/users",
-  },
-]);
-
-const isSetupComplete = computed(() => setupSteps.value.every((s) => s.done));
 
 const statCards = computed(() => [
   {
@@ -279,9 +237,17 @@ onMounted(() => {
         </section>
 
         <!-- SECTION 1B — Needs Attention -->
-        <section v-if="showNeedsAttention" class="space-y-2.5">
+        <section class="space-y-2.5">
           <h2 class="text-sm font-semibold text-foreground">Perlu Perhatian</h2>
 
+          <div
+            v-if="needsAttentionLoading"
+            class="rounded-xl border border-border bg-surface shadow-sm p-4"
+          >
+            <div class="h-14 animate-pulse rounded-lg bg-surface-strong" />
+          </div>
+
+          <template v-else>
           <RouterLink
             v-if="academicSetupIncomplete"
             to="/admin/academic-years"
@@ -348,15 +314,51 @@ onMounted(() => {
               "
             />
           </RouterLink>
+
+          <RouterLink
+            v-if="classesWithoutTeacherTotal > 0"
+            to="/admin/classes"
+            class="flex items-start gap-3 rounded-xl border border-warning-line bg-warning-soft p-4 transition hover:brightness-95"
+          >
+            <PhChalkboardTeacher
+              :size="20"
+              weight="duotone"
+              class="mt-0.5 shrink-0 text-[#ea580c]"
+            />
+            <div class="min-w-0 flex-1">
+              <p class="text-sm font-medium text-foreground">
+                {{ classesWithoutTeacherTotal }} kelas belum memiliki guru
+              </p>
+              <p class="mt-0.5 text-xs text-muted">
+                Kelas ini belum bisa memulai pembelajaran sampai guru
+                ditugaskan.
+              </p>
+            </div>
+            <PhArrowRight :size="14" class="mt-1 shrink-0 text-[#ea580c]" />
+          </RouterLink>
+
+          <div
+            v-if="!hasAttentionItems && !needsAttentionPartialError"
+            class="flex items-center gap-3 rounded-xl border border-success-line bg-success-soft p-4"
+          >
+            <PhCheckCircle :size="20" weight="duotone" class="shrink-0 text-success" />
+            <p class="text-sm font-medium text-foreground">
+              Semua beres. Tidak ada yang perlu ditindaklanjuti saat ini.
+            </p>
+          </div>
+
+          <div
+            v-else-if="!hasAttentionItems && needsAttentionPartialError"
+            class="rounded-xl border border-border bg-surface-subtle p-4 text-sm leading-6 text-muted"
+          >
+            Sebagian data belum bisa dimuat, jadi status di atas mungkin belum
+            lengkap.
+          </div>
+          </template>
         </section>
 
         <!-- SECTION 1C — Work Queue: Pending Invitations -->
         <section
-          v-if="
-            invitationsLoading ||
-            pendingInvitations.length > 0 ||
-            invitationsError
-          "
           class="rounded-xl border border-border bg-surface shadow-sm p-5"
         >
           <div class="mb-4 flex items-center justify-between gap-3">
@@ -392,6 +394,19 @@ onMounted(() => {
             {{ invitationsError }}
           </div>
 
+          <div
+            v-else-if="pendingInvitations.length === 0"
+            class="rounded-lg bg-surface-subtle px-4 py-8 text-center"
+          >
+            <PhEnvelopeSimple
+              class="mx-auto h-7 w-7 text-border-strong"
+              weight="duotone"
+            />
+            <p class="mt-3 text-sm font-medium text-foreground">
+              Tidak ada undangan yang tertunda.
+            </p>
+          </div>
+
           <div v-else class="divide-y divide-[#f3f4f6]">
             <div
               v-for="invitation in sortedPendingInvitations.slice(0, 5)"
@@ -416,6 +431,74 @@ onMounted(() => {
           </div>
         </section>
 
+        <!-- SECTION 1D — Work Queue: Classes without teacher -->
+        <section
+          class="rounded-xl border border-border bg-surface shadow-sm p-5"
+        >
+          <div class="mb-4 flex items-center justify-between gap-3">
+            <div>
+              <h2 class="text-sm font-semibold text-foreground">
+                Kelas Tanpa Guru
+              </h2>
+              <p class="mt-0.5 text-xs text-muted">
+                Kelas aktif yang belum memiliki mata pelajaran dengan guru
+                ditugaskan.
+              </p>
+            </div>
+            <RouterLink
+              v-if="classesWithoutTeacherTotal > 0"
+              to="/admin/classes"
+              class="shrink-0 text-xs font-medium text-brand transition hover:text-brand-hover"
+            >
+              Lihat semua
+            </RouterLink>
+          </div>
+
+          <div v-if="loading" class="space-y-2">
+            <div
+              v-for="i in 3"
+              :key="i"
+              class="h-14 animate-pulse rounded-lg bg-surface-strong"
+            />
+          </div>
+
+          <div
+            v-else-if="errorMessage"
+            class="rounded-lg bg-surface-subtle p-4 text-sm leading-6 text-muted"
+          >
+            Kelas tanpa guru belum bisa dimuat.
+          </div>
+
+          <div
+            v-else-if="classesWithoutTeacher.length === 0"
+            class="rounded-lg bg-surface-subtle px-4 py-8 text-center"
+          >
+            <PhChalkboardTeacher
+              class="mx-auto h-7 w-7 text-border-strong"
+              weight="duotone"
+            />
+            <p class="mt-3 text-sm font-medium text-foreground">
+              Semua kelas sudah memiliki guru.
+            </p>
+          </div>
+
+          <div v-else class="divide-y divide-[#f3f4f6]">
+            <RouterLink
+              v-for="klass in classesWithoutTeacher"
+              :key="klass.classId"
+              to="/admin/classes"
+              class="flex items-center justify-between gap-3 py-2.5 first:pt-0 last:pb-0"
+            >
+              <p
+                class="min-w-0 flex-1 truncate text-sm font-medium text-foreground"
+              >
+                {{ klass.className }}
+              </p>
+              <PhArrowRight :size="14" class="shrink-0 text-border-strong" />
+            </RouterLink>
+          </div>
+        </section>
+
         <!-- SECTION 2 — Quick Stats -->
         <section>
           <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -426,6 +509,12 @@ onMounted(() => {
                 class="h-28 animate-pulse rounded-xl border border-border bg-surface shadow-sm"
               />
             </template>
+            <div
+              v-else-if="errorMessage"
+              class="col-span-2 rounded-xl border border-border bg-surface shadow-sm p-4 text-center sm:col-span-4"
+            >
+              <p class="text-sm text-muted">Statistik belum bisa dimuat.</p>
+            </div>
             <template v-else>
               <RouterLink
                 v-for="card in statCards"
@@ -448,95 +537,6 @@ onMounted(() => {
           </div>
         </section>
 
-        <!-- SECTION 3 — Setup Progress -->
-        <section
-          class="rounded-xl border border-border bg-surface shadow-sm p-5"
-          :class="{ 'animate-pulse': loading }"
-        >
-          <div class="mb-4 flex items-center justify-between gap-3">
-            <div>
-              <h2 class="text-sm font-semibold text-foreground">
-                Setup Sekolah
-              </h2>
-              <p class="mt-0.5 text-xs text-muted">
-                Kelengkapan konfigurasi awal sebelum pembelajaran dimulai.
-              </p>
-            </div>
-            <span
-              v-if="!loading && isSetupComplete"
-              class="shrink-0 rounded-full bg-success-soft px-3 py-1 text-xs font-semibold text-success"
-            >
-              Lengkap
-            </span>
-            <span
-              v-else-if="!loading"
-              class="shrink-0 rounded-full bg-warning-soft px-3 py-1 text-xs font-semibold text-[#ea580c]"
-            >
-              {{ setupSteps.filter((s) => s.done).length }}/{{
-                setupSteps.length
-              }}
-              selesai
-            </span>
-          </div>
-
-          <div v-if="loading" class="space-y-2">
-            <div
-              v-for="i in 6"
-              :key="i"
-              class="h-9 animate-pulse rounded-lg bg-surface-strong"
-            />
-          </div>
-
-          <div v-else class="divide-y divide-[#f3f4f6]">
-            <RouterLink
-              v-for="step in setupSteps"
-              :key="step.label"
-              :to="step.link"
-              class="group flex items-center gap-3 py-2.5 transition hover:bg-transparent first:pt-0 last:pb-0"
-            >
-              <component
-                :is="step.done ? PhCheckCircle : PhCircleDashed"
-                :size="18"
-                weight="duotone"
-                class="shrink-0 transition"
-                :class="
-                  step.done
-                    ? 'text-success'
-                    : 'text-border-strong group-hover:text-muted'
-                "
-              />
-              <span class="min-w-0 flex-1">
-                <span
-                  class="block text-sm font-medium"
-                  :class="step.done ? 'text-foreground' : 'text-muted'"
-                >
-                  {{ step.label }}
-                </span>
-                <span class="block text-xs text-muted">
-                  {{ step.detail }}
-                </span>
-              </span>
-              <PhArrowRight
-                :size="14"
-                class="shrink-0 text-border-strong transition group-hover:text-brand"
-              />
-            </RouterLink>
-          </div>
-
-          <div
-            v-if="!loading && isSetupComplete"
-            class="mt-4 rounded-lg bg-success-soft px-4 py-3"
-          >
-            <p class="text-sm font-medium text-success">
-              Sekolah siap digunakan.
-            </p>
-            <p class="mt-0.5 text-xs text-[#065f46]">
-              Semua konfigurasi dasar sudah lengkap. Guru dan siswa dapat mulai
-              menggunakan platform.
-            </p>
-          </div>
-        </section>
-
         <!-- SECTION 5 — Recent Activity -->
         <section
           class="rounded-xl border border-border bg-surface shadow-sm p-5"
@@ -554,6 +554,13 @@ onMounted(() => {
               :key="i"
               class="h-10 animate-pulse rounded-lg bg-surface-strong"
             />
+          </div>
+
+          <div
+            v-else-if="errorMessage"
+            class="rounded-lg bg-surface-subtle p-4 text-sm leading-6 text-muted"
+          >
+            Aktivitas terbaru belum bisa dimuat.
           </div>
 
           <div
@@ -621,6 +628,13 @@ onMounted(() => {
               :key="i"
               class="h-8 animate-pulse rounded-lg bg-surface-strong"
             />
+          </div>
+
+          <div
+            v-else-if="errorMessage"
+            class="rounded-lg bg-surface-subtle px-3 py-5 text-center"
+          >
+            <p class="text-xs text-muted">Distribusi kelas belum bisa dimuat.</p>
           </div>
 
           <div

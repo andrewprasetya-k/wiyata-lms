@@ -81,3 +81,13 @@ func (h *DashboardHandler) GetAdminDashboard(c *gin.Context) {
 
 	c.JSON(http.StatusOK, dashboard)
 }
+
+func (h *DashboardHandler) GetSuperAdminDashboard(c *gin.Context) {
+	dashboard, err := h.service.GetSuperAdminDashboard()
+	if err != nil {
+		HandleError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, dashboard)
+}
