@@ -129,6 +129,9 @@ func (s *adminSchoolMemberImportService) Commit(schoolID string, defaultPassword
 			if err != nil {
 				return fmt.Errorf("baris %d: %w", row.RowNumber, err)
 			}
+			if err := s.validateRoleAddition(tx, schoolUser.ID, row.Role); err != nil {
+				return fmt.Errorf("baris %d: %w", row.RowNumber, err)
+			}
 			roleID, err := s.findRoleID(tx, row.Role)
 			if err != nil {
 				return fmt.Errorf("baris %d: %w", row.RowNumber, err)
@@ -282,6 +285,9 @@ func (s *adminSchoolMemberImportService) AddMember(schoolID string, input dto.Ad
 		if err != nil {
 			return err
 		}
+		if err := s.validateRoleAddition(tx, schoolUser.ID, row.Role); err != nil {
+			return err
+		}
 		roleID, err := s.findRoleID(tx, row.Role)
 		if err != nil {
 			return err
@@ -405,4 +411,3 @@ func (s *adminSchoolMemberImportService) findSchoolName(schoolID string) (string
 	}
 	return school.Name, nil
 }
-

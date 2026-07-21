@@ -292,6 +292,27 @@ watch(memberSearch, () => {
   }, 300);
 });
 
+// Mirrors the backend's domain.ValidateSchoolRoleCombination (domain/role_validation.go): the
+// only school-role combination allowed on one membership is admin+teacher.
+// Student must always hold that role alone. This is a UX convenience check
+// only — the backend re-validates independently and remains the source of
+// truth (see syncUserRoles's catch block below).
+function illegalRoleCombinationMessage(roleIds: string[]): string {
+  const roleById = new Map(
+    roles.value.map((role) => [role.roleId, normalizeRoleName(role.roleName)]),
+  );
+  const names = new Set(
+    roleIds.map((id) => roleById.get(id)).filter((name): name is string => Boolean(name)),
+  );
+  if (names.has("student") && names.has("teacher")) {
+    return "Kombinasi peran tidak diperbolehkan: Siswa tidak dapat digabungkan dengan Guru.";
+  }
+  if (names.has("student") && names.has("admin")) {
+    return "Kombinasi peran tidak diperbolehkan: Siswa tidak dapat digabungkan dengan Admin sekolah.";
+  }
+  return "";
+}
+
 async function syncRoleForMember(schoolUserId: string, roleIds: string[]) {
   if (roleIds.length === 0) {
     memberRoleErrors.value = {
@@ -300,15 +321,27 @@ async function syncRoleForMember(schoolUserId: string, roleIds: string[]) {
     };
     return;
   }
+  const combinationError = illegalRoleCombinationMessage(roleIds);
+  if (combinationError) {
+    memberRoleErrors.value = {
+      ...memberRoleErrors.value,
+      [schoolUserId]: combinationError,
+    };
+    return;
+  }
   memberRoleErrors.value = { ...memberRoleErrors.value, [schoolUserId]: "" };
 
   savingRolesSchoolUserId.value = schoolUserId;
   try {
-    await syncUserRoles(schoolUserId, { roleIds });
-    toast.success("Peran warga sekolah berhasil diperbarui.");
+    const data = await syncUserRoles(schoolUserId, { roleIds });
+    toast.success(data.message);
     await loadMembers();
-  } catch {
-    toast.error("Peran warga sekolah belum bisa diperbarui.");
+  } catch (err: any) {
+    const errorMessage =
+      err?.response?.data?.error ||
+      err?.response?.data?.message ||
+      "Gagal memperbarui peran.";
+    toast.error(errorMessage);
   } finally {
     savingRolesSchoolUserId.value = "";
   }
@@ -324,9 +357,10 @@ function toggleRoleDraft(schoolUserId: string, roleId: string) {
     ...memberRoleDrafts.value,
     [schoolUserId]: next,
   };
-  if (next.length > 0 && memberRoleErrors.value[schoolUserId]) {
-    memberRoleErrors.value = { ...memberRoleErrors.value, [schoolUserId]: "" };
-  }
+  memberRoleErrors.value = {
+    ...memberRoleErrors.value,
+    [schoolUserId]: illegalRoleCombinationMessage(next),
+  };
 }
 
 const inviteLink = computed(() => {
@@ -759,7 +793,8 @@ onMounted(async () => {
                         type="button"
                         class="mt-2.5 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#ea580c] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#c2410c] disabled:cursor-not-allowed disabled:opacity-60"
                         :disabled="
-                          savingRolesSchoolUserId === member.schoolUserId
+                          savingRolesSchoolUserId === member.schoolUserId ||
+                          Boolean(memberRoleErrors[member.schoolUserId])
                         "
                         @click="
                           syncRoleForMember(

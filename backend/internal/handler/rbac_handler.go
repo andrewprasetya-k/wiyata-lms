@@ -180,7 +180,7 @@ func (h *RBACHandler) UpdateUserRoles(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "User roles updated successfully"})
+	c.JSON(http.StatusOK, gin.H{"message": "Peran berhasil diperbarui."})
 }
 
 func (h *RBACHandler) CreateSuperAdmin(c *gin.Context) {

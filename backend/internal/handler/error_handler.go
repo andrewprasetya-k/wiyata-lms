@@ -6,9 +6,22 @@ import (
 	"net/http"
 	"strings"
 
+	"backend/internal/domain"
+
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
+
+func illegalRoleCombinationMessage(err error) (string, bool) {
+	switch {
+	case errors.Is(err, domain.ErrStudentTeacherCombination):
+		return "Kombinasi peran tidak diperbolehkan: Siswa tidak dapat digabungkan dengan Guru pada satu akun sekolah yang sama.", true
+	case errors.Is(err, domain.ErrStudentAdminCombination):
+		return "Kombinasi peran tidak diperbolehkan: Siswa tidak dapat digabungkan dengan Admin sekolah pada satu akun sekolah yang sama.", true
+	default:
+		return "", false
+	}
+}
 
 // HandleError centralizes error responses and masks internal details
 func HandleError(c *gin.Context, err error) {
@@ -22,6 +35,11 @@ func HandleError(c *gin.Context, err error) {
 	// 1. Check for GORM Record Not Found
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "The requested data was not found"})
+		return
+	}
+
+	if msg, ok := illegalRoleCombinationMessage(err); ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": msg})
 		return
 	}
 

@@ -83,6 +83,24 @@ func (s *rbacService) DeleteRole(id string) error {
 }
 
 func (s *rbacService) AssignRoleToUser(schoolUserID string, roleID string) error {
+	existingRoles, err := s.repo.GetUserRoles(schoolUserID)
+	if err != nil {
+		return err
+	}
+	newRole, err := s.repo.GetRoleByID(roleID)
+	if err != nil {
+		return err
+	}
+
+	roleNames := make([]string, 0, len(existingRoles)+1)
+	for _, ur := range existingRoles {
+		roleNames = append(roleNames, ur.Role.Name)
+	}
+	roleNames = append(roleNames, newRole.Name)
+	if err := domain.ValidateSchoolRoleCombination(roleNames); err != nil {
+		return err
+	}
+
 	userRole := &domain.UserRole{
 		SchoolUserID: schoolUserID,
 		RoleID:       roleID,
@@ -99,7 +117,35 @@ func (s *rbacService) GetUserRoles(schoolUserID string) ([]*domain.UserRole, err
 }
 
 func (s *rbacService) SyncUserRoles(schoolUserID string, roleIDs []string) error {
+	roleNames, err := s.roleNamesByIDs(roleIDs)
+	if err != nil {
+		return err
+	}
+	if err := domain.ValidateSchoolRoleCombination(roleNames); err != nil {
+		return err
+	}
 	return s.repo.SyncUserRoles(schoolUserID, roleIDs)
+}
+
+func (s *rbacService) roleNamesByIDs(roleIDs []string) ([]string, error) {
+	if len(roleIDs) == 0 {
+		return nil, nil
+	}
+	roles, err := s.repo.GetAllRoles()
+	if err != nil {
+		return nil, err
+	}
+	byID := make(map[string]string, len(roles))
+	for _, role := range roles {
+		byID[role.ID] = role.Name
+	}
+	names := make([]string, 0, len(roleIDs))
+	for _, id := range roleIDs {
+		if name, ok := byID[id]; ok {
+			names = append(names, name)
+		}
+	}
+	return names, nil
 }
 
 func (s *rbacService) IsSuperAdmin(userID string) (bool, error) {

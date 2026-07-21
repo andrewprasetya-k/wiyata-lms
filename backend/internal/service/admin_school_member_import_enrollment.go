@@ -81,6 +81,19 @@ func (s *adminSchoolMemberImportService) findRoleID(tx *gorm.DB, roleName string
 	return role.ID, nil
 }
 
+func (s *adminSchoolMemberImportService) validateRoleAddition(tx *gorm.DB, schoolUserID string, newRoleName string) error {
+	var existingNames []string
+	err := tx.Table("edv.user_roles").
+		Select("edv.roles.rol_name").
+		Joins("JOIN edv.roles ON edv.roles.rol_id = edv.user_roles.urol_rol_id").
+		Where("edv.user_roles.urol_scu_id = ?", schoolUserID).
+		Pluck("edv.roles.rol_name", &existingNames).Error
+	if err != nil {
+		return err
+	}
+	return domain.ValidateSchoolRoleCombination(append(existingNames, newRoleName))
+}
+
 func (s *adminSchoolMemberImportService) ensureRole(tx *gorm.DB, schoolUserID string, roleID string) (bool, error) {
 	userRole := domain.UserRole{
 		SchoolUserID: schoolUserID,

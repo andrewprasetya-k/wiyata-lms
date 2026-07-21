@@ -117,6 +117,10 @@ func (h *AdminSchoolMemberImportHandler) AddMember(c *gin.Context) {
 
 	response, err := h.service.AddMember(schoolID, input)
 	if err != nil {
+		if msg, ok := illegalRoleCombinationMessage(err); ok {
+			c.JSON(http.StatusBadRequest, gin.H{"error": msg})
+			return
+		}
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}

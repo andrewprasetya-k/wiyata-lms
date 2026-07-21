@@ -159,6 +159,14 @@ func finalizeInvitationAcceptance(tx *gorm.DB, invitation domain.Invitation, sch
 		return nil, err
 	}
 
+	existingRoleNames, err := existingSchoolUserRoleNames(tx, schoolUser.ID)
+	if err != nil {
+		return nil, err
+	}
+	if err := domain.ValidateSchoolRoleCombination(append(existingRoleNames, invitation.Role)); err != nil {
+		return nil, err
+	}
+
 	var role domain.Role
 	if err := tx.Where("rol_name = ?", invitation.Role).First(&role).Error; err != nil {
 		return nil, err
@@ -271,6 +279,20 @@ func resolveInvitationSchoolUser(tx *gorm.DB, userID string, schoolID string) (*
 		return nil, err
 	}
 	return &schoolUser, nil
+}
+
+// existingSchoolUserRoleNames returns the role names already assigned to a
+// school_users membership, so finalizeInvitationAcceptance can validate the
+// combination that would result from adding the invitation's role (via
+// domain.ValidateSchoolRoleCombination) before writing it.
+func existingSchoolUserRoleNames(tx *gorm.DB, schoolUserID string) ([]string, error) {
+	var names []string
+	err := tx.Table("edv.user_roles").
+		Select("edv.roles.rol_name").
+		Joins("JOIN edv.roles ON edv.roles.rol_id = edv.user_roles.urol_rol_id").
+		Where("edv.user_roles.urol_scu_id = ?", schoolUserID).
+		Pluck("edv.roles.rol_name", &names).Error
+	return names, err
 }
 
 func ensureInvitationStudentEnrollment(tx *gorm.DB, invitation domain.Invitation, schoolUserID string) error {
