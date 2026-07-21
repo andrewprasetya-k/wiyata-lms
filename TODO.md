@@ -19,8 +19,22 @@
   - Form Create Invitation di `AdminUsers.vue` sekarang cuma minta email + role (+ class kalau siswa) — field Nama dihapus. `Invitation.FullName` di database jadi optional/nullable; tidak pernah dipakai oleh accept flow manapun (nama akun baru selalu dari form Accept, bukan dari form admin). Satu-satunya pemakai sisa: daftar "Undangan Tertunda" di `AdminDashboard.vue`, sudah fallback ke email kalau nama kosong.
   Detail API: `backend/docs/api/invitation.md`, `backend/docs/api/school_member_invitations.md`.
 
+## Selesai (Phase 9)
+
+### Evaluasi Multi-Role Invitation & Enrollment (9.1, read-only audit)
+- [x] Evaluasi invitation & enroll untuk mendukung multi-role — **ditutup, tidak diimplementasikan (Option A)**. Root cause: tabel `enrollments` punya unique constraint `(enr_scu_id, enr_cls_id)` tanpa kolom `enr_role`, jadi satu orang secara struktural database hanya bisa punya satu role per kelas — multi-role invitation tidak akan mengubah batasan ini. Teacher invitation juga tidak pernah auto-create enrollment, jadi multi-role di invitation tidak menghilangkan langkah admin manual yang memang selalu diperlukan. Kesimpulan: single-role-per-invitation adalah desain yang benar, bukan keterbatasan yang perlu ditambal.
+
+### Audit Frontend Single-Role Assumption (9.2, read-only audit)
+- [x] Audit seluruh frontend terhadap asumsi single-role — **selesai, tidak hanya `AdminUsers.vue`**. Satu bug nyata ditemukan: `AdminEnrollments.vue`'s `inferPlacementRole()` mengembalikan `null` (memblokir UI enrollment) untuk member yang punya role `student` DAN `teacher` sekaligus — state yang baru bisa terjadi sejak multi-role editor Batch 2. `ReadProfile.vue` dan `AdminSubjectClasses.vue` dikonfirmasi sudah benar menangani multi-role (dipakai sebagai referensi pola). Bug ini diperbaiki di 9.3 dengan mencegah kombinasi role-nya sejak sumber, bukan menambal `AdminEnrollments.vue`.
+
+### Validasi Kombinasi Role Ilegal (9.3, implementasi)
+- [x] Business rule: `admin`+`teacher` satu-satunya kombinasi role sekolah yang diizinkan pada satu membership; `student` tidak boleh digabung dengan `teacher` maupun `admin`. `super_admin` di luar scope (platform role, tidak pernah dikelola dari `AdminUsers.vue`).
+  - Backend jadi source of truth tunggal: `domain.ValidateSchoolRoleCombination` (`backend/internal/domain/role_validation.go`) — sengaja di layer `domain`, bukan `service`, supaya bisa dipanggil dari `service` maupun `repository` tanpa import cycle.
+  - Dipanggil dari **setiap** jalur yang bisa mengubah role set sebuah `school_users`: `rbacService.SyncUserRoles` (role editor `AdminUsers.vue`) dan `AssignRoleToUser` (endpoint `POST /rbac/user-roles`, tidak dipakai frontend tapi reachable via API langsung), CSV import & direct member creation (`adminSchoolMemberImportService`), serta invitation accept — **kedua** endpoint (`POST /invitations/:token/accept` dan `/accept-authenticated`) via helper bersama `finalizeInvitationAcceptance`.
+  - Frontend (`AdminUsers.vue`): inline validation live saat toggle checkbox role, pakai komponen `InlineFormError` yang sudah ada (tidak ada modal baru), tombol Simpan disabled saat kombinasi tidak valid, request tidak pernah dikirim untuk kombinasi ilegal.
+  - Error response konsisten dengan pola project (`HandleError`, `errors.Is`), pesan Indonesia yang jelas menyebutkan kombinasi mana yang ditolak.
+  - Detail lengkap: `backend/docs/api/rbac.md` §2, `backend/docs/api/invitation.md`, `backend/docs/api/school_member_import.md`, `docs/PROJECT_CONTEXT_HANDOFF.md` §24/§26/§27.
+
 ## Belum Dikerjakan
 
-- Evaluasi invitation & enroll untuk mendukung multi-role bila memang dibutuhkan — `CreateSchoolMemberInvitationDTO.Role` masih satu string, satu invitation masih satu role. Multi-role editor Batch 2 hanya untuk mengedit role member yang *sudah* jadi anggota sekolah, bukan untuk mengundang/enroll dengan banyak role sekaligus.
-- Audit seluruh frontend terhadap asumsi single-role — baru `AdminUsers.vue` yang diaudit dan diperbaiki. Halaman lain yang menampilkan/mengedit role member belum dicek.
 - Logging untuk admin sekolah mengenai sekolah (backend banyak bertambah, web socket) dan juga superadmin (lebih umum, ga sedetail admin sekolah) — belum dikerjakan sama sekali. Perlu scoping (event apa saja, retensi, granularitas admin vs superadmin) sebelum implementasi; ada mekanisme SSE yang sudah ada (`/api/events/sidebar`) yang berpotensi dipakai ulang untuk ini alih-alih bikin websocket baru dari nol.

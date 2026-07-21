@@ -65,6 +65,10 @@ Behavior:
 
 - `role` hanya boleh `student`, `teacher`, atau `admin`.
 - `super_admin` selalu ditolak.
+- Ditolak (400) jika role baru digabung dengan role membership yang sudah ada
+  membentuk kombinasi ilegal: `student` tidak boleh digabung dengan `teacher`
+  atau `admin`. `admin`+`teacher` tetap diizinkan. Aturan yang sama dipakai
+  editor role `AdminUsers.vue` dan `/rbac/user-roles*` — lihat `rbac.md` §2.
 - Jika email belum ada, akun global dibuat memakai password awal.
 - Jika email sudah ada sebagai akun global aktif, akun dipakai ulang.
 - Jika membership sekolah pernah dihapus, membership dipulihkan dengan
@@ -180,7 +184,11 @@ Behavior:
 - Jika email sudah ada sebagai akun global aktif, user dipakai ulang.
 - Membership `school_users` dibuat untuk sekolah aktif jika belum ada.
 - Membership `school_users` yang soft-deleted dipulihkan jika email cocok.
-- Role dimasukkan ke `user_roles` tanpa menghapus role lain.
+- Role dimasukkan ke `user_roles` tanpa menghapus role lain — tapi ditolak jika
+  hasil gabungannya ilegal (`student`+`teacher` atau `student`+`admin`; lihat
+  `rbac.md` §2). Karena commit ini all-or-nothing, satu baris yang gagal
+  karena kombinasi role akan menggagalkan seluruh batch, sama seperti error
+  transaksional lain di endpoint ini.
 - Jika `classCode` diisi dan role adalah `student`, student dienroll ke kelas
   aktif tersebut.
 - Teacher class assignment dan subject assignment tidak dilakukan oleh import ini.

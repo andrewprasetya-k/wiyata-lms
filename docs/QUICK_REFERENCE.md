@@ -44,6 +44,7 @@ School (tenant root)
 | **Soft Deletes** | All entities except linking tables | Data recoverable |
 | **Comments** | Polymorphic (SourceType + SourceID) | Can comment on material, assignment, feed, submission, comment |
 | **Invitation accept (existing user)** | Two endpoints, not one branching on optional auth: `POST /invitations/:token/accept` (public, new-user) vs `POST /invitations/:token/accept-authenticated` (JWT-required, existing-user) | Backend verifies `authenticated user's email == invitation.email`; frontend never trusted for that check |
+| **School-role combination (Phase 9.3)** | `admin`+`teacher` is the only allowed combination on one school membership; `student` can never combine with `teacher` or `admin` | One backend validator (`domain.ValidateSchoolRoleCombination`) called from role sync/assign, CSV import/direct-create, and invitation accept — not just the frontend |
 
 ## Routes Quick Map
 ```

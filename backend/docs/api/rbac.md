@@ -98,6 +98,8 @@ Role-Based Access Control (RBAC) mengamankan API endpoints berdasarkan role user
 
 Assigning roles to users within a school context.
 
+**School-role combination rule:** `admin`+`teacher` is the only combination allowed on one `school_users` membership. `student` must always hold that role alone — `student`+`teacher` and `student`+`admin` are both rejected. This is enforced by `domain.ValidateSchoolRoleCombination` (`backend/internal/domain/role_validation.go`), the single shared validator called by every mutation path below, by CSV import / direct member creation (`school_member_import.md`), and by invitation accept (`invitation.md`) — not just by the frontend editor. `super_admin` is out of scope for this rule: it is a platform role never assigned through any of these school-level flows.
+
 ### Assign Role to User
 
 - **URL:** `/user-roles`
@@ -111,6 +113,8 @@ Assigning roles to users within a school context.
   "roleId": "uuid"
 }
 ```
+
+Rejects with 400 if the school user's existing roles plus this new role would form an illegal combination (see rule above).
 
 ### Remove Role from User
 
@@ -154,6 +158,8 @@ Replace all roles for a user.
   "roleIds": ["role-uuid-1", "role-uuid-2"]
 }
 ```
+
+Rejects with 400 if the resulting role set would form an illegal combination (see rule above).
 
 ---
 
@@ -532,6 +538,16 @@ User bukan member dari school yang diakses.
 ```json
 {
   "error": "Forbidden: not a member of this school"
+}
+```
+
+### 400 Bad Request - Illegal Role Combination
+
+Resulting role set combines `student` with `teacher` or `admin`. Returned by `POST /user-roles`, `PATCH /user-roles/:schoolUserId`, CSV import commit, direct member creation, and both invitation accept endpoints — same validator, same message shape everywhere.
+
+```json
+{
+  "error": "Kombinasi peran tidak diperbolehkan: Siswa tidak dapat digabungkan dengan Guru pada satu akun sekolah yang sama."
 }
 ```
 

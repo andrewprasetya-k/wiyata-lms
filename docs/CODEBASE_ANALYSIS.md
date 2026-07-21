@@ -127,6 +127,8 @@ PATCH  /api/rbac/user-roles/:schoolUserId   - Update user roles (admin/super_adm
 POST   /api/rbac/super-admin                - Create super admin (super_admin)
 ```
 
+Assign/sync both reject (400) role sets that combine `student` with `teacher`/`admin` — see §9.1.5.
+
 ### 1.8 Material Routes (Protected)
 
 ```
@@ -228,6 +230,8 @@ PATCH  /api/admin/school-member-invitations/:id/revoke - Revoke invitation (admi
 ```
 
 Full contracts: `backend/docs/api/invitation.md` (public accept flow) and `backend/docs/api/school_member_invitations.md` (admin create/list/revoke).
+
+Both accept endpoints reject (400) if accepting would combine `student` with `teacher`/`admin` on the accepting school membership — see §9.1.5.
 
 ---
 
@@ -889,6 +893,7 @@ Hard delete available for super_admin only
 2. **User→SchoolUser→Role Chain**: Roles attach to school membership, not global user
 3. **One User Multi-School**: User can belong to multiple schools with different roles
 4. **School Soft Delete**: Deleted schools recoverable by super admin
+5. **School-Role Combination Rule (Phase 9.3)**: On one `school_users` membership, `admin`+`teacher` is the only allowed combination; `student` can never be combined with `teacher` or `admin`. Enforced by `domain.ValidateSchoolRoleCombination` (`backend/internal/domain/role_validation.go`), called from every role-mutating path: `rbacService.SyncUserRoles`/`AssignRoleToUser`, CSV import/direct member creation, and invitation accept (both endpoints). `super_admin` is out of scope — it is never assigned through these school-level flows.
 
 ### 9.2 Academic Structure
 

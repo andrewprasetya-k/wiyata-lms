@@ -76,6 +76,8 @@ No request body. Identity comes entirely from the JWT (`middleware.GetUserID(c)`
 
 Response: identical shape to endpoint 2.
 
+**School-role combination rule (both endpoints).** Before assigning the invitation's role, `finalizeInvitationAcceptance` (`invitation_repo.go`) fetches the accepting `school_users`' existing role names and validates the combined set via `domain.ValidateSchoolRoleCombination` — the same shared validator used by the `AdminUsers.vue` role editor, `POST/PATCH /rbac/user-roles*`, and CSV import/direct member creation. This matters specifically because an *existing* user can already hold a school role before accepting an invitation for a different one: e.g. a user who is already `student` at a school accepting a `teacher` invitation to the same school is rejected, not silently combined. `admin`+`teacher` remains the only school-role combination invitations can legally produce. See `backend/docs/api/rbac.md` §2 for the full rule.
+
 Errors (same for both accept endpoints, via `handleInvitationError`):
 
 | Condition | Status | Body |
@@ -84,6 +86,7 @@ Errors (same for both accept endpoints, via `handleInvitationError`):
 | Invitation's stored class no longer exists | 400 | `{"error": "Invitation class is no longer available"}` |
 | Authenticated as a different email than the invitation (endpoint 3 only) | 403 | `{"error": "Invitation email does not match the authenticated account"}` |
 | No/invalid JWT (endpoint 3 only) | 401 | `{"error": "Unauthorized"}` |
+| Accepting would combine `student` with `teacher`/`admin` on the same school membership | 400 | `{"error": "Kombinasi peran tidak diperbolehkan: ..."}` |
 
 ### Why two endpoints instead of one "smart" endpoint
 
