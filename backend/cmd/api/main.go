@@ -38,6 +38,11 @@ func main() {
 
 	//initialize repo, service, handler
 
+	// logService constructed first: Phase 10.5+ business services will take
+	// it as a constructor dependency, so it must exist before them.
+	logRepo := repository.NewLogRepository(db)
+	logService := service.NewLogService(logRepo)
+
 	schoolRepo := repository.NewSchoolRepository(db)
 	schoolService := service.NewSchoolService(schoolRepo)
 	schoolHandler := handler.NewSchoolHandler(schoolService)
@@ -151,8 +156,6 @@ func main() {
 		userRepo,
 	), subjectClassService)
 
-	logRepo := repository.NewLogRepository(db)
-	logService := service.NewLogService(logRepo)
 	logHandler := handler.NewLogHandler(logService)
 
 	dashboardRepo := repository.NewDashboardRepository(db)

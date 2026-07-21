@@ -9,6 +9,10 @@ type LogRepository interface {
 	Create(log *domain.Log) error
 	GetBySchool(schoolID string, page int, limit int) ([]*domain.Log, int64, error)
 	GetByUser(userID string, page int, limit int) ([]*domain.Log, int64, error)
+	// GetByCorrelationID returns every log row sharing a correlation_id,
+	// oldest first. Added for Phase 10.5's bulk-import parent+child pattern
+	// (Phase 10.2 §5) — not called by anything in this phase.
+	GetByCorrelationID(correlationID string) ([]*domain.Log, error)
 }
 
 type logRepository struct {
@@ -51,4 +55,10 @@ func (r *logRepository) GetByUser(userID string, page int, limit int) ([]*domain
 	offset := (page - 1) * limit
 	err := query.Limit(limit).Offset(offset).Order("created_at desc").Find(&logs).Error
 	return logs, total, err
+}
+
+func (r *logRepository) GetByCorrelationID(correlationID string) ([]*domain.Log, error) {
+	var logs []*domain.Log
+	err := r.db.Where("correlation_id = ?", correlationID).Order("created_at asc").Find(&logs).Error
+	return logs, err
 }
