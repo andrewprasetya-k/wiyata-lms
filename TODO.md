@@ -20,3 +20,5 @@ GET
 Status Code
 400 Bad Request
 {"error":"School context required (SchoolId header or schoolCode param)"}
+
+admin invite anggota sekolah by email saja. ketika user mau accept, yang sudah punya akun lgsg klik "terima". yang belum, buat akun dulu
