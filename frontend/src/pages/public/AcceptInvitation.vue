@@ -1,16 +1,20 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from "vue";
-import { RouterLink, useRoute } from "vue-router";
-import { PhEye, PhEyeSlash } from "@phosphor-icons/vue";
+import { RouterLink, useRoute, useRouter } from "vue-router";
+import { PhEye, PhEyeSlash, PhSignIn } from "@phosphor-icons/vue";
 import {
   acceptInvitation,
+  acceptInvitationAuthenticated,
   getInvitation,
   type AcceptInvitationResponse,
   type InvitationMetadata,
 } from "../../services/invitation";
 import { usePasswordVisibility } from "../../composables/usePasswordVisibility";
+import { useAuthStore } from "../../stores/auth";
 
 const route = useRoute();
+const router = useRouter();
+const auth = useAuthStore();
 const token = computed(() => String(route.params.token ?? ""));
 const {
   visible: passwordVisible,
@@ -40,6 +44,21 @@ const canSubmit = computed(
     form.name.trim() !== "" &&
     form.password.length >= 6 &&
     form.password === form.confirmPassword,
+);
+
+const isExistingUser = computed(() => invitation.value?.existingUser === true);
+const isAuthenticatedAsInvitee = computed(
+  () =>
+    auth.isAuthenticated &&
+    !!invitation.value &&
+    (auth.user?.email ?? "").toLowerCase() ===
+      invitation.value.email.toLowerCase(),
+);
+const isAuthenticatedAsOther = computed(
+  () =>
+    auth.isAuthenticated &&
+    isExistingUser.value &&
+    !isAuthenticatedAsInvitee.value,
 );
 
 function formatDateTime(value: string) {
@@ -87,6 +106,28 @@ async function submit() {
       password: form.password,
       confirmPassword: form.confirmPassword,
     });
+  } catch (error) {
+    errorMessage.value = errorFromResponse(error);
+  } finally {
+    submitting.value = false;
+  }
+}
+
+function goToLogin() {
+  router.push({ name: "login", query: { redirect: route.fullPath } });
+}
+
+async function acceptAsExistingUser() {
+  if (!invitation.value || submitting.value) return;
+
+  submitting.value = true;
+  errorMessage.value = "";
+  try {
+    // Existing users never see name/password fields: identity comes from
+    // the Authorization header the `api` client already attaches, and the
+    // backend independently verifies the logged-in account's email matches
+    // this invitation before accepting.
+    accepted.value = await acceptInvitationAuthenticated(token.value);
   } catch (error) {
     errorMessage.value = errorFromResponse(error);
   } finally {
@@ -169,11 +210,21 @@ onMounted(loadInvitation);
           <div>
             <p class="text-sm font-medium text-brand">Undangan sekolah</p>
             <h1 class="mt-3 text-3xl font-semibold leading-tight">
-              Selesaikan akun admin sekolah.
+              {{
+                !isExistingUser
+                  ? "Selesaikan akun admin sekolah."
+                  : "Terima undangan sekolah."
+              }}
             </h1>
             <p class="mt-4 text-sm leading-6 text-muted">
-              Undangan ini terhubung dengan sekolah berikut. Buat password untuk
-              mulai memakai Wiyata setelah login.
+              <template v-if="!isExistingUser">
+                Undangan ini terhubung dengan sekolah berikut. Buat password
+                untuk mulai memakai Wiyata setelah login.
+              </template>
+              <template v-else>
+                Undangan ini terhubung dengan sekolah berikut. Email ini sudah
+                memiliki akun Wiyata.
+              </template>
             </p>
 
             <dl
@@ -206,7 +257,8 @@ onMounted(loadInvitation);
             </dl>
           </div>
 
-          <form class="space-y-5" @submit.prevent="submit">
+          <div>
+          <form v-if="!isExistingUser" class="space-y-5" @submit.prevent="submit">
             <label class="block">
               <span
                 class="mb-2 block text-sm font-medium text-foreground-secondary"
@@ -284,13 +336,6 @@ onMounted(loadInvitation);
               </div>
             </label>
 
-            <p
-              v-if="errorMessage"
-              class="rounded-lg border border-[#ffd7d2] bg-[#fff7f5] px-4 py-3 text-sm text-danger"
-            >
-              {{ errorMessage }}
-            </p>
-
             <button
               type="submit"
               :disabled="submitting || !canSubmit"
@@ -299,6 +344,81 @@ onMounted(loadInvitation);
               {{ submitting ? "Memproses..." : "Terima undangan" }}
             </button>
           </form>
+
+          <!-- State 3: existing user, authenticated as the invited account -->
+          <div v-else-if="isAuthenticatedAsInvitee" class="space-y-5">
+            <div class="rounded-xl border border-info-line bg-info-soft p-5">
+              <p class="text-sm font-medium text-foreground">
+                Anda login sebagai {{ auth.user?.email }}.
+              </p>
+              <p class="mt-2 text-sm leading-6 text-muted">
+                Klik tombol di bawah untuk menghubungkan akun Anda dengan
+                sekolah ini.
+              </p>
+            </div>
+            <button
+              type="button"
+              :disabled="submitting"
+              class="flex h-11 w-full items-center justify-center rounded-lg bg-brand px-5 text-sm font-medium text-white transition hover:bg-brand-hover disabled:cursor-not-allowed disabled:bg-[#bab7d8]"
+              @click="acceptAsExistingUser"
+            >
+              {{ submitting ? "Memproses..." : "Terima Undangan" }}
+            </button>
+          </div>
+
+          <!-- Existing user, authenticated as a different account -->
+          <div v-else-if="isAuthenticatedAsOther" class="space-y-5">
+            <div class="rounded-xl border border-warning-line bg-warning-soft p-5">
+              <p class="text-sm font-medium text-foreground">
+                Anda login sebagai {{ auth.user?.email }}, bukan
+                {{ invitation.email }}.
+              </p>
+              <p class="mt-2 text-sm leading-6 text-muted">
+                Keluar terlebih dahulu, lalu login memakai akun
+                {{ invitation.email }} untuk menerima undangan ini.
+              </p>
+            </div>
+            <button
+              type="button"
+              class="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-border bg-surface px-4 text-sm font-medium text-foreground-secondary transition hover:text-foreground"
+              @click="
+                auth.logout();
+                goToLogin();
+              "
+            >
+              <PhSignIn :size="17" />
+              Keluar dan masuk dengan akun lain
+            </button>
+          </div>
+
+          <!-- State 2: existing user, not authenticated -->
+          <div v-else class="space-y-5">
+            <div class="rounded-xl border border-info-line bg-info-soft p-5">
+              <p class="text-sm font-medium text-foreground">
+                Email ini sudah terdaftar.
+              </p>
+              <p class="mt-2 text-sm leading-6 text-muted">
+                Login memakai akun {{ invitation.email }} untuk menerima
+                undangan ini. Tidak perlu membuat password baru.
+              </p>
+            </div>
+            <button
+              type="button"
+              class="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-brand px-5 text-sm font-medium text-white transition hover:bg-brand-hover"
+              @click="goToLogin"
+            >
+              <PhSignIn :size="17" weight="bold" />
+              Login untuk menerima undangan
+            </button>
+          </div>
+
+          <p
+            v-if="errorMessage"
+            class="mt-5 rounded-lg border border-[#ffd7d2] bg-[#fff7f5] px-4 py-3 text-sm text-danger"
+          >
+            {{ errorMessage }}
+          </p>
+          </div>
         </div>
       </div>
     </section>

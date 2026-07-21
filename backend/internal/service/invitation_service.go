@@ -15,14 +15,16 @@ import (
 type InvitationService interface {
 	GetMetadata(token string) (*dto.InvitationMetadataDTO, error)
 	Accept(token string, input dto.AcceptInvitationDTO) (*dto.AcceptInvitationResponseDTO, error)
+	AcceptAuthenticated(token string, userID string) (*dto.AcceptInvitationResponseDTO, error)
 }
 
 type invitationService struct {
-	repo repository.InvitationRepository
+	repo     repository.InvitationRepository
+	userRepo repository.UserRepository
 }
 
-func NewInvitationService(repo repository.InvitationRepository) InvitationService {
-	return &invitationService{repo: repo}
+func NewInvitationService(repo repository.InvitationRepository, userRepo repository.UserRepository) InvitationService {
+	return &invitationService{repo: repo, userRepo: userRepo}
 }
 
 func (s *invitationService) GetMetadata(token string) (*dto.InvitationMetadataDTO, error) {
@@ -36,6 +38,11 @@ func (s *invitationService) GetMetadata(token string) (*dto.InvitationMetadataDT
 		return nil, normalizeInvitationError(err)
 	}
 
+	existingUser, err := s.userRepo.CheckEmailExists(invitation.Email, "")
+	if err != nil {
+		return nil, err
+	}
+
 	return &dto.InvitationMetadataDTO{
 		InvitationID: invitation.ID,
 		Email:        invitation.Email,
@@ -45,8 +52,9 @@ func (s *invitationService) GetMetadata(token string) (*dto.InvitationMetadataDT
 			SchoolCode: invitation.School.Code,
 			SchoolName: invitation.School.Name,
 		},
-		ExpiresAt: formatAPITime(invitation.ExpiresAt),
-		Status:    "valid",
+		ExpiresAt:    formatAPITime(invitation.ExpiresAt),
+		Status:       "valid",
+		ExistingUser: existingUser,
 	}, nil
 }
 
@@ -78,6 +86,38 @@ func (s *invitationService) Accept(token string, input dto.AcceptInvitationDTO) 
 	}
 
 	result, err := s.repo.Accept(tokenHash, name, string(passwordHash), time.Now())
+	if err != nil {
+		return nil, normalizeInvitationError(err)
+	}
+
+	return &dto.AcceptInvitationResponseDTO{
+		Message: "Invitation accepted",
+		User: dto.InvitationAcceptedUserDTO{
+			UserID:   result.User.ID,
+			FullName: result.User.FullName,
+			Email:    result.User.Email,
+		},
+		School: dto.InvitationSchoolDTO{
+			SchoolID:   result.School.ID,
+			SchoolCode: result.School.Code,
+			SchoolName: result.School.Name,
+		},
+		Role: result.Role,
+	}, nil
+}
+
+func (s *invitationService) AcceptAuthenticated(token string, userID string) (*dto.AcceptInvitationResponseDTO, error) {
+	tokenHash, err := hashInvitationToken(token)
+	if err != nil {
+		return nil, err
+	}
+
+	userID = strings.TrimSpace(userID)
+	if userID == "" {
+		return nil, errors.New("invitation authenticated user is required")
+	}
+
+	result, err := s.repo.AcceptAuthenticated(tokenHash, userID, time.Now())
 	if err != nil {
 		return nil, normalizeInvitationError(err)
 	}

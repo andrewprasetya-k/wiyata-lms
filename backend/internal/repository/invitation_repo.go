@@ -3,6 +3,7 @@ package repository
 import (
 	"backend/internal/domain"
 	"errors"
+	"strings"
 	"time"
 
 	"gorm.io/gorm"
@@ -11,6 +12,7 @@ import (
 
 var ErrInvitationInvalid = errors.New("invitation is invalid or expired")
 var ErrInvitationClassUnavailable = errors.New("invitation class is no longer available")
+var ErrInvitationEmailMismatch = errors.New("invitation email does not match authenticated user")
 
 type InvitationAcceptResult struct {
 	Invitation domain.Invitation
@@ -22,6 +24,11 @@ type InvitationAcceptResult struct {
 type InvitationRepository interface {
 	GetByTokenHash(tokenHash string) (*domain.Invitation, error)
 	Accept(tokenHash string, name string, passwordHash string, now time.Time) (*InvitationAcceptResult, error)
+	// AcceptAuthenticated accepts an invitation on behalf of an already
+	// logged-in user (existing-account flow), instead of the name/password
+	// registration path Accept uses. It verifies the caller's own account
+	// email matches the invitation's email before attaching anything.
+	AcceptAuthenticated(tokenHash string, userID string, now time.Time) (*InvitationAcceptResult, error)
 }
 
 type invitationRepository struct {
@@ -54,24 +61,8 @@ func (r *invitationRepository) Accept(tokenHash string, name string, passwordHas
 	var result *InvitationAcceptResult
 
 	err := r.db.Transaction(func(tx *gorm.DB) error {
-		var invitation domain.Invitation
-		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
-			Where("inv_token_hash = ?", tokenHash).
-			First(&invitation).Error; err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return ErrInvitationInvalid
-			}
-			return err
-		}
-		if !isInvitationUsable(invitation, now) {
-			return ErrInvitationInvalid
-		}
-
-		var school domain.School
-		if err := tx.Where("sch_id = ?", invitation.SchoolID).First(&school).Error; err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return ErrInvitationInvalid
-			}
+		invitation, school, err := lockUsableInvitationWithSchool(tx, tokenHash, now)
+		if err != nil {
 			return err
 		}
 
@@ -80,51 +71,11 @@ func (r *invitationRepository) Accept(tokenHash string, name string, passwordHas
 			return err
 		}
 
-		schoolUser, err := resolveInvitationSchoolUser(tx, user.ID, invitation.SchoolID)
+		finalized, err := finalizeInvitationAcceptance(tx, *invitation, *school, user, now)
 		if err != nil {
 			return err
 		}
-
-		var role domain.Role
-		if err := tx.Where("rol_name = ?", invitation.Role).First(&role).Error; err != nil {
-			return err
-		}
-
-		userRole := domain.UserRole{
-			SchoolUserID: schoolUser.ID,
-			RoleID:       role.ID,
-		}
-		if err := tx.Clauses(clause.OnConflict{
-			Columns:   []clause.Column{{Name: "urol_scu_id"}, {Name: "urol_rol_id"}},
-			DoNothing: true,
-		}).Create(&userRole).Error; err != nil {
-			return err
-		}
-
-		if invitation.Role == "student" && invitation.ClassID != nil {
-			if err := ensureInvitationStudentEnrollment(tx, invitation, schoolUser.ID); err != nil {
-				return err
-			}
-		}
-
-		if err := tx.Model(&domain.Invitation{}).
-			Where("inv_id = ? AND inv_accepted_at IS NULL AND inv_revoked_at IS NULL", invitation.ID).
-			Updates(map[string]interface{}{
-				"inv_accepted_at":    now,
-				"inv_target_user_id": user.ID,
-				"updated_at":         now,
-			}).Error; err != nil {
-			return err
-		}
-
-		invitation.AcceptedAt = &now
-		invitation.TargetUserID = &user.ID
-		result = &InvitationAcceptResult{
-			Invitation: invitation,
-			User:       *user,
-			School:     school,
-			Role:       invitation.Role,
-		}
+		result = finalized
 		return nil
 	})
 	if err != nil {
@@ -132,6 +83,122 @@ func (r *invitationRepository) Accept(tokenHash string, name string, passwordHas
 	}
 
 	return result, nil
+}
+
+func (r *invitationRepository) AcceptAuthenticated(tokenHash string, userID string, now time.Time) (*InvitationAcceptResult, error) {
+	var result *InvitationAcceptResult
+
+	err := r.db.Transaction(func(tx *gorm.DB) error {
+		invitation, school, err := lockUsableInvitationWithSchool(tx, tokenHash, now)
+		if err != nil {
+			return err
+		}
+
+		var user domain.User
+		if err := tx.Where("usr_id = ?", userID).First(&user).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return ErrInvitationInvalid
+			}
+			return err
+		}
+		if !strings.EqualFold(strings.TrimSpace(user.Email), strings.TrimSpace(invitation.Email)) {
+			return ErrInvitationEmailMismatch
+		}
+
+		finalized, err := finalizeInvitationAcceptance(tx, *invitation, *school, &user, now)
+		if err != nil {
+			return err
+		}
+		result = finalized
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+// lockUsableInvitationWithSchool loads the invitation row (row-locked, so
+// concurrent accept attempts serialize) and its school, shared by both
+// Accept and AcceptAuthenticated before they diverge on how they resolve
+// the accepting user.
+func lockUsableInvitationWithSchool(tx *gorm.DB, tokenHash string, now time.Time) (*domain.Invitation, *domain.School, error) {
+	var invitation domain.Invitation
+	if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
+		Where("inv_token_hash = ?", tokenHash).
+		First(&invitation).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil, ErrInvitationInvalid
+		}
+		return nil, nil, err
+	}
+	if !isInvitationUsable(invitation, now) {
+		return nil, nil, ErrInvitationInvalid
+	}
+
+	var school domain.School
+	if err := tx.Where("sch_id = ?", invitation.SchoolID).First(&school).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil, ErrInvitationInvalid
+		}
+		return nil, nil, err
+	}
+
+	return &invitation, &school, nil
+}
+
+// finalizeInvitationAcceptance performs the part of acceptance that is
+// identical regardless of how the user was resolved (registration-style via
+// Accept, or an already-authenticated account via AcceptAuthenticated):
+// attach/restore the SchoolUser, assign the invited role, enroll into the
+// class if applicable, and mark the invitation accepted.
+func finalizeInvitationAcceptance(tx *gorm.DB, invitation domain.Invitation, school domain.School, user *domain.User, now time.Time) (*InvitationAcceptResult, error) {
+	schoolUser, err := resolveInvitationSchoolUser(tx, user.ID, invitation.SchoolID)
+	if err != nil {
+		return nil, err
+	}
+
+	var role domain.Role
+	if err := tx.Where("rol_name = ?", invitation.Role).First(&role).Error; err != nil {
+		return nil, err
+	}
+
+	userRole := domain.UserRole{
+		SchoolUserID: schoolUser.ID,
+		RoleID:       role.ID,
+	}
+	if err := tx.Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "urol_scu_id"}, {Name: "urol_rol_id"}},
+		DoNothing: true,
+	}).Create(&userRole).Error; err != nil {
+		return nil, err
+	}
+
+	if invitation.Role == "student" && invitation.ClassID != nil {
+		if err := ensureInvitationStudentEnrollment(tx, invitation, schoolUser.ID); err != nil {
+			return nil, err
+		}
+	}
+
+	if err := tx.Model(&domain.Invitation{}).
+		Where("inv_id = ? AND inv_accepted_at IS NULL AND inv_revoked_at IS NULL", invitation.ID).
+		Updates(map[string]interface{}{
+			"inv_accepted_at":    now,
+			"inv_target_user_id": user.ID,
+			"updated_at":         now,
+		}).Error; err != nil {
+		return nil, err
+	}
+
+	invitation.AcceptedAt = &now
+	invitation.TargetUserID = &user.ID
+	return &InvitationAcceptResult{
+		Invitation: invitation,
+		User:       *user,
+		School:     school,
+		Role:       invitation.Role,
+	}, nil
 }
 
 func isInvitationUsable(invitation domain.Invitation, now time.Time) bool {

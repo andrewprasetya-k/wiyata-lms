@@ -49,7 +49,7 @@ func main() {
 	emailVerificationService := service.NewEmailVerificationService(emailVerificationRepo, userRepo, emailService)
 	emailVerificationHandler := handler.NewEmailVerificationHandler(emailVerificationService)
 	invitationRepo := repository.NewInvitationRepository(db)
-	invitationService := service.NewInvitationService(invitationRepo)
+	invitationService := service.NewInvitationService(invitationRepo, userRepo)
 	invitationHandler := handler.NewInvitationHandler(invitationService)
 
 	academicYearRepo := repository.NewAcademicYearRepository(db)
@@ -202,6 +202,12 @@ func main() {
 		//protected routes
 		api.Use(middleware.AuthRequired())
 		api.Use(middleware.RateLimitPerTenant(rateLimiterStore))
+
+		// Existing-account invitation acceptance: identity comes from the JWT,
+		// not from a submitted name/password. Kept separate from the public
+		// /invitations/:token/accept (registration) route above rather than
+		// branching one endpoint on optional auth.
+		api.POST("/invitations/:token/accept-authenticated", invitationHandler.AcceptAuthenticated)
 
 		meAPI := api.Group("/me")
 		{

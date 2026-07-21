@@ -13,6 +13,7 @@ type InvitationMetadataDTO struct {
 	School       InvitationSchoolDTO `json:"school"`
 	ExpiresAt    string              `json:"expiresAt"`
 	Status       string              `json:"status"`
+	ExistingUser bool                `json:"existingUser"`
 }
 
 type AcceptInvitationDTO struct {
