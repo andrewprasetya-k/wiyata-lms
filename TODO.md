@@ -22,3 +22,5 @@ Status Code
 {"error":"School context required (SchoolId header or schoolCode param)"}
 
 admin invite anggota sekolah by email saja. ketika user mau accept, yang sudah punya akun lgsg klik "terima". yang belum, buat akun dulu
+
+logging untuk admin sekolah mengenai sekolah (backend banyak bertambah, web socket) dan juga superadmin (lebih umum, ga sedetail admin sekolah)
