@@ -126,8 +126,8 @@ onMounted(() => {
           >
             <p class="text-xs font-medium text-muted">Halaman ini</p>
             <p class="mt-2 text-sm leading-6 text-foreground-secondary">
-              Menampilkan {{ users.length }} dari {{ totalItems }} akun.
-              Gunakan pencarian untuk menyaring hasil.
+              Menampilkan {{ users.length }} dari {{ totalItems }} akun. Gunakan
+              pencarian untuk menyaring hasil.
             </p>
           </article>
         </section>
@@ -252,7 +252,12 @@ onMounted(() => {
                     </div>
 
                     <p class="shrink-0 text-xs leading-5 text-muted">
-                      Dibuat {{ user.createdAt }}
+                      Dibuat
+                      {{
+                        new Date(user.createdAt).toLocaleDateString("id-ID", {
+                          dateStyle: "medium",
+                        })
+                      }}
                     </p>
                   </div>
                 </article>
@@ -292,9 +297,7 @@ onMounted(() => {
           </div>
 
           <div class="mt-5 space-y-3">
-            <article
-              class="rounded-lg border border-border bg-[#fcfbf8] p-4"
-            >
+            <article class="rounded-lg border border-border bg-[#fcfbf8] p-4">
               <div class="flex gap-3">
                 <PhIdentificationBadge
                   :size="20"
@@ -312,9 +315,7 @@ onMounted(() => {
               </div>
             </article>
 
-            <article
-              class="rounded-lg border border-border bg-[#fcfbf8] p-4"
-            >
+            <article class="rounded-lg border border-border bg-[#fcfbf8] p-4">
               <div class="flex gap-3">
                 <PhShieldCheck
                   :size="20"
