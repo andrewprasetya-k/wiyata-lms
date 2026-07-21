@@ -210,6 +210,9 @@ DELETE /api/notifications/:id               - Delete notification
 ```
 GET    /api/logs/school/:schoolId           - Get logs by school
 GET    /api/dashboard/student/:userId       - Student dashboard
+GET    /api/dashboard/teacher/:schoolUserId - Teacher dashboard
+GET    /api/dashboard/admin/:schoolId       - Admin dashboard (Phase 7: work-queue widgets, grading backlog — see backend/docs/api/dashboard.md)
+GET    /api/dashboard/super-admin           - Super admin dashboard (Phase 7: work-queue widgets, growth trend charts — see backend/docs/api/dashboard.md)
 ```
 
 ---
@@ -318,7 +321,7 @@ GET    /api/dashboard/student/:userId       - Student dashboard
 - **NotificationService**: Create/fetch/mark-read notifications
 - **MediaService**: Upload files, record metadata, delete with storage cleanup
 - **LogService**: Log user actions with metadata
-- **DashboardService**: Aggregate dashboard data (TODO details TBD)
+- **DashboardService**: Aggregate dashboard data per role (student/teacher/admin/super-admin). Phase 7 extended admin/super-admin with work-queue widgets, grading backlog, and platform growth trends — see `docs/PROJECT_CONTEXT_HANDOFF.md` §25 and `backend/docs/api/dashboard.md`
 
 ### 3.3 Key Patterns
 
@@ -389,7 +392,7 @@ GET    /api/dashboard/student/:userId       - Student dashboard
 18. **GradeRepository**: Calculate student grades
 19. **AssessmentWeightRepository**: Set/get weights by subject-category
 20. **RBACRepository**: Role checks (is super admin, in school, has role)
-21. **DashboardRepository**: Aggregate dashboard metrics
+21. **DashboardRepository**: Aggregate dashboard metrics per role, including Phase 7 additions (classes/subject-classes/subjects needing attention, grading backlog, school performance rollup, super-admin work queue, growth trends) — see `backend/docs/api/dashboard.md`
 22. **ContentOwnerRepository**: Polymorphic owner lookup (for comment notifications)
 
 ### 4.3 Key Query Patterns

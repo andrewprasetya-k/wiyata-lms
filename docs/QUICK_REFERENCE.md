@@ -65,7 +65,7 @@ School (tenant root)
 /api/medias               - Media upload, metadata, retrieval
 /api/notifications        - Notification CRUD + read status
 /api/logs                 - Audit logs
-/api/dashboard            - Dashboard aggregates
+/api/dashboard            - Dashboard aggregates per role (student/teacher/admin/super-admin); Phase 7 added work-queue widgets, grading backlog, performance rollup, and growth trends — see backend/docs/api/dashboard.md
 /api/login                - Auth login
 /api/register             - Auth register
 ```

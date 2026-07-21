@@ -1,6 +1,6 @@
 # Wiyata AI Handoff
 
-Last verified against codebase: 2026-07-17.
+Last verified against codebase: 2026-07-21.
 
 This document is a curated read-first guide for future AI coding agents working on Wiyata. It is not a raw merge of all existing documentation. Use it to orient quickly, then verify implementation details in code and tests before changing behavior.
 
@@ -370,7 +370,62 @@ Check `frontend/src/router/index.ts` before adding or linking routes.
 - Academic Activity `date` remains date-only.
 - Enrollment `enr_role` remains essential until backend-authoritative derivation is implemented.
 
-## 25. Recently Completed Work
+## 25. Dashboards (Phase 7 — School Admin & Super Admin)
+
+Phase 7 (Batches 1–4) extended the School Admin and Super Admin dashboards using only the existing bundled endpoints — `GET /dashboard/admin/:schoolId` and `GET /dashboard/super-admin`. No new endpoints, no new tables/migrations, no chart dependency were introduced. Student and Teacher dashboards were explicitly out of scope for this initiative and were not touched. Full response contracts: `backend/docs/api/dashboard.md`.
+
+### School Admin Dashboard (`frontend/src/pages/admin/AdminDashboard.vue`)
+
+Current section order, top to bottom:
+
+1. **Needs Attention** — persistent shell; alerts for incomplete academic setup, pending invitations, and classes without a teacher. Shows a positive "Semua beres" state when nothing needs attention, or a neutral "data belum lengkap" state (not a false positive) when an underlying fetch failed.
+2. **Work Queue** — five widgets, each its own persistent-shell card:
+   - Undangan Tertunda (pending invitations)
+   - Kelas Tanpa Guru (classes without teacher)
+   - Subject-Class Tanpa Konten (subject-classes without materials/assignments)
+   - Mata Pelajaran Belum Dikonfigurasi (subjects without assessment-weight configuration)
+   - Antrean Penilaian (grading backlog — summary only, no drill-down; Admin has no grading UI of its own)
+3. **Overview** — 4 stat tiles (total students/teachers/classes/active classes)
+4. **Recent Activity** (Aktivitas Terbaru)
+5. **Sidebar** — chat panel, then Distribusi Kelas (enrollment distribution bars)
+
+An earlier "Setup Progress" section and a "School Performance Rollup" table were built during this initiative but are **not present in the current file** — see §27 (Known Technical Debt) for exact status. This list reflects what is actually on disk today.
+
+### Super Admin Dashboard (`frontend/src/pages/superadmin/SuperAdminDashboard.vue`)
+
+Current section order, top to bottom:
+
+1. **Needs Attention** — schools without an admin, schools without academic setup; same persistent-shell + positive-empty-state pattern as Admin.
+2. **Work Queue** — Sekolah Tanpa Admin, Sekolah Tanpa Setup Akademik.
+3. **Overview** — 2 stat tiles (total schools, total platform users) + Sekolah Terbaru (recently created schools).
+4. **Platform Trends** — School Growth and User Growth (see below).
+5. **Reference** — static descriptive cards (`overviewCards`) and the "Alur pengaturan awal tenant" onboarding-flow article. Not data-driven, unchanged by Phase 7.
+6. **Sidebar** — Aksi cepat (Quick Actions).
+
+**Platform Trends widgets:** both read `schoolGrowthTrend` / `userGrowthTrend` from the same bundled `/dashboard/super-admin` response — 6 monthly points each, oldest → newest. They render as **plain HTML/Tailwind bars** (one `<div>` per month, inline `height: %` style, inside a fixed `h-[180px]` container, colored with theme tokens `bg-brand`/`bg-info`) — no charting library. See the architectural decisions below for why.
+
+### Backend repository methods added (Batches 1–4)
+
+All in `internal/repository/dashboard_repo.go`, called from `dashboard_service.GetAdminDashboard` / `GetSuperAdminDashboard`:
+
+- `GetClassesWithoutTeacher` — active classes with zero `subject_classes` rows.
+- `GetContentLessSubjectClasses` — subject-classes with neither materials nor assignments (reuses `SubjectClassRepository.HasSubjectClassContent`'s definition, not a new rule).
+- `GetSubjectsWithoutAssessmentWeight` — subjects with zero `assessments_weights` rows (safe because `grade_service.ConfigureWeights` only ever persists a set summing to exactly 100 — never partial).
+- `GetGradingBacklog` — total ungraded submissions school-wide + top 3 classes by backlog count (reuses the "no matching `assessments` row" definition from `GetPendingReviewsCount`).
+- `GetSchoolPerformanceRollup` — weakest 5 subject-classes by average score (reuses `GetClassPerformance`'s formula); **implemented but not currently called** — see §27.
+- `GetSchoolsWithoutAdmin` — active schools with zero `school_users` holding the `admin` role.
+- `GetSchoolsWithoutSetup` — active schools with no active `academic_years` row.
+- `GetSchoolGrowthTrend` / `GetUserGrowthTrend` — 6-month `generate_series`-based counts of schools/users created per month, oldest → newest.
+
+### Architectural decisions (Phase 7)
+
+- Every widget renders a persistent shell across loading/empty/error states — no widget fully disappears from the page.
+- Empty states are positive/neutral ("Semua beres", "Tidak ada...", "Belum ada...") rather than blank.
+- Widget-level error messages are shown inline per widget rather than one generic page-level failure; widgets fed by the same bundled response fail together (see §27), but each still surfaces its own inline text.
+- Loading uses `animate-pulse` skeletons matching each widget's eventual shape (row skeletons, stat-tile skeletons, chart-area skeletons) — no new animation/shimmer style was introduced.
+- No chart dependency was introduced. Two 6-point trend charts were judged too simple to justify a charting library — no interactivity/tooltips/axes/zoom required, fixed height, no gradients/3D/shadows/animation per the design brief — so they reuse the hand-rolled proportional-bar idiom `AdminDashboard.vue`'s "Distribusi Kelas" widget already established, extended to a time axis.
+
+## 26. Recently Completed Work
 
 - Active school + active role backend/frontend foundation, visual ContextSwitcher, `Active-Role` CORS support, and keyed route remounting.
 - Self-service school creation (`POST /schools`, gated by email verification — creator becomes Admin atomically), admin invitation, public invitation accept, teacher/student member invitations, and best-effort emails. The old School Registration Request / super admin approval flow has been removed from the application layer (Phase 4A); the `school_registration_requests` table itself is still present in the database, pending a separate drop.
@@ -383,8 +438,9 @@ Check `frontend/src/router/index.ts` before adding or linking routes.
 - **Hardening Phase 4 — Async Consistency:** Stale response guards added to `ChatWorkspace.vue` (room switch) and `TeacherFeed.vue` (class switch). Pattern: capture resource ID before await, discard response if ID changed.
 - **Hardening Phase 5 — Error Handling:** Created `frontend/src/utils/error.ts` with `getApiError(error: unknown)`. Removed 11 duplicate local error helpers; all replaced with shared utility.
 - **Hardening Phase 6 — Backend Unit Tests:** Added `grade_service_test.go` (10 tests) and `assignment_service_test.go` (6 tests) covering weight validation, duplicate category, atomic replace, deadline enforcement, and submission integrity.
+- **Phase 7 (Batches 1–4) — School Admin & Super Admin Dashboards:** Extended the existing bundled dashboard endpoints with work-queue widgets (classes without teacher, content-less subject-classes, subjects missing assessment-weight config, grading backlog), a school-wide performance rollup, super-admin work-queue widgets (schools without admin/setup), and two platform growth-trend charts (school growth, user growth) rendered with plain HTML/Tailwind bars — no chart library added. See §25 for full detail.
 
-## 26. Known Technical Debt and Edge Cases
+## 27. Known Technical Debt and Edge Cases
 
 - Backend still accepts enrollment `role` payload and does not authoritatively derive it from school roles.
 - Some historical docs remain stale or analysis-only.
@@ -395,12 +451,18 @@ Check `frontend/src/router/index.ts` before adding or linking routes.
 - Some frontend build warnings may be non-blocking but should be rechecked in current output.
 - `POST /academic-years`, `POST /terms`, `POST /subjects`, `POST /classes` accept `schoolId` in request body without validating it against the caller's active school — known LOW risk (admin role required, create-only).
 - gofmt non-compliance across most Go source files.
+- **Dashboard endpoints are bundled per role** (`/dashboard/admin/:schoolId`, `/dashboard/super-admin` each return everything that role's page needs in one response). A failure of that one call fails every widget on the page together, though each widget still shows its own inline error text rather than a generic crash.
+- **Several Phase 7 widgets link to the nearest existing page**, not a dedicated one, since no dedicated page exists yet: pending invitations → `/admin/users`; classes-without-teacher → `/admin/classes`; content-less subject-classes and subjects-without-weight-config → `/admin/subject-classes`; schools-without-admin/setup → `/superadmin/schools`.
+- **Grading Backlog (Admin Dashboard) is monitoring-only** — no drill-down link, since grading is a teacher-role feature Admin has no UI for.
+- **Platform Trends charts (Super Admin) are non-interactive** — no tooltips, hover values, drill-down, export, or filters, by design.
+- **`GetSchoolPerformanceRollup` (repository method, `internal/repository/dashboard_repo.go`) and `SchoolPerformanceRollup` (DTO field on `AdminDashboardDTO`) are dead code as of this writing.** `dashboard_service.GetAdminDashboard` does not call the method, and `AdminDashboard.vue` has no template section rendering the field — it always serializes as `null`. A future pass should either finish wiring it (add the service call + a rendering section) or remove the orphaned method/field.
+- **An earlier "Setup Progress" section is no longer present in `AdminDashboard.vue`.** The section, its `setupSteps`/`isSetupComplete` script logic, and its `PhCheckCircle`/`PhCircleDashed` icon usage were removed at some point during this initiative and were not restored. Confirm with the team whether this was intentional before assuming it should come back.
 
-## 27. Current Open Work
+## 28. Current Open Work
 
 - Assignment extension request/review flow; protected media download URLs and thumbnails; grade/transcript export; notification preferences and optional realtime notification delivery; rich text and sanitization; nested comments if product decides; backend-authoritative enrollment role derivation.
 
-## 28. Recommended Next Steps
+## 29. Recommended Next Steps
 
 1. Add backend validation/derivation for enrollment role based on school-level roles.
 2. Add focused tests around context switching, invitation accept flow, and discussion notification recipients (see `backend/TODO.md` — Test Coverage Follow-Up).
@@ -408,7 +470,7 @@ Check `frontend/src/router/index.ts` before adding or linking routes.
 4. Implement protected file delivery before expanding media-heavy workflows.
 5. Apply gofmt to all Go source files.
 
-## 29. Validation Commands
+## 30. Validation Commands
 
 Backend:
 
@@ -432,13 +494,13 @@ git diff --check
 git status --short
 ```
 
-## 30. Known Non-Blocking Warnings
+## 31. Known Non-Blocking Warnings
 
 Historical local runs have surfaced non-blocking warnings such as CSS `@import` order or large Vite chunk warnings. Treat current command output as authoritative; do not assume old warnings still apply.
 
 Shell startup warnings from a developer's local profile are environment issues, not project validation failures.
 
-## 31. AI Development Workflow
+## 32. AI Development Workflow
 
 - Read the code path before proposing a fix.
 - For frontend-to-backend behavior, trace page/component → service → API route → handler → service → repository.
@@ -448,7 +510,7 @@ Shell startup warnings from a developer's local profile are environment issues, 
 - Run the requested validation commands.
 - Report honestly when validation is build-only and not runtime QA.
 
-## 32. Git Safety Rules
+## 33. Git Safety Rules
 
 - The worktree may be dirty.
 - Never revert changes you did not make unless explicitly asked.
@@ -456,11 +518,11 @@ Shell startup warnings from a developer's local profile are environment issues, 
 - Do not delete, rename, or archive docs unless the user explicitly asks.
 - For documentation-only tasks, do not modify runtime source, config, migrations, or tests.
 
-## 33. Detailed Documentation Index
+## 34. Detailed Documentation Index
 
-Specialized docs to consult: `README.md`, `README_EN.md`, `TODO.md`, `backend/TODO.md`, `backend/schema.md`, `backend/docs/API_SUMMARY.md`, `backend/docs/api/enrollment.md`, `backend/docs/api/notification.md`. Older analysis/reference docs in `docs/ANALYSIS_INDEX.md`, `docs/CODEBASE_ANALYSIS.md`, `docs/QUICK_REFERENCE.md`, and `docs/PRODUCT_SCOPE.md` must be verified against current code before relying on details. (`backend/docs/api/school_registration_requests.md`, which documented the removed flow, has been deleted — see section 13 for the current self-service Create School flow.)
+Specialized docs to consult: `README.md`, `README_EN.md`, `TODO.md`, `backend/TODO.md`, `backend/schema.md`, `backend/docs/API_SUMMARY.md`, `backend/docs/api/enrollment.md`, `backend/docs/api/notification.md`, `backend/docs/api/dashboard.md` (student/teacher/admin/super-admin dashboard contracts, including Phase 7 fields — see §25). Older analysis/reference docs in `docs/ANALYSIS_INDEX.md`, `docs/CODEBASE_ANALYSIS.md`, `docs/QUICK_REFERENCE.md`, and `docs/PRODUCT_SCOPE.md` must be verified against current code before relying on details. (`backend/docs/api/school_registration_requests.md`, which documented the removed flow, has been deleted — see section 13 for the current self-service Create School flow.)
 
-## 34. Source-of-Truth Hierarchy
+## 35. Source-of-Truth Hierarchy
 
 Use this hierarchy when facts conflict:
 

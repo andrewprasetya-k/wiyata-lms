@@ -5,6 +5,8 @@ Pastikan update role tidak lagi menghapus role lain secara tidak sengaja.
 Evaluasi invitation & enroll untuk mendukung multi-role bila memang dibutuhkan.
 Audit seluruh frontend terhadap asumsi single-role.
 
+di super admin:
+
 Request URL
 http://localhost:8080/api/schools?page=1&limit=20&status=all&sortBy=createdAt&order=desc
 Request Method
@@ -20,6 +22,22 @@ GET
 Status Code
 400 Bad Request
 {"error":"School context required (SchoolId header or schoolCode param)"}
+
+Request URL
+http://localhost:8080/api/dashboard/super-admin
+Request Method
+GET
+Status Code
+400 Bad Request
+{"error":"School context required (SchoolId header or schoolCode param)"}
+
+Request URL
+http://localhost:8080/api/users?page=1&limit=1
+Request Method
+GET
+Status Code
+403 Forbidden
+{"error":"Forbidden: system super admin context not available"}
 
 admin invite anggota sekolah by email saja. ketika user mau accept, yang sudah punya akun lgsg klik "terima". yang belum, buat akun dulu
 
