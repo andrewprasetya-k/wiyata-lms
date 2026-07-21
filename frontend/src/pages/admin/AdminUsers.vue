@@ -77,7 +77,8 @@ const currentSchool = computed(() => {
 
 const members = ref<AdminSchoolMemberItem[]>([]);
 const roles = ref<RoleItem[]>([]);
-const memberRoleDrafts = ref<Record<string, string>>({});
+const memberRoleDrafts = ref<Record<string, string[]>>({});
+const memberRoleErrors = ref<Record<string, string>>({});
 
 const membersPage = ref(1);
 const membersTotalPages = ref(1);
@@ -202,38 +203,24 @@ function initializeRoleDrafts() {
       role.roleId,
     ]),
   );
-  const nextDrafts: Record<string, string> = {};
+  const nextDrafts: Record<string, string[]> = {};
 
   for (const member of members.value) {
-    const selectedRole =
-      member.roles
-        ?.filter((roleName) => roleByName.has(normalizeRoleName(roleName)))
-        .sort((a, b) => rolePriority(a) - rolePriority(b))[0] ?? "";
-    nextDrafts[member.schoolUserId] = selectedRole
-      ? (roleByName.get(normalizeRoleName(selectedRole)) ?? "")
-      : "";
+    const assignedRoleIds = (member.roles ?? [])
+      .filter((roleName) => roleByName.has(normalizeRoleName(roleName)))
+      .map((roleName) => roleByName.get(normalizeRoleName(roleName)) as string);
+    // De-dupe in case a member's role list repeats the same role name.
+    nextDrafts[member.schoolUserId] = [...new Set(assignedRoleIds)];
   }
 
   memberRoleDrafts.value = nextDrafts;
+  memberRoleErrors.value = {};
 }
 
-function primaryRoleName(member: AdminSchoolMemberItem) {
-  return (
-    member.roles
-      ?.filter((roleName) =>
-        allowedRoleNames.includes(normalizeRoleName(roleName)),
-      )
-      .sort((a, b) => rolePriority(a) - rolePriority(b))[0] ?? ""
-  );
-}
-
-function hasMultipleAllowedRoles(member: AdminSchoolMemberItem) {
-  const uniqueRoles = new Set(
-    member.roles
-      ?.map((roleName) => normalizeRoleName(roleName))
-      .filter((roleName) => allowedRoleNames.includes(roleName)) ?? [],
-  );
-  return uniqueRoles.size > 1;
+function assignedRoleNames(member: AdminSchoolMemberItem) {
+  return (member.roles ?? [])
+    .filter((roleName) => allowedRoleNames.includes(normalizeRoleName(roleName)))
+    .sort((a, b) => rolePriority(a) - rolePriority(b));
 }
 
 async function loadRoles() {
@@ -304,15 +291,19 @@ watch(memberSearch, () => {
   }, 300);
 });
 
-async function syncRoleForMember(schoolUserId: string, roleId: string) {
-  if (!roleId) {
-    toast.error("Pilih satu peran.");
+async function syncRoleForMember(schoolUserId: string, roleIds: string[]) {
+  if (roleIds.length === 0) {
+    memberRoleErrors.value = {
+      ...memberRoleErrors.value,
+      [schoolUserId]: "Pilih minimal satu peran.",
+    };
     return;
   }
+  memberRoleErrors.value = { ...memberRoleErrors.value, [schoolUserId]: "" };
 
   savingRolesSchoolUserId.value = schoolUserId;
   try {
-    await syncUserRoles(schoolUserId, { roleIds: [roleId] });
+    await syncUserRoles(schoolUserId, { roleIds });
     toast.success("Peran warga sekolah berhasil diperbarui.");
     await loadMembers();
   } catch {
@@ -322,11 +313,19 @@ async function syncRoleForMember(schoolUserId: string, roleId: string) {
   }
 }
 
-function setRoleDraft(schoolUserId: string, roleId: string) {
+function toggleRoleDraft(schoolUserId: string, roleId: string) {
+  const current = memberRoleDrafts.value[schoolUserId] ?? [];
+  const next = current.includes(roleId)
+    ? current.filter((id) => id !== roleId)
+    : [...current, roleId];
+
   memberRoleDrafts.value = {
     ...memberRoleDrafts.value,
-    [schoolUserId]: roleId,
+    [schoolUserId]: next,
   };
+  if (next.length > 0 && memberRoleErrors.value[schoolUserId]) {
+    memberRoleErrors.value = { ...memberRoleErrors.value, [schoolUserId]: "" };
+  }
 }
 
 
@@ -702,10 +701,11 @@ onMounted(async () => {
                           {{ member.fullName || "Nama tidak tersedia" }}
                         </h3>
                         <span
-                          v-if="primaryRoleName(member)"
+                          v-for="roleName in assignedRoleNames(member)"
+                          :key="roleName"
                           class="rounded-lg bg-brand-soft px-2 py-1 text-[11px] font-medium text-brand"
                         >
-                          {{ roleLabel(primaryRoleName(member)) }}
+                          {{ roleLabel(roleName) }}
                         </span>
                       </div>
                       <p class="mt-1 break-all text-xs text-muted">
@@ -720,51 +720,52 @@ onMounted(async () => {
                       >
                         Kelas: {{ member.classCodes.join(", ") }}
                       </p>
-                      <p
-                        v-if="hasMultipleAllowedRoles(member)"
-                        class="mt-2 rounded-lg border border-[#fde68a] bg-warning-soft px-3 py-2 text-xs leading-5 text-warning-hover"
-                      >
-                        Data lama memiliki lebih dari satu peran. Saat
-                        diperbarui, satu peran utama akan disimpan.
-                      </p>
                     </div>
                   </div>
 
                   <div class="min-w-0 rounded-lg bg-surface-subtle p-3">
-                    <label class="block text-xs font-medium text-muted">
-                      Peran sekolah
-                      <select
-                        class="mt-2 w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-foreground outline-none transition focus:border-brand"
-                        :value="memberRoleDrafts[member.schoolUserId] ?? ''"
-                        :disabled="rolesLoading || allowedRoles.length === 0"
-                        @change="
-                          setRoleDraft(
-                            member.schoolUserId,
-                            ($event.target as HTMLSelectElement).value,
-                          )
-                        "
-                      >
-                        <option value="" disabled>Pilih peran</option>
-                        <option
+                    <fieldset class="m-0 min-w-0 border-0 p-0">
+                      <legend class="block text-xs font-medium text-muted">
+                        Peran sekolah
+                      </legend>
+                      <div class="mt-2 space-y-2">
+                        <label
                           v-for="role in allowedRoles"
                           :key="role.roleId"
-                          :value="role.roleId"
+                          class="flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground transition"
+                          :class="
+                            rolesLoading
+                              ? 'cursor-not-allowed opacity-60'
+                              : 'cursor-pointer hover:border-brand'
+                          "
                         >
+                          <input
+                            type="checkbox"
+                            class="h-4 w-4 shrink-0 rounded border-border-strong text-brand focus:ring-brand"
+                            :checked="
+                              memberRoleDrafts[member.schoolUserId]?.includes(
+                                role.roleId,
+                              ) ?? false
+                            "
+                            :disabled="rolesLoading || allowedRoles.length === 0"
+                            @change="toggleRoleDraft(member.schoolUserId, role.roleId)"
+                          />
                           {{ roleLabel(role.roleName) }}
-                        </option>
-                      </select>
-                    </label>
+                        </label>
+                      </div>
+                    </fieldset>
+                    <InlineFormError
+                      class="mt-2"
+                      :message="memberRoleErrors[member.schoolUserId] ?? ''"
+                    />
                     <button
                       type="button"
                       class="mt-2.5 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#ea580c] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#c2410c] disabled:cursor-not-allowed disabled:opacity-60"
-                      :disabled="
-                        savingRolesSchoolUserId === member.schoolUserId ||
-                        !memberRoleDrafts[member.schoolUserId]
-                      "
+                      :disabled="savingRolesSchoolUserId === member.schoolUserId"
                       @click="
                         syncRoleForMember(
                           member.schoolUserId,
-                          memberRoleDrafts[member.schoolUserId] ?? '',
+                          memberRoleDrafts[member.schoolUserId] ?? [],
                         )
                       "
                     >
@@ -909,7 +910,7 @@ onMounted(async () => {
                 />
               </label>
               <p
-                class="rounded-lg border border-[#dbeafe] bg-[#eff6ff] px-3 py-2 text-xs leading-5 text-[#1d4ed8]"
+                class="rounded-lg border border-[#dbeafe] bg-info-soft px-3 py-2 text-xs leading-5 text-[#1d4ed8]"
               >
                 Pengguna akan menerima email undangan dan membuat password
                 sendiri. Jika email tidak terkirim, gunakan link manual setelah

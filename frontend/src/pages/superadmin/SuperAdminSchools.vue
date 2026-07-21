@@ -120,7 +120,6 @@ function resetForm() {
   };
 }
 
-
 async function loadSummary() {
   summaryError.value = "";
 
@@ -265,11 +264,7 @@ onMounted(() => {
         class="flex min-w-0 flex-col gap-3 px-5 py-5 sm:px-6 lg:flex-row lg:items-end lg:justify-between lg:px-8"
       >
         <div class="min-w-0">
-          <p
-            class="eyebrow"
-          >
-            Super Admin
-          </p>
+          <p class="eyebrow">Super Admin</p>
           <h1 class="mt-2 text-2xl font-semibold text-foreground sm:text-3xl">
             Sekolah
           </h1>
@@ -335,11 +330,7 @@ onMounted(() => {
             class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"
           >
             <div class="min-w-0">
-              <p
-                class="eyebrow"
-              >
-                Daftar tenant sekolah
-              </p>
+              <p class="eyebrow">Daftar tenant sekolah</p>
               <h2 class="mt-2 text-xl font-semibold text-foreground">
                 Sekolah platform
               </h2>
@@ -365,7 +356,11 @@ onMounted(() => {
 
           <div class="mt-5 flex flex-col gap-4">
             <div v-if="isLoading" class="space-y-3">
-              <div v-for="item in 3" :key="item" class="h-24 animate-pulse rounded-xl bg-surface-subtle" />
+              <div
+                v-for="item in 3"
+                :key="item"
+                class="h-24 animate-pulse rounded-xl bg-surface-subtle"
+              />
             </div>
 
             <div
@@ -416,74 +411,83 @@ onMounted(() => {
 
             <template v-else>
               <div class="space-y-3">
-              <article
-                v-for="school in schools"
-                :key="school.schoolId"
-                class="rounded-xl border border-border bg-[#fcfbf8] p-4"
-              >
-                <div
-                  class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"
+                <article
+                  v-for="school in schools"
+                  :key="school.schoolId"
+                  class="rounded-xl border border-border bg-[#fcfbf8] p-4"
                 >
-                  <div class="min-w-0">
-                    <div class="flex min-w-0 flex-wrap items-center gap-2">
-                      <h3
-                        class="truncate text-base font-semibold text-foreground"
-                      >
-                        {{ school.schoolName }}
-                      </h3>
-                      <span
-                        class="rounded-full px-2.5 py-1 text-xs font-semibold"
-                        :class="
-                          school.isDeleted
-                            ? 'bg-warning-soft text-warning'
-                            : 'bg-success-soft text-success'
-                        "
-                      >
-                        {{ school.isDeleted ? "Diarsipkan" : "Aktif" }}
-                      </span>
-                      <span
-                        class="rounded-full bg-surface-strong px-2.5 py-1 text-xs font-semibold text-muted"
-                      >
-                        {{ school.schoolCode || "Kode otomatis" }}
-                      </span>
-                    </div>
-                    <div
-                      class="mt-3 grid gap-2 text-sm leading-6 text-muted md:grid-cols-2"
-                    >
-                      <p class="flex min-w-0 items-center gap-2">
-                        <PhEnvelopeSimple :size="16" class="shrink-0" />
-                        <span class="truncate">{{ school.schoolEmail }}</span>
-                      </p>
-                      <p class="flex min-w-0 items-center gap-2">
-                        <PhPhone :size="16" class="shrink-0" />
-                        <span class="truncate">{{ school.schoolPhone }}</span>
-                      </p>
-                      <p class="flex min-w-0 items-center gap-2 md:col-span-2">
-                        <PhMapPin :size="16" class="shrink-0" />
-                        <span class="truncate">{{ school.schoolAddress }}</span>
-                      </p>
-                      <p
-                        v-if="school.schoolWebsite"
-                        class="flex min-w-0 items-center gap-2 md:col-span-2"
-                      >
-                        <PhGlobe :size="16" class="shrink-0" />
-                        <a
-                          :href="school.schoolWebsite"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          class="truncate text-[#ea580c] hover:underline"
+                  <div
+                    class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"
+                  >
+                    <div class="min-w-0">
+                      <div class="flex min-w-0 flex-wrap items-center gap-2">
+                        <h3
+                          class="truncate text-base font-semibold text-foreground"
                         >
-                          {{ school.schoolWebsite }}
-                        </a>
-                      </p>
+                          {{ school.schoolName }}
+                        </h3>
+                        <span
+                          class="rounded-full px-2.5 py-1 text-xs font-semibold"
+                          :class="
+                            school.isDeleted
+                              ? 'bg-warning-soft text-warning'
+                              : 'bg-success-soft text-success'
+                          "
+                        >
+                          {{ school.isDeleted ? "Diarsipkan" : "Aktif" }}
+                        </span>
+                        <span
+                          class="rounded-full bg-surface-strong px-2.5 py-1 text-xs font-semibold text-muted"
+                        >
+                          {{ school.schoolCode || "Kode otomatis" }}
+                        </span>
+                      </div>
+                      <div
+                        class="mt-3 grid gap-2 text-sm leading-6 text-muted md:grid-cols-2"
+                      >
+                        <p class="flex min-w-0 items-center gap-2">
+                          <PhEnvelopeSimple :size="16" class="shrink-0" />
+                          <span class="truncate">{{ school.schoolEmail }}</span>
+                        </p>
+                        <p class="flex min-w-0 items-center gap-2">
+                          <PhPhone :size="16" class="shrink-0" />
+                          <span class="truncate">{{ school.schoolPhone }}</span>
+                        </p>
+                        <p
+                          class="flex min-w-0 items-center gap-2 md:col-span-2"
+                        >
+                          <PhMapPin :size="16" class="shrink-0" />
+                          <span class="truncate">{{
+                            school.schoolAddress
+                          }}</span>
+                        </p>
+                        <p
+                          v-if="school.schoolWebsite"
+                          class="flex min-w-0 items-center gap-2 md:col-span-2"
+                        >
+                          <PhGlobe :size="16" class="shrink-0" />
+                          <a
+                            :href="school.schoolWebsite"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="truncate text-[#ea580c] hover:underline"
+                          >
+                            {{ school.schoolWebsite }}
+                          </a>
+                        </p>
+                      </div>
                     </div>
-                  </div>
 
-                  <p class="shrink-0 text-xs leading-5 text-muted">
-                    Dibuat {{ school.createdAt }}
-                  </p>
-                </div>
-              </article>
+                    <p class="shrink-0 text-xs leading-5 text-muted">
+                      Dibuat
+                      {{
+                        new Date(school.createdAt).toLocaleDateString("id-ID", {
+                          dateStyle: "medium",
+                        })
+                      }}
+                    </p>
+                  </div>
+                </article>
               </div>
               <PaginationBar
                 :page="schoolsPage"
@@ -503,11 +507,7 @@ onMounted(() => {
         >
           <div class="flex items-start justify-between gap-4">
             <div>
-              <p
-                class="eyebrow"
-              >
-                Setup sekolah
-              </p>
+              <p class="eyebrow">Setup sekolah</p>
               <h2 class="mt-2 text-xl font-semibold text-foreground">
                 Sekolah + admin awal
               </h2>
@@ -534,9 +534,7 @@ onMounted(() => {
                 weight="duotone"
               />
               <div class="min-w-0">
-                <p class="text-sm font-semibold text-success">
-                  Setup berhasil
-                </p>
+                <p class="text-sm font-semibold text-success">Setup berhasil</p>
                 <p class="mt-1 text-xs leading-5 text-success">
                   {{ bootstrapResult.school.schoolName }} sudah dibuat dan
                   {{ bootstrapResult.adminUser.fullName }} mendapat role admin
@@ -558,7 +556,9 @@ onMounted(() => {
                 </p>
               </div>
 
-              <label class="block text-sm font-medium text-foreground-secondary">
+              <label
+                class="block text-sm font-medium text-foreground-secondary"
+              >
                 Nama sekolah
                 <input
                   v-model="schoolForm.schoolName"
@@ -568,7 +568,9 @@ onMounted(() => {
                 />
               </label>
 
-              <label class="block text-sm font-medium text-foreground-secondary">
+              <label
+                class="block text-sm font-medium text-foreground-secondary"
+              >
                 Kode sekolah
                 <input
                   v-model="schoolForm.schoolCode"
@@ -578,7 +580,9 @@ onMounted(() => {
                 />
               </label>
 
-              <label class="block text-sm font-medium text-foreground-secondary">
+              <label
+                class="block text-sm font-medium text-foreground-secondary"
+              >
                 Email sekolah
                 <input
                   v-model="schoolForm.schoolEmail"
@@ -588,7 +592,9 @@ onMounted(() => {
                 />
               </label>
 
-              <label class="block text-sm font-medium text-foreground-secondary">
+              <label
+                class="block text-sm font-medium text-foreground-secondary"
+              >
                 Telepon sekolah
                 <input
                   v-model="schoolForm.schoolPhone"
@@ -598,7 +604,9 @@ onMounted(() => {
                 />
               </label>
 
-              <label class="block text-sm font-medium text-foreground-secondary">
+              <label
+                class="block text-sm font-medium text-foreground-secondary"
+              >
                 Website
                 <input
                   v-model="schoolForm.schoolWebsite"
@@ -608,7 +616,9 @@ onMounted(() => {
                 />
               </label>
 
-              <label class="block text-sm font-medium text-foreground-secondary">
+              <label
+                class="block text-sm font-medium text-foreground-secondary"
+              >
                 Alamat sekolah
                 <textarea
                   v-model="schoolForm.schoolAddress"
@@ -678,7 +688,9 @@ onMounted(() => {
               </div>
 
               <div v-if="adminMode === 'new'" class="space-y-4">
-                <label class="block text-sm font-medium text-foreground-secondary">
+                <label
+                  class="block text-sm font-medium text-foreground-secondary"
+                >
                   Nama admin sekolah
                   <input
                     v-model="newAdminForm.fullName"
@@ -688,7 +700,9 @@ onMounted(() => {
                   />
                 </label>
 
-                <label class="block text-sm font-medium text-foreground-secondary">
+                <label
+                  class="block text-sm font-medium text-foreground-secondary"
+                >
                   Email admin sekolah
                   <input
                     v-model="newAdminForm.email"
@@ -698,7 +712,9 @@ onMounted(() => {
                   />
                 </label>
 
-                <label class="block text-sm font-medium text-foreground-secondary">
+                <label
+                  class="block text-sm font-medium text-foreground-secondary"
+                >
                   Password awal
                   <div class="relative mt-2">
                     <input
@@ -726,7 +742,9 @@ onMounted(() => {
               </div>
 
               <div v-else class="space-y-3">
-                <label class="block text-sm font-medium text-foreground-secondary">
+                <label
+                  class="block text-sm font-medium text-foreground-secondary"
+                >
                   User ID akun global
                   <input
                     v-model="existingAdminForm.userId"
