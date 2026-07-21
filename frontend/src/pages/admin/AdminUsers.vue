@@ -910,7 +910,7 @@ onMounted(async () => {
                 />
               </label>
               <p
-                class="rounded-lg border border-[#dbeafe] bg-info-soft px-3 py-2 text-xs leading-5 text-[#1d4ed8]"
+                class="rounded-lg border border-[#dbeafe] bg-info-soft px-3 py-2 text-xs leading-5 text-info-hover"
               >
                 Pengguna akan menerima email undangan dan membuat password
                 sendiri. Jika email tidak terkirim, gunakan link manual setelah
