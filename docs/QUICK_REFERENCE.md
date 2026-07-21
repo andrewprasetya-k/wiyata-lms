@@ -43,6 +43,7 @@ School (tenant root)
 | **Notifications** | Best-effort, don't cascade on failure | Main action succeeds even if notif fails |
 | **Soft Deletes** | All entities except linking tables | Data recoverable |
 | **Comments** | Polymorphic (SourceType + SourceID) | Can comment on material, assignment, feed, submission, comment |
+| **Invitation accept (existing user)** | Two endpoints, not one branching on optional auth: `POST /invitations/:token/accept` (public, new-user) vs `POST /invitations/:token/accept-authenticated` (JWT-required, existing-user) | Backend verifies `authenticated user's email == invitation.email`; frontend never trusted for that check |
 
 ## Routes Quick Map
 ```
@@ -66,6 +67,8 @@ School (tenant root)
 /api/notifications        - Notification CRUD + read status
 /api/logs                 - Audit logs
 /api/dashboard            - Dashboard aggregates per role (student/teacher/admin/super-admin); Phase 7 added work-queue widgets, grading backlog, performance rollup, and growth trends — see backend/docs/api/dashboard.md
+/api/invitations          - Public invitation accept (new-user + Phase 8 authenticated existing-user path) — see backend/docs/api/invitation.md
+/api/admin/school-member-invitations - Admin invitation create/list/revoke; `fullName` optional since Phase 8 — see backend/docs/api/school_member_invitations.md
 /api/login                - Auth login
 /api/register             - Auth register
 ```

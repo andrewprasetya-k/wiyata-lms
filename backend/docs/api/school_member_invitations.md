@@ -33,17 +33,18 @@ Request:
 
 ```json
 {
-  "fullName": "Budi Santoso",
   "email": "budi@example.com",
   "role": "student",
   "classCode": "X-IPA-1"
 }
 ```
 
+`fullName` (optional, not shown above): as of Phase 8, the admin-facing form no longer asks for it. If sent, it's stored purely as a legacy display label — see the note below.
+
 Rules:
 
 - `role` must be `student` or `teacher`.
-- `fullName`, `email`, and `role` are required.
+- `email` and `role` are required. `fullName` is optional (max 150 characters if provided).
 - `classCode` is required for `student`.
 - `classCode` must belong to the active school.
 - `classCode` is rejected for `teacher`.
@@ -53,6 +54,8 @@ Rules:
 - After the invitation row is created, Wiyata sends an invitation email best-effort when SMTP is configured.
 - SMTP disabled or email delivery failure does not fail the invitation; use `acceptUrl` or `token` as the manual fallback.
 
+> **`fullName` is a legacy/display-only field.** It predates the existing-user invitation flow (Phase 8) and is not read by either accept path — see `invitation.md` for how each one actually resolves the account's name. Its only remaining consumer is `AdminDashboard.vue`'s pending-invitations widget, which falls back to `invitation.email` when it's empty. Invitations created after Phase 8 will typically have it unset (`null` in the database, `""` in this response).
+
 Response:
 
 ```json
@@ -60,7 +63,7 @@ Response:
   "message": "School member invitation created",
   "invitation": {
     "invitationId": "8fc22388-90ee-4123-aad4-138c5c51e8c8",
-    "fullName": "Budi Santoso",
+    "fullName": "",
     "email": "budi@example.com",
     "role": "student",
     "class": {

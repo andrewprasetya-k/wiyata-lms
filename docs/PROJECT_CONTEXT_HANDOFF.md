@@ -225,6 +225,16 @@ Direct-create/import remains available as fallback:
 
 Direct-create/import now distinguishes created vs reused user metadata and sends account-created or added-to-school email best-effort without sending passwords.
 
+**Phase 8 — existing-user invitation accept.** The admin-facing create form (`AdminUsers.vue`) no longer asks for a name — only email, role, and class (if student). `fullName` on `Invitation` is optional and, when omitted, is now stored as `nil` rather than a pointer to an empty string. It is a legacy/display-only field: no accept path (new-user or existing-user) reads it. Its only remaining consumer is `AdminDashboard.vue`'s pending-invitations widget, which falls back to `invitation.email` when it's empty.
+
+`GET /api/invitations/:token` (public metadata) now returns `existingUser: bool` — whether the invited email already belongs to a `User`, computed via the same `UserRepository.CheckEmailExists` the public register flow already uses. This drives which of three states `AcceptInvitation.vue` renders:
+
+1. New email → the original name/password/confirm form, posting to `POST /api/invitations/:token/accept` (public, unchanged).
+2. Existing email, not logged in → an info card + "Login untuk menerima undangan" button, which navigates to `{ name: "login", query: { redirect: route.fullPath } }` — the same redirect mechanism the router guard already uses for every `requiresAuth` route, and that `LoginPage.vue` already reads on success. No new redirect framework was added.
+3. Existing email, authenticated as that email → a "Terima Undangan" button posting to `POST /api/invitations/:token/accept-authenticated` — **requires a valid JWT** (registered after `api.Use(middleware.AuthRequired())` in `main.go`, reusing that middleware as-is). No name/password fields. The backend independently verifies `authenticated user's email == invitation.email` before accepting (`invitation_repo.AcceptAuthenticated`) — a caller authenticated as a *different* account is rejected with 403, not silently trusted from the frontend. If authenticated as a different email, the UI instead shows a mismatch message with a logout-and-retry action, since the router guard would otherwise bounce an already-authenticated visitor away from `/login` before it renders.
+
+The public `Accept` endpoint and its DTO are untouched by this — the new-user registration path is exactly what it was before Phase 8. Full contract: `backend/docs/api/invitation.md` (public accept flow) and `backend/docs/api/school_member_invitations.md` (admin create/list/revoke).
+
 ## 15. Email Behavior and Security
 
 SMTP env keys are documented in `.env.example` and docs. Do not include actual env values in documentation.
@@ -439,6 +449,7 @@ All in `internal/repository/dashboard_repo.go`, called from `dashboard_service.G
 - **Hardening Phase 5 — Error Handling:** Created `frontend/src/utils/error.ts` with `getApiError(error: unknown)`. Removed 11 duplicate local error helpers; all replaced with shared utility.
 - **Hardening Phase 6 — Backend Unit Tests:** Added `grade_service_test.go` (10 tests) and `assignment_service_test.go` (6 tests) covering weight validation, duplicate category, atomic replace, deadline enforcement, and submission integrity.
 - **Phase 7 (Batches 1–4) — School Admin & Super Admin Dashboards:** Extended the existing bundled dashboard endpoints with work-queue widgets (classes without teacher, content-less subject-classes, subjects missing assessment-weight config, grading backlog), a school-wide performance rollup, super-admin work-queue widgets (schools without admin/setup), and two platform growth-trend charts (school growth, user growth) rendered with plain HTML/Tailwind bars — no chart library added. See §25 for full detail.
+- **Phase 8 (Batches 1–3 + follow-up) — RBAC and Invitation Correctness:** (1) Fixed `RequireSystemSuperAdmin` middleware, which always returned 403 because it resolved a "system school" by code `000000` that nothing in the app ever creates — now checks `rbacRepo.IsSuperAdmin` directly, and 9 super-admin-only routes were moved onto it from the broken `RequireRole(schoolService, "super_admin")`-alone pattern. (2) Replaced `AdminUsers.vue`'s single-role dropdown with a multi-checkbox editor, closing a real data-loss bug where saving a multi-role member's role silently dropped their other roles. (3) Added an authenticated existing-user invitation-accept path (`POST /invitations/:token/accept-authenticated`, JWT-gated, email-matched server-side) alongside the unchanged public registration accept endpoint, plus made the admin invitation-creation form's `fullName` field optional (no accept path ever read it). See §14 for the invitation flow detail and `backend/docs/api/invitation.md` / `school_member_invitations.md` for the API contracts.
 
 ## 27. Known Technical Debt and Edge Cases
 
@@ -457,6 +468,8 @@ All in `internal/repository/dashboard_repo.go`, called from `dashboard_service.G
 - **Platform Trends charts (Super Admin) are non-interactive** — no tooltips, hover values, drill-down, export, or filters, by design.
 - **`GetSchoolPerformanceRollup` (repository method, `internal/repository/dashboard_repo.go`) and `SchoolPerformanceRollup` (DTO field on `AdminDashboardDTO`) are dead code as of this writing.** `dashboard_service.GetAdminDashboard` does not call the method, and `AdminDashboard.vue` has no template section rendering the field — it always serializes as `null`. A future pass should either finish wiring it (add the service call + a rendering section) or remove the orphaned method/field.
 - **An earlier "Setup Progress" section is no longer present in `AdminDashboard.vue`.** The section, its `setupSteps`/`isSetupComplete` script logic, and its `PhCheckCircle`/`PhCircleDashed` icon usage were removed at some point during this initiative and were not restored. Confirm with the team whether this was intentional before assuming it should come back.
+- **School-member invitations still carry a single `role` per invitation**, and `CreateSchoolMemberInvitationDTO` has no array field — the multi-role editor (Phase 8 Batch 2, §26) only covers editing an *existing* member's roles in `AdminUsers.vue`. Inviting or enrolling someone with more than one role in a single action is still not supported; TODO.md previously tracked this as "Evaluasi invitation & enroll untuk mendukung multi-role" and it remains open.
+- **The single-role-assumption audit was scoped to `AdminUsers.vue` only**, not the whole frontend. Other pages that display or edit a member's role may still assume exactly one role per person.
 
 ## 28. Current Open Work
 
@@ -520,7 +533,7 @@ Shell startup warnings from a developer's local profile are environment issues, 
 
 ## 34. Detailed Documentation Index
 
-Specialized docs to consult: `README.md`, `README_EN.md`, `TODO.md`, `backend/TODO.md`, `backend/schema.md`, `backend/docs/API_SUMMARY.md`, `backend/docs/api/enrollment.md`, `backend/docs/api/notification.md`, `backend/docs/api/dashboard.md` (student/teacher/admin/super-admin dashboard contracts, including Phase 7 fields — see §25). Older analysis/reference docs in `docs/ANALYSIS_INDEX.md`, `docs/CODEBASE_ANALYSIS.md`, `docs/QUICK_REFERENCE.md`, and `docs/PRODUCT_SCOPE.md` must be verified against current code before relying on details. (`backend/docs/api/school_registration_requests.md`, which documented the removed flow, has been deleted — see section 13 for the current self-service Create School flow.)
+Specialized docs to consult: `README.md`, `README_EN.md`, `TODO.md`, `backend/TODO.md`, `backend/schema.md`, `backend/docs/API_SUMMARY.md`, `backend/docs/api/enrollment.md`, `backend/docs/api/notification.md`, `backend/docs/api/dashboard.md` (student/teacher/admin/super-admin dashboard contracts, including Phase 7 fields — see §25), `backend/docs/api/invitation.md` (public invitation accept flow, including the Phase 8 existing-user path — see §14), `backend/docs/api/school_member_invitations.md` (admin-facing invitation create/list/revoke). Older analysis/reference docs in `docs/ANALYSIS_INDEX.md`, `docs/CODEBASE_ANALYSIS.md`, `docs/QUICK_REFERENCE.md`, and `docs/PRODUCT_SCOPE.md` must be verified against current code before relying on details. (`backend/docs/api/school_registration_requests.md`, which documented the removed flow, has been deleted — see section 13 for the current self-service Create School flow.)
 
 ## 35. Source-of-Truth Hierarchy
 

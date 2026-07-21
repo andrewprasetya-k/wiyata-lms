@@ -218,7 +218,9 @@ function initializeRoleDrafts() {
 
 function assignedRoleNames(member: AdminSchoolMemberItem) {
   return (member.roles ?? [])
-    .filter((roleName) => allowedRoleNames.includes(normalizeRoleName(roleName)))
+    .filter((roleName) =>
+      allowedRoleNames.includes(normalizeRoleName(roleName)),
+    )
     .sort((a, b) => rolePriority(a) - rolePriority(b));
 }
 
@@ -326,7 +328,6 @@ function toggleRoleDraft(schoolUserId: string, roleId: string) {
     memberRoleErrors.value = { ...memberRoleErrors.value, [schoolUserId]: "" };
   }
 }
-
 
 const inviteLink = computed(() => {
   const acceptUrl = inviteResult.value?.acceptUrl;
@@ -491,7 +492,8 @@ async function submitManualMember() {
     !payload.password ||
     !payload.role
   ) {
-    memberFormError.value = "Nama, email, password awal, dan peran wajib diisi.";
+    memberFormError.value =
+      "Nama, email, password awal, dan peran wajib diisi.";
     return;
   }
 
@@ -584,18 +586,12 @@ onMounted(async () => {
         <section
           class="order-2 min-w-0 rounded-xl border border-border bg-surface shadow-sm lg:order-1"
         >
-          <div
-            class="flex flex-col gap-4 border-b border-border p-5"
-          >
+          <div class="flex flex-col gap-4 border-b border-border p-5">
             <div
               class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
             >
               <div>
-                <p
-                  class="eyebrow-muted"
-                >
-                  Warga sekolah aktif
-                </p>
+                <p class="eyebrow-muted">Warga sekolah aktif</p>
                 <h2 class="mt-1 text-base font-semibold text-foreground">
                   Daftar pengguna sekolah
                 </h2>
@@ -662,10 +658,7 @@ onMounted(async () => {
               v-else-if="members.length === 0"
               class="rounded-lg bg-surface-subtle px-5 py-8 text-center"
             >
-              <PhUsers
-                class="mx-auto h-7 w-7 text-muted"
-                weight="duotone"
-              />
+              <PhUsers class="mx-auto h-7 w-7 text-muted" weight="duotone" />
               <h3 class="mt-3 text-sm font-semibold text-foreground">
                 Belum ada warga sekolah
               </h3>
@@ -676,119 +669,128 @@ onMounted(async () => {
 
             <div v-else class="flex flex-col gap-4">
               <div class="divide-y divide-border">
-              <article
-                v-for="member in members"
-                :key="member.schoolUserId"
-                class="min-w-0 py-4 first:pt-0 last:pb-0"
-              >
-                <div
-                  class="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1fr)_280px]"
+                <article
+                  v-for="member in members"
+                  :key="member.schoolUserId"
+                  class="min-w-0 py-4 first:pt-0 last:pb-0"
                 >
-                  <div class="flex min-w-0 items-start gap-3">
-                    <div
-                      class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#ea580c] text-xs font-semibold text-white"
-                    >
-                      {{ (member.fullName || "W").charAt(0).toUpperCase() }}
-                    </div>
-                    <div class="min-w-0">
-                      <div class="flex min-w-0 flex-wrap items-center gap-2">
-                        <h3
-                          class="min-w-0 wrap-break-word text-sm font-semibold text-foreground"
-                        >
-                          {{ member.fullName || "Nama tidak tersedia" }}
-                        </h3>
-                        <span
-                          v-for="roleName in assignedRoleNames(member)"
-                          :key="roleName"
-                          class="rounded-lg bg-brand-soft px-2 py-1 text-[11px] font-medium text-brand"
-                        >
-                          {{ roleLabel(roleName) }}
-                        </span>
-                      </div>
-                      <p class="mt-1 break-all text-xs text-muted">
-                        {{ member.email || "Email tidak tersedia" }}
-                      </p>
-                      <p class="mt-2 text-[11px] text-muted">
-                        Bergabung {{ formatDateTime(member.createdAt) }}
-                      </p>
-                      <p
-                        v-if="member.classCodes?.length"
-                        class="mt-2 text-[11px] font-medium text-muted"
+                  <div
+                    class="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1fr)_280px]"
+                  >
+                    <div class="flex min-w-0 items-start gap-3">
+                      <div
+                        class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#ea580c] text-xs font-semibold text-white"
                       >
-                        Kelas: {{ member.classCodes.join(", ") }}
-                      </p>
+                        {{ (member.fullName || "W").charAt(0).toUpperCase() }}
+                      </div>
+                      <div class="min-w-0">
+                        <div class="flex min-w-0 flex-wrap items-center gap-2">
+                          <h3
+                            class="min-w-0 wrap-break-word text-sm font-semibold text-foreground"
+                          >
+                            {{ member.fullName || "Nama tidak tersedia" }}
+                          </h3>
+                          <span
+                            v-for="roleName in assignedRoleNames(member)"
+                            :key="roleName"
+                            class="rounded-lg bg-brand-soft px-2 py-1 text-[11px] font-medium text-brand"
+                          >
+                            {{ roleLabel(roleName) }}
+                          </span>
+                        </div>
+                        <p class="mt-1 break-all text-xs text-muted">
+                          {{ member.email || "Email tidak tersedia" }}
+                        </p>
+                        <p class="mt-2 text-[11px] text-muted">
+                          Bergabung {{ formatDateTime(member.createdAt) }}
+                        </p>
+                        <p
+                          v-if="member.classCodes?.length"
+                          class="mt-2 text-[11px] font-medium text-muted"
+                        >
+                          Kelas: {{ member.classCodes.join(", ") }}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div class="min-w-0 rounded-lg bg-surface-subtle p-3">
+                      <fieldset class="m-0 min-w-0 border-0 p-0">
+                        <legend class="block text-xs font-medium text-muted">
+                          Peran sekolah
+                        </legend>
+                        <div class="mt-2 space-y-2">
+                          <label
+                            v-for="role in allowedRoles"
+                            :key="role.roleId"
+                            class="flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground transition"
+                            :class="
+                              rolesLoading
+                                ? 'cursor-not-allowed opacity-60'
+                                : 'cursor-pointer hover:border-brand'
+                            "
+                          >
+                            <input
+                              type="checkbox"
+                              class="h-4 w-4 shrink-0 rounded border-border-strong text-brand focus:ring-brand"
+                              :checked="
+                                memberRoleDrafts[member.schoolUserId]?.includes(
+                                  role.roleId,
+                                ) ?? false
+                              "
+                              :disabled="
+                                rolesLoading || allowedRoles.length === 0
+                              "
+                              @change="
+                                toggleRoleDraft(
+                                  member.schoolUserId,
+                                  role.roleId,
+                                )
+                              "
+                            />
+                            {{ roleLabel(role.roleName) }}
+                          </label>
+                        </div>
+                      </fieldset>
+                      <InlineFormError
+                        class="mt-2"
+                        :message="memberRoleErrors[member.schoolUserId] ?? ''"
+                      />
+                      <button
+                        type="button"
+                        class="mt-2.5 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#ea580c] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#c2410c] disabled:cursor-not-allowed disabled:opacity-60"
+                        :disabled="
+                          savingRolesSchoolUserId === member.schoolUserId
+                        "
+                        @click="
+                          syncRoleForMember(
+                            member.schoolUserId,
+                            memberRoleDrafts[member.schoolUserId] ?? [],
+                          )
+                        "
+                      >
+                        <PhShieldCheck :size="17" weight="duotone" />
+                        {{
+                          savingRolesSchoolUserId === member.schoolUserId
+                            ? "Menyimpan..."
+                            : "Simpan peran"
+                        }}
+                      </button>
+                      <button
+                        type="button"
+                        class="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-danger-line bg-surface px-3 py-2 text-sm font-medium text-danger transition hover:bg-danger-soft disabled:cursor-not-allowed disabled:opacity-60"
+                        :disabled="removingSchoolUserId === member.schoolUserId"
+                        @click="removeMember(member)"
+                      >
+                        <PhTrash :size="17" weight="duotone" />
+                        {{
+                          removingSchoolUserId === member.schoolUserId
+                            ? "Menghapus..."
+                            : "Hapus dari sekolah"
+                        }}
+                      </button>
                     </div>
                   </div>
-
-                  <div class="min-w-0 rounded-lg bg-surface-subtle p-3">
-                    <fieldset class="m-0 min-w-0 border-0 p-0">
-                      <legend class="block text-xs font-medium text-muted">
-                        Peran sekolah
-                      </legend>
-                      <div class="mt-2 space-y-2">
-                        <label
-                          v-for="role in allowedRoles"
-                          :key="role.roleId"
-                          class="flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground transition"
-                          :class="
-                            rolesLoading
-                              ? 'cursor-not-allowed opacity-60'
-                              : 'cursor-pointer hover:border-brand'
-                          "
-                        >
-                          <input
-                            type="checkbox"
-                            class="h-4 w-4 shrink-0 rounded border-border-strong text-brand focus:ring-brand"
-                            :checked="
-                              memberRoleDrafts[member.schoolUserId]?.includes(
-                                role.roleId,
-                              ) ?? false
-                            "
-                            :disabled="rolesLoading || allowedRoles.length === 0"
-                            @change="toggleRoleDraft(member.schoolUserId, role.roleId)"
-                          />
-                          {{ roleLabel(role.roleName) }}
-                        </label>
-                      </div>
-                    </fieldset>
-                    <InlineFormError
-                      class="mt-2"
-                      :message="memberRoleErrors[member.schoolUserId] ?? ''"
-                    />
-                    <button
-                      type="button"
-                      class="mt-2.5 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#ea580c] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#c2410c] disabled:cursor-not-allowed disabled:opacity-60"
-                      :disabled="savingRolesSchoolUserId === member.schoolUserId"
-                      @click="
-                        syncRoleForMember(
-                          member.schoolUserId,
-                          memberRoleDrafts[member.schoolUserId] ?? [],
-                        )
-                      "
-                    >
-                      <PhShieldCheck :size="17" weight="duotone" />
-                      {{
-                        savingRolesSchoolUserId === member.schoolUserId
-                          ? "Menyimpan..."
-                          : "Simpan peran"
-                      }}
-                    </button>
-                    <button
-                      type="button"
-                      class="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-danger-line bg-surface px-3 py-2 text-sm font-medium text-danger transition hover:bg-danger-soft disabled:cursor-not-allowed disabled:opacity-60"
-                      :disabled="removingSchoolUserId === member.schoolUserId"
-                      @click="removeMember(member)"
-                    >
-                      <PhTrash :size="17" weight="duotone" />
-                      {{
-                        removingSchoolUserId === member.schoolUserId
-                          ? "Menghapus..."
-                          : "Hapus dari sekolah"
-                      }}
-                    </button>
-                  </div>
-                </div>
-              </article>
+                </article>
               </div>
               <PaginationBar
                 :page="membersPage"
@@ -807,11 +809,7 @@ onMounted(async () => {
           >
             <div class="flex items-start justify-between gap-3">
               <div>
-                <p
-                  class="eyebrow-muted"
-                >
-                  Tambah warga sekolah
-                </p>
+                <p class="eyebrow-muted">Tambah warga sekolah</p>
                 <h2 class="mt-1 text-base font-semibold text-foreground">
                   Undang atau buat akun
                 </h2>
@@ -1011,14 +1009,7 @@ onMounted(async () => {
                   :disabled="manualForm.role !== 'student'"
                 />
               </label>
-              <p
-                class="rounded-lg border border-warning-line bg-warning-soft px-3 py-2 text-xs leading-5 text-warning-hover"
-              >
-                Password awal hanya dipakai untuk akun baru. Jika email sudah
-                terdaftar, password tidak akan diubah dan pengguna login
-                memakai password yang sudah ada. Password tidak dikirim melalui
-                email.
-              </p>
+
               <InlineFormError :message="memberFormError" />
               <button
                 type="submit"
@@ -1104,15 +1095,6 @@ onMounted(async () => {
                     </button>
                   </div>
                 </label>
-
-                <p
-                  class="rounded-lg border border-warning-line bg-warning-soft px-3 py-2 text-xs leading-5 text-warning-hover"
-                >
-                  Password awal hanya dipakai untuk akun baru. Jika email sudah
-                  terdaftar, password tidak akan diubah dan pengguna login
-                  memakai password yang sudah ada. Password tidak dikirim
-                  melalui email.
-                </p>
 
                 <button
                   type="button"

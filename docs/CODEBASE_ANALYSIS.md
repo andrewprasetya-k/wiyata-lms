@@ -215,6 +215,20 @@ GET    /api/dashboard/admin/:schoolId       - Admin dashboard (Phase 7: work-que
 GET    /api/dashboard/super-admin           - Super admin dashboard (Phase 7: work-queue widgets, growth trend charts — see backend/docs/api/dashboard.md)
 ```
 
+### 1.15 Invitation Routes
+
+```
+GET    /api/invitations/:token                       - Get invitation metadata (public; includes `existingUser` since Phase 8)
+POST   /api/invitations/:token/accept                 - Accept as new user (public; name/password registration, unchanged)
+POST   /api/invitations/:token/accept-authenticated    - Accept as existing user (Phase 8; requires JWT, verifies email matches invitation server-side)
+
+POST   /api/admin/school-member-invitations           - Create invitation (admin; `fullName` optional since Phase 8, see backend/docs/api/school_member_invitations.md)
+GET    /api/admin/school-member-invitations           - List invitations (admin)
+PATCH  /api/admin/school-member-invitations/:id/revoke - Revoke invitation (admin)
+```
+
+Full contracts: `backend/docs/api/invitation.md` (public accept flow) and `backend/docs/api/school_member_invitations.md` (admin create/list/revoke).
+
 ---
 
 ## 2. HANDLER LAYER
