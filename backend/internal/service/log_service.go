@@ -47,6 +47,7 @@ func (s *logService) Log(actor domain.ActorContext, action string, entityType st
 	scope := actor.Scope
 
 	entry := &domain.Log{
+		SchoolID:          actor.SchoolID,
 		UserID:            actor.UserID,
 		ActorSchoolUserID: actor.SchoolUserID,
 		Action:            action,
@@ -55,9 +56,6 @@ func (s *logService) Log(actor domain.ActorContext, action string, entityType st
 		EntityID:          entityID,
 		Scope:             &scope,
 		Severity:          &severity,
-	}
-	if actor.SchoolID != nil {
-		entry.SchoolID = *actor.SchoolID
 	}
 
 	return s.Record(entry)
