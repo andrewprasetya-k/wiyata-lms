@@ -5,9 +5,16 @@ export interface SuperAdminSchoolNeedsAttention {
   createdAt: string
 }
 
+export interface SuperAdminTrendPoint {
+  period: string
+  count: number
+}
+
 export interface SuperAdminDashboardSummary {
   schoolsWithoutAdmin: SuperAdminSchoolNeedsAttention[]
   schoolsWithoutAdminTotal: number
   schoolsWithoutSetup: SuperAdminSchoolNeedsAttention[]
   schoolsWithoutSetupTotal: number
+  schoolGrowthTrend: SuperAdminTrendPoint[]
+  userGrowthTrend: SuperAdminTrendPoint[]
 }

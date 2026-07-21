@@ -93,6 +93,8 @@ type SuperAdminDashboardDTO struct {
 	SchoolsWithoutAdminTotal int                       `json:"schoolsWithoutAdminTotal"`
 	SchoolsWithoutSetup      []SchoolNeedsAttentionDTO `json:"schoolsWithoutSetup"`
 	SchoolsWithoutSetupTotal int                       `json:"schoolsWithoutSetupTotal"`
+	SchoolGrowthTrend        []TrendPointDTO           `json:"schoolGrowthTrend"`
+	UserGrowthTrend          []TrendPointDTO           `json:"userGrowthTrend"`
 }
 
 type SchoolNeedsAttentionDTO struct {
@@ -100,4 +102,9 @@ type SchoolNeedsAttentionDTO struct {
 	SchoolName string `json:"schoolName"`
 	SchoolCode string `json:"schoolCode"`
 	CreatedAt  string `json:"createdAt"`
+}
+
+type TrendPointDTO struct {
+	Period string `json:"period"`
+	Count  int    `json:"count"`
 }

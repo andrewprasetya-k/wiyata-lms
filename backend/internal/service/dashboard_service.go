@@ -259,12 +259,35 @@ func (s *dashboardService) GetSuperAdminDashboard() (*dto.SuperAdminDashboardDTO
 		return nil, err
 	}
 
+	schoolGrowth, err := s.repo.GetSchoolGrowthTrend(6)
+	if err != nil {
+		return nil, err
+	}
+
+	userGrowth, err := s.repo.GetUserGrowthTrend(6)
+	if err != nil {
+		return nil, err
+	}
+
 	return &dto.SuperAdminDashboardDTO{
 		SchoolsWithoutAdmin:      mapSchoolsNeedingAttention(withoutAdmin),
 		SchoolsWithoutAdminTotal: withoutAdminTotal,
 		SchoolsWithoutSetup:      mapSchoolsNeedingAttention(withoutSetup),
 		SchoolsWithoutSetupTotal: withoutSetupTotal,
+		SchoolGrowthTrend:        mapTrendPoints(schoolGrowth),
+		UserGrowthTrend:          mapTrendPoints(userGrowth),
 	}, nil
+}
+
+func mapTrendPoints(rows []map[string]interface{}) []dto.TrendPointDTO {
+	var result []dto.TrendPointDTO
+	for _, r := range rows {
+		result = append(result, dto.TrendPointDTO{
+			Period: r["period"].(string),
+			Count:  int(r["count"].(int64)),
+		})
+	}
+	return result
 }
 
 func mapSchoolsNeedingAttention(rows []map[string]interface{}) []dto.SchoolNeedsAttentionDTO {

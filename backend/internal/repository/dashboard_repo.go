@@ -29,6 +29,8 @@ type DashboardRepository interface {
 	// Super Admin
 	GetSchoolsWithoutAdmin(limit int) (items []map[string]interface{}, total int, err error)
 	GetSchoolsWithoutSetup(limit int) (items []map[string]interface{}, total int, err error)
+	GetSchoolGrowthTrend(months int) ([]map[string]interface{}, error)
+	GetUserGrowthTrend(months int) ([]map[string]interface{}, error)
 }
 
 type dashboardRepository struct {
@@ -474,4 +476,43 @@ func (r *dashboardRepository) GetSchoolsWithoutSetup(limit int) ([]map[string]in
 			)
 	`).Scan(&total).Error
 	return results, int(total), err
+}
+
+// GetSchoolGrowthTrend returns one row per month for the last `months`
+// months (oldest first), counting schools created in that month. Uses
+// generate_series so months with zero schools still appear as a 0 point
+// rather than being skipped. Counts every school created in that month
+// regardless of later soft-deletion — growth is a historical event count,
+// not a current-active-count (that's already covered by GetSchoolSummary).
+func (r *dashboardRepository) GetSchoolGrowthTrend(months int) ([]map[string]interface{}, error) {
+	var results []map[string]interface{}
+	err := r.db.Raw(`
+		SELECT to_char(month, 'YYYY-MM') as period, COUNT(s.sch_id) as count
+		FROM generate_series(
+			date_trunc('month', now()) - make_interval(months => ? - 1),
+			date_trunc('month', now()),
+			interval '1 month'
+		) as month
+		LEFT JOIN edv.schools s ON date_trunc('month', s.created_at) = month
+		GROUP BY month
+		ORDER BY month ASC
+	`, months).Scan(&results).Error
+	return results, err
+}
+
+// GetUserGrowthTrend mirrors GetSchoolGrowthTrend for edv.users.
+func (r *dashboardRepository) GetUserGrowthTrend(months int) ([]map[string]interface{}, error) {
+	var results []map[string]interface{}
+	err := r.db.Raw(`
+		SELECT to_char(month, 'YYYY-MM') as period, COUNT(u.usr_id) as count
+		FROM generate_series(
+			date_trunc('month', now()) - make_interval(months => ? - 1),
+			date_trunc('month', now()),
+			interval '1 month'
+		) as month
+		LEFT JOIN edv.users u ON date_trunc('month', u.created_at) = month
+		GROUP BY month
+		ORDER BY month ASC
+	`, months).Scan(&results).Error
+	return results, err
 }

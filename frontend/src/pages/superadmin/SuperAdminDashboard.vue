@@ -52,6 +52,26 @@ const hasAttentionItems = computed(
   () => schoolsWithoutAdminTotal.value > 0 || schoolsWithoutSetupTotal.value > 0,
 );
 
+const monthLabelFormatter = new Intl.DateTimeFormat("id-ID", { month: "short" });
+
+function formatTrendMonth(period: string) {
+  const [year, month] = period.split("-").map(Number);
+  if (!year || !month) return period;
+  return monthLabelFormatter.format(new Date(year, month - 1, 1));
+}
+
+function trendHasData(points: { count: number }[]) {
+  return points.some((p) => p.count > 0);
+}
+
+function trendBarHeight(count: number, points: { count: number }[]) {
+  const max = Math.max(1, ...points.map((p) => p.count));
+  return `${Math.max(0, (count / max) * 100)}%`;
+}
+
+const schoolGrowthTrend = computed(() => attention.value?.schoolGrowthTrend ?? []);
+const userGrowthTrend = computed(() => attention.value?.userGrowthTrend ?? []);
+
 async function loadSummary() {
   summaryLoading.value = true;
   summaryError.value = "";
@@ -539,6 +559,107 @@ onMounted(() => {
               </span>
             </RouterLink>
           </div>
+        </section>
+
+        <!-- Platform Trends -->
+        <section class="grid gap-3 sm:grid-cols-2">
+          <article class="rounded-xl border border-border bg-surface p-5 shadow-sm">
+            <div class="mb-4">
+              <p class="text-sm font-semibold text-foreground">
+                Pertumbuhan Sekolah
+              </p>
+              <p class="mt-0.5 text-xs text-muted">
+                Sekolah baru per bulan, 6 bulan terakhir.
+              </p>
+            </div>
+
+            <div v-if="attentionLoading" class="h-[180px] animate-pulse rounded-lg bg-surface-strong" />
+
+            <div
+              v-else-if="attentionError"
+              class="flex h-[180px] items-center justify-center rounded-lg bg-surface-subtle p-4 text-center text-sm leading-6 text-muted"
+            >
+              Tren pertumbuhan sekolah belum bisa dimuat.
+            </div>
+
+            <div
+              v-else-if="!trendHasData(schoolGrowthTrend)"
+              class="flex h-[180px] items-center justify-center rounded-lg bg-surface-subtle p-4 text-center"
+            >
+              <p class="text-sm font-medium text-foreground">Belum cukup data.</p>
+            </div>
+
+            <div v-else class="flex h-[180px] flex-col">
+              <div class="flex flex-1 items-end gap-2">
+                <div
+                  v-for="point in schoolGrowthTrend"
+                  :key="point.period"
+                  class="flex min-w-0 flex-1 flex-col items-center justify-end gap-1.5"
+                >
+                  <span class="text-[10px] font-medium text-muted">{{ point.count }}</span>
+                  <div class="w-full rounded-t bg-brand" :style="{ height: trendBarHeight(point.count, schoolGrowthTrend) }" />
+                </div>
+              </div>
+              <div class="mt-2 flex gap-2">
+                <span
+                  v-for="point in schoolGrowthTrend"
+                  :key="point.period"
+                  class="min-w-0 flex-1 text-center text-[10px] text-muted"
+                >
+                  {{ formatTrendMonth(point.period) }}
+                </span>
+              </div>
+            </div>
+          </article>
+
+          <article class="rounded-xl border border-border bg-surface p-5 shadow-sm">
+            <div class="mb-4">
+              <p class="text-sm font-semibold text-foreground">
+                Pertumbuhan Akun Pengguna
+              </p>
+              <p class="mt-0.5 text-xs text-muted">
+                Akun baru per bulan, 6 bulan terakhir.
+              </p>
+            </div>
+
+            <div v-if="attentionLoading" class="h-[180px] animate-pulse rounded-lg bg-surface-strong" />
+
+            <div
+              v-else-if="attentionError"
+              class="flex h-[180px] items-center justify-center rounded-lg bg-surface-subtle p-4 text-center text-sm leading-6 text-muted"
+            >
+              Tren pertumbuhan akun belum bisa dimuat.
+            </div>
+
+            <div
+              v-else-if="!trendHasData(userGrowthTrend)"
+              class="flex h-[180px] items-center justify-center rounded-lg bg-surface-subtle p-4 text-center"
+            >
+              <p class="text-sm font-medium text-foreground">Belum cukup data.</p>
+            </div>
+
+            <div v-else class="flex h-[180px] flex-col">
+              <div class="flex flex-1 items-end gap-2">
+                <div
+                  v-for="point in userGrowthTrend"
+                  :key="point.period"
+                  class="flex min-w-0 flex-1 flex-col items-center justify-end gap-1.5"
+                >
+                  <span class="text-[10px] font-medium text-muted">{{ point.count }}</span>
+                  <div class="w-full rounded-t bg-info" :style="{ height: trendBarHeight(point.count, userGrowthTrend) }" />
+                </div>
+              </div>
+              <div class="mt-2 flex gap-2">
+                <span
+                  v-for="point in userGrowthTrend"
+                  :key="point.period"
+                  class="min-w-0 flex-1 text-center text-[10px] text-muted"
+                >
+                  {{ formatTrendMonth(point.period) }}
+                </span>
+              </div>
+            </div>
+          </article>
         </section>
 
         <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
