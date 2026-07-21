@@ -179,7 +179,7 @@ function isInternalLink(link?: string | null) {
 
     <div
       v-else-if="visibleActivities.length === 0"
-      class="rounded-lg border border-border bg-surface-subtle p-4"
+      class="rounded-lg bg-surface-subtle p-4"
     >
       <div
         class="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-brand-soft text-brand"
@@ -225,14 +225,23 @@ function isInternalLink(link?: string | null) {
           >
             <span
               class="mt-2 h-2 w-2 shrink-0 rounded-full"
-              :style="{ backgroundColor: activity.type === 'assignment_overdue' ? '#dc2626' : subjectColor(activity) }"
+              :style="{
+                backgroundColor:
+                  activity.type === 'assignment_overdue'
+                    ? '#dc2626'
+                    : subjectColor(activity),
+              }"
               aria-hidden="true"
             />
             <span class="min-w-0 flex-1">
               <span class="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
                 <span
                   class="text-[11px] font-medium"
-                  :class="activity.type === 'assignment_overdue' ? 'text-danger' : 'text-brand'"
+                  :class="
+                    activity.type === 'assignment_overdue'
+                      ? 'text-danger'
+                      : 'text-brand'
+                  "
                 >
                   {{ typeLabel(activity.type) }}
                 </span>
@@ -271,14 +280,23 @@ function isInternalLink(link?: string | null) {
           <div v-else class="flex min-w-0 gap-3">
             <span
               class="mt-2 h-2 w-2 shrink-0 rounded-full"
-              :style="{ backgroundColor: activity.type === 'assignment_overdue' ? '#dc2626' : subjectColor(activity) }"
+              :style="{
+                backgroundColor:
+                  activity.type === 'assignment_overdue'
+                    ? '#dc2626'
+                    : subjectColor(activity),
+              }"
               aria-hidden="true"
             />
             <div class="min-w-0 flex-1">
               <div class="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
                 <span
                   class="text-[11px] font-medium"
-                  :class="activity.type === 'assignment_overdue' ? 'text-danger' : 'text-brand'"
+                  :class="
+                    activity.type === 'assignment_overdue'
+                      ? 'text-danger'
+                      : 'text-brand'
+                  "
                 >
                   {{ typeLabel(activity.type) }}
                 </span>
