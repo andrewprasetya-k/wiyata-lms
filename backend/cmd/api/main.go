@@ -214,14 +214,14 @@ func main() {
 			// Self-service Create School (Phase 1): any authenticated user with a
 			// verified email may create a school and becomes its Admin.
 			schoolAPI.POST("", middleware.RequireVerifiedUser(userRepo), schoolHandler.CreateSchool)
-			schoolAPI.GET("", middleware.RequireRole(schoolService, "super_admin"), schoolHandler.GetSchools)
-			schoolAPI.GET("/summary", middleware.RequireRole(schoolService, "super_admin"), schoolHandler.GetSchoolSummary)
+			schoolAPI.GET("", middleware.RequireSystemSuperAdmin(schoolService), schoolHandler.GetSchools)
+			schoolAPI.GET("/summary", middleware.RequireSystemSuperAdmin(schoolService), schoolHandler.GetSchoolSummary)
 			schoolAPI.GET("/check-code/:schoolCode", schoolHandler.CheckCodeAvailability)
 			schoolAPI.GET("/:schoolCode", middleware.RequireSchoolMember(schoolService), schoolHandler.GetSchoolByCode)
 			schoolAPI.PATCH("/:schoolCode", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "super_admin"), schoolHandler.UpdateSchool)
-			schoolAPI.PATCH("/restore/:schoolCode", middleware.RequireRole(schoolService, "super_admin"), schoolHandler.RestoreDeletedSchool)
+			schoolAPI.PATCH("/restore/:schoolCode", middleware.RequireSystemSuperAdmin(schoolService), schoolHandler.RestoreDeletedSchool)
 			schoolAPI.DELETE("/:schoolCode", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "super_admin"), schoolHandler.DeleteSchool)
-			schoolAPI.DELETE("/permanent/:schoolCode", middleware.RequireRole(schoolService, "super_admin"), schoolHandler.HardDeleteSchool)
+			schoolAPI.DELETE("/permanent/:schoolCode", middleware.RequireSystemSuperAdmin(schoolService), schoolHandler.HardDeleteSchool)
 		}
 
 		academicYearAPI := api.Group("/academic-years")
@@ -304,11 +304,11 @@ func main() {
 		rbacAPI := api.Group("/rbac")
 		{
 			// Roles
-			rbacAPI.POST("/roles", middleware.RequireRole(schoolService, "super_admin"), rbacHandler.CreateRole)
+			rbacAPI.POST("/roles", middleware.RequireSystemSuperAdmin(schoolService), rbacHandler.CreateRole)
 			rbacAPI.GET("/roles", rbacHandler.GetAllRoles)
 			rbacAPI.GET("/roles/:id", rbacHandler.GetRoleByID)
-			rbacAPI.PATCH("/roles/:id", middleware.RequireRole(schoolService, "super_admin"), rbacHandler.UpdateRole)
-			rbacAPI.DELETE("/roles/:id", middleware.RequireRole(schoolService, "super_admin"), rbacHandler.DeleteRole)
+			rbacAPI.PATCH("/roles/:id", middleware.RequireSystemSuperAdmin(schoolService), rbacHandler.UpdateRole)
+			rbacAPI.DELETE("/roles/:id", middleware.RequireSystemSuperAdmin(schoolService), rbacHandler.DeleteRole)
 
 			// User Roles (Assignments)
 			rbacAPI.POST("/user-roles", middleware.RequireRole(schoolService, "admin", "super_admin"), rbacHandler.AssignRole)
@@ -317,7 +317,7 @@ func main() {
 			rbacAPI.PATCH("/user-roles/:schoolUserId", middleware.RequireRole(schoolService, "admin", "super_admin"), rbacHandler.UpdateUserRoles)
 
 			// Super Admin
-			rbacAPI.POST("/super-admin", middleware.RequireRole(schoolService, "super_admin"), rbacHandler.CreateSuperAdmin)
+			rbacAPI.POST("/super-admin", middleware.RequireSystemSuperAdmin(schoolService), rbacHandler.CreateSuperAdmin)
 		}
 
 		superAdminAPI := api.Group("/super-admin")
@@ -482,7 +482,7 @@ func main() {
 			dashboardAPI.GET("/student/:userId", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "student"), dashboardHandler.GetStudentDashboard)
 			dashboardAPI.GET("/teacher/:schoolUserId", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "teacher"), dashboardHandler.GetTeacherDashboard)
 			dashboardAPI.GET("/admin/:schoolId", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin"), dashboardHandler.GetAdminDashboard)
-			dashboardAPI.GET("/super-admin", middleware.RequireRole(schoolService, "super_admin"), dashboardHandler.GetSuperAdminDashboard)
+			dashboardAPI.GET("/super-admin", middleware.RequireSystemSuperAdmin(schoolService), dashboardHandler.GetSuperAdminDashboard)
 		}
 
 		activityAPI := api.Group("/academic-activity")

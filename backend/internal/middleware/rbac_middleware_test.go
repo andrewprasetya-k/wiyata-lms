@@ -33,18 +33,18 @@ func newRBACTestRepoStub() *rbacTestRepoStub {
 	}
 }
 
-func (s *rbacTestRepoStub) CreateRole(*domain.Role) error                          { return nil }
-func (s *rbacTestRepoStub) GetRoleByID(string) (*domain.Role, error)               { return nil, nil }
-func (s *rbacTestRepoStub) GetRoleByName(string) (*domain.Role, error)             { return nil, nil }
-func (s *rbacTestRepoStub) WithTx(tx *gorm.DB) repository.RBACRepository           { return s }
-func (s *rbacTestRepoStub) GetAllRoles() ([]*domain.Role, error)                   { return nil, nil }
-func (s *rbacTestRepoStub) UpdateRole(*domain.Role) error                          { return nil }
-func (s *rbacTestRepoStub) DeleteRole(string) error                                { return nil }
-func (s *rbacTestRepoStub) CheckDuplicateRoleName(string, string) (bool, error)    { return false, nil }
-func (s *rbacTestRepoStub) AssignRole(*domain.UserRole) error                      { return nil }
-func (s *rbacTestRepoStub) RemoveRoleFromUser(string, string) error                { return nil }
-func (s *rbacTestRepoStub) GetUserRoles(string) ([]*domain.UserRole, error)        { return nil, nil }
-func (s *rbacTestRepoStub) SyncUserRoles(string, []string) error                   { return nil }
+func (s *rbacTestRepoStub) CreateRole(*domain.Role) error                       { return nil }
+func (s *rbacTestRepoStub) GetRoleByID(string) (*domain.Role, error)            { return nil, nil }
+func (s *rbacTestRepoStub) GetRoleByName(string) (*domain.Role, error)          { return nil, nil }
+func (s *rbacTestRepoStub) WithTx(tx *gorm.DB) repository.RBACRepository        { return s }
+func (s *rbacTestRepoStub) GetAllRoles() ([]*domain.Role, error)                { return nil, nil }
+func (s *rbacTestRepoStub) UpdateRole(*domain.Role) error                       { return nil }
+func (s *rbacTestRepoStub) DeleteRole(string) error                             { return nil }
+func (s *rbacTestRepoStub) CheckDuplicateRoleName(string, string) (bool, error) { return false, nil }
+func (s *rbacTestRepoStub) AssignRole(*domain.UserRole) error                   { return nil }
+func (s *rbacTestRepoStub) RemoveRoleFromUser(string, string) error             { return nil }
+func (s *rbacTestRepoStub) GetUserRoles(string) ([]*domain.UserRole, error)     { return nil, nil }
+func (s *rbacTestRepoStub) SyncUserRoles(string, []string) error                { return nil }
 
 func (s *rbacTestRepoStub) GetUserRoleNamesInSchool(userID, schoolID string) ([]string, error) {
 	s.roleQueryCount++
@@ -220,25 +220,39 @@ func TestRequireRoleWrongRole(t *testing.T) {
 	})
 }
 
+// TestRequireSystemSuperAdmin is a regression test: RequireSystemSuperAdmin
+// used to resolve a dedicated "system school" (code SystemSchoolCode) and
+// check GetUserRoleNamesInSchool against it, but nothing in the app actually
+// creates a school with that code (CreateSuperAdmin enrolls new super admins
+// into whichever school is named "admin" instead), so every request — even
+// from a genuine super admin — fell through to the ConvertCodeToID error
+// branch and always got 403. It must instead check IsSuperAdmin directly,
+// with no dependency on any particular school existing.
 func TestRequireSystemSuperAdmin(t *testing.T) {
 	repo := newRBACTestRepoStub()
-	repo.roles["super-1:"+SystemSchoolCode] = []string{"super_admin"}
-	repo.roles["user-1:"+SystemSchoolCode] = []string{}
+	repo.superAdmins["super-1"] = true
 
 	router := newRBACTestRouter(t, repo, RequireSystemSuperAdmin(rbacTestSchoolServiceStub{}), "super-1")
 	otherRouter := newRBACTestRouter(t, repo, RequireSystemSuperAdmin(rbacTestSchoolServiceStub{}), "user-1")
 
-	t.Run("allow: user has super_admin role in system school", func(t *testing.T) {
+	t.Run("allow: user holds the super_admin role", func(t *testing.T) {
 		rec := doRequest(router, "", "")
 		if rec.Code != http.StatusOK {
 			t.Fatalf("status = %d, want 200, body = %q", rec.Code, rec.Body.String())
 		}
 	})
 
-	t.Run("reject: user without super_admin role in system school", func(t *testing.T) {
+	t.Run("reject: user does not hold the super_admin role", func(t *testing.T) {
 		rec := doRequest(otherRouter, "", "")
 		if rec.Code != http.StatusForbidden {
 			t.Fatalf("status = %d, want 403, body = %q", rec.Code, rec.Body.String())
+		}
+	})
+
+	t.Run("allow: no SchoolId header needed (platform-wide role)", func(t *testing.T) {
+		rec := doRequest(router, "some-unrelated-school", "")
+		if rec.Code != http.StatusOK {
+			t.Fatalf("status = %d, want 200, body = %q", rec.Code, rec.Body.String())
 		}
 	})
 }

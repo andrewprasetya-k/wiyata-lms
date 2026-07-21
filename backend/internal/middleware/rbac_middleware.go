@@ -262,8 +262,7 @@ func activeRoleFromContextOrHeader(c *gin.Context) (string, bool, bool) {
 	return parseActiveRoleHeader(c)
 }
 
-// RequireSystemSuperAdmin checks whether the current user has super_admin role
-// on the system school, regardless of the active SchoolId header.
+// RequireSystemSuperAdmin checks whether the current user holds the super_admin role
 func RequireSystemSuperAdmin(schoolService interface {
 	ConvertCodeToID(code string) (string, error)
 }) gin.HandlerFunc {
@@ -280,28 +279,18 @@ func RequireSystemSuperAdmin(schoolService interface {
 			return
 		}
 
-		systemSchoolID, err := schoolService.ConvertCodeToID(SystemSchoolCode)
+		isSuperAdmin, err := rbacRepo.IsSuperAdmin(userID)
 		if err != nil {
-			c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: system super admin context not available"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify permissions"})
+			c.Abort()
+			return
+		}
+		if !isSuperAdmin {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: insufficient permissions"})
 			c.Abort()
 			return
 		}
 
-		roles, err := rbacRepo.GetUserRoleNamesInSchool(userID, systemSchoolID)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify roles"})
-			c.Abort()
-			return
-		}
-
-		if slices.Contains(roles, "super_admin") {
-			c.Set("school_id", systemSchoolID)
-			c.Set("user_roles", roles)
-			c.Next()
-			return
-		}
-
-		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: insufficient permissions"})
-		c.Abort()
+		c.Next()
 	}
 }
