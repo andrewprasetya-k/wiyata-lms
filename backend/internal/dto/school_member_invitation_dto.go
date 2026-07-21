@@ -1,7 +1,7 @@
 package dto
 
 type CreateSchoolMemberInvitationDTO struct {
-	FullName  string `json:"fullName" binding:"required"`
+	FullName  string `json:"fullName,omitempty"`
 	Email     string `json:"email" binding:"required,email"`
 	Role      string `json:"role" binding:"required"`
 	ClassCode string `json:"classCode,omitempty"`

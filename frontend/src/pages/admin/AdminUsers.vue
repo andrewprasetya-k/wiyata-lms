@@ -112,7 +112,6 @@ const importPreview = ref<AdminSchoolMemberImportPreviewResponse | null>(null);
 const importResult = ref<AdminSchoolMemberImportCommitResponse | null>(null);
 const inviteResult = ref<CreateSchoolMemberInvitationResponse | null>(null);
 const inviteForm = ref<CreateSchoolMemberInvitationPayload>({
-  fullName: "",
   email: "",
   role: "student",
   classCode: "",
@@ -343,7 +342,6 @@ function setMemberEntryMode(mode: "invite" | "direct") {
 
 function resetInviteForm() {
   inviteForm.value = {
-    fullName: "",
     email: "",
     role: "student",
     classCode: "",
@@ -352,7 +350,6 @@ function resetInviteForm() {
 
 async function submitInviteMember() {
   const payload: CreateSchoolMemberInvitationPayload = {
-    fullName: inviteForm.value.fullName.trim(),
     email: inviteForm.value.email.trim(),
     role: inviteForm.value.role,
     classCode:
@@ -362,8 +359,8 @@ async function submitInviteMember() {
   };
 
   memberFormError.value = "";
-  if (!payload.fullName || !payload.email || !payload.role) {
-    memberFormError.value = "Nama, email, dan peran wajib diisi.";
+  if (!payload.email || !payload.role) {
+    memberFormError.value = "Email dan peran wajib diisi.";
     return;
   }
   if (payload.role === "student" && !payload.classCode) {
@@ -871,15 +868,6 @@ onMounted(async () => {
               class="mt-5 space-y-3"
               @submit.prevent="submitInviteMember"
             >
-              <label class="block text-xs font-medium text-muted">
-                Nama lengkap
-                <input
-                  v-model="inviteForm.fullName"
-                  type="text"
-                  placeholder="Nama guru atau siswa"
-                  class="mt-2 w-full rounded-lg border border-border bg-surface-subtle px-3.5 py-2.5 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-brand focus:bg-surface"
-                />
-              </label>
               <label class="block text-xs font-medium text-muted">
                 Email
                 <input

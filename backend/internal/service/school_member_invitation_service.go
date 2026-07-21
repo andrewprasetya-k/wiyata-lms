@@ -45,9 +45,10 @@ func (s *schoolMemberInvitationService) Create(schoolID string, invitedBy string
 	if invitedBy == "" {
 		return nil, errors.New("inviting user is required")
 	}
-	if fullName == "" {
-		return nil, errors.New("invitation full name is required")
-	}
+	// Full name is optional: the invited person supplies their own name when
+	// they accept (AcceptInvitationDTO.Name), same as the existing Accept
+	// flow already does for a brand-new account. Still bounded when given,
+	// to match the domain column's constraint.
 	if len(fullName) > 150 {
 		return nil, errors.New("invitation full name exceeds 150 characters")
 	}
@@ -96,11 +97,16 @@ func (s *schoolMemberInvitationService) Create(schoolID string, invitedBy string
 		return nil, err
 	}
 
+	var fullNamePtr *string
+	if fullName != "" {
+		fullNamePtr = &fullName
+	}
+
 	invitation := &domain.Invitation{
 		SchoolID:  schoolID,
 		Email:     email,
 		Role:      role,
-		FullName:  &fullName,
+		FullName:  fullNamePtr,
 		ClassID:   classID,
 		TokenHash: tokenHash,
 		InvitedBy: invitedBy,

@@ -20,7 +20,6 @@ export interface SchoolMemberInvitationItem {
 }
 
 export interface CreateSchoolMemberInvitationPayload {
-  fullName: string;
   email: string;
   role: SchoolMemberInvitationRole;
   classCode?: string;
