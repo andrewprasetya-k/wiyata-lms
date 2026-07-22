@@ -38,9 +38,9 @@ type AssignmentService interface {
 	DeleteSubmission(id string) error
 
 	// Assessment
-	Assess(asm *domain.Assessment) error
-	UpdateAssessment(submissionID string, asm *domain.Assessment) error
-	DeleteAssessment(submissionID string) error
+	Assess(actor domain.ActorContext, asm *domain.Assessment) error
+	UpdateAssessment(actor domain.ActorContext, submissionID string, asm *domain.Assessment) error
+	DeleteAssessment(actor domain.ActorContext, submissionID string) error
 }
 
 type assignmentService struct {
@@ -50,9 +50,10 @@ type assignmentService struct {
 	notifService NotificationService
 	enrRepo      repository.EnrollmentRepository
 	db           *gorm.DB
+	logService   LogService
 }
 
-func NewAssignmentService(repo repository.AssignmentRepository, attService AttachmentService, mediaRepo repository.MediaRepository, notifService NotificationService, enrRepo repository.EnrollmentRepository, db *gorm.DB) AssignmentService {
+func NewAssignmentService(repo repository.AssignmentRepository, attService AttachmentService, mediaRepo repository.MediaRepository, notifService NotificationService, enrRepo repository.EnrollmentRepository, db *gorm.DB, logService LogService) AssignmentService {
 	return &assignmentService{
 		repo:         repo,
 		attService:   attService,
@@ -60,6 +61,7 @@ func NewAssignmentService(repo repository.AssignmentRepository, attService Attac
 		notifService: notifService,
 		enrRepo:      enrRepo,
 		db:           db,
+		logService:   logService,
 	}
 }
 
@@ -454,7 +456,7 @@ func (s *assignmentService) GetMySubmissionByAssignment(assignmentID string, use
 	return sbm, nil
 }
 
-func (s *assignmentService) Assess(asm *domain.Assessment) error {
+func (s *assignmentService) Assess(actor domain.ActorContext, asm *domain.Assessment) error {
 	if err := s.repo.UpsertAssessment(asm); err != nil {
 		return err
 	}
@@ -468,6 +470,13 @@ func (s *assignmentService) Assess(asm *domain.Assessment) error {
 			Message:   fmt.Sprintf("Nilai Anda sudah tersedia: %.2f", asm.Score),
 			Link:      "/student/grades",
 			RelatedID: asm.SubmissionID,
+		})
+
+		_ = s.logService.Log(actor, "assignment.assessed", "assessment", strPtr(asm.ID), domain.LogSeverityMedium, map[string]any{
+			"assignment_id": sbm.AssignmentID,
+			"submission_id": asm.SubmissionID,
+			"student_id":    sbm.UserID,
+			"score_after":   asm.Score,
 		})
 	}
 
@@ -542,13 +551,54 @@ func (s *assignmentService) DeleteSubmission(id string) error {
 	})
 }
 
-func (s *assignmentService) UpdateAssessment(submissionID string, asm *domain.Assessment) error {
+func (s *assignmentService) UpdateAssessment(actor domain.ActorContext, submissionID string, asm *domain.Assessment) error {
 	asm.SubmissionID = submissionID
-	return s.repo.UpdateAssessment(asm)
+
+	before, beforeErr := s.repo.GetAssessmentBySubmission(submissionID)
+
+	if err := s.repo.UpdateAssessment(asm); err != nil {
+		return err
+	}
+
+	if beforeErr == nil {
+		if after, err := s.repo.GetAssessmentBySubmission(submissionID); err == nil {
+			if sbm, err := s.repo.GetSubmissionByID(submissionID); err == nil {
+				_ = s.logService.Log(actor, "assignment.assessment.updated", "assessment", strPtr(after.ID), domain.LogSeverityMedium, map[string]any{
+					"assignment_id":    sbm.AssignmentID,
+					"submission_id":    submissionID,
+					"student_id":       sbm.UserID,
+					"score_before":     before.Score,
+					"score_after":      after.Score,
+					"feedback_changed": after.Feedback != before.Feedback,
+				})
+			}
+		}
+	}
+
+	return nil
 }
 
-func (s *assignmentService) DeleteAssessment(submissionID string) error {
-	return s.repo.DeleteAssessment(submissionID)
+func (s *assignmentService) DeleteAssessment(actor domain.ActorContext, submissionID string) error {
+	before, beforeErr := s.repo.GetAssessmentBySubmission(submissionID)
+	var sbm *domain.Submission
+	if beforeErr == nil {
+		sbm, _ = s.repo.GetSubmissionByID(submissionID)
+	}
+
+	if err := s.repo.DeleteAssessment(submissionID); err != nil {
+		return err
+	}
+
+	if beforeErr == nil && sbm != nil {
+		_ = s.logService.Log(actor, "assignment.assessment.deleted", "assessment", strPtr(before.ID), domain.LogSeverityMedium, map[string]any{
+			"assignment_id": sbm.AssignmentID,
+			"submission_id": submissionID,
+			"student_id":    sbm.UserID,
+			"score_before":  before.Score,
+		})
+	}
+
+	return nil
 }
 
 func (s *assignmentService) validateAssignmentCategory(categoryID string, schoolID string) error {

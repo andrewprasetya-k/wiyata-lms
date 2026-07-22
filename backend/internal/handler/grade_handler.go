@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"backend/internal/domain"
 	"backend/internal/dto"
 	"backend/internal/middleware"
 	"backend/internal/service"
@@ -31,7 +32,8 @@ func (h *GradeHandler) ConfigureWeights(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.ConfigureWeights(&req, schoolID); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.ConfigureWeights(actor, &req, schoolID); err != nil {
 		HandleError(c, err)
 		return
 	}

@@ -145,7 +145,7 @@ func main() {
 	chatHandler := handler.NewChatHandler(chatService, chatHub)
 	chatWebSocketHandler := realtime.NewWebSocketHandler(chatHub, chatService)
 
-	assignmentService := service.NewAssignmentService(assignmentRepo, attachmentService, mediaRepo, notificationService, enrollmentRepo, db)
+	assignmentService := service.NewAssignmentService(assignmentRepo, attachmentService, mediaRepo, notificationService, enrollmentRepo, db, logService)
 	assignmentHandler := handler.NewAssignmentHandler(assignmentService, schoolService, subjectClassService)
 
 	gradeHandler := handler.NewGradeHandler(service.NewGradeService(
@@ -154,6 +154,7 @@ func main() {
 		subjectRepo,
 		classRepo,
 		userRepo,
+		logService,
 	), subjectClassService)
 
 	logHandler := handler.NewLogHandler(logService)

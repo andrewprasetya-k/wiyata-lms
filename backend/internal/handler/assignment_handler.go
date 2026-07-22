@@ -785,7 +785,8 @@ func (h *AssignmentHandler) Assess(c *gin.Context) {
 		AssessedBy:   userID,
 	}
 
-	if err := h.service.Assess(&asm); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.Assess(actor, &asm); err != nil {
 		HandleError(c, err)
 		return
 	}
@@ -815,7 +816,8 @@ func (h *AssignmentHandler) UpdateAssessment(c *gin.Context) {
 		asm.Feedback = *input.Feedback
 	}
 
-	if err := h.service.UpdateAssessment(submissionId, asm); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.UpdateAssessment(actor, submissionId, asm); err != nil {
 		HandleError(c, err)
 		return
 	}
@@ -829,7 +831,8 @@ func (h *AssignmentHandler) DeleteAssessment(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.DeleteAssessment(submissionId); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.DeleteAssessment(actor, submissionId); err != nil {
 		HandleError(c, err)
 		return
 	}

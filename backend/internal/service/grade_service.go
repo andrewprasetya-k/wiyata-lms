@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"sort"
 	"time"
 
 	"gorm.io/gorm"
@@ -15,7 +16,7 @@ import (
 var ErrStudentNotEnrolledInClass = errors.New("student is not enrolled in this class")
 
 type GradeService interface {
-	ConfigureWeights(req *dto.ConfigureWeightsDTO, schoolID string) error
+	ConfigureWeights(actor domain.ActorContext, req *dto.ConfigureWeightsDTO, schoolID string) error
 	GetWeightsBySubject(subjectID string, schoolID string) (*dto.WeightResponseDTO, error)
 	CalculateFinalGrade(student *domain.User, subjectID string, subjectName string, weights []*domain.AssessmentWeight, categoryScores map[string][]float64) (*dto.GradeReportDTO, error)
 	GetClassGradeReport(classID, subjectID, schoolID string) (*dto.ClassGradeReportDTO, error)
@@ -30,6 +31,7 @@ type gradeService struct {
 	subjectRepo repository.SubjectRepository
 	classRepo   repository.ClassRepository
 	userRepo    repository.UserRepository
+	logService  LogService
 }
 
 func NewGradeService(
@@ -38,17 +40,42 @@ func NewGradeService(
 	subjectRepo repository.SubjectRepository,
 	classRepo repository.ClassRepository,
 	userRepo repository.UserRepository,
+	logService LogService,
 ) GradeService {
+	if logService == nil {
+		logService = noopLogService{}
+	}
 	return &gradeService{
 		weightRepo:  weightRepo,
 		gradeRepo:   gradeRepo,
 		subjectRepo: subjectRepo,
 		classRepo:   classRepo,
 		userRepo:    userRepo,
+		logService:  logService,
 	}
 }
 
-func (s *gradeService) ConfigureWeights(req *dto.ConfigureWeightsDTO, schoolID string) error {
+// diffWeightComponents returns the category_ids whose weight differs between
+// before/after — the {changed_components} metadata for grade.weights.configured.
+func diffWeightComponents(before map[string]float64, after map[string]float64) []string {
+	seen := make(map[string]struct{}, len(before)+len(after))
+	for categoryID := range before {
+		seen[categoryID] = struct{}{}
+	}
+	for categoryID := range after {
+		seen[categoryID] = struct{}{}
+	}
+	changed := make([]string, 0, len(seen))
+	for categoryID := range seen {
+		if before[categoryID] != after[categoryID] {
+			changed = append(changed, categoryID)
+		}
+	}
+	sort.Strings(changed)
+	return changed
+}
+
+func (s *gradeService) ConfigureWeights(actor domain.ActorContext, req *dto.ConfigureWeightsDTO, schoolID string) error {
 	if len(req.Weights) == 0 {
 		return fmt.Errorf("assessment weights are required")
 	}
@@ -84,6 +111,8 @@ func (s *gradeService) ConfigureWeights(req *dto.ConfigureWeightsDTO, schoolID s
 		return err
 	}
 
+	beforeWeights, _ := s.weightRepo.GetBySubject(req.SubjectID)
+
 	weights := make([]*domain.AssessmentWeight, 0, len(req.Weights))
 	for _, w := range req.Weights {
 		weights = append(weights, &domain.AssessmentWeight{
@@ -93,7 +122,26 @@ func (s *gradeService) ConfigureWeights(req *dto.ConfigureWeightsDTO, schoolID s
 		})
 	}
 
-	return s.weightRepo.ReplaceBySubject(req.SubjectID, weights)
+	if err := s.weightRepo.ReplaceBySubject(req.SubjectID, weights); err != nil {
+		return err
+	}
+
+	beforeMap := make(map[string]float64, len(beforeWeights))
+	for _, w := range beforeWeights {
+		beforeMap[w.CategoryID] = w.Weight
+	}
+	afterMap := make(map[string]float64, len(weights))
+	for _, w := range weights {
+		afterMap[w.CategoryID] = w.Weight
+	}
+
+	_ = s.logService.Log(actor, "grade.weights.configured", "subject", strPtr(req.SubjectID), domain.LogSeverityHigh, map[string]any{
+		"before_weights":     beforeMap,
+		"after_weights":      afterMap,
+		"changed_components": diffWeightComponents(beforeMap, afterMap),
+	})
+
+	return nil
 }
 
 func (s *gradeService) GetWeightsBySubject(subjectID string, schoolID string) (*dto.WeightResponseDTO, error) {
@@ -263,7 +311,6 @@ func (s *gradeService) GetClassGradeReport(classID, subjectID, schoolID string) 
 		Students: studentGrades,
 	}, nil
 }
-
 
 func (s *gradeService) GetStudentGradeDetail(classID, subjectID, studentID, schoolID string) (*dto.StudentGradeDetailDTO, error) {
 	classRow, err := s.gradeRepo.GetStudentGradebookClass(studentID, schoolID, classID)
@@ -560,7 +607,7 @@ func (s *gradeService) GetMyGradebookByClass(userID string, schoolID string, cla
 		})
 	}
 
-	// weights are fetched once for all subjects in this gradebook instead of once per subject 
+	// weights are fetched once for all subjects in this gradebook instead of once per subject
 	subjectIDs := make([]string, 0, len(response.Subjects))
 	for i := range response.Subjects {
 		subjectIDs = append(subjectIDs, response.Subjects[i].SubjectID)
@@ -589,7 +636,7 @@ func calculateAverage(scores []float64) float64 {
 	return sum / float64(len(scores))
 }
 
-func (s *gradeService) calculateSubjectFinalGrade(weights []*domain.AssessmentWeight, categoryScores map[string][]float64) (*float64) {
+func (s *gradeService) calculateSubjectFinalGrade(weights []*domain.AssessmentWeight, categoryScores map[string][]float64) *float64 {
 	if len(categoryScores) == 0 {
 		return nil
 	}
