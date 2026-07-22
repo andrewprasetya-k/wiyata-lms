@@ -209,7 +209,7 @@ DELETE /api/notifications/:id               - Delete notification
 
 ### 1.14 Log & Dashboard Routes (Protected)
 
-Audit log (Phase 10.1–10.10 — full contract, taxonomy, and permission matrix in `backend/docs/api/log.md`):
+Audit log (Phase 10.1–10.12 — full contract, taxonomy, and permission matrix in `backend/docs/api/log.md`; architecture/roadmap narrative in `docs/AUDIT_LOGGING.md`; see also "## Audit Logging" below):
 ```
 GET    /api/logs                              - Platform-wide filtered search (super admin only)
 GET    /api/logs/:id                          - Unrestricted detail incl. metadata (super admin only)
@@ -348,7 +348,7 @@ Both accept endpoints reject (400) if accepting would combine `student` with `te
 
 - **NotificationService**: Create/fetch/mark-read notifications
 - **MediaService**: Upload files, record metadata, delete with storage cleanup
-- **LogService**: Write path for the audit log — `Record`/`Log`/`LogBatch`, builds rows from `domain.ActorContext`, publishes a live event via `events.AuditBroadcaster` (nil-safe) strictly after each row commits. 33 actions across 9 domains write through it as of Phase 10.8 — see `backend/docs/api/log.md` §4.
+- **LogService**: Write path for the audit log — `Record`/`Log`/`LogBatch`, builds rows from `domain.ActorContext`, publishes a live event via `events.AuditBroadcaster` (nil-safe) strictly after each row commits. 63 actions across 19 service files write through it as of Phase 10.12 — see `backend/docs/api/log.md` §4 and "## Audit Logging" below.
 - **LogQueryService**: Read path for the audit log (Phase 10.9), deliberately separate from `LogService` so the write path never changes for read-surface work — `Search`/`GetByID` over `LogRepository`.
 - **DashboardService**: Aggregate dashboard data per role (student/teacher/admin/super-admin). Phase 7 extended admin/super-admin with work-queue widgets, grading backlog, and platform growth trends — see `docs/PROJECT_CONTEXT_HANDOFF.md` §25 and `backend/docs/api/dashboard.md`
 
@@ -1482,3 +1482,44 @@ Reorder routes: specific → generic
 3. ✅ **Best-Effort Notifications**: Don't cascade on failure
 4. ✅ **Manual Attachment Linking**: No auto-cascade, manual link/unlink
 5. ✅ **Polymorphic Comments**: SourceType + SourceID, no foreign key constraint
+
+## 17. Audit Logging
+
+Built across Phase 10.1–10.12. This section summarizes the architecture;
+`backend/docs/api/log.md` is the full REST/WebSocket contract and
+taxonomy reference, and `docs/AUDIT_LOGGING.md` is the narrative
+architecture/roadmap document — the three are cross-linked, not
+duplicated.
+
+**Purpose**: give School Admins and the System Super Admin a trustworthy,
+queryable record of who did what, to which entity, and when — for
+security review, dispute resolution, and operational visibility. Not a
+general-purpose event stream (chat messages, notifications, media
+uploads, and other high-volume/low-consequence actions are deliberately
+excluded — see §19 of `docs/AUDIT_LOGGING.md`).
+
+**Write path**: `Business service → LogService.Log/LogBatch → LogRepository.Create → edv.logs`. The write call always happens *after* the business mutation's own transaction/repository call has already succeeded, and its own error is discarded (`_ = s.logService.Log(...)`) — an audit failure must never fail the business action.
+
+**Read path**: a **separate** `LogQueryService` (`Search`/`GetByID` over `LogRepository`), added Phase 10.9 specifically so the write path (`LogService`) never has to change for read-surface work. Backs `LogHandler`'s REST endpoints (`GET /logs`, `/logs/:id`, `/logs/school/:schoolId/search`, `/logs/school/:schoolId/entries/:id`).
+
+**Realtime path**: `LogService.Record` (the single choke point `Log`/`LogBatch` both funnel through) publishes a fire-and-forget event via `events.AuditBroadcaster` strictly after the row commits → `realtime.AuditHubBroadcaster` → a **separate** `realtime.Hub` instance's `BroadcastToRoom` (room = `platform` or a school ID) → `GET /api/ws/audit`. Reuses the existing chat `Hub`/`Client` engine (a second instance), not a new WebSocket framework.
+
+**Actor flow**: `internal/handler/audit_context.go`'s `buildActorContext(c, scope)` reads `UserID` (JWT, always present), and `SchoolID`/`SchoolUserID` from gin context keys (`school_id`/`school_user_id`) — which are **only ever populated by `middleware.RequireSchoolMember`**. A route using standalone `middleware.RequireRole(...)` without a preceding `RequireSchoolMember` silently produces `ActorContext.SchoolID = nil` — this exact bug was found and fixed on 8 routes total across Phase 10.11 (3 RBAC routes) and Phase 10.12 (5 more: AcademicYear/Term/Subject `Create`, SchoolUser `Enroll`/`Unenroll`).
+
+**Taxonomy**: `<domain>.<subject>.<verb_past>` (e.g. `member.role.synced`), free-form text, not a Postgres enum. 63 actions across 19 service files as of Phase 10.12 — full table in `backend/docs/api/log.md` §4.
+
+**Severity**: `LOW` / `MEDIUM` / `HIGH` / `CRITICAL` (`domain.LogSeverity*`). `CRITICAL` added Phase 10.12, used only by `user.deleted`. Roughly: LOW = high-frequency/low-consequence identity events (login, email verified), MEDIUM = routine CRUD, HIGH = permission/credential/destructive actions, CRITICAL = irreversible platform-wide account deletion.
+
+**Metadata**: diff-only convention — never a full entity snapshot, never sensitive fields (passwords, tokens, hashes). Written after the mutation succeeds, using values already in memory where possible; a small number of delete actions fetch the row once beforehand specifically to have a title/name for the log (Material, Assignment, AcademicYear, Term, Class, Subject, User all do this).
+
+**Correlation ID**: links a `LogBatch` parent row (e.g. `member.imported`) to its per-row children (`member.created`) sharing one `correlation_id` — used for bulk CSV import. Only `LogBatch` sets it; ordinary `Log` calls leave it null.
+
+**Permission**: School Admin sees only their own school's rows (`scope=school`, matching `schoolId`); System Super Admin sees everything, including `scope=platform` rows no school-pinned endpoint ever returns. Same rule applies to the WebSocket handshake (checked once at connect, not per broadcast). Full matrix: `backend/docs/api/log.md` §5.
+
+**WebSocket**: `GET /api/ws/audit?token=&channel=`, manual handshake auth (not gin middleware, since raw browser WebSocket can't set headers). Payload is intentionally partial (no actor name/email, school name, or metadata) to avoid extra queries on the hot write path — the frontend fetches the full row over REST when a live entry is opened.
+
+**Frontend**: `frontend/src/pages/common/AuditLogsPage.vue` (shared between `/admin/audit-logs` and `/superadmin/audit-logs`), `frontend/src/services/auditLogSocket.ts` for the live feed (same reconnect policy as chat's socket).
+
+**Services connected as of Phase 10.12** (19 files call `LogService.Log`/`LogBatch`): `auth_service.go`, `user_service.go`, `email_verification_service.go`, `rbac_service.go`, `admin_school_member_import_service.go`, `school_member_invitation_service.go`, `invitation_service.go`, `school_user_service.go`, `enrollment_service.go`, `subject_class_service.go`, `school_service.go`, `academic_year_service.go`, `term_service.go`, `class_service.go`, `subject_service.go`, `material_service.go`, `assignment_service.go`, `grade_service.go`, `super_admin_bootstrap_service.go`.
+
+**Not connected (by design or known gap)**: `NotificationService`, `AttachmentService`, `MediaService` upload paths, `StudentNoteService`, `ChatService` message creation, `FeedService`/`CommentService` creation (all intentionally excluded — high-volume/low-consequence or privacy-sensitive); `RBACService.CreateRole`/`UpdateRole` (known gap, not yet scheduled).

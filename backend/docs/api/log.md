@@ -2,7 +2,10 @@
 
 Base URL: `/api/logs` (REST) · `/api/ws/audit` (WebSocket)
 
-Built across Phase 10.1–10.10. Source of truth is always the database
+Built across Phase 10.1–10.12. See also `docs/AUDIT_LOGGING.md` for the
+narrative architecture/roadmap overview — this document remains the
+detailed REST/WebSocket contract and full taxonomy reference. Source of
+truth is always the database
 (`edv.logs`, extended by `backend/scripts/migrations/0003_extend_logs_for_audit.sql`
 — see `backend/schema.md`); the WebSocket feed is a distribution layer only,
 never a second source of data.
@@ -154,7 +157,7 @@ Frontend (`frontend/src/services/auditLogSocket.ts`) reuses the exact reconnect 
 
 ## 4. Audit Taxonomy
 
-Pattern: `<domain>.<subject>.<verb_past>`, free-form strings (not a Postgres enum — validated only where relevant in application code). Severity is one of `LOW` / `MEDIUM` / `HIGH` (`domain.LogSeverity*` constants). Grouped by domain below, exactly as implemented (verified against every `logService.Log(...)`/`LogBatch(...)` call site as of Phase 10.10):
+Pattern: `<domain>.<subject>.<verb_past>`, free-form strings (not a Postgres enum — validated only where relevant in application code). Severity is one of `LOW` / `MEDIUM` / `HIGH` / `CRITICAL` (`domain.LogSeverity*` constants — `CRITICAL` added Phase 10.12, used only by `user.deleted`). 63 actions across 19 service files, grouped by domain below, exactly as implemented (verified against every `logService.Log(...)`/`LogBatch(...)` call site as of Phase 10.12):
 
 ### Authentication (`internal/service/auth_service.go`, `user_service.go`, `email_verification_service.go`)
 | Action | Severity | Notes |
@@ -164,6 +167,7 @@ Pattern: `<domain>.<subject>.<verb_past>`, free-form strings (not a Postgres enu
 | `auth.registered` | MEDIUM | Also triggers `auth.login.success` right after (auto-login-after-register), by design — two real events. |
 | `auth.password.changed` | HIGH | Super-admin-only endpoint (`PATCH /users/change-password/:id`); metadata's `user_id` is the *target* user, not necessarily the caller. |
 | `auth.email.verified` | LOW | |
+| `member.login` | LOW | Phase 10.11. School-scoped, emitted only when the user has an active school membership at login (the membership used for `DefaultContext`) — one row per login, not one per membership. Metadata: `login_method`, `user_id`, `school_id`. |
 
 ### RBAC (`internal/service/rbac_service.go`)
 | Action | Severity |
@@ -173,7 +177,9 @@ Pattern: `<domain>.<subject>.<verb_past>`, free-form strings (not a Postgres enu
 | `member.role.removed` | HIGH |
 | `rbac.role.deleted` | HIGH |
 
-### Member Management (`admin_school_member_import_service.go`, `school_member_invitation_service.go`, `invitation_service.go`)
+`CreateRole`/`UpdateRole` (global role definition CRUD) remain unaudited — flagged as a gap in the Phase 10.12 architecture audit but not in that phase's implementation scope.
+
+### Member Management (`admin_school_member_import_service.go`, `school_member_invitation_service.go`, `invitation_service.go`, `school_user_service.go`)
 | Action | Severity |
 |---|---|
 | `member.created` | MEDIUM |
@@ -183,6 +189,8 @@ Pattern: `<domain>.<subject>.<verb_past>`, free-form strings (not a Postgres enu
 | `member.invited` | LOW |
 | `member.invitation.revoked` | LOW |
 | `member.invitation.accepted` | LOW |
+| `member.enrolled` | MEDIUM | Phase 10.12. `SchoolUserService.Enroll` (`POST /school-users/enroll`) — a second, separate "join a school" path distinct from `member.created` (CSV/direct-create). Metadata: `user_id`, `school_id`. No `role` — enrollment carries no role at all; role assignment is a separate, later RBAC step. |
+| `member.unenrolled` | MEDIUM | Phase 10.12. `SchoolUserService.Unenroll` (`DELETE /school-users/:userId`). Metadata: `user_id`, `school_id` (from `ActorContext`, since the endpoint itself receives no schoolID). |
 
 ### Enrollment (`internal/service/enrollment_service.go`)
 | Action | Severity |
@@ -207,7 +215,58 @@ Pattern: `<domain>.<subject>.<verb_past>`, free-form strings (not a Postgres enu
 | `school.restored` | MEDIUM |
 | `school.hard_deleted` | HIGH |
 
-### Assignment (`internal/service/assignment_service.go`)
+### Academic Year (`internal/service/academic_year_service.go`) — Phase 10.12
+| Action | Severity | Notes |
+|---|---|---|
+| `academic_year.created` | MEDIUM | Metadata: `year_name` |
+| `academic_year.updated` | MEDIUM | Metadata: `year_name` |
+| `academic_year.deleted` | HIGH | Metadata: `year_name` (fetched before delete) |
+| `academic_year.activated` | HIGH | Metadata: `year_name`, `active_before`, `active_after`. No `academic_year.deactivated` — out of scope. |
+
+### Term (`internal/service/term_service.go`) — Phase 10.12
+| Action | Severity | Notes |
+|---|---|---|
+| `term.created` | MEDIUM | Metadata: `term_name`, `academic_year` (id, not resolved name — avoids an extra query) |
+| `term.updated` | MEDIUM | same |
+| `term.deleted` | HIGH | same, fetched before delete |
+| `term.activated` | HIGH | same. No `term.deactivated` — out of scope. |
+
+### Class (`internal/service/class_service.go`) — Phase 10.12
+| Action | Severity | Notes |
+|---|---|---|
+| `class.created` | MEDIUM | Metadata: `class_name`, `created_by` (substituted for a `homeroom_teacher` concept that doesn't exist on `domain.Class`) |
+| `class.updated` | MEDIUM | same |
+| `class.deleted` | HIGH | same, fetched before delete |
+
+### Subject (`internal/service/subject_service.go`) — Phase 10.12
+| Action | Severity | Notes |
+|---|---|---|
+| `subject.created` | MEDIUM | Metadata: `subject_name`, `subject_code` |
+| `subject.updated` | MEDIUM | same |
+| `subject.deleted` | HIGH | same, fetched before delete |
+
+### Material (`internal/service/material_service.go`) — Phase 10.12
+| Action | Severity | Notes |
+|---|---|---|
+| `material.created` | MEDIUM | Metadata: `title`, `class_id` (= `SubjectClassID` — Material has no direct Class relation) |
+| `material.updated` | MEDIUM | same |
+| `material.deleted` | MEDIUM | same, fetched before delete |
+
+### Assignment Lifecycle (`internal/service/assignment_service.go`) — Phase 10.12
+Distinct from the pre-existing Assessment actions below (Phase 10.7, unchanged).
+| Action | Severity | Notes |
+|---|---|---|
+| `assignment.created` | MEDIUM | Metadata: `assignment_title`, `class_id` (= `SubjectClassID`), `due_date` |
+| `assignment.updated` | MEDIUM | same |
+| `assignment.deleted` | HIGH | same, fetched before delete |
+| `assignment.submitted` | MEDIUM | Metadata: `assignment_id`, `student_id` |
+| `assignment.submission.updated` | MEDIUM | same |
+| `assignment.submission.deleted` | HIGH | same |
+| `assignment.category.created` | MEDIUM | Metadata: `category_name` |
+
+`assignment.category.updated`/`assignment.category.deleted` are **not implemented** — no `UpdateCategory`/`DeleteCategory` capability exists anywhere in the service/repository/handler layer; adding audit logging for a mutation that doesn't exist would require adding new business functionality, which was out of scope for Phase 10.12.
+
+### Assignment Assessment (`internal/service/assignment_service.go`, Phase 10.7 — unchanged)
 | Action | Severity |
 |---|---|
 | `assignment.assessed` | MEDIUM |
@@ -219,13 +278,22 @@ Pattern: `<domain>.<subject>.<verb_past>`, free-form strings (not a Postgres enu
 |---|---|
 | `grade.weights.configured` | HIGH |
 
+### User CRUD (`internal/service/user_service.go`) — Phase 10.12, scope: platform (System Super Admin only, `/users` routes)
+| Action | Severity | Notes |
+|---|---|---|
+| `user.created` | HIGH | Metadata: `email`. No `role` — `domain.User` has no global role concept (roles are per-school). |
+| `user.updated` | HIGH | same |
+| `user.deleted` | **CRITICAL** | same, fetched before delete. First and only use of the `CRITICAL` tier. |
+
+Known interaction: `RBACService.CreateSuperAdmin` internally calls `UserService.Create`, so bootstrapping a super admin now emits **both** `platform.super_admin.created` and `user.created` for the same user — a minor duplicate on a rare, super-admin-only bootstrap path, not suppressed (see Known Limitations).
+
 ### Platform (`super_admin_bootstrap_service.go`, `rbac_service.go`)
 | Action | Severity |
 |---|---|
 | `platform.school.bootstrapped` | HIGH |
 | `platform.super_admin.created` | HIGH |
 
-Not yet audited: Academic Years/Terms/Classes, Subjects, Materials, Feed/Comments/Chat, Notifications, Media, Student Notes, Dashboard — explicitly out of scope for Phase 10.x (see Phase 10.1's severity-grouped inventory for why).
+All business-mutation domains identified in the Phase 10.12 architecture audit are now covered except: RBAC role-definition CRUD (`CreateRole`/`UpdateRole`), `assignment.category.updated`/`.deleted` (no underlying capability), and the intentionally-excluded domains (Notification, Attachment, Media upload, StudentNote, Chat messages, Feed/Comment creation — see `docs/AUDIT_LOGGING.md` §19 for the full reasoning).
 
 ## 5. Permission Matrix (REST + WebSocket combined)
 
@@ -246,3 +314,7 @@ Not yet audited: Academic Years/Terms/Classes, Subjects, Materials, Feed/Comment
 - **`GetByCorrelationID` (repository) has no REST endpoint of its own** — it's used internally by the bulk-import broadcast/known-limitation flow above, not exposed to the frontend directly.
 - **Database remains the only source of truth.** If the WebSocket connection is down, misses an event, or the browser tab was closed, nothing is lost — the next REST list/reload reflects the true state. The socket is additive convenience, never required for correctness.
 - Retention/archival/export (CSV/Excel) were explicitly out of scope for every Phase 10.x sub-phase and remain unimplemented.
+- **`CreateSuperAdmin` double-logs** (Phase 10.12): bootstrapping a super admin emits both `platform.super_admin.created` and `user.created` for the same user, since it calls the now-instrumented `UserService.Create` internally. Rare (bootstrap-only), low-impact, not suppressed.
+- **RBAC role-definition CRUD is still unaudited** — `CreateRole`/`UpdateRole` (global role creation/rename) have no audit trail, unlike `rbac.role.deleted`. Identified in the Phase 10.12 architecture audit, not in that phase's implementation scope.
+- **`assignment.category.updated`/`.deleted` do not exist** — there is no underlying `UpdateCategory`/`DeleteCategory` capability in the codebase to audit.
+- Several domains remain intentionally unaudited by design (not a gap): Notification, Attachment linking, Media upload, Student Notes, Chat messages, Feed/Comment creation — see `docs/AUDIT_LOGGING.md` §19 for the reasoning behind each.

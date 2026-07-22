@@ -284,14 +284,41 @@ notifications.
 - `PATCH /assignments/assess/:submissionId` - Update assessment for current teacher-owned subject class
 - `DELETE /assignments/assess/:submissionId` - Delete assessment for current teacher-owned subject class
 
-## 📊 Logs (Audit Log — see backend/docs/api/log.md for full contract)
+## 📊 Logs (Audit Log — Phase 10.1–10.12, see backend/docs/api/log.md for full contract and docs/AUDIT_LOGGING.md for architecture)
 
-- `GET /logs` - Platform-wide filtered search (super admin only)
-- `GET /logs/:id` - Unrestricted detail lookup, incl. metadata (super admin only)
-- `GET /logs/school/:schoolId/search` - Filtered/paginated search pinned to one school (admin of that school, or super admin)
-- `GET /logs/school/:schoolId/entries/:id` - Detail lookup pinned to one school
-- `GET /logs/school/:schoolId` - Legacy simple paginated list, no filters (kept for backward compatibility)
-- `GET /ws/audit?token=&channel=` - WebSocket realtime feed for new audit rows. `channel` is `platform` (super admin only) or a school ID (that school's admins + super admin). Payload is the same shape as the REST list row, without metadata/actor name/school name — see backend/docs/api/log.md §3
+63 audit actions (`domain.LogSeverityLow/Medium/High/Critical`) are written across 19 backend services as of Phase 10.12; the 5 endpoints below are the only way to read them back (plus the WebSocket live feed).
+
+- `GET /logs`
+  - **Auth:** JWT + `RequireSystemSuperAdmin`.
+  - **Permission:** super admin only — unrestricted, platform-wide.
+  - **Parameters (all optional query):** `schoolId`, `scope` (`platform`|`school`), `action`, `entityType`, `severity` (`LOW`|`MEDIUM`|`HIGH`|`CRITICAL`), `actorUserId`, `correlationId`, `search` (ILIKE on action/entityType/actor name+email), `dateFrom`, `dateTo`, `page` (default 1), `limit` (default 20, max 100).
+  - **Response:** paginated `LogListItemDTO[]` (no metadata) — see shape in `backend/docs/api/log.md` §2.
+
+- `GET /logs/:id`
+  - **Auth:** JWT + `RequireSystemSuperAdmin`.
+  - **Permission:** super admin only, any row regardless of scope.
+  - **Parameters:** `id` (path).
+  - **Response:** `LogDetailDTO` — `LogListItemDTO` plus `metadata` (raw JSON string), `ipAddress`, `userAgent`.
+
+- `GET /logs/school/:schoolId/search`
+  - **Auth:** JWT + `RequireSchoolMember` + `RequireRole("admin", "super_admin")`.
+  - **Permission:** admin of that specific school, or super admin. Handler forces `schoolId = :schoolId` regardless of query value sent.
+  - **Parameters:** same as `GET /logs` minus `schoolId` (fixed by path).
+  - **Response:** paginated `LogListItemDTO[]`, always `scope=school` rows for the pinned school only.
+
+- `GET /logs/school/:schoolId/entries/:id`
+  - **Auth:** JWT + `RequireSchoolMember` + `RequireRole("admin", "super_admin")`.
+  - **Permission:** same as above; handler verifies the fetched row's `schoolId` matches `:schoolId` (`403` on mismatch).
+  - **Response:** `LogDetailDTO`.
+
+- `GET /logs/school/:schoolId` (legacy, kept for backward compatibility)
+  - **Auth:** JWT + `RequireSchoolMember` + `RequireRole("admin", "super_admin")`.
+  - Simple paginated list, no filters. Prefer `/search` for anything new.
+
+- `GET /ws/audit?token=&channel=`
+  - **Auth:** manual handshake (JWT passed as `token` query param, since browser WebSocket can't set headers).
+  - **Permission:** `channel=platform` — super admin only; `channel={schoolId}` — that school's admins + super admin. Checked once at connect, not per broadcast.
+  - **Response:** streamed `{"type":"audit_log_created","channel":...,"payload":{...}}` events, payload = partial `LogListItemDTO` (no actor name/email, school name, or metadata — fetch full row over REST if needed) — see backend/docs/api/log.md §3.
 
 ## 📊 Grade Book
 

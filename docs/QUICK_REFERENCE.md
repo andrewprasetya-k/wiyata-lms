@@ -45,7 +45,7 @@ School (tenant root)
 | **Comments** | Polymorphic (SourceType + SourceID) | Can comment on material, assignment, feed, submission, comment |
 | **Invitation accept (existing user)** | Two endpoints, not one branching on optional auth: `POST /invitations/:token/accept` (public, new-user) vs `POST /invitations/:token/accept-authenticated` (JWT-required, existing-user) | Backend verifies `authenticated user's email == invitation.email`; frontend never trusted for that check |
 | **School-role combination (Phase 9.3)** | `admin`+`teacher` is the only allowed combination on one school membership; `student` can never combine with `teacher` or `admin` | One backend validator (`domain.ValidateSchoolRoleCombination`) called from role sync/assign, CSV import/direct-create, and invitation accept — not just the frontend |
-| **Audit log (Phase 10.1–10.10)** | DB row (`edv.logs`) is always the source of truth; `/api/ws/audit` broadcasts fire-and-forget only after the row commits | A missed/dropped WebSocket event is invisible to REST — the live feed is convenience, never load-bearing. Read (`LogQueryService`) and write (`LogService`) are separate services on purpose. |
+| **Audit log (Phase 10.1–10.12)** | DB row (`edv.logs`) is always the source of truth; `/api/ws/audit` broadcasts fire-and-forget only after the row commits | A missed/dropped WebSocket event is invisible to REST — the live feed is convenience, never load-bearing. Read (`LogQueryService`) and write (`LogService`) are separate services on purpose. |
 
 ## Routes Quick Map
 ```
@@ -299,6 +299,54 @@ try {
 }
 ```
 Apply this pattern in any `watch(async...)` or `onMounted(async...)` that loads data keyed by a selection (class, room, subject class, etc.).
+
+## Audit Logging Cheat Sheet
+
+Full reference: `backend/docs/api/log.md` (contract/taxonomy), `docs/AUDIT_LOGGING.md` (architecture/roadmap).
+
+### How to add a new audit action
+
+1. **Decide if it should be audited at all.** Business mutations (create/update/delete on an institutional entity) — yes. High-volume/low-consequence actions (chat messages, notification read-state, media uploads, personal notes) — no, see `docs/AUDIT_LOGGING.md` §19 for the precedent.
+2. **Confirm the route's middleware chain has `RequireSchoolMember` before `RequireRole`** for any school-scoped action — `RequireRole` alone never populates `school_id`/`school_user_id` into gin context, so `ActorContext.SchoolID` would silently be `nil`. This exact bug has been found and fixed 8 times (Phase 10.11–10.12); check for it every time.
+3. **Build the `ActorContext`** in the handler: `actor := buildActorContext(c, domain.LogScopeSchool)` (or `LogScopePlatform` for platform-only routes like `/users`). Pass `actor` into the service method (add it as a parameter if the method doesn't already take one — convention is `actor` first).
+4. **Call `s.logService.Log(actor, "<domain>.<subject>.<verb_past>", entityType, entityID, severity, metadata)`** immediately after the mutation succeeds (never inside a `db.Transaction(...)` block — after it returns), and discard the error: `_ = s.logService.Log(...)`. If the action needs a "before" value (e.g. a title, for a Delete that only receives an ID), fetch the entity first — see `MaterialService.Delete`/`AssignmentService.DeleteAssignment` for the pattern.
+5. **Document it** in `backend/docs/api/log.md` §4 and `docs/AUDIT_LOGGING.md` §12 taxonomy table.
+
+### How to build an ActorContext
+
+```go
+// In the handler, using data middleware already put in gin context:
+actor := buildActorContext(c, domain.LogScopeSchool) // or domain.LogScopePlatform
+
+// buildActorContext (internal/handler/audit_context.go) does:
+//   UserID       ← middleware.GetUserID(c)              (JWT, always present)
+//   SchoolID     ← c.Get("school_id")                    (only set by RequireSchoolMember)
+//   SchoolUserID ← c.Get("school_user_id")                (only set by RequireSchoolMember)
+//   Scope        ← whatever you pass in
+```
+If the entity you're logging has its own `SchoolID` field (most domain structs do), prefer using the entity's own value for the log row's school when you have it in hand post-mutation — it's free (already in memory) and more robust than trusting the header/context to match.
+
+### How to decide scope / severity / entity / metadata
+
+| Decide | Rule |
+|---|---|
+| **Scope** | `school` if the action happens inside a specific school's context (almost everything); `platform` only for routes gated by `RequireSystemSuperAdmin` with no school concept (`/users` CRUD, RBAC role definitions, school bootstrap/restore/hard-delete). |
+| **Severity** | `LOW` = high-frequency, low-consequence identity events (login success, email verified). `MEDIUM` = routine CRUD (create/update most entities). `HIGH` = permission/credential changes, destructive actions (delete), and cross-cutting config changes. `CRITICAL` = irreversible, platform-wide, high-blast-radius actions — currently only `user.deleted`. When in doubt, match the severity of the closest existing action in the same domain rather than inventing a new tier. |
+| **Entity type** | The polymorphic `entityType` string paired with `entityId` — use the real domain concept being mutated (`material`, `assignment`, `school_user`, etc.), not a generic name. No FK exists on this column; it's purely descriptive. |
+| **Metadata** | Minimal diff, never a full entity snapshot, never a sensitive field (passwords, tokens, hashes). Prefer values already available on the object in memory over an extra query. If a field the taxonomy conventionally expects (e.g. a resolved name) isn't available without an extra query, use the ID instead and note the substitution in `log.md` rather than adding a lookup. |
+
+### How to use LogBatch
+
+Use `LogBatch` only for **bulk operations with a parent+children relationship** (the only current example: CSV member import — one `member.imported` parent row, many `member.created` child rows, all sharing one `correlation_id`).
+
+```go
+_ = s.logService.LogBatch(tx, actor, "member.imported", "school", strPtr(schoolID), domain.LogSeverityMedium,
+    map[string]any{"total": len(rows), "success": successCount},
+    children, // []service.LogBatchChild — one per row, action defaults to the child's own action string
+)
+```
+
+Key rules: only the **parent** row is broadcast live over WebSocket (children would flood every connected viewer for a large import); pass the same transaction (`tx`) the batch's own rows are being written in, so the audit rows commit atomically with the data they describe.
 
 ---
 

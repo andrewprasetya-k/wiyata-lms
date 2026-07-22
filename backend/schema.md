@@ -434,7 +434,7 @@ log_action varchar(150) [note: 'taxonomy pattern <domain>.<subject>.<verb_past>,
 entity_type text [note: 'polymorphic — no FK, target table varies by action (e.g. school_user, school, subject_class, assessment)']
 entity_id uuid [note: 'polymorphic — no FK, paired with entity_type']
 scope text [note: 'application-validated, not a DB constraint — "platform" or "school"']
-severity text [note: 'application-validated, not a DB constraint — LOW, MEDIUM, or HIGH']
+severity text [note: 'application-validated, not a DB constraint — LOW, MEDIUM, HIGH, or CRITICAL (CRITICAL added Phase 10.12, used only by user.deleted)']
 ip_address text
 user_agent text
 correlation_id uuid [note: 'links a bulk-import parent row to its child rows (Phase 10.2 §5, Option B) — written via LogService.LogBatch']
