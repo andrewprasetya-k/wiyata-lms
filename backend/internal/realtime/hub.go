@@ -1,10 +1,13 @@
 package realtime
 
+import "backend/internal/events"
+
 type Hub struct {
-	register   chan *Client
-	unregister chan *Client
-	broadcast  chan broadcastRequest
-	clients    map[string]map[string]map[*Client]bool
+	register      chan *Client
+	unregister    chan *Client
+	broadcast     chan broadcastRequest
+	broadcastRoom chan roomBroadcastRequest
+	clients       map[string]map[string]map[*Client]bool
 }
 
 type broadcastRequest struct {
@@ -13,12 +16,18 @@ type broadcastRequest struct {
 	event    Event
 }
 
+type roomBroadcastRequest struct {
+	room  string
+	event events.AuditEvent
+}
+
 func NewHub() *Hub {
 	return &Hub{
-		register:   make(chan *Client),
-		unregister: make(chan *Client),
-		broadcast:  make(chan broadcastRequest, 32),
-		clients:    make(map[string]map[string]map[*Client]bool),
+		register:      make(chan *Client),
+		unregister:    make(chan *Client),
+		broadcast:     make(chan broadcastRequest, 32),
+		broadcastRoom: make(chan roomBroadcastRequest, 32),
+		clients:       make(map[string]map[string]map[*Client]bool),
 	}
 }
 
@@ -31,6 +40,8 @@ func (h *Hub) Run() {
 			h.removeClient(client)
 		case request := <-h.broadcast:
 			h.broadcastToUsers(request)
+		case request := <-h.broadcastRoom:
+			h.broadcastToRoom(request)
 		}
 	}
 }
@@ -69,6 +80,13 @@ func (h *Hub) BroadcastToUser(schoolID string, userID string, event Event) {
 		userIDs:  []string{userID},
 		event:    event,
 	}
+}
+
+func (h *Hub) BroadcastToRoom(room string, event events.AuditEvent) {
+	if h == nil || room == "" {
+		return
+	}
+	h.broadcastRoom <- roomBroadcastRequest{room: room, event: event}
 }
 
 func (h *Hub) addClient(client *Client) {
@@ -110,6 +128,20 @@ func (h *Hub) broadcastToUsers(request broadcastRequest) {
 	for _, userID := range request.userIDs {
 		for client := range users[userID] {
 			if err := client.WriteEvent(request.event); err != nil {
+				h.removeClient(client)
+			}
+		}
+	}
+}
+
+func (h *Hub) broadcastToRoom(request roomBroadcastRequest) {
+	users := h.clients[request.room]
+	if users == nil {
+		return
+	}
+	for _, connections := range users {
+		for client := range connections {
+			if err := client.WriteJSON(request.event); err != nil {
 				h.removeClient(client)
 			}
 		}

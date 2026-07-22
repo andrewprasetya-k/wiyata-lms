@@ -38,11 +38,11 @@ func main() {
 
 	//initialize repo, service, handler
 
-	// logService constructed first: Phase 10.5+ business services will take
-	// it as a constructor dependency, so it must exist before them.
+	auditHub := realtime.NewHub()
+	go auditHub.Run()
+	auditBroadcaster := realtime.NewAuditHubBroadcaster(auditHub)
 	logRepo := repository.NewLogRepository(db)
-	logService := service.NewLogService(logRepo)
-
+	logService := service.NewLogService(logRepo, auditBroadcaster)
 	schoolRepo := repository.NewSchoolRepository(db)
 	schoolService := service.NewSchoolService(schoolRepo, logService)
 	schoolHandler := handler.NewSchoolHandler(schoolService)
@@ -78,6 +78,7 @@ func main() {
 	schoolMemberInvitationHandler := handler.NewSchoolMemberInvitationHandler(schoolMemberInvitationService)
 
 	authService := service.NewAuthService(userRepo, schoolUserRepo, emailVerificationService, logService)
+	auditStreamHandler := realtime.NewAuditStreamHandler(auditHub, authService)
 	authHandler := handler.NewAuthHandler(authService)
 
 	subjectRepo := repository.NewSubjectRepository(db)
@@ -203,15 +204,11 @@ func main() {
 		// Not rate-limited: long-lived SSE/WebSocket connections
 		api.GET("/events/sidebar", sidebarStreamHandler.Stream)
 		api.GET("/ws/chat", chatWebSocketHandler.Chat)
+		api.GET("/ws/audit", auditStreamHandler.Stream)
 
 		//protected routes
 		api.Use(middleware.AuthRequired())
 		api.Use(middleware.RateLimitPerTenant(rateLimiterStore))
-
-		// Existing-account invitation acceptance: identity comes from the JWT,
-		// not from a submitted name/password. Kept separate from the public
-		// /invitations/:token/accept (registration) route above rather than
-		// branching one endpoint on optional auth.
 		api.POST("/invitations/:token/accept-authenticated", invitationHandler.AcceptAuthenticated)
 
 		meAPI := api.Group("/me")
@@ -222,8 +219,6 @@ func main() {
 
 		schoolAPI := api.Group("/schools")
 		{
-			// Self-service Create School (Phase 1): any authenticated user with a
-			// verified email may create a school and becomes its Admin.
 			schoolAPI.POST("", middleware.RequireVerifiedUser(userRepo), schoolHandler.CreateSchool)
 			schoolAPI.GET("", middleware.RequireSystemSuperAdmin(schoolService), schoolHandler.GetSchools)
 			schoolAPI.GET("/summary", middleware.RequireSystemSuperAdmin(schoolService), schoolHandler.GetSchoolSummary)

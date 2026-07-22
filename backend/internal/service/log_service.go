@@ -2,6 +2,8 @@ package service
 
 import (
 	"backend/internal/domain"
+	"backend/internal/dto"
+	"backend/internal/events"
 	"backend/internal/repository"
 	"encoding/json"
 
@@ -15,16 +17,9 @@ type LogService interface {
 	GetByUser(userID string, page int, limit int) ([]*domain.Log, int64, error)
 	GetByCorrelationID(correlationID string) ([]*domain.Log, error)
 	Log(actor domain.ActorContext, action string, entityType string, entityID *string, severity string, metadata any) error
-	// LogBatch writes one parent row plus its child rows, all sharing a
-	// single generated correlation_id (Phase 10.2 §5, Option B), inside the
-	// caller-supplied transaction. For bulk actions (e.g. CSV import) that
-	// must log in the same transaction as the business writes they describe.
 	LogBatch(tx *gorm.DB, actor domain.ActorContext, parentAction string, parentEntityType string, parentEntityID *string, parentSeverity string, parentMetadata any, children []LogBatchChild) error
 }
 
-// LogBatchChild describes one child row of a LogBatch call. It shares the
-// parent's actor and correlation_id; only its own action/entity/severity/
-// metadata differ.
 type LogBatchChild struct {
 	Action     string
 	EntityType string
@@ -34,15 +29,20 @@ type LogBatchChild struct {
 }
 
 type logService struct {
-	repo repository.LogRepository
+	repo        repository.LogRepository
+	broadcaster events.AuditBroadcaster
 }
 
-func NewLogService(repo repository.LogRepository) LogService {
-	return &logService{repo: repo}
+func NewLogService(repo repository.LogRepository, broadcaster events.AuditBroadcaster) LogService {
+	return &logService{repo: repo, broadcaster: broadcaster}
 }
 
 func (s *logService) Record(log *domain.Log) error {
-	return s.repo.Create(log)
+	if err := s.repo.Create(log); err != nil {
+		return err
+	}
+	s.publishAuditEvent(log)
+	return nil
 }
 
 func (s *logService) GetBySchool(schoolID string, page int, limit int) ([]*domain.Log, int64, error) {
@@ -89,13 +89,10 @@ func (s *logService) LogBatch(tx *gorm.DB, actor domain.ActorContext, parentActi
 			return err
 		}
 	}
+	s.publishAuditEvent(parent)
 	return nil
 }
 
-// noopLogService lets callers that don't care about audit logging (mainly
-// unit tests constructing a business service directly) pass nil for
-// LogService without every audit call site needing its own nil-check —
-// mirrors the existing noopEmailService convention.
 type noopLogService struct{}
 
 func (noopLogService) Record(*domain.Log) error { return nil }
@@ -111,6 +108,49 @@ func (noopLogService) Log(domain.ActorContext, string, string, *string, string, 
 }
 func (noopLogService) LogBatch(*gorm.DB, domain.ActorContext, string, string, *string, string, any, []LogBatchChild) error {
 	return nil
+}
+
+func (s *logService) publishAuditEvent(log *domain.Log) {
+	if s.broadcaster == nil || log == nil {
+		return
+	}
+
+	item := dto.LogListItemDTO{
+		ID:          log.ID,
+		Action:      log.Action,
+		ActorUserID: log.UserID,
+		CreatedAt:   formatAPITime(log.CreatedAt),
+	}
+	if log.EntityType != nil {
+		item.EntityType = *log.EntityType
+	}
+	if log.EntityID != nil {
+		item.EntityID = *log.EntityID
+	}
+	if log.Scope != nil {
+		item.Scope = *log.Scope
+	}
+	if log.Severity != nil {
+		item.Severity = *log.Severity
+	}
+	if log.SchoolID != nil {
+		item.SchoolID = *log.SchoolID
+	}
+	if log.CorrelationID != nil {
+		item.CorrelationID = *log.CorrelationID
+	}
+
+	event := events.AuditEvent{Type: events.AuditEventTypeCreated, Payload: item}
+
+	if log.Scope != nil && *log.Scope == domain.LogScopePlatform {
+		event.Channel = "platform"
+		s.broadcaster.BroadcastPlatformEvent(event)
+		return
+	}
+	if log.SchoolID != nil {
+		event.Channel = *log.SchoolID
+		s.broadcaster.BroadcastSchoolEvent(*log.SchoolID, event)
+	}
 }
 
 func buildLogEntry(actor domain.ActorContext, action string, entityType string, entityID *string, severity string, metadata any, correlationID *string) (*domain.Log, error) {

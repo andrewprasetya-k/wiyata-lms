@@ -73,6 +73,13 @@ func (c *Client) WriteEvent(event Event) error {
 	return c.conn.WriteJSON(event)
 }
 
+func (c *Client) WriteJSON(payload any) error {
+	c.writeMu.Lock()
+	defer c.writeMu.Unlock()
+	_ = c.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+	return c.conn.WriteJSON(payload)
+}
+
 func (c *Client) Close() {
 	_ = c.conn.Close()
 }
