@@ -77,9 +77,6 @@ async function submit() {
       </div>
 
       <div class="max-w-xl">
-        <p class="text-sm font-medium text-muted">
-          Sistem Manajemen Pembelajaran
-        </p>
         <h1
           class="mt-4 text-4xl font-medium leading-tight text-foreground lg:text-6xl"
         >
@@ -92,7 +89,7 @@ async function submit() {
       </div>
 
       <div class="text-xs text-muted">
-        &copy; 2026 Wiyata. Hak cipta dilindungi.
+        &copy; 2026 Wiyata. All rights reserved.
       </div>
     </section>
 
@@ -151,7 +148,7 @@ async function submit() {
             <span
               class="mb-2 block text-sm font-medium text-foreground-secondary"
             >
-              Kata Sandi
+              Password
             </span>
             <div class="relative">
               <input
@@ -166,8 +163,8 @@ async function submit() {
                 class="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-muted transition hover:text-foreground"
                 :aria-label="
                   passwordVisible
-                    ? 'Sembunyikan kata sandi'
-                    : 'Tampilkan kata sandi'
+                    ? 'Sembunyikan password'
+                    : 'Tampilkan password'
                 "
                 :aria-pressed="passwordVisible"
                 @click="togglePasswordVisibility"
