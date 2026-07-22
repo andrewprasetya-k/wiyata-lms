@@ -68,10 +68,10 @@ Register a new subject for a school.
 
 - **URL:** `(base URL)`
 - **Method:** `POST`
+- **Auth Note:** School is always taken from the caller's active school context (`SchoolId` header), never from the request body — any `schoolId` sent in the body is ignored.
 - **Body:**
   | Field | Type | Required | Note |
   | :--- | :--- | :--- | :--- |
-  | `schoolId` | uuid | Yes | |
   | `subjectName`| string | Yes | e.g., "Matematika" |
   | `subjectCode`| string | Yes | Unique per school, e.g., "MTK" |
   | `color` | string | No | Hex color: `#RGB`, `#RRGGBB`, or `#RRGGBBAA`. Used by calendar/timeline visual identity. |

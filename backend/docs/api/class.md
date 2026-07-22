@@ -49,11 +49,10 @@ Retrieve a paginated list of all classes.
 
 - **URL:** `(base URL)`
 - **Method:** `POST`
-- **Auth Note:** Actor identity is taken from the JWT token. Sending identity fields in the body is ignored or no longer required.
+- **Auth Note:** Actor identity is taken from the JWT token. School is always taken from the caller's active school context (`SchoolId` header), never from the request body — any `schoolId` sent in the body is ignored.
 - **Body:**
   | Field | Type | Required | Note |
   | :--- | :--- | :--- | :--- |
-  | `schoolId` | uuid | Yes | |
   | `termId` | uuid | Yes | Reference to Semester |
   | `classCode` | string | Yes | e.g., "X-IPA-1" |
   | `classTitle`| string | Yes | e.g., "IPA 1" |

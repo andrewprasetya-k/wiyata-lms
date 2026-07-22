@@ -55,6 +55,7 @@ Create a new term for an academic year. Status is `false` by default.
 
 - **URL:** `(base URL)`
 - **Method:** `POST`
+- **Ownership:** Handler resolves the referenced academic year and verifies `academicYear.SchoolID == activeSchoolID`. Returns `403 Forbidden` if the academic year belongs to a different school — the Term equivalent of the `schoolId`-from-body guard on Academic Year/Subject/Class Create, since `CreateTermDTO` has no direct `schoolId` field to substitute.
 - **Body:**
   | Field | Type | Required | Note |
   | :--- | :--- | :--- | :--- |

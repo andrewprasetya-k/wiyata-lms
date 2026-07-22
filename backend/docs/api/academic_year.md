@@ -67,10 +67,10 @@ Create a new academic year for a school. Status is `false` by default.
 
 - **URL:** `(base URL)`
 - **Method:** `POST`
+- **Auth Note:** School is always taken from the caller's active school context (`SchoolId` header), never from the request body — any `schoolId` sent in the body is ignored.
 - **Body:**
   | Field | Type | Required | Note |
   | :--- | :--- | :--- | :--- |
-  | `schoolId` | uuid | Yes | Reference to School ID |
   | `academicYearName` | string | Yes | e.g., "2023/2024" |
 
 ---
