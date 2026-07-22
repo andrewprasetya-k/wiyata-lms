@@ -760,7 +760,7 @@ onMounted(() => {
           </div>
         </section>
 
-        <!-- SECTION 5 — Recent Activity -->
+        <!-- SECTION 3 — Recent Activity -->
         <section
           class="rounded-xl border border-border bg-surface shadow-sm p-5"
         >
