@@ -108,9 +108,9 @@ func (s *materialSummaryRBACStub) GetRoleByName(string) (*domain.Role, error) {
 	return nil, nil
 }
 func (s *materialSummaryRBACStub) WithTx(tx *gorm.DB) repository.RBACRepository { return s }
-func (s *materialSummaryRBACStub) GetAllRoles() ([]*domain.Role, error) { return nil, nil }
-func (s *materialSummaryRBACStub) UpdateRole(*domain.Role) error        { return nil }
-func (s *materialSummaryRBACStub) DeleteRole(string) error              { return nil }
+func (s *materialSummaryRBACStub) GetAllRoles() ([]*domain.Role, error)         { return nil, nil }
+func (s *materialSummaryRBACStub) UpdateRole(*domain.Role) error                { return nil }
+func (s *materialSummaryRBACStub) DeleteRole(string) error                      { return nil }
 func (s *materialSummaryRBACStub) CheckDuplicateRoleName(string, string) (bool, error) {
 	return false, nil
 }

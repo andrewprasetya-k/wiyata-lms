@@ -21,7 +21,7 @@ const (
 	maxChatMessageLimit = 50
 	maxChatContentLen   = 5000
 	maxChatAttachments  = 5
-	maxChatRoomNameLen = 150
+	maxChatRoomNameLen  = 150
 )
 
 type ChatService interface {

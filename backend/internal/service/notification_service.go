@@ -20,7 +20,7 @@ type NotificationService interface {
 }
 
 type notificationService struct {
-	repo         repository.NotificationRepository
+	repo        repository.NotificationRepository
 	broadcaster events.SidebarBroadcaster
 }
 
