@@ -9,6 +9,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// RBAC routes wrapped only by RequireRole (AssignRole/RemoveRole/
+// UpdateUserRoles) never run RequireSchoolMember first, so "school_user_id"
+// is not set in context for them — buildActorContext leaves
+// ActorContext.SchoolUserID nil there, which is an accepted, optional gap
+// (see Phase 10.5 summary).
+
 type RBACHandler struct {
 	service           service.RBACService
 	schoolUserService service.SchoolUserService
@@ -100,7 +106,8 @@ func (h *RBACHandler) UpdateRole(c *gin.Context) {
 
 func (h *RBACHandler) DeleteRole(c *gin.Context) {
 	id := c.Param("id")
-	if err := h.service.DeleteRole(id); err != nil {
+	actor := buildActorContext(c, domain.LogScopePlatform)
+	if err := h.service.DeleteRole(actor, id); err != nil {
 		HandleError(c, err)
 		return
 	}
@@ -115,7 +122,8 @@ func (h *RBACHandler) AssignRole(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.AssignRoleToUser(input.SchoolUserID, input.RoleID); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.AssignRoleToUser(actor, input.SchoolUserID, input.RoleID); err != nil {
 		HandleError(c, err)
 		return
 	}
@@ -127,7 +135,8 @@ func (h *RBACHandler) RemoveRole(c *gin.Context) {
 	schoolUserID := c.Query("schoolUserId")
 	roleID := c.Query("roleId")
 
-	if err := h.service.RemoveRoleFromUser(schoolUserID, roleID); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.RemoveRoleFromUser(actor, schoolUserID, roleID); err != nil {
 		HandleError(c, err)
 		return
 	}
@@ -175,7 +184,8 @@ func (h *RBACHandler) UpdateUserRoles(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.SyncUserRoles(schoolUserID, input.RoleIDs); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.SyncUserRoles(actor, schoolUserID, input.RoleIDs); err != nil {
 		HandleError(c, err)
 		return
 	}
@@ -191,7 +201,8 @@ func (h *RBACHandler) CreateSuperAdmin(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.CreateSuperAdmin(input.FullName, input.Email, input.Password); err != nil {
+	actor := buildActorContext(c, domain.LogScopePlatform)
+	if err := h.service.CreateSuperAdmin(actor, input.FullName, input.Email, input.Password); err != nil {
 		HandleError(c, err)
 		return
 	}

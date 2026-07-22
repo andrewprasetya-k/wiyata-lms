@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"backend/internal/domain"
 	"backend/internal/dto"
 	"backend/internal/middleware"
 	"backend/internal/repository"
@@ -38,7 +39,8 @@ func (h *SchoolMemberInvitationHandler) Create(c *gin.Context) {
 		return
 	}
 
-	response, err := h.service.Create(schoolID, userID, input)
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	response, err := h.service.Create(actor, schoolID, input)
 	if err != nil {
 		handleSchoolMemberInvitationError(c, err)
 		return
@@ -75,7 +77,8 @@ func (h *SchoolMemberInvitationHandler) Revoke(c *gin.Context) {
 		return
 	}
 
-	response, err := h.service.Revoke(schoolID, c.Param("id"))
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	response, err := h.service.Revoke(actor, schoolID, c.Param("id"))
 	if err != nil {
 		handleSchoolMemberInvitationError(c, err)
 		return

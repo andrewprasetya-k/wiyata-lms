@@ -1,6 +1,7 @@
 package service
 
 import (
+	"backend/internal/domain"
 	"database/sql/driver"
 	"testing"
 	"time"
@@ -39,7 +40,7 @@ func newRemoveMemberTestService(t *testing.T) (*adminSchoolMemberImportService, 
 		t.Fatalf("failed to open gorm on top of sqlmock: %v", err)
 	}
 
-	svc := NewAdminSchoolMemberImportService(gormDB, nil).(*adminSchoolMemberImportService)
+	svc := NewAdminSchoolMemberImportService(gormDB, nil, nil).(*adminSchoolMemberImportService)
 	return svc, mock, func() { sqlDB.Close() }
 }
 
@@ -61,7 +62,7 @@ func TestRemoveMemberCascadesEnrollmentLeftAt(t *testing.T) {
 		WillReturnResult(sqlmock.NewResult(0, 2))
 	mock.ExpectCommit()
 
-	if err := svc.RemoveMember("school-1", "school-user-1"); err != nil {
+	if err := svc.RemoveMember(domain.ActorContext{}, "school-1", "school-user-1"); err != nil {
 		t.Fatalf("RemoveMember returned error: %v", err)
 	}
 
@@ -89,7 +90,7 @@ func TestRemoveMemberRollsBackWhenSchoolUserNotFound(t *testing.T) {
 		WillReturnResult(sqlmock.NewResult(0, 0))
 	mock.ExpectRollback()
 
-	if err := svc.RemoveMember("school-1", "school-user-1"); err == nil {
+	if err := svc.RemoveMember(domain.ActorContext{}, "school-1", "school-user-1"); err == nil {
 		t.Fatalf("expected an error when school_user does not match, got nil")
 	}
 
@@ -114,7 +115,7 @@ func TestRemoveMemberRollsBackWhenEnrollmentUpdateFails(t *testing.T) {
 		WillReturnError(sqlmock.ErrCancelled)
 	mock.ExpectRollback()
 
-	if err := svc.RemoveMember("school-1", "school-user-1"); err == nil {
+	if err := svc.RemoveMember(domain.ActorContext{}, "school-1", "school-user-1"); err == nil {
 		t.Fatalf("expected an error when the enrollment cascade update fails, got nil")
 	}
 

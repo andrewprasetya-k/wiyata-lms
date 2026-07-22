@@ -14,23 +14,27 @@ import (
 
 type AdminSchoolMemberImportService interface {
 	PreviewCSV(schoolID string, reader io.Reader) (*dto.AdminSchoolMemberImportPreviewResponseDTO, error)
-	Commit(schoolID string, defaultPassword string, rows []dto.AdminSchoolMemberImportRowDTO) (*dto.AdminSchoolMemberImportCommitResponseDTO, error)
+	Commit(actor domain.ActorContext, schoolID string, defaultPassword string, rows []dto.AdminSchoolMemberImportRowDTO) (*dto.AdminSchoolMemberImportCommitResponseDTO, error)
 	ListMembers(schoolID string, search string, role string, includeDeleted bool, page int, limit int) (*dto.AdminSchoolMemberListResponseDTO, error)
-	AddMember(schoolID string, input dto.AdminSchoolMemberCreateDTO) (*dto.AdminSchoolMemberResponseDTO, error)
-	RemoveMember(schoolID string, schoolUserID string) error
-	RestoreMember(schoolID string, schoolUserID string) error
+	AddMember(actor domain.ActorContext, schoolID string, input dto.AdminSchoolMemberCreateDTO) (*dto.AdminSchoolMemberResponseDTO, error)
+	RemoveMember(actor domain.ActorContext, schoolID string, schoolUserID string) error
+	RestoreMember(actor domain.ActorContext, schoolID string, schoolUserID string) error
 }
 
 type adminSchoolMemberImportService struct {
 	db           *gorm.DB
 	emailService EmailService
+	logService   LogService
 }
 
-func NewAdminSchoolMemberImportService(db *gorm.DB, emailService EmailService) AdminSchoolMemberImportService {
+func NewAdminSchoolMemberImportService(db *gorm.DB, emailService EmailService, logService LogService) AdminSchoolMemberImportService {
 	if emailService == nil {
 		emailService = noopEmailService{}
 	}
-	return &adminSchoolMemberImportService{db: db, emailService: emailService}
+	if logService == nil {
+		logService = noopLogService{}
+	}
+	return &adminSchoolMemberImportService{db: db, emailService: emailService, logService: logService}
 }
 
 type normalizedImportRow struct {
@@ -62,7 +66,7 @@ func (s *adminSchoolMemberImportService) PreviewCSV(schoolID string, reader io.R
 	return s.validateRows(schoolID, rows)
 }
 
-func (s *adminSchoolMemberImportService) Commit(schoolID string, defaultPassword string, rows []dto.AdminSchoolMemberImportRowDTO) (*dto.AdminSchoolMemberImportCommitResponseDTO, error) {
+func (s *adminSchoolMemberImportService) Commit(actor domain.ActorContext, schoolID string, defaultPassword string, rows []dto.AdminSchoolMemberImportRowDTO) (*dto.AdminSchoolMemberImportCommitResponseDTO, error) {
 	if strings.TrimSpace(defaultPassword) == "" {
 		return nil, errors.New("default password wajib diisi")
 	}
@@ -110,6 +114,7 @@ func (s *adminSchoolMemberImportService) Commit(schoolID string, defaultPassword
 
 	results := make([]dto.AdminSchoolMemberImportResultDTO, 0, len(preview.Rows))
 	emailJobs := make([]schoolMemberEmailJob, 0, len(preview.Rows))
+	auditChildren := make([]LogBatchChild, 0, len(preview.Rows))
 	err = s.db.Transaction(func(tx *gorm.DB) error {
 		for _, row := range preview.Rows {
 			result := dto.AdminSchoolMemberImportResultDTO{
@@ -170,8 +175,39 @@ func (s *adminSchoolMemberImportService) Commit(schoolID string, defaultPassword
 					Notification: result.EmailNotification,
 				})
 			}
+			if result.Status == "imported" {
+				auditChildren = append(auditChildren, LogBatchChild{
+					Action:     "member.created",
+					EntityType: "school_user",
+					EntityID:   strPtr(schoolUser.ID),
+					Severity:   domain.LogSeverityLow,
+					Metadata: map[string]any{
+						"email":      row.Email,
+						"role":       row.Role,
+						"class_code": row.ClassCode,
+					},
+				})
+			}
 			results = append(results, result)
 		}
+
+		importedCount, skippedCount, failedCount := 0, 0, 0
+		for _, result := range results {
+			switch result.Status {
+			case "imported":
+				importedCount++
+			case "skipped":
+				skippedCount++
+			case "failed":
+				failedCount++
+			}
+		}
+		_ = s.logService.LogBatch(tx, actor, "member.imported", "school", strPtr(schoolID), domain.LogSeverityMedium, map[string]any{
+			"total_rows":     len(rows),
+			"imported_count": importedCount,
+			"skipped_count":  skippedCount,
+			"failed_count":   failedCount,
+		}, auditChildren)
 		return nil
 	})
 	if err != nil {
@@ -258,7 +294,7 @@ func (s *adminSchoolMemberImportService) ListMembers(schoolID string, search str
 	}, nil
 }
 
-func (s *adminSchoolMemberImportService) AddMember(schoolID string, input dto.AdminSchoolMemberCreateDTO) (*dto.AdminSchoolMemberResponseDTO, error) {
+func (s *adminSchoolMemberImportService) AddMember(actor domain.ActorContext, schoolID string, input dto.AdminSchoolMemberCreateDTO) (*dto.AdminSchoolMemberResponseDTO, error) {
 	row := normalizedImportRow{
 		RowNumber: 1,
 		FullName:  strings.TrimSpace(input.FullName),
@@ -332,12 +368,18 @@ func (s *adminSchoolMemberImportService) AddMember(schoolID string, input dto.Ad
 		return nil, err
 	}
 	s.sendSchoolMemberEmailNotifications(schoolID, emailJobs)
+
+	_ = s.logService.Log(actor, "member.created", "school_user", strPtr(response.SchoolUserID), domain.LogSeverityLow, map[string]any{
+		"email":      row.Email,
+		"role":       row.Role,
+		"class_code": row.ClassCode,
+	})
 	return response, nil
 }
 
-func (s *adminSchoolMemberImportService) RemoveMember(schoolID string, schoolUserID string) error {
+func (s *adminSchoolMemberImportService) RemoveMember(actor domain.ActorContext, schoolID string, schoolUserID string) error {
 	leftAt := time.Now()
-	return s.db.Transaction(func(tx *gorm.DB) error {
+	err := s.db.Transaction(func(tx *gorm.DB) error {
 		result := tx.Unscoped().
 			Model(&domain.SchoolUser{}).
 			Where("scu_id = ? AND scu_sch_id = ? AND deleted_at IS NULL", schoolUserID, schoolID).
@@ -352,9 +394,15 @@ func (s *adminSchoolMemberImportService) RemoveMember(schoolID string, schoolUse
 			Where("enr_scu_id = ? AND left_at IS NULL", schoolUserID).
 			Update("left_at", leftAt).Error
 	})
+	if err != nil {
+		return err
+	}
+
+	_ = s.logService.Log(actor, "member.removed", "school_user", strPtr(schoolUserID), domain.LogSeverityMedium, nil)
+	return nil
 }
 
-func (s *adminSchoolMemberImportService) RestoreMember(schoolID string, schoolUserID string) error {
+func (s *adminSchoolMemberImportService) RestoreMember(actor domain.ActorContext, schoolID string, schoolUserID string) error {
 	result := s.db.Unscoped().Model(&domain.SchoolUser{}).
 		Where("scu_id = ? AND scu_sch_id = ?", schoolUserID, schoolID).
 		Update("deleted_at", nil)
@@ -364,6 +412,8 @@ func (s *adminSchoolMemberImportService) RestoreMember(schoolID string, schoolUs
 	if result.RowsAffected == 0 {
 		return gorm.ErrRecordNotFound
 	}
+
+	_ = s.logService.Log(actor, "member.restored", "school_user", strPtr(schoolUserID), domain.LogSeverityMedium, nil)
 	return nil
 }
 

@@ -54,7 +54,7 @@ func main() {
 	emailVerificationService := service.NewEmailVerificationService(emailVerificationRepo, userRepo, emailService)
 	emailVerificationHandler := handler.NewEmailVerificationHandler(emailVerificationService)
 	invitationRepo := repository.NewInvitationRepository(db)
-	invitationService := service.NewInvitationService(invitationRepo, userRepo)
+	invitationService := service.NewInvitationService(invitationRepo, userRepo, logService)
 	invitationHandler := handler.NewInvitationHandler(invitationService)
 
 	academicYearRepo := repository.NewAcademicYearRepository(db)
@@ -66,15 +66,15 @@ func main() {
 	termHandler := handler.NewTermHandler(termService)
 
 	rbacRepo := repository.NewRBACRepository(db)
-	rbacService := service.NewRBACService(rbacRepo, userService, schoolRepo)
+	rbacService := service.NewRBACService(rbacRepo, userService, schoolRepo, logService)
 
 	schoolUserRepo := repository.NewSchoolUserRepository(db)
 	schoolUserService := service.NewSchoolUserService(schoolUserRepo, schoolService)
 	schoolUserHandler := handler.NewSchoolUserHandler(schoolUserService, schoolService, rbacService)
-	adminSchoolMemberImportService := service.NewAdminSchoolMemberImportService(db, emailService)
+	adminSchoolMemberImportService := service.NewAdminSchoolMemberImportService(db, emailService, logService)
 	adminSchoolMemberImportHandler := handler.NewAdminSchoolMemberImportHandler(adminSchoolMemberImportService)
 	schoolMemberInvitationRepo := repository.NewSchoolMemberInvitationRepository(db)
-	schoolMemberInvitationService := service.NewSchoolMemberInvitationService(schoolMemberInvitationRepo, emailService)
+	schoolMemberInvitationService := service.NewSchoolMemberInvitationService(schoolMemberInvitationRepo, emailService, logService)
 	schoolMemberInvitationHandler := handler.NewSchoolMemberInvitationHandler(schoolMemberInvitationService)
 
 	authService := service.NewAuthService(userRepo, schoolUserRepo, emailVerificationService)

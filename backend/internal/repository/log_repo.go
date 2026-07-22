@@ -10,9 +10,14 @@ type LogRepository interface {
 	GetBySchool(schoolID string, page int, limit int) ([]*domain.Log, int64, error)
 	GetByUser(userID string, page int, limit int) ([]*domain.Log, int64, error)
 	// GetByCorrelationID returns every log row sharing a correlation_id,
-	// oldest first. Added for Phase 10.5's bulk-import parent+child pattern
-	// (Phase 10.2 §5) — not called by anything in this phase.
+	// oldest first. Used by Phase 10.5's bulk-import parent+child pattern
+	// (Phase 10.2 §5) to reassemble a batch.
 	GetByCorrelationID(correlationID string) ([]*domain.Log, error)
+	// WithTx returns a repository instance bound to an existing transaction,
+	// following the same convention as AttachmentRepository/AssignmentRepository.
+	// Needed so bulk actions (e.g. CSV import) can write their audit rows
+	// inside the same DB transaction as the business rows they describe.
+	WithTx(tx *gorm.DB) LogRepository
 }
 
 type logRepository struct {
@@ -61,4 +66,8 @@ func (r *logRepository) GetByCorrelationID(correlationID string) ([]*domain.Log,
 	var logs []*domain.Log
 	err := r.db.Where("correlation_id = ?", correlationID).Order("created_at asc").Find(&logs).Error
 	return logs, err
+}
+
+func (r *logRepository) WithTx(tx *gorm.DB) LogRepository {
+	return &logRepository{db: tx}
 }

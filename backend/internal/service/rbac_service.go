@@ -13,16 +13,16 @@ type RBACService interface {
 	GetAllRoles() ([]*domain.Role, error)
 	GetRoleByID(id string) (*domain.Role, error)
 	UpdateRole(role *domain.Role) error
-	DeleteRole(id string) error
+	DeleteRole(actor domain.ActorContext, id string) error
 
 	// User-Role management
-	AssignRoleToUser(schoolUserID string, roleID string) error
-	RemoveRoleFromUser(schoolUserID string, roleID string) error
+	AssignRoleToUser(actor domain.ActorContext, schoolUserID string, roleID string) error
+	RemoveRoleFromUser(actor domain.ActorContext, schoolUserID string, roleID string) error
 	GetUserRoles(schoolUserID string) ([]*domain.UserRole, error)
-	SyncUserRoles(schoolUserID string, roleIDs []string) error
+	SyncUserRoles(actor domain.ActorContext, schoolUserID string, roleIDs []string) error
 
 	// Super Admin management
-	CreateSuperAdmin(name, email, password string) error
+	CreateSuperAdmin(actor domain.ActorContext, name, email, password string) error
 	IsSuperAdmin(userID string) (bool, error)
 }
 
@@ -30,13 +30,15 @@ type rbacService struct {
 	repo        repository.RBACRepository
 	userService UserService
 	schoolRepo  repository.SchoolRepository
+	logService  LogService
 }
 
-func NewRBACService(repo repository.RBACRepository, userService UserService, schoolRepo repository.SchoolRepository) RBACService {
+func NewRBACService(repo repository.RBACRepository, userService UserService, schoolRepo repository.SchoolRepository, logService LogService) RBACService {
 	return &rbacService{
 		repo:        repo,
 		userService: userService,
 		schoolRepo:  schoolRepo,
+		logService:  logService,
 	}
 }
 
@@ -78,11 +80,26 @@ func (s *rbacService) UpdateRole(role *domain.Role) error {
 	return s.repo.UpdateRole(role)
 }
 
-func (s *rbacService) DeleteRole(id string) error {
-	return s.repo.DeleteRole(id)
+func (s *rbacService) DeleteRole(actor domain.ActorContext, id string) error {
+	// Best-effort name lookup for the audit metadata only — deletion itself
+	// must behave exactly as before even if this lookup fails.
+	role, roleErr := s.repo.GetRoleByID(id)
+
+	if err := s.repo.DeleteRole(id); err != nil {
+		return err
+	}
+
+	roleName := id
+	if roleErr == nil && role != nil {
+		roleName = role.Name
+	}
+	_ = s.logService.Log(actor, "rbac.role.deleted", "role", strPtr(id), domain.LogSeverityHigh, map[string]any{
+		"role_name": roleName,
+	})
+	return nil
 }
 
-func (s *rbacService) AssignRoleToUser(schoolUserID string, roleID string) error {
+func (s *rbacService) AssignRoleToUser(actor domain.ActorContext, schoolUserID string, roleID string) error {
 	existingRoles, err := s.repo.GetUserRoles(schoolUserID)
 	if err != nil {
 		return err
@@ -105,26 +122,65 @@ func (s *rbacService) AssignRoleToUser(schoolUserID string, roleID string) error
 		SchoolUserID: schoolUserID,
 		RoleID:       roleID,
 	}
-	return s.repo.AssignRole(userRole)
+	if err := s.repo.AssignRole(userRole); err != nil {
+		return err
+	}
+
+	_ = s.logService.Log(actor, "member.role.assigned", "school_user", strPtr(schoolUserID), domain.LogSeverityMedium, map[string]any{
+		"role_name": newRole.Name,
+	})
+	return nil
 }
 
-func (s *rbacService) RemoveRoleFromUser(schoolUserID string, roleID string) error {
-	return s.repo.RemoveRoleFromUser(schoolUserID, roleID)
+func (s *rbacService) RemoveRoleFromUser(actor domain.ActorContext, schoolUserID string, roleID string) error {
+	// Best-effort name lookup for the audit metadata only — removal itself
+	// must behave exactly as before even if this lookup fails.
+	role, roleErr := s.repo.GetRoleByID(roleID)
+
+	if err := s.repo.RemoveRoleFromUser(schoolUserID, roleID); err != nil {
+		return err
+	}
+
+	roleName := roleID
+	if roleErr == nil && role != nil {
+		roleName = role.Name
+	}
+	_ = s.logService.Log(actor, "member.role.removed", "school_user", strPtr(schoolUserID), domain.LogSeverityMedium, map[string]any{
+		"role_name": roleName,
+	})
+	return nil
 }
 
 func (s *rbacService) GetUserRoles(schoolUserID string) ([]*domain.UserRole, error) {
 	return s.repo.GetUserRoles(schoolUserID)
 }
 
-func (s *rbacService) SyncUserRoles(schoolUserID string, roleIDs []string) error {
-	roleNames, err := s.roleNamesByIDs(roleIDs)
+func (s *rbacService) SyncUserRoles(actor domain.ActorContext, schoolUserID string, roleIDs []string) error {
+	beforeRoles, err := s.repo.GetUserRoles(schoolUserID)
 	if err != nil {
 		return err
 	}
-	if err := domain.ValidateSchoolRoleCombination(roleNames); err != nil {
+	beforeNames := make([]string, 0, len(beforeRoles))
+	for _, ur := range beforeRoles {
+		beforeNames = append(beforeNames, ur.Role.Name)
+	}
+
+	afterNames, err := s.roleNamesByIDs(roleIDs)
+	if err != nil {
 		return err
 	}
-	return s.repo.SyncUserRoles(schoolUserID, roleIDs)
+	if err := domain.ValidateSchoolRoleCombination(afterNames); err != nil {
+		return err
+	}
+	if err := s.repo.SyncUserRoles(schoolUserID, roleIDs); err != nil {
+		return err
+	}
+
+	_ = s.logService.Log(actor, "member.role.synced", "school_user", strPtr(schoolUserID), domain.LogSeverityMedium, map[string]any{
+		"before_roles": beforeNames,
+		"after_roles":  afterNames,
+	})
+	return nil
 }
 
 func (s *rbacService) roleNamesByIDs(roleIDs []string) ([]string, error) {
@@ -152,7 +208,7 @@ func (s *rbacService) IsSuperAdmin(userID string) (bool, error) {
 	return s.repo.IsSuperAdmin(userID)
 }
 
-func (s *rbacService) CreateSuperAdmin(name, email, password string) error {
+func (s *rbacService) CreateSuperAdmin(actor domain.ActorContext, name, email, password string) error {
 	// 1. Get admin school
 	adminSchool, err := s.schoolRepo.GetSchoolByName("admin")
 	if err != nil {
@@ -205,5 +261,8 @@ func (s *rbacService) CreateSuperAdmin(name, email, password string) error {
 		return fmt.Errorf("failed to assign role: %v", err)
 	}
 
+	_ = s.logService.Log(actor, "platform.super_admin.created", "user", strPtr(user.ID), domain.LogSeverityHigh, map[string]any{
+		"email": email,
+	})
 	return nil
 }

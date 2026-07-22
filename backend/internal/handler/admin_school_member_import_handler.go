@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"backend/internal/domain"
 	"backend/internal/dto"
 	"backend/internal/service"
 	"net/http"
@@ -59,7 +60,8 @@ func (h *AdminSchoolMemberImportHandler) Commit(c *gin.Context) {
 		return
 	}
 
-	response, err := h.service.Commit(schoolID, input.DefaultPassword, input.Rows)
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	response, err := h.service.Commit(actor, schoolID, input.DefaultPassword, input.Rows)
 	if err != nil {
 		if response != nil {
 			c.JSON(http.StatusBadRequest, response)
@@ -115,7 +117,8 @@ func (h *AdminSchoolMemberImportHandler) AddMember(c *gin.Context) {
 		return
 	}
 
-	response, err := h.service.AddMember(schoolID, input)
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	response, err := h.service.AddMember(actor, schoolID, input)
 	if err != nil {
 		if msg, ok := illegalRoleCombinationMessage(err); ok {
 			c.JSON(http.StatusBadRequest, gin.H{"error": msg})
@@ -135,7 +138,8 @@ func (h *AdminSchoolMemberImportHandler) RemoveMember(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.RemoveMember(schoolID, c.Param("schoolUserId")); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.RemoveMember(actor, schoolID, c.Param("schoolUserId")); err != nil {
 		HandleError(c, err)
 		return
 	}
@@ -150,7 +154,8 @@ func (h *AdminSchoolMemberImportHandler) RestoreMember(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.RestoreMember(schoolID, c.Param("schoolUserId")); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.RestoreMember(actor, schoolID, c.Param("schoolUserId")); err != nil {
 		HandleError(c, err)
 		return
 	}

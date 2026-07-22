@@ -1,6 +1,7 @@
 package service
 
 import (
+	"backend/internal/domain"
 	"backend/internal/dto"
 	"backend/internal/repository"
 	"crypto/sha256"
@@ -19,12 +20,26 @@ type InvitationService interface {
 }
 
 type invitationService struct {
-	repo     repository.InvitationRepository
-	userRepo repository.UserRepository
+	repo       repository.InvitationRepository
+	userRepo   repository.UserRepository
+	logService LogService
 }
 
-func NewInvitationService(repo repository.InvitationRepository, userRepo repository.UserRepository) InvitationService {
-	return &invitationService{repo: repo, userRepo: userRepo}
+func NewInvitationService(repo repository.InvitationRepository, userRepo repository.UserRepository, logService LogService) InvitationService {
+	return &invitationService{repo: repo, userRepo: userRepo, logService: logService}
+}
+
+// invitationAcceptedActor builds the ActorContext for member.invitation.accepted.
+// Unlike AcceptAuthenticated (where the actor is known from the JWT before the
+// call even starts), Accept's actor only exists once repo.Accept has resolved
+// or created the user — so this is built from the result, not from a request
+// parameter, for both paths alike.
+func invitationAcceptedActor(result *repository.InvitationAcceptResult) domain.ActorContext {
+	return domain.ActorContext{
+		UserID:   result.User.ID,
+		SchoolID: &result.School.ID,
+		Scope:    domain.LogScopeSchool,
+	}
 }
 
 func (s *invitationService) GetMetadata(token string) (*dto.InvitationMetadataDTO, error) {
@@ -90,6 +105,10 @@ func (s *invitationService) Accept(token string, input dto.AcceptInvitationDTO) 
 		return nil, normalizeInvitationError(err)
 	}
 
+	_ = s.logService.Log(invitationAcceptedActor(result), "member.invitation.accepted", "invitation", strPtr(result.Invitation.ID), domain.LogSeverityLow, map[string]any{
+		"role": result.Role,
+	})
+
 	return &dto.AcceptInvitationResponseDTO{
 		Message: "Invitation accepted",
 		User: dto.InvitationAcceptedUserDTO{
@@ -121,6 +140,10 @@ func (s *invitationService) AcceptAuthenticated(token string, userID string) (*d
 	if err != nil {
 		return nil, normalizeInvitationError(err)
 	}
+
+	_ = s.logService.Log(invitationAcceptedActor(result), "member.invitation.accepted", "invitation", strPtr(result.Invitation.ID), domain.LogSeverityLow, map[string]any{
+		"role": result.Role,
+	})
 
 	return &dto.AcceptInvitationResponseDTO{
 		Message: "Invitation accepted",

@@ -16,28 +16,30 @@ import (
 )
 
 type SchoolMemberInvitationService interface {
-	Create(schoolID string, invitedBy string, input dto.CreateSchoolMemberInvitationDTO) (*dto.CreateSchoolMemberInvitationResponseDTO, error)
+	Create(actor domain.ActorContext, schoolID string, input dto.CreateSchoolMemberInvitationDTO) (*dto.CreateSchoolMemberInvitationResponseDTO, error)
 	List(schoolID string, status string, page int, limit int) (*dto.SchoolMemberInvitationListResponseDTO, error)
-	Revoke(schoolID string, invitationID string) (*dto.SchoolMemberInvitationDTO, error)
+	Revoke(actor domain.ActorContext, schoolID string, invitationID string) (*dto.SchoolMemberInvitationDTO, error)
 }
 
 type schoolMemberInvitationService struct {
 	repo         repository.SchoolMemberInvitationRepository
 	emailService EmailService
+	logService   LogService
 }
 
-func NewSchoolMemberInvitationService(repo repository.SchoolMemberInvitationRepository, emailService EmailService) SchoolMemberInvitationService {
+func NewSchoolMemberInvitationService(repo repository.SchoolMemberInvitationRepository, emailService EmailService, logService LogService) SchoolMemberInvitationService {
 	if emailService == nil {
 		emailService = noopEmailService{}
 	}
-	return &schoolMemberInvitationService{repo: repo, emailService: emailService}
+	return &schoolMemberInvitationService{repo: repo, emailService: emailService, logService: logService}
 }
 
-func (s *schoolMemberInvitationService) Create(schoolID string, invitedBy string, input dto.CreateSchoolMemberInvitationDTO) (*dto.CreateSchoolMemberInvitationResponseDTO, error) {
+func (s *schoolMemberInvitationService) Create(actor domain.ActorContext, schoolID string, input dto.CreateSchoolMemberInvitationDTO) (*dto.CreateSchoolMemberInvitationResponseDTO, error) {
 	fullName := strings.TrimSpace(input.FullName)
 	email := strings.ToLower(strings.TrimSpace(input.Email))
 	role := strings.ToLower(strings.TrimSpace(input.Role))
 	classCode := strings.TrimSpace(input.ClassCode)
+	invitedBy := actor.UserID
 
 	if schoolID == "" {
 		return nil, errors.New("active school context is required")
@@ -119,6 +121,12 @@ func (s *schoolMemberInvitationService) Create(schoolID string, invitedBy string
 		invitation.Class = *invitedClass
 	}
 
+	_ = s.logService.Log(actor, "member.invited", "invitation", strPtr(invitation.ID), domain.LogSeverityLow, map[string]any{
+		"email":      email,
+		"role":       role,
+		"class_code": classCode,
+	})
+
 	acceptURL := "/invite/" + rawToken
 	emailAcceptURL := buildInvitationAcceptURL(rawToken)
 	if err := s.emailService.SendSchoolMemberInvitation(invitation.Email, school.Name, invitation.Role, emailAcceptURL); err != nil {
@@ -174,7 +182,7 @@ func (s *schoolMemberInvitationService) List(schoolID string, status string, pag
 	}, nil
 }
 
-func (s *schoolMemberInvitationService) Revoke(schoolID string, invitationID string) (*dto.SchoolMemberInvitationDTO, error) {
+func (s *schoolMemberInvitationService) Revoke(actor domain.ActorContext, schoolID string, invitationID string) (*dto.SchoolMemberInvitationDTO, error) {
 	if schoolID == "" {
 		return nil, errors.New("active school context is required")
 	}
@@ -187,6 +195,12 @@ func (s *schoolMemberInvitationService) Revoke(schoolID string, invitationID str
 	if err != nil {
 		return nil, err
 	}
+
+	_ = s.logService.Log(actor, "member.invitation.revoked", "invitation", strPtr(invitation.ID), domain.LogSeverityLow, map[string]any{
+		"email": invitation.Email,
+		"role":  invitation.Role,
+	})
+
 	mapped := mapSchoolMemberInvitation(*invitation, now)
 	return &mapped, nil
 }
