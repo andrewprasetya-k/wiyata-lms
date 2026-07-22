@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import { motion } from "motion-v";
 import { RouterLink, useRoute, useRouter } from "vue-router";
 import { PhArrowRight, PhEye, PhEyeSlash } from "@phosphor-icons/vue";
 import { useAuthStore } from "../../stores/auth";
@@ -23,6 +24,20 @@ const canSubmit = computed(
   () => email.value.trim() !== "" && password.value.trim() !== "",
 );
 
+// ── Fade-in halus untuk form — sederhana, tidak sekompleks hero landing page
+const formContainerVariants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.07, delayChildren: 0.05 } },
+};
+const formItemVariants = {
+  hidden: { opacity: 0, y: 12 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { type: "spring", stiffness: 280, damping: 28 },
+  },
+};
+
 async function submit() {
   if (!canSubmit.value || isSubmitting.value) return;
   isSubmitting.value = true;
@@ -30,7 +45,9 @@ async function submit() {
 
   try {
     await auth.login({ email: email.value, password: password.value });
-    await router.push((route.query.redirect as string | undefined) ?? auth.landingRoute());
+    await router.push(
+      (route.query.redirect as string | undefined) ?? auth.landingRoute(),
+    );
   } catch {
     errorMessage.value = "Email atau password tidak valid.";
   } finally {
@@ -55,13 +72,13 @@ async function submit() {
         </div>
         <div>
           <p class="text-sm font-medium text-brand">Wiyata</p>
-          <p class="text-xs text-muted">Academic workspace</p>
+          <p class="text-xs text-muted">Academic Workspace</p>
         </div>
       </div>
 
       <div class="max-w-xl">
         <p class="text-sm font-medium text-muted">
-          Learning Management System
+          Sistem Manajemen Pembelajaran
         </p>
         <h1
           class="mt-4 text-4xl font-medium leading-tight text-foreground lg:text-6xl"
@@ -70,12 +87,12 @@ async function submit() {
         </h1>
         <p class="mt-6 text-base leading-7 text-muted">
           Satu login untuk siswa, guru, admin sekolah, dan super admin. Wiyata
-          akan memilih ruang kerja berdasarkan role dan konteks sekolah.
+          akan menyesuaikan tampilan sesuai peran dan sekolah aktifmu.
         </p>
       </div>
 
       <div class="text-xs text-muted">
-        &copy; 2026 Wiyata. All rights reserved.
+        &copy; 2026 Wiyata. Hak cipta dilindungi.
       </div>
     </section>
 
@@ -83,8 +100,13 @@ async function submit() {
     <section
       class="flex h-screen items-center justify-center bg-surface px-6 py-8 sm:px-12"
     >
-      <div class="w-full max-w-md">
-        <div class="mb-8">
+      <motion.div
+        :variants="formContainerVariants"
+        initial="hidden"
+        animate="show"
+        class="w-full max-w-md"
+      >
+        <motion.div :variants="formItemVariants" class="mb-8">
           <div class="mb-8 flex items-center gap-3 md:hidden">
             <div class="flex h-12 w-12 items-center justify-center rounded-2xl">
               <img
@@ -95,19 +117,25 @@ async function submit() {
             </div>
             <div>
               <p class="text-sm font-medium text-brand">Wiyata</p>
-              <p class="text-xs text-muted">Academic workspace</p>
+              <p class="text-xs text-muted">Ruang kerja akademik</p>
             </div>
           </div>
 
-          <h2 class="text-3xl font-medium text-foreground">Login</h2>
+          <h2 class="text-3xl font-medium text-foreground">Masuk</h2>
           <p class="mt-3 text-sm text-muted">
             Gunakan akun Wiyata yang sudah terdaftar.
           </p>
-        </div>
+        </motion.div>
 
-        <form class="space-y-5" @submit.prevent="submit">
+        <motion.form
+          :variants="formItemVariants"
+          class="space-y-5"
+          @submit.prevent="submit"
+        >
           <label class="block">
-            <span class="mb-2 block text-sm font-medium text-foreground-secondary">
+            <span
+              class="mb-2 block text-sm font-medium text-foreground-secondary"
+            >
               Email
             </span>
             <input
@@ -120,8 +148,10 @@ async function submit() {
           </label>
 
           <label class="block">
-            <span class="mb-2 block text-sm font-medium text-foreground-secondary">
-              Password
+            <span
+              class="mb-2 block text-sm font-medium text-foreground-secondary"
+            >
+              Kata Sandi
             </span>
             <div class="relative">
               <input
@@ -135,7 +165,9 @@ async function submit() {
                 type="button"
                 class="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-muted transition hover:text-foreground"
                 :aria-label="
-                  passwordVisible ? 'Sembunyikan password' : 'Tampilkan password'
+                  passwordVisible
+                    ? 'Sembunyikan kata sandi'
+                    : 'Tampilkan kata sandi'
                 "
                 :aria-pressed="passwordVisible"
                 @click="togglePasswordVisibility"
@@ -161,9 +193,12 @@ async function submit() {
             {{ isSubmitting ? "Memproses..." : "Masuk" }}
             <PhArrowRight v-if="!isSubmitting" :size="18" />
           </button>
-        </form>
+        </motion.form>
 
-        <p class="mt-6 text-center text-sm text-muted">
+        <motion.p
+          :variants="formItemVariants"
+          class="mt-6 text-center text-sm text-muted"
+        >
           Belum punya akun?
           <RouterLink
             to="/register"
@@ -171,8 +206,8 @@ async function submit() {
           >
             Daftar
           </RouterLink>
-        </p>
-      </div>
+        </motion.p>
+      </motion.div>
     </section>
   </main>
 </template>
