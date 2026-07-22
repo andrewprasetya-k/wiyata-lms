@@ -729,12 +729,12 @@ const previewSteps: PreviewStep[] = [
         class="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(251,250,248,1)_0%,rgba(245,243,255,0.80)_45%,rgba(251,250,248,1)_100%)]"
         aria-hidden="true"
       />
-      <div class="relative mx-auto max-w-7xl px-6 py-32 lg:px-8">
+      <div class="relative mx-auto max-w-screen px-6 py-64 lg:px-8">
         <div class="mx-auto max-w-2xl text-center">
           <h2
             class="mt-4 text-4xl font-semibold tracking-tight text-foreground sm:text-5xl"
           >
-            Begini Wiyata dipakai sehari-hari.
+            Bagaimana Wiyata dipakai sehari-hari?
           </h2>
         </div>
       </div>
