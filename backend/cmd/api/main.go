@@ -317,10 +317,15 @@ func main() {
 			rbacAPI.DELETE("/roles/:id", middleware.RequireSystemSuperAdmin(schoolService), rbacHandler.DeleteRole)
 
 			// User Roles (Assignments)
-			rbacAPI.POST("/user-roles", middleware.RequireRole(schoolService, "admin", "super_admin"), rbacHandler.AssignRole)
-			rbacAPI.DELETE("/user-roles", middleware.RequireRole(schoolService, "admin", "super_admin"), rbacHandler.RemoveRole)
+			// RequireSchoolMember precedes RequireRole on all 4 routes below so
+			// "school_id" (and "school_user_id") are always in gin context —
+			// Phase 10.11 bug fix: without it, buildActorContext silently left
+			// ActorContext.SchoolID nil for these 3 routes, producing
+			// log_sch_id = NULL for otherwise school-scoped audit rows.
+			rbacAPI.POST("/user-roles", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "super_admin"), rbacHandler.AssignRole)
+			rbacAPI.DELETE("/user-roles", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "super_admin"), rbacHandler.RemoveRole)
 			rbacAPI.GET("/user-roles/:schoolUserId", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "super_admin"), rbacHandler.GetUserRoles)
-			rbacAPI.PATCH("/user-roles/:schoolUserId", middleware.RequireRole(schoolService, "admin", "super_admin"), rbacHandler.UpdateUserRoles)
+			rbacAPI.PATCH("/user-roles/:schoolUserId", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "super_admin"), rbacHandler.UpdateUserRoles)
 
 			// Super Admin
 			rbacAPI.POST("/super-admin", middleware.RequireSystemSuperAdmin(schoolService), rbacHandler.CreateSuperAdmin)

@@ -9,12 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RBAC routes wrapped only by RequireRole (AssignRole/RemoveRole/
-// UpdateUserRoles) never run RequireSchoolMember first, so "school_user_id"
-// is not set in context for them — buildActorContext leaves
-// ActorContext.SchoolUserID nil there, which is an accepted, optional gap
-// (see Phase 10.5 summary).
-
 type RBACHandler struct {
 	service           service.RBACService
 	schoolUserService service.SchoolUserService

@@ -80,6 +80,21 @@ func (s *authService) Login(email string, password string) (*dto.LoginResponseDT
 		"login_method": "password",
 	})
 
+	if response.DefaultContext != nil {
+		schoolID := response.DefaultContext.SchoolID
+		schoolUserID := response.DefaultContext.SchoolUserID
+		_ = s.logService.Log(domain.ActorContext{
+			UserID:       userEmail.ID,
+			SchoolID:     &schoolID,
+			SchoolUserID: &schoolUserID,
+			Scope:        domain.LogScopeSchool,
+		}, "member.login", "school_user", strPtr(schoolUserID), domain.LogSeverityLow, map[string]any{
+			"login_method": "password",
+			"user_id":      userEmail.ID,
+			"school_id":    schoolID,
+		})
+	}
+
 	return response, nil
 }
 
