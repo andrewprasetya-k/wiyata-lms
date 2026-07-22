@@ -442,8 +442,10 @@ log_metadata jsonb
 created_at timestamptz [default: `now()`]
 
 indexes {
-(log_sch_id, created_at) [note: 'DESC, applied manually against production — migration file was never committed, see docs/PERFORMANCE_AUDIT.md']
-(log_usr_id, created_at) [note: 'DESC, applied manually against production — migration file was never committed, see docs/PERFORMANCE_AUDIT.md']
+(log_sch_id, created_at) [name: 'idx_logs_school_created_at', note: 'DESC on created_at. Previously applied manually against production with no committed migration; formalized by migration 0004_add_logs_composite_indexes.sql (Phase 10.15) — see docs/PERFORMANCE_AUDIT.md']
+(log_usr_id, created_at) [name: 'idx_logs_user_created_at', note: 'DESC on created_at. Same history as above — formalized by migration 0004 (Phase 10.15).']
+(correlation_id) [name: 'idx_logs_correlation_id', note: 'Added Phase 10.15 for GetByCorrelationID, which queries this column alone with no other filter to narrow the row set — see docs/PERFORMANCE_AUDIT.md']
+(severity) [name: 'idx_logs_severity', note: 'Added Phase 10.15 for the unrestricted platform-wide GET /logs search, the one read path that can filter by severity with no schoolId/actorUserId present to lean on the indexes above. scope/entity_type deliberately not indexed — see docs/PERFORMANCE_AUDIT.md']
 }
 }
 

@@ -11,7 +11,7 @@ type AuditSocketConnection = {
   close: () => void;
 };
 
-export type AuditSocketStatus = "connecting" | "connected" | "disconnected";
+export type AuditSocketStatus = "connecting" | "connected" | "disconnected" | "failed";
 
 const reconnectDelaysMs = [1000, 2000, 5000, 10000];
 
@@ -49,13 +49,20 @@ export function connectAuditSocket(
       }
     };
     socket.onclose = () => {
-      setStatus("disconnected");
       socket = null;
       if (!hasOpenedCurrentSocket) {
         failedBeforeOpenCount += 1;
       }
-      if (failedBeforeOpenCount >= 5) return;
-      if (!closedByClient && getStoredToken()) {
+      if (closedByClient) {
+        setStatus("disconnected");
+        return;
+      }
+      if (failedBeforeOpenCount >= 5) {
+        setStatus("failed");
+        return;
+      }
+      setStatus("disconnected");
+      if (getStoredToken()) {
         const delay =
           reconnectDelaysMs[Math.min(retryIndex, reconnectDelaysMs.length - 1)];
         retryIndex += 1;

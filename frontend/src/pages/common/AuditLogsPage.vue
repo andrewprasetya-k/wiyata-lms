@@ -287,6 +287,10 @@ function connectLiveFeed() {
   }
 }
 
+function reloadPage() {
+  window.location.reload();
+}
+
 function disconnectLiveFeed() {
   platformSocket?.close();
   platformSocket = null;
@@ -357,15 +361,42 @@ onUnmounted(() => {
             :class="
               liveStatus === 'connected'
                 ? 'bg-success-soft text-success'
-                : 'bg-surface-subtle text-muted'
+                : liveStatus === 'failed'
+                  ? 'bg-danger-soft text-danger'
+                  : 'bg-surface-subtle text-muted'
             "
           >
             <span
               class="h-1.5 w-1.5 rounded-full"
-              :class="liveStatus === 'connected' ? 'bg-success' : 'bg-muted'"
+              :class="
+                liveStatus === 'connected'
+                  ? 'bg-success'
+                  : liveStatus === 'failed'
+                    ? 'bg-danger'
+                    : 'bg-muted'
+              "
             />
-            {{ liveStatus === "connected" ? "Live" : "Menghubungkan..." }}
+            {{
+              liveStatus === "connected"
+                ? "Live"
+                : liveStatus === "failed"
+                  ? "Terputus"
+                  : "Menghubungkan..."
+            }}
           </span>
+        </div>
+        <div
+          v-if="liveStatus === 'failed'"
+          class="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-danger-line bg-danger-soft p-3 text-sm text-danger"
+        >
+          <span>Live feed terputus — muat ulang halaman untuk menyambung kembali.</span>
+          <button
+            type="button"
+            class="shrink-0 rounded-lg border border-danger-line bg-surface px-3 py-1.5 text-xs font-semibold text-danger transition hover:brightness-95"
+            @click="reloadPage"
+          >
+            Muat Ulang
+          </button>
         </div>
       </div>
     </header>
