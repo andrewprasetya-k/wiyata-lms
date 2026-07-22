@@ -629,7 +629,6 @@ const previewSteps: PreviewStep[] = [
       />
       <div class="relative mx-auto max-w-7xl px-6 py-32 lg:px-8">
         <div class="mx-auto max-w-2xl text-center">
-          <p class="text-sm font-medium text-brand">Demo produk</p>
           <h2
             class="mt-4 text-4xl font-semibold tracking-tight text-foreground sm:text-5xl"
           >
