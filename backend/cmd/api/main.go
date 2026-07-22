@@ -63,7 +63,7 @@ func main() {
 
 	termRepo := repository.NewTermRepository(db)
 	termService := service.NewTermService(termRepo, logService)
-	termHandler := handler.NewTermHandler(termService)
+	termHandler := handler.NewTermHandler(termService, academicYearService)
 
 	rbacRepo := repository.NewRBACRepository(db)
 	rbacService := service.NewRBACService(rbacRepo, userService, schoolRepo, logService)

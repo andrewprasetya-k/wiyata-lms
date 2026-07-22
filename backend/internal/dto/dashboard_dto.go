@@ -49,7 +49,6 @@ type AdminDashboardDTO struct {
 	SubjectsWithoutAssessmentWeightTotal int                                 `json:"subjectsWithoutAssessmentWeightTotal"`
 	BacklogTotal                         int                                 `json:"backlogTotal"`
 	BacklogClasses                       []GradingBacklogClassDTO            `json:"backlogClasses"`
-	SchoolPerformanceRollup              []ClassPerformanceDTO               `json:"schoolPerformanceRollup"`
 }
 
 type EnrollmentTrendDTO struct {

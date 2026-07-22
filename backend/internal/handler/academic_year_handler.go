@@ -29,8 +29,14 @@ func (h *AcademicYearHandler) Create(c *gin.Context) {
 		return
 	}
 
+	schoolID := getAcademicYearSchoolID(c)
+	if schoolID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
+
 	acy := domain.AcademicYear{
-		SchoolID: input.SchoolID,
+		SchoolID: schoolID,
 		Name:     input.Name,
 	}
 

@@ -29,8 +29,14 @@ func (h *SubjectHandler) Create(c *gin.Context) {
 		return
 	}
 
+	schoolID := getSubjectSchoolID(c)
+	if schoolID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
+
 	subject := domain.Subject{
-		SchoolID: input.SchoolID,
+		SchoolID: schoolID,
 		Name:     input.Name,
 		Code:     input.Code,
 		Color:    input.Color,

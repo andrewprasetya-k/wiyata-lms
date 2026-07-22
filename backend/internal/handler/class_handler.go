@@ -36,8 +36,14 @@ func (h *ClassHandler) Create(c *gin.Context) {
 		return
 	}
 
+	schoolID := getClassSchoolID(c)
+	if schoolID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
+
 	class := domain.Class{
-		SchoolID:    input.SchoolID,
+		SchoolID:    schoolID,
 		TermID:      input.TermID,
 		Code:        input.Code,
 		Title:       input.Title,

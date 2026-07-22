@@ -11,17 +11,38 @@ import (
 )
 
 type TermHandler struct {
-	service service.TermService
+	service             service.TermService
+	academicYearService service.AcademicYearService
 }
 
-func NewTermHandler(service service.TermService) *TermHandler {
-	return &TermHandler{service: service}
+func NewTermHandler(service service.TermService, academicYearService service.AcademicYearService) *TermHandler {
+	return &TermHandler{service: service, academicYearService: academicYearService}
 }
 
 func (h *TermHandler) Create(c *gin.Context) {
 	var input dto.CreateTermDTO
 	if err := c.ShouldBindJSON(&input); err != nil {
 		HandleBindingError(c, err)
+		return
+	}
+
+	schoolID := getTermSchoolID(c)
+	if schoolID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
+		return
+	}
+
+	// The DTO only carries academicYearId (no direct schoolId field) — verify
+	// that academic year actually belongs to the caller's active school
+	// before allowing a Term to be created under it, rather than trusting
+	// the client-supplied ID to already be scoped correctly.
+	acy, err := h.academicYearService.GetByID(input.AcademicYearID)
+	if err != nil {
+		HandleError(c, err)
+		return
+	}
+	if acy.SchoolID != schoolID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: academic year does not belong to active school"})
 		return
 	}
 
