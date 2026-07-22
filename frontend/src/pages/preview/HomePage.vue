@@ -352,7 +352,7 @@ const previewSteps: PreviewStep[] = [
               to="/register"
               class="hidden text-sm font-medium text-foreground-secondary transition-colors hover:text-foreground sm:inline-flex"
             >
-              Buat Akun
+              Registrasi
             </RouterLink>
             <RouterLink
               to="/login"

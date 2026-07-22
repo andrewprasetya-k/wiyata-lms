@@ -25,7 +25,7 @@ async function resend() {
 
 <template>
   <div
-    v-if="!auth.emailVerified"
+    v-if="!auth.emailVerified && auth.user"
     class="flex flex-col items-center justify-center gap-2 bg-[#fff4e5] px-4 py-2.5 text-center text-sm text-[#7a4a12] sm:flex-row"
   >
     <span>Verifikasi email kamu untuk membuka semua fitur Wiyata.</span>
