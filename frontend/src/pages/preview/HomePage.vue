@@ -126,11 +126,11 @@ const features = [
     icon: PhBooks,
     title: "Kelas & Materi",
     description:
-      "Guru membuat dan membagikan materi dalam konteks mata pelajaran yang jelas. Siswa membaca, membuat catatan pribadi, dan melacak progres dari satu tempat yang tidak membingungkan.",
+      "Guru membuat materi per mata pelajaran, tersusun rapi per kelas — tidak tercecer di banyak folder. Siswa membaca, membuat catatan pribadi, dan melacak progres dari satu tempat yang tidak membingungkan.",
     points: [
       "Materi per mata pelajaran & kelas",
       "Catatan pribadi siswa per materi",
-      "Konteks yang sama, akses sesuai peran",
+      "Data yang sama, tampilan berbeda sesuai peran",
     ],
   },
   {
@@ -148,7 +148,7 @@ const features = [
     icon: PhChatCircleDots,
     title: "Chat Akademik",
     description:
-      "Percakapan tidak lepas dari konteks sekolah. Feed kelas, chat antar warga sekolah, dan diskusi hadir sebagai bagian dari workspace — bukan aplikasi terpisah.",
+      "Tidak perlu aplikasi chat lain. Feed kelas, chat internal sekolah, dan diskusi hadir sebagai bagian dari workspace.",
     points: [
       "Chat per sekolah dan per grup",
       "Feed pengumuman kelas",
@@ -548,8 +548,8 @@ const previewSteps: PreviewStep[] = [
           :variants="heroItemVariants"
           class="mt-6 max-w-2xl text-lg leading-8 text-muted"
         >
-          Materi, tugas, komunikasi, dan penilaian ada dalam satu workspace yang
-          sama — untuk murid, guru, dan sekolah.
+          Guru mengajar, siswa belajar, sekolah memantau. Semua tanpa buka tutup
+          aplikasi.
         </motion.p>
 
         <motion.div
@@ -783,15 +783,15 @@ const previewSteps: PreviewStep[] = [
               <h2
                 class="mt-4 text-4xl font-semibold tracking-tight text-foreground sm:text-5xl"
               >
-                All in one workspace untuk aktivitas akademik sekolah.
+                Satu akun untuk urusan akademik sekolah.
               </h2>
               <p class="mt-5 text-lg leading-8 text-muted">
                 Gunakan akun Wiyata yang sudah terdaftar untuk melanjutkan
                 aktivitas belajar, mengajar, atau operasional sekolah dari satu
                 tempat yang sama.
               </p>
-              <p class="mt-3 text-sm text-muted">
-                Untuk pengguna yang sudah memiliki akun Wiyata.
+              <p class="mt-3 text-xs text-muted">
+                *Untuk pengguna yang sudah memiliki akun Wiyata.
               </p>
             </div>
 
@@ -819,8 +819,8 @@ const previewSteps: PreviewStep[] = [
     </section>
 
     <!-- ───────────── FOOTER ───────────── -->
-    <footer class="border-t border-border bg-surface-subtle">
-      <div class="mx-auto max-w-7xl px-6 py-10 lg:px-8">
+    <footer class="bg-surface-subtle">
+      <div class="mx-auto max-w-screen px-6 py-10 lg:px-8">
         <div
           class="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between"
         >
@@ -830,7 +830,9 @@ const previewSteps: PreviewStep[] = [
               alt="Wiyata"
               class="h-6 w-6 rounded-md object-contain"
             />
-            <span class="text-sm font-semibold text-foreground">Wiyata</span>
+            <span class="text-sm font-semibold text-foreground"
+              >Wiyata Academic Workspace</span
+            >
           </div>
 
           <nav class="flex flex-wrap gap-x-7 gap-y-2 text-sm text-muted">
@@ -860,7 +862,7 @@ const previewSteps: PreviewStep[] = [
         </div>
 
         <div
-          class="mt-8 flex flex-col gap-1 border-t border-border pt-6 text-xs text-[#c4bfcc] sm:flex-row sm:justify-between"
+          class="mt-8 flex flex-col gap-1 pt-6 text-xs text-[#c4bfcc] sm:flex-row sm:justify-between"
         >
           <p>© 2026 Wiyata Academic Workspace. All rights reserved.</p>
           <p>Learning Management System by Loka Wiyata</p>
