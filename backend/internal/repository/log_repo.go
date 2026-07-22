@@ -25,6 +25,7 @@ type LogFilter struct {
 
 type LogRepository interface {
 	Create(log *domain.Log) error
+	CreateBatch(logs []*domain.Log) error
 	GetBySchool(schoolID string, page int, limit int) ([]*domain.Log, int64, error)
 	GetByUser(userID string, page int, limit int) ([]*domain.Log, int64, error)
 	GetByCorrelationID(correlationID string) ([]*domain.Log, error)
@@ -45,6 +46,13 @@ func NewLogRepository(db *gorm.DB) LogRepository {
 
 func (r *logRepository) Create(log *domain.Log) error {
 	return r.db.Create(log).Error
+}
+
+func (r *logRepository) CreateBatch(logs []*domain.Log) error {
+	if len(logs) == 0 {
+		return nil
+	}
+	return r.db.Create(&logs).Error
 }
 
 func (r *logRepository) GetBySchool(schoolID string, page int, limit int) ([]*domain.Log, int64, error) {

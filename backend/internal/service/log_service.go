@@ -83,11 +83,8 @@ func (s *logService) LogBatch(tx *gorm.DB, actor domain.ActorContext, parentActi
 		entries = append(entries, entry)
 	}
 
-	txRepo := s.repo.WithTx(tx)
-	for _, entry := range entries {
-		if err := txRepo.Create(entry); err != nil {
-			return err
-		}
+	if err := s.repo.WithTx(tx).CreateBatch(entries); err != nil {
+		return err
 	}
 	s.publishAuditEvent(parent)
 	return nil
