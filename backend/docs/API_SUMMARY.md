@@ -284,9 +284,14 @@ notifications.
 - `PATCH /assignments/assess/:submissionId` - Update assessment for current teacher-owned subject class
 - `DELETE /assignments/assess/:submissionId` - Delete assessment for current teacher-owned subject class
 
-## 📊 Logs
+## 📊 Logs (Audit Log — see backend/docs/api/log.md for full contract)
 
-- `GET /logs/school/:schoolId` - Get logs by school
+- `GET /logs` - Platform-wide filtered search (super admin only)
+- `GET /logs/:id` - Unrestricted detail lookup, incl. metadata (super admin only)
+- `GET /logs/school/:schoolId/search` - Filtered/paginated search pinned to one school (admin of that school, or super admin)
+- `GET /logs/school/:schoolId/entries/:id` - Detail lookup pinned to one school
+- `GET /logs/school/:schoolId` - Legacy simple paginated list, no filters (kept for backward compatibility)
+- `GET /ws/audit?token=&channel=` - WebSocket realtime feed for new audit rows. `channel` is `platform` (super admin only) or a school ID (that school's admins + super admin). Payload is the same shape as the REST list row, without metadata/actor name/school name — see backend/docs/api/log.md §3
 
 ## 📊 Grade Book
 

@@ -35,6 +35,16 @@
   - Error response konsisten dengan pola project (`HandleError`, `errors.Is`), pesan Indonesia yang jelas menyebutkan kombinasi mana yang ditolak.
   - Detail lengkap: `backend/docs/api/rbac.md` §2, `backend/docs/api/invitation.md`, `backend/docs/api/school_member_import.md`, `docs/PROJECT_CONTEXT_HANDOFF.md` §24/§26/§27.
 
+## Selesai (Phase 10 — Audit Log)
+
+### Audit Log: Infrastruktur, Write Path, REST, dan Real-Time (10.1–10.10)
+- [x] Item "Belum Dikerjakan" sebelumnya ("Logging untuk admin sekolah... dan superadmin... web socket") — **selesai**, dikerjakan bertahap 10 sub-phase, audit-only dulu (10.1–10.3, tanpa kode) baru implementasi:
+  - **10.4** — infrastruktur: migration `0003_extend_logs_for_audit.sql` (8 kolom nullable baru di `edv.logs`), `domain.Log` diperluas, `domain.ActorContext` baru, `LogRepository`/`LogService` (`Log`/`LogBatch`) — additive, belum ada business service yang dipanggil.
+  - **10.5–10.8** — 33 action ditulis di 9 domain: RBAC, Member Management (termasuk CSV import lewat `LogBatch` + `correlation_id`), Enrollment, Subject Class, School, Platform Bootstrap, Assignment, Grade, Authentication.
+  - **10.9** — REST read surface: service baru `LogQueryService` (sengaja terpisah dari `LogService` yang dipakai write path), endpoint `GET /logs`, `/logs/:id` (super admin, platform-wide), `/logs/school/:schoolId/search`, `/logs/school/:schoolId/entries/:id` (school admin/super admin, dipin), plus Audit Viewer frontend pertama (`AuditLogsPage.vue`, dipakai di `/admin/audit-logs` dan `/superadmin/audit-logs`).
+  - **10.10** — real-time: **bukan** websocket baru dari nol — reuse `realtime.Hub`/`Client` yang sudah dipakai chat (instance terpisah), 1 method baru (`BroadcastToRoom`) untuk room-wide fanout, `events.AuditBroadcaster` (mirror `events.SidebarBroadcaster`), endpoint `GET /api/ws/audit`. SSE `/api/events/sidebar` yang disebut di catatan lama **tidak** dipakai ulang untuk ini (payload/permission-nya beda — butuh room-wide fanout, bukan targeted per-user).
+  - Detail lengkap: `backend/docs/api/log.md` (arsitektur, taxonomy+severity, REST+WebSocket contract, permission matrix, known limitation), `docs/PROJECT_CONTEXT_HANDOFF.md` §26.
+
 ## Belum Dikerjakan
 
-- Logging untuk admin sekolah mengenai sekolah (backend banyak bertambah, web socket) dan juga superadmin (lebih umum, ga sedetail admin sekolah) — belum dikerjakan sama sekali. Perlu scoping (event apa saja, retensi, granularitas admin vs superadmin) sebelum implementasi; ada mekanisme SSE yang sudah ada (`/api/events/sidebar`) yang berpotensi dipakai ulang untuk ini alih-alih bikin websocket baru dari nol.
+(kosong per Phase 10.11)

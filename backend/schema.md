@@ -419,13 +419,32 @@ indexes {
 }
 }
 
+// Extended by migration 0003_extend_logs_for_audit.sql (Phase 10.4) with the
+// 8 columns below actor_school_user_id..correlation_id. All 8 are nullable —
+// the table was empty when the migration ran, and every write path leaves
+// unused fields null rather than requiring a value. See
+// backend/docs/api/log.md for the full audit log architecture, taxonomy,
+// REST/WebSocket contracts, and permission model.
 Table logs {
 log_id uuid [pk, default: `gen_random_uuid()`]
-log_sch_id uuid [ref: > schools.sch_id]
+log_sch_id uuid [ref: > schools.sch_id, note: 'nullable — platform-scoped actions (e.g. RBAC role management, super admin/school bootstrap) have no active school']
 log_usr_id uuid [ref: > users.usr_id]
-log_action varchar(150)
+actor_school_user_id uuid [ref: > school_users.scu_id, note: 'nullable — which school-membership record the actor was acting through, when applicable']
+log_action varchar(150) [note: 'taxonomy pattern <domain>.<subject>.<verb_past>, e.g. member.role.synced — see backend/docs/api/log.md']
+entity_type text [note: 'polymorphic — no FK, target table varies by action (e.g. school_user, school, subject_class, assessment)']
+entity_id uuid [note: 'polymorphic — no FK, paired with entity_type']
+scope text [note: 'application-validated, not a DB constraint — "platform" or "school"']
+severity text [note: 'application-validated, not a DB constraint — LOW, MEDIUM, or HIGH']
+ip_address text
+user_agent text
+correlation_id uuid [note: 'links a bulk-import parent row to its child rows (Phase 10.2 §5, Option B) — written via LogService.LogBatch']
 log_metadata jsonb
 created_at timestamptz [default: `now()`]
+
+indexes {
+(log_sch_id, created_at) [note: 'DESC, applied manually against production — migration file was never committed, see docs/PERFORMANCE_AUDIT.md']
+(log_usr_id, created_at) [note: 'DESC, applied manually against production — migration file was never committed, see docs/PERFORMANCE_AUDIT.md']
+}
 }
 
 Table notifications {

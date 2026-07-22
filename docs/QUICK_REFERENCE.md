@@ -45,6 +45,7 @@ School (tenant root)
 | **Comments** | Polymorphic (SourceType + SourceID) | Can comment on material, assignment, feed, submission, comment |
 | **Invitation accept (existing user)** | Two endpoints, not one branching on optional auth: `POST /invitations/:token/accept` (public, new-user) vs `POST /invitations/:token/accept-authenticated` (JWT-required, existing-user) | Backend verifies `authenticated user's email == invitation.email`; frontend never trusted for that check |
 | **School-role combination (Phase 9.3)** | `admin`+`teacher` is the only allowed combination on one school membership; `student` can never combine with `teacher` or `admin` | One backend validator (`domain.ValidateSchoolRoleCombination`) called from role sync/assign, CSV import/direct-create, and invitation accept — not just the frontend |
+| **Audit log (Phase 10.1–10.10)** | DB row (`edv.logs`) is always the source of truth; `/api/ws/audit` broadcasts fire-and-forget only after the row commits | A missed/dropped WebSocket event is invisible to REST — the live feed is convenience, never load-bearing. Read (`LogQueryService`) and write (`LogService`) are separate services on purpose. |
 
 ## Routes Quick Map
 ```
@@ -66,7 +67,7 @@ School (tenant root)
 /api/grades               - Grade calculation, weight config
 /api/medias               - Media upload, metadata, retrieval
 /api/notifications        - Notification CRUD + read status
-/api/logs                 - Audit logs
+/api/logs                 - Audit logs: filtered/paginated REST (super-admin platform-wide + school-pinned variants) + `/api/ws/audit` live feed — see backend/docs/api/log.md
 /api/dashboard            - Dashboard aggregates per role (student/teacher/admin/super-admin); Phase 7 added work-queue widgets, grading backlog, performance rollup, and growth trends — see backend/docs/api/dashboard.md
 /api/invitations          - Public invitation accept (new-user + Phase 8 authenticated existing-user path) — see backend/docs/api/invitation.md
 /api/admin/school-member-invitations - Admin invitation create/list/revoke; `fullName` optional since Phase 8 — see backend/docs/api/school_member_invitations.md

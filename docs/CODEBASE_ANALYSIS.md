@@ -209,8 +209,17 @@ DELETE /api/notifications/:id               - Delete notification
 
 ### 1.14 Log & Dashboard Routes (Protected)
 
+Audit log (Phase 10.1–10.10 — full contract, taxonomy, and permission matrix in `backend/docs/api/log.md`):
 ```
-GET    /api/logs/school/:schoolId           - Get logs by school
+GET    /api/logs                              - Platform-wide filtered search (super admin only)
+GET    /api/logs/:id                          - Unrestricted detail incl. metadata (super admin only)
+GET    /api/logs/school/:schoolId/search      - Filtered/paginated search pinned to one school
+GET    /api/logs/school/:schoolId/entries/:id - Detail lookup pinned to one school
+GET    /api/logs/school/:schoolId             - Legacy simple list, no filters (kept for compatibility)
+GET    /api/ws/audit?token=&channel=          - WebSocket live feed (channel = "platform" or a schoolId)
+```
+
+```
 GET    /api/dashboard/student/:userId       - Student dashboard
 GET    /api/dashboard/teacher/:schoolUserId - Teacher dashboard
 GET    /api/dashboard/admin/:schoolId       - Admin dashboard (Phase 7: work-queue widgets, grading backlog — see backend/docs/api/dashboard.md)
@@ -264,8 +273,9 @@ Both accept endpoints reject (400) if accepting would combine `student` with `te
 16. **GradeHandler**: Configure weights, calculate grades
 17. **MediaHandler**: Upload, metadata recording, retrieval, deletion
 18. **NotificationHandler**: Fetch, mark read, delete notifications
-19. **LogHandler**: Fetch logs by school
-20. **DashboardHandler**: Student/teacher dashboard data
+19. **LogHandler**: Audit log REST surface — platform-wide and school-pinned list/detail (Phase 10.9, backed by `LogQueryService`, not `LogService`); legacy `GetBySchool` still present
+20. **AuditStreamHandler** (`internal/realtime`): WebSocket upgrade + handshake auth for `/api/ws/audit` (Phase 10.10)
+21. **DashboardHandler**: Student/teacher dashboard data
 
 ### 2.3 Handler Patterns Observed
 
@@ -338,7 +348,8 @@ Both accept endpoints reject (400) if accepting would combine `student` with `te
 
 - **NotificationService**: Create/fetch/mark-read notifications
 - **MediaService**: Upload files, record metadata, delete with storage cleanup
-- **LogService**: Log user actions with metadata
+- **LogService**: Write path for the audit log — `Record`/`Log`/`LogBatch`, builds rows from `domain.ActorContext`, publishes a live event via `events.AuditBroadcaster` (nil-safe) strictly after each row commits. 33 actions across 9 domains write through it as of Phase 10.8 — see `backend/docs/api/log.md` §4.
+- **LogQueryService**: Read path for the audit log (Phase 10.9), deliberately separate from `LogService` so the write path never changes for read-surface work — `Search`/`GetByID` over `LogRepository`.
 - **DashboardService**: Aggregate dashboard data per role (student/teacher/admin/super-admin). Phase 7 extended admin/super-admin with work-queue widgets, grading backlog, and platform growth trends — see `docs/PROJECT_CONTEXT_HANDOFF.md` §25 and `backend/docs/api/dashboard.md`
 
 ### 3.3 Key Patterns
@@ -406,7 +417,7 @@ Both accept endpoints reject (400) if accepting would combine `student` with `te
 #### System Repositories
 
 16. **NotificationRepository**: CRUD notifications, get unread count
-17. **LogRepository**: Create logs, get by school
+17. **LogRepository**: `Create` (write path, unchanged since Phase 10.4); reads: `GetBySchool`, `GetByUser`, `GetByCorrelationID` (bulk-import parent+child), `Search`/`GetByID` (Phase 10.9, filtered/paginated, preloads `User`+`School`); `WithTx` for same-transaction writes (e.g. CSV import's `LogBatch`)
 18. **GradeRepository**: Calculate student grades
 19. **AssessmentWeightRepository**: Set/get weights by subject-category
 20. **RBACRepository**: Role checks (is super admin, in school, has role)
@@ -599,8 +610,13 @@ Notification {
 }
 
 Log {
-    ID, SchoolID, UserID, Action, Metadata (jsonb), CreatedAt
-    Schema: edv.logs
+    ID, SchoolID (nullable — platform-scoped rows have none), School (Preload-only relation, no new column)
+    UserID, Action, Metadata (jsonb), CreatedAt
+    // Phase 10.4 additions, all nullable:
+    ActorSchoolUserID, EntityType, EntityID (polymorphic, no FK — target varies by action)
+    Scope ("platform"|"school"), Severity ("LOW"|"MEDIUM"|"HIGH")
+    IPAddress, UserAgent, CorrelationID (links bulk-import parent+child rows)
+    Schema: edv.logs — see backend/schema.md and backend/docs/api/log.md
 }
 
 Role { ID, Name }
