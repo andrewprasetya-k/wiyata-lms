@@ -56,6 +56,7 @@ import CreateSchool from "../pages/onboarding/CreateSchool.vue";
 import AcceptInvitation from "../pages/public/AcceptInvitation.vue";
 import VerifyEmail from "../pages/public/VerifyEmail.vue";
 import NotFoundPage from "../pages/common/NotFoundPage.vue";
+import AuditLogsPage from "../pages/common/AuditLogsPage.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -414,6 +415,13 @@ const router = createRouter({
           meta: { title: "Chat Sekolah" },
         },
         {
+          path: "audit-logs",
+          name: "admin-audit-logs",
+          component: AuditLogsPage,
+          meta: { title: "Log Audit" },
+          props: { mode: "admin" },
+        },
+        {
           path: "profile",
           name: "admin-profile",
           component: ReadProfile,
@@ -449,6 +457,13 @@ const router = createRouter({
           name: "superadmin-users",
           component: SuperAdminUsers,
           meta: { title: "Akun Global" },
+        },
+        {
+          path: "audit-logs",
+          name: "superadmin-audit-logs",
+          component: AuditLogsPage,
+          meta: { title: "Log Audit" },
+          props: { mode: "superadmin" },
         },
         {
           path: "profile",

@@ -157,7 +157,8 @@ func main() {
 		logService,
 	), subjectClassService)
 
-	logHandler := handler.NewLogHandler(logService)
+	logQueryService := service.NewLogQueryService(logRepo)
+	logHandler := handler.NewLogHandler(logService, logQueryService)
 
 	dashboardRepo := repository.NewDashboardRepository(db)
 	dashboardService := service.NewDashboardService(dashboardRepo)
@@ -485,6 +486,10 @@ func main() {
 		logAPI := api.Group("/logs")
 		{
 			logAPI.GET("/school/:schoolId", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "super_admin"), logHandler.GetBySchool)
+			logAPI.GET("/school/:schoolId/search", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "super_admin"), logHandler.SearchBySchool)
+			logAPI.GET("/school/:schoolId/entries/:id", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "super_admin"), logHandler.GetByIDInSchool)
+			logAPI.GET("", middleware.RequireSystemSuperAdmin(schoolService), logHandler.List)
+			logAPI.GET("/:id", middleware.RequireSystemSuperAdmin(schoolService), logHandler.GetByID)
 		}
 
 		dashboardAPI := api.Group("/dashboard")

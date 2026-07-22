@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { PhBuildings, PhHouse, PhUsers } from "@phosphor-icons/vue";
+import {
+  PhBuildings,
+  PhClockCounterClockwise,
+  PhHouse,
+  PhUsers,
+} from "@phosphor-icons/vue";
 import SlimSidebar from "../components/layout/Sidebar.vue";
 import { useAuthStore } from "../stores/auth";
 
@@ -8,6 +13,11 @@ const items = [
   { label: "Dashboard", icon: PhHouse, to: "/superadmin/dashboard" },
   { label: "Sekolah", icon: PhBuildings, to: "/superadmin/schools" },
   { label: "Akun Global", icon: PhUsers, to: "/superadmin/users" },
+  {
+    label: "Log Audit",
+    icon: PhClockCounterClockwise,
+    to: "/superadmin/audit-logs",
+  },
 ];
 </script>
 
