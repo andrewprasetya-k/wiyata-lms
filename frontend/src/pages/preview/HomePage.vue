@@ -10,6 +10,14 @@ import {
   PhArrowRight,
   PhCheckCircle,
   PhDot,
+  PhBooks,
+  PhClipboardText,
+  PhChatCircleDots,
+  PhBellRinging,
+  PhUsersThree,
+  PhGraduationCap,
+  PhChalkboardTeacher,
+  PhShieldCheck,
 } from "@phosphor-icons/vue";
 import Lenis from "lenis";
 import { MotionConfig } from "motion-v";
@@ -35,6 +43,29 @@ const pillTransition = {
   stiffness: 320,
   damping: 32,
   mass: 0.6,
+};
+
+// ── Hero entrance choreography
+const heroContainerVariants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.09, delayChildren: 0.05 } },
+};
+const heroItemVariants = {
+  hidden: { opacity: 0, y: 18 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { type: "spring", stiffness: 260, damping: 26 },
+  },
+};
+const heroMockupVariants = {
+  hidden: { opacity: 0, y: 32, scale: 0.97 },
+  show: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { type: "spring", stiffness: 220, damping: 28, delay: 0.35 },
+  },
 };
 
 // ── Mobile menu state
@@ -92,6 +123,7 @@ onUnmounted(() => {
 // ── Features
 const features = [
   {
+    icon: PhBooks,
     title: "Kelas & Materi",
     description:
       "Guru membuat dan membagikan materi dalam konteks mata pelajaran yang jelas. Siswa membaca, membuat catatan pribadi, dan melacak progres dari satu tempat yang tidak membingungkan.",
@@ -102,6 +134,7 @@ const features = [
     ],
   },
   {
+    icon: PhClipboardText,
     title: "Tugas & Penilaian",
     description:
       "Buat tugas dengan tenggat waktu, terima pengumpulan, dan berikan nilai dan catatan umpan balik. Semua dalam satu alur yang terorganisir, tanpa harus bolak-balik ke banyak alat berbeda.",
@@ -112,6 +145,7 @@ const features = [
     ],
   },
   {
+    icon: PhChatCircleDots,
     title: "Chat Akademik",
     description:
       "Percakapan tidak lepas dari konteks sekolah. Feed kelas, chat antar warga sekolah, dan diskusi hadir sebagai bagian dari workspace — bukan aplikasi terpisah.",
@@ -122,6 +156,7 @@ const features = [
     ],
   },
   {
+    icon: PhBellRinging,
     title: "Notifikasi Aktivitas",
     description:
       "Setiap aktivitas penting — materi baru, pengumpulan tugas, nilai keluar, pengumuman — tersimpan dalam notifikasi yang bisa dibaca kapan saja tanpa harus aktif memantau.",
@@ -132,6 +167,7 @@ const features = [
     ],
   },
   {
+    icon: PhUsersThree,
     title: "Akses Multi-Peran",
     description:
       "Satu platform untuk semua peran sekolah. Setiap pengguna mendapat tampilan dan akses yang sesuai dengan peran aktifnya — tanpa fitur yang tidak relevan menghalangi.",
@@ -147,6 +183,7 @@ const features = [
 const mainRoles = [
   {
     anchor: "siswa",
+    icon: PhGraduationCap,
     eyebrow: "Untuk Siswa",
     title: "Belajar dengan arah yang jelas",
     description:
@@ -159,6 +196,7 @@ const mainRoles = [
   },
   {
     anchor: "guru",
+    icon: PhChalkboardTeacher,
     eyebrow: "Untuk Guru",
     title: "Mengajar tanpa alat yang tercerai-berai",
     description:
@@ -171,6 +209,7 @@ const mainRoles = [
   },
   {
     anchor: "admin",
+    icon: PhShieldCheck,
     eyebrow: "Untuk Admin Sekolah",
     title: "Menjaga sekolah tetap terstruktur",
     description:
@@ -303,11 +342,11 @@ const previewSteps: PreviewStep[] = [
       <motion.div
         layout
         :transition="prefersReducedMotion ? { duration: 0 } : pillTransition"
-        class="flex w-full items-center justify-between"
+        class="flex w-full items-center justify-between border border-transparent bg-transparent"
         :class="
           isScrolled
-            ? 'max-w-3xl rounded-full border border-transparent bg-transparent px-5 py-2.5 shadow-[0_8px_30px_-8px_rgba(79,70,229,0.18)] backdrop-blur-xl backdrop-saturate-150'
-            : 'max-w-screen rounded-none border-transparent bg-transparent px-2 py-4 shadow-none backdrop-blur-0 lg:px-6'
+            ? 'max-w-3xl rounded-full px-5 py-2.5 shadow-[0_8px_30px_-8px_rgba(79,70,229,0.18)] backdrop-blur-xl backdrop-saturate-150'
+            : 'max-w-screen rounded-none px-2 py-4 shadow-none backdrop-blur-0 lg:px-6'
         "
       >
         <RouterLink to="/home" class="flex items-center gap-2.5">
@@ -346,7 +385,7 @@ const previewSteps: PreviewStep[] = [
           >
         </nav>
 
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-4">
           <template v-if="isSchoolless">
             <span class="hidden text-sm text-muted sm:block">
               {{ auth.user?.fullName?.split(" ")[0] }}
@@ -368,7 +407,7 @@ const previewSteps: PreviewStep[] = [
             </RouterLink>
             <RouterLink
               to="/login"
-              class="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-hover"
+              class="rounded-full bg-brand px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-hover"
             >
               Masuk
             </RouterLink>
@@ -486,18 +525,37 @@ const previewSteps: PreviewStep[] = [
       </template>
 
       <!-- Visitor: not logged in -->
-      <template v-else>
-        <h1
+      <motion.div
+        v-else
+        :variants="heroContainerVariants"
+        initial="hidden"
+        animate="show"
+      >
+        <motion.h1
+          :variants="heroItemVariants"
           class="mt-5 max-w-3xl text-5xl font-semibold leading-[1.1] tracking-tight text-foreground sm:text-6xl lg:text-[68px]"
         >
-          Satu workspace untuk aktivitas akademik sekolah.
-        </h1>
-        <p class="mt-6 max-w-2xl text-lg leading-8 text-muted">
+          Satu workspace untuk
+          <span
+            class="bg-linear-to-r from-brand to-brand-hover bg-clip-text text-transparent"
+          >
+            aktivitas akademik
+          </span>
+          sekolah.
+        </motion.h1>
+
+        <motion.p
+          :variants="heroItemVariants"
+          class="mt-6 max-w-2xl text-lg leading-8 text-muted"
+        >
           Materi, tugas, komunikasi, dan penilaian ada dalam satu workspace yang
           sama — untuk murid, guru, dan sekolah.
-        </p>
-        <!-- CTAs — three-tier hierarchy -->
-        <div class="mt-9 flex flex-wrap items-center gap-3">
+        </motion.p>
+
+        <motion.div
+          :variants="heroItemVariants"
+          class="mt-9 flex flex-wrap items-center gap-3"
+        >
           <RouterLink
             to="/create-school"
             id="hero-cta-daftar-sekolah"
@@ -512,11 +570,16 @@ const previewSteps: PreviewStep[] = [
           >
             Masuk ke Wiyata
           </RouterLink>
-        </div>
-      </template>
+        </motion.div>
+      </motion.div>
 
       <!-- ── Product mockup (dashboard UI) ── -->
-      <div class="mt-16">
+      <motion.div
+        :variants="heroMockupVariants"
+        initial="hidden"
+        animate="show"
+        class="mt-16"
+      >
         <div
           class="relative overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_28px_90px_-30px_rgba(79,70,229,0.32)] ring-1 ring-white/70"
         >
@@ -545,7 +608,7 @@ const previewSteps: PreviewStep[] = [
         <p class="mt-3 text-center text-xs text-muted">
           Tampilan dashboard siswa Wiyata.
         </p>
-      </div>
+      </motion.div>
     </section>
 
     <!-- ───────────── FEATURE STORY ───────────── -->
@@ -568,16 +631,16 @@ const previewSteps: PreviewStep[] = [
 
       <div class="mt-20 divide-y divide-[#e7e2da]">
         <div
-          v-for="(feature, i) in features"
+          v-for="feature in features"
           :key="feature.title"
           class="grid grid-cols-1 gap-8 py-10 transition-colors hover:bg-[#faf9f7] hover:backdrop-blur-3xl md:grid-cols-[280px_1fr] md:gap-16 lg:gap-24"
         >
           <div class="flex flex-col justify-start pt-0.5">
-            <span
-              class="mb-2 text-xs font-semibold uppercase tracking-widest text-brand"
+            <div
+              class="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-brand/10 text-brand"
             >
-              {{ String(i + 1).padStart(2, "0") }}
-            </span>
+              <component :is="feature.icon" :size="22" weight="bold" />
+            </div>
             <h3 class="text-xl font-semibold text-foreground">
               {{ feature.title }}
             </h3>
@@ -629,6 +692,11 @@ const previewSteps: PreviewStep[] = [
             :key="role.title"
             class="rounded-2xl border border-border bg-surface px-8 py-9 transition hover:border-border-strong hover:shadow-md"
           >
+            <div
+              class="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-brand/10 text-brand"
+            >
+              <component :is="role.icon" :size="22" weight="bold" />
+            </div>
             <p
               class="text-xs font-semibold uppercase tracking-widest text-brand"
             >
