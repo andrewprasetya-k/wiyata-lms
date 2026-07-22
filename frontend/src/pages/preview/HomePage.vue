@@ -681,7 +681,7 @@ const previewSteps: PreviewStep[] = [
               <h2
                 class="mt-4 text-4xl font-semibold tracking-tight text-foreground sm:text-5xl"
               >
-                Workspace sekolah yang sudah siap dipakai.
+                All in one workspace untuk aktivitas akademik sekolah.
               </h2>
               <p class="mt-5 text-lg leading-8 text-muted">
                 Gunakan akun Wiyata yang sudah terdaftar untuk melanjutkan
