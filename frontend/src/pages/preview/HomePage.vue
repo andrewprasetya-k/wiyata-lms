@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from "vue";
+import { motion } from "motion-v";
 import { RouterLink } from "vue-router";
 import { useAuthStore } from "../../stores/auth";
 import { useLogoutConfirm } from "../../composables/useLogoutConfirm";
@@ -22,10 +23,19 @@ const isSchoolless = computed(
 
 // ── Scroll-aware floating navbar
 const isScrolled = ref(false);
+const prefersReducedMotion = ref(false);
 
 function onScroll() {
   isScrolled.value = window.scrollY > 24;
 }
+
+// Spring transition untuk pill navbar — dipakai motion.div di bawah
+const pillTransition = {
+  type: "spring",
+  stiffness: 320,
+  damping: 32,
+  mass: 0.6,
+};
 
 // ── Mobile menu state
 const mobileOpen = ref(false);
@@ -51,12 +61,12 @@ const handleAnchorClick = (e: MouseEvent, selector: string) => {
 
 onMounted(() => {
   window.addEventListener("scroll", onScroll, { passive: true });
-  onScroll(); // set state awal kalau halaman dimuat sudah di-scroll
+  onScroll();
 
-  const prefersReduced = window.matchMedia(
+  prefersReducedMotion.value = window.matchMedia(
     "(prefers-reduced-motion: reduce)",
   ).matches;
-  if (prefersReduced) return;
+  if (prefersReducedMotion.value) return;
 
   lenis = new Lenis({
     duration: 1.1,
@@ -287,11 +297,13 @@ const previewSteps: PreviewStep[] = [
 
     <!-- ───────────── NAVBAR ───────────── -->
     <header
-      class="fixed left-0 right-0 top-0 z-50 flex justify-center px-4 pt-4 transition-all duration-500 md:px-0"
+      class="fixed left-0 right-0 top-0 z-50 flex justify-center px-4 pt-4 md:px-0"
       :class="isScrolled ? 'md:pt-3' : 'md:pt-0'"
     >
-      <div
-        class="flex w-full items-center justify-between transition-all duration-500 ease-out"
+      <motion.div
+        layout
+        :transition="prefersReducedMotion ? { duration: 0 } : pillTransition"
+        class="flex w-full items-center justify-between"
         :class="
           isScrolled
             ? 'max-w-3xl rounded-full border border-transparent bg-transparent px-5 py-2.5 shadow-[0_8px_30px_-8px_rgba(79,70,229,0.18)] backdrop-blur-xl backdrop-saturate-150'
@@ -352,7 +364,7 @@ const previewSteps: PreviewStep[] = [
               to="/register"
               class="hidden text-sm font-medium text-foreground-secondary transition-colors hover:text-foreground sm:inline-flex"
             >
-              Registrasi
+              Buat Akun
             </RouterLink>
             <RouterLink
               to="/login"
@@ -371,7 +383,7 @@ const previewSteps: PreviewStep[] = [
             <PhX v-else :size="18" class="text-muted" />
           </button>
         </div>
-      </div>
+      </motion.div>
 
       <Transition
         enter-active-class="transition-all duration-200 ease-out"
