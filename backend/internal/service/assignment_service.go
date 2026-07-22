@@ -13,11 +13,11 @@ import (
 
 type AssignmentService interface {
 	// Category
-	CreateCategory(cat *domain.AssignmentCategory) error
+	CreateCategory(actor domain.ActorContext, cat *domain.AssignmentCategory) error
 	GetCategoriesBySchool(schoolID string) ([]*domain.AssignmentCategory, error)
 
 	// Assignment
-	CreateAssignment(asg *domain.Assignment, mediaIDs []string, actorUserID string, isAdmin bool) error
+	CreateAssignment(actor domain.ActorContext, asg *domain.Assignment, mediaIDs []string, actorUserID string, isAdmin bool) error
 	GetAssignmentsBySubjectClass(subjectClassID string, search string, page int, limit int) ([]*domain.Assignment, int64, error)
 	GetAssignmentByID(id string) (*domain.Assignment, error)
 	GetAssignmentWithSubmissions(id string) (*domain.Assignment, error)
@@ -26,16 +26,16 @@ type AssignmentService interface {
 	GetTeacherAssignmentInbox(userID string, schoolID string) (*dto.TeacherAssignmentInboxResponseDTO, error)
 	GetStudentAssignmentInbox(userID string, schoolID string) (*dto.StudentAssignmentInboxResponseDTO, error)
 	GetAssignmentStatus(assignmentID string, schoolID string) (map[string]interface{}, error)
-	UpdateAssignment(id string, asg *domain.Assignment, mediaIDs []string, actorUserID string, isAdmin bool, validateCategory bool) error
-	DeleteAssignment(id string) error
+	UpdateAssignment(actor domain.ActorContext, id string, asg *domain.Assignment, mediaIDs []string, actorUserID string, isAdmin bool, validateCategory bool) error
+	DeleteAssignment(actor domain.ActorContext, id string) error
 
 	// Submission
-	Submit(sbm *domain.Submission, mediaIDs []string, actorUserID string, isAdmin bool) error
+	Submit(actor domain.ActorContext, sbm *domain.Submission, mediaIDs []string, actorUserID string, isAdmin bool) error
 	GetSubmissions(asgID string) ([]*domain.Submission, error)
 	GetSubmissionByID(id string) (*domain.Submission, error)
 	GetMySubmissionByAssignment(assignmentID string, userID string, schoolID string) (*domain.Submission, error)
-	UpdateSubmission(id string, mediaIDs []string, actorUserID string, isAdmin bool) error
-	DeleteSubmission(id string) error
+	UpdateSubmission(actor domain.ActorContext, id string, mediaIDs []string, actorUserID string, isAdmin bool) error
+	DeleteSubmission(actor domain.ActorContext, id string) error
 
 	// Assessment
 	Assess(actor domain.ActorContext, asm *domain.Assessment) error
@@ -65,15 +65,23 @@ func NewAssignmentService(repo repository.AssignmentRepository, attService Attac
 	}
 }
 
-func (s *assignmentService) CreateCategory(cat *domain.AssignmentCategory) error {
-	return s.repo.CreateCategory(cat)
+func (s *assignmentService) CreateCategory(actor domain.ActorContext, cat *domain.AssignmentCategory) error {
+	if err := s.repo.CreateCategory(cat); err != nil {
+		return err
+	}
+
+	_ = s.logService.Log(actor, "assignment.category.created", "assignment_category", strPtr(cat.ID), domain.LogSeverityMedium, map[string]any{
+		"category_name": cat.Name,
+	})
+
+	return nil
 }
 
 func (s *assignmentService) GetCategoriesBySchool(schoolID string) ([]*domain.AssignmentCategory, error) {
 	return s.repo.GetCategoriesBySchool(schoolID)
 }
 
-func (s *assignmentService) CreateAssignment(asg *domain.Assignment, mediaIDs []string, actorUserID string, isAdmin bool) error {
+func (s *assignmentService) CreateAssignment(actor domain.ActorContext, asg *domain.Assignment, mediaIDs []string, actorUserID string, isAdmin bool) error {
 	if err := s.validateAssignmentCategory(asg.CategoryID, asg.SchoolID); err != nil {
 		return err
 	}
@@ -107,6 +115,12 @@ func (s *assignmentService) CreateAssignment(asg *domain.Assignment, mediaIDs []
 				}
 			}
 		}
+	})
+
+	_ = s.logService.Log(actor, "assignment.created", "assignment", strPtr(asg.ID), domain.LogSeverityMedium, map[string]any{
+		"assignment_title": asg.Title,
+		"class_id":         asg.SubjectClassID,
+		"due_date":         asg.Deadline,
 	})
 
 	return nil
@@ -335,7 +349,7 @@ func (s *assignmentService) GetAssignmentStatus(assignmentID string, schoolID st
 	}, nil
 }
 
-func (s *assignmentService) UpdateAssignment(id string, asg *domain.Assignment, mediaIDs []string, actorUserID string, isAdmin bool, validateCategory bool) error {
+func (s *assignmentService) UpdateAssignment(actor domain.ActorContext, id string, asg *domain.Assignment, mediaIDs []string, actorUserID string, isAdmin bool, validateCategory bool) error {
 	asg.ID = id
 	if validateCategory {
 		if err := s.validateAssignmentCategory(asg.CategoryID, asg.SchoolID); err != nil {
@@ -351,7 +365,7 @@ func (s *assignmentService) UpdateAssignment(id string, asg *domain.Assignment, 
 		}
 	}
 
-	return s.db.Transaction(func(tx *gorm.DB) error {
+	if err := s.db.Transaction(func(tx *gorm.DB) error {
 		if err := s.repo.WithTx(tx).UpdateAssignment(asg); err != nil {
 			return err
 		}
@@ -361,10 +375,25 @@ func (s *assignmentService) UpdateAssignment(id string, asg *domain.Assignment, 
 			}
 		}
 		return nil
+	}); err != nil {
+		return err
+	}
+
+	_ = s.logService.Log(actor, "assignment.updated", "assignment", strPtr(asg.ID), domain.LogSeverityMedium, map[string]any{
+		"assignment_title": asg.Title,
+		"class_id":         asg.SubjectClassID,
+		"due_date":         asg.Deadline,
 	})
+
+	return nil
 }
 
-func (s *assignmentService) DeleteAssignment(id string) error {
+func (s *assignmentService) DeleteAssignment(actor domain.ActorContext, id string) error {
+	asg, err := s.repo.GetAssignmentByID(id)
+	if err != nil {
+		return err
+	}
+
 	submissions, err := s.repo.GetSubmissionsByAssignment(id)
 	if err != nil {
 		return err
@@ -373,15 +402,25 @@ func (s *assignmentService) DeleteAssignment(id string) error {
 		return fmt.Errorf("assignment cannot be deleted because it already has student submissions")
 	}
 
-	return s.db.Transaction(func(tx *gorm.DB) error {
+	if err := s.db.Transaction(func(tx *gorm.DB) error {
 		if err := s.attService.WithTx(tx).UnlinkBySource(string(domain.SourceAssignment), id); err != nil {
 			return err
 		}
 		return s.repo.WithTx(tx).DeleteAssignment(id)
+	}); err != nil {
+		return err
+	}
+
+	_ = s.logService.Log(actor, "assignment.deleted", "assignment", strPtr(id), domain.LogSeverityHigh, map[string]any{
+		"assignment_title": asg.Title,
+		"class_id":         asg.SubjectClassID,
+		"due_date":         asg.Deadline,
 	})
+
+	return nil
 }
 
-func (s *assignmentService) Submit(sbm *domain.Submission, mediaIDs []string, actorUserID string, isAdmin bool) error {
+func (s *assignmentService) Submit(actor domain.ActorContext, sbm *domain.Submission, mediaIDs []string, actorUserID string, isAdmin bool) error {
 	sbm.SubmittedAt = time.Now()
 
 	// Check deadline before submitting
@@ -399,12 +438,21 @@ func (s *assignmentService) Submit(sbm *domain.Submission, mediaIDs []string, ac
 		return err
 	}
 
-	return s.db.Transaction(func(tx *gorm.DB) error {
+	if err := s.db.Transaction(func(tx *gorm.DB) error {
 		if err := s.repo.WithTx(tx).UpsertSubmission(sbm); err != nil {
 			return err
 		}
 		return replaceSourceAttachments(s.attService.WithTx(tx), sbm.SchoolID, domain.SourceSubmission, sbm.ID, attachmentMediaIDs)
+	}); err != nil {
+		return err
+	}
+
+	_ = s.logService.Log(actor, "assignment.submitted", "submission", strPtr(sbm.ID), domain.LogSeverityMedium, map[string]any{
+		"assignment_id": sbm.AssignmentID,
+		"student_id":    sbm.UserID,
 	})
+
+	return nil
 }
 
 func (s *assignmentService) GetSubmissions(asgID string) ([]*domain.Submission, error) {
@@ -493,7 +541,7 @@ func (s *assignmentService) validateSubmissionMutable(sbm *domain.Submission, as
 	return nil
 }
 
-func (s *assignmentService) UpdateSubmission(id string, mediaIDs []string, actorUserID string, isAdmin bool) error {
+func (s *assignmentService) UpdateSubmission(actor domain.ActorContext, id string, mediaIDs []string, actorUserID string, isAdmin bool) error {
 	sbm, err := s.repo.GetSubmissionByID(id)
 	if err != nil {
 		return err
@@ -517,7 +565,7 @@ func (s *assignmentService) UpdateSubmission(id string, mediaIDs []string, actor
 
 	sbm.SubmittedAt = time.Now()
 
-	return s.db.Transaction(func(tx *gorm.DB) error {
+	if err := s.db.Transaction(func(tx *gorm.DB) error {
 		if err := s.repo.WithTx(tx).UpdateSubmission(sbm); err != nil {
 			return err
 		}
@@ -527,10 +575,19 @@ func (s *assignmentService) UpdateSubmission(id string, mediaIDs []string, actor
 			}
 		}
 		return nil
+	}); err != nil {
+		return err
+	}
+
+	_ = s.logService.Log(actor, "assignment.submission.updated", "submission", strPtr(sbm.ID), domain.LogSeverityMedium, map[string]any{
+		"assignment_id": sbm.AssignmentID,
+		"student_id":    sbm.UserID,
 	})
+
+	return nil
 }
 
-func (s *assignmentService) DeleteSubmission(id string) error {
+func (s *assignmentService) DeleteSubmission(actor domain.ActorContext, id string) error {
 	sbm, err := s.repo.GetSubmissionByID(id)
 	if err != nil {
 		return err
@@ -543,12 +600,21 @@ func (s *assignmentService) DeleteSubmission(id string) error {
 		return err
 	}
 
-	return s.db.Transaction(func(tx *gorm.DB) error {
+	if err := s.db.Transaction(func(tx *gorm.DB) error {
 		if err := s.attService.WithTx(tx).UnlinkBySource(string(domain.SourceSubmission), id); err != nil {
 			return err
 		}
 		return s.repo.WithTx(tx).DeleteSubmission(id)
+	}); err != nil {
+		return err
+	}
+
+	_ = s.logService.Log(actor, "assignment.submission.deleted", "submission", strPtr(id), domain.LogSeverityHigh, map[string]any{
+		"assignment_id": sbm.AssignmentID,
+		"student_id":    sbm.UserID,
 	})
+
+	return nil
 }
 
 func (s *assignmentService) UpdateAssessment(actor domain.ActorContext, submissionID string, asm *domain.Assessment) error {

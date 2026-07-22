@@ -34,7 +34,8 @@ func (h *AcademicYearHandler) Create(c *gin.Context) {
 		Name:     input.Name,
 	}
 
-	if err := h.service.Create(&acy); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.Create(actor, &acy); err != nil {
 		HandleError(c, err)
 		return
 	}
@@ -166,7 +167,8 @@ func (h *AcademicYearHandler) Update(c *gin.Context) {
 		acy.Name = *input.Name
 	}
 
-	if err := h.service.Update(acy); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.Update(actor, acy); err != nil {
 		HandleError(c, err)
 		return
 	}
@@ -192,7 +194,8 @@ func (h *AcademicYearHandler) Activate(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.Activate(id); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.Activate(actor, id); err != nil {
 		HandleError(c, err)
 		return
 	}
@@ -242,7 +245,8 @@ func (h *AcademicYearHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.Delete(id); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.Delete(actor, id); err != nil {
 		HandleError(c, err)
 		return
 	}

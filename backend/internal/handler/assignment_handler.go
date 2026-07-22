@@ -40,7 +40,8 @@ func (h *AssignmentHandler) CreateCategory(c *gin.Context) {
 		Name:     input.Name,
 	}
 
-	if err := h.service.CreateCategory(&cat); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.CreateCategory(actor, &cat); err != nil {
 		HandleError(c, err)
 		return
 	}
@@ -116,7 +117,8 @@ func (h *AssignmentHandler) CreateAssignment(c *gin.Context) {
 		CreatedBy:           userID,
 	}
 
-	if err := h.service.CreateAssignment(&asg, input.MediaIDs, userID, h.hasActiveRole(c, "admin")); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.CreateAssignment(actor, &asg, input.MediaIDs, userID, h.hasActiveRole(c, "admin")); err != nil {
 		HandleError(c, err)
 		return
 	}
@@ -159,7 +161,8 @@ func (h *AssignmentHandler) UpdateAssignment(c *gin.Context) {
 		existing.AllowLateSubmission = *input.AllowLateSubmission
 	}
 
-	if err := h.service.UpdateAssignment(id, existing, input.MediaIDs, middleware.GetUserID(c), h.hasActiveRole(c, "admin"), input.CategoryID != nil); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.UpdateAssignment(actor, id, existing, input.MediaIDs, middleware.GetUserID(c), h.hasActiveRole(c, "admin"), input.CategoryID != nil); err != nil {
 		HandleError(c, err)
 		return
 	}
@@ -178,7 +181,8 @@ func (h *AssignmentHandler) DeleteAssignment(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.DeleteAssignment(id); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.DeleteAssignment(actor, id); err != nil {
 		HandleError(c, err)
 		return
 	}
@@ -639,7 +643,8 @@ func (h *AssignmentHandler) Submit(c *gin.Context) {
 		UserID:       userID,
 	}
 
-	if err := h.service.Submit(&sbm, input.MediaIDs, userID, h.hasActiveRole(c, "admin")); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.Submit(actor, &sbm, input.MediaIDs, userID, h.hasActiveRole(c, "admin")); err != nil {
 		if err.Error() == "submission past due" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Cannot submit past deadline"})
 			return
@@ -670,7 +675,8 @@ func (h *AssignmentHandler) UpdateSubmission(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.UpdateSubmission(submissionId, input.MediaIDs, userID, h.hasActiveRole(c, "admin")); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.UpdateSubmission(actor, submissionId, input.MediaIDs, userID, h.hasActiveRole(c, "admin")); err != nil {
 		if !h.handleSubmissionMutationError(c, err) {
 			HandleError(c, err)
 		}
@@ -686,7 +692,8 @@ func (h *AssignmentHandler) DeleteSubmission(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.DeleteSubmission(submissionId); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.DeleteSubmission(actor, submissionId); err != nil {
 		if !h.handleSubmissionMutationError(c, err) {
 			HandleError(c, err)
 		}

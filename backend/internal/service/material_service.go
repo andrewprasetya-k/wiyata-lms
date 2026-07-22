@@ -24,11 +24,11 @@ type UploadFile struct {
 }
 
 type MaterialService interface {
-	Create(ctx context.Context, mat *domain.Material, mediaIDs []string, medias []dto.CreateMediaInline, uploads []UploadFile, actorUserID string, isAdmin bool) error
+	Create(ctx context.Context, actor domain.ActorContext, mat *domain.Material, mediaIDs []string, medias []dto.CreateMediaInline, uploads []UploadFile, actorUserID string, isAdmin bool) error
 	FindAll(search string, subjectClassID string, page int, limit int) ([]*domain.Material, int64, error)
 	GetByID(id string) (*domain.Material, error)
-	Update(mat *domain.Material, mediaIDs []string, actorUserID string, isAdmin bool) error
-	Delete(id string) error
+	Update(actor domain.ActorContext, mat *domain.Material, mediaIDs []string, actorUserID string, isAdmin bool) error
+	Delete(actor domain.ActorContext, id string) error
 
 	// Progress
 	UpdateProgress(userID, matID string, status string) error
@@ -43,9 +43,10 @@ type materialService struct {
 	notifService NotificationService
 	sclRepo      repository.SubjectClassRepository
 	enrRepo      repository.EnrollmentRepository
+	logService   LogService
 }
 
-func NewMaterialService(repo repository.MaterialRepository, attService AttachmentService, mediaRepo repository.MediaRepository, storageProvider storage.Provider, notifService NotificationService, sclRepo repository.SubjectClassRepository, enrRepo repository.EnrollmentRepository) MaterialService {
+func NewMaterialService(repo repository.MaterialRepository, attService AttachmentService, mediaRepo repository.MediaRepository, storageProvider storage.Provider, notifService NotificationService, sclRepo repository.SubjectClassRepository, enrRepo repository.EnrollmentRepository, logService LogService) MaterialService {
 	if storageProvider == nil {
 		storageProvider = storage.NewDisabledStorage()
 	}
@@ -57,10 +58,11 @@ func NewMaterialService(repo repository.MaterialRepository, attService Attachmen
 		notifService: notifService,
 		sclRepo:      sclRepo,
 		enrRepo:      enrRepo,
+		logService:   logService,
 	}
 }
 
-func (s *materialService) Create(ctx context.Context, mat *domain.Material, mediaIDs []string, medias []dto.CreateMediaInline, uploads []UploadFile, actorUserID string, isAdmin bool) error {
+func (s *materialService) Create(ctx context.Context, actor domain.ActorContext, mat *domain.Material, mediaIDs []string, medias []dto.CreateMediaInline, uploads []UploadFile, actorUserID string, isAdmin bool) error {
 	mat.Title = strings.TrimSpace(mat.Title)
 
 	if err := validateAttachableMedia(s.mediaRepo, mediaIDs, mat.SchoolID, actorUserID, isAdmin); err != nil {
@@ -144,6 +146,11 @@ func (s *materialService) Create(ctx context.Context, mat *domain.Material, medi
 		}
 	})
 
+	_ = s.logService.Log(actor, "material.created", "material", strPtr(mat.ID), domain.LogSeverityMedium, map[string]any{
+		"title":    mat.Title,
+		"class_id": mat.SubjectClassID,
+	})
+
 	return nil
 }
 
@@ -193,7 +200,7 @@ func (s *materialService) GetByID(id string) (*domain.Material, error) {
 	return mat, nil
 }
 
-func (s *materialService) Update(mat *domain.Material, mediaIDs []string, actorUserID string, isAdmin bool) error {
+func (s *materialService) Update(actor domain.ActorContext, mat *domain.Material, mediaIDs []string, actorUserID string, isAdmin bool) error {
 	mat.Title = strings.TrimSpace(mat.Title)
 	var attachmentMediaIDs []string
 	if mediaIDs != nil {
@@ -215,15 +222,34 @@ func (s *materialService) Update(mat *domain.Material, mediaIDs []string, actorU
 		}
 	}
 
+	_ = s.logService.Log(actor, "material.updated", "material", strPtr(mat.ID), domain.LogSeverityMedium, map[string]any{
+		"title":    mat.Title,
+		"class_id": mat.SubjectClassID,
+	})
+
 	return nil
 }
 
-func (s *materialService) Delete(id string) error {
+func (s *materialService) Delete(actor domain.ActorContext, id string) error {
+	mat, err := s.repo.GetByID(id)
+	if err != nil {
+		return err
+	}
+
 	// 1. Unlink all attachments associated with this material
 	s.attService.UnlinkBySource(string(domain.SourceMaterial), id)
 
 	// 2. Delete the material
-	return s.repo.Delete(id)
+	if err := s.repo.Delete(id); err != nil {
+		return err
+	}
+
+	_ = s.logService.Log(actor, "material.deleted", "material", strPtr(id), domain.LogSeverityMedium, map[string]any{
+		"title":    mat.Title,
+		"class_id": mat.SubjectClassID,
+	})
+
+	return nil
 }
 
 func (s *materialService) UpdateProgress(userID, matID string, status string) error {

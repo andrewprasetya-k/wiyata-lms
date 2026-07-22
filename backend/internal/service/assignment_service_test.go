@@ -179,7 +179,7 @@ func newAssignmentTestService(t *testing.T, repo *asgRepoStub) (AssignmentServic
 		&asgNotifServiceStub{},
 		&asgEnrRepoStub{},
 		gormDB,
-		nil,
+		noopLogService{},
 	)
 	return svc, mock
 }
@@ -207,7 +207,7 @@ func TestAssignmentSubmitRejectsPastDeadlineWhenLateNotAllowed(t *testing.T) {
 	svc, _ := newAssignmentTestService(t, repo)
 
 	sbm := &domain.Submission{AssignmentID: "asg-1", UserID: "user-1", SchoolID: "school-1"}
-	err := svc.Submit(sbm, nil, "user-1", false)
+	err := svc.Submit(domain.ActorContext{}, sbm, nil, "user-1", false)
 	if err == nil || !strings.Contains(err.Error(), "submission past due") {
 		t.Fatalf("expected past due error, got %v", err)
 	}
@@ -226,7 +226,7 @@ func TestAssignmentSubmitAllowsPastDeadlineWhenLateAllowed(t *testing.T) {
 	mock.ExpectCommit()
 
 	sbm := &domain.Submission{AssignmentID: "asg-1", UserID: "user-1", SchoolID: "school-1"}
-	if err := svc.Submit(sbm, nil, "user-1", false); err != nil {
+	if err := svc.Submit(domain.ActorContext{}, sbm, nil, "user-1", false); err != nil {
 		t.Fatalf("expected success for late submission when allowed, got %v", err)
 	}
 }
@@ -244,7 +244,7 @@ func TestAssignmentSubmitAllowsSubmissionBeforeDeadline(t *testing.T) {
 	mock.ExpectCommit()
 
 	sbm := &domain.Submission{AssignmentID: "asg-1", UserID: "user-1", SchoolID: "school-1"}
-	if err := svc.Submit(sbm, nil, "user-1", false); err != nil {
+	if err := svc.Submit(domain.ActorContext{}, sbm, nil, "user-1", false); err != nil {
 		t.Fatalf("expected success for on-time submission, got %v", err)
 	}
 }
@@ -262,7 +262,7 @@ func TestAssignmentSubmitAllowsSubmissionWithNoDeadline(t *testing.T) {
 	mock.ExpectCommit()
 
 	sbm := &domain.Submission{AssignmentID: "asg-1", UserID: "user-1", SchoolID: "school-1"}
-	if err := svc.Submit(sbm, nil, "user-1", false); err != nil {
+	if err := svc.Submit(domain.ActorContext{}, sbm, nil, "user-1", false); err != nil {
 		t.Fatalf("expected success for assignment with no deadline, got %v", err)
 	}
 }
@@ -275,19 +275,22 @@ func TestAssignmentDeleteRejectsWhenSubmissionsExist(t *testing.T) {
 	}
 	svc, _ := newAssignmentTestService(t, repo)
 
-	err := svc.DeleteAssignment("asg-1")
+	err := svc.DeleteAssignment(domain.ActorContext{}, "asg-1")
 	if err == nil || !strings.Contains(err.Error(), "cannot be deleted") {
 		t.Fatalf("expected cannot-be-deleted error, got %v", err)
 	}
 }
 
 func TestAssignmentDeleteSucceedsWhenNoSubmissions(t *testing.T) {
-	repo := &asgRepoStub{submissions: []*domain.Submission{}}
+	repo := &asgRepoStub{
+		assignment:  &domain.Assignment{ID: "asg-1", Title: "Test Assignment", SubjectClassID: "scl-1"},
+		submissions: []*domain.Submission{},
+	}
 	svc, mock := newAssignmentTestService(t, repo)
 	mock.ExpectBegin()
 	mock.ExpectCommit()
 
-	if err := svc.DeleteAssignment("asg-1"); err != nil {
+	if err := svc.DeleteAssignment(domain.ActorContext{}, "asg-1"); err != nil {
 		t.Fatalf("expected success for assignment with no submissions, got %v", err)
 	}
 }

@@ -15,16 +15,16 @@ import (
 
 type userRouteServiceStub struct{}
 
-func (s *userRouteServiceStub) Create(*domain.User) error { return nil }
+func (s *userRouteServiceStub) Create(domain.ActorContext, *domain.User) error { return nil }
 
 func (s *userRouteServiceStub) FindAll(string, int, int) ([]*domain.User, int64, error) {
 	return []*domain.User{{ID: "user-1", FullName: "Test User", Email: "test@example.com"}}, 1, nil
 }
 
-func (s *userRouteServiceStub) GetByID(string) (*domain.User, error)    { return nil, nil }
-func (s *userRouteServiceStub) GetByEmail(string) (*domain.User, error) { return nil, nil }
-func (s *userRouteServiceStub) Update(*domain.User) error               { return nil }
-func (s *userRouteServiceStub) Delete(string) error                     { return nil }
+func (s *userRouteServiceStub) GetByID(string) (*domain.User, error)           { return nil, nil }
+func (s *userRouteServiceStub) GetByEmail(string) (*domain.User, error)        { return nil, nil }
+func (s *userRouteServiceStub) Update(domain.ActorContext, *domain.User) error { return nil }
+func (s *userRouteServiceStub) Delete(domain.ActorContext, string) error       { return nil }
 func (s *userRouteServiceStub) ChangePassword(domain.ActorContext, string, string, string) error {
 	return nil
 }

@@ -8,26 +8,28 @@ import (
 )
 
 type ClassService interface {
-	Create(class *domain.Class) error
+	Create(actor domain.ActorContext, class *domain.Class) error
 	FindAll(search string, schoolCode string, termID string, page int, limit int) ([]*domain.Class, int64, error)
 	GetByID(id string) (*domain.Class, error)
-	Update(class *domain.Class) error
-	Delete(id string) error
+	Update(actor domain.ActorContext, class *domain.Class) error
+	Delete(actor domain.ActorContext, id string) error
 }
 
 type classService struct {
 	repo          repository.ClassRepository
 	schoolService SchoolService
+	logService    LogService
 }
 
-func NewClassService(repo repository.ClassRepository, schoolService SchoolService) ClassService {
+func NewClassService(repo repository.ClassRepository, schoolService SchoolService, logService LogService) ClassService {
 	return &classService{
 		repo:          repo,
 		schoolService: schoolService,
+		logService:    logService,
 	}
 }
 
-func (s *classService) Create(class *domain.Class) error {
+func (s *classService) Create(actor domain.ActorContext, class *domain.Class) error {
 	class.Title = strings.TrimSpace(class.Title)
 	class.Code = strings.ToUpper(strings.TrimSpace(class.Code))
 
@@ -40,7 +42,16 @@ func (s *classService) Create(class *domain.Class) error {
 		return fmt.Errorf("kode kelas '%s' sudah terdaftar untuk periode ini", class.Code)
 	}
 
-	return s.repo.Create(class)
+	if err := s.repo.Create(class); err != nil {
+		return err
+	}
+
+	_ = s.logService.Log(actor, "class.created", "class", strPtr(class.ID), domain.LogSeverityMedium, map[string]any{
+		"class_name": class.Title,
+		"created_by": class.CreatedBy,
+	})
+
+	return nil
 }
 
 func (s *classService) FindAll(search string, schoolID string, termID string, page int, limit int) ([]*domain.Class, int64, error) {
@@ -51,13 +62,27 @@ func (s *classService) GetByID(id string) (*domain.Class, error) {
 	return s.repo.GetByID(id)
 }
 
-func (s *classService) Update(class *domain.Class) error {
+func (s *classService) Update(actor domain.ActorContext, class *domain.Class) error {
 	class.Title = strings.TrimSpace(class.Title)
 	// Catatan: Kode kelas biasanya tidak diubah setelah dibuat, tapi kita tetap sediakan validasi jika diperlukan
-	return s.repo.Update(class)
+	if err := s.repo.Update(class); err != nil {
+		return err
+	}
+
+	_ = s.logService.Log(actor, "class.updated", "class", strPtr(class.ID), domain.LogSeverityMedium, map[string]any{
+		"class_name": class.Title,
+		"created_by": class.CreatedBy,
+	})
+
+	return nil
 }
 
-func (s *classService) Delete(id string) error {
+func (s *classService) Delete(actor domain.ActorContext, id string) error {
+	class, err := s.repo.GetByID(id)
+	if err != nil {
+		return err
+	}
+
 	enrollmentCount, err := s.repo.CountEnrollmentsByClass(id)
 	if err != nil {
 		return err
@@ -74,5 +99,14 @@ func (s *classService) Delete(id string) error {
 		return fmt.Errorf("class cannot be deleted because it still has subject assignments")
 	}
 
-	return s.repo.Delete(id)
+	if err := s.repo.Delete(id); err != nil {
+		return err
+	}
+
+	_ = s.logService.Log(actor, "class.deleted", "class", strPtr(id), domain.LogSeverityHigh, map[string]any{
+		"class_name": class.Title,
+		"created_by": class.CreatedBy,
+	})
+
+	return nil
 }

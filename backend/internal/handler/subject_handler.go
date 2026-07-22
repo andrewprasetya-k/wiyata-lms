@@ -36,7 +36,8 @@ func (h *SubjectHandler) Create(c *gin.Context) {
 		Color:    input.Color,
 	}
 
-	if err := h.service.Create(&subject); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.Create(actor, &subject); err != nil {
 		HandleError(c, err)
 		return
 	}
@@ -196,7 +197,8 @@ func (h *SubjectHandler) Update(c *gin.Context) {
 		subject.Color = *input.Color
 	}
 
-	if err := h.service.Update(subject); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.Update(actor, subject); err != nil {
 		HandleError(c, err)
 		return
 	}
@@ -222,7 +224,8 @@ func (h *SubjectHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.Delete(id); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.Delete(actor, id); err != nil {
 		HandleError(c, err)
 		return
 	}

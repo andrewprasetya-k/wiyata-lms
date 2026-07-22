@@ -30,7 +30,8 @@ func (h *TermHandler) Create(c *gin.Context) {
 		Name:           input.Name,
 	}
 
-	if err := h.service.Create(&term); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.Create(actor, &term); err != nil {
 		HandleError(c, err)
 		return
 	}
@@ -155,7 +156,8 @@ func (h *TermHandler) Update(c *gin.Context) {
 		term.Name = *input.Name
 	}
 
-	if err := h.service.Update(term); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.Update(actor, term); err != nil {
 		HandleError(c, err)
 		return
 	}
@@ -181,7 +183,8 @@ func (h *TermHandler) Activate(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.Activate(id); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.Activate(actor, id); err != nil {
 		HandleError(c, err)
 		return
 	}
@@ -231,7 +234,8 @@ func (h *TermHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.Delete(id); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.Delete(actor, id); err != nil {
 		HandleError(c, err)
 		return
 	}

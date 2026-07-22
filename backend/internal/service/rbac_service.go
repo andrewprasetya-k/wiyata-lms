@@ -239,7 +239,7 @@ func (s *rbacService) CreateSuperAdmin(actor domain.ActorContext, name, email, p
 		Password: password,
 		IsActive: true,
 	}
-	if err := s.userService.Create(user); err != nil {
+	if err := s.userService.Create(actor, user); err != nil {
 		return fmt.Errorf("failed to create user: %v", err)
 	}
 

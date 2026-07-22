@@ -61,7 +61,8 @@ func (h *MaterialHandler) Create(c *gin.Context) {
 			CreatedBy:      userID,
 		}
 
-		if err := h.service.Create(c.Request.Context(), &mat, input.MediaIDs, input.Medias, nil, userID, h.hasActiveRole(c, "admin")); err != nil {
+		actor := buildActorContext(c, domain.LogScopeSchool)
+		if err := h.service.Create(c.Request.Context(), actor, &mat, input.MediaIDs, input.Medias, nil, userID, h.hasActiveRole(c, "admin")); err != nil {
 			HandleError(c, err)
 			return
 		}
@@ -135,7 +136,8 @@ func (h *MaterialHandler) Create(c *gin.Context) {
 		}
 	}()
 
-	if err := h.service.Create(c.Request.Context(), &mat, nil, nil, uploads, userID, h.hasActiveRole(c, "admin")); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.Create(c.Request.Context(), actor, &mat, nil, nil, uploads, userID, h.hasActiveRole(c, "admin")); err != nil {
 		if errors.Is(err, storage.ErrNotImplemented) || errors.Is(err, storage.ErrUnavailable) {
 			c.JSON(http.StatusNotImplemented, gin.H{"error": "File upload to storage is not configured"})
 			return
@@ -437,7 +439,8 @@ func (h *MaterialHandler) Update(c *gin.Context) {
 		mat.Type = domain.MaterialType(*input.Type)
 	}
 
-	if err := h.service.Update(mat, input.MediaIDs, middleware.GetUserID(c), h.hasActiveRole(c, "admin")); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.Update(actor, mat, input.MediaIDs, middleware.GetUserID(c), h.hasActiveRole(c, "admin")); err != nil {
 		HandleError(c, err)
 		return
 	}
@@ -455,7 +458,8 @@ func (h *MaterialHandler) Delete(c *gin.Context) {
 	if !h.authorizeMaterialMutation(c, mat) {
 		return
 	}
-	if err := h.service.Delete(id); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.Delete(actor, id); err != nil {
 		HandleError(c, err)
 		return
 	}

@@ -45,7 +45,8 @@ func (h *ClassHandler) Create(c *gin.Context) {
 		CreatedBy:   userID,
 	}
 
-	if err := h.service.Create(&class); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.Create(actor, &class); err != nil {
 		HandleError(c, err)
 		return
 	}
@@ -170,7 +171,8 @@ func (h *ClassHandler) Update(c *gin.Context) {
 		class.IsActive = *input.IsActive
 	}
 
-	if err := h.service.Update(class); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.Update(actor, class); err != nil {
 		HandleError(c, err)
 		return
 	}
@@ -196,7 +198,8 @@ func (h *ClassHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.Delete(id); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.Delete(actor, id); err != nil {
 		HandleError(c, err)
 		return
 	}

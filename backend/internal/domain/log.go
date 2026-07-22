@@ -36,7 +36,8 @@ const (
 
 // Log severity values, per the Phase 10.2 severity policy.
 const (
-	LogSeverityLow    = "LOW"
-	LogSeverityMedium = "MEDIUM"
-	LogSeverityHigh   = "HIGH"
+	LogSeverityLow      = "LOW"
+	LogSeverityMedium   = "MEDIUM"
+	LogSeverityHigh     = "HIGH"
+	LogSeverityCritical = "CRITICAL"
 )

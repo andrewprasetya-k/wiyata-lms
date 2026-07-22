@@ -7,26 +7,28 @@ import (
 )
 
 type SchoolUserService interface {
-	Enroll(scu *domain.SchoolUser) error
+	Enroll(actor domain.ActorContext, scu *domain.SchoolUser) error
 	GetMembersBySchool(schoolCode string, search string, page int, limit int) ([]*domain.SchoolUser, int64, error)
 	GetSchoolsByUser(userID string) ([]*domain.SchoolUser, error)
-	Unenroll(id string) error
+	Unenroll(actor domain.ActorContext, id string) error
 	BelongsToSchool(schoolUserID string, schoolID string) (bool, error)
 }
 
 type schoolUserService struct {
 	repo          repository.SchoolUserRepository
 	schoolService SchoolService
+	logService    LogService
 }
 
-func NewSchoolUserService(repo repository.SchoolUserRepository, schoolService SchoolService) SchoolUserService {
+func NewSchoolUserService(repo repository.SchoolUserRepository, schoolService SchoolService, logService LogService) SchoolUserService {
 	return &schoolUserService{
 		repo:          repo,
 		schoolService: schoolService,
+		logService:    logService,
 	}
 }
 
-func (s *schoolUserService) Enroll(scu *domain.SchoolUser) error {
+func (s *schoolUserService) Enroll(actor domain.ActorContext, scu *domain.SchoolUser) error {
 	// 1. Validasi: Apakah sudah terdaftar di sekolah ini?
 	already, err := s.repo.IsEnrolled(scu.UserID, scu.SchoolID)
 	if err != nil {
@@ -36,7 +38,16 @@ func (s *schoolUserService) Enroll(scu *domain.SchoolUser) error {
 		return fmt.Errorf("user sudah terdaftar sebagai anggota di sekolah ini")
 	}
 
-	return s.repo.Create(scu)
+	if err := s.repo.Create(scu); err != nil {
+		return err
+	}
+
+	_ = s.logService.Log(actor, "member.enrolled", "school_user", strPtr(scu.ID), domain.LogSeverityMedium, map[string]any{
+		"user_id":   scu.UserID,
+		"school_id": scu.SchoolID,
+	})
+
+	return nil
 }
 
 func (s *schoolUserService) GetMembersBySchool(schoolCode string, search string, page int, limit int) ([]*domain.SchoolUser, int64, error) {
@@ -51,8 +62,21 @@ func (s *schoolUserService) GetSchoolsByUser(userID string) ([]*domain.SchoolUse
 	return s.repo.GetByUser(userID)
 }
 
-func (s *schoolUserService) Unenroll(userId string) error {
-	return s.repo.Delete(userId)
+func (s *schoolUserService) Unenroll(actor domain.ActorContext, userId string) error {
+	if err := s.repo.Delete(userId); err != nil {
+		return err
+	}
+
+	schoolID := ""
+	if actor.SchoolID != nil {
+		schoolID = *actor.SchoolID
+	}
+	_ = s.logService.Log(actor, "member.unenrolled", "school_user", strPtr(userId), domain.LogSeverityMedium, map[string]any{
+		"user_id":   userId,
+		"school_id": schoolID,
+	})
+
+	return nil
 }
 
 func (s *schoolUserService) BelongsToSchool(schoolUserID string, schoolID string) (bool, error) {

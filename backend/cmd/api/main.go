@@ -58,18 +58,18 @@ func main() {
 	invitationHandler := handler.NewInvitationHandler(invitationService)
 
 	academicYearRepo := repository.NewAcademicYearRepository(db)
-	academicYearService := service.NewAcademicYearService(academicYearRepo, schoolService)
+	academicYearService := service.NewAcademicYearService(academicYearRepo, schoolService, logService)
 	academicYearHandler := handler.NewAcademicYearHandler(academicYearService, schoolService)
 
 	termRepo := repository.NewTermRepository(db)
-	termService := service.NewTermService(termRepo)
+	termService := service.NewTermService(termRepo, logService)
 	termHandler := handler.NewTermHandler(termService)
 
 	rbacRepo := repository.NewRBACRepository(db)
 	rbacService := service.NewRBACService(rbacRepo, userService, schoolRepo, logService)
 
 	schoolUserRepo := repository.NewSchoolUserRepository(db)
-	schoolUserService := service.NewSchoolUserService(schoolUserRepo, schoolService)
+	schoolUserService := service.NewSchoolUserService(schoolUserRepo, schoolService, logService)
 	schoolUserHandler := handler.NewSchoolUserHandler(schoolUserService, schoolService, rbacService)
 	adminSchoolMemberImportService := service.NewAdminSchoolMemberImportService(db, emailService, logService)
 	adminSchoolMemberImportHandler := handler.NewAdminSchoolMemberImportHandler(adminSchoolMemberImportService)
@@ -82,7 +82,7 @@ func main() {
 	authHandler := handler.NewAuthHandler(authService)
 
 	subjectRepo := repository.NewSubjectRepository(db)
-	subjectService := service.NewSubjectService(subjectRepo, schoolService)
+	subjectService := service.NewSubjectService(subjectRepo, schoolService, logService)
 	subjectHandler := handler.NewSubjectHandler(subjectService, schoolService)
 
 	rbacHandler := handler.NewRBACHandler(rbacService, schoolUserService)
@@ -90,7 +90,7 @@ func main() {
 	superAdminBootstrapHandler := handler.NewSuperAdminBootstrapHandler(superAdminBootstrapService)
 
 	classRepo := repository.NewClassRepository(db)
-	classService := service.NewClassService(classRepo, schoolService)
+	classService := service.NewClassService(classRepo, schoolService, logService)
 	classHandler := handler.NewClassHandler(classService, schoolService)
 
 	subjectClassRepo := repository.NewSubjectClassRepository(db)
@@ -122,7 +122,7 @@ func main() {
 	notificationHandler := handler.NewNotificationHandler(notificationService)
 
 	materialRepo := repository.NewMaterialRepository(db)
-	materialService := service.NewMaterialService(materialRepo, attachmentService, mediaRepo, storageProvider, notificationService, subjectClassRepo, enrollmentRepo)
+	materialService := service.NewMaterialService(materialRepo, attachmentService, mediaRepo, storageProvider, notificationService, subjectClassRepo, enrollmentRepo, logService)
 	materialSummaryService := service.NewMaterialSummaryService(attachmentService, storageProvider, service.NewPDFTextExtractor(), service.NewMaterialAIServiceFromEnv())
 	materialHandler := handler.NewMaterialHandler(materialService, materialSummaryService, subjectClassService)
 	assignmentRepo := repository.NewAssignmentRepository(db)
@@ -232,7 +232,7 @@ func main() {
 
 		academicYearAPI := api.Group("/academic-years")
 		{
-			academicYearAPI.POST("", middleware.RequireRole(schoolService, "admin", "super_admin"), academicYearHandler.Create)
+			academicYearAPI.POST("", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "super_admin"), academicYearHandler.Create)
 			academicYearAPI.GET("", middleware.RequireSchoolMember(schoolService), academicYearHandler.FindAll)
 			academicYearAPI.GET("/:id", middleware.RequireSchoolMember(schoolService), academicYearHandler.GetByID)
 			academicYearAPI.GET("/school/:schoolCode", middleware.RequireSchoolMember(schoolService), academicYearHandler.GetBySchool)
@@ -244,7 +244,7 @@ func main() {
 
 		termAPI := api.Group("/terms")
 		{
-			termAPI.POST("", middleware.RequireRole(schoolService, "admin", "super_admin"), termHandler.Create)
+			termAPI.POST("", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "super_admin"), termHandler.Create)
 			termAPI.GET("", middleware.RequireSchoolMember(schoolService), termHandler.FindAll)
 			termAPI.GET("/:id", middleware.RequireSchoolMember(schoolService), termHandler.GetByID)
 			termAPI.GET("/academic-year/:academicYearId", middleware.RequireSchoolMember(schoolService), termHandler.GetByAcademicYear)
@@ -266,10 +266,10 @@ func main() {
 
 		schoolUserAPI := api.Group("/school-users")
 		{
-			schoolUserAPI.POST("/enroll", middleware.RequireRole(schoolService, "admin", "super_admin"), schoolUserHandler.Enroll)
+			schoolUserAPI.POST("/enroll", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "super_admin"), schoolUserHandler.Enroll)
 			schoolUserAPI.GET("/school/:schoolCode", middleware.RequireSchoolMember(schoolService), schoolUserHandler.GetMembersBySchool)
 			schoolUserAPI.GET("/user/:userId", schoolUserHandler.GetSchoolsByUser)
-			schoolUserAPI.DELETE("/:userId", middleware.RequireRole(schoolService, "admin", "super_admin"), schoolUserHandler.Unenroll)
+			schoolUserAPI.DELETE("/:userId", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "super_admin"), schoolUserHandler.Unenroll)
 		}
 
 		adminSchoolMemberImportAPI := api.Group("/admin/school-members/import")
@@ -298,7 +298,7 @@ func main() {
 
 		subjectAPI := api.Group("/subjects")
 		{
-			subjectAPI.POST("", middleware.RequireRole(schoolService, "admin", "super_admin"), subjectHandler.Create)
+			subjectAPI.POST("", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin", "super_admin"), subjectHandler.Create)
 			subjectAPI.GET("", middleware.RequireSchoolMember(schoolService), subjectHandler.FindAll)
 			subjectAPI.GET("/:id", middleware.RequireSchoolMember(schoolService), subjectHandler.GetByID)
 			subjectAPI.GET("/school/:schoolCode", middleware.RequireSchoolMember(schoolService), subjectHandler.GetBySchool)

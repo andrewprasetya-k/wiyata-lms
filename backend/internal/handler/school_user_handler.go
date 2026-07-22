@@ -37,7 +37,8 @@ func (h *SchoolUserHandler) Enroll(c *gin.Context) {
 		SchoolID: input.SchoolID,
 	}
 
-	if err := h.service.Enroll(&scu); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.Enroll(actor, &scu); err != nil {
 		HandleError(c, err)
 		return
 	}
@@ -154,7 +155,8 @@ func (h *SchoolUserHandler) GetSchoolsByUser(c *gin.Context) {
 
 func (h *SchoolUserHandler) Unenroll(c *gin.Context) {
 	userId := c.Param("userId")
-	if err := h.service.Unenroll(userId); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.Unenroll(actor, userId); err != nil {
 		HandleError(c, err)
 		return
 	}

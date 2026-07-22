@@ -43,7 +43,7 @@ type subjectRouteServiceStub struct {
 	subjects map[string]*domain.Subject
 }
 
-func (s *subjectRouteServiceStub) Create(*domain.Subject) error { return nil }
+func (s *subjectRouteServiceStub) Create(domain.ActorContext, *domain.Subject) error { return nil }
 
 func (s *subjectRouteServiceStub) FindAll(string, string, int, int) ([]*domain.Subject, int64, error) {
 	return nil, 0, nil
@@ -63,8 +63,8 @@ func (s *subjectRouteServiceStub) GetByCode(string, string) (*domain.Subject, er
 	return nil, nil
 }
 
-func (s *subjectRouteServiceStub) Update(*domain.Subject) error { return nil }
-func (s *subjectRouteServiceStub) Delete(string) error          { return nil }
+func (s *subjectRouteServiceStub) Update(domain.ActorContext, *domain.Subject) error { return nil }
+func (s *subjectRouteServiceStub) Delete(domain.ActorContext, string) error          { return nil }
 
 // TestSubjectGetByIDCrossTenantIsForbidden is a representative regression test for the
 // Sprint 1 IDOR closure: a member of school A must not be able to read a subject that

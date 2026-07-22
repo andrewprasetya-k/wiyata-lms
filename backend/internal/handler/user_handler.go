@@ -31,7 +31,8 @@ func (h *UserHandler) Create(c *gin.Context) {
 		Password: input.Password,
 	}
 
-	if err := h.service.Create(&user); err != nil {
+	actor := buildActorContext(c, domain.LogScopePlatform)
+	if err := h.service.Create(actor, &user); err != nil {
 		HandleError(c, err)
 		return
 	}
@@ -101,7 +102,8 @@ func (h *UserHandler) Update(c *gin.Context) {
 		user.Email = *input.Email
 	}
 
-	if err := h.service.Update(user); err != nil {
+	actor := buildActorContext(c, domain.LogScopePlatform)
+	if err := h.service.Update(actor, user); err != nil {
 		HandleError(c, err)
 		return
 	}
@@ -111,7 +113,8 @@ func (h *UserHandler) Update(c *gin.Context) {
 
 func (h *UserHandler) Delete(c *gin.Context) {
 	id := c.Param("id")
-	if err := h.service.Delete(id); err != nil {
+	actor := buildActorContext(c, domain.LogScopePlatform)
+	if err := h.service.Delete(actor, id); err != nil {
 		HandleError(c, err)
 		return
 	}

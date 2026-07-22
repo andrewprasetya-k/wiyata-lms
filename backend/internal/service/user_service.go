@@ -10,12 +10,12 @@ import (
 )
 
 type UserService interface {
-	Create(user *domain.User) error
+	Create(actor domain.ActorContext, user *domain.User) error
 	FindAll(search string, page int, limit int) ([]*domain.User, int64, error)
 	GetByID(id string) (*domain.User, error)
 	GetByEmail(email string) (*domain.User, error)
-	Update(user *domain.User) error
-	Delete(id string) error
+	Update(actor domain.ActorContext, user *domain.User) error
+	Delete(actor domain.ActorContext, id string) error
 	ChangePassword(actor domain.ActorContext, id string, oldPassword string, newPassword string) error
 }
 
@@ -28,7 +28,7 @@ func NewUserService(repo repository.UserRepository, logService LogService) UserS
 	return &userService{repo: repo, logService: logService}
 }
 
-func (s *userService) Create(user *domain.User) error {
+func (s *userService) Create(actor domain.ActorContext, user *domain.User) error {
 	user.FullName = strings.TrimSpace(user.FullName)
 	user.Email = strings.ToLower(strings.TrimSpace(user.Email))
 
@@ -48,7 +48,15 @@ func (s *userService) Create(user *domain.User) error {
 	}
 	user.Password = string(hashedPassword)
 
-	return s.repo.Create(user)
+	if err := s.repo.Create(user); err != nil {
+		return err
+	}
+
+	_ = s.logService.Log(actor, "user.created", "user", strPtr(user.ID), domain.LogSeverityHigh, map[string]any{
+		"email": user.Email,
+	})
+
+	return nil
 }
 
 func (s *userService) FindAll(search string, page int, limit int) ([]*domain.User, int64, error) {
@@ -63,7 +71,7 @@ func (s *userService) GetByEmail(email string) (*domain.User, error) {
 	return s.repo.GetByEmail(email)
 }
 
-func (s *userService) Update(user *domain.User) error {
+func (s *userService) Update(actor domain.ActorContext, user *domain.User) error {
 	user.FullName = strings.TrimSpace(user.FullName)
 	user.Email = strings.ToLower(strings.TrimSpace(user.Email))
 
@@ -76,11 +84,32 @@ func (s *userService) Update(user *domain.User) error {
 		return fmt.Errorf("email '%s' sudah terdaftar", user.Email)
 	}
 
-	return s.repo.Update(user)
+	if err := s.repo.Update(user); err != nil {
+		return err
+	}
+
+	_ = s.logService.Log(actor, "user.updated", "user", strPtr(user.ID), domain.LogSeverityHigh, map[string]any{
+		"email": user.Email,
+	})
+
+	return nil
 }
 
-func (s *userService) Delete(id string) error {
-	return s.repo.Delete(id)
+func (s *userService) Delete(actor domain.ActorContext, id string) error {
+	user, err := s.repo.GetByID(id)
+	if err != nil {
+		return err
+	}
+
+	if err := s.repo.Delete(id); err != nil {
+		return err
+	}
+
+	_ = s.logService.Log(actor, "user.deleted", "user", strPtr(id), domain.LogSeverityCritical, map[string]any{
+		"email": user.Email,
+	})
+
+	return nil
 }
 
 func (s *userService) ChangePassword(actor domain.ActorContext, id string, oldPassword string, newPassword string) error {
