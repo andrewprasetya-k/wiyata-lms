@@ -1,6 +1,4 @@
 <script setup lang="ts">
-// Recursive key-value renderer for audit log metadata. Vue SFCs can refer to
-// themselves by filename in <script setup>, so <JsonViewer> below is valid.
 defineProps<{ value: unknown }>();
 
 function isObject(v: unknown): v is Record<string, unknown> {

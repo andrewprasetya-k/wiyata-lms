@@ -43,7 +43,11 @@ const items = computed(() => [
     badgeAriaLabel: `${unreadCount.value} chat belum dibaca`,
     emphasized: unreadCount.value > 0 && !route.path.startsWith("/admin/chat"),
   },
-  { label: "Log Audit", icon: PhClockCounterClockwise, to: "/admin/audit-logs" },
+  {
+    label: "Log Audit",
+    icon: PhClockCounterClockwise,
+    to: "/admin/audit-logs",
+  },
 ]);
 </script>
 

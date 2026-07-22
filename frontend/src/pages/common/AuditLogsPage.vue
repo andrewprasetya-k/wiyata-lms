@@ -156,7 +156,17 @@ function scheduleReload() {
 }
 
 watch(
-  [search, severity, scope, entityType, actorUserId, correlationId, dateFrom, dateTo, schoolFilter],
+  [
+    search,
+    severity,
+    scope,
+    entityType,
+    actorUserId,
+    correlationId,
+    dateFrom,
+    dateTo,
+    schoolFilter,
+  ],
   scheduleReload,
 );
 
@@ -220,7 +230,8 @@ function eventMatchesActiveFilters(item: AuditLogListItem) {
   // than risk a wrong count/row. REST stays correct regardless.
   if (search.value.trim() || dateFrom.value || dateTo.value) return false;
   if (severity.value && item.severity !== severity.value) return false;
-  if (isSuperAdmin.value && scope.value && item.scope !== scope.value) return false;
+  if (isSuperAdmin.value && scope.value && item.scope !== scope.value)
+    return false;
   if (entityType.value && item.entityType !== entityType.value) return false;
   if (actorUserId.value && item.actorUserId !== actorUserId.value) return false;
   if (
@@ -360,8 +371,8 @@ onUnmounted(() => {
     </header>
 
     <section class="px-5 py-5 sm:px-6 lg:px-8 lg:py-6">
-      <div class="rounded-xl border border-border bg-surface shadow-sm">
-        <div class="flex flex-col gap-4 border-b border-border p-5">
+      <div class="rounded-xl border border-border bg-surface">
+        <div class="flex flex-col gap-4 p-5">
           <div class="relative min-w-0">
             <PhMagnifyingGlass
               :size="17"
@@ -392,7 +403,10 @@ onUnmounted(() => {
               </select>
             </label>
 
-            <label v-if="isSuperAdmin" class="block text-xs font-medium text-muted">
+            <label
+              v-if="isSuperAdmin"
+              class="block text-xs font-medium text-muted"
+            >
               Cakupan
               <select
                 v-model="scope"
@@ -408,7 +422,10 @@ onUnmounted(() => {
               </select>
             </label>
 
-            <label v-if="isSuperAdmin" class="block text-xs font-medium text-muted">
+            <label
+              v-if="isSuperAdmin"
+              class="block text-xs font-medium text-muted"
+            >
               Sekolah
               <select
                 v-model="schoolFilter"
@@ -492,11 +509,12 @@ onUnmounted(() => {
           />
         </div>
 
-        <div
-          v-else-if="errorMessage"
-          class="p-8 text-center"
-        >
-          <PhWarningCircle :size="26" class="mx-auto text-danger" weight="duotone" />
+        <div v-else-if="errorMessage" class="p-8 text-center">
+          <PhWarningCircle
+            :size="26"
+            class="mx-auto text-danger"
+            weight="duotone"
+          />
           <h3 class="mt-3 text-sm font-semibold text-foreground">
             Log audit belum bisa dimuat
           </h3>
@@ -511,7 +529,10 @@ onUnmounted(() => {
         </div>
 
         <div v-else-if="items.length === 0" class="p-8 text-center">
-          <PhClockCounterClockwise class="mx-auto h-7 w-7 text-muted" weight="duotone" />
+          <PhClockCounterClockwise
+            class="mx-auto h-7 w-7 text-muted"
+            weight="duotone"
+          />
           <h3 class="mt-3 text-sm font-semibold text-foreground">
             Belum ada log yang cocok
           </h3>
@@ -522,7 +543,9 @@ onUnmounted(() => {
 
         <div v-else class="overflow-x-auto">
           <table class="w-full min-w-240 text-left text-sm">
-            <thead class="bg-surface-subtle text-xs uppercase tracking-wide text-muted">
+            <thead
+              class="bg-surface-subtle text-xs uppercase tracking-wide text-muted"
+            >
               <tr>
                 <th class="px-4 py-3 font-medium">Waktu</th>
                 <th class="px-4 py-3 font-medium">Tingkat</th>
@@ -530,7 +553,9 @@ onUnmounted(() => {
                 <th class="px-4 py-3 font-medium">Action</th>
                 <th class="px-4 py-3 font-medium">Entity</th>
                 <th class="px-4 py-3 font-medium">Actor</th>
-                <th v-if="isSuperAdmin" class="px-4 py-3 font-medium">Sekolah</th>
+                <th v-if="isSuperAdmin" class="px-4 py-3 font-medium">
+                  Sekolah
+                </th>
               </tr>
             </thead>
             <tbody class="divide-y divide-border">
@@ -568,7 +593,9 @@ onUnmounted(() => {
                     {{ scopeLabel(row.scope) }}
                   </span>
                 </td>
-                <td class="px-4 py-3 font-mono text-xs font-medium text-foreground">
+                <td
+                  class="px-4 py-3 font-mono text-xs font-medium text-foreground"
+                >
                   {{ row.action }}
                 </td>
                 <td class="px-4 py-3 text-xs text-muted">
@@ -579,9 +606,14 @@ onUnmounted(() => {
                   <p class="truncate text-xs font-medium text-foreground">
                     {{ row.actorName || "Tidak diketahui" }}
                   </p>
-                  <p class="truncate text-[11px] text-muted">{{ row.actorEmail }}</p>
+                  <p class="truncate text-[11px] text-muted">
+                    {{ row.actorEmail }}
+                  </p>
                 </td>
-                <td v-if="isSuperAdmin" class="min-w-0 px-4 py-3 text-xs text-muted">
+                <td
+                  v-if="isSuperAdmin"
+                  class="min-w-0 px-4 py-3 text-xs text-muted"
+                >
                   <span v-if="row.schoolName">{{ row.schoolName }}</span>
                   <span v-else>Platform</span>
                 </td>
@@ -590,7 +622,10 @@ onUnmounted(() => {
           </table>
         </div>
 
-        <div v-if="!loading && !errorMessage && items.length > 0" class="p-5 pt-0">
+        <div
+          v-if="!loading && !errorMessage && items.length > 0"
+          class="p-5 pt-0"
+        >
           <PaginationBar
             :page="page"
             :total-pages="totalPages"
@@ -635,10 +670,12 @@ onUnmounted(() => {
               v-if="detailOpen"
               class="relative flex h-full w-full max-w-lg flex-col bg-surface shadow-2xl shadow-black/20"
             >
-              <div class="flex items-start justify-between gap-3 border-b border-border p-5">
+              <div class="flex items-start justify-between gap-3 p-5">
                 <div class="min-w-0">
                   <p class="eyebrow-muted">Detail log audit</p>
-                  <h2 class="mt-1 break-all font-mono text-sm font-semibold text-foreground">
+                  <h2
+                    class="mt-1 break-all font-mono text-sm font-semibold text-foreground"
+                  >
                     {{ detail?.action || "Memuat..." }}
                   </h2>
                 </div>
@@ -661,7 +698,10 @@ onUnmounted(() => {
                   />
                 </div>
 
-                <div v-else-if="detailError" class="rounded-lg border border-danger-line bg-danger-soft p-4 text-sm text-danger">
+                <div
+                  v-else-if="detailError"
+                  class="rounded-lg border border-danger-line bg-danger-soft p-4 text-sm text-danger"
+                >
                   {{ detailError }}
                 </div>
 
@@ -692,7 +732,10 @@ onUnmounted(() => {
                       <dt class="text-muted">Entity</dt>
                       <dd class="mt-0.5 break-all font-medium text-foreground">
                         {{ detail.entityType || "—" }}
-                        <span v-if="detail.entityId" class="block text-[11px] font-normal text-muted">
+                        <span
+                          v-if="detail.entityId"
+                          class="block text-[11px] font-normal text-muted"
+                        >
                           {{ detail.entityId }}
                         </span>
                       </dd>
@@ -714,7 +757,9 @@ onUnmounted(() => {
                     </div>
                     <div v-if="detail.correlationId" class="col-span-2">
                       <dt class="text-muted">Correlation ID</dt>
-                      <dd class="mt-0.5 break-all font-mono text-[11px] text-foreground">
+                      <dd
+                        class="mt-0.5 break-all font-mono text-[11px] text-foreground"
+                      >
                         {{ detail.correlationId }}
                       </dd>
                     </div>
@@ -722,7 +767,7 @@ onUnmounted(() => {
 
                   <div>
                     <p class="eyebrow-muted">Metadata</p>
-                    <div class="mt-2 rounded-lg border border-border bg-surface-subtle p-3">
+                    <div class="mt-2 rounded-lg bg-surface-subtle">
                       <JsonViewer :value="parsedMetadata" />
                     </div>
                   </div>
