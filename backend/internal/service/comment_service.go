@@ -14,7 +14,7 @@ type CommentService interface {
 	GetBySource(sourceType string, sourceID string, schoolID string, userID string, roles []string) ([]*domain.Comment, error)
 	GetByID(id string, schoolID string, userID string, roles []string) (*domain.Comment, error)
 	Update(id string, schoolID string, userID string, roles []string, content *string) error
-	Delete(id string, schoolID string, userID string, roles []string) error
+	Delete(actor domain.ActorContext, id string, schoolID string, userID string, roles []string) error
 	CountBySource(sourceType string, sourceID string, schoolID string) (int, error)
 }
 
@@ -27,9 +27,10 @@ type commentService struct {
 	assignmentRepo   repository.AssignmentRepository
 	enrRepo          repository.EnrollmentRepository
 	subjectClassRepo repository.SubjectClassRepository
+	logService       LogService
 }
 
-func NewCommentService(repo repository.CommentRepository, contentOwnerRepo repository.ContentOwnerRepository, notifService NotificationService, feedRepo repository.FeedRepository, materialRepo repository.MaterialRepository, assignmentRepo repository.AssignmentRepository, enrRepo repository.EnrollmentRepository, subjectClassRepo repository.SubjectClassRepository) CommentService {
+func NewCommentService(repo repository.CommentRepository, contentOwnerRepo repository.ContentOwnerRepository, notifService NotificationService, feedRepo repository.FeedRepository, materialRepo repository.MaterialRepository, assignmentRepo repository.AssignmentRepository, enrRepo repository.EnrollmentRepository, subjectClassRepo repository.SubjectClassRepository, logService LogService) CommentService {
 	return &commentService{
 		repo:             repo,
 		contentOwnerRepo: contentOwnerRepo,
@@ -39,6 +40,7 @@ func NewCommentService(repo repository.CommentRepository, contentOwnerRepo repos
 		assignmentRepo:   assignmentRepo,
 		enrRepo:          enrRepo,
 		subjectClassRepo: subjectClassRepo,
+		logService:       logService,
 	}
 }
 
@@ -189,7 +191,7 @@ func (s *commentService) Update(id string, schoolID string, userID string, roles
 	return s.repo.UpdateInSchool(comment, schoolID)
 }
 
-func (s *commentService) Delete(id string, schoolID string, userID string, roles []string) error {
+func (s *commentService) Delete(actor domain.ActorContext, id string, schoolID string, userID string, roles []string) error {
 	comment, err := s.repo.GetByIDInSchool(id, schoolID)
 	if err != nil {
 		return err
@@ -202,7 +204,22 @@ func (s *commentService) Delete(id string, schoolID string, userID string, roles
 			return err
 		}
 	}
-	return s.repo.DeleteInSchool(id, schoolID)
+
+	if err := s.repo.DeleteInSchool(id, schoolID); err != nil {
+		return err
+	}
+
+	deletedByRole := "author"
+	if comment.UserID != userID {
+		deletedByRole = "admin"
+	}
+	_ = s.logService.Log(actor, "comment.deleted", "comment", strPtr(id), domain.LogSeverityMedium, map[string]any{
+		"source_type":     string(comment.SourceType),
+		"source_id":       comment.SourceID,
+		"deleted_by_role": deletedByRole,
+	})
+
+	return nil
 }
 
 func (s *commentService) CountBySource(sourceType string, sourceID string, schoolID string) (int, error) {

@@ -129,7 +129,8 @@ func (h *CommentHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.Delete(id, schoolID, userID, getCommentActiveRoles(c)); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.Delete(actor, id, schoolID, userID, getCommentActiveRoles(c)); err != nil {
 		HandleError(c, err)
 		return
 	}

@@ -18,7 +18,7 @@ type FeedService interface {
 	GetByClass(classID string, schoolID string, userID string, roles []string, page int, limit int) ([]*domain.Feed, int64, error)
 	GetByID(id string, schoolID string, userID string, roles []string) (*domain.Feed, error)
 	Update(id string, schoolID string, userID string, roles []string, content *string) error
-	Delete(id string, schoolID string, userID string, roles []string) error
+	Delete(actor domain.ActorContext, id string, schoolID string, userID string, roles []string) error
 }
 
 type feedService struct {
@@ -29,9 +29,10 @@ type feedService struct {
 	classRepo        repository.ClassRepository
 	subjectClassRepo repository.SubjectClassRepository
 	broadcaster      events.SidebarBroadcaster
+	logService       LogService
 }
 
-func NewFeedService(repo repository.FeedRepository, attService AttachmentService, notifService NotificationService, enrRepo repository.EnrollmentRepository, classRepo repository.ClassRepository, subjectClassRepo repository.SubjectClassRepository, broadcaster events.SidebarBroadcaster) FeedService {
+func NewFeedService(repo repository.FeedRepository, attService AttachmentService, notifService NotificationService, enrRepo repository.EnrollmentRepository, classRepo repository.ClassRepository, subjectClassRepo repository.SubjectClassRepository, broadcaster events.SidebarBroadcaster, logService LogService) FeedService {
 	return &feedService{
 		repo:             repo,
 		attService:       attService,
@@ -40,6 +41,7 @@ func NewFeedService(repo repository.FeedRepository, attService AttachmentService
 		classRepo:        classRepo,
 		subjectClassRepo: subjectClassRepo,
 		broadcaster:      broadcaster,
+		logService:       logService,
 	}
 }
 
@@ -170,7 +172,7 @@ func (s *feedService) Update(id string, schoolID string, userID string, roles []
 	return s.repo.UpdateInSchool(feed, schoolID)
 }
 
-func (s *feedService) Delete(id string, schoolID string, userID string, roles []string) error {
+func (s *feedService) Delete(actor domain.ActorContext, id string, schoolID string, userID string, roles []string) error {
 	feed, err := s.repo.GetByIDInSchool(id, schoolID)
 	if err != nil {
 		return err
@@ -190,6 +192,15 @@ func (s *feedService) Delete(id string, schoolID string, userID string, roles []
 			})
 		}
 	}
+
+	deletedByRole := "author"
+	if feed.CreatedBy != userID {
+		deletedByRole = "admin"
+	}
+	_ = s.logService.Log(actor, "feed.deleted", "feed", strPtr(id), domain.LogSeverityMedium, map[string]any{
+		"class_id":        feed.ClassID,
+		"deleted_by_role": deletedByRole,
+	})
 
 	return nil
 }

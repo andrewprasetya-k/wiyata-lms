@@ -60,6 +60,11 @@ func (s *emailVerificationService) Resend(userID string) (*dto.ResendVerificatio
 		return nil, err
 	}
 
+	_ = s.logService.Log(domain.ActorContext{UserID: user.ID, Scope: domain.LogScopePlatform}, "auth.verification.resent", "user", strPtr(user.ID), domain.LogSeverityLow, map[string]any{
+		"user_id": user.ID,
+		"email":   user.Email,
+	})
+
 	return &dto.ResendVerificationResponseDTO{Message: "Verification email sent"}, nil
 }
 

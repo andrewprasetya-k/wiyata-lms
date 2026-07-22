@@ -132,10 +132,10 @@ func main() {
 	studentNoteHandler := handler.NewStudentNoteHandler(studentNoteService)
 
 	feedRepo := repository.NewFeedRepository(db)
-	feedService := service.NewFeedService(feedRepo, attachmentService, notificationService, enrollmentRepo, classRepo, subjectClassRepo, sidebarHub)
+	feedService := service.NewFeedService(feedRepo, attachmentService, notificationService, enrollmentRepo, classRepo, subjectClassRepo, sidebarHub, logService)
 	commentRepo := repository.NewCommentRepository(db)
 	contentOwnerRepo := repository.NewContentOwnerRepository(db)
-	commentService := service.NewCommentService(commentRepo, contentOwnerRepo, notificationService, feedRepo, materialRepo, assignmentRepo, enrollmentRepo, subjectClassRepo)
+	commentService := service.NewCommentService(commentRepo, contentOwnerRepo, notificationService, feedRepo, materialRepo, assignmentRepo, enrollmentRepo, subjectClassRepo, logService)
 	feedHandler := handler.NewFeedHandler(feedService, commentService, classService, notificationService)
 	commentHandler := handler.NewCommentHandler(commentService)
 

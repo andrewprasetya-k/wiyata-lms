@@ -106,7 +106,8 @@ func (s *invitationService) Accept(token string, input dto.AcceptInvitationDTO) 
 	}
 
 	_ = s.logService.Log(invitationAcceptedActor(result), "member.invitation.accepted", "invitation", strPtr(result.Invitation.ID), domain.LogSeverityLow, map[string]any{
-		"role": result.Role,
+		"email": result.Invitation.Email,
+		"role":  result.Role,
 	})
 
 	return &dto.AcceptInvitationResponseDTO{
@@ -142,7 +143,8 @@ func (s *invitationService) AcceptAuthenticated(token string, userID string) (*d
 	}
 
 	_ = s.logService.Log(invitationAcceptedActor(result), "member.invitation.accepted", "invitation", strPtr(result.Invitation.ID), domain.LogSeverityLow, map[string]any{
-		"role": result.Role,
+		"email": result.Invitation.Email,
+		"role":  result.Role,
 	})
 
 	return &dto.AcceptInvitationResponseDTO{

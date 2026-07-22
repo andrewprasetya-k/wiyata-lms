@@ -656,7 +656,7 @@ func (s *assignmentService) DeleteAssessment(actor domain.ActorContext, submissi
 	}
 
 	if beforeErr == nil && sbm != nil {
-		_ = s.logService.Log(actor, "assignment.assessment.deleted", "assessment", strPtr(before.ID), domain.LogSeverityMedium, map[string]any{
+		_ = s.logService.Log(actor, "assignment.assessment.deleted", "assessment", strPtr(before.ID), domain.LogSeverityHigh, map[string]any{
 			"assignment_id": sbm.AssignmentID,
 			"submission_id": submissionID,
 			"student_id":    sbm.UserID,

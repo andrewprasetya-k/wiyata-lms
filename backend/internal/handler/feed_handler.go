@@ -131,7 +131,8 @@ func (h *FeedHandler) Delete(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "School context required"})
 		return
 	}
-	if err := h.service.Delete(id, schoolID, middleware.GetUserID(c), getFeedActiveRoles(c)); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.Delete(actor, id, schoolID, middleware.GetUserID(c), getFeedActiveRoles(c)); err != nil {
 		HandleError(c, err)
 		return
 	}

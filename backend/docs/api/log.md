@@ -167,6 +167,7 @@ Pattern: `<domain>.<subject>.<verb_past>`, free-form strings (not a Postgres enu
 | `auth.registered` | MEDIUM | Also triggers `auth.login.success` right after (auto-login-after-register), by design — two real events. |
 | `auth.password.changed` | HIGH | Super-admin-only endpoint (`PATCH /users/change-password/:id`); metadata's `user_id` is the *target* user, not necessarily the caller. |
 | `auth.email.verified` | LOW | |
+| `auth.verification.resent` | LOW | Phase 10.14. Emitted by `EmailVerificationService.Resend` — actor-initiated request for a new verification email, distinct from the derived-side-effect exclusions elsewhere in the taxonomy. Metadata: `user_id`, `email`. |
 | `member.login` | LOW | Phase 10.11. School-scoped, emitted only when the user has an active school membership at login (the membership used for `DefaultContext`) — one row per login, not one per membership. Metadata: `login_method`, `user_id`, `school_id`. |
 
 ### RBAC (`internal/service/rbac_service.go`)
@@ -266,17 +267,27 @@ Distinct from the pre-existing Assessment actions below (Phase 10.7, unchanged).
 
 `assignment.category.updated`/`assignment.category.deleted` are **not implemented** — no `UpdateCategory`/`DeleteCategory` capability exists anywhere in the service/repository/handler layer; adding audit logging for a mutation that doesn't exist would require adding new business functionality, which was out of scope for Phase 10.12.
 
-### Assignment Assessment (`internal/service/assignment_service.go`, Phase 10.7 — unchanged)
+### Assignment Assessment (`internal/service/assignment_service.go`, Phase 10.7; severity corrected Phase 10.14)
 | Action | Severity |
 |---|---|
 | `assignment.assessed` | MEDIUM |
 | `assignment.assessment.updated` | MEDIUM |
-| `assignment.assessment.deleted` | MEDIUM |
+| `assignment.assessment.deleted` | HIGH |
+
+`assignment.assessment.deleted` was raised from MEDIUM to HIGH in Phase 10.14 for consistency with its sibling delete actions in the same domain (`assignment.deleted`, `assignment.submission.deleted`), both already HIGH.
 
 ### Grade (`internal/service/grade_service.go`)
 | Action | Severity |
 |---|---|
 | `grade.weights.configured` | HIGH |
+
+### Feed & Comment (`internal/service/feed_service.go`, `comment_service.go`) — Phase 10.14
+| Action | Severity | Notes |
+|---|---|---|
+| `feed.deleted` | MEDIUM | Metadata: `class_id`, `deleted_by_role` (`"author"` if the deleter created the feed, `"admin"` otherwise — the only other path `ensureCanMutateFeed` allows). Matches `material.deleted`'s severity precedent for content entities. |
+| `comment.deleted` | MEDIUM | Metadata: `source_type`, `source_id`, `deleted_by_role` (`"author"` or `"admin"`, same convention as `feed.deleted`). |
+
+`Create`/`Update` on both Feed and Comment remain unaudited by design (high-volume, low-consequence, comparable to chat messages — see `docs/AUDIT_LOGGING.md` §19). Only the moderation-relevant `Delete` path was closed in Phase 10.14, since it was the one confirmed-reachable case where an admin/teacher can remove another user's content with no trace.
 
 ### User CRUD (`internal/service/user_service.go`) — Phase 10.12, scope: platform (System Super Admin only, `/users` routes)
 | Action | Severity | Notes |
