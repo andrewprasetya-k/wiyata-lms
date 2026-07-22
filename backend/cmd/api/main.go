@@ -48,10 +48,10 @@ func main() {
 	schoolHandler := handler.NewSchoolHandler(schoolService)
 	emailService := service.NewEmailServiceFromEnv()
 	userRepo := repository.NewUserRepository(db)
-	userService := service.NewUserService(userRepo)
+	userService := service.NewUserService(userRepo, logService)
 	userHandler := handler.NewUserHandler(userService)
 	emailVerificationRepo := repository.NewEmailVerificationRepository(db)
-	emailVerificationService := service.NewEmailVerificationService(emailVerificationRepo, userRepo, emailService)
+	emailVerificationService := service.NewEmailVerificationService(emailVerificationRepo, userRepo, emailService, logService)
 	emailVerificationHandler := handler.NewEmailVerificationHandler(emailVerificationService)
 	invitationRepo := repository.NewInvitationRepository(db)
 	invitationService := service.NewInvitationService(invitationRepo, userRepo, logService)
@@ -77,7 +77,7 @@ func main() {
 	schoolMemberInvitationService := service.NewSchoolMemberInvitationService(schoolMemberInvitationRepo, emailService, logService)
 	schoolMemberInvitationHandler := handler.NewSchoolMemberInvitationHandler(schoolMemberInvitationService)
 
-	authService := service.NewAuthService(userRepo, schoolUserRepo, emailVerificationService)
+	authService := service.NewAuthService(userRepo, schoolUserRepo, emailVerificationService, logService)
 	authHandler := handler.NewAuthHandler(authService)
 
 	subjectRepo := repository.NewSubjectRepository(db)

@@ -16,15 +16,16 @@ type UserService interface {
 	GetByEmail(email string) (*domain.User, error)
 	Update(user *domain.User) error
 	Delete(id string) error
-	ChangePassword(id string, oldPassword string, newPassword string) error
+	ChangePassword(actor domain.ActorContext, id string, oldPassword string, newPassword string) error
 }
 
 type userService struct {
-	repo repository.UserRepository
+	repo       repository.UserRepository
+	logService LogService
 }
 
-func NewUserService(repo repository.UserRepository) UserService {
-	return &userService{repo: repo}
+func NewUserService(repo repository.UserRepository, logService LogService) UserService {
+	return &userService{repo: repo, logService: logService}
 }
 
 func (s *userService) Create(user *domain.User) error {
@@ -82,7 +83,7 @@ func (s *userService) Delete(id string) error {
 	return s.repo.Delete(id)
 }
 
-func (s *userService) ChangePassword(id string, oldPassword string, newPassword string) error {
+func (s *userService) ChangePassword(actor domain.ActorContext, id string, oldPassword string, newPassword string) error {
 	user, err := s.repo.GetByID(id)
 	if err != nil {
 		return err
@@ -101,5 +102,12 @@ func (s *userService) ChangePassword(id string, oldPassword string, newPassword 
 	}
 	user.Password = string(hashedPassword)
 
-	return s.repo.Update(user)
+	if err := s.repo.Update(user); err != nil {
+		return err
+	}
+
+	_ = s.logService.Log(actor, "auth.password.changed", "user", strPtr(id), domain.LogSeverityHigh, map[string]any{
+		"user_id": id,
+	})
+	return nil
 }

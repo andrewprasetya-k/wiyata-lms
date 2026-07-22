@@ -23,22 +23,32 @@ type authService struct {
 	userRepo             repository.UserRepository
 	schoolUserRepo       repository.SchoolUserRepository
 	emailVerificationSvc EmailVerificationService
+	logService           LogService
 }
 
-func NewAuthService(userRepo repository.UserRepository, schoolUserRepo repository.SchoolUserRepository, emailVerificationSvc EmailVerificationService) AuthService {
-	return &authService{userRepo: userRepo, schoolUserRepo: schoolUserRepo, emailVerificationSvc: emailVerificationSvc}
+func NewAuthService(userRepo repository.UserRepository, schoolUserRepo repository.SchoolUserRepository, emailVerificationSvc EmailVerificationService, logService LogService) AuthService {
+	return &authService{userRepo: userRepo, schoolUserRepo: schoolUserRepo, emailVerificationSvc: emailVerificationSvc, logService: logService}
+}
+
+func (s *authService) logLoginFailed(email string, reason string) {
+	_ = s.logService.Log(domain.ActorContext{Scope: domain.LogScopePlatform}, "auth.login.failed", "user", nil, domain.LogSeverityMedium, map[string]any{
+		"email":  email,
+		"reason": reason,
+	})
 }
 
 func (s *authService) Login(email string, password string) (*dto.LoginResponseDTO, error) {
 	userEmail, err := s.userRepo.GetByEmail(email)
 	if err != nil {
 		// Return generic error to prevent user enumeration
+		s.logLoginFailed(email, "user_not_found")
 		return nil, errors.New("invalid email or password")
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(userEmail.Password), []byte(password))
 	if err != nil {
 		// Return same generic error for password mismatch
+		s.logLoginFailed(email, "invalid_password")
 		return nil, errors.New("invalid email or password")
 	}
 
@@ -60,7 +70,17 @@ func (s *authService) Login(email string, password string) (*dto.LoginResponseDT
 		return nil, err
 	}
 
-	return s.buildLoginResponse(tokenString, userEmail)
+	response, err := s.buildLoginResponse(tokenString, userEmail)
+	if err != nil {
+		return nil, err
+	}
+
+	_ = s.logService.Log(domain.ActorContext{UserID: userEmail.ID, Scope: domain.LogScopePlatform}, "auth.login.success", "user", strPtr(userEmail.ID), domain.LogSeverityLow, map[string]any{
+		"user_id":      userEmail.ID,
+		"login_method": "password",
+	})
+
+	return response, nil
 }
 
 func (s *authService) Register(fullName string, email string, password string) (*dto.LoginResponseDTO, error) {
@@ -87,6 +107,11 @@ func (s *authService) Register(fullName string, email string, password string) (
 	if err != nil {
 		return nil, err
 	}
+
+	_ = s.logService.Log(domain.ActorContext{UserID: user.ID, Scope: domain.LogScopePlatform}, "auth.registered", "user", strPtr(user.ID), domain.LogSeverityMedium, map[string]any{
+		"user_id": user.ID,
+		"email":   user.Email,
+	})
 
 	if s.emailVerificationSvc != nil {
 		if err := s.emailVerificationSvc.IssueForNewUser(user); err != nil {

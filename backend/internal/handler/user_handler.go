@@ -126,7 +126,8 @@ func (h *UserHandler) ChangePassword(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.ChangePassword(id, input.OldPassword, input.NewPassword); err != nil {
+	actor := buildActorContext(c, domain.LogScopePlatform)
+	if err := h.service.ChangePassword(actor, id, input.OldPassword, input.NewPassword); err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 		return
 	}

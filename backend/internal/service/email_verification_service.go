@@ -27,13 +27,14 @@ type emailVerificationService struct {
 	repo         repository.EmailVerificationRepository
 	userRepo     repository.UserRepository
 	emailService EmailService
+	logService   LogService
 }
 
-func NewEmailVerificationService(repo repository.EmailVerificationRepository, userRepo repository.UserRepository, emailService EmailService) EmailVerificationService {
+func NewEmailVerificationService(repo repository.EmailVerificationRepository, userRepo repository.UserRepository, emailService EmailService, logService LogService) EmailVerificationService {
 	if emailService == nil {
 		emailService = noopEmailService{}
 	}
-	return &emailVerificationService{repo: repo, userRepo: userRepo, emailService: emailService}
+	return &emailVerificationService{repo: repo, userRepo: userRepo, emailService: emailService, logService: logService}
 }
 
 func (s *emailVerificationService) IssueForNewUser(user *domain.User) error {
@@ -71,6 +72,13 @@ func (s *emailVerificationService) Verify(token string) (*dto.VerifyEmailRespons
 	verification, err := s.repo.ConsumeByTokenHash(tokenHash, time.Now())
 	if err != nil {
 		return nil, err
+	}
+
+	if user, err := s.userRepo.GetByID(verification.UserID); err == nil {
+		_ = s.logService.Log(domain.ActorContext{UserID: verification.UserID, Scope: domain.LogScopePlatform}, "auth.email.verified", "user", strPtr(verification.UserID), domain.LogSeverityLow, map[string]any{
+			"user_id": verification.UserID,
+			"email":   user.Email,
+		})
 	}
 
 	return &dto.VerifyEmailResponseDTO{

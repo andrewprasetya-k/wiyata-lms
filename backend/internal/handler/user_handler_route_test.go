@@ -25,7 +25,7 @@ func (s *userRouteServiceStub) GetByID(string) (*domain.User, error)    { return
 func (s *userRouteServiceStub) GetByEmail(string) (*domain.User, error) { return nil, nil }
 func (s *userRouteServiceStub) Update(*domain.User) error               { return nil }
 func (s *userRouteServiceStub) Delete(string) error                     { return nil }
-func (s *userRouteServiceStub) ChangePassword(string, string, string) error {
+func (s *userRouteServiceStub) ChangePassword(domain.ActorContext, string, string, string) error {
 	return nil
 }
 
@@ -83,9 +83,9 @@ func TestUserListRequiresSystemSuperAdmin(t *testing.T) {
 	repo := &userRouteRBACStub{
 		rolesByUserSchool: map[string][]string{
 			"super-admin-1:" + middleware.SystemSchoolCode: {"super_admin"},
-			"school-admin-1:school-a":                       {"admin"},
-			"teacher-1:school-a":                            {"teacher"},
-			"student-1:school-a":                            {"student"},
+			"school-admin-1:school-a":                      {"admin"},
+			"teacher-1:school-a":                           {"teacher"},
+			"student-1:school-a":                           {"student"},
 		},
 	}
 	middleware.InitRBAC(repo)
