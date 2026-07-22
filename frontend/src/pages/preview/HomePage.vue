@@ -39,10 +39,9 @@ function onScroll() {
 
 // Spring transition untuk pill navbar — dipakai motion.div di bawah
 const pillTransition = {
-  type: "spring",
-  stiffness: 320,
-  damping: 32,
-  mass: 0.6,
+  type: "tween",
+  duration: 0.4,
+  ease: "easeOut", // atau [0.22, 1, 0.36, 1] custom cubic-bezier
 };
 
 // ── Hero entrance choreography
