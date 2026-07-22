@@ -126,7 +126,7 @@ func (s *rbacService) AssignRoleToUser(actor domain.ActorContext, schoolUserID s
 		return err
 	}
 
-	_ = s.logService.Log(actor, "member.role.assigned", "school_user", strPtr(schoolUserID), domain.LogSeverityMedium, map[string]any{
+	_ = s.logService.Log(actor, "member.role.assigned", "school_user", strPtr(schoolUserID), domain.LogSeverityHigh, map[string]any{
 		"role_name": newRole.Name,
 	})
 	return nil
@@ -145,7 +145,7 @@ func (s *rbacService) RemoveRoleFromUser(actor domain.ActorContext, schoolUserID
 	if roleErr == nil && role != nil {
 		roleName = role.Name
 	}
-	_ = s.logService.Log(actor, "member.role.removed", "school_user", strPtr(schoolUserID), domain.LogSeverityMedium, map[string]any{
+	_ = s.logService.Log(actor, "member.role.removed", "school_user", strPtr(schoolUserID), domain.LogSeverityHigh, map[string]any{
 		"role_name": roleName,
 	})
 	return nil
@@ -176,7 +176,7 @@ func (s *rbacService) SyncUserRoles(actor domain.ActorContext, schoolUserID stri
 		return err
 	}
 
-	_ = s.logService.Log(actor, "member.role.synced", "school_user", strPtr(schoolUserID), domain.LogSeverityMedium, map[string]any{
+	_ = s.logService.Log(actor, "member.role.synced", "school_user", strPtr(schoolUserID), domain.LogSeverityHigh, map[string]any{
 		"before_roles": beforeNames,
 		"after_roles":  afterNames,
 	})

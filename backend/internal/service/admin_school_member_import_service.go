@@ -180,7 +180,7 @@ func (s *adminSchoolMemberImportService) Commit(actor domain.ActorContext, schoo
 					Action:     "member.created",
 					EntityType: "school_user",
 					EntityID:   strPtr(schoolUser.ID),
-					Severity:   domain.LogSeverityLow,
+					Severity:   domain.LogSeverityMedium,
 					Metadata: map[string]any{
 						"email":      row.Email,
 						"role":       row.Role,
@@ -369,7 +369,7 @@ func (s *adminSchoolMemberImportService) AddMember(actor domain.ActorContext, sc
 	}
 	s.sendSchoolMemberEmailNotifications(schoolID, emailJobs)
 
-	_ = s.logService.Log(actor, "member.created", "school_user", strPtr(response.SchoolUserID), domain.LogSeverityLow, map[string]any{
+	_ = s.logService.Log(actor, "member.created", "school_user", strPtr(response.SchoolUserID), domain.LogSeverityMedium, map[string]any{
 		"email":      row.Email,
 		"role":       row.Role,
 		"class_code": row.ClassCode,
