@@ -39,7 +39,8 @@ func (h *EnrollmentHandler) Enroll(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.Enroll(input.SchoolID, input.ClassID, input.SchoolUserIDs, input.Role); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.Enroll(actor, input.SchoolID, input.ClassID, input.SchoolUserIDs, input.Role); err != nil {
 		HandleError(c, err)
 		return
 	}
@@ -155,7 +156,8 @@ func (h *EnrollmentHandler) Update(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.Update(id, schoolID, input.Role); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.Update(actor, id, schoolID, input.Role); err != nil {
 		HandleError(c, err)
 		return
 	}
@@ -171,7 +173,8 @@ func (h *EnrollmentHandler) Unenroll(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.Unenroll(id, schoolID); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.Unenroll(actor, id, schoolID); err != nil {
 		HandleError(c, err)
 		return
 	}

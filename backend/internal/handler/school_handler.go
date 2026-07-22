@@ -42,7 +42,8 @@ func (h *SchoolHandler) CreateSchool(c *gin.Context) {
 		Website: input.Website,
 	}
 
-	schoolUser, err := h.service.CreateSchool(&school, userID)
+	actor := buildActorContext(c, domain.LogScopePlatform)
+	schoolUser, err := h.service.CreateSchool(actor, &school, userID)
 	if err != nil {
 		HandleError(c, err)
 		return
@@ -162,7 +163,8 @@ func (h *SchoolHandler) UpdateSchool(c *gin.Context) {
 		school.Website = input.Website
 	}
 
-	if err := h.service.UpdateSchool(school); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.UpdateSchool(actor, school); err != nil {
 		HandleError(c, err)
 		return
 	}
@@ -190,7 +192,8 @@ func (h *SchoolHandler) mapToResponse(s *domain.School) dto.SchoolResponseDTO {
 // restore deleted school
 func (h *SchoolHandler) RestoreDeletedSchool(c *gin.Context) {
 	schoolCode := c.Param("schoolCode")
-	if err := h.service.RestoreDeletedSchool(schoolCode); err != nil {
+	actor := buildActorContext(c, domain.LogScopePlatform)
+	if err := h.service.RestoreDeletedSchool(actor, schoolCode); err != nil {
 		HandleError(c, err)
 		return
 	}
@@ -200,7 +203,8 @@ func (h *SchoolHandler) RestoreDeletedSchool(c *gin.Context) {
 // Delete
 func (h *SchoolHandler) DeleteSchool(c *gin.Context) {
 	schoolCode := c.Param("schoolCode")
-	if err := h.service.DeleteSchool(schoolCode); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.DeleteSchool(actor, schoolCode); err != nil {
 		HandleError(c, err)
 		return
 	}
@@ -210,7 +214,8 @@ func (h *SchoolHandler) DeleteSchool(c *gin.Context) {
 // Hard Delete
 func (h *SchoolHandler) HardDeleteSchool(c *gin.Context) {
 	schoolCode := c.Param("schoolCode")
-	if err := h.service.HardDeleteSchool(schoolCode); err != nil {
+	actor := buildActorContext(c, domain.LogScopePlatform)
+	if err := h.service.HardDeleteSchool(actor, schoolCode); err != nil {
 		HandleError(c, err)
 		return
 	}

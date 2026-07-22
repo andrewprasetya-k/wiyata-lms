@@ -15,7 +15,7 @@ import (
 
 type subjectRouteSchoolServiceStub struct{}
 
-func (subjectRouteSchoolServiceStub) CreateSchool(*domain.School, string) (*domain.SchoolUser, error) {
+func (subjectRouteSchoolServiceStub) CreateSchool(domain.ActorContext, *domain.School, string) (*domain.SchoolUser, error) {
 	return nil, nil
 }
 func (subjectRouteSchoolServiceStub) GetSchools(string, string, int, int, string, string) ([]*domain.School, int64, error) {
@@ -23,10 +23,14 @@ func (subjectRouteSchoolServiceStub) GetSchools(string, string, int, int, string
 }
 func (subjectRouteSchoolServiceStub) GetSchoolByCode(string) (*domain.School, error) { return nil, nil }
 func (subjectRouteSchoolServiceStub) GetSchoolByID(string) (*domain.School, error)   { return nil, nil }
-func (subjectRouteSchoolServiceStub) RestoreDeletedSchool(string) error              { return nil }
-func (subjectRouteSchoolServiceStub) UpdateSchool(*domain.School) error              { return nil }
-func (subjectRouteSchoolServiceStub) DeleteSchool(string) error                      { return nil }
-func (subjectRouteSchoolServiceStub) HardDeleteSchool(string) error                  { return nil }
+func (subjectRouteSchoolServiceStub) RestoreDeletedSchool(domain.ActorContext, string) error {
+	return nil
+}
+func (subjectRouteSchoolServiceStub) UpdateSchool(domain.ActorContext, *domain.School) error {
+	return nil
+}
+func (subjectRouteSchoolServiceStub) DeleteSchool(domain.ActorContext, string) error     { return nil }
+func (subjectRouteSchoolServiceStub) HardDeleteSchool(domain.ActorContext, string) error { return nil }
 func (subjectRouteSchoolServiceStub) GetSchoolSummary() (*dto.SchoolSummaryDTO, error) {
 	return nil, nil
 }
@@ -60,7 +64,7 @@ func (s *subjectRouteServiceStub) GetByCode(string, string) (*domain.Subject, er
 }
 
 func (s *subjectRouteServiceStub) Update(*domain.Subject) error { return nil }
-func (s *subjectRouteServiceStub) Delete(string) error           { return nil }
+func (s *subjectRouteServiceStub) Delete(string) error          { return nil }
 
 // TestSubjectGetByIDCrossTenantIsForbidden is a representative regression test for the
 // Sprint 1 IDOR closure: a member of school A must not be able to read a subject that

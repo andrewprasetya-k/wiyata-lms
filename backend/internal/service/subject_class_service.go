@@ -8,7 +8,7 @@ import (
 
 type SubjectClassService interface {
 	Assign(scl *domain.SubjectClass) error
-	AssignInSchool(scl *domain.SubjectClass, schoolID string) error
+	AssignInSchool(actor domain.ActorContext, scl *domain.SubjectClass, schoolID string) error
 	GetByClass(classID string) ([]*domain.SubjectClass, error)
 	GetByClassInSchool(classID string, schoolID string) ([]*domain.SubjectClass, error)
 	GetTeachingByUserAndSchool(userID string, schoolID string) ([]repository.TeacherSubjectClassRow, error)
@@ -18,17 +18,29 @@ type SubjectClassService interface {
 	TeacherOwnsClassSubject(userID string, schoolID string, classID string, subjectID string) (bool, error)
 	UserCanAccessSubjectClass(userID string, schoolID string, subjectClassID string, roles []string) (bool, error)
 	Update(scl *domain.SubjectClass) error
-	UpdateInSchool(scl *domain.SubjectClass, schoolID string) error
+	UpdateInSchool(actor domain.ActorContext, scl *domain.SubjectClass, schoolID string) error
 	Unassign(id string) error
-	UnassignInSchool(id string, schoolID string) error
+	UnassignInSchool(actor domain.ActorContext, id string, schoolID string) error
 }
 
 type subjectClassService struct {
-	repo repository.SubjectClassRepository
+	repo       repository.SubjectClassRepository
+	logService LogService
 }
 
-func NewSubjectClassService(repo repository.SubjectClassRepository) SubjectClassService {
-	return &subjectClassService{repo: repo}
+func NewSubjectClassService(repo repository.SubjectClassRepository, logService LogService) SubjectClassService {
+	return &subjectClassService{repo: repo, logService: logService}
+}
+
+// subjectClassAuditMetadata builds the {class_name, teacher_name, subject_name}
+// metadata shape (Phase 10.2) from a fully preloaded SubjectClass — used by
+// AssignInSchool/UpdateInSchool/UnassignInSchool alike.
+func subjectClassAuditMetadata(scl *domain.SubjectClass) map[string]any {
+	return map[string]any{
+		"class_name":   scl.Class.Title,
+		"teacher_name": scl.Teacher.User.FullName,
+		"subject_name": scl.Subject.Name,
+	}
 }
 
 func (s *subjectClassService) Assign(scl *domain.SubjectClass) error {
@@ -44,7 +56,7 @@ func (s *subjectClassService) Assign(scl *domain.SubjectClass) error {
 	return s.repo.Create(scl)
 }
 
-func (s *subjectClassService) AssignInSchool(scl *domain.SubjectClass, schoolID string) error {
+func (s *subjectClassService) AssignInSchool(actor domain.ActorContext, scl *domain.SubjectClass, schoolID string) error {
 	if err := s.validateAssignmentScope(scl.ClassID, scl.SubjectID, scl.SchoolUserID, schoolID); err != nil {
 		return err
 	}
@@ -53,7 +65,14 @@ func (s *subjectClassService) AssignInSchool(scl *domain.SubjectClass, schoolID 
 		return err
 	}
 
-	return s.repo.Create(scl)
+	if err := s.repo.Create(scl); err != nil {
+		return err
+	}
+
+	if full, err := s.repo.GetByID(scl.ID); err == nil {
+		_ = s.logService.Log(actor, "subject_class.assigned", "subject_class", strPtr(scl.ID), domain.LogSeverityMedium, subjectClassAuditMetadata(full))
+	}
+	return nil
 }
 
 func (s *subjectClassService) Update(scl *domain.SubjectClass) error {
@@ -63,7 +82,7 @@ func (s *subjectClassService) Update(scl *domain.SubjectClass) error {
 	return s.repo.Update(scl)
 }
 
-func (s *subjectClassService) UpdateInSchool(scl *domain.SubjectClass, schoolID string) error {
+func (s *subjectClassService) UpdateInSchool(actor domain.ActorContext, scl *domain.SubjectClass, schoolID string) error {
 	if err := s.ensureSubjectClassInSchool(scl.ID, schoolID); err != nil {
 		return err
 	}
@@ -73,7 +92,14 @@ func (s *subjectClassService) UpdateInSchool(scl *domain.SubjectClass, schoolID 
 	if err := s.ensureNoClassSubjectDuplicate(scl.ClassID, scl.SubjectID, scl.ID); err != nil {
 		return err
 	}
-	return s.repo.Update(scl)
+	if err := s.repo.Update(scl); err != nil {
+		return err
+	}
+
+	if full, err := s.repo.GetByID(scl.ID); err == nil {
+		_ = s.logService.Log(actor, "subject_class.reassigned", "subject_class", strPtr(scl.ID), domain.LogSeverityMedium, subjectClassAuditMetadata(full))
+	}
+	return nil
 }
 
 func (s *subjectClassService) GetByClass(classID string) ([]*domain.SubjectClass, error) {
@@ -134,7 +160,7 @@ func (s *subjectClassService) Unassign(id string) error {
 	return s.repo.Delete(id)
 }
 
-func (s *subjectClassService) UnassignInSchool(id string, schoolID string) error {
+func (s *subjectClassService) UnassignInSchool(actor domain.ActorContext, id string, schoolID string) error {
 	if err := s.ensureSubjectClassInSchool(id, schoolID); err != nil {
 		return err
 	}
@@ -145,7 +171,17 @@ func (s *subjectClassService) UnassignInSchool(id string, schoolID string) error
 	if hasContent {
 		return fmt.Errorf("subject class has content")
 	}
-	return s.repo.Delete(id)
+
+	full, fullErr := s.repo.GetByID(id)
+
+	if err := s.repo.Delete(id); err != nil {
+		return err
+	}
+
+	if fullErr == nil {
+		_ = s.logService.Log(actor, "subject_class.unassigned", "subject_class", strPtr(id), domain.LogSeverityMedium, subjectClassAuditMetadata(full))
+	}
+	return nil
 }
 
 func (s *subjectClassService) validateAssignmentScope(classID string, subjectID string, teacherSchoolUserID string, schoolID string) error {

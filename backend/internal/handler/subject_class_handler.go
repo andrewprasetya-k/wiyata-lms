@@ -37,7 +37,8 @@ func (h *SubjectClassHandler) Assign(c *gin.Context) {
 		SchoolUserID: input.SchoolUserID,
 	}
 
-	if err := h.service.AssignInSchool(&scl, schoolID); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.AssignInSchool(actor, &scl, schoolID); err != nil {
 		HandleError(c, err)
 		return
 	}
@@ -169,7 +170,8 @@ func (h *SubjectClassHandler) Update(c *gin.Context) {
 		scl.SchoolUserID = *input.SchoolUserID
 	}
 
-	if err := h.service.UpdateInSchool(scl, schoolID); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.UpdateInSchool(actor, scl, schoolID); err != nil {
 		HandleError(c, err)
 		return
 	}
@@ -185,7 +187,8 @@ func (h *SubjectClassHandler) Unassign(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.UnassignInSchool(id, schoolID); err != nil {
+	actor := buildActorContext(c, domain.LogScopeSchool)
+	if err := h.service.UnassignInSchool(actor, id, schoolID); err != nil {
 		HandleError(c, err)
 		return
 	}

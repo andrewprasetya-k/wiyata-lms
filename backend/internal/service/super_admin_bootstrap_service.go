@@ -15,7 +15,7 @@ import (
 )
 
 type SuperAdminBootstrapService interface {
-	BootstrapSchool(input dto.SchoolBootstrapRequestDTO) (*dto.SchoolBootstrapResponseDTO, error)
+	BootstrapSchool(actor domain.ActorContext, input dto.SchoolBootstrapRequestDTO) (*dto.SchoolBootstrapResponseDTO, error)
 }
 
 type superAdminBootstrapService struct {
@@ -23,6 +23,7 @@ type superAdminBootstrapService struct {
 	schoolRepo     repository.SchoolRepository
 	schoolUserRepo repository.SchoolUserRepository
 	rbacRepo       repository.RBACRepository
+	logService     LogService
 }
 
 func NewSuperAdminBootstrapService(
@@ -30,16 +31,18 @@ func NewSuperAdminBootstrapService(
 	schoolRepo repository.SchoolRepository,
 	schoolUserRepo repository.SchoolUserRepository,
 	rbacRepo repository.RBACRepository,
+	logService LogService,
 ) SuperAdminBootstrapService {
 	return &superAdminBootstrapService{
 		db:             db,
 		schoolRepo:     schoolRepo,
 		schoolUserRepo: schoolUserRepo,
 		rbacRepo:       rbacRepo,
+		logService:     logService,
 	}
 }
 
-func (s *superAdminBootstrapService) BootstrapSchool(input dto.SchoolBootstrapRequestDTO) (*dto.SchoolBootstrapResponseDTO, error) {
+func (s *superAdminBootstrapService) BootstrapSchool(actor domain.ActorContext, input dto.SchoolBootstrapRequestDTO) (*dto.SchoolBootstrapResponseDTO, error) {
 	var response *dto.SchoolBootstrapResponseDTO
 
 	err := s.db.Transaction(func(tx *gorm.DB) error {
@@ -97,6 +100,12 @@ func (s *superAdminBootstrapService) BootstrapSchool(input dto.SchoolBootstrapRe
 	if err != nil {
 		return nil, err
 	}
+
+	_ = s.logService.Log(actor, "platform.school.bootstrapped", "school", strPtr(response.School.ID), domain.LogSeverityHigh, map[string]any{
+		"school_code": response.School.Code,
+		"admin_email": response.AdminUser.Email,
+		"admin_mode":  strings.ToLower(strings.TrimSpace(input.AdminUser.Mode)),
+	})
 
 	return response, nil
 }
@@ -229,4 +238,3 @@ func findExistingBootstrapAdminUser(tx *gorm.DB, userID string) (*domain.User, e
 	}
 	return &user, nil
 }
-

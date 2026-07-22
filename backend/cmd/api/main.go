@@ -44,7 +44,7 @@ func main() {
 	logService := service.NewLogService(logRepo)
 
 	schoolRepo := repository.NewSchoolRepository(db)
-	schoolService := service.NewSchoolService(schoolRepo)
+	schoolService := service.NewSchoolService(schoolRepo, logService)
 	schoolHandler := handler.NewSchoolHandler(schoolService)
 	emailService := service.NewEmailServiceFromEnv()
 	userRepo := repository.NewUserRepository(db)
@@ -85,7 +85,7 @@ func main() {
 	subjectHandler := handler.NewSubjectHandler(subjectService, schoolService)
 
 	rbacHandler := handler.NewRBACHandler(rbacService, schoolUserService)
-	superAdminBootstrapService := service.NewSuperAdminBootstrapService(db, schoolRepo, schoolUserRepo, rbacRepo)
+	superAdminBootstrapService := service.NewSuperAdminBootstrapService(db, schoolRepo, schoolUserRepo, rbacRepo, logService)
 	superAdminBootstrapHandler := handler.NewSuperAdminBootstrapHandler(superAdminBootstrapService)
 
 	classRepo := repository.NewClassRepository(db)
@@ -93,11 +93,11 @@ func main() {
 	classHandler := handler.NewClassHandler(classService, schoolService)
 
 	subjectClassRepo := repository.NewSubjectClassRepository(db)
-	subjectClassService := service.NewSubjectClassService(subjectClassRepo)
+	subjectClassService := service.NewSubjectClassService(subjectClassRepo, logService)
 	subjectClassHandler := handler.NewSubjectClassHandler(subjectClassService, classService)
 
 	enrollmentRepo := repository.NewEnrollmentRepository(db)
-	enrollmentService := service.NewEnrollmentService(enrollmentRepo, classRepo, schoolUserRepo)
+	enrollmentService := service.NewEnrollmentService(enrollmentRepo, classRepo, schoolUserRepo, logService)
 	enrollmentHandler := handler.NewEnrollmentHandler(enrollmentService, classService)
 
 	mediaRepo := repository.NewMediaRepository(db)

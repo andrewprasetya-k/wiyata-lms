@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"backend/internal/domain"
 	"backend/internal/dto"
 	"backend/internal/service"
 	"net/http"
@@ -24,7 +25,8 @@ func (h *SuperAdminBootstrapHandler) BootstrapSchool(c *gin.Context) {
 		return
 	}
 
-	response, err := h.service.BootstrapSchool(input)
+	actor := buildActorContext(c, domain.LogScopePlatform)
+	response, err := h.service.BootstrapSchool(actor, input)
 	if err != nil {
 		handleSchoolBootstrapError(c, err)
 		return
