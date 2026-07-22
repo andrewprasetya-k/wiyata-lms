@@ -334,7 +334,6 @@ async function submitAcademicYear() {
 
   try {
     await createAcademicYear({
-      schoolId: currentSchool.value.schoolId,
       academicYearName: academicYearForm.value.academicYearName.trim(),
     });
     academicYearForm.value.academicYearName = "";
@@ -450,10 +449,7 @@ async function submitSubject() {
       await updateSubject(editingSubjectId.value, payload);
       toast.success("Mata pelajaran berhasil diperbarui.");
     } else {
-      await createSubject({
-        schoolId: currentSchool.value.schoolId,
-        ...payload,
-      });
+      await createSubject(payload);
       toast.success("Mata pelajaran berhasil dibuat.");
     }
     resetSubjectForm();

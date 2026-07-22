@@ -1,8 +1,7 @@
 package dto
 
 type CreateAcademicYearDTO struct {
-	SchoolID string `json:"schoolId" binding:"required,uuid"`
-	Name     string `json:"academicYearName" binding:"required"`
+	Name string `json:"academicYearName" binding:"required"`
 }
 
 type UpdateAcademicYearDTO struct {

@@ -21,7 +21,6 @@ export interface AcademicYearsBySchoolResponse {
 }
 
 export interface CreateAcademicYearPayload {
-  schoolId: string
   academicYearName: string
 }
 
@@ -57,7 +56,6 @@ export interface SchoolSubjectsResponse {
 }
 
 export interface CreateSubjectPayload {
-  schoolId: string
   subjectName: string
   subjectCode: string
   color?: string

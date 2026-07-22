@@ -183,7 +183,6 @@ async function submitClass() {
   isCreating.value = true;
   try {
     await createAdminClass({
-      schoolId: currentSchool.value.schoolId,
       termId: selectedTermId.value,
       classCode: classForm.value.classCode.trim(),
       classTitle: classForm.value.classTitle.trim(),

@@ -1,7 +1,6 @@
 package dto
 
 type CreateClassDTO struct {
-	SchoolID    string `json:"schoolId" binding:"required,uuid"`
 	TermID      string `json:"termId" binding:"required,uuid"`
 	Code        string `json:"classCode" binding:"required"`
 	Title       string `json:"classTitle" binding:"required"`

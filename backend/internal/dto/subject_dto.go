@@ -1,10 +1,9 @@
 package dto
 
 type CreateSubjectDTO struct {
-	SchoolID string `json:"schoolId" binding:"required,uuid"`
-	Name     string `json:"subjectName" binding:"required"`
-	Code     string `json:"subjectCode" binding:"required"`
-	Color    string `json:"color,omitempty"`
+	Name  string `json:"subjectName" binding:"required"`
+	Code  string `json:"subjectCode" binding:"required"`
+	Color string `json:"color,omitempty"`
 }
 
 type UpdateSubjectDTO struct {

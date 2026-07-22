@@ -39,7 +39,6 @@ export interface GetAdminClassesParams {
 }
 
 export interface CreateAdminClassPayload {
-  schoolId: string;
   termId: string;
   classCode: string;
   classTitle: string;
