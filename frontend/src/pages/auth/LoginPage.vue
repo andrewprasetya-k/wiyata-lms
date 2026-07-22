@@ -118,7 +118,7 @@ async function submit() {
             </div>
           </div>
 
-          <h2 class="text-3xl font-medium text-foreground">Masuk</h2>
+          <h2 class="text-3xl font-medium text-foreground">Login</h2>
           <p class="mt-3 text-sm text-muted">
             Gunakan akun Wiyata yang sudah terdaftar.
           </p>
@@ -187,7 +187,7 @@ async function submit() {
             type="submit"
             :disabled="!canSubmit || isSubmitting"
           >
-            {{ isSubmitting ? "Memproses..." : "Masuk" }}
+            {{ isSubmitting ? "Memproses..." : "Login" }}
             <PhArrowRight v-if="!isSubmitting" :size="18" />
           </button>
         </motion.form>
