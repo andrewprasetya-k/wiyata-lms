@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import {
   PhClockCounterClockwise,
   PhMagnifyingGlass,
@@ -13,8 +13,16 @@ import {
   getSchoolAuditLogDetail,
   getSchoolAuditLogs,
 } from "../../services/auditLog";
+import {
+  connectAuditSocket,
+  type AuditSocketStatus,
+} from "../../services/auditLogSocket";
 import { getSuperAdminSchools } from "../../services/superAdminSchool";
-import type { AuditLogDetail, AuditLogListItem } from "../../types/auditLog";
+import type {
+  AuditLogDetail,
+  AuditLogEvent,
+  AuditLogListItem,
+} from "../../types/auditLog";
 import { formatDateTime } from "../../utils/date";
 import { getApiError } from "../../utils/error";
 import PaginationBar from "../../components/common/PaginationBar.vue";
@@ -198,9 +206,114 @@ function closeDetail() {
   detailOpen.value = false;
 }
 
+// Live feed (Phase 10.10). REST stays the source of truth for the actual
+// page contents — the socket only prepends/updates counts for what the
+// user is already looking at on page 1, and never forces navigation.
+const liveStatus = ref<AuditSocketStatus>("disconnected");
+const highlightedIds = ref<Set<string>>(new Set());
+const highlightTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
+function eventMatchesActiveFilters(item: AuditLogListItem) {
+  // search and date-range can't be verified reliably against the live
+  // payload (no actor name/email; date-format parsing is fragile) —
+  // safest to skip live updates entirely while either is active rather
+  // than risk a wrong count/row. REST stays correct regardless.
+  if (search.value.trim() || dateFrom.value || dateTo.value) return false;
+  if (severity.value && item.severity !== severity.value) return false;
+  if (isSuperAdmin.value && scope.value && item.scope !== scope.value) return false;
+  if (entityType.value && item.entityType !== entityType.value) return false;
+  if (actorUserId.value && item.actorUserId !== actorUserId.value) return false;
+  if (
+    isSuperAdmin.value &&
+    schoolFilter.value &&
+    item.schoolId !== schoolFilter.value
+  ) {
+    return false;
+  }
+  if (correlationId.value && item.correlationId !== correlationId.value) {
+    return false;
+  }
+  return true;
+}
+
+function handleAuditEvent(event: AuditLogEvent) {
+  const item = event.payload;
+  if (!item?.logId || !eventMatchesActiveFilters(item)) return;
+
+  totalItems.value += 1;
+  totalPages.value = Math.max(1, Math.ceil(totalItems.value / LIMIT));
+
+  if (page.value !== 1) return; // don't disturb whatever page the user is on
+  if (items.value[0]?.logId === item.logId) return; // dedupe safety net
+
+  items.value = [item, ...items.value].slice(0, LIMIT);
+  highlightedIds.value.add(item.logId);
+  const timer = setTimeout(() => {
+    highlightedIds.value.delete(item.logId);
+    highlightTimers.delete(item.logId);
+  }, 4000);
+  highlightTimers.set(item.logId, timer);
+}
+
+let platformSocket: ReturnType<typeof connectAuditSocket> | null = null;
+let schoolSocket: ReturnType<typeof connectAuditSocket> | null = null;
+let watchedSchoolChannel = "";
+
+function connectLiveFeed() {
+  if (isSuperAdmin.value) {
+    platformSocket = connectAuditSocket({
+      channel: "platform",
+      onEvent: handleAuditEvent,
+      onStatusChange: (status) => (liveStatus.value = status),
+    });
+  } else if (ownSchoolId.value) {
+    schoolSocket = connectAuditSocket({
+      channel: ownSchoolId.value,
+      onEvent: handleAuditEvent,
+      onStatusChange: (status) => (liveStatus.value = status),
+    });
+    watchedSchoolChannel = ownSchoolId.value;
+  }
+}
+
+function disconnectLiveFeed() {
+  platformSocket?.close();
+  platformSocket = null;
+  schoolSocket?.close();
+  schoolSocket = null;
+  watchedSchoolChannel = "";
+  for (const timer of highlightTimers.values()) clearTimeout(timer);
+  highlightTimers.clear();
+  highlightedIds.value = new Set();
+}
+
+// Super admin: also watch the specifically-filtered school's channel (in
+// addition to the always-on platform channel) so narrowing to one school
+// gets live updates for that school too — "platform + school sesuai
+// kebutuhan" per the permission brief.
+watch(schoolFilter, (nextSchoolId) => {
+  if (!isSuperAdmin.value) return;
+  if (nextSchoolId === watchedSchoolChannel) return;
+
+  schoolSocket?.close();
+  schoolSocket = null;
+  watchedSchoolChannel = nextSchoolId;
+  if (nextSchoolId) {
+    schoolSocket = connectAuditSocket({
+      channel: nextSchoolId,
+      onEvent: handleAuditEvent,
+    });
+  }
+});
+
 onMounted(async () => {
   await loadSchoolOptions();
   await loadLogs();
+  connectLiveFeed();
+});
+
+onUnmounted(() => {
+  disconnectLiveFeed();
 });
 </script>
 
@@ -208,24 +321,40 @@ onMounted(async () => {
   <main class="min-h-screen min-w-0 flex-1 overflow-x-hidden bg-background">
     <header class="border-b border-border bg-surface">
       <div class="flex min-w-0 flex-col gap-3 px-5 py-5 sm:px-6 lg:px-8">
-        <div class="flex items-center gap-3">
-          <div
-            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand"
+        <div class="flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand"
+            >
+              <PhClockCounterClockwise :size="20" weight="duotone" />
+            </div>
+            <div class="min-w-0">
+              <h1 class="text-2xl font-semibold text-foreground sm:text-3xl">
+                Log Audit
+              </h1>
+              <p class="mt-1 text-sm leading-6 text-muted">
+                {{
+                  isSuperAdmin
+                    ? "Aktivitas di seluruh sekolah dan platform."
+                    : "Aktivitas admin dan anggota pada sekolah aktif."
+                }}
+              </p>
+            </div>
+          </div>
+          <span
+            class="inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium"
+            :class="
+              liveStatus === 'connected'
+                ? 'bg-success-soft text-success'
+                : 'bg-surface-subtle text-muted'
+            "
           >
-            <PhClockCounterClockwise :size="20" weight="duotone" />
-          </div>
-          <div class="min-w-0">
-            <h1 class="text-2xl font-semibold text-foreground sm:text-3xl">
-              Log Audit
-            </h1>
-            <p class="mt-1 text-sm leading-6 text-muted">
-              {{
-                isSuperAdmin
-                  ? "Aktivitas di seluruh sekolah dan platform."
-                  : "Aktivitas admin dan anggota pada sekolah aktif."
-              }}
-            </p>
-          </div>
+            <span
+              class="h-1.5 w-1.5 rounded-full"
+              :class="liveStatus === 'connected' ? 'bg-success' : 'bg-muted'"
+            />
+            {{ liveStatus === "connected" ? "Live" : "Menghubungkan..." }}
+          </span>
         </div>
       </div>
     </header>
@@ -408,11 +537,20 @@ onMounted(async () => {
               <tr
                 v-for="row in items"
                 :key="row.logId"
-                class="cursor-pointer hover:bg-surface-hover"
+                class="cursor-pointer transition-colors duration-500 hover:bg-surface-hover"
+                :class="highlightedIds.has(row.logId) ? 'bg-brand-soft/60' : ''"
                 @click="openDetail(row)"
               >
                 <td class="whitespace-nowrap px-4 py-3 text-muted">
-                  {{ formatDateTime(row.createdAt) }}
+                  <span class="inline-flex items-center gap-1.5">
+                    {{ formatDateTime(row.createdAt) }}
+                    <span
+                      v-if="highlightedIds.has(row.logId)"
+                      class="rounded-full bg-brand-soft px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-brand"
+                    >
+                      Baru
+                    </span>
+                  </span>
                 </td>
                 <td class="px-4 py-3">
                   <span

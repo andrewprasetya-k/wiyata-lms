@@ -32,6 +32,14 @@ export interface AuditLogListResponse {
   totalPages: number;
 }
 
+// AuditLogEvent is the Phase 10.10 WebSocket payload — deliberately just
+// the list-row shape, no metadata (matches backend events.AuditEvent).
+export interface AuditLogEvent {
+  type: string;
+  channel: string;
+  payload: AuditLogListItem;
+}
+
 export interface AuditLogFilters {
   schoolId?: string;
   scope?: string;
