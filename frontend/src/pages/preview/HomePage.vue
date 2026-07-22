@@ -20,6 +20,13 @@ const isSchoolless = computed(
   () => auth.isAuthenticated && !auth.activeContext,
 );
 
+// ── Scroll-aware floating navbar
+const isScrolled = ref(false);
+
+function onScroll() {
+  isScrolled.value = window.scrollY > 24;
+}
+
 // ── Mobile menu state
 const mobileOpen = ref(false);
 
@@ -43,6 +50,9 @@ const handleAnchorClick = (e: MouseEvent, selector: string) => {
 };
 
 onMounted(() => {
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll(); // set state awal kalau halaman dimuat sudah di-scroll
+
   const prefersReduced = window.matchMedia(
     "(prefers-reduced-motion: reduce)",
   ).matches;
@@ -62,6 +72,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  window.removeEventListener("scroll", onScroll);
   if (rafId !== null) cancelAnimationFrame(rafId);
   lenis?.destroy();
   lenis = null;
@@ -276,19 +287,27 @@ const previewSteps: PreviewStep[] = [
 
     <!-- ───────────── NAVBAR ───────────── -->
     <header
-      class="fixed left-0 right-0 top-0 z-50 w-full backdrop-blur-xl backdrop-saturate-150 transition-colors duration-300"
+      class="fixed left-0 right-0 top-0 z-50 flex justify-center px-4 pt-4 transition-all duration-500 md:px-0"
+      :class="isScrolled ? 'md:pt-3' : 'md:pt-0'"
     >
       <div
-        class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8"
+        class="flex w-full items-center justify-between transition-all duration-500 ease-out"
+        :class="
+          isScrolled
+            ? 'max-w-3xl rounded-full border border-transparent bg-transparent px-5 py-2.5 shadow-[0_8px_30px_-8px_rgba(79,70,229,0.18)] backdrop-blur-xl backdrop-saturate-150'
+            : 'max-w-screen rounded-none border-transparent bg-transparent px-2 py-4 shadow-none backdrop-blur-0 lg:px-6'
+        "
       >
         <RouterLink to="/home" class="flex items-center gap-2.5">
           <img
             src="/logo_fix.svg"
             alt="Wiyata"
-            class="h-7 w-7 rounded-lg object-contain"
+            class="rounded-lg object-contain transition-all duration-500"
+            :class="isScrolled ? 'h-6 w-6' : 'h-7 w-7'"
           />
           <span
-            class="text-[15px] font-semibold tracking-tight text-foreground"
+            class="font-semibold tracking-tight text-foreground transition-all duration-500"
+            :class="isScrolled ? 'text-[13px]' : 'text-[15px]'"
           >
             Wiyata Academic Workspace
           </span>
@@ -362,7 +381,10 @@ const previewSteps: PreviewStep[] = [
         leave-from-class="opacity-100 translate-y-0"
         leave-to-class="opacity-0 -translate-y-1"
       >
-        <nav v-if="mobileOpen" class="border-border bg-surface md:hidden">
+        <nav
+          v-if="mobileOpen"
+          class="absolute left-4 right-4 top-[calc(100%+8px)] rounded-2xl border border-border bg-surface shadow-lg md:hidden"
+        >
           <div class="flex flex-col gap-1 px-6 py-4">
             <a
               href="#fitur"
