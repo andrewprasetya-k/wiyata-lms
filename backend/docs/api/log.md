@@ -160,6 +160,9 @@ Frontend (`frontend/src/services/auditLogSocket.ts`) reuses the exact reconnect 
 Pattern: `<domain>.<subject>.<verb_past>`, free-form strings (not a Postgres enum — validated only where relevant in application code). Severity is one of `LOW` / `MEDIUM` / `HIGH` / `CRITICAL` (`domain.LogSeverity*` constants — `CRITICAL` added Phase 10.12, used only by `user.deleted`). 63 actions across 19 service files, grouped by domain below, exactly as implemented (verified against every `logService.Log(...)`/`LogBatch(...)` call site as of Phase 10.12):
 
 ### Authentication (`internal/service/auth_service.go`, `user_service.go`, `email_verification_service.go`, `password_reset_service.go`)
+
+`auth_service.go` also issues/rotates refresh tokens as of Phase 11.3 (the backend half of the refresh-token migration, via the new `edv.refresh_tokens` table, migration `0007`) — see the three new rows below.
+
 | Action | Severity | Notes |
 |---|---|---|
 | `auth.login.success` | LOW | |
@@ -171,6 +174,9 @@ Pattern: `<domain>.<subject>.<verb_past>`, free-form strings (not a Postgres enu
 | `auth.verification.resent` | LOW | Phase 10.14. Emitted by `EmailVerificationService.Resend` — actor-initiated request for a new verification email, distinct from the derived-side-effect exclusions elsewhere in the taxonomy. Metadata: `user_id`, `email`. |
 | `auth.password.reset.requested` | LOW | Phase 11.2. Emitted by `PasswordResetService.Request` (`POST /forgot-password`), **always** — regardless of whether the email actually resolved to a real account (a genuine miss doesn't distinguish itself in the log any more than it does in the API response, by design). `ActorContext.UserID` is intentionally always empty, even when the email did resolve — this action records that a request happened, not who received the resulting email. Metadata: `email` only. |
 | `auth.password.reset.completed` | HIGH | Phase 11.2. Emitted by `PasswordResetService.Reset` (`POST /reset-password/:token`) only after the token is atomically validated and consumed — `ActorContext.UserID` is populated at this point (the token resolves to a specific user by then), same two-stage shape as `auth.email.verified`. Metadata: `user_id`. Severity matches `auth.password.changed`'s HIGH tier — same consequence class (a password changed), different trigger (token-based, not session-based). |
+| `auth.token.refreshed` | LOW | Phase 11.3. Emitted by `AuthService.Refresh` (`POST /refresh-token`) on every successful rotation — high-frequency (every ~15 min per active session) and low individual consequence, same tier as `auth.login.success`. Metadata: `user_id`. |
+| `auth.token.reuse_detected` | HIGH | Phase 11.3. Emitted when a refresh token that was already rotated (its row exists but is already revoked) is presented again — a real security signal, not routine expiry. Triggers `RefreshTokenRepository.RevokeFamily`, ending every token in that session family, not just the one presented. Metadata: `user_id`, `family_id`. |
+| `auth.logout` | LOW | Phase 11.3. Emitted by `AuthService.Logout` (`POST /logout`). Revokes only the single session the presented refresh token belongs to — siblings in the same family are untouched, unlike the reuse-detection response above. `ActorContext.UserID`/metadata's `user_id` are populated only if the presented token still resolves to a row (best-effort — logout never errors to the caller even for a garbage/already-revoked token, so this log can legitimately have no `user_id` in that case). |
 | `member.login` | LOW | Phase 10.11. School-scoped, emitted only when the user has an active school membership at login (the membership used for `DefaultContext`) — one row per login, not one per membership. Metadata: `login_method`, `user_id`, `school_id`. |
 
 ### RBAC (`internal/service/rbac_service.go`)

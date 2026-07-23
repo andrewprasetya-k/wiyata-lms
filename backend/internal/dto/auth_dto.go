@@ -11,12 +11,28 @@ type RegisterDTO struct {
 	Password string `json:"password" binding:"required,min=6"`
 }
 
+// LoginResponseDTO.Token is the short-lived (15 min) access token as of the
+// refresh-token migration — it was a 24h token before. The long-lived
+// refresh token is never included here; it's set as an httpOnly cookie by
+// the handler instead.
 type LoginResponseDTO struct {
 	Token          string           `json:"token"`
 	User           UserInfo         `json:"user"`
 	Memberships    []MembershipInfo `json:"memberships"`
 	GlobalRoles    []string         `json:"globalRoles"`
 	DefaultContext *DefaultContext  `json:"defaultContext,omitempty"`
+}
+
+// RefreshTokenResponseDTO is POST /refresh-token's response body — only the
+// new access token. The rotated refresh token is set as a cookie, never
+// returned here.
+type RefreshTokenResponseDTO struct {
+	AccessToken string `json:"accessToken"`
+}
+
+// LogoutResponseDTO is POST /logout's response body.
+type LogoutResponseDTO struct {
+	Message string `json:"message"`
 }
 
 type AuthContextResponseDTO struct {

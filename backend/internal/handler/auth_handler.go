@@ -18,6 +18,27 @@ func NewAuthHandler(authService service.AuthService) *AuthHandler {
 	return &AuthHandler{authService: authService}
 }
 
+const refreshTokenCookieName = "refresh_token"
+const refreshTokenCookiePath = "/api"
+const refreshTokenCookieMaxAgeSeconds = 7 * 24 * 60 * 60 // 7 days, matches refreshTokenTTL
+
+func setRefreshTokenCookie(c *gin.Context, rawToken string) {
+	c.SetSameSite(http.SameSiteLaxMode)
+	c.SetCookie(refreshTokenCookieName, rawToken, refreshTokenCookieMaxAgeSeconds, refreshTokenCookiePath, "", true, true)
+}
+
+func clearRefreshTokenCookie(c *gin.Context) {
+	c.SetSameSite(http.SameSiteLaxMode)
+	c.SetCookie(refreshTokenCookieName, "", -1, refreshTokenCookiePath, "", true, true)
+}
+
+func refreshTokenMetadataFromRequest(c *gin.Context) service.RefreshTokenMetadata {
+	return service.RefreshTokenMetadata{
+		UserAgent: c.GetHeader("User-Agent"),
+		IPAddress: c.ClientIP(),
+	}
+}
+
 func (h *AuthHandler) Login(c *gin.Context) {
 	var input dto.LoginDTO
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -25,13 +46,14 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	response, err := h.authService.Login(input.Email, input.Password)
+	response, rawRefreshToken, err := h.authService.Login(input.Email, input.Password, refreshTokenMetadataFromRequest(c))
 	if err != nil {
 		// Always return 401 Unauthorized with generic message
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid email or password"})
 		return
 	}
 
+	setRefreshTokenCookie(c, rawRefreshToken)
 	c.JSON(http.StatusOK, response)
 }
 
@@ -42,7 +64,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	response, err := h.authService.Register(input.FullName, input.Email, input.Password)
+	response, rawRefreshToken, err := h.authService.Register(input.FullName, input.Email, input.Password, refreshTokenMetadataFromRequest(c))
 	if err != nil {
 		if err.Error() == "Email already registered" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -52,7 +74,46 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
+	setRefreshTokenCookie(c, rawRefreshToken)
 	c.JSON(http.StatusCreated, response)
+}
+
+// Refresh is POST /refresh-token — public (no AuthRequired: a caller with an
+// expired or missing access token still needs to be able to call this).
+// Reads the refresh token from the httpOnly cookie only, never the body.
+func (h *AuthHandler) Refresh(c *gin.Context) {
+	rawToken, err := c.Cookie(refreshTokenCookieName)
+	if err != nil || rawToken == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	accessToken, newRawToken, err := h.authService.Refresh(rawToken, refreshTokenMetadataFromRequest(c))
+	if err != nil {
+		clearRefreshTokenCookie(c)
+		if errors.Is(err, service.ErrRefreshTokenRateLimited) {
+			c.JSON(http.StatusTooManyRequests, gin.H{"error": err.Error()})
+			return
+		}
+		// Deliberately the same generic message for both "invalid/expired"
+		// and "reuse detected" — never tell whoever holds this token which
+		// case occurred, same principle as login's generic failure message.
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Session expired, please log in again"})
+		return
+	}
+
+	setRefreshTokenCookie(c, newRawToken)
+	c.JSON(http.StatusOK, dto.RefreshTokenResponseDTO{AccessToken: accessToken})
+}
+
+// Logout is POST /logout — public (same reasoning as Refresh: a caller with
+// no valid access token must still be able to end their session). Always
+// succeeds from the caller's point of view.
+func (h *AuthHandler) Logout(c *gin.Context) {
+	rawToken, _ := c.Cookie(refreshTokenCookieName)
+	_ = h.authService.Logout(rawToken)
+	clearRefreshTokenCookie(c)
+	c.JSON(http.StatusOK, dto.LogoutResponseDTO{Message: "Logged out"})
 }
 
 func (h *AuthHandler) ChangePassword(c *gin.Context) {

@@ -1,13 +1,12 @@
 package realtime
 
 import (
+	"backend/internal/middleware"
 	"backend/internal/service"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/gorilla/websocket"
 )
 
@@ -84,20 +83,13 @@ func extractHandshakeToken(c *gin.Context) string {
 }
 
 func parseUserIDFromToken(tokenValue string) (string, error) {
-	token, err := jwt.Parse(tokenValue, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, jwt.ErrSignatureInvalid
-		}
-		return []byte(os.Getenv("JWT_SECRET")), nil
-	})
-	if err != nil || !token.Valid {
+	claims, err := middleware.ParseAccessToken(tokenValue)
+	if err != nil {
 		return "", err
 	}
-
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok {
-		return "", jwt.ErrInvalidKey
+	userID := middleware.UserIDFromClaims(claims)
+	if userID == "" {
+		return "", middleware.ErrInvalidAccessToken
 	}
-	userID, _ := claims["user_id"].(string)
 	return userID, nil
 }

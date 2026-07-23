@@ -4,34 +4,64 @@ import (
 	"backend/internal/domain"
 	"backend/internal/dto"
 	"backend/internal/repository"
+	"crypto/rand"
+	"crypto/sha256"
+	"encoding/base64"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 )
 
-type PasswordAttemptLimiter interface {
-	// Allow records one attempt for key and reports whether it is still
-	// within budget. Returns false once the key's budget is exhausted.
+type AttemptLimiter interface {
 	Allow(key string) bool
-	// Reset clears any tracked attempts for key, restoring full budget.
 	Reset(key string)
 }
 
 var (
 	ErrInvalidCurrentPassword  = errors.New("current password is incorrect")
 	ErrTooManyPasswordAttempts = errors.New("too many failed attempts, try again later")
+
+	ErrRefreshTokenInvalid     = errors.New("refresh token is invalid or expired")
+	ErrRefreshTokenReused      = errors.New("refresh token reuse detected")
+	ErrRefreshTokenRateLimited = errors.New("too many refresh attempts, try again later")
 )
 
 const changePasswordLockKeyPrefix = "change_password:"
+const refreshRateLimitKeyPrefix = "refresh_token:"
+
+// accessTokenTTL/refreshTokenTTL: 15-minute access token, 7-day refresh
+// token — approved design for the Phase 11.3 refresh-token migration.
+const accessTokenTTL = 15 * time.Minute
+const refreshTokenTTL = 7 * 24 * time.Hour
+
+// RefreshTokenMetadata carries request-transport details (never gin.Context
+// itself, to keep this package free of a web-framework dependency) that get
+// persisted alongside a refresh token for the future Session Management UI.
+type RefreshTokenMetadata struct {
+	UserAgent string
+	IPAddress string
+}
 
 type AuthService interface {
-	Login(email string, password string) (*dto.LoginResponseDTO, error)
-	Register(fullName string, email string, password string) (*dto.LoginResponseDTO, error)
+	Login(email string, password string, meta RefreshTokenMetadata) (*dto.LoginResponseDTO, string, error)
+	Register(fullName string, email string, password string, meta RefreshTokenMetadata) (*dto.LoginResponseDTO, string, error)
 	GetContext(userID string) (*dto.AuthContextResponseDTO, error)
 	ChangePassword(userID string, currentPassword string, newPassword string) error
+	// Refresh validates+rotates rawRefreshToken and returns
+	// (newAccessToken, newRawRefreshToken, error). The raw refresh token is
+	// never wrapped in a response DTO — callers must be careful never to
+	// let it leak into a JSON body; it belongs in an httpOnly cookie only.
+	Refresh(rawRefreshToken string, meta RefreshTokenMetadata) (string, string, error)
+	// Logout revokes the single session the given refresh token belongs to
+	// (not the whole family) and never errors to the caller — logout is
+	// idempotent/best-effort by design.
+	Logout(rawRefreshToken string) error
 }
 
 type authService struct {
@@ -39,11 +69,21 @@ type authService struct {
 	schoolUserRepo       repository.SchoolUserRepository
 	emailVerificationSvc EmailVerificationService
 	logService           LogService
-	passwordAttemptLimit PasswordAttemptLimiter
+	refreshTokenRepo     repository.RefreshTokenRepository
+	passwordAttemptLimit AttemptLimiter
+	refreshAttemptLimit  AttemptLimiter
 }
 
-func NewAuthService(userRepo repository.UserRepository, schoolUserRepo repository.SchoolUserRepository, emailVerificationSvc EmailVerificationService, logService LogService, passwordAttemptLimit PasswordAttemptLimiter) AuthService {
-	return &authService{userRepo: userRepo, schoolUserRepo: schoolUserRepo, emailVerificationSvc: emailVerificationSvc, logService: logService, passwordAttemptLimit: passwordAttemptLimit}
+func NewAuthService(userRepo repository.UserRepository, schoolUserRepo repository.SchoolUserRepository, emailVerificationSvc EmailVerificationService, logService LogService, refreshTokenRepo repository.RefreshTokenRepository, passwordAttemptLimit AttemptLimiter, refreshAttemptLimit AttemptLimiter) AuthService {
+	return &authService{
+		userRepo:             userRepo,
+		schoolUserRepo:       schoolUserRepo,
+		emailVerificationSvc: emailVerificationSvc,
+		logService:           logService,
+		refreshTokenRepo:     refreshTokenRepo,
+		passwordAttemptLimit: passwordAttemptLimit,
+		refreshAttemptLimit:  refreshAttemptLimit,
+	}
 }
 
 func (s *authService) logLoginFailed(email string, reason string) {
@@ -53,42 +93,36 @@ func (s *authService) logLoginFailed(email string, reason string) {
 	})
 }
 
-func (s *authService) Login(email string, password string) (*dto.LoginResponseDTO, error) {
+func (s *authService) Login(email string, password string, meta RefreshTokenMetadata) (*dto.LoginResponseDTO, string, error) {
 	userEmail, err := s.userRepo.GetByEmail(email)
 	if err != nil {
 		// Return generic error to prevent user enumeration
 		s.logLoginFailed(email, "user_not_found")
-		return nil, errors.New("invalid email or password")
+		return nil, "", errors.New("invalid email or password")
 	}
 
 	err = verifyPassword(userEmail.Password, password)
 	if err != nil {
 		// Return same generic error for password mismatch
 		s.logLoginFailed(email, "invalid_password")
-		return nil, errors.New("invalid email or password")
+		return nil, "", errors.New("invalid email or password")
 	}
 
-	payload := jwt.MapClaims{
-		"user_id": userEmail.ID,
-		"sub":     userEmail.ID,
-		"email":   userEmail.Email,
-		"exp":     time.Now().Add(24 * time.Hour).Unix(),
-	}
-
-	secretKey := os.Getenv("JWT_SECRET")
-	if secretKey == "" {
-		return nil, errors.New("server configuration error")
-	}
-
-	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, payload)
-	tokenString, err := jwtToken.SignedString([]byte(secretKey))
+	accessToken, err := s.issueAccessToken(userEmail.ID, userEmail.Email)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
-	response, err := s.buildLoginResponse(tokenString, userEmail)
+	// A fresh login always starts a brand-new session family — it has no
+	// prior token to rotate from.
+	rawRefreshToken, err := s.issueRefreshToken(userEmail.ID, uuid.NewString(), meta)
 	if err != nil {
-		return nil, err
+		return nil, "", err
+	}
+
+	response, err := s.buildLoginResponse(accessToken, userEmail)
+	if err != nil {
+		return nil, "", err
 	}
 
 	_ = s.logService.Log(domain.ActorContext{UserID: userEmail.ID, Scope: domain.LogScopePlatform}, "auth.login.success", "user", strPtr(userEmail.ID), domain.LogSeverityLow, map[string]any{
@@ -111,21 +145,21 @@ func (s *authService) Login(email string, password string) (*dto.LoginResponseDT
 		})
 	}
 
-	return response, nil
+	return response, rawRefreshToken, nil
 }
 
-func (s *authService) Register(fullName string, email string, password string) (*dto.LoginResponseDTO, error) {
+func (s *authService) Register(fullName string, email string, password string, meta RefreshTokenMetadata) (*dto.LoginResponseDTO, string, error) {
 	isEmailExists, err := s.userRepo.CheckEmailExists(email, "")
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	if isEmailExists {
-		return nil, errors.New("Email already registered")
+		return nil, "", errors.New("Email already registered")
 	}
 
 	hashedPassword, err := hashPassword(password)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
 	user := &domain.User{
@@ -136,7 +170,7 @@ func (s *authService) Register(fullName string, email string, password string) (
 
 	err = s.userRepo.Create(user)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
 	_ = s.logService.Log(domain.ActorContext{UserID: user.ID, Scope: domain.LogScopePlatform}, "auth.registered", "user", strPtr(user.ID), domain.LogSeverityMedium, map[string]any{
@@ -150,7 +184,7 @@ func (s *authService) Register(fullName string, email string, password string) (
 		}
 	}
 
-	return s.Login(email, password) // Auto-login after registration
+	return s.Login(email, password, meta) // Auto-login after registration
 }
 
 func (s *authService) GetContext(userID string) (*dto.AuthContextResponseDTO, error) {
@@ -208,6 +242,161 @@ func (s *authService) logChangePasswordFailed(userID string, reason string) {
 		"user_id": userID,
 		"reason":  reason,
 	})
+}
+
+// Refresh validates and rotates a refresh token, returning a fresh access
+// token + fresh raw refresh token on success.
+func (s *authService) Refresh(rawRefreshToken string, meta RefreshTokenMetadata) (string, string, error) {
+	tokenHash, err := hashRefreshToken(rawRefreshToken)
+	if err != nil {
+		return "", "", ErrRefreshTokenInvalid
+	}
+
+	now := time.Now()
+	familyIDForRateLimit := ""
+	if validToken, validErr := s.refreshTokenRepo.FindValidByTokenHash(tokenHash, now); validErr == nil {
+		familyIDForRateLimit = validToken.FamilyID
+	} else if existing, findErr := s.refreshTokenRepo.FindByTokenHash(tokenHash); findErr == nil {
+		familyIDForRateLimit = existing.FamilyID
+	}
+	if familyIDForRateLimit != "" && s.refreshAttemptLimit != nil && !s.refreshAttemptLimit.Allow(refreshRateLimitKeyPrefix+familyIDForRateLimit) {
+		return "", "", ErrRefreshTokenRateLimited
+	}
+
+	newRawToken, newTokenHash, err := generateRefreshToken()
+	if err != nil {
+		return "", "", err
+	}
+
+	newRecord := &domain.RefreshToken{
+		TokenHash: newTokenHash,
+		ExpiresAt: now.Add(refreshTokenTTL),
+	}
+	if meta.UserAgent != "" {
+		userAgent := meta.UserAgent
+		newRecord.UserAgent = &userAgent
+	}
+	if meta.IPAddress != "" {
+		ipAddress := meta.IPAddress
+		newRecord.IPAddress = &ipAddress
+	}
+
+	rotated, err := s.refreshTokenRepo.Rotate(tokenHash, newRecord)
+	if err != nil {
+		var reused *repository.ReusedRefreshTokenError
+		if errors.As(err, &reused) {
+			_ = s.refreshTokenRepo.RevokeFamily(reused.FamilyID)
+			_ = s.logService.Log(domain.ActorContext{UserID: reused.UserID, Scope: domain.LogScopePlatform}, "auth.token.reuse_detected", "user", strPtr(reused.UserID), domain.LogSeverityHigh, map[string]any{
+				"user_id":   reused.UserID,
+				"family_id": reused.FamilyID,
+			})
+			return "", "", ErrRefreshTokenReused
+		}
+		return "", "", ErrRefreshTokenInvalid
+	}
+
+	user, err := s.userRepo.GetByID(rotated.UserID)
+	if err != nil {
+		return "", "", err
+	}
+
+	accessToken, err := s.issueAccessToken(user.ID, user.Email)
+	if err != nil {
+		return "", "", err
+	}
+
+	_ = s.logService.Log(domain.ActorContext{UserID: user.ID, Scope: domain.LogScopePlatform}, "auth.token.refreshed", "user", strPtr(user.ID), domain.LogSeverityLow, map[string]any{
+		"user_id": user.ID,
+	})
+
+	return accessToken, newRawToken, nil
+}
+
+// Logout always returns nil to the caller — an already-invalid or garbage
+// token is not an error, it just means there's nothing left to revoke.
+func (s *authService) Logout(rawRefreshToken string) error {
+	tokenHash, err := hashRefreshToken(rawRefreshToken)
+	if err != nil {
+		return nil
+	}
+
+	record, _ := s.refreshTokenRepo.FindByTokenHash(tokenHash)
+	_ = s.refreshTokenRepo.RevokeByTokenHash(tokenHash)
+
+	actor := domain.ActorContext{Scope: domain.LogScopePlatform}
+	metadata := map[string]any{}
+	var entityID *string
+	if record != nil {
+		actor.UserID = record.UserID
+		entityID = strPtr(record.UserID)
+		metadata["user_id"] = record.UserID
+	}
+	_ = s.logService.Log(actor, "auth.logout", "user", entityID, domain.LogSeverityLow, metadata)
+	return nil
+}
+
+// issueAccessToken mints a short-lived (accessTokenTTL) JWT — same claims
+// shape used since before this migration (user_id, sub, email, exp).
+func (s *authService) issueAccessToken(userID string, email string) (string, error) {
+	secretKey := os.Getenv("JWT_SECRET")
+	if secretKey == "" {
+		return "", errors.New("server configuration error")
+	}
+
+	payload := jwt.MapClaims{
+		"user_id": userID,
+		"sub":     userID,
+		"email":   email,
+		"exp":     time.Now().Add(accessTokenTTL).Unix(),
+	}
+	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, payload)
+	return jwtToken.SignedString([]byte(secretKey))
+}
+
+func (s *authService) issueRefreshToken(userID string, familyID string, meta RefreshTokenMetadata) (string, error) {
+	rawToken, tokenHash, err := generateRefreshToken()
+	if err != nil {
+		return "", err
+	}
+
+	record := &domain.RefreshToken{
+		UserID:    userID,
+		TokenHash: tokenHash,
+		FamilyID:  familyID,
+		ExpiresAt: time.Now().Add(refreshTokenTTL),
+	}
+	if meta.UserAgent != "" {
+		userAgent := meta.UserAgent
+		record.UserAgent = &userAgent
+	}
+	if meta.IPAddress != "" {
+		ipAddress := meta.IPAddress
+		record.IPAddress = &ipAddress
+	}
+
+	if err := s.refreshTokenRepo.Create(record); err != nil {
+		return "", err
+	}
+	return rawToken, nil
+}
+
+func generateRefreshToken() (string, string, error) {
+	tokenBytes := make([]byte, 32)
+	if _, err := rand.Read(tokenBytes); err != nil {
+		return "", "", err
+	}
+	rawToken := base64.RawURLEncoding.EncodeToString(tokenBytes)
+	sum := sha256.Sum256([]byte(rawToken))
+	return rawToken, hex.EncodeToString(sum[:]), nil
+}
+
+func hashRefreshToken(token string) (string, error) {
+	token = strings.TrimSpace(token)
+	if token == "" {
+		return "", repository.ErrRefreshTokenInvalid
+	}
+	sum := sha256.Sum256([]byte(token))
+	return hex.EncodeToString(sum[:]), nil
 }
 
 func (s *authService) buildLoginResponse(token string, user *domain.User) (*dto.LoginResponseDTO, error) {

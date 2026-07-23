@@ -126,3 +126,19 @@ func tenantRateLimitKey(c *gin.Context) string {
 	}
 	return "ip:" + c.ClientIP()
 }
+
+// RateLimitByIP is a coarse, IP-only pre-check — used ahead of a lookup
+// whose real (finer) rate-limit key can't be known until after a DB read
+// (e.g. /refresh-token, keyed per-family_id once the token is resolved).
+// This gate runs first so a flood of garbage/unrecognized tokens from one
+// IP is rejected before ever touching the database.
+func RateLimitByIP(store RateLimiterStore) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if !store.Allow("ip:" + c.ClientIP()) {
+			c.JSON(http.StatusTooManyRequests, gin.H{"error": "Terlalu banyak permintaan, coba lagi sebentar lagi."})
+			c.Abort()
+			return
+		}
+		c.Next()
+	}
+}

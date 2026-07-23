@@ -91,7 +91,15 @@ func main() {
 	// so an entry can never be swept away mid-lock, which would otherwise
 	// shorten the lock early.
 	changePasswordAttemptStore := middleware.NewInMemoryRateLimiterStore(5.0/(15*60), 5, 20*time.Minute)
-	authService := service.NewAuthService(userRepo, schoolUserRepo, emailVerificationService, logService, changePasswordAttemptStore)
+	// Refresh-token rate limiting: per-family_id (once resolved), generous
+	// on purpose — legitimate rotation traffic (every ~15 min per active
+	// user) shouldn't compete with any general API burst budget. burst=8
+	// tolerates a handful of rapid legitimate retries (e.g. a slow network
+	// causing a client-side retry, or concurrent tabs racing) without
+	// looking like abuse; rps refills gradually over 10 minutes.
+	refreshTokenAttemptStore := middleware.NewInMemoryRateLimiterStore(8.0/(10*60), 8, 20*time.Minute)
+	refreshTokenRepo := repository.NewRefreshTokenRepository(db)
+	authService := service.NewAuthService(userRepo, schoolUserRepo, emailVerificationService, logService, refreshTokenRepo, changePasswordAttemptStore, refreshTokenAttemptStore)
 	auditStreamHandler := realtime.NewAuditStreamHandler(auditHub, authService)
 	authHandler := handler.NewAuthHandler(authService)
 
@@ -220,6 +228,12 @@ func main() {
 		api.POST("/verify-email", emailVerificationHandler.Verify)
 		api.GET("/reset-password/:token", passwordResetHandler.GetMetadata)
 		api.POST("/reset-password/:token", passwordResetHandler.Reset)
+		// Public — a caller with an expired/missing access token must still
+		// be able to refresh or log out. IP-scoped pre-check here (cheap,
+		// no DB hit); the finer per-family_id check happens inside
+		// AuthService.Refresh once the token is resolved.
+		api.POST("/refresh-token", middleware.RateLimitByIP(refreshTokenAttemptStore), authHandler.Refresh)
+		api.POST("/logout", authHandler.Logout)
 		// Not rate-limited: long-lived SSE/WebSocket connections
 		api.GET("/events/sidebar", sidebarStreamHandler.Stream)
 		api.GET("/ws/chat", chatWebSocketHandler.Chat)
