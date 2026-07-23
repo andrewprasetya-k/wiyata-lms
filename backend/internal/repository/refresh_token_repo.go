@@ -30,33 +30,15 @@ func (e *ReusedRefreshTokenError) Error() string {
 type RefreshTokenRepository interface {
 	Create(token *domain.RefreshToken) error
 
-	// FindValidByTokenHash is a non-mutating lookup that only returns a row
-	// currently valid (not revoked, not expired) — mirrors
-	// PasswordResetRepository.GetValidByTokenHash's shape.
 	FindValidByTokenHash(tokenHash string, now time.Time) (*domain.RefreshToken, error)
-
-	// FindByTokenHash is unfiltered — it returns the row regardless of
-	// revoked/expired status. Needed because reuse-detection and rate-limit
-	// key resolution both need a token's family_id even when the token
-	// itself is no longer valid.
 	FindByTokenHash(tokenHash string) (*domain.RefreshToken, error)
 
-	// Rotate atomically: locks the row by tokenHash, and
-	//   - if not found: returns ErrRefreshTokenInvalid
-	//   - if already revoked: returns *ReusedRefreshTokenError (reuse of an
-	//     already-rotated token)
-	//   - if expired (but not revoked): returns ErrRefreshTokenInvalid
-	//   - otherwise: marks the old row revoked and inserts newToken with the
-	//     same UserID/FamilyID as the old row, all in one transaction.
 	Rotate(oldTokenHash string, newToken *domain.RefreshToken) (*domain.RefreshToken, error)
-
-	// RevokeFamily marks every not-yet-revoked token sharing familyID as
-	// revoked — the reuse-detection response, ending the whole session.
 	RevokeFamily(familyID string) error
-
-	// RevokeByTokenHash revokes a single token (logout — only this session
-	// ends, siblings in the same family are untouched).
 	RevokeByTokenHash(tokenHash string) error
+	FindByID(id string) (*domain.RefreshToken, error)
+	FindActiveByUserID(userID string, now time.Time) ([]*domain.RefreshToken, error)
+	RevokeByID(id string) error
 }
 
 type refreshTokenRepository struct {
@@ -113,6 +95,18 @@ func (r *refreshTokenRepository) Rotate(oldTokenHash string, newToken *domain.Re
 		}
 
 		if old.RevokedAt != nil {
+			// Only a token that was revoked because it was already rotated
+			// (superseded by a newer one) counts as reuse — a token revoked
+			// deliberately (user_revoked/logout) is an expected, benign
+			// end-of-session, not a theft/replay signal. Anything else
+			// (including a missing/unrecognized reason, e.g. a row from
+			// before this column existed) fails closed as reuse, since
+			// that's the safer default on a security-sensitive path.
+			if old.RevokedReason != nil &&
+				(*old.RevokedReason == domain.RefreshTokenRevokedReasonUserRevoked ||
+					*old.RevokedReason == domain.RefreshTokenRevokedReasonLogout) {
+				return ErrRefreshTokenInvalid
+			}
 			return &ReusedRefreshTokenError{FamilyID: old.FamilyID, UserID: old.UserID}
 		}
 		if time.Now().After(old.ExpiresAt) {
@@ -121,7 +115,10 @@ func (r *refreshTokenRepository) Rotate(oldTokenHash string, newToken *domain.Re
 
 		if err := tx.Model(&domain.RefreshToken{}).
 			Where("rft_id = ?", old.ID).
-			Update("rft_revoked_at", time.Now()).Error; err != nil {
+			Updates(map[string]any{
+				"rft_revoked_at":     time.Now(),
+				"rft_revoked_reason": domain.RefreshTokenRevokedReasonRotated,
+			}).Error; err != nil {
 			return err
 		}
 
@@ -142,11 +139,47 @@ func (r *refreshTokenRepository) Rotate(oldTokenHash string, newToken *domain.Re
 func (r *refreshTokenRepository) RevokeFamily(familyID string) error {
 	return r.db.Model(&domain.RefreshToken{}).
 		Where("rft_family_id = ? AND rft_revoked_at IS NULL", familyID).
-		Update("rft_revoked_at", time.Now()).Error
+		Updates(map[string]any{
+			"rft_revoked_at":     time.Now(),
+			"rft_revoked_reason": domain.RefreshTokenRevokedReasonReuseDetected,
+		}).Error
 }
 
 func (r *refreshTokenRepository) RevokeByTokenHash(tokenHash string) error {
 	return r.db.Model(&domain.RefreshToken{}).
 		Where("rft_token_hash = ? AND rft_revoked_at IS NULL", tokenHash).
-		Update("rft_revoked_at", time.Now()).Error
+		Updates(map[string]any{
+			"rft_revoked_at":     time.Now(),
+			"rft_revoked_reason": domain.RefreshTokenRevokedReasonLogout,
+		}).Error
+}
+
+func (r *refreshTokenRepository) FindByID(id string) (*domain.RefreshToken, error) {
+	var token domain.RefreshToken
+	err := r.db.Where("rft_id = ?", id).First(&token).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrRefreshTokenInvalid
+		}
+		return nil, err
+	}
+	return &token, nil
+}
+
+func (r *refreshTokenRepository) FindActiveByUserID(userID string, now time.Time) ([]*domain.RefreshToken, error) {
+	var tokens []*domain.RefreshToken
+	err := r.db.
+		Where("rft_usr_id = ? AND rft_revoked_at IS NULL AND rft_expires_at > ?", userID, now).
+		Order("created_at DESC").
+		Find(&tokens).Error
+	return tokens, err
+}
+
+func (r *refreshTokenRepository) RevokeByID(id string) error {
+	return r.db.Model(&domain.RefreshToken{}).
+		Where("rft_id = ? AND rft_revoked_at IS NULL", id).
+		Updates(map[string]any{
+			"rft_revoked_at":     time.Now(),
+			"rft_revoked_reason": domain.RefreshTokenRevokedReasonUserRevoked,
+		}).Error
 }

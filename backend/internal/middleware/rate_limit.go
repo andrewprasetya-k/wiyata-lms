@@ -100,7 +100,7 @@ func tenantRateLimitKey(c *gin.Context) string {
 	return "ip:" + c.ClientIP()
 }
 
-// RateLimitByIP is a coarse, IP-only pre-check 
+// RateLimitByIP is a coarse, IP-only pre-check
 func RateLimitByIP(store RateLimiterStore) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if !store.Allow("ip:" + c.ClientIP()) {

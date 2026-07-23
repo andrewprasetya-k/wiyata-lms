@@ -96,7 +96,7 @@ func (h *AuthHandler) Refresh(c *gin.Context) {
 			return
 		}
 		fmt.Printf("[Refresh Token] 401 invalid/expired/reused, ip=%s, reason=%v\n", c.ClientIP(), err)
-	
+
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Session expired, please log in again"})
 		return
 	}
@@ -175,4 +175,60 @@ func (h *AuthHandler) IssueWSTicket(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, dto.WSTicketResponseDTO{Ticket: ticket})
+}
+
+// ListSessions is GET /me/sessions — AuthRequired.
+func (h *AuthHandler) ListSessions(c *gin.Context) {
+	userID := middleware.GetUserID(c)
+	if userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	sessions, err := h.authService.ListSessions(userID)
+	if err != nil {
+		HandleError(c, err)
+		return
+	}
+
+	response := make([]dto.SessionDTO, 0, len(sessions))
+	for _, session := range sessions {
+		userAgent := ""
+		if session.UserAgent != nil {
+			userAgent = *session.UserAgent
+		}
+		ipAddress := ""
+		if session.IPAddress != nil {
+			ipAddress = *session.IPAddress
+		}
+		response = append(response, dto.SessionDTO{
+			ID:         session.ID,
+			LoggedInAt: formatAPITime(session.CreatedAt),
+			ExpiresAt:  formatAPITime(session.ExpiresAt),
+			UserAgent:  userAgent,
+			IPAddress:  ipAddress,
+		})
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
+func (h *AuthHandler) RevokeSession(c *gin.Context) {
+	userID := middleware.GetUserID(c)
+	if userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	sessionID := c.Param("id")
+	if err := h.authService.RevokeSession(userID, sessionID); err != nil {
+		if errors.Is(err, service.ErrRefreshTokenInvalid) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Session not found"})
+			return
+		}
+		HandleError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Session revoked"})
 }

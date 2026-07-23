@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import {
   PhBuildings,
+  PhDeviceMobile,
   PhEye,
   PhEyeSlash,
   PhIdentificationCard,
@@ -11,9 +12,18 @@ import {
 } from "@phosphor-icons/vue";
 import { useAuthStore } from "../../stores/auth";
 import { useToastStore } from "../../stores/toast";
+import { useConfirmStore } from "../../stores/confirm";
 import { usePasswordVisibility } from "../../composables/usePasswordVisibility";
 import { changePassword } from "../../services/changePassword";
+import {
+  listSessions,
+  revokeSession,
+  type Session,
+} from "../../services/sessions";
 import { passwordPolicyError } from "../../utils/passwordPolicy";
+import { summarizeUserAgent } from "../../utils/userAgent";
+import { formatDateTime } from "../../utils/date";
+import { getApiError } from "../../utils/error";
 import type { RoleName } from "../../types/auth";
 
 const props = defineProps<{
@@ -24,6 +34,7 @@ const props = defineProps<{
 
 const auth = useAuthStore();
 const toast = useToastStore();
+const confirm = useConfirmStore();
 
 const activeMembership = computed(() => auth.activeMembership);
 const roleLabels: Record<RoleName, string> = {
@@ -175,6 +186,47 @@ async function submitPasswordChange() {
     isChangingPassword.value = false;
   }
 }
+
+// --- Login sessions ---
+const sessions = ref<Session[]>([]);
+const sessionsLoading = ref(true);
+const sessionsErrorMessage = ref("");
+const revokingSessionId = ref<string | null>(null);
+
+async function loadSessions() {
+  sessionsLoading.value = true;
+  sessionsErrorMessage.value = "";
+  try {
+    sessions.value = await listSessions();
+  } catch (error) {
+    sessionsErrorMessage.value = getApiError(error);
+  } finally {
+    sessionsLoading.value = false;
+  }
+}
+
+async function confirmRevokeSession(session: Session) {
+  const ok = await confirm.confirm({
+    title: "Keluar dari sesi ini?",
+    description: `Sesi pada ${summarizeUserAgent(session.userAgent)} (${session.ipAddress || "IP tidak diketahui"}) akan diakhiri. Jika ini adalah sesi yang sedang Anda gunakan, Anda akan diminta masuk kembali.`,
+    confirmLabel: "Keluar",
+    variant: "danger",
+  });
+  if (!ok) return;
+
+  revokingSessionId.value = session.id;
+  try {
+    await revokeSession(session.id);
+    sessions.value = sessions.value.filter((item) => item.id !== session.id);
+    toast.success("Sesi berhasil diakhiri.");
+  } catch (error) {
+    toast.error(getApiError(error));
+  } finally {
+    revokingSessionId.value = null;
+  }
+}
+
+onMounted(loadSessions);
 </script>
 
 <template>
@@ -450,6 +502,64 @@ async function submitPasswordChange() {
               </button>
             </div>
           </form>
+        </section>
+
+        <section class="min-w-0 rounded-xl border border-border bg-surface p-5">
+          <div class="mb-4 flex min-w-0 items-center gap-3">
+            <div
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-soft text-brand"
+            >
+              <PhDeviceMobile :size="21" weight="duotone" />
+            </div>
+            <div class="min-w-0">
+              <h2 class="text-sm font-medium text-foreground">Sesi login</h2>
+              <p class="mt-1 text-xs text-muted">
+                Perangkat yang sedang masuk ke akun ini.
+              </p>
+            </div>
+          </div>
+
+          <div v-if="sessionsLoading" class="space-y-3">
+            <div class="h-16 w-full animate-pulse rounded-lg bg-[#f0ece5]" />
+            <div class="h-16 w-full animate-pulse rounded-lg bg-[#f0ece5]" />
+          </div>
+
+          <p
+            v-else-if="sessionsErrorMessage"
+            class="rounded-lg bg-danger-soft px-3 py-2.5 text-sm text-danger"
+          >
+            {{ sessionsErrorMessage }}
+          </p>
+
+          <p v-else-if="sessions.length === 0" class="text-sm text-muted">
+            Tidak ada sesi aktif yang tercatat.
+          </p>
+
+          <ul v-else class="space-y-3">
+            <li
+              v-for="session in sessions"
+              :key="session.id"
+              class="flex min-w-0 flex-col gap-3 rounded-lg border border-border bg-surface-subtle p-4 sm:flex-row sm:items-center sm:justify-between"
+            >
+              <div class="min-w-0">
+                <p class="truncate text-sm font-medium text-foreground">
+                  {{ summarizeUserAgent(session.userAgent) }}
+                </p>
+                <p class="mt-1 text-xs text-muted">
+                  {{ session.ipAddress || "IP tidak diketahui" }} · Masuk
+                  sejak {{ formatDateTime(session.loggedInAt) }}
+                </p>
+              </div>
+              <button
+                type="button"
+                class="inline-flex h-9 shrink-0 items-center justify-center rounded-lg border border-border px-4 text-sm font-medium text-danger transition hover:bg-danger-soft disabled:cursor-not-allowed disabled:opacity-60"
+                :disabled="revokingSessionId === session.id"
+                @click="confirmRevokeSession(session)"
+              >
+                {{ revokingSessionId === session.id ? "Memproses..." : "Keluar" }}
+              </button>
+            </li>
+          </ul>
         </section>
 
         <section

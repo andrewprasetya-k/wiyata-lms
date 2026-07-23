@@ -85,7 +85,6 @@ func main() {
 
 	changePasswordAttemptStore := middleware.NewChangePasswordAttemptStore()
 
-	
 	refreshTokenIPAttemptStore := middleware.NewRefreshTokenIPAttemptStore()
 	refreshTokenFamilyAttemptStore := middleware.NewRefreshTokenFamilyAttemptStore()
 	refreshTokenRepo := repository.NewRefreshTokenRepository(db)
@@ -237,6 +236,8 @@ func main() {
 			meAPI.PATCH("/change-password", authHandler.ChangePassword)
 			meAPI.POST("/resend-verification", emailVerificationHandler.Resend)
 			meAPI.GET("/ws-ticket", authHandler.IssueWSTicket)
+			meAPI.GET("/sessions", authHandler.ListSessions)
+			meAPI.DELETE("/sessions/:id", authHandler.RevokeSession)
 		}
 
 		schoolAPI := api.Group("/schools")

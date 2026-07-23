@@ -43,6 +43,19 @@ type WSTicketResponseDTO struct {
 	Ticket string `json:"ticket"`
 }
 
+// SessionDTO is one row of GET /me/sessions — the token_hash itself is
+// never included. UserAgent is returned raw (not parsed server-side — no
+// user-agent-parsing dependency exists in go.mod, and adding one for this
+// alone wasn't worth it); the frontend parses it into a friendly
+// device/browser summary.
+type SessionDTO struct {
+	ID         string `json:"id"`
+	LoggedInAt string `json:"loggedInAt"`
+	ExpiresAt  string `json:"expiresAt"`
+	UserAgent  string `json:"userAgent"`
+	IPAddress  string `json:"ipAddress"`
+}
+
 type AuthContextResponseDTO struct {
 	Memberships     []MembershipInfo `json:"memberships"`
 	GlobalRoles     []string         `json:"globalRoles"`

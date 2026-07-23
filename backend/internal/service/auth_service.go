@@ -53,15 +53,10 @@ type AuthService interface {
 	Register(fullName string, email string, password string, meta RefreshTokenMetadata) (*dto.LoginResponseDTO, string, error)
 	GetContext(userID string) (*dto.AuthContextResponseDTO, error)
 	ChangePassword(userID string, currentPassword string, newPassword string) error
-	// Refresh validates+rotates rawRefreshToken and returns
-	// (newAccessToken, newRawRefreshToken, error). The raw refresh token is
-	// never wrapped in a response DTO — callers must be careful never to
-	// let it leak into a JSON body; it belongs in an httpOnly cookie only.
 	Refresh(rawRefreshToken string, meta RefreshTokenMetadata) (string, string, error)
-	// Logout revokes the single session the given refresh token belongs to
-	// (not the whole family) and never errors to the caller — logout is
-	// idempotent/best-effort by design.
 	Logout(rawRefreshToken string) error
+	ListSessions(userID string) ([]*domain.RefreshToken, error)
+	RevokeSession(userID string, sessionID string) error
 }
 
 type authService struct {
@@ -332,6 +327,44 @@ func (s *authService) Logout(rawRefreshToken string) error {
 		metadata["user_id"] = record.UserID
 	}
 	_ = s.logService.Log(actor, "auth.logout", "user", entityID, domain.LogSeverityLow, metadata)
+	return nil
+}
+
+func (s *authService) ListSessions(userID string) ([]*domain.RefreshToken, error) {
+	return s.refreshTokenRepo.FindActiveByUserID(userID, time.Now())
+}
+
+// RevokeSession fetches the row first and explicitly checks ownership —
+// same defense-in-depth pattern as LogHandler.GetByIDInSchool — rather than
+// relying solely on a WHERE clause to enforce it.
+func (s *authService) RevokeSession(userID string, sessionID string) error {
+	token, err := s.refreshTokenRepo.FindByID(sessionID)
+	if err != nil {
+		return ErrRefreshTokenInvalid
+	}
+	if token.UserID != userID || token.RevokedAt != nil {
+		return ErrRefreshTokenInvalid
+	}
+
+	if err := s.refreshTokenRepo.RevokeByID(sessionID); err != nil {
+		return err
+	}
+
+	userAgent := ""
+	if token.UserAgent != nil {
+		userAgent = *token.UserAgent
+	}
+	ipAddress := ""
+	if token.IPAddress != nil {
+		ipAddress = *token.IPAddress
+	}
+
+	_ = s.logService.Log(domain.ActorContext{UserID: userID, Scope: domain.LogScopePlatform}, "auth.session.revoked", "session", strPtr(sessionID), domain.LogSeverityMedium, map[string]any{
+		"user_id":    userID,
+		"session_id": sessionID,
+		"user_agent": userAgent,
+		"ip_address": ipAddress,
+	})
 	return nil
 }
 
