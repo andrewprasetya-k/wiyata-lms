@@ -7,7 +7,6 @@ import {
   PhEyeSlash,
   PhIdentificationCard,
   PhLockKey,
-  PhShieldCheck,
   PhUserCircle,
 } from "@phosphor-icons/vue";
 import { useAuthStore } from "../../stores/auth";
@@ -84,11 +83,6 @@ const currentRoles = computed(() => {
   return roles.map((role) => roleLabels[role] ?? role).join(", ") || "-";
 });
 
-const globalRoles = computed(
-  () =>
-    auth.globalRoles.map((role) => roleLabels[role] ?? role).join(", ") || "-",
-);
-
 const initials = computed(() => {
   const name = auth.user?.fullName ?? "";
   const value = name
@@ -105,7 +99,6 @@ const profileRows = computed(() => [
   { label: "Nama lengkap", value: auth.user?.fullName || "-" },
   { label: "Email", value: auth.user?.email || "-" },
   { label: "Peran aktif", value: currentRoles.value },
-  { label: "Peran platform", value: globalRoles.value },
 ]);
 
 const schoolRows = computed(() => [
@@ -287,21 +280,6 @@ onMounted(loadSessions);
           <p class="mt-1 break-all text-sm leading-6 text-muted">
             {{ auth.user.email || "Email tidak tersedia" }}
           </p>
-
-          <div class="mt-5 rounded-lg bg-brand-soft p-4">
-            <div class="flex items-start gap-3">
-              <PhShieldCheck
-                :size="20"
-                class="mt-0.5 shrink-0 text-brand"
-                weight="duotone"
-              />
-              <p class="text-sm leading-6 text-[#5f5a70]">
-                Nama, email, dan peran akun dikelola oleh pengelola sekolah.
-                Anda dapat mengubah kata sandi akun sendiri kapan saja di
-                bagian "Ubah kata sandi".
-              </p>
-            </div>
-          </div>
         </article>
       </aside>
 
@@ -390,8 +368,8 @@ onMounted(loadSessions);
                 Ubah kata sandi
               </h2>
               <p class="mt-1 text-xs text-muted">
-                Kata sandi baru minimal 8 karakter, kombinasi huruf besar,
-                huruf kecil, dan angka.
+                Kata sandi baru minimal 8 karakter, kombinasi huruf besar, huruf
+                kecil, dan angka.
               </p>
             </div>
           </div>
@@ -401,7 +379,9 @@ onMounted(loadSessions);
             @submit.prevent="submitPasswordChange"
           >
             <label class="block md:col-span-2">
-              <span class="mb-1.5 block text-xs font-medium text-foreground-secondary">
+              <span
+                class="mb-1.5 block text-xs font-medium text-foreground-secondary"
+              >
                 Password saat ini
               </span>
               <div class="relative">
@@ -430,7 +410,9 @@ onMounted(loadSessions);
             </label>
 
             <label class="block">
-              <span class="mb-1.5 block text-xs font-medium text-foreground-secondary">
+              <span
+                class="mb-1.5 block text-xs font-medium text-foreground-secondary"
+              >
                 Password baru
               </span>
               <div class="relative">
@@ -445,7 +427,9 @@ onMounted(loadSessions);
                   type="button"
                   class="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-muted transition hover:text-foreground"
                   :aria-label="
-                    newPasswordVisible ? 'Sembunyikan password' : 'Tampilkan password'
+                    newPasswordVisible
+                      ? 'Sembunyikan password'
+                      : 'Tampilkan password'
                   "
                   :aria-pressed="newPasswordVisible"
                   @click="toggleNewPasswordVisibility"
@@ -457,7 +441,9 @@ onMounted(loadSessions);
             </label>
 
             <label class="block">
-              <span class="mb-1.5 block text-xs font-medium text-foreground-secondary">
+              <span
+                class="mb-1.5 block text-xs font-medium text-foreground-secondary"
+              >
                 Konfirmasi password baru
               </span>
               <div class="relative">
@@ -498,7 +484,9 @@ onMounted(loadSessions);
                 type="submit"
                 :disabled="!canSubmitPasswordChange"
               >
-                {{ isChangingPassword ? "Menyimpan..." : "Simpan password baru" }}
+                {{
+                  isChangingPassword ? "Menyimpan..." : "Simpan password baru"
+                }}
               </button>
             </div>
           </form>
@@ -546,8 +534,8 @@ onMounted(loadSessions);
                   {{ summarizeUserAgent(session.userAgent) }}
                 </p>
                 <p class="mt-1 text-xs text-muted">
-                  {{ session.ipAddress || "IP tidak diketahui" }} · Masuk
-                  sejak {{ formatDateTime(session.loggedInAt) }}
+                  {{ session.ipAddress || "IP tidak diketahui" }} · Masuk sejak
+                  {{ formatDateTime(session.loggedInAt) }}
                 </p>
               </div>
               <button
@@ -556,7 +544,9 @@ onMounted(loadSessions);
                 :disabled="revokingSessionId === session.id"
                 @click="confirmRevokeSession(session)"
               >
-                {{ revokingSessionId === session.id ? "Memproses..." : "Keluar" }}
+                {{
+                  revokingSessionId === session.id ? "Memproses..." : "Keluar"
+                }}
               </button>
             </li>
           </ul>
