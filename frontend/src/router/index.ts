@@ -8,6 +8,8 @@ import AdminLayout from "../layouts/AdminLayout.vue";
 import SuperAdminLayout from "../layouts/SuperAdminLayout.vue";
 import LoginPage from "../pages/auth/LoginPage.vue";
 import RegisterPage from "../pages/auth/RegisterPage.vue";
+import ForgotPasswordPage from "../pages/auth/ForgotPasswordPage.vue";
+import ResetPasswordPage from "../pages/auth/ResetPasswordPage.vue";
 import UnauthorizedPage from "../pages/auth/UnauthorizedPage.vue";
 import OnboardingPage from "../pages/onboarding/OnboardingPage.vue";
 import StudentDashboard from "../pages/student/StudentDashboard.vue";
@@ -110,6 +112,18 @@ const router = createRouter({
           name: "register",
           component: RegisterPage,
           meta: { title: "Daftar" },
+        },
+        {
+          path: "forgot-password",
+          name: "forgot-password",
+          component: ForgotPasswordPage,
+          meta: { title: "Lupa Kata Sandi" },
+        },
+        {
+          path: "reset-password/:token",
+          name: "reset-password",
+          component: ResetPasswordPage,
+          meta: { title: "Reset Kata Sandi" },
         },
         {
           path: "unauthorized",

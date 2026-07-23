@@ -145,11 +145,17 @@ async function submit() {
           </label>
 
           <label class="block">
-            <span
-              class="mb-2 block text-sm font-medium text-foreground-secondary"
-            >
-              Password
-            </span>
+            <div class="mb-2 flex items-center justify-between">
+              <span class="text-sm font-medium text-foreground-secondary">
+                Password
+              </span>
+              <RouterLink
+                to="/forgot-password"
+                class="text-xs font-medium text-brand hover:text-brand-hover"
+              >
+                Lupa kata sandi?
+              </RouterLink>
+            </div>
             <div class="relative">
               <input
                 v-model="password"

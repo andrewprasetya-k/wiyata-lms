@@ -13,6 +13,7 @@ import { useAuthStore } from "../../stores/auth";
 import { useToastStore } from "../../stores/toast";
 import { usePasswordVisibility } from "../../composables/usePasswordVisibility";
 import { changePassword } from "../../services/changePassword";
+import { passwordPolicyError } from "../../utils/passwordPolicy";
 import type { RoleName } from "../../types/auth";
 
 const props = defineProps<{
@@ -127,20 +128,6 @@ const {
   inputType: confirmNewPasswordInputType,
   toggle: toggleConfirmNewPasswordVisibility,
 } = usePasswordVisibility();
-
-// Mirrors the backend's policy (min 8 chars + upper/lower/number) so the
-// user gets fast feedback client-side — the server re-validates regardless,
-// this is UX only, not the source of truth.
-function passwordPolicyError(password: string): string {
-  if (password.length < 8) return "Password baru minimal 8 karakter.";
-  if (!/[A-Z]/.test(password))
-    return "Password baru harus mengandung minimal satu huruf besar.";
-  if (!/[a-z]/.test(password))
-    return "Password baru harus mengandung minimal satu huruf kecil.";
-  if (!/[0-9]/.test(password))
-    return "Password baru harus mengandung minimal satu angka.";
-  return "";
-}
 
 const canSubmitPasswordChange = computed(
   () =>
