@@ -1,7 +1,6 @@
 package realtime
 
 import (
-	"backend/internal/middleware"
 	"backend/internal/service"
 	"net/http"
 	"strings"
@@ -11,15 +10,17 @@ import (
 )
 
 type WebSocketHandler struct {
-	hub         *Hub
-	chatService service.ChatService
-	upgrader    websocket.Upgrader
+	hub             *Hub
+	chatService     service.ChatService
+	wsTicketService service.WSTicketService
+	upgrader        websocket.Upgrader
 }
 
-func NewWebSocketHandler(hub *Hub, chatService service.ChatService) *WebSocketHandler {
+func NewWebSocketHandler(hub *Hub, chatService service.ChatService, wsTicketService service.WSTicketService) *WebSocketHandler {
 	return &WebSocketHandler{
-		hub:         hub,
-		chatService: chatService,
+		hub:             hub,
+		chatService:     chatService,
+		wsTicketService: wsTicketService,
 		upgrader: websocket.Upgrader{
 			CheckOrigin: func(*http.Request) bool {
 				return true
@@ -29,15 +30,15 @@ func NewWebSocketHandler(hub *Hub, chatService service.ChatService) *WebSocketHa
 }
 
 func (h *WebSocketHandler) Chat(c *gin.Context) {
-	tokenValue := extractHandshakeToken(c)
-	if tokenValue == "" {
+	ticketValue := extractHandshakeTicket(c)
+	if ticketValue == "" {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
 
-	userID, err := parseUserIDFromToken(tokenValue)
+	userID, err := h.wsTicketService.Consume(ticketValue)
 	if err != nil || userID == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired ticket"})
 		return
 	}
 
@@ -70,26 +71,11 @@ func (h *WebSocketHandler) Chat(c *gin.Context) {
 	client.ReadLoop()
 }
 
-func extractHandshakeToken(c *gin.Context) string {
-	if value := strings.TrimSpace(c.Query("token")); value != "" {
-		return value
-	}
-	authHeader := c.GetHeader("Authorization")
-	parts := strings.Split(authHeader, " ")
-	if len(parts) == 2 && parts[0] == "Bearer" {
-		return parts[1]
-	}
-	return ""
-}
-
-func parseUserIDFromToken(tokenValue string) (string, error) {
-	claims, err := middleware.ParseAccessToken(tokenValue)
-	if err != nil {
-		return "", err
-	}
-	userID := middleware.UserIDFromClaims(claims)
-	if userID == "" {
-		return "", middleware.ErrInvalidAccessToken
-	}
-	return userID, nil
+// extractHandshakeTicket reads the short-lived, single-use WS ticket
+// (issued via GET /me/ws-ticket) from the query string. Shared by chat,
+// audit, and sidebar handshakes. Replaces the previous raw-JWT-via-?token=
+// scheme — a real access token may now live somewhere JS on the frontend
+// can't read it from, so it can no longer be attached to a WS URL at all.
+func extractHandshakeTicket(c *gin.Context) string {
+	return strings.TrimSpace(c.Query("ticket"))
 }

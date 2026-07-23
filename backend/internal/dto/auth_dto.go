@@ -35,6 +35,14 @@ type LogoutResponseDTO struct {
 	Message string `json:"message"`
 }
 
+// WSTicketResponseDTO is GET /me/ws-ticket's response body — a short-lived,
+// single-use ticket for the WebSocket/SSE handshake (?ticket=...), used
+// instead of the raw access token now that it may live somewhere JS can't
+// read it from.
+type WSTicketResponseDTO struct {
+	Ticket string `json:"ticket"`
+}
+
 type AuthContextResponseDTO struct {
 	Memberships     []MembershipInfo `json:"memberships"`
 	GlobalRoles     []string         `json:"globalRoles"`

@@ -83,25 +83,16 @@ func main() {
 	schoolMemberInvitationService := service.NewSchoolMemberInvitationService(schoolMemberInvitationRepo, emailService, logService)
 	schoolMemberInvitationHandler := handler.NewSchoolMemberInvitationHandler(schoolMemberInvitationService)
 
-	// Change-password lockout: 5 failed current-password attempts, then
-	// locked out from further attempts for 15 minutes. burst=5 gives the 5
-	// attempts; rps is tuned so the token bucket fully refills (back to 5
-	// fresh attempts) after exactly 15 minutes of no further failed attempts.
-	// ttl (idle-entry sweep) is kept comfortably longer than the lock window
-	// so an entry can never be swept away mid-lock, which would otherwise
-	// shorten the lock early.
 	changePasswordAttemptStore := middleware.NewInMemoryRateLimiterStore(5.0/(15*60), 5, 20*time.Minute)
-	// Refresh-token rate limiting: per-family_id (once resolved), generous
-	// on purpose — legitimate rotation traffic (every ~15 min per active
-	// user) shouldn't compete with any general API burst budget. burst=8
-	// tolerates a handful of rapid legitimate retries (e.g. a slow network
-	// causing a client-side retry, or concurrent tabs racing) without
-	// looking like abuse; rps refills gradually over 10 minutes.
+
 	refreshTokenAttemptStore := middleware.NewInMemoryRateLimiterStore(8.0/(10*60), 8, 20*time.Minute)
 	refreshTokenRepo := repository.NewRefreshTokenRepository(db)
 	authService := service.NewAuthService(userRepo, schoolUserRepo, emailVerificationService, logService, refreshTokenRepo, changePasswordAttemptStore, refreshTokenAttemptStore)
-	auditStreamHandler := realtime.NewAuditStreamHandler(auditHub, authService)
-	authHandler := handler.NewAuthHandler(authService)
+	// In-memory, single-use, 60s WS handshake tickets — see
+	// ws_ticket_service.go for why this doesn't need a DB table.
+	wsTicketService := service.NewWSTicketService()
+	auditStreamHandler := realtime.NewAuditStreamHandler(auditHub, authService, wsTicketService)
+	authHandler := handler.NewAuthHandler(authService, wsTicketService)
 
 	subjectRepo := repository.NewSubjectRepository(db)
 	subjectService := service.NewSubjectService(subjectRepo, schoolService, logService)
@@ -138,7 +129,7 @@ func main() {
 
 	sidebarHub := realtime.NewSidebarHub()
 	go sidebarHub.Run()
-	sidebarStreamHandler := realtime.NewSidebarStreamHandler(sidebarHub, authService)
+	sidebarStreamHandler := realtime.NewSidebarStreamHandler(sidebarHub, authService, wsTicketService)
 
 	notificationService := service.NewNotificationService(notificationRepo, sidebarHub)
 	notificationHandler := handler.NewNotificationHandler(notificationService)
@@ -166,7 +157,7 @@ func main() {
 	chatHub := realtime.NewHub()
 	go chatHub.Run()
 	chatHandler := handler.NewChatHandler(chatService, chatHub)
-	chatWebSocketHandler := realtime.NewWebSocketHandler(chatHub, chatService)
+	chatWebSocketHandler := realtime.NewWebSocketHandler(chatHub, chatService, wsTicketService)
 
 	assignmentService := service.NewAssignmentService(assignmentRepo, attachmentService, mediaRepo, notificationService, enrollmentRepo, db, logService)
 	assignmentHandler := handler.NewAssignmentHandler(assignmentService, schoolService, subjectClassService)
@@ -228,10 +219,6 @@ func main() {
 		api.POST("/verify-email", emailVerificationHandler.Verify)
 		api.GET("/reset-password/:token", passwordResetHandler.GetMetadata)
 		api.POST("/reset-password/:token", passwordResetHandler.Reset)
-		// Public — a caller with an expired/missing access token must still
-		// be able to refresh or log out. IP-scoped pre-check here (cheap,
-		// no DB hit); the finer per-family_id check happens inside
-		// AuthService.Refresh once the token is resolved.
 		api.POST("/refresh-token", middleware.RateLimitByIP(refreshTokenAttemptStore), authHandler.Refresh)
 		api.POST("/logout", authHandler.Logout)
 		// Not rate-limited: long-lived SSE/WebSocket connections
@@ -249,6 +236,7 @@ func main() {
 			meAPI.GET("/context", authHandler.GetContext)
 			meAPI.PATCH("/change-password", authHandler.ChangePassword)
 			meAPI.POST("/resend-verification", emailVerificationHandler.Resend)
+			meAPI.GET("/ws-ticket", authHandler.IssueWSTicket)
 		}
 
 		schoolAPI := api.Group("/schools")

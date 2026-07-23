@@ -15,15 +15,17 @@ import (
 )
 
 type SidebarStreamHandler struct {
-	hub         *SidebarHub
-	authService service.AuthService
-	upgrader    websocket.Upgrader
+	hub             *SidebarHub
+	authService     service.AuthService
+	wsTicketService service.WSTicketService
+	upgrader        websocket.Upgrader
 }
 
-func NewSidebarStreamHandler(hub *SidebarHub, authService service.AuthService) *SidebarStreamHandler {
+func NewSidebarStreamHandler(hub *SidebarHub, authService service.AuthService, wsTicketService service.WSTicketService) *SidebarStreamHandler {
 	return &SidebarStreamHandler{
-		hub:         hub,
-		authService: authService,
+		hub:             hub,
+		authService:     authService,
+		wsTicketService: wsTicketService,
 		upgrader: websocket.Upgrader{
 			CheckOrigin: func(*http.Request) bool { return true },
 		},
@@ -31,15 +33,15 @@ func NewSidebarStreamHandler(hub *SidebarHub, authService service.AuthService) *
 }
 
 func (h *SidebarStreamHandler) Stream(c *gin.Context) {
-	tokenValue := extractHandshakeToken(c)
-	if tokenValue == "" {
+	ticketValue := extractHandshakeTicket(c)
+	if ticketValue == "" {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
 
-	userID, err := parseUserIDFromToken(tokenValue)
+	userID, err := h.wsTicketService.Consume(ticketValue)
 	if err != nil || userID == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired ticket"})
 		return
 	}
 

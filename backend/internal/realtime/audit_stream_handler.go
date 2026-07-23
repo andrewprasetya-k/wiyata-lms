@@ -12,15 +12,17 @@ import (
 )
 
 type AuditStreamHandler struct {
-	hub         *Hub
-	authService service.AuthService
-	upgrader    websocket.Upgrader
+	hub             *Hub
+	authService     service.AuthService
+	wsTicketService service.WSTicketService
+	upgrader        websocket.Upgrader
 }
 
-func NewAuditStreamHandler(hub *Hub, authService service.AuthService) *AuditStreamHandler {
+func NewAuditStreamHandler(hub *Hub, authService service.AuthService, wsTicketService service.WSTicketService) *AuditStreamHandler {
 	return &AuditStreamHandler{
-		hub:         hub,
-		authService: authService,
+		hub:             hub,
+		authService:     authService,
+		wsTicketService: wsTicketService,
 		upgrader: websocket.Upgrader{
 			CheckOrigin: func(*http.Request) bool { return true },
 		},
@@ -28,15 +30,15 @@ func NewAuditStreamHandler(hub *Hub, authService service.AuthService) *AuditStre
 }
 
 func (h *AuditStreamHandler) Stream(c *gin.Context) {
-	tokenValue := extractHandshakeToken(c)
-	if tokenValue == "" {
+	ticketValue := extractHandshakeTicket(c)
+	if ticketValue == "" {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
 
-	userID, err := parseUserIDFromToken(tokenValue)
+	userID, err := h.wsTicketService.Consume(ticketValue)
 	if err != nil || userID == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired ticket"})
 		return
 	}
 

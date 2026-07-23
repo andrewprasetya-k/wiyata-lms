@@ -11,17 +11,32 @@ import (
 )
 
 type AuthHandler struct {
-	authService service.AuthService
+	authService     service.AuthService
+	wsTicketService service.WSTicketService
 }
 
-func NewAuthHandler(authService service.AuthService) *AuthHandler {
-	return &AuthHandler{authService: authService}
+func NewAuthHandler(authService service.AuthService, wsTicketService service.WSTicketService) *AuthHandler {
+	return &AuthHandler{authService: authService, wsTicketService: wsTicketService}
 }
 
+// refreshTokenCookieName/Path: the cookie must be readable by both
+// POST /refresh-token and POST /logout — those are sibling top-level routes
+// (matching /login, /register's flat convention) with no common path
+// narrower than /api, so Path is set to /api rather than scoped to either
+// individual route. This is broader than ideal (the cookie is attached to
+// every /api/* request, not just these two), but no request handler other
+// than Refresh/Logout ever looks for this cookie name, so the practical
+// exposure is "sent but ignored" everywhere else, not a capability leak.
 const refreshTokenCookieName = "refresh_token"
 const refreshTokenCookiePath = "/api"
 const refreshTokenCookieMaxAgeSeconds = 7 * 24 * 60 * 60 // 7 days, matches refreshTokenTTL
 
+// setRefreshTokenCookie/clearRefreshTokenCookie centralize the cookie
+// attributes so Login/Register/Refresh/Logout can't drift out of sync.
+// Secure=true means this cookie is only ever sent over HTTPS — note for
+// local dev over plain http://127.0.0.1, most browsers won't set/send it;
+// http://localhost specifically is commonly treated as a secure context and
+// works, but this is a real local-dev caveat, not a bug.
 func setRefreshTokenCookie(c *gin.Context, rawToken string) {
 	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie(refreshTokenCookieName, rawToken, refreshTokenCookieMaxAgeSeconds, refreshTokenCookiePath, "", true, true)
@@ -161,4 +176,25 @@ func (h *AuthHandler) GetContext(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response)
+}
+
+// IssueWSTicket is GET /me/ws-ticket — AuthRequired, so it needs a valid
+// (short-lived) access token to call. Returns a separate, even
+// shorter-lived, single-use ticket for the WebSocket/SSE handshake, which
+// can't carry the real access token anymore now that it may live somewhere
+// JS can't read it from.
+func (h *AuthHandler) IssueWSTicket(c *gin.Context) {
+	userID := middleware.GetUserID(c)
+	if userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	ticket, err := h.wsTicketService.Issue(userID)
+	if err != nil {
+		HandleError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, dto.WSTicketResponseDTO{Ticket: ticket})
 }
