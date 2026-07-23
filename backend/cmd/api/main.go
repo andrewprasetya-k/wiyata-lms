@@ -1,6 +1,7 @@
 package main
 
 import (
+	"backend/internal/domain"
 	"backend/internal/handler"
 	"backend/internal/middleware"
 	"backend/internal/realtime"
@@ -10,6 +11,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -43,6 +45,7 @@ func main() {
 	auditBroadcaster := realtime.NewAuditHubBroadcaster(auditHub)
 	logRepo := repository.NewLogRepository(db)
 	logService := service.NewLogService(logRepo, auditBroadcaster)
+	go startAuditLogRetentionJob(logRepo, logService, auditLogRetentionDays())
 	schoolRepo := repository.NewSchoolRepository(db)
 	schoolService := service.NewSchoolService(schoolRepo, logService)
 	schoolHandler := handler.NewSchoolHandler(schoolService)
@@ -579,6 +582,59 @@ func parseAllowedOrigins(raw string) []string {
 	}
 
 	return origins
+}
+
+// auditLogRetentionDays reads AUDIT_LOG_RETENTION_DAYS once at startup.
+// Unset or 0 disables retention cleanup entirely — no behavior change for
+// any environment that doesn't set it.
+func auditLogRetentionDays() int {
+	raw := strings.TrimSpace(os.Getenv("AUDIT_LOG_RETENTION_DAYS"))
+	if raw == "" {
+		return 0
+	}
+	days, err := strconv.Atoi(raw)
+	if err != nil || days <= 0 {
+		return 0
+	}
+	return days
+}
+
+// startAuditLogRetentionJob runs a flat-retention cleanup of edv.logs on a
+// 24h ticker. Deliberately does NOT run immediately at process start — the
+// first cleanup fires after the first 24h tick, so simply restarting the
+// backend can never trigger an unexpected bulk delete. CRITICAL severity
+// (user.deleted) is always exempt, regardless of the configured retention
+// window. Blocks forever — call with `go`.
+func startAuditLogRetentionJob(logRepo repository.LogRepository, logService service.LogService, retentionDays int) {
+	if retentionDays <= 0 {
+		return
+	}
+
+	runCleanup := func() {
+		cutoff := time.Now().AddDate(0, 0, -retentionDays)
+		deleted, err := logRepo.DeleteOlderThan(cutoff, []string{domain.LogSeverityCritical})
+		if err != nil {
+			slog.Error("audit log retention cleanup failed", "error", err)
+			return
+		}
+		_ = logService.Log(
+			domain.ActorContext{Scope: domain.LogScopePlatform},
+			"platform.logs.retention_cleanup",
+			"log",
+			nil,
+			domain.LogSeverityLow,
+			map[string]any{
+				"deleted_count": deleted,
+				"cutoff_date":   cutoff.Format("2006-01-02"),
+			},
+		)
+	}
+
+	ticker := time.NewTicker(24 * time.Hour)
+	defer ticker.Stop()
+	for range ticker.C {
+		runCleanup()
+	}
 }
 
 func serverPort() string {

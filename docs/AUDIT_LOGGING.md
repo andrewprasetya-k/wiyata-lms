@@ -264,7 +264,16 @@ construction, `Log` call placement, scope/severity/entity/metadata
 decision table, `LogBatch` usage). Repeated in full there rather than
 here to keep one canonical location.
 
-## 18. Known Limitations
+## 18. Retention Policy (Phase 10.17)
+
+- **Flat retention: 90 days** across all severities, via the `AUDIT_LOG_RETENTION_DAYS` env var (read once at startup). Unset or `0` disables the cleanup job entirely — no rows are ever auto-deleted, and there is no other behavior change in that case.
+- **Exception: `CRITICAL` (`user.deleted`) is exempt** — retained permanently, never auto-deleted, regardless of the configured value. This exemption is hardcoded in `startAuditLogRetentionJob` (`cmd/api/main.go`), not driven by config, so it can't be accidentally disabled by an env change.
+- **Mechanism**: `LogRepository.DeleteOlderThan(cutoff, excludeSeverities)` deletes in batches of 10,000 rows (`DELETE ... WHERE log_id IN (SELECT log_id ... LIMIT 10000)`, looped until a batch affects 0 rows) rather than one giant statement, to avoid a long-held lock/transaction on `edv.logs` — a table that's also on the hot write path for every mutation in the app.
+- **Schedule**: an in-process `time.Ticker`-based goroutine (`startAuditLogRetentionJob`), started in `cmd/api/main.go` alongside the existing WebSocket hub goroutines, ticking every 24h. It deliberately does **not** run immediately at process start — the first cleanup fires only after the first 24h tick, so a plain backend restart can never itself trigger a bulk delete. No external job scheduler/cron dependency was introduced (none existed in the codebase before this — confirmed via a `go.mod`/`time.NewTicker`/`time.AfterFunc` grep during the Phase 10.16 design review).
+- **Self-auditing**: every cleanup run — including no-op runs that delete 0 rows — emits `platform.logs.retention_cleanup` (LOW severity, `entityType: "log"`, metadata `{deleted_count, cutoff_date}`), so there's a permanent record that a cleanup pass happened even though the deleted rows themselves are gone. The actor is empty (`ActorContext{Scope: platform}`, no `UserID`) since this is a system-initiated event with no human actor — the same convention already used by `auth.login.failed`.
+- See `backend/docs/api/log.md` §4 ("Retention Policy" subsection under the Audit Taxonomy) for the taxonomy-level detail, and `docs/PERFORMANCE_AUDIT.md` for the original operational-hardening design discussion this implements.
+
+## 19. Known Limitations
 
 - WebSocket payload is intentionally partial (no actor name/email, school name, or metadata) — a deliberate trade-off, not a bug.
 - Bulk CSV import broadcasts only the parent row live; child rows exist in the database and REST but aren't individually pushed.
@@ -274,17 +283,17 @@ here to keep one canonical location.
 - RBAC role-definition CRUD (`CreateRole`/`UpdateRole`) remains unaudited.
 - `assignment.category.updated`/`.deleted` do not exist — there is no underlying capability to audit.
 - `POST /academic-years`, `/terms`, `/subjects` still accept `schoolId`/scoping fields in the request body without validating them against the caller's active school header — a pre-existing, documented, unrelated LOW-risk gap (not part of the audit-logging initiative; see `docs/PROJECT_CONTEXT_HANDOFF.md` §27).
-- Retention, archival, and export (CSV/Excel) remain unimplemented — explicitly out of scope for every Phase 10.x sub-phase so far.
+- **Retention is now implemented** (§18); archival and export (CSV/Excel) remain unimplemented — still explicitly out of scope.
 - Database is always the only source of truth; the WebSocket layer can be down, drop events, or reconnect without any data loss — the next REST reload always reflects the true state.
 
-## 19. Future Roadmap
+## 20. Future Roadmap
 
 Ordered by the priority established in the Phase 10.12 architecture audit:
 
 1. Close the RBAC role-definition CRUD gap (`CreateRole`/`UpdateRole`).
 2. Taxonomy consistency cleanup: the systemic 2-segment-creation vs 3-segment-followup naming split (`member.invited` vs `member.invitation.*`; `assignment.assessed` vs `assignment.assessment.*`); unify the role/permission action prefix currently split across `rbac.*`/`member.role.*`/`platform.*`; make an explicit product decision on the `school.*` scope split (§8).
 3. Read-surface enhancements (frontend-only, no backend risk): actor picker (replace the raw UUID text box), entity deep-link, diff viewer for actions that already carry paired before/after metadata, saved filters.
-4. Operational hardening: retention policy (`edv.logs` is unbounded and ever-growing — this is the one item considered a near-term necessity, not a nice-to-have), WebSocket severity gate (stop broadcasting LOW-severity events like every login, which currently costs a broadcast attempt for zero realized viewer value), final production sign-off review.
+4. WebSocket severity gate (stop broadcasting LOW-severity events like every login, which currently costs a broadcast attempt for zero realized viewer value), final production sign-off review. (Retention policy, the other Phase 10.16 operational-hardening item, is done — §18.)
 
 Intentionally out of scope, by design, not by omission: auditing
 `NotificationService`, `AttachmentService`, `MediaService` upload paths,

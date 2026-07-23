@@ -32,6 +32,7 @@ type LogRepository interface {
 	Search(filter LogFilter) ([]*domain.Log, int64, error)
 
 	GetByID(id string) (*domain.Log, error)
+	DeleteOlderThan(cutoff time.Time, excludeSeverities []string) (int64, error)
 
 	WithTx(tx *gorm.DB) LogRepository
 }
@@ -156,6 +157,29 @@ func (r *logRepository) GetByID(id string) (*domain.Log, error) {
 		return nil, err
 	}
 	return &log, nil
+}
+
+const retentionDeleteBatchSize = 10000
+
+func (r *logRepository) DeleteOlderThan(cutoff time.Time, excludeSeverities []string) (int64, error) {
+	var totalDeleted int64
+	for {
+		sub := r.db.Model(&domain.Log{}).Select("log_id").Where("created_at < ?", cutoff)
+		if len(excludeSeverities) > 0 {
+			sub = sub.Where("severity NOT IN ?", excludeSeverities)
+		}
+		sub = sub.Limit(retentionDeleteBatchSize)
+
+		result := r.db.Where("log_id IN (?)", sub).Delete(&domain.Log{})
+		if result.Error != nil {
+			return totalDeleted, result.Error
+		}
+		totalDeleted += result.RowsAffected
+		if result.RowsAffected == 0 {
+			break
+		}
+	}
+	return totalDeleted, nil
 }
 
 func (r *logRepository) WithTx(tx *gorm.DB) LogRepository {

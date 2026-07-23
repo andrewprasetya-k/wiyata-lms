@@ -298,13 +298,23 @@ Distinct from the pre-existing Assessment actions below (Phase 10.7, unchanged).
 
 Known interaction: `RBACService.CreateSuperAdmin` internally calls `UserService.Create`, so bootstrapping a super admin now emits **both** `platform.super_admin.created` and `user.created` for the same user — a minor duplicate on a rare, super-admin-only bootstrap path, not suppressed (see Known Limitations).
 
-### Platform (`super_admin_bootstrap_service.go`, `rbac_service.go`)
-| Action | Severity |
-|---|---|
-| `platform.school.bootstrapped` | HIGH |
-| `platform.super_admin.created` | HIGH |
+### Platform (`super_admin_bootstrap_service.go`, `rbac_service.go`, `cmd/api/main.go` retention job — Phase 10.17)
+| Action | Severity | Notes |
+|---|---|---|
+| `platform.school.bootstrapped` | HIGH | |
+| `platform.super_admin.created` | HIGH | |
+| `platform.logs.retention_cleanup` | LOW | Phase 10.17. Emitted by the in-process retention cleanup job (`startAuditLogRetentionJob`, `cmd/api/main.go`) after every batch-delete run, even when `deleted_count` is 0 — so there is a permanent record that a cleanup pass happened, even though the deleted rows themselves are gone. `ActorContext.UserID` is intentionally empty (system-initiated, no human actor — same convention as `auth.login.failed`). `entityType` is `"log"`, `entityId` is `nil` (the action targets a batch of rows, not one entity). Metadata: `deleted_count` (int64), `cutoff_date` (`YYYY-MM-DD`, the retention cutoff used for that run). |
 
 All business-mutation domains identified in the Phase 10.12 architecture audit are now covered except: RBAC role-definition CRUD (`CreateRole`/`UpdateRole`), `assignment.category.updated`/`.deleted` (no underlying capability), and the intentionally-excluded domains (Notification, Attachment, Media upload, StudentNote, Chat messages, Feed/Comment creation — see `docs/AUDIT_LOGGING.md` §19 for the full reasoning).
+
+### Retention Policy (Phase 10.17)
+
+- **Flat retention: 90 days** across all severities, via `AUDIT_LOG_RETENTION_DAYS` (env, read once at startup). Unset or `0` disables the cleanup job entirely — no rows are ever auto-deleted, and there is no other behavior change.
+- **Exception: `CRITICAL` (`user.deleted`) is exempt** — retained permanently, never auto-deleted, regardless of the configured retention value. Enforced unconditionally in `startAuditLogRetentionJob`, not derived from config.
+- **Mechanism**: an in-process `time.Ticker`-based goroutine (`startAuditLogRetentionJob`, started in `cmd/api/main.go` alongside the existing WebSocket hub goroutines), ticking every 24h. Deliberately does **not** run immediately at process start — the first cleanup fires after the first 24h tick, so a plain backend restart can never itself trigger a bulk delete.
+- **Batching**: `LogRepository.DeleteOlderThan` deletes in batches of 10,000 rows (`DELETE ... WHERE log_id IN (SELECT log_id ... LIMIT 10000)`), looped until a batch affects 0 rows — avoids a single long-held lock/transaction against `edv.logs` on a table that's also on the hot write path.
+- **Self-auditing**: every cleanup run (including no-op runs) emits `platform.logs.retention_cleanup` — see the Platform table above.
+- See `docs/AUDIT_LOGGING.md` §18 and `docs/PERFORMANCE_AUDIT.md` for the fuller design rationale (why flat retention, why CRITICAL is exempt, why an in-process ticker rather than a cron/job-queue dependency).
 
 ## 5. Permission Matrix (REST + WebSocket combined)
 
@@ -324,7 +334,7 @@ All business-mutation domains identified in the Phase 10.12 architecture audit a
 - **Live updates pause, rather than guess, when `search`/`dateFrom`/`dateTo` filters are active in the viewer** — the WebSocket payload can't be matched against those filters reliably client-side, so the frontend skips prepending/count-updating while they're set, and relies on REST once the user reloads. Other filters (severity, scope, entityType, actorUserId, schoolId, correlationId) do work live.
 - **`GetByCorrelationID` (repository) has no REST endpoint of its own** — it's used internally by the bulk-import broadcast/known-limitation flow above, not exposed to the frontend directly.
 - **Database remains the only source of truth.** If the WebSocket connection is down, misses an event, or the browser tab was closed, nothing is lost — the next REST list/reload reflects the true state. The socket is additive convenience, never required for correctness.
-- Retention/archival/export (CSV/Excel) were explicitly out of scope for every Phase 10.x sub-phase and remain unimplemented.
+- **Retention is now implemented** (Phase 10.17 — see the Retention Policy section above); archival and CSV/Excel export remain unimplemented, still explicitly out of scope.
 - **`CreateSuperAdmin` double-logs** (Phase 10.12): bootstrapping a super admin emits both `platform.super_admin.created` and `user.created` for the same user, since it calls the now-instrumented `UserService.Create` internally. Rare (bootstrap-only), low-impact, not suppressed.
 - **RBAC role-definition CRUD is still unaudited** — `CreateRole`/`UpdateRole` (global role creation/rename) have no audit trail, unlike `rbac.role.deleted`. Identified in the Phase 10.12 architecture audit, not in that phase's implementation scope.
 - **`assignment.category.updated`/`.deleted` do not exist** — there is no underlying `UpdateCategory`/`DeleteCategory` capability in the codebase to audit.
