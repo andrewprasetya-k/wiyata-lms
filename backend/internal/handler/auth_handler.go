@@ -324,3 +324,62 @@ func (h *AuthHandler) VerifyMFALogin(c *gin.Context) {
 
 	respondLoginResult(c, http.StatusOK, result)
 }
+
+// EnrollMFASetup is POST /login/mfa-setup/enroll — public. Lets a user
+// whose MFA grace period already expired (a mfaSetupRequired challenge)
+// start TOTP enrollment using only the preAuthToken from that challenge —
+// no access token exists for this user yet.
+func (h *AuthHandler) EnrollMFASetup(c *gin.Context) {
+	var input dto.MFASetupEnrollDTO
+	if err := c.ShouldBindJSON(&input); err != nil {
+		HandleBindingError(c, err)
+		return
+	}
+
+	secret, otpauthURL, err := h.authService.EnrollMFAViaPreAuthToken(input.PreAuthToken)
+	if err != nil {
+		switch {
+		case errors.Is(err, service.ErrMFAPreAuthInvalid):
+			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		case errors.Is(err, service.ErrMFAAlreadyEnabled):
+			c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
+		default:
+			HandleError(c, err)
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, dto.MFAEnrollResponseDTO{Secret: secret, OTPAuthURL: otpauthURL})
+}
+
+// ConfirmMFASetup is POST /login/mfa-setup/confirm — public. Completes
+// forced MFA enrollment: validates the first code, enables MFA, consumes
+// the preAuthToken (single-use), and immediately issues a real session —
+// same response shape as a successful login, plus recovery codes.
+func (h *AuthHandler) ConfirmMFASetup(c *gin.Context) {
+	var input dto.MFASetupConfirmDTO
+	if err := c.ShouldBindJSON(&input); err != nil {
+		HandleBindingError(c, err)
+		return
+	}
+
+	response, rawRefreshToken, err := h.authService.CompleteMFASetup(input.PreAuthToken, input.Code, refreshTokenMetadataFromRequest(c))
+	if err != nil {
+		switch {
+		case errors.Is(err, service.ErrMFAPreAuthInvalid):
+			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		case errors.Is(err, service.ErrMFATooManyAttempts):
+			c.JSON(http.StatusTooManyRequests, gin.H{"error": err.Error()})
+		case errors.Is(err, service.ErrMFACodeInvalid):
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		case errors.Is(err, service.ErrMFAAlreadyEnabled):
+			c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
+		default:
+			HandleError(c, err)
+		}
+		return
+	}
+
+	setRefreshTokenCookie(c, rawRefreshToken)
+	c.JSON(http.StatusOK, response)
+}

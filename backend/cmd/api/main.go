@@ -224,6 +224,8 @@ func main() {
 		api.POST("/refresh-token", middleware.RateLimitByIP(refreshTokenIPAttemptStore), authHandler.Refresh)
 		api.POST("/logout", authHandler.Logout)
 		api.POST("/login/mfa-verify", middleware.RateLimitPerTenant(rateLimiterStore), authHandler.VerifyMFALogin)
+		api.POST("/login/mfa-setup/enroll", middleware.RateLimitPerTenant(rateLimiterStore), authHandler.EnrollMFASetup)
+		api.POST("/login/mfa-setup/confirm", middleware.RateLimitPerTenant(rateLimiterStore), authHandler.ConfirmMFASetup)
 		// Not rate-limited: long-lived SSE/WebSocket connections
 		api.GET("/events/sidebar", sidebarStreamHandler.Stream)
 		api.GET("/ws/chat", chatWebSocketHandler.Chat)

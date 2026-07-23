@@ -89,6 +89,17 @@ type AuthService interface {
 	ListSessions(userID string) ([]*domain.RefreshToken, error)
 	RevokeSession(userID string, sessionID string) error
 	VerifyMFA(rawPreAuthToken string, code string, recoveryCode string, meta RefreshTokenMetadata) (*LoginResult, error)
+	// EnrollMFAViaPreAuthToken starts TOTP enrollment for a user whose grace
+	// period already expired (a Challenge with MFASetupRequired) — driven by
+	// a preAuthToken instead of an access token, since none exists yet for
+	// this user. Does not consume the token — it's presented again to
+	// CompleteMFASetup.
+	EnrollMFAViaPreAuthToken(rawPreAuthToken string) (secret string, otpauthURL string, err error)
+	// CompleteMFASetup validates the first TOTP code, enables MFA, consumes
+	// the preAuthToken (single-use — its last valid use), and immediately
+	// completes the login that was paused for setup, exactly like a normal
+	// successful login.
+	CompleteMFASetup(rawPreAuthToken string, code string, meta RefreshTokenMetadata) (*dto.MFASetupCompleteResponseDTO, string, error)
 }
 
 type authService struct {
@@ -495,6 +506,88 @@ func (s *authService) VerifyMFA(rawPreAuthToken string, code string, recoveryCod
 
 	// MFA is already enabled for this user — no grace-period reminder needed.
 	return s.completeLogin(user, meta, nil)
+}
+
+// resolveMFASetupToken resolves rawPreAuthToken and enforces that it was
+// issued for the forced-setup flow specifically (MFAPreAuthPurposeEnrollRequired)
+// — this is what stops a "mfaRequired" token (issued to a user who already
+// has MFA enabled) from being usable here to silently overwrite that user's
+// existing enrollment.
+func (s *authService) resolveMFASetupToken(rawPreAuthToken string) (*domain.MFAPreAuthToken, error) {
+	token, err := s.mfaService.ResolvePreAuthToken(rawPreAuthToken)
+	if err != nil {
+		return nil, ErrMFAPreAuthInvalid
+	}
+	if token.Purpose != domain.MFAPreAuthPurposeEnrollRequired {
+		return nil, ErrMFAPreAuthInvalid
+	}
+	return token, nil
+}
+
+// EnrollMFAViaPreAuthToken is the forced-setup counterpart to
+// MFAService.Enroll, called with no JWT — only the token itself resolves
+// which user this is for. Deliberately does not consume the token: the
+// same one is presented again to CompleteMFASetup once the user has a code
+// to submit.
+func (s *authService) EnrollMFAViaPreAuthToken(rawPreAuthToken string) (string, string, error) {
+	token, err := s.resolveMFASetupToken(rawPreAuthToken)
+	if err != nil {
+		return "", "", err
+	}
+	return s.mfaService.Enroll(token.UserID)
+}
+
+// CompleteMFASetup validates the first code against the secret from
+// EnrollMFAViaPreAuthToken, enables MFA, consumes the preAuthToken (its
+// last valid use — this is the only path that ever consumes an
+// EnrollRequired-purpose token), and immediately completes the login that
+// was paused for setup, exactly like a normal successful login.
+func (s *authService) CompleteMFASetup(rawPreAuthToken string, code string, meta RefreshTokenMetadata) (*dto.MFASetupCompleteResponseDTO, string, error) {
+	token, err := s.resolveMFASetupToken(rawPreAuthToken)
+	if err != nil {
+		return nil, "", err
+	}
+
+	user, err := s.userRepo.GetByID(token.UserID)
+	if err != nil {
+		return nil, "", err
+	}
+
+	recoveryCodes, err := s.mfaService.ConfirmEnrollment(user.ID, code)
+	if err != nil {
+		if errors.Is(err, ErrMFAAlreadyEnabled) {
+			return nil, "", err
+		}
+
+		lockKey := mfaVerifyLockKeyPrefix + user.ID
+		failErr := ErrMFACodeInvalid
+		if s.mfaVerifyAttemptLimit != nil && !s.mfaVerifyAttemptLimit.Allow(lockKey) {
+			failErr = ErrMFATooManyAttempts
+		}
+		_ = s.logService.Log(domain.ActorContext{UserID: user.ID, Scope: domain.LogScopePlatform}, "auth.mfa.verify.failed", "user", strPtr(user.ID), domain.LogSeverityMedium, map[string]any{
+			"user_id": user.ID,
+			"context": "forced_setup",
+		})
+		return nil, "", failErr
+	}
+
+	if s.mfaVerifyAttemptLimit != nil {
+		s.mfaVerifyAttemptLimit.Reset(mfaVerifyLockKeyPrefix + user.ID)
+	}
+
+	if err := s.mfaService.ConsumePreAuthToken(token.ID); err != nil {
+		return nil, "", err
+	}
+
+	loginResult, err := s.completeLogin(user, meta, nil)
+	if err != nil {
+		return nil, "", err
+	}
+
+	return &dto.MFASetupCompleteResponseDTO{
+		LoginResponseDTO: *loginResult.Response,
+		RecoveryCodes:    recoveryCodes,
+	}, loginResult.RawRefreshToken, nil
 }
 
 // completeLogin issues real tokens and builds the success response —

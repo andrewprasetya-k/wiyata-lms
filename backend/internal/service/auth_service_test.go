@@ -118,23 +118,64 @@ func (s *authTestRefreshTokenRepoStub) FindActiveByUserID(_ string, _ time.Time)
 func (s *authTestRefreshTokenRepoStub) RevokeByID(_ string) error { return nil }
 
 type authTestMFAServiceStub struct {
-	enabled bool
+	enabled       bool
+	validCode     string
+	preAuthTokens map[string]*domain.MFAPreAuthToken
+	consumed      map[string]bool
+	enrolledUsers map[string]bool
 }
 
-func (s *authTestMFAServiceStub) Enroll(_ string) (string, string, error)             { return "", "", nil }
-func (s *authTestMFAServiceStub) ConfirmEnrollment(_ string, _ string) ([]string, error) {
-	return nil, nil
+func newAuthTestMFAServiceStub() *authTestMFAServiceStub {
+	return &authTestMFAServiceStub{
+		validCode:     "123456",
+		preAuthTokens: map[string]*domain.MFAPreAuthToken{},
+		consumed:      map[string]bool{},
+		enrolledUsers: map[string]bool{},
+	}
 }
-func (s *authTestMFAServiceStub) IsEnabled(_ string) (bool, error)          { return s.enabled, nil }
-func (s *authTestMFAServiceStub) VerifyCode(_ string, _ string) error       { return nil }
-func (s *authTestMFAServiceStub) VerifyRecoveryCode(_ string, _ string) error { return nil }
-func (s *authTestMFAServiceStub) IssuePreAuthToken(_ string, _ string, _ time.Duration) (string, error) {
-	return "preauth-token", nil
+
+func (s *authTestMFAServiceStub) Enroll(userID string) (string, string, error) {
+	if s.enrolledUsers[userID] {
+		return "", "", ErrMFAAlreadyEnabled
+	}
+	return "SECRETSECRET", "otpauth://totp/Wiyata:user?secret=SECRETSECRET&issuer=Wiyata", nil
 }
-func (s *authTestMFAServiceStub) ResolvePreAuthToken(_ string) (*domain.MFAPreAuthToken, error) {
-	return nil, errors.New("not found")
+func (s *authTestMFAServiceStub) ConfirmEnrollment(userID string, code string) ([]string, error) {
+	if s.enrolledUsers[userID] {
+		return nil, ErrMFAAlreadyEnabled
+	}
+	if code != s.validCode {
+		return nil, ErrMFAInvalidCode
+	}
+	s.enrolledUsers[userID] = true
+	return []string{"AAAAA-BBBBB"}, nil
 }
-func (s *authTestMFAServiceStub) ConsumePreAuthToken(_ string) error { return nil }
+func (s *authTestMFAServiceStub) IsEnabled(userID string) (bool, error) { return s.enabled, nil }
+func (s *authTestMFAServiceStub) VerifyCode(_ string, _ string) error   { return nil }
+func (s *authTestMFAServiceStub) VerifyRecoveryCode(_ string, _ string) error {
+	return nil
+}
+func (s *authTestMFAServiceStub) IssuePreAuthToken(userID string, purpose string, ttl time.Duration) (string, error) {
+	raw := "raw-" + userID + "-" + purpose
+	s.preAuthTokens[raw] = &domain.MFAPreAuthToken{
+		ID:        raw,
+		UserID:    userID,
+		Purpose:   purpose,
+		ExpiresAt: time.Now().Add(ttl),
+	}
+	return raw, nil
+}
+func (s *authTestMFAServiceStub) ResolvePreAuthToken(rawToken string) (*domain.MFAPreAuthToken, error) {
+	token, ok := s.preAuthTokens[rawToken]
+	if !ok || s.consumed[rawToken] {
+		return nil, errors.New("not found")
+	}
+	return token, nil
+}
+func (s *authTestMFAServiceStub) ConsumePreAuthToken(id string) error {
+	s.consumed[id] = true
+	return nil
+}
 
 // ─── tests ─────────────────────────────────────────────────────────────────
 
@@ -146,7 +187,7 @@ func TestRegister_FreshUser_NeverHitsMFABranches(t *testing.T) {
 		schoolUserRepo: &authTestSchoolUserRepoStub{},
 		logService:     &authTestLogServiceStub{},
 		refreshTokenRepo: &authTestRefreshTokenRepoStub{},
-		mfaService:       &authTestMFAServiceStub{enabled: false},
+		mfaService:       newAuthTestMFAServiceStub(),
 	}
 
 	result, err := svc.Register("Fresh User", "fresh@example.com", "Passw0rd!", RefreshTokenMetadata{})
@@ -219,5 +260,100 @@ func TestCheckMFAGracePeriod_PastWindow_Expired(t *testing.T) {
 	}
 	if !expired {
 		t.Fatalf("8 days past a 7-day window must be expired")
+	}
+}
+
+// ─── forced MFA setup via preAuthToken (grace-period-expired flow) ────────
+
+func newAuthServiceForMFASetupTests(userID string) (*authService, *authTestMFAServiceStub) {
+	userRepo := newAuthTestUserRepoStub()
+	userRepo.byID[userID] = &domain.User{ID: userID, Email: "user@example.com"}
+
+	mfaService := newAuthTestMFAServiceStub()
+	svc := &authService{
+		userRepo:         userRepo,
+		schoolUserRepo:   &authTestSchoolUserRepoStub{},
+		logService:       &authTestLogServiceStub{},
+		refreshTokenRepo: &authTestRefreshTokenRepoStub{},
+		mfaService:       mfaService,
+	}
+	return svc, mfaService
+}
+
+func TestEnrollMFAViaPreAuthToken_RejectsVerifyPurposeToken(t *testing.T) {
+	svc, mfaService := newAuthServiceForMFASetupTests("user-1")
+	// Simulate the token a user who ALREADY has MFA enabled would receive
+	// on login (MFARequired, not MFASetupRequired) — must never be usable
+	// to (re)start enrollment.
+	raw, _ := mfaService.IssuePreAuthToken("user-1", domain.MFAPreAuthPurposeVerify, mfaPreAuthTokenTTL)
+
+	_, _, err := svc.EnrollMFAViaPreAuthToken(raw)
+	if !errors.Is(err, ErrMFAPreAuthInvalid) {
+		t.Fatalf("expected ErrMFAPreAuthInvalid for a mfa_verify-purpose token, got %v", err)
+	}
+}
+
+func TestEnrollMFAViaPreAuthToken_AcceptsEnrollRequiredPurposeToken(t *testing.T) {
+	svc, mfaService := newAuthServiceForMFASetupTests("user-1")
+	raw, _ := mfaService.IssuePreAuthToken("user-1", domain.MFAPreAuthPurposeEnrollRequired, mfaPreAuthTokenTTL)
+
+	secret, otpauthURL, err := svc.EnrollMFAViaPreAuthToken(raw)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if secret == "" || otpauthURL == "" {
+		t.Fatalf("expected a non-empty secret and otpauth URL")
+	}
+	if mfaService.consumed[raw] {
+		t.Fatalf("EnrollMFAViaPreAuthToken must not consume the token — it's reused by CompleteMFASetup")
+	}
+}
+
+func TestCompleteMFASetup_RejectsVerifyPurposeToken(t *testing.T) {
+	svc, mfaService := newAuthServiceForMFASetupTests("user-1")
+	raw, _ := mfaService.IssuePreAuthToken("user-1", domain.MFAPreAuthPurposeVerify, mfaPreAuthTokenTTL)
+
+	_, _, err := svc.CompleteMFASetup(raw, "123456", RefreshTokenMetadata{})
+	if !errors.Is(err, ErrMFAPreAuthInvalid) {
+		t.Fatalf("expected ErrMFAPreAuthInvalid for a mfa_verify-purpose token, got %v", err)
+	}
+}
+
+func TestCompleteMFASetup_SuccessIssuesSessionAndConsumesToken(t *testing.T) {
+	t.Setenv("JWT_SECRET", "test-secret")
+
+	svc, mfaService := newAuthServiceForMFASetupTests("user-1")
+	raw, _ := mfaService.IssuePreAuthToken("user-1", domain.MFAPreAuthPurposeEnrollRequired, mfaPreAuthTokenTTL)
+
+	response, rawRefreshToken, err := svc.CompleteMFASetup(raw, "123456", RefreshTokenMetadata{})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(response.RecoveryCodes) == 0 {
+		t.Fatalf("expected recovery codes to be returned")
+	}
+	if response.Token == "" {
+		t.Fatalf("expected a real access token to be issued")
+	}
+	if rawRefreshToken == "" {
+		t.Fatalf("expected a real refresh token to be issued")
+	}
+
+	// Single-use: the same token must not work a second time.
+	if _, _, err := svc.CompleteMFASetup(raw, "123456", RefreshTokenMetadata{}); !errors.Is(err, ErrMFAPreAuthInvalid) {
+		t.Fatalf("expected the preAuthToken to be consumed after a successful setup, got %v", err)
+	}
+}
+
+func TestCompleteMFASetup_WrongCodeDoesNotConsumeToken(t *testing.T) {
+	svc, mfaService := newAuthServiceForMFASetupTests("user-1")
+	raw, _ := mfaService.IssuePreAuthToken("user-1", domain.MFAPreAuthPurposeEnrollRequired, mfaPreAuthTokenTTL)
+
+	_, _, err := svc.CompleteMFASetup(raw, "000000", RefreshTokenMetadata{})
+	if !errors.Is(err, ErrMFACodeInvalid) {
+		t.Fatalf("expected ErrMFACodeInvalid for a wrong code, got %v", err)
+	}
+	if mfaService.consumed[raw] {
+		t.Fatalf("a failed code attempt must not consume the preAuthToken")
 	}
 }
