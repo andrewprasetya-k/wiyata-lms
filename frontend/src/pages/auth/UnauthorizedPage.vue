@@ -2,9 +2,9 @@
 import router from "../../router";
 import { useAuthStore } from "../../stores/auth";
 
-function logout() {
+async function logout() {
   const auth = useAuthStore();
-  auth.logout();
+  await auth.logout();
   router.push("/login");
 }
 </script>

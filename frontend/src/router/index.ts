@@ -514,7 +514,7 @@ const APP_NAME = "Wiyata";
 
 router.beforeEach(async (to) => {
   const auth = useAuthStore();
-  auth.restoreSession();
+  await auth.restoreSession();
 
   if ((to.name === "login" || to.name === "register") && auth.isAuthenticated) {
     await auth.ensureUserContext();

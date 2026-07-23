@@ -1,4 +1,4 @@
-import { getStoredToken } from "./session";
+import { fetchWsTicket } from "./wsTicket";
 import type { AuditLogEvent } from "../types/auditLog";
 
 type AuditSocketOptions = {
@@ -25,15 +25,19 @@ export function connectAuditSocket(
   let hasOpenedCurrentSocket = false;
   let failedBeforeOpenCount = 0;
 
-  function connect() {
-    const url = buildAuditSocketUrl(options.channel);
+  async function connect() {
+    setStatus("connecting");
+    hasOpenedCurrentSocket = false;
+
+    // Fetched fresh on every (re)connect attempt — a WS ticket is
+    // single-use, so reusing one from a prior attempt would never work.
+    const url = await buildAuditSocketUrl(options.channel);
+    if (closedByClient) return; // caller closed while the ticket fetch was in flight
     if (!url) {
       setStatus("disconnected");
       return;
     }
 
-    setStatus("connecting");
-    hasOpenedCurrentSocket = false;
     socket = new WebSocket(url);
     socket.onopen = () => {
       retryIndex = 0;
@@ -62,12 +66,10 @@ export function connectAuditSocket(
         return;
       }
       setStatus("disconnected");
-      if (getStoredToken()) {
-        const delay =
-          reconnectDelaysMs[Math.min(retryIndex, reconnectDelaysMs.length - 1)];
-        retryIndex += 1;
-        reconnectTimer = window.setTimeout(connect, delay);
-      }
+      const delay =
+        reconnectDelaysMs[Math.min(retryIndex, reconnectDelaysMs.length - 1)];
+      retryIndex += 1;
+      reconnectTimer = window.setTimeout(connect, delay);
     };
     socket.onerror = () => {
       socket?.close();
@@ -93,14 +95,15 @@ export function connectAuditSocket(
   }
 }
 
-function buildAuditSocketUrl(channel: string) {
-  const token = getStoredToken();
-  if (!token || !channel) return "";
+async function buildAuditSocketUrl(channel: string): Promise<string> {
+  if (!channel) return "";
+  const ticket = await fetchWsTicket();
+  if (!ticket) return "";
 
   const apiBase = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080/api";
   const url = new URL(`${apiBase.replace(/\/$/, "")}/ws/audit`, window.location.origin);
   url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
-  url.searchParams.set("token", token);
+  url.searchParams.set("ticket", ticket);
   url.searchParams.set("channel", channel);
   return url.toString();
 }

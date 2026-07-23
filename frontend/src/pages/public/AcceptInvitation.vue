@@ -117,16 +117,17 @@ function goToLogin() {
   router.push({ name: "login", query: { redirect: route.fullPath } });
 }
 
+async function logoutAndGoToLogin() {
+  await auth.logout();
+  goToLogin();
+}
+
 async function acceptAsExistingUser() {
   if (!invitation.value || submitting.value) return;
 
   submitting.value = true;
   errorMessage.value = "";
   try {
-    // Existing users never see name/password fields: identity comes from
-    // the Authorization header the `api` client already attaches, and the
-    // backend independently verifies the logged-in account's email matches
-    // this invitation before accepting.
     accepted.value = await acceptInvitationAuthenticated(token.value);
   } catch (error) {
     errorMessage.value = errorFromResponse(error);
@@ -381,10 +382,7 @@ onMounted(loadInvitation);
             <button
               type="button"
               class="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-border bg-surface px-4 text-sm font-medium text-foreground-secondary transition hover:text-foreground"
-              @click="
-                auth.logout();
-                goToLogin();
-              "
+              @click="logoutAndGoToLogin"
             >
               <PhSignIn :size="17" />
               Keluar dan masuk dengan akun lain

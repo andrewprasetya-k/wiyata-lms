@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
-import { api } from "../services/api";
+import { api, refreshAccessToken } from "../services/api";
+import { getAccessToken, setAccessToken } from "../services/accessToken";
 import {
   clearStoredSession,
   persistSession,
@@ -30,7 +31,11 @@ const landingRouteByRole: Record<RoleName, string> = {
 };
 
 export const useAuthStore = defineStore("auth", () => {
-  const token = ref<string | null>(null);
+  // Mirrors the module-level accessToken.ts singleton (which api.ts reads
+  // from directly, to avoid a circular import) so templates/computeds can
+  // react to it — every write goes through setToken() below to keep both
+  // in sync.
+  const token = ref<string | null>(getAccessToken());
   const user = ref<UserInfo | null>(null);
   const memberships = ref<MembershipInfo[]>([]);
   const globalRoles = ref<RoleName[]>([]);
@@ -101,8 +106,13 @@ export const useAuthStore = defineStore("auth", () => {
   );
   const allRoles = computed<RoleName[]>(() => activeRoles.value);
 
+  function setToken(value: string | null) {
+    token.value = value;
+    setAccessToken(value);
+  }
+
   function applySession(response: LoginResponse) {
-    token.value = response.token;
+    setToken(response.token);
     user.value = response.user;
     memberships.value = response.memberships ?? [];
     globalRoles.value = response.globalRoles ?? [];
@@ -134,9 +144,17 @@ export const useAuthStore = defineStore("auth", () => {
     return data;
   }
 
-  function logout() {
+  async function logout() {
+    try {
+      // Best-effort — the backend's /logout is itself idempotent/always-200,
+      // so a network failure here shouldn't block local cleanup below.
+      await api.post("/logout");
+    } catch {
+      // Ignore — proceed with local cleanup regardless.
+    }
+
     const activeClass = useActiveClassStore();
-    token.value = null;
+    setToken(null);
     user.value = null;
     memberships.value = [];
     globalRoles.value = [];
@@ -153,10 +171,11 @@ export const useAuthStore = defineStore("auth", () => {
     clearStoredSession();
   }
 
-  function restoreSession() {
+  async function restoreSession() {
     if (isRestored.value) return;
+    isRestored.value = true;
+
     const stored = readStoredSession();
-    token.value = stored.token;
     user.value = stored.user;
     memberships.value = stored.memberships;
     globalRoles.value = stored.globalRoles;
@@ -166,8 +185,15 @@ export const useAuthStore = defineStore("auth", () => {
       legacySchoolId: stored.activeSchoolId,
       defaultContext: stored.defaultContext,
     });
+
+    // The access token is in-memory only and never survives a reload —
+    // attempt a silent refresh via the httpOnly refresh cookie (if any) to
+    // repopulate it before deciding whether this is an authenticated
+    // session at all. A visitor with no prior session simply gets a 401
+    // here (no cookie), which is expected and not treated as an error.
+    setToken(await refreshAccessToken());
+
     isContextReady.value = !token.value || Boolean(activeContext.value);
-    isRestored.value = true;
     persistCurrentSession();
   }
 
@@ -294,7 +320,6 @@ export const useAuthStore = defineStore("auth", () => {
         ?.school.id ??
       null;
     persistSession({
-      token: token.value,
       user: user.value,
       memberships: memberships.value,
       globalRoles: globalRoles.value,

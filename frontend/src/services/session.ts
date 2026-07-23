@@ -1,6 +1,9 @@
 import type { ActiveContext, DefaultContext, MembershipInfo, RoleName, UserInfo } from '../types/auth'
 
-const TOKEN_KEY = 'edv_token'
+// Pre-refresh-token-migration key, no longer written — kept only so
+// clearStoredSession() can purge any stale value left over from a session
+// that predates this migration.
+const LEGACY_TOKEN_KEY = 'edv_token'
 const USER_KEY = 'edv_user'
 const MEMBERSHIPS_KEY = 'edv_memberships'
 const GLOBAL_ROLES_KEY = 'edv_global_roles'
@@ -9,10 +12,6 @@ const ACTIVE_CONTEXT_KEY = 'edv_active_context'
 const ACTIVE_SCHOOL_KEY = 'edv_active_school_id'
 const ACTIVE_ROLES_KEY = 'edv_active_roles'
 const ACTIVE_CLASS_KEY = 'edv_active_class_id'
-
-export function getStoredToken() {
-  return localStorage.getItem(TOKEN_KEY)
-}
 
 export function getActiveSchoolId() {
   return localStorage.getItem(ACTIVE_SCHOOL_KEY)
@@ -27,7 +26,6 @@ export function getActiveRole() {
 }
 
 export function persistSession(payload: {
-  token: string
   user: UserInfo | null
   memberships: MembershipInfo[]
   globalRoles: RoleName[]
@@ -36,7 +34,6 @@ export function persistSession(payload: {
   activeSchoolId: string | null
   activeRoles: RoleName[]
 }) {
-  localStorage.setItem(TOKEN_KEY, payload.token)
   localStorage.setItem(USER_KEY, JSON.stringify(payload.user))
   localStorage.setItem(MEMBERSHIPS_KEY, JSON.stringify(payload.memberships))
   localStorage.setItem(GLOBAL_ROLES_KEY, JSON.stringify(payload.globalRoles))
@@ -56,7 +53,6 @@ export function persistSession(payload: {
 
 export function readStoredSession() {
   return {
-    token: localStorage.getItem(TOKEN_KEY),
     user: parseJSON<UserInfo | null>(localStorage.getItem(USER_KEY), null),
     memberships: parseJSON<MembershipInfo[]>(localStorage.getItem(MEMBERSHIPS_KEY), []),
     globalRoles: parseJSON<RoleName[]>(localStorage.getItem(GLOBAL_ROLES_KEY), []),
@@ -71,7 +67,7 @@ export function readStoredSession() {
 }
 
 export function clearStoredSession() {
-  localStorage.removeItem(TOKEN_KEY)
+  localStorage.removeItem(LEGACY_TOKEN_KEY)
   localStorage.removeItem(USER_KEY)
   localStorage.removeItem(MEMBERSHIPS_KEY)
   localStorage.removeItem(GLOBAL_ROLES_KEY)

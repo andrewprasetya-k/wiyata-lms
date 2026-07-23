@@ -1,10 +1,7 @@
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import { getFeedUnreadCount } from "../services/feed";
-import {
-  getActiveRole,
-  getActiveSchoolId,
-  getStoredToken,
-} from "../services/session";
+import { getActiveRole, getActiveSchoolId } from "../services/session";
+import { getAccessToken } from "../services/accessToken";
 import { subscribeSidebarStream } from "../services/sidebarStream";
 
 const unreadCount = ref(0);
@@ -84,7 +81,7 @@ function handleContextChanged() {
 }
 
 function buildContextKey() {
-  const token = getStoredToken();
+  const token = getAccessToken();
   const schoolId = getActiveSchoolId();
   const role = getActiveRole();
   if (!token || !schoolId || !role) return "";

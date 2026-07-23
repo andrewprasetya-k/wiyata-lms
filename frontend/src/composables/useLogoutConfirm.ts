@@ -17,7 +17,7 @@ export function useLogoutConfirm(options: { redirectTo?: string | false } = {}) 
     });
     if (!ok) return;
 
-    auth.logout();
+    await auth.logout();
     if (redirectTo) {
       router.push(redirectTo);
     }

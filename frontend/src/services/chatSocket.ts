@@ -1,4 +1,5 @@
-import { getActiveSchoolId, getStoredToken } from './session'
+import { getActiveSchoolId } from './session'
+import { fetchWsTicket } from './wsTicket'
 import type { ChatSocketEvent } from '../types/chat'
 
 type ChatSocketOptions = {
@@ -24,15 +25,19 @@ export function connectChatSocket(options: ChatSocketOptions): ChatSocketConnect
   let hasOpenedCurrentSocket = false
   let failedBeforeOpenCount = 0
 
-  function connect() {
-    const url = buildChatSocketUrl()
+  async function connect() {
+    setStatus('connecting')
+    hasOpenedCurrentSocket = false
+
+    // Fetched fresh on every (re)connect attempt — a WS ticket is
+    // single-use, so reusing one from a prior attempt would never work.
+    const url = await buildChatSocketUrl()
+    if (closedByClient) return // caller closed while the ticket fetch was in flight
     if (!url) {
       setStatus('disconnected')
       return
     }
 
-    setStatus('connecting')
-    hasOpenedCurrentSocket = false
     socket = new WebSocket(url)
     socket.onopen = () => {
       retryIndex = 0
@@ -56,7 +61,7 @@ export function connectChatSocket(options: ChatSocketOptions): ChatSocketConnect
         failedBeforeOpenCount += 1
       }
       if (failedBeforeOpenCount >= 5) return
-      if (!closedByClient && getStoredToken() && getActiveSchoolId()) {
+      if (!closedByClient && getActiveSchoolId()) {
         const delay = reconnectDelaysMs[Math.min(retryIndex, reconnectDelaysMs.length - 1)]
         retryIndex += 1
         reconnectTimer = window.setTimeout(connect, delay)
@@ -86,15 +91,17 @@ export function connectChatSocket(options: ChatSocketOptions): ChatSocketConnect
   }
 }
 
-function buildChatSocketUrl() {
-  const token = getStoredToken()
+async function buildChatSocketUrl(): Promise<string> {
   const schoolId = getActiveSchoolId()
-  if (!token || !schoolId) return ''
+  if (!schoolId) return ''
+
+  const ticket = await fetchWsTicket()
+  if (!ticket) return ''
 
   const apiBase = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080/api'
   const url = new URL(`${apiBase.replace(/\/$/, '')}/ws/chat`, window.location.origin)
   url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:'
-  url.searchParams.set('token', token)
+  url.searchParams.set('ticket', ticket)
   url.searchParams.set('schoolId', schoolId)
   return url.toString()
 }

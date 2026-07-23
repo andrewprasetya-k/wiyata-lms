@@ -1,11 +1,8 @@
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import { getChatRooms } from "../services/chat";
 import { connectChatSocket } from "../services/chatSocket";
-import {
-  getActiveRole,
-  getActiveSchoolId,
-  getStoredToken,
-} from "../services/session";
+import { getActiveRole, getActiveSchoolId } from "../services/session";
+import { getAccessToken } from "../services/accessToken";
 import type { ChatRoom, ChatSocketEvent } from "../types/chat";
 
 const rooms = ref<ChatRoom[]>([]);
@@ -206,7 +203,7 @@ function handleContextChanged() {
 }
 
 function buildContextKey() {
-  const token = getStoredToken();
+  const token = getAccessToken();
   const schoolId = getActiveSchoolId();
   const role = getActiveRole();
   if (!token || !schoolId || !role) return "";

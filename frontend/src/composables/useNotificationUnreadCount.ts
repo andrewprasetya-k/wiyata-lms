@@ -1,10 +1,7 @@
 import { computed, ref } from "vue";
 import { getNotificationUnreadCount } from "../services/notifications";
-import {
-  getActiveRole,
-  getActiveSchoolId,
-  getStoredToken,
-} from "../services/session";
+import { getActiveRole, getActiveSchoolId } from "../services/session";
+import { getAccessToken } from "../services/accessToken";
 import { subscribeSidebarStream } from "../services/sidebarStream";
 
 const unreadCount = ref(0);
@@ -100,7 +97,7 @@ function handleContextChanged() {
 }
 
 function buildContextKey() {
-  const token = getStoredToken();
+  const token = getAccessToken();
   const schoolId = getActiveSchoolId();
   const role = getActiveRole();
   if (!token || !schoolId || !role) return "";
