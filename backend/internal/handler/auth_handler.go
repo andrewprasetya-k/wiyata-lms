@@ -4,6 +4,7 @@ import (
 	"backend/internal/dto"
 	"backend/internal/middleware"
 	"backend/internal/service"
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -52,6 +53,37 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, response)
+}
+
+func (h *AuthHandler) ChangePassword(c *gin.Context) {
+	userID := middleware.GetUserID(c)
+	if userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	var input dto.ChangeOwnPasswordDTO
+	if err := c.ShouldBindJSON(&input); err != nil {
+		HandleBindingError(c, err)
+		return
+	}
+
+	if err := dto.ValidatePasswordComplexity(input.NewPassword); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err := h.authService.ChangePassword(userID, input.CurrentPassword, input.NewPassword)
+	switch {
+	case err == nil:
+		c.JSON(http.StatusOK, gin.H{"message": "Password changed successfully"})
+	case errors.Is(err, service.ErrTooManyPasswordAttempts):
+		c.JSON(http.StatusTooManyRequests, gin.H{"error": err.Error()})
+	case errors.Is(err, service.ErrInvalidCurrentPassword):
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+	default:
+		HandleError(c, err)
+	}
 }
 
 func (h *AuthHandler) GetContext(c *gin.Context) {

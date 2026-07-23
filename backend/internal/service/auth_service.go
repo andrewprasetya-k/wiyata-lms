@@ -10,13 +10,28 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"golang.org/x/crypto/bcrypt"
 )
+
+type PasswordAttemptLimiter interface {
+	// Allow records one attempt for key and reports whether it is still
+	// within budget. Returns false once the key's budget is exhausted.
+	Allow(key string) bool
+	// Reset clears any tracked attempts for key, restoring full budget.
+	Reset(key string)
+}
+
+var (
+	ErrInvalidCurrentPassword  = errors.New("current password is incorrect")
+	ErrTooManyPasswordAttempts = errors.New("too many failed attempts, try again later")
+)
+
+const changePasswordLockKeyPrefix = "change_password:"
 
 type AuthService interface {
 	Login(email string, password string) (*dto.LoginResponseDTO, error)
 	Register(fullName string, email string, password string) (*dto.LoginResponseDTO, error)
 	GetContext(userID string) (*dto.AuthContextResponseDTO, error)
+	ChangePassword(userID string, currentPassword string, newPassword string) error
 }
 
 type authService struct {
@@ -24,10 +39,11 @@ type authService struct {
 	schoolUserRepo       repository.SchoolUserRepository
 	emailVerificationSvc EmailVerificationService
 	logService           LogService
+	passwordAttemptLimit PasswordAttemptLimiter
 }
 
-func NewAuthService(userRepo repository.UserRepository, schoolUserRepo repository.SchoolUserRepository, emailVerificationSvc EmailVerificationService, logService LogService) AuthService {
-	return &authService{userRepo: userRepo, schoolUserRepo: schoolUserRepo, emailVerificationSvc: emailVerificationSvc, logService: logService}
+func NewAuthService(userRepo repository.UserRepository, schoolUserRepo repository.SchoolUserRepository, emailVerificationSvc EmailVerificationService, logService LogService, passwordAttemptLimit PasswordAttemptLimiter) AuthService {
+	return &authService{userRepo: userRepo, schoolUserRepo: schoolUserRepo, emailVerificationSvc: emailVerificationSvc, logService: logService, passwordAttemptLimit: passwordAttemptLimit}
 }
 
 func (s *authService) logLoginFailed(email string, reason string) {
@@ -45,7 +61,7 @@ func (s *authService) Login(email string, password string) (*dto.LoginResponseDT
 		return nil, errors.New("invalid email or password")
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(userEmail.Password), []byte(password))
+	err = verifyPassword(userEmail.Password, password)
 	if err != nil {
 		// Return same generic error for password mismatch
 		s.logLoginFailed(email, "invalid_password")
@@ -107,7 +123,7 @@ func (s *authService) Register(fullName string, email string, password string) (
 		return nil, errors.New("Email already registered")
 	}
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	hashedPassword, err := hashPassword(password)
 	if err != nil {
 		return nil, err
 	}
@@ -115,7 +131,7 @@ func (s *authService) Register(fullName string, email string, password string) (
 	user := &domain.User{
 		FullName: fullName,
 		Email:    email,
-		Password: string(hashedPassword),
+		Password: hashedPassword,
 	}
 
 	err = s.userRepo.Create(user)
@@ -143,6 +159,55 @@ func (s *authService) GetContext(userID string) (*dto.AuthContextResponseDTO, er
 		return nil, err
 	}
 	return s.buildAuthContext(user)
+}
+
+// ChangePassword is the self-service counterpart to UserService.ChangePassword
+// (which is a super-admin-on-behalf-of-another-user reset). userID always
+// comes from the caller's own JWT claims, never a path/body-supplied ID.
+func (s *authService) ChangePassword(userID string, currentPassword string, newPassword string) error {
+	user, err := s.userRepo.GetByID(userID)
+	if err != nil {
+		return err
+	}
+
+	if err := verifyPassword(user.Password, currentPassword); err != nil {
+		lockKey := changePasswordLockKeyPrefix + userID
+		reason := "invalid_current_password"
+		failErr := ErrInvalidCurrentPassword
+		if s.passwordAttemptLimit != nil && !s.passwordAttemptLimit.Allow(lockKey) {
+			reason = "rate_limited"
+			failErr = ErrTooManyPasswordAttempts
+		}
+		s.logChangePasswordFailed(userID, reason)
+		return failErr
+	}
+
+	hashedPassword, err := hashPassword(newPassword)
+	if err != nil {
+		return err
+	}
+	user.Password = hashedPassword
+
+	if err := s.userRepo.Update(user); err != nil {
+		return err
+	}
+
+	if s.passwordAttemptLimit != nil {
+		s.passwordAttemptLimit.Reset(changePasswordLockKeyPrefix + userID)
+	}
+
+	_ = s.logService.Log(domain.ActorContext{UserID: userID, Scope: domain.LogScopePlatform}, "auth.password.changed", "user", strPtr(userID), domain.LogSeverityHigh, map[string]any{
+		"user_id": userID,
+		"method":  "self_service",
+	})
+	return nil
+}
+
+func (s *authService) logChangePasswordFailed(userID string, reason string) {
+	_ = s.logService.Log(domain.ActorContext{UserID: userID, Scope: domain.LogScopePlatform}, "auth.password.change.failed", "user", strPtr(userID), domain.LogSeverityMedium, map[string]any{
+		"user_id": userID,
+		"reason":  reason,
+	})
 }
 
 func (s *authService) buildLoginResponse(token string, user *domain.User) (*dto.LoginResponseDTO, error) {

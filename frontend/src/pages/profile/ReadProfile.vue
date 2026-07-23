@@ -1,12 +1,18 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import {
   PhBuildings,
+  PhEye,
+  PhEyeSlash,
   PhIdentificationCard,
+  PhLockKey,
   PhShieldCheck,
   PhUserCircle,
 } from "@phosphor-icons/vue";
 import { useAuthStore } from "../../stores/auth";
+import { useToastStore } from "../../stores/toast";
+import { usePasswordVisibility } from "../../composables/usePasswordVisibility";
+import { changePassword } from "../../services/changePassword";
 import type { RoleName } from "../../types/auth";
 
 const props = defineProps<{
@@ -16,6 +22,7 @@ const props = defineProps<{
 }>();
 
 const auth = useAuthStore();
+const toast = useToastStore();
 
 const activeMembership = computed(() => auth.activeMembership);
 const roleLabels: Record<RoleName, string> = {
@@ -97,6 +104,90 @@ const schoolRows = computed(() => [
     value: activeMembership.value?.isDefault ? "Ya" : "Bukan",
   },
 ]);
+
+// --- Change password (self-service) ---
+const currentPassword = ref("");
+const newPassword = ref("");
+const confirmNewPassword = ref("");
+const isChangingPassword = ref(false);
+const passwordErrorMessage = ref("");
+
+const {
+  visible: currentPasswordVisible,
+  inputType: currentPasswordInputType,
+  toggle: toggleCurrentPasswordVisibility,
+} = usePasswordVisibility();
+const {
+  visible: newPasswordVisible,
+  inputType: newPasswordInputType,
+  toggle: toggleNewPasswordVisibility,
+} = usePasswordVisibility();
+const {
+  visible: confirmNewPasswordVisible,
+  inputType: confirmNewPasswordInputType,
+  toggle: toggleConfirmNewPasswordVisibility,
+} = usePasswordVisibility();
+
+// Mirrors the backend's policy (min 8 chars + upper/lower/number) so the
+// user gets fast feedback client-side — the server re-validates regardless,
+// this is UX only, not the source of truth.
+function passwordPolicyError(password: string): string {
+  if (password.length < 8) return "Password baru minimal 8 karakter.";
+  if (!/[A-Z]/.test(password))
+    return "Password baru harus mengandung minimal satu huruf besar.";
+  if (!/[a-z]/.test(password))
+    return "Password baru harus mengandung minimal satu huruf kecil.";
+  if (!/[0-9]/.test(password))
+    return "Password baru harus mengandung minimal satu angka.";
+  return "";
+}
+
+const canSubmitPasswordChange = computed(
+  () =>
+    currentPassword.value !== "" &&
+    newPassword.value !== "" &&
+    confirmNewPassword.value !== "" &&
+    !isChangingPassword.value,
+);
+
+function passwordErrorFromResponse(error: unknown) {
+  const maybeError = error as { response?: { data?: { error?: string } } };
+  return (
+    maybeError.response?.data?.error ??
+    "Password belum bisa diubah. Coba lagi sebentar lagi."
+  );
+}
+
+async function submitPasswordChange() {
+  if (isChangingPassword.value) return;
+  passwordErrorMessage.value = "";
+
+  if (newPassword.value !== confirmNewPassword.value) {
+    passwordErrorMessage.value = "Konfirmasi password baru belum sama.";
+    return;
+  }
+  const policyError = passwordPolicyError(newPassword.value);
+  if (policyError) {
+    passwordErrorMessage.value = policyError;
+    return;
+  }
+
+  isChangingPassword.value = true;
+  try {
+    await changePassword({
+      currentPassword: currentPassword.value,
+      newPassword: newPassword.value,
+    });
+    currentPassword.value = "";
+    newPassword.value = "";
+    confirmNewPassword.value = "";
+    toast.success("Password berhasil diubah.");
+  } catch (error) {
+    passwordErrorMessage.value = passwordErrorFromResponse(error);
+  } finally {
+    isChangingPassword.value = false;
+  }
+}
 </script>
 
 <template>
@@ -166,8 +257,9 @@ const schoolRows = computed(() => [
                 weight="duotone"
               />
               <p class="text-sm leading-6 text-[#5f5a70]">
-                Informasi profil ini hanya dapat dilihat. Perubahan akun
-                dilakukan melalui pengelola sekolah.
+                Nama, email, dan peran akun dikelola oleh pengelola sekolah.
+                Anda dapat mengubah kata sandi akun sendiri kapan saja di
+                bagian "Ubah kata sandi".
               </p>
             </div>
           </div>
@@ -245,6 +337,132 @@ const schoolRows = computed(() => [
               </div>
             </dl>
           </article>
+        </section>
+
+        <section class="min-w-0 rounded-xl border border-border bg-surface p-5">
+          <div class="mb-4 flex min-w-0 items-center gap-3">
+            <div
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-soft text-brand"
+            >
+              <PhLockKey :size="21" weight="duotone" />
+            </div>
+            <div class="min-w-0">
+              <h2 class="text-sm font-medium text-foreground">
+                Ubah kata sandi
+              </h2>
+              <p class="mt-1 text-xs text-muted">
+                Kata sandi baru minimal 8 karakter, kombinasi huruf besar,
+                huruf kecil, dan angka.
+              </p>
+            </div>
+          </div>
+
+          <form
+            class="grid min-w-0 gap-4 md:grid-cols-2"
+            @submit.prevent="submitPasswordChange"
+          >
+            <label class="block md:col-span-2">
+              <span class="mb-1.5 block text-xs font-medium text-foreground-secondary">
+                Password saat ini
+              </span>
+              <div class="relative">
+                <input
+                  v-model="currentPassword"
+                  class="h-11 w-full rounded-lg border border-border bg-surface-subtle px-3 pr-11 text-sm outline-none transition focus:border-brand focus:bg-surface"
+                  :type="currentPasswordInputType"
+                  autocomplete="current-password"
+                  placeholder="Password saat ini"
+                />
+                <button
+                  type="button"
+                  class="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-muted transition hover:text-foreground"
+                  :aria-label="
+                    currentPasswordVisible
+                      ? 'Sembunyikan password'
+                      : 'Tampilkan password'
+                  "
+                  :aria-pressed="currentPasswordVisible"
+                  @click="toggleCurrentPasswordVisibility"
+                >
+                  <PhEyeSlash v-if="currentPasswordVisible" :size="16" />
+                  <PhEye v-else :size="16" />
+                </button>
+              </div>
+            </label>
+
+            <label class="block">
+              <span class="mb-1.5 block text-xs font-medium text-foreground-secondary">
+                Password baru
+              </span>
+              <div class="relative">
+                <input
+                  v-model="newPassword"
+                  class="h-11 w-full rounded-lg border border-border bg-surface-subtle px-3 pr-11 text-sm outline-none transition focus:border-brand focus:bg-surface"
+                  :type="newPasswordInputType"
+                  autocomplete="new-password"
+                  placeholder="Minimal 8 karakter"
+                />
+                <button
+                  type="button"
+                  class="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-muted transition hover:text-foreground"
+                  :aria-label="
+                    newPasswordVisible ? 'Sembunyikan password' : 'Tampilkan password'
+                  "
+                  :aria-pressed="newPasswordVisible"
+                  @click="toggleNewPasswordVisibility"
+                >
+                  <PhEyeSlash v-if="newPasswordVisible" :size="16" />
+                  <PhEye v-else :size="16" />
+                </button>
+              </div>
+            </label>
+
+            <label class="block">
+              <span class="mb-1.5 block text-xs font-medium text-foreground-secondary">
+                Konfirmasi password baru
+              </span>
+              <div class="relative">
+                <input
+                  v-model="confirmNewPassword"
+                  class="h-11 w-full rounded-lg border border-border bg-surface-subtle px-3 pr-11 text-sm outline-none transition focus:border-brand focus:bg-surface"
+                  :type="confirmNewPasswordInputType"
+                  autocomplete="new-password"
+                  placeholder="Ulangi password baru"
+                />
+                <button
+                  type="button"
+                  class="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-muted transition hover:text-foreground"
+                  :aria-label="
+                    confirmNewPasswordVisible
+                      ? 'Sembunyikan password'
+                      : 'Tampilkan password'
+                  "
+                  :aria-pressed="confirmNewPasswordVisible"
+                  @click="toggleConfirmNewPasswordVisibility"
+                >
+                  <PhEyeSlash v-if="confirmNewPasswordVisible" :size="16" />
+                  <PhEye v-else :size="16" />
+                </button>
+              </div>
+            </label>
+
+            <p
+              v-if="passwordErrorMessage"
+              class="rounded-lg bg-danger-soft px-3 py-2.5 text-sm text-danger md:col-span-2"
+            >
+              {{ passwordErrorMessage }}
+            </p>
+
+            <div class="md:col-span-2">
+              <button
+                class="flex h-11 items-center justify-center gap-2 rounded-lg bg-brand px-5 text-sm font-medium text-white transition hover:bg-brand-hover disabled:cursor-not-allowed disabled:bg-[#bab7d8]"
+                type="submit"
+                :disabled="!canSubmitPasswordChange"
+              >
+                {{ isChangingPassword ? "Menyimpan..." : "Simpan password baru" }}
+              </button>
+            </div>
+          </form>
         </section>
 
         <section

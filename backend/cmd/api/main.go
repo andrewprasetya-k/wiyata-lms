@@ -80,7 +80,15 @@ func main() {
 	schoolMemberInvitationService := service.NewSchoolMemberInvitationService(schoolMemberInvitationRepo, emailService, logService)
 	schoolMemberInvitationHandler := handler.NewSchoolMemberInvitationHandler(schoolMemberInvitationService)
 
-	authService := service.NewAuthService(userRepo, schoolUserRepo, emailVerificationService, logService)
+	// Change-password lockout: 5 failed current-password attempts, then
+	// locked out from further attempts for 15 minutes. burst=5 gives the 5
+	// attempts; rps is tuned so the token bucket fully refills (back to 5
+	// fresh attempts) after exactly 15 minutes of no further failed attempts.
+	// ttl (idle-entry sweep) is kept comfortably longer than the lock window
+	// so an entry can never be swept away mid-lock, which would otherwise
+	// shorten the lock early.
+	changePasswordAttemptStore := middleware.NewInMemoryRateLimiterStore(5.0/(15*60), 5, 20*time.Minute)
+	authService := service.NewAuthService(userRepo, schoolUserRepo, emailVerificationService, logService, changePasswordAttemptStore)
 	auditStreamHandler := realtime.NewAuditStreamHandler(auditHub, authService)
 	authHandler := handler.NewAuthHandler(authService)
 
@@ -217,6 +225,7 @@ func main() {
 		meAPI := api.Group("/me")
 		{
 			meAPI.GET("/context", authHandler.GetContext)
+			meAPI.PATCH("/change-password", authHandler.ChangePassword)
 			meAPI.POST("/resend-verification", emailVerificationHandler.Resend)
 		}
 

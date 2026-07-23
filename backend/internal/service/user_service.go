@@ -5,8 +5,6 @@ import (
 	"backend/internal/repository"
 	"fmt"
 	"strings"
-
-	"golang.org/x/crypto/bcrypt"
 )
 
 type UserService interface {
@@ -42,11 +40,11 @@ func (s *userService) Create(actor domain.ActorContext, user *domain.User) error
 	}
 
 	// 2. Hash Password
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	hashedPassword, err := hashPassword(user.Password)
 	if err != nil {
 		return err
 	}
-	user.Password = string(hashedPassword)
+	user.Password = hashedPassword
 
 	if err := s.repo.Create(user); err != nil {
 		return err
@@ -119,17 +117,17 @@ func (s *userService) ChangePassword(actor domain.ActorContext, id string, oldPa
 	}
 
 	// 1. Verifikasi Password Lama
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(oldPassword))
+	err = verifyPassword(user.Password, oldPassword)
 	if err != nil {
 		return fmt.Errorf("password lama salah")
 	}
 
 	// 2. Hash Password Baru
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	hashedPassword, err := hashPassword(newPassword)
 	if err != nil {
 		return err
 	}
-	user.Password = string(hashedPassword)
+	user.Password = hashedPassword
 
 	if err := s.repo.Update(user); err != nil {
 		return err

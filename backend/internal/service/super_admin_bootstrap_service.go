@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
-	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -203,7 +202,7 @@ func createBootstrapAdminUser(tx *gorm.DB, input dto.BootstrapAdminUserDTO) (*do
 		return nil, fmt.Errorf("bootstrap duplicate user email")
 	}
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	hashedPassword, err := hashPassword(password)
 	if err != nil {
 		return nil, err
 	}
@@ -211,7 +210,7 @@ func createBootstrapAdminUser(tx *gorm.DB, input dto.BootstrapAdminUserDTO) (*do
 	user := domain.User{
 		FullName: fullName,
 		Email:    email,
-		Password: string(hashedPassword),
+		Password: hashedPassword,
 		IsActive: true,
 	}
 	if err := tx.Create(&user).Error; err != nil {

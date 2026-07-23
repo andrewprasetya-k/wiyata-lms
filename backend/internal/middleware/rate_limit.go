@@ -16,6 +16,8 @@ import (
 // any call site, as long as it satisfies this interface.
 type RateLimiterStore interface {
 	Allow(key string) bool
+	// Reset clears any tracked state for key, restoring it to full budget.
+	Reset(key string)
 }
 
 type rateLimiterEntry struct {
@@ -62,6 +64,15 @@ func (s *InMemoryRateLimiterStore) Allow(key string) bool {
 	s.mu.Unlock()
 
 	return limiter.Allow()
+}
+
+// Reset deletes key's tracked entry entirely, so the next Allow call starts
+// a fresh limiter at full burst — used to clear a lockout on success (e.g.
+// a correct password after prior failed attempts).
+func (s *InMemoryRateLimiterStore) Reset(key string) {
+	s.mu.Lock()
+	delete(s.limiters, key)
+	s.mu.Unlock()
 }
 
 func (s *InMemoryRateLimiterStore) sweepLoop() {

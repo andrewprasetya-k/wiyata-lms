@@ -9,8 +9,6 @@ import (
 	"errors"
 	"strings"
 	"time"
-
-	"golang.org/x/crypto/bcrypt"
 )
 
 type InvitationService interface {
@@ -95,12 +93,12 @@ func (s *invitationService) Accept(token string, input dto.AcceptInvitationDTO) 
 		return nil, errors.New("invitation password confirmation does not match")
 	}
 
-	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	passwordHash, err := hashPassword(password)
 	if err != nil {
 		return nil, err
 	}
 
-	result, err := s.repo.Accept(tokenHash, name, string(passwordHash), time.Now())
+	result, err := s.repo.Accept(tokenHash, name, passwordHash, time.Now())
 	if err != nil {
 		return nil, normalizeInvitationError(err)
 	}

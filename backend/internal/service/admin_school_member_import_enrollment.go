@@ -6,7 +6,6 @@ import (
 	"errors"
 	"strings"
 
-	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -29,14 +28,14 @@ func (s *adminSchoolMemberImportService) findOrCreateUser(tx *gorm.DB, fullName 
 		return nil, false, err
 	}
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(defaultPassword), bcrypt.DefaultCost)
+	hashedPassword, err := hashPassword(defaultPassword)
 	if err != nil {
 		return nil, false, err
 	}
 	user = domain.User{
 		FullName: strings.TrimSpace(fullName),
 		Email:    strings.ToLower(strings.TrimSpace(email)),
-		Password: string(hashedPassword),
+		Password: hashedPassword,
 		IsActive: true,
 	}
 	if err := tx.Create(&user).Error; err != nil {
