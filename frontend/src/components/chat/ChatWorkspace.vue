@@ -1746,6 +1746,8 @@ function formatDateTime(value?: string | null) {
                               :title="readIndicatorLabel(message)"
                               :aria-label="readIndicatorLabel(message)"
                             >
+                              <div v-if="isReadByOthers(message)">Read</div>
+                              <div v-else>Sent</div>
                               <PhChecks
                                 v-if="isReadByOthers(message)"
                                 :size="13"
