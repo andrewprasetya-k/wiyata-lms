@@ -83,9 +83,9 @@ func main() {
 	schoolMemberInvitationService := service.NewSchoolMemberInvitationService(schoolMemberInvitationRepo, emailService, logService)
 	schoolMemberInvitationHandler := handler.NewSchoolMemberInvitationHandler(schoolMemberInvitationService)
 
-	changePasswordAttemptStore := middleware.NewInMemoryRateLimiterStore(5.0/(15*60), 5, 20*time.Minute)
+	changePasswordAttemptStore := middleware.NewChangePasswordAttemptStore()
 
-	refreshTokenAttemptStore := middleware.NewInMemoryRateLimiterStore(8.0/(10*60), 8, 20*time.Minute)
+	refreshTokenAttemptStore := middleware.NewRefreshTokenAttemptStore()
 	refreshTokenRepo := repository.NewRefreshTokenRepository(db)
 	authService := service.NewAuthService(userRepo, schoolUserRepo, emailVerificationService, logService, refreshTokenRepo, changePasswordAttemptStore, refreshTokenAttemptStore)
 	// In-memory, single-use, 60s WS handshake tickets — see
@@ -185,9 +185,7 @@ func main() {
 	// Initialize RBAC middleware
 	middleware.InitRBAC(rbacRepo)
 
-	// Shared per-tenant rate limiter: 20 req/s sustained, burst of 40, keyed
-	// by SchoolId header
-	rateLimiterStore := middleware.NewInMemoryRateLimiterStore(20, 40, 10*time.Minute)
+	rateLimiterStore := middleware.NewGeneralAPIStore()
 
 	requestLogger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
