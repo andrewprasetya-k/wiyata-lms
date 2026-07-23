@@ -172,6 +172,26 @@ indexes {
 }
 }
 
+Table refresh_tokens {
+rft_id uuid [pk, default: `gen_random_uuid()`]
+rft_usr_id uuid [not null, ref: > users.usr_id]
+rft_token_hash text [not null, note: 'SHA-256 hex hash of the raw token; raw token is never stored, mirrors email_verifications.evf_token_hash / password_reset_tokens.prt_token_hash / invitations.inv_token_hash']
+rft_family_id uuid [not null, note: 'Shared across every rotation of one logical session. On reuse-detection, every row sharing a family_id is revoked together — see RefreshTokenRepository.RevokeFamily.']
+rft_expires_at timestamptz [not null]
+rft_revoked_at timestamptz [note: 'This table models an ongoing session, not a one-shot action (unlike email_verifications/password_reset_tokens) — a row is read and rotated repeatedly over its family lifetime, not consumed once. NULL = still active.']
+rft_revoked_reason text [note: 'Phase 11.5 (scripts/migrations/0008_add_refresh_tokens_revoked_reason.sql). Why this row was revoked: "rotated" (normal rotation, superseded by a newer token — the only reason Rotate() treats a revoked row as reuse if presented again), "user_revoked" (DELETE /me/sessions/:id), "logout" (POST /logout), "reuse_detected" (family-wide revoke in response to a confirmed replay). NULL for rows not revoked, and for rows revoked before this column existed (treated as reuse by Rotate() — fail-closed default).']
+rft_user_agent text [note: 'Raw User-Agent header from the request that issued/rotated this token; parsed into a friendly summary client-side (no user-agent-parsing dependency in go.mod). Shown in the Session Management UI (GET /me/sessions).']
+rft_ip_address text
+created_at timestamptz [default: `now()`]
+updated_at timestamptz [default: `now()`]
+
+indexes {
+(rft_token_hash) [unique, name: 'idx_refresh_tokens_token_hash']
+(rft_family_id) [name: 'idx_refresh_tokens_family_id']
+(rft_usr_id) [name: 'idx_refresh_tokens_user']
+}
+}
+
 Table school_users {
 scu_id uuid [pk, default: `gen_random_uuid()`]
 scu_usr_id uuid [ref: > users.usr_id]
