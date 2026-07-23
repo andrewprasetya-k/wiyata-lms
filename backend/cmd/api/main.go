@@ -85,9 +85,11 @@ func main() {
 
 	changePasswordAttemptStore := middleware.NewChangePasswordAttemptStore()
 
-	refreshTokenAttemptStore := middleware.NewRefreshTokenAttemptStore()
+	
+	refreshTokenIPAttemptStore := middleware.NewRefreshTokenIPAttemptStore()
+	refreshTokenFamilyAttemptStore := middleware.NewRefreshTokenFamilyAttemptStore()
 	refreshTokenRepo := repository.NewRefreshTokenRepository(db)
-	authService := service.NewAuthService(userRepo, schoolUserRepo, emailVerificationService, logService, refreshTokenRepo, changePasswordAttemptStore, refreshTokenAttemptStore)
+	authService := service.NewAuthService(userRepo, schoolUserRepo, emailVerificationService, logService, refreshTokenRepo, changePasswordAttemptStore, refreshTokenFamilyAttemptStore)
 	// In-memory, single-use, 60s WS handshake tickets — see
 	// ws_ticket_service.go for why this doesn't need a DB table.
 	wsTicketService := service.NewWSTicketService()
@@ -217,7 +219,7 @@ func main() {
 		api.POST("/verify-email", emailVerificationHandler.Verify)
 		api.GET("/reset-password/:token", passwordResetHandler.GetMetadata)
 		api.POST("/reset-password/:token", passwordResetHandler.Reset)
-		api.POST("/refresh-token", middleware.RateLimitByIP(refreshTokenAttemptStore), authHandler.Refresh)
+		api.POST("/refresh-token", middleware.RateLimitByIP(refreshTokenIPAttemptStore), authHandler.Refresh)
 		api.POST("/logout", authHandler.Logout)
 		// Not rate-limited: long-lived SSE/WebSocket connections
 		api.GET("/events/sidebar", sidebarStreamHandler.Stream)

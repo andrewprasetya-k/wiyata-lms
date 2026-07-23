@@ -9,11 +9,6 @@ import (
 	"golang.org/x/time/rate"
 )
 
-// RateLimiterStore is the minimal interface a rate-limit backend must
-// satisfy. Kept small and swappable on purpose: today it's backed by an
-// in-memory token bucket per key, but a Redis-backed (or any distributed)
-// implementation can replace it later without touching the middleware or
-// any call site, as long as it satisfies this interface.
 type RateLimiterStore interface {
 	Allow(key string) bool
 	// Reset clears any tracked state for key, restoring it to full budget.
@@ -25,10 +20,6 @@ type rateLimiterEntry struct {
 	lastSeen time.Time
 }
 
-// InMemoryRateLimiterStore is a simple per-key token bucket limiter. It is
-// intentionally in-process only (no Redis) — good enough for a single API
-// instance; if the app is ever scaled to multiple instances behind a load
-// balancer, swap the RateLimiterStore implementation for a shared backend.
 type InMemoryRateLimiterStore struct {
 	mu       sync.Mutex
 	limiters map[string]*rateLimiterEntry
@@ -37,10 +28,6 @@ type InMemoryRateLimiterStore struct {
 	ttl      time.Duration
 }
 
-// NewInMemoryRateLimiterStore creates a store where each distinct key is
-// allowed `rps` requests per second on average, with bursts up to `burst`.
-// Entries idle for longer than `ttl` are swept periodically so the map
-// doesn't grow unbounded over the life of the process.
 func NewInMemoryRateLimiterStore(rps float64, burst int, ttl time.Duration) *InMemoryRateLimiterStore {
 	store := &InMemoryRateLimiterStore{
 		limiters: make(map[string]*rateLimiterEntry),
@@ -94,21 +81,7 @@ func (s *InMemoryRateLimiterStore) sweepLoop() {
 	}
 }
 
-// RateLimitPerTenant limits requests per school (tenant) rather than per
-// global IP. The key is resolved as follows:
-//
-//  1. The "SchoolId" header, if present — this is the same header
-//     RequireSchoolMember/RequireRole read to resolve the active school, so
-//     it is available before any per-route authorization middleware runs.
-//     Using the raw header (rather than the validated "school_id" context
-//     value set later by RequireSchoolMember) is safe here: rate limiting is
-//     an abuse-prevention concern, not an authorization decision — a caller
-//     cannot use a forged SchoolId to affect another tenant's bucket, they
-//     can only ever throttle themselves, and RequireSchoolMember still
-//     independently rejects any request whose header doesn't correspond to
-//     real membership regardless of what the rate limiter decided.
-//  2. The client IP, for requests with no school context at all (the public,
-//     pre-auth endpoints: login, register, school registration).
+// RateLimitPerTenant limits requests per school (tenant) rather than per global IP
 func RateLimitPerTenant(store RateLimiterStore) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if !store.Allow(tenantRateLimitKey(c)) {
@@ -127,11 +100,7 @@ func tenantRateLimitKey(c *gin.Context) string {
 	return "ip:" + c.ClientIP()
 }
 
-// RateLimitByIP is a coarse, IP-only pre-check — used ahead of a lookup
-// whose real (finer) rate-limit key can't be known until after a DB read
-// (e.g. /refresh-token, keyed per-family_id once the token is resolved).
-// This gate runs first so a flood of garbage/unrecognized tokens from one
-// IP is rejected before ever touching the database.
+// RateLimitByIP is a coarse, IP-only pre-check 
 func RateLimitByIP(store RateLimiterStore) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if !store.Allow("ip:" + c.ClientIP()) {

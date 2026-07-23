@@ -1,4 +1,4 @@
-import axios, { type InternalAxiosRequestConfig } from 'axios'
+import axios, { isAxiosError, type InternalAxiosRequestConfig } from 'axios'
 import { clearStoredSession, getActiveRole, getActiveSchoolId } from './session'
 import { getAccessToken, setAccessToken } from './accessToken'
 
@@ -46,27 +46,52 @@ function isAuthEndpoint(url?: string): boolean {
   return AUTH_ENDPOINTS.some((path) => url.includes(path))
 }
 
+// A 429 from /refresh-token is transient (e.g. a burst of parallel requests
+// during a context switch briefly exhausting the IP-scoped rate limit on
+// the backend) — worth a couple of short retries before giving up. A 401
+// means the token is genuinely invalid/expired/reused; retrying won't help,
+// so it fails immediately. Increasing delays, capped at 2 retries: enough
+// to ride out a brief burst without making a real session failure feel slow.
+const REFRESH_RETRY_DELAYS_MS = [1000, 2000]
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => window.setTimeout(resolve, ms))
+}
+
+async function requestNewAccessToken(): Promise<string | null> {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      const { data } = await api.post<{ accessToken: string }>('/refresh-token')
+      setAccessToken(data.accessToken)
+      return data.accessToken
+    } catch (error) {
+      const status = isAxiosError(error) ? error.response?.status : undefined
+      if (status === 429 && attempt < REFRESH_RETRY_DELAYS_MS.length) {
+        await delay(REFRESH_RETRY_DELAYS_MS[attempt])
+        continue
+      }
+      // 401 (invalid/expired/reused), or 429 with retries exhausted, or
+      // any other failure — nothing left to do but report failure.
+      setAccessToken(null)
+      return null
+    }
+  }
+}
+
 // Single-flight guard: if several requests 401 around the same time (e.g.
 // a page firing a few parallel GETs right as the access token expires),
 // they all await this one shared promise instead of each POSTing
-// /refresh-token independently.
+// /refresh-token independently. The retry-with-backoff above happens
+// entirely inside this one promise, so callers already awaiting it
+// transparently receive the result of the retried attempt too — nothing
+// spawns a second, parallel refresh call.
 let refreshPromise: Promise<string | null> | null = null
 
 export function refreshAccessToken(): Promise<string | null> {
   if (!refreshPromise) {
-    refreshPromise = api
-      .post<{ accessToken: string }>('/refresh-token')
-      .then(({ data }) => {
-        setAccessToken(data.accessToken)
-        return data.accessToken
-      })
-      .catch(() => {
-        setAccessToken(null)
-        return null
-      })
-      .finally(() => {
-        refreshPromise = null
-      })
+    refreshPromise = requestNewAccessToken().finally(() => {
+      refreshPromise = null
+    })
   }
   return refreshPromise
 }
