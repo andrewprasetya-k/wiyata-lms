@@ -10,7 +10,12 @@ require (
 
 require github.com/DATA-DOG/go-sqlmock v1.5.2
 
-require golang.org/x/time v0.15.0
+require (
+	github.com/pquerna/otp v1.5.0
+	golang.org/x/time v0.15.0
+)
+
+require github.com/boombuler/barcode v1.0.1-0.20190219062509-6c824513bacc // indirect
 
 require (
 	github.com/gorilla/websocket v1.5.3

@@ -30,15 +30,31 @@ var (
 	ErrRefreshTokenInvalid     = errors.New("refresh token is invalid or expired")
 	ErrRefreshTokenReused      = errors.New("refresh token reuse detected")
 	ErrRefreshTokenRateLimited = errors.New("too many refresh attempts, try again later")
+
+	ErrMFAPreAuthInvalid  = errors.New("mfa session is invalid or expired, please log in again")
+	ErrMFACodeInvalid     = errors.New("invalid verification code")
+	ErrMFATooManyAttempts = errors.New("too many failed attempts, try again later")
 )
 
 const changePasswordLockKeyPrefix = "change_password:"
 const refreshRateLimitKeyPrefix = "refresh_token:"
+const mfaVerifyLockKeyPrefix = "mfa_verify:"
 
 // accessTokenTTL/refreshTokenTTL: 15-minute access token, 7-day refresh
 // token — approved design for the Phase 11.3 refresh-token migration.
 const accessTokenTTL = 15 * time.Minute
 const refreshTokenTTL = 7 * 24 * time.Hour
+
+// mfaPreAuthTokenTTL: long enough for a user to open their authenticator
+// app and type a code, short enough not to leave a "password verified,
+// waiting on MFA" window open for long.
+const mfaPreAuthTokenTTL = 10 * time.Minute
+
+// mfaGracePeriod: 7 days, confirmed design — counted from
+// User.MFAGraceStartedAt, which is set on first login after this feature
+// existed (see checkMFAGracePeriod), never from CreatedAt or a migration
+// date.
+const mfaGracePeriod = 7 * 24 * time.Hour
 
 // RefreshTokenMetadata carries request-transport details (never gin.Context
 // itself, to keep this package free of a web-framework dependency) that get
@@ -48,36 +64,66 @@ type RefreshTokenMetadata struct {
 	IPAddress string
 }
 
+// LoginResult is what Login/Register/VerifyMFA return instead of a bare
+// (*dto.LoginResponseDTO, string, error) tuple, now that a login can stop
+// short of issuing real tokens. Exactly one of Response/Challenge is
+// non-nil.
+type LoginResult struct {
+	// Response is set once a login is fully complete — real tokens issued.
+	Response *dto.LoginResponseDTO
+	// RawRefreshToken is only meaningful when Response is non-nil — the
+	// handler sets this as the refresh_token cookie.
+	RawRefreshToken string
+	// Challenge is set when a second step (MFA code, or forced enrollment)
+	// still stands between here and a completed login.
+	Challenge *dto.LoginChallengeDTO
+}
+
 type AuthService interface {
-	Login(email string, password string, meta RefreshTokenMetadata) (*dto.LoginResponseDTO, string, error)
-	Register(fullName string, email string, password string, meta RefreshTokenMetadata) (*dto.LoginResponseDTO, string, error)
+	Login(email string, password string, meta RefreshTokenMetadata) (*LoginResult, error)
+	Register(fullName string, email string, password string, meta RefreshTokenMetadata) (*LoginResult, error)
 	GetContext(userID string) (*dto.AuthContextResponseDTO, error)
 	ChangePassword(userID string, currentPassword string, newPassword string) error
 	Refresh(rawRefreshToken string, meta RefreshTokenMetadata) (string, string, error)
 	Logout(rawRefreshToken string) error
 	ListSessions(userID string) ([]*domain.RefreshToken, error)
 	RevokeSession(userID string, sessionID string) error
+	VerifyMFA(rawPreAuthToken string, code string, recoveryCode string, meta RefreshTokenMetadata) (*LoginResult, error)
 }
 
 type authService struct {
-	userRepo             repository.UserRepository
-	schoolUserRepo       repository.SchoolUserRepository
-	emailVerificationSvc EmailVerificationService
-	logService           LogService
-	refreshTokenRepo     repository.RefreshTokenRepository
-	passwordAttemptLimit AttemptLimiter
-	refreshAttemptLimit  AttemptLimiter
+	userRepo              repository.UserRepository
+	schoolUserRepo        repository.SchoolUserRepository
+	emailVerificationSvc  EmailVerificationService
+	logService            LogService
+	refreshTokenRepo      repository.RefreshTokenRepository
+	mfaService            MFAService
+	passwordAttemptLimit  AttemptLimiter
+	refreshAttemptLimit   AttemptLimiter
+	mfaVerifyAttemptLimit AttemptLimiter
 }
 
-func NewAuthService(userRepo repository.UserRepository, schoolUserRepo repository.SchoolUserRepository, emailVerificationSvc EmailVerificationService, logService LogService, refreshTokenRepo repository.RefreshTokenRepository, passwordAttemptLimit AttemptLimiter, refreshAttemptLimit AttemptLimiter) AuthService {
+func NewAuthService(
+	userRepo repository.UserRepository,
+	schoolUserRepo repository.SchoolUserRepository,
+	emailVerificationSvc EmailVerificationService,
+	logService LogService,
+	refreshTokenRepo repository.RefreshTokenRepository,
+	mfaService MFAService,
+	passwordAttemptLimit AttemptLimiter,
+	refreshAttemptLimit AttemptLimiter,
+	mfaVerifyAttemptLimit AttemptLimiter,
+) AuthService {
 	return &authService{
-		userRepo:             userRepo,
-		schoolUserRepo:       schoolUserRepo,
-		emailVerificationSvc: emailVerificationSvc,
-		logService:           logService,
-		refreshTokenRepo:     refreshTokenRepo,
-		passwordAttemptLimit: passwordAttemptLimit,
-		refreshAttemptLimit:  refreshAttemptLimit,
+		userRepo:              userRepo,
+		schoolUserRepo:        schoolUserRepo,
+		emailVerificationSvc:  emailVerificationSvc,
+		logService:            logService,
+		refreshTokenRepo:      refreshTokenRepo,
+		mfaService:            mfaService,
+		passwordAttemptLimit:  passwordAttemptLimit,
+		refreshAttemptLimit:   refreshAttemptLimit,
+		mfaVerifyAttemptLimit: mfaVerifyAttemptLimit,
 	}
 }
 
@@ -88,73 +134,88 @@ func (s *authService) logLoginFailed(email string, reason string) {
 	})
 }
 
-func (s *authService) Login(email string, password string, meta RefreshTokenMetadata) (*dto.LoginResponseDTO, string, error) {
+func (s *authService) Login(email string, password string, meta RefreshTokenMetadata) (*LoginResult, error) {
 	userEmail, err := s.userRepo.GetByEmail(email)
 	if err != nil {
 		// Return generic error to prevent user enumeration
 		s.logLoginFailed(email, "user_not_found")
-		return nil, "", errors.New("invalid email or password")
+		return nil, errors.New("invalid email or password")
 	}
 
 	err = verifyPassword(userEmail.Password, password)
 	if err != nil {
 		// Return same generic error for password mismatch
 		s.logLoginFailed(email, "invalid_password")
-		return nil, "", errors.New("invalid email or password")
+		return nil, errors.New("invalid email or password")
 	}
 
-	accessToken, err := s.issueAccessToken(userEmail.ID, userEmail.Email)
+	// --- MFA gate: sits between "password verified" and "tokens issued" ---
+	mfaEnabled, err := s.mfaService.IsEnabled(userEmail.ID)
 	if err != nil {
-		return nil, "", err
+		return nil, err
 	}
 
-	// A fresh login always starts a brand-new session family — it has no
-	// prior token to rotate from.
-	rawRefreshToken, err := s.issueRefreshToken(userEmail.ID, uuid.NewString(), meta)
+	if mfaEnabled {
+		rawPreAuth, err := s.mfaService.IssuePreAuthToken(userEmail.ID, domain.MFAPreAuthPurposeVerify, mfaPreAuthTokenTTL)
+		if err != nil {
+			return nil, err
+		}
+		return &LoginResult{Challenge: &dto.LoginChallengeDTO{
+			MFARequired:  true,
+			PreAuthToken: rawPreAuth,
+		}}, nil
+	}
+
+	graceDaysRemaining, graceExpired, err := s.checkMFAGracePeriod(userEmail)
 	if err != nil {
-		return nil, "", err
+		return nil, err
 	}
 
-	response, err := s.buildLoginResponse(accessToken, userEmail)
-	if err != nil {
-		return nil, "", err
+	if graceExpired {
+		rawPreAuth, err := s.mfaService.IssuePreAuthToken(userEmail.ID, domain.MFAPreAuthPurposeEnrollRequired, mfaPreAuthTokenTTL)
+		if err != nil {
+			return nil, err
+		}
+		return &LoginResult{Challenge: &dto.LoginChallengeDTO{
+			MFASetupRequired: true,
+			PreAuthToken:     rawPreAuth,
+		}}, nil
 	}
 
-	_ = s.logService.Log(domain.ActorContext{UserID: userEmail.ID, Scope: domain.LogScopePlatform}, "auth.login.success", "user", strPtr(userEmail.ID), domain.LogSeverityLow, map[string]any{
-		"user_id":      userEmail.ID,
-		"login_method": "password",
-	})
-
-	if response.DefaultContext != nil {
-		schoolID := response.DefaultContext.SchoolID
-		schoolUserID := response.DefaultContext.SchoolUserID
-		_ = s.logService.Log(domain.ActorContext{
-			UserID:       userEmail.ID,
-			SchoolID:     &schoolID,
-			SchoolUserID: &schoolUserID,
-			Scope:        domain.LogScopeSchool,
-		}, "member.login", "school_user", strPtr(schoolUserID), domain.LogSeverityLow, map[string]any{
-			"login_method": "password",
-			"user_id":      userEmail.ID,
-			"school_id":    schoolID,
-		})
-	}
-
-	return response, rawRefreshToken, nil
+	return s.completeLogin(userEmail, meta, graceDaysRemaining)
 }
 
-func (s *authService) Register(fullName string, email string, password string, meta RefreshTokenMetadata) (*dto.LoginResponseDTO, string, error) {
+func (s *authService) checkMFAGracePeriod(user *domain.User) (daysRemaining *int, expired bool, err error) {
+	now := time.Now()
+	if user.MFAGraceStartedAt == nil {
+		user.MFAGraceStartedAt = &now
+		if err := s.userRepo.Update(user); err != nil {
+			return nil, false, err
+		}
+		remaining := int(mfaGracePeriod.Hours() / 24)
+		return &remaining, false, nil
+	}
+
+	deadline := user.MFAGraceStartedAt.Add(mfaGracePeriod)
+	if now.After(deadline) {
+		return nil, true, nil
+	}
+	remaining := int(deadline.Sub(now).Hours()/24) + 1
+	return &remaining, false, nil
+}
+
+func (s *authService) Register(fullName string, email string, password string, meta RefreshTokenMetadata) (*LoginResult, error) {
 	isEmailExists, err := s.userRepo.CheckEmailExists(email, "")
 	if err != nil {
-		return nil, "", err
+		return nil, err
 	}
 	if isEmailExists {
-		return nil, "", errors.New("Email already registered")
+		return nil, errors.New("Email already registered")
 	}
 
 	hashedPassword, err := hashPassword(password)
 	if err != nil {
-		return nil, "", err
+		return nil, err
 	}
 
 	user := &domain.User{
@@ -165,7 +226,7 @@ func (s *authService) Register(fullName string, email string, password string, m
 
 	err = s.userRepo.Create(user)
 	if err != nil {
-		return nil, "", err
+		return nil, err
 	}
 
 	_ = s.logService.Log(domain.ActorContext{UserID: user.ID, Scope: domain.LogScopePlatform}, "auth.registered", "user", strPtr(user.ID), domain.LogSeverityMedium, map[string]any{
@@ -179,7 +240,13 @@ func (s *authService) Register(fullName string, email string, password string, m
 		}
 	}
 
-	return s.Login(email, password, meta) // Auto-login after registration
+	// Auto-login after registration. A brand-new user has no UserMFA row
+	// (mfaEnabled is always false) and MFAGraceStartedAt is always NULL at
+	// this point (just created) — checkMFAGracePeriod always treats a NULL
+	// start as "just started, not expired," so this can never land in the
+	// mfaSetupRequired branch. See auth_service_test.go for a test that
+	// exercises this directly rather than relying on the reasoning alone.
+	return s.Login(email, password, meta)
 }
 
 func (s *authService) GetContext(userID string) (*dto.AuthContextResponseDTO, error) {
@@ -366,6 +433,114 @@ func (s *authService) RevokeSession(userID string, sessionID string) error {
 		"ip_address": ipAddress,
 	})
 	return nil
+}
+
+// VerifyMFA completes a login that was paused for MFA (a Challenge with
+// MFARequired=true) — resolves the pre-auth token, validates the submitted
+// code (TOTP or recovery code — exactly one should be given; if both are,
+// Code takes precedence), and only then issues real tokens via
+// completeLogin, exactly like a normal password-only Login.
+func (s *authService) VerifyMFA(rawPreAuthToken string, code string, recoveryCode string, meta RefreshTokenMetadata) (*LoginResult, error) {
+	token, err := s.mfaService.ResolvePreAuthToken(rawPreAuthToken)
+	if err != nil {
+		return nil, ErrMFAPreAuthInvalid
+	}
+	if token.Purpose != domain.MFAPreAuthPurposeVerify {
+		return nil, ErrMFAPreAuthInvalid
+	}
+
+	user, err := s.userRepo.GetByID(token.UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	usedRecovery := code == ""
+	var verifyErr error
+	if !usedRecovery {
+		verifyErr = s.mfaService.VerifyCode(user.ID, code)
+	} else {
+		verifyErr = s.mfaService.VerifyRecoveryCode(user.ID, recoveryCode)
+	}
+
+	if verifyErr != nil {
+		lockKey := mfaVerifyLockKeyPrefix + user.ID
+		failErr := ErrMFACodeInvalid
+		if s.mfaVerifyAttemptLimit != nil && !s.mfaVerifyAttemptLimit.Allow(lockKey) {
+			failErr = ErrMFATooManyAttempts
+		}
+		_ = s.logService.Log(domain.ActorContext{UserID: user.ID, Scope: domain.LogScopePlatform}, "auth.mfa.verify.failed", "user", strPtr(user.ID), domain.LogSeverityMedium, map[string]any{
+			"user_id":       user.ID,
+			"used_recovery": usedRecovery,
+		})
+		return nil, failErr
+	}
+
+	if s.mfaVerifyAttemptLimit != nil {
+		s.mfaVerifyAttemptLimit.Reset(mfaVerifyLockKeyPrefix + user.ID)
+	}
+
+	if err := s.mfaService.ConsumePreAuthToken(token.ID); err != nil {
+		return nil, err
+	}
+
+	if usedRecovery {
+		_ = s.logService.Log(domain.ActorContext{UserID: user.ID, Scope: domain.LogScopePlatform}, "auth.mfa.recovery_code.used", "user", strPtr(user.ID), domain.LogSeverityHigh, map[string]any{
+			"user_id": user.ID,
+		})
+	} else {
+		_ = s.logService.Log(domain.ActorContext{UserID: user.ID, Scope: domain.LogScopePlatform}, "auth.mfa.verified", "user", strPtr(user.ID), domain.LogSeverityLow, map[string]any{
+			"user_id": user.ID,
+		})
+	}
+
+	// MFA is already enabled for this user — no grace-period reminder needed.
+	return s.completeLogin(user, meta, nil)
+}
+
+// completeLogin issues real tokens and builds the success response —
+// shared by the direct password-only Login path and VerifyMFA's completion
+// path, so auth.login.success/member.login fire identically regardless of
+// which path established the session.
+func (s *authService) completeLogin(user *domain.User, meta RefreshTokenMetadata, graceDaysRemaining *int) (*LoginResult, error) {
+	accessToken, err := s.issueAccessToken(user.ID, user.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	// A fresh login always starts a brand-new session family — it has no
+	// prior token to rotate from.
+	rawRefreshToken, err := s.issueRefreshToken(user.ID, uuid.NewString(), meta)
+	if err != nil {
+		return nil, err
+	}
+
+	response, err := s.buildLoginResponse(accessToken, user)
+	if err != nil {
+		return nil, err
+	}
+	response.MFAGraceDaysRemaining = graceDaysRemaining
+
+	_ = s.logService.Log(domain.ActorContext{UserID: user.ID, Scope: domain.LogScopePlatform}, "auth.login.success", "user", strPtr(user.ID), domain.LogSeverityLow, map[string]any{
+		"user_id":      user.ID,
+		"login_method": "password",
+	})
+
+	if response.DefaultContext != nil {
+		schoolID := response.DefaultContext.SchoolID
+		schoolUserID := response.DefaultContext.SchoolUserID
+		_ = s.logService.Log(domain.ActorContext{
+			UserID:       user.ID,
+			SchoolID:     &schoolID,
+			SchoolUserID: &schoolUserID,
+			Scope:        domain.LogScopeSchool,
+		}, "member.login", "school_user", strPtr(schoolUserID), domain.LogSeverityLow, map[string]any{
+			"login_method": "password",
+			"user_id":      user.ID,
+			"school_id":    schoolID,
+		})
+	}
+
+	return &LoginResult{Response: response, RawRefreshToken: rawRefreshToken}, nil
 }
 
 // issueAccessToken mints a short-lived (accessTokenTTL) JWT — same claims

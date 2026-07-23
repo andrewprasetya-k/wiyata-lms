@@ -88,12 +88,15 @@ func main() {
 	refreshTokenIPAttemptStore := middleware.NewRefreshTokenIPAttemptStore()
 	refreshTokenFamilyAttemptStore := middleware.NewRefreshTokenFamilyAttemptStore()
 	refreshTokenRepo := repository.NewRefreshTokenRepository(db)
-	authService := service.NewAuthService(userRepo, schoolUserRepo, emailVerificationService, logService, refreshTokenRepo, changePasswordAttemptStore, refreshTokenFamilyAttemptStore)
+	mfaRepo := repository.NewMFARepository(db)
+	mfaService := service.NewMFAService(mfaRepo, userRepo, logService)
+	mfaVerifyAttemptStore := middleware.NewMFAVerifyAttemptStore()
+	authService := service.NewAuthService(userRepo, schoolUserRepo, emailVerificationService, logService, refreshTokenRepo, mfaService, changePasswordAttemptStore, refreshTokenFamilyAttemptStore, mfaVerifyAttemptStore)
 	// In-memory, single-use, 60s WS handshake tickets — see
 	// ws_ticket_service.go for why this doesn't need a DB table.
 	wsTicketService := service.NewWSTicketService()
 	auditStreamHandler := realtime.NewAuditStreamHandler(auditHub, authService, wsTicketService)
-	authHandler := handler.NewAuthHandler(authService, wsTicketService)
+	authHandler := handler.NewAuthHandler(authService, wsTicketService, mfaService)
 
 	subjectRepo := repository.NewSubjectRepository(db)
 	subjectService := service.NewSubjectService(subjectRepo, schoolService, logService)
@@ -220,6 +223,7 @@ func main() {
 		api.POST("/reset-password/:token", passwordResetHandler.Reset)
 		api.POST("/refresh-token", middleware.RateLimitByIP(refreshTokenIPAttemptStore), authHandler.Refresh)
 		api.POST("/logout", authHandler.Logout)
+		api.POST("/login/mfa-verify", middleware.RateLimitPerTenant(rateLimiterStore), authHandler.VerifyMFALogin)
 		// Not rate-limited: long-lived SSE/WebSocket connections
 		api.GET("/events/sidebar", sidebarStreamHandler.Stream)
 		api.GET("/ws/chat", chatWebSocketHandler.Chat)
@@ -238,6 +242,8 @@ func main() {
 			meAPI.GET("/ws-ticket", authHandler.IssueWSTicket)
 			meAPI.GET("/sessions", authHandler.ListSessions)
 			meAPI.DELETE("/sessions/:id", authHandler.RevokeSession)
+			meAPI.POST("/mfa/enroll", authHandler.EnrollMFA)
+			meAPI.POST("/mfa/confirm", authHandler.ConfirmMFA)
 		}
 
 		schoolAPI := api.Group("/schools")

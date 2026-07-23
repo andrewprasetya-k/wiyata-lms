@@ -14,10 +14,23 @@ import (
 type AuthHandler struct {
 	authService     service.AuthService
 	wsTicketService service.WSTicketService
+	mfaService      service.MFAService
 }
 
-func NewAuthHandler(authService service.AuthService, wsTicketService service.WSTicketService) *AuthHandler {
-	return &AuthHandler{authService: authService, wsTicketService: wsTicketService}
+func NewAuthHandler(authService service.AuthService, wsTicketService service.WSTicketService, mfaService service.MFAService) *AuthHandler {
+	return &AuthHandler{authService: authService, wsTicketService: wsTicketService, mfaService: mfaService}
+}
+
+// respondLoginResult writes either the challenge JSON (no cookie — no real
+// session started yet) or the full success response with the refresh
+// cookie set, depending on which branch of LoginResult is populated.
+func respondLoginResult(c *gin.Context, statusCode int, result *service.LoginResult) {
+	if result.Challenge != nil {
+		c.JSON(http.StatusOK, result.Challenge)
+		return
+	}
+	setRefreshTokenCookie(c, result.RawRefreshToken)
+	c.JSON(statusCode, result.Response)
 }
 
 const refreshTokenCookieName = "refresh_token"
@@ -48,15 +61,14 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	response, rawRefreshToken, err := h.authService.Login(input.Email, input.Password, refreshTokenMetadataFromRequest(c))
+	result, err := h.authService.Login(input.Email, input.Password, refreshTokenMetadataFromRequest(c))
 	if err != nil {
 		// Always return 401 Unauthorized with generic message
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid email or password"})
 		return
 	}
 
-	setRefreshTokenCookie(c, rawRefreshToken)
-	c.JSON(http.StatusOK, response)
+	respondLoginResult(c, http.StatusOK, result)
 }
 
 func (h *AuthHandler) Register(c *gin.Context) {
@@ -66,7 +78,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	response, rawRefreshToken, err := h.authService.Register(input.FullName, input.Email, input.Password, refreshTokenMetadataFromRequest(c))
+	result, err := h.authService.Register(input.FullName, input.Email, input.Password, refreshTokenMetadataFromRequest(c))
 	if err != nil {
 		if err.Error() == "Email already registered" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -76,8 +88,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	setRefreshTokenCookie(c, rawRefreshToken)
-	c.JSON(http.StatusCreated, response)
+	respondLoginResult(c, http.StatusCreated, result)
 }
 
 func (h *AuthHandler) Refresh(c *gin.Context) {
@@ -231,4 +242,85 @@ func (h *AuthHandler) RevokeSession(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Session revoked"})
+}
+
+// EnrollMFA is POST /me/mfa/enroll — AuthRequired. Starts (or restarts, if
+// abandoned before confirmation) TOTP enrollment for the caller.
+func (h *AuthHandler) EnrollMFA(c *gin.Context) {
+	userID := middleware.GetUserID(c)
+	if userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	secret, otpauthURL, err := h.mfaService.Enroll(userID)
+	if err != nil {
+		if errors.Is(err, service.ErrMFAAlreadyEnabled) {
+			c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
+			return
+		}
+		HandleError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, dto.MFAEnrollResponseDTO{Secret: secret, OTPAuthURL: otpauthURL})
+}
+
+// ConfirmMFA is POST /me/mfa/confirm — AuthRequired. Validates the first
+// code from the authenticator app configured via EnrollMFA, enables MFA,
+// and returns recovery codes exactly once.
+func (h *AuthHandler) ConfirmMFA(c *gin.Context) {
+	userID := middleware.GetUserID(c)
+	if userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	var input dto.MFAConfirmDTO
+	if err := c.ShouldBindJSON(&input); err != nil {
+		HandleBindingError(c, err)
+		return
+	}
+
+	recoveryCodes, err := h.mfaService.ConfirmEnrollment(userID, input.Code)
+	if err != nil {
+		switch {
+		case errors.Is(err, service.ErrMFAInvalidCode):
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		case errors.Is(err, service.ErrMFAAlreadyEnabled):
+			c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
+		default:
+			HandleError(c, err)
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, dto.MFAConfirmResponseDTO{RecoveryCodes: recoveryCodes})
+}
+
+// VerifyMFALogin is POST /login/mfa-verify — public. Completes a login that
+// was paused for MFA (a Login/Register response with mfaRequired=true).
+func (h *AuthHandler) VerifyMFALogin(c *gin.Context) {
+	var input dto.MFAVerifyLoginDTO
+	if err := c.ShouldBindJSON(&input); err != nil {
+		HandleBindingError(c, err)
+		return
+	}
+
+	result, err := h.authService.VerifyMFA(input.PreAuthToken, input.Code, input.RecoveryCode, refreshTokenMetadataFromRequest(c))
+	if err != nil {
+		switch {
+		case errors.Is(err, service.ErrMFAPreAuthInvalid):
+			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		case errors.Is(err, service.ErrMFATooManyAttempts):
+			c.JSON(http.StatusTooManyRequests, gin.H{"error": err.Error()})
+		case errors.Is(err, service.ErrMFACodeInvalid):
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		default:
+			HandleError(c, err)
+		}
+		return
+	}
+
+	respondLoginResult(c, http.StatusOK, result)
 }

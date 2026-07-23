@@ -1,0 +1,33 @@
+package dto
+
+// MFAEnrollResponseDTO is POST /me/mfa/enroll's response — everything
+// needed to set up an authenticator app. Secret is included alongside the
+// URI for manual entry, in case the user's app can't scan a QR code.
+type MFAEnrollResponseDTO struct {
+	Secret     string `json:"secret"`
+	OTPAuthURL string `json:"otpauthUrl"`
+}
+
+// MFAConfirmDTO is POST /me/mfa/confirm's request body — the first code
+// from the newly configured authenticator app.
+type MFAConfirmDTO struct {
+	Code string `json:"code" binding:"required"`
+}
+
+// MFAConfirmResponseDTO is POST /me/mfa/confirm's response — recovery codes
+// are returned in the clear exactly once, here, and never again; only
+// their hashes are ever persisted.
+type MFAConfirmResponseDTO struct {
+	RecoveryCodes []string `json:"recoveryCodes"`
+}
+
+// MFAVerifyLoginDTO is POST /login/mfa-verify's request body. Exactly one
+// of Code/RecoveryCode should be set — the caller states its intent
+// explicitly (which credential it's presenting) rather than the server
+// guessing from format. If both happen to be set, Code (TOTP) takes
+// precedence.
+type MFAVerifyLoginDTO struct {
+	PreAuthToken string `json:"preAuthToken" binding:"required"`
+	Code         string `json:"code"`
+	RecoveryCode string `json:"recoveryCode"`
+}
