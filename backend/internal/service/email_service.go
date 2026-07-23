@@ -15,6 +15,7 @@ type EmailService interface {
 	SendSchoolMemberAccountCreated(toEmail string, schoolName string, role string) error
 	SendSchoolMemberAddedToSchool(toEmail string, schoolName string, role string) error
 	SendEmailVerification(toEmail string, fullName string, verifyURL string) error
+	SendPasswordReset(toEmail string, fullName string, resetURL string) error
 }
 
 type noopEmailService struct{}
@@ -66,6 +67,14 @@ func (noopEmailService) SendEmailVerification(toEmail string, fullName string, v
 	fmt.Println()
 	fmt.Println("Verify URL:")
 	fmt.Println(verifyURL)
+	return nil
+}
+
+// SendPasswordReset's noop deliberately does not print resetURL (it embeds
+// the raw reset token) — unlike SendEmailVerification's noop above, which
+// does print its URL. Matches the stricter "never log the raw token" rule
+// already followed by the invitation-sending noops in this file.
+func (noopEmailService) SendPasswordReset(string, string, string) error {
 	return nil
 }
 
@@ -215,6 +224,31 @@ Link ini berlaku selama 24 jam. Jika Anda tidak mendaftar di Wiyata, abaikan ema
 Salam,
 Wiyata
 `, fullName, verifyURL)
+
+	return s.sendPlainText(toEmail, subject, body)
+}
+
+func (s *smtpEmailService) SendPasswordReset(toEmail string, fullName string, resetURL string) error {
+	toEmail = strings.TrimSpace(toEmail)
+	fullName = strings.TrimSpace(fullName)
+	resetURL = strings.TrimSpace(resetURL)
+	if toEmail == "" || resetURL == "" {
+		return fmt.Errorf("password reset email fields are required")
+	}
+
+	subject := "Reset Password Wiyata"
+	body := fmt.Sprintf(`Halo %s,
+
+Kami menerima permintaan untuk mereset password akun Wiyata Anda.
+
+Gunakan link berikut untuk membuat password baru:
+%s
+
+Link ini berlaku selama 20 menit. Jika Anda tidak meminta reset password, abaikan email ini — password Anda tidak akan berubah.
+
+Salam,
+Wiyata
+`, fullName, resetURL)
 
 	return s.sendPlainText(toEmail, subject, body)
 }

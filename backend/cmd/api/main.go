@@ -56,6 +56,9 @@ func main() {
 	emailVerificationRepo := repository.NewEmailVerificationRepository(db)
 	emailVerificationService := service.NewEmailVerificationService(emailVerificationRepo, userRepo, emailService, logService)
 	emailVerificationHandler := handler.NewEmailVerificationHandler(emailVerificationService)
+	passwordResetRepo := repository.NewPasswordResetRepository(db)
+	passwordResetService := service.NewPasswordResetService(passwordResetRepo, userRepo, emailService, logService)
+	passwordResetHandler := handler.NewPasswordResetHandler(passwordResetService)
 	invitationRepo := repository.NewInvitationRepository(db)
 	invitationService := service.NewInvitationService(invitationRepo, userRepo, logService)
 	invitationHandler := handler.NewInvitationHandler(invitationService)
@@ -208,10 +211,15 @@ func main() {
 		// Rate-limited by IP (no school context exists yet at this point)
 		api.POST("/login", middleware.RateLimitPerTenant(rateLimiterStore), authHandler.Login)
 		api.POST("/register", middleware.RateLimitPerTenant(rateLimiterStore), authHandler.Register)
+		// Rate-limited by IP: accepts an arbitrary attacker-supplied email,
+		// same abuse profile as login/register.
+		api.POST("/forgot-password", middleware.RateLimitPerTenant(rateLimiterStore), passwordResetHandler.Request)
 		// Not rate-limited: token-gated (guessing is already infeasible given token length/hashing)
 		api.GET("/invitations/:token", invitationHandler.GetMetadata)
 		api.POST("/invitations/:token/accept", invitationHandler.Accept)
 		api.POST("/verify-email", emailVerificationHandler.Verify)
+		api.GET("/reset-password/:token", passwordResetHandler.GetMetadata)
+		api.POST("/reset-password/:token", passwordResetHandler.Reset)
 		// Not rate-limited: long-lived SSE/WebSocket connections
 		api.GET("/events/sidebar", sidebarStreamHandler.Stream)
 		api.GET("/ws/chat", chatWebSocketHandler.Chat)

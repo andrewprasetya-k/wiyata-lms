@@ -159,7 +159,7 @@ Frontend (`frontend/src/services/auditLogSocket.ts`) reuses the exact reconnect 
 
 Pattern: `<domain>.<subject>.<verb_past>`, free-form strings (not a Postgres enum — validated only where relevant in application code). Severity is one of `LOW` / `MEDIUM` / `HIGH` / `CRITICAL` (`domain.LogSeverity*` constants — `CRITICAL` added Phase 10.12, used only by `user.deleted`). 63 actions across 19 service files, grouped by domain below, exactly as implemented (verified against every `logService.Log(...)`/`LogBatch(...)` call site as of Phase 10.12):
 
-### Authentication (`internal/service/auth_service.go`, `user_service.go`, `email_verification_service.go`)
+### Authentication (`internal/service/auth_service.go`, `user_service.go`, `email_verification_service.go`, `password_reset_service.go`)
 | Action | Severity | Notes |
 |---|---|---|
 | `auth.login.success` | LOW | |
@@ -169,6 +169,8 @@ Pattern: `<domain>.<subject>.<verb_past>`, free-form strings (not a Postgres enu
 | `auth.password.change.failed` | MEDIUM | Phase 11.1. Self-service change-password only (`AuthService.ChangePassword`) — the super-admin reset path has no equivalent failure log. Metadata: `user_id`, `reason` (`"invalid_current_password"` or `"rate_limited"` — the latter once the per-user 5-failed-attempt/15-minute lock, keyed `"change_password:" + userID` via a dedicated `middleware.InMemoryRateLimiterStore` instance, is exhausted). |
 | `auth.email.verified` | LOW | |
 | `auth.verification.resent` | LOW | Phase 10.14. Emitted by `EmailVerificationService.Resend` — actor-initiated request for a new verification email, distinct from the derived-side-effect exclusions elsewhere in the taxonomy. Metadata: `user_id`, `email`. |
+| `auth.password.reset.requested` | LOW | Phase 11.2. Emitted by `PasswordResetService.Request` (`POST /forgot-password`), **always** — regardless of whether the email actually resolved to a real account (a genuine miss doesn't distinguish itself in the log any more than it does in the API response, by design). `ActorContext.UserID` is intentionally always empty, even when the email did resolve — this action records that a request happened, not who received the resulting email. Metadata: `email` only. |
+| `auth.password.reset.completed` | HIGH | Phase 11.2. Emitted by `PasswordResetService.Reset` (`POST /reset-password/:token`) only after the token is atomically validated and consumed — `ActorContext.UserID` is populated at this point (the token resolves to a specific user by then), same two-stage shape as `auth.email.verified`. Metadata: `user_id`. Severity matches `auth.password.changed`'s HIGH tier — same consequence class (a password changed), different trigger (token-based, not session-based). |
 | `member.login` | LOW | Phase 10.11. School-scoped, emitted only when the user has an active school membership at login (the membership used for `DefaultContext`) — one row per login, not one per membership. Metadata: `login_method`, `user_id`, `school_id`. |
 
 ### RBAC (`internal/service/rbac_service.go`)

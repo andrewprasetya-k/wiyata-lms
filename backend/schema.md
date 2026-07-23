@@ -156,6 +156,22 @@ indexes {
 }
 }
 
+Table password_reset_tokens {
+prt_id uuid [pk, default: `gen_random_uuid()`]
+prt_usr_id uuid [not null, ref: > users.usr_id]
+prt_token_hash text [not null, note: 'SHA-256 hex hash of the raw token; raw token is never stored, mirrors email_verifications.evf_token_hash / invitations.inv_token_hash']
+prt_expires_at timestamptz [not null]
+prt_consumed_at timestamptz
+created_at timestamptz [default: `now()`]
+updated_at timestamptz [default: `now()`]
+
+indexes {
+(prt_token_hash) [unique, name: 'idx_password_reset_tokens_token_hash']
+(prt_usr_id) [name: 'idx_password_reset_tokens_user']
+(prt_usr_id) [name: 'idx_password_reset_tokens_user_unconsumed', note: 'partial index — only WHERE prt_consumed_at IS NULL']
+}
+}
+
 Table school_users {
 scu_id uuid [pk, default: `gen_random_uuid()`]
 scu_usr_id uuid [ref: > users.usr_id]
