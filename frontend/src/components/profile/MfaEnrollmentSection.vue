@@ -1,16 +1,18 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 import QRCode from "qrcode";
 import {
   PhCheckCircle,
   PhCopy,
   PhDownloadSimple,
   PhShieldCheck,
+  PhX,
 } from "@phosphor-icons/vue";
 import { useAuthStore } from "../../stores/auth";
 import { useToastStore } from "../../stores/toast";
 import { confirmMfa, enrollMfa, getMfaStatus } from "../../services/mfa";
 import { getApiError } from "../../utils/error";
+import MfaAuthenticatorInstructions from "../common/MfaAuthenticatorInstructions.vue";
 
 const auth = useAuthStore();
 const toast = useToastStore();
@@ -18,8 +20,13 @@ const toast = useToastStore();
 // The 409 branch in startEnroll() below is kept as a fallback (e.g. a race
 // with another tab enabling MFA between the status check and the click),
 // not the primary way this card learns its state.
-type Step = "loading" | "idle" | "confirm" | "recovery" | "already-enabled";
-const step = ref<Step>("loading");
+type CardState = "loading" | "idle" | "already-enabled";
+const cardState = ref<CardState>("loading");
+
+type ModalStep = "qr" | "confirm" | "recovery";
+const modalOpen = ref(false);
+const modalStep = ref<ModalStep>("qr");
+
 const secret = ref("");
 const qrDataUrl = ref("");
 const code = ref("");
@@ -28,12 +35,18 @@ const errorMessage = ref("");
 const recoveryCodes = ref<string[]>([]);
 const copied = ref(false);
 
+const modalStepMeta: Record<ModalStep, { number: number; title: string }> = {
+  qr: { number: 1, title: "Pindai QR code" },
+  confirm: { number: 2, title: "Masukkan kode konfirmasi" },
+  recovery: { number: 3, title: "Simpan recovery codes" },
+};
+
 onMounted(async () => {
   try {
     const { enabled } = await getMfaStatus();
-    step.value = enabled ? "already-enabled" : "idle";
+    cardState.value = enabled ? "already-enabled" : "idle";
   } catch {
-    step.value = "idle";
+    cardState.value = "idle";
   }
 });
 
@@ -55,11 +68,13 @@ async function startEnroll() {
       margin: 1,
       width: 220,
     });
-    step.value = "confirm";
+    code.value = "";
+    modalStep.value = "qr";
+    modalOpen.value = true;
   } catch (error) {
     const message = getApiError(error).toLowerCase();
     if (message.includes("already enabled")) {
-      step.value = "already-enabled";
+      cardState.value = "already-enabled";
     } else {
       errorMessage.value = mapError(error);
     }
@@ -76,13 +91,36 @@ async function submitConfirm() {
     const result = await confirmMfa(code.value.trim());
     recoveryCodes.value = result.recoveryCodes;
     auth.clearMfaGraceReminder();
-    step.value = "recovery";
+    modalStep.value = "recovery";
     toast.success("MFA berhasil diaktifkan.");
   } catch (error) {
     errorMessage.value = mapError(error);
   } finally {
     isSubmitting.value = false;
   }
+}
+
+function backToQr() {
+  modalStep.value = "qr";
+  errorMessage.value = "";
+  code.value = "";
+}
+
+// Blocked during the recovery step — those codes are shown exactly once,
+// so closing the modal there requires the explicit "Selesai" action, not an
+// accidental overlay click or Escape press.
+function closeModal() {
+  if (modalStep.value === "recovery") return;
+  modalOpen.value = false;
+  code.value = "";
+  errorMessage.value = "";
+}
+
+function finish() {
+  modalOpen.value = false;
+  cardState.value = "already-enabled";
+  recoveryCodes.value = [];
+  code.value = "";
 }
 
 async function copyRecoveryCodes() {
@@ -113,16 +151,14 @@ function downloadRecoveryCodes() {
   URL.revokeObjectURL(url);
 }
 
-function cancel() {
-  step.value = "idle";
-  code.value = "";
-  errorMessage.value = "";
+function handleKeydown(e: KeyboardEvent) {
+  if (!modalOpen.value || e.key !== "Escape") return;
+  e.preventDefault();
+  closeModal();
 }
 
-function finish() {
-  step.value = "already-enabled";
-  recoveryCodes.value = [];
-}
+onMounted(() => window.addEventListener("keydown", handleKeydown));
+onUnmounted(() => window.removeEventListener("keydown", handleKeydown));
 </script>
 
 <template>
@@ -143,9 +179,11 @@ function finish() {
       </div>
     </div>
 
-    <p v-if="step === 'loading'" class="text-sm text-muted">Memeriksa status...</p>
+    <p v-if="cardState === 'loading'" class="text-sm text-muted">
+      Memeriksa status...
+    </p>
 
-    <div v-else-if="step === 'idle'">
+    <div v-else-if="cardState === 'idle'">
       <p
         v-if="errorMessage"
         class="mb-3 rounded-lg bg-danger-soft px-3 py-2.5 text-sm text-danger"
@@ -162,111 +200,181 @@ function finish() {
       </button>
     </div>
 
-    <p
-      v-else-if="step === 'already-enabled'"
-      class="flex items-center gap-2 text-sm text-success"
-    >
+    <p v-else class="flex items-center gap-2 text-sm text-success">
       <PhCheckCircle :size="18" weight="fill" />
       MFA sudah aktif untuk akun ini.
     </p>
+  </section>
 
-    <div v-else-if="step === 'confirm'" class="space-y-4">
-      <div class="flex justify-center rounded-lg bg-surface-subtle p-5">
-        <img :src="qrDataUrl" alt="QR code MFA" class="h-44 w-44" />
-      </div>
-      <div class="rounded-lg border border-border p-3">
-        <p class="text-xs text-muted">
-          Tidak bisa pindai? Masukkan kode ini secara manual:
-        </p>
-        <p
-          class="mt-1.5 break-all font-mono text-sm font-medium text-foreground"
-        >
-          {{ secret }}
-        </p>
-      </div>
-
-      <form class="space-y-3" @submit.prevent="submitConfirm">
-        <label class="block max-w-55">
-          <span
-            class="mb-1.5 block text-xs font-medium text-foreground-secondary"
-          >
-            Kode konfirmasi
-          </span>
-          <input
-            v-model="code"
-            class="h-11 w-full rounded-lg border border-border bg-surface-subtle px-3 text-center text-base tracking-[0.4em] outline-none transition focus:border-brand focus:bg-surface"
-            inputmode="numeric"
-            autocomplete="one-time-code"
-            maxlength="6"
-            placeholder="000000"
-          />
-        </label>
-
-        <p
-          v-if="errorMessage"
-          class="rounded-lg bg-danger-soft px-3 py-2.5 text-sm text-danger"
-        >
-          {{ errorMessage }}
-        </p>
-
-        <div class="flex gap-3">
+  <Teleport to="body">
+    <div
+      v-if="modalOpen"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="mfa-enroll-modal-title"
+      @click.self="closeModal"
+    >
+      <div
+        class="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl bg-surface p-6"
+      >
+        <div class="mb-4 flex items-start justify-between gap-3">
+          <div>
+            <p class="text-xs font-medium uppercase tracking-wide text-muted">
+              Langkah {{ modalStepMeta[modalStep].number }} dari 3
+            </p>
+            <h2
+              id="mfa-enroll-modal-title"
+              class="mt-1 text-base font-semibold text-foreground"
+            >
+              {{ modalStepMeta[modalStep].title }}
+            </h2>
+          </div>
           <button
-            class="inline-flex h-10 items-center justify-center rounded-lg bg-brand px-4 text-sm font-medium text-white transition hover:bg-brand-hover disabled:cursor-not-allowed disabled:bg-[#bab7d8]"
-            type="submit"
-            :disabled="code.trim().length !== 6 || isSubmitting"
-          >
-            {{ isSubmitting ? "Memverifikasi..." : "Konfirmasi" }}
-          </button>
-          <button
+            v-if="modalStep !== 'recovery'"
             type="button"
-            class="inline-flex h-10 items-center justify-center rounded-lg border border-border px-4 text-sm font-medium text-foreground-secondary transition hover:text-foreground"
-            @click="cancel"
+            class="rounded-lg p-1.5 text-muted transition hover:bg-surface-strong hover:text-foreground"
+            aria-label="Tutup"
+            @click="closeModal"
           >
-            Batal
+            <PhX class="h-5 w-5" />
           </button>
         </div>
-      </form>
-    </div>
 
-    <div v-else-if="step === 'recovery'" class="space-y-4">
-      <p class="text-sm leading-6 text-muted">
-        Simpan 10 recovery code berikut di tempat aman. Setiap kode hanya bisa
-        dipakai <strong>satu kali</strong> jika kamu kehilangan akses ke
-        aplikasi autentikator. Kode ini
-        <strong>tidak akan ditampilkan lagi</strong>.
-      </p>
-      <div
-        class="grid grid-cols-2 gap-2 rounded-lg bg-surface-subtle p-4 font-mono text-sm sm:grid-cols-3"
-      >
-        <span v-for="rc in recoveryCodes" :key="rc" class="text-foreground">
-          {{ rc }}
-        </span>
-      </div>
-      <div class="flex flex-wrap gap-3">
-        <button
-          type="button"
-          class="inline-flex h-10 items-center gap-2 rounded-lg border border-border px-4 text-sm font-medium text-foreground-secondary transition hover:text-foreground"
-          @click="copyRecoveryCodes"
-        >
-          <PhCopy :size="16" />
-          {{ copied ? "Tersalin!" : "Salin" }}
-        </button>
-        <button
-          type="button"
-          class="inline-flex h-10 items-center gap-2 rounded-lg border border-border px-4 text-sm font-medium text-foreground-secondary transition hover:text-foreground"
-          @click="downloadRecoveryCodes"
-        >
-          <PhDownloadSimple :size="16" />
-          Unduh .txt
-        </button>
-        <button
-          type="button"
-          class="inline-flex h-10 items-center rounded-lg bg-brand px-4 text-sm font-medium text-white transition hover:bg-brand-hover"
-          @click="finish"
-        >
-          Selesai
-        </button>
+        <div v-if="modalStep === 'qr'" class="space-y-4">
+          <MfaAuthenticatorInstructions />
+
+          <div class="flex justify-center rounded-xl bg-surface-subtle p-5">
+            <img :src="qrDataUrl" alt="QR code MFA" class="h-44 w-44" />
+          </div>
+
+          <div class="rounded-lg border border-border p-3">
+            <p class="text-xs text-muted">
+              Tidak bisa pindai? Masukkan kode ini secara manual:
+            </p>
+            <p
+              class="mt-1.5 break-all font-mono text-sm font-medium text-foreground"
+            >
+              {{ secret }}
+            </p>
+          </div>
+
+          <div class="flex gap-3">
+            <button
+              type="button"
+              class="inline-flex h-10 flex-1 items-center justify-center rounded-lg bg-brand px-4 text-sm font-medium text-white transition hover:bg-brand-hover"
+              @click="modalStep = 'confirm'"
+            >
+              Saya sudah pindai, lanjut
+            </button>
+            <button
+              type="button"
+              class="inline-flex h-10 items-center justify-center rounded-lg border border-border px-4 text-sm font-medium text-foreground-secondary transition hover:text-foreground"
+              @click="closeModal"
+            >
+              Batal
+            </button>
+          </div>
+        </div>
+
+        <div v-else-if="modalStep === 'confirm'" class="space-y-4">
+          <p class="text-sm leading-6 text-muted">
+            Buka aplikasi authenticator di ponselmu, lalu masukkan 6 digit
+            kode yang tampil di sana ke kolom di bawah ini.
+          </p>
+
+          <form class="space-y-3" @submit.prevent="submitConfirm">
+            <label class="block">
+              <span
+                class="mb-1.5 block text-xs font-medium text-foreground-secondary"
+              >
+                Kode konfirmasi
+              </span>
+              <input
+                v-model="code"
+                class="h-11 w-full rounded-lg border border-border bg-surface-subtle px-3 text-center text-base tracking-[0.4em] outline-none transition focus:border-brand focus:bg-surface"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                maxlength="6"
+                placeholder="000000"
+              />
+            </label>
+
+            <p
+              v-if="errorMessage"
+              class="rounded-lg bg-danger-soft px-3 py-2.5 text-sm text-danger"
+            >
+              {{ errorMessage }}
+            </p>
+
+            <div class="flex gap-3">
+              <button
+                class="inline-flex h-10 flex-1 items-center justify-center rounded-lg bg-brand px-4 text-sm font-medium text-white transition hover:bg-brand-hover disabled:cursor-not-allowed disabled:bg-[#bab7d8]"
+                type="submit"
+                :disabled="code.trim().length !== 6 || isSubmitting"
+              >
+                {{ isSubmitting ? "Memverifikasi..." : "Konfirmasi" }}
+              </button>
+              <button
+                type="button"
+                class="inline-flex h-10 items-center justify-center rounded-lg border border-border px-4 text-sm font-medium text-foreground-secondary transition hover:text-foreground"
+                @click="closeModal"
+              >
+                Batal
+              </button>
+            </div>
+          </form>
+
+          <button
+            type="button"
+            class="text-xs font-medium text-brand underline underline-offset-2"
+            @click="backToQr"
+          >
+            Lihat ulang QR code
+          </button>
+        </div>
+
+        <div v-else class="space-y-4">
+          <p class="text-sm leading-6 text-muted">
+            Simpan 10 recovery code berikut di tempat aman. Setiap kode hanya
+            bisa dipakai <strong>satu kali</strong> jika kamu kehilangan akses
+            ke aplikasi autentikator. Kode ini
+            <strong>tidak akan ditampilkan lagi</strong>.
+          </p>
+          <div
+            class="grid grid-cols-2 gap-2 rounded-lg bg-surface-subtle p-4 font-mono text-sm sm:grid-cols-3"
+          >
+            <span v-for="rc in recoveryCodes" :key="rc" class="text-foreground">
+              {{ rc }}
+            </span>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button
+              type="button"
+              class="inline-flex h-10 items-center gap-2 rounded-lg border border-border px-4 text-sm font-medium text-foreground-secondary transition hover:text-foreground"
+              @click="copyRecoveryCodes"
+            >
+              <PhCopy :size="16" />
+              {{ copied ? "Tersalin!" : "Salin" }}
+            </button>
+            <button
+              type="button"
+              class="inline-flex h-10 items-center gap-2 rounded-lg border border-border px-4 text-sm font-medium text-foreground-secondary transition hover:text-foreground"
+              @click="downloadRecoveryCodes"
+            >
+              <PhDownloadSimple :size="16" />
+              Unduh .txt
+            </button>
+            <button
+              type="button"
+              class="inline-flex h-10 items-center rounded-lg bg-brand px-4 text-sm font-medium text-white transition hover:bg-brand-hover"
+              @click="finish"
+            >
+              Selesai
+            </button>
+          </div>
+        </div>
       </div>
     </div>
-  </section>
+  </Teleport>
 </template>

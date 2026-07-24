@@ -12,6 +12,7 @@ import { useAuthStore } from "../../stores/auth";
 import { useToastStore } from "../../stores/toast";
 import { confirmMfaSetup, enrollMfaSetup } from "../../services/mfa";
 import { getApiError } from "../../utils/error";
+import MfaAuthenticatorInstructions from "../../components/common/MfaAuthenticatorInstructions.vue";
 
 const auth = useAuthStore();
 const route = useRoute();
@@ -204,6 +205,8 @@ onMounted(startEnrollment);
               aplikasi autentikator (Google Authenticator, Authy, dsb).
             </p>
           </div>
+
+          <MfaAuthenticatorInstructions />
 
           <div class="flex justify-center rounded-2xl bg-surface-subtle p-5">
             <img :src="qrDataUrl" alt="QR code MFA" class="h-48 w-48" />
