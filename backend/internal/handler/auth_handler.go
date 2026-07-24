@@ -298,6 +298,25 @@ func (h *AuthHandler) ConfirmMFA(c *gin.Context) {
 	c.JSON(http.StatusOK, dto.MFAConfirmResponseDTO{RecoveryCodes: recoveryCodes})
 }
 
+// MFAStatus is GET /me/mfa/status — AuthRequired. Reports whether the
+// caller currently has MFA enabled, so the profile page can render the
+// correct enrollment state without guessing from a failed enroll attempt.
+func (h *AuthHandler) MFAStatus(c *gin.Context) {
+	userID := middleware.GetUserID(c)
+	if userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	enabled, err := h.mfaService.IsEnabled(userID)
+	if err != nil {
+		HandleError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, dto.MFAStatusResponseDTO{Enabled: enabled})
+}
+
 // VerifyMFALogin is POST /login/mfa-verify — public. Completes a login that
 // was paused for MFA (a Login/Register response with mfaRequired=true).
 func (h *AuthHandler) VerifyMFALogin(c *gin.Context) {

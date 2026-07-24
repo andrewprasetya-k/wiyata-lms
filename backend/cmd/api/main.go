@@ -244,6 +244,7 @@ func main() {
 			meAPI.GET("/ws-ticket", authHandler.IssueWSTicket)
 			meAPI.GET("/sessions", authHandler.ListSessions)
 			meAPI.DELETE("/sessions/:id", authHandler.RevokeSession)
+			meAPI.GET("/mfa/status", authHandler.MFAStatus)
 			meAPI.POST("/mfa/enroll", authHandler.EnrollMFA)
 			meAPI.POST("/mfa/confirm", authHandler.ConfirmMFA)
 		}

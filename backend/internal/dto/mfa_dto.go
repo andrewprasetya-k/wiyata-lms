@@ -53,3 +53,9 @@ type MFASetupCompleteResponseDTO struct {
 	LoginResponseDTO
 	RecoveryCodes []string `json:"recoveryCodes"`
 }
+
+// MFAStatusResponseDTO is GET /me/mfa/status's response — whether the
+// caller (from the JWT, not a path param) currently has MFA enabled.
+type MFAStatusResponseDTO struct {
+	Enabled bool `json:"enabled"`
+}
