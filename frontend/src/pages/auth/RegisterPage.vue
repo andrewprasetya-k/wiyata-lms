@@ -4,6 +4,7 @@ import { RouterLink, useRoute, useRouter } from "vue-router";
 import { PhArrowRight, PhEye, PhEyeSlash } from "@phosphor-icons/vue";
 import { useAuthStore } from "../../stores/auth";
 import { usePasswordVisibility } from "../../composables/usePasswordVisibility";
+import type { LoginOutcome } from "../../types/auth";
 
 const auth = useAuthStore();
 const route = useRoute();
@@ -68,19 +69,35 @@ async function submit() {
   errorMessage.value = "";
 
   try {
-    await auth.register({
+    const outcome = await auth.register({
       fullName: fullName.value.trim(),
       email: email.value.trim(),
       password: password.value,
     });
-    await router.push(
-      (route.query.redirect as string | undefined) ?? auth.landingRoute(),
-    );
+    await handleOutcome(outcome);
   } catch (error) {
     errorMessage.value = errorFromResponse(error);
   } finally {
     isSubmitting.value = false;
   }
+}
+
+// A fresh registration's auto-login is guaranteed by the backend to never
+// hit the mfaRequired/mfaSetupRequired branches (grace period always
+// starts fresh, MFA never pre-enabled) — but this is still typed as
+// LoginOutcome, so it's handled defensively rather than assumed.
+async function handleOutcome(outcome: LoginOutcome) {
+  const redirect = route.query.redirect as string | undefined;
+
+  if (outcome.kind === "mfaRequired") {
+    await router.push({ name: "mfa-verify", query: redirect ? { redirect } : {} });
+    return;
+  }
+  if (outcome.kind === "mfaSetupRequired") {
+    await router.push({ name: "mfa-setup", query: redirect ? { redirect } : {} });
+    return;
+  }
+  await router.push(redirect ?? auth.landingRoute());
 }
 </script>
 

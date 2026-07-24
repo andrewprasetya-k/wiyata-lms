@@ -14,6 +14,7 @@ import { useToastStore } from "../../stores/toast";
 import { useConfirmStore } from "../../stores/confirm";
 import { usePasswordVisibility } from "../../composables/usePasswordVisibility";
 import { changePassword } from "../../services/changePassword";
+import MfaEnrollmentSection from "../../components/profile/MfaEnrollmentSection.vue";
 import {
   listSessions,
   revokeSession,
@@ -491,6 +492,8 @@ onMounted(loadSessions);
             </div>
           </form>
         </section>
+
+        <MfaEnrollmentSection />
 
         <section class="min-w-0 rounded-xl border border-border bg-surface p-5">
           <div class="mb-4 flex min-w-0 items-center gap-3">

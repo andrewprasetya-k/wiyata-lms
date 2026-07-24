@@ -5,6 +5,7 @@ import { RouterLink, useRoute, useRouter } from "vue-router";
 import { PhArrowRight, PhEye, PhEyeSlash } from "@phosphor-icons/vue";
 import { useAuthStore } from "../../stores/auth";
 import { usePasswordVisibility } from "../../composables/usePasswordVisibility";
+import type { LoginOutcome } from "../../types/auth";
 
 const auth = useAuthStore();
 const route = useRoute();
@@ -44,15 +45,30 @@ async function submit() {
   errorMessage.value = "";
 
   try {
-    await auth.login({ email: email.value, password: password.value });
-    await router.push(
-      (route.query.redirect as string | undefined) ?? auth.landingRoute(),
-    );
+    const outcome = await auth.login({
+      email: email.value,
+      password: password.value,
+    });
+    await handleOutcome(outcome);
   } catch {
     errorMessage.value = "Email atau password tidak valid.";
   } finally {
     isSubmitting.value = false;
   }
+}
+
+async function handleOutcome(outcome: LoginOutcome) {
+  const redirect = route.query.redirect as string | undefined;
+
+  if (outcome.kind === "mfaRequired") {
+    await router.push({ name: "mfa-verify", query: redirect ? { redirect } : {} });
+    return;
+  }
+  if (outcome.kind === "mfaSetupRequired") {
+    await router.push({ name: "mfa-setup", query: redirect ? { redirect } : {} });
+    return;
+  }
+  await router.push(redirect ?? auth.landingRoute());
 }
 </script>
 

@@ -10,6 +10,8 @@ import LoginPage from "../pages/auth/LoginPage.vue";
 import RegisterPage from "../pages/auth/RegisterPage.vue";
 import ForgotPasswordPage from "../pages/auth/ForgotPasswordPage.vue";
 import ResetPasswordPage from "../pages/auth/ResetPasswordPage.vue";
+import MfaVerifyPage from "../pages/auth/MfaVerifyPage.vue";
+import MfaForcedSetupPage from "../pages/auth/MfaForcedSetupPage.vue";
 import UnauthorizedPage from "../pages/auth/UnauthorizedPage.vue";
 import OnboardingPage from "../pages/onboarding/OnboardingPage.vue";
 import StudentDashboard from "../pages/student/StudentDashboard.vue";
@@ -124,6 +126,18 @@ const router = createRouter({
           name: "reset-password",
           component: ResetPasswordPage,
           meta: { title: "Reset Kata Sandi" },
+        },
+        {
+          path: "mfa-verify",
+          name: "mfa-verify",
+          component: MfaVerifyPage,
+          meta: { title: "Verifikasi MFA" },
+        },
+        {
+          path: "mfa-setup",
+          name: "mfa-setup",
+          component: MfaForcedSetupPage,
+          meta: { title: "Setup MFA" },
         },
         {
           path: "unauthorized",
@@ -519,6 +533,17 @@ router.beforeEach(async (to) => {
   if ((to.name === "login" || to.name === "register") && auth.isAuthenticated) {
     await auth.ensureUserContext();
     return auth.landingRoute();
+  }
+
+  // These two pages only make sense mid-login-flow, driven by the
+  // in-memory preAuthToken set by auth.login()/register() — pendingMfaToken
+  // never survives a reload, so a direct/refreshed visit here has nothing
+  // to verify or set up and must restart from /login.
+  if (
+    (to.name === "mfa-verify" || to.name === "mfa-setup") &&
+    !auth.pendingMfaToken
+  ) {
+    return { name: "login" };
   }
 
   if (to.meta.requiresAuth && !auth.isAuthenticated) {

@@ -12,6 +12,8 @@ import type {
   ActiveContext,
   AuthContextResponse,
   DefaultContext,
+  LoginChallengeResponse,
+  LoginOutcome,
   LoginPayload,
   LoginResponse,
   MembershipInfo,
@@ -42,6 +44,11 @@ export const useAuthStore = defineStore("auth", () => {
   const defaultContext = ref<DefaultContext | undefined>();
   const emailVerified = ref(false);
   const emailVerifiedAt = ref<string | undefined>();
+  const mfaGraceDaysRemaining = ref<number | undefined>();
+  // Deliberately in-memory only, never persisted (session.ts) — it's a
+  // short-lived credential for the login-in-progress flow only, not
+  // something that should survive a reload.
+  const pendingMfaToken = ref<string | null>(null);
   const activeContext = ref<ActiveContext | null>(null);
   const isRestored = ref(false);
   const isContextReady = ref(false);
@@ -117,6 +124,7 @@ export const useAuthStore = defineStore("auth", () => {
     memberships.value = response.memberships ?? [];
     globalRoles.value = response.globalRoles ?? [];
     defaultContext.value = response.defaultContext;
+    mfaGraceDaysRemaining.value = response.mfaGraceDaysRemaining;
 
     const stored = readStoredSession();
     activeContext.value = chooseActiveContext({
@@ -132,16 +140,55 @@ export const useAuthStore = defineStore("auth", () => {
     persistCurrentSession();
   }
 
-  async function login(payload: LoginPayload) {
-    const { data } = await api.post<LoginResponse>("/login", payload);
-    applySession(data);
-    return data;
+  async function login(payload: LoginPayload): Promise<LoginOutcome> {
+    const { data } = await api.post<LoginResponse | LoginChallengeResponse>(
+      "/login",
+      payload,
+    );
+    return applyLoginOrChallenge(data);
   }
 
-  async function register(payload: RegisterPayload) {
-    const { data } = await api.post<LoginResponse>("/register", payload);
+  async function register(payload: RegisterPayload): Promise<LoginOutcome> {
+    const { data } = await api.post<LoginResponse | LoginChallengeResponse>(
+      "/register",
+      payload,
+    );
+    return applyLoginOrChallenge(data);
+  }
+
+  // A challenge response never has a `token` field — that's the only
+  // distinguishing shape between the two possible /login and /register
+  // response bodies (see LoginChallengeResponse in types/auth.ts).
+  function applyLoginOrChallenge(
+    data: LoginResponse | LoginChallengeResponse,
+  ): LoginOutcome {
+    if (!("token" in data)) {
+      pendingMfaToken.value = data.preAuthToken;
+      return data.mfaSetupRequired
+        ? { kind: "mfaSetupRequired", preAuthToken: data.preAuthToken }
+        : { kind: "mfaRequired", preAuthToken: data.preAuthToken };
+    }
     applySession(data);
-    return data;
+    return { kind: "success", data };
+  }
+
+  // Called by MfaVerifyPage/MfaForcedSetupPage once their own call to
+  // /login/mfa-verify or /login/mfa-setup/confirm succeeds — finishes the
+  // login exactly like a direct password-only login would.
+  function completeMfaLogin(data: LoginResponse) {
+    applySession(data);
+    pendingMfaToken.value = null;
+  }
+
+  function clearPendingMfa() {
+    pendingMfaToken.value = null;
+  }
+
+  // Called after a successful self-service /me/mfa/confirm — the grace
+  // reminder no longer applies now that MFA is enabled, and there's no
+  // reason to wait for the next login to stop showing it.
+  function clearMfaGraceReminder() {
+    mfaGraceDaysRemaining.value = undefined;
   }
 
   async function logout() {
@@ -161,6 +208,8 @@ export const useAuthStore = defineStore("auth", () => {
     defaultContext.value = undefined;
     emailVerified.value = false;
     emailVerifiedAt.value = undefined;
+    mfaGraceDaysRemaining.value = undefined;
+    pendingMfaToken.value = null;
     activeContext.value = null;
     isContextReady.value = false;
     isContextInitialized.value = false;
@@ -410,6 +459,8 @@ export const useAuthStore = defineStore("auth", () => {
     defaultContext,
     emailVerified,
     emailVerifiedAt,
+    mfaGraceDaysRemaining,
+    pendingMfaToken,
     activeContext,
     activeRole,
     activeSchoolId,
@@ -423,6 +474,9 @@ export const useAuthStore = defineStore("auth", () => {
     allRoles,
     login,
     register,
+    completeMfaLogin,
+    clearPendingMfa,
+    clearMfaGraceReminder,
     logout,
     restoreSession,
     ensureUserContext,

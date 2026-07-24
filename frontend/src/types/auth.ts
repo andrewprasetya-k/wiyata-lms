@@ -44,7 +44,25 @@ export interface LoginResponse {
   memberships: MembershipInfo[]
   globalRoles: RoleName[]
   defaultContext?: DefaultContext
+  // Only present when the user hasn't enrolled in MFA yet but is still
+  // within the grace period — a dismissible reminder, never a blocker.
+  mfaGraceDaysRemaining?: number
 }
+
+// What POST /login and POST /register return instead of LoginResponse when
+// the password was correct but a second step still stands between here and
+// a completed login. Distinguished from LoginResponse by the absence of a
+// `token` field (see isLoginChallenge below).
+export interface LoginChallengeResponse {
+  mfaRequired?: boolean
+  mfaSetupRequired?: boolean
+  preAuthToken: string
+}
+
+export type LoginOutcome =
+  | { kind: 'success'; data: LoginResponse }
+  | { kind: 'mfaRequired'; preAuthToken: string }
+  | { kind: 'mfaSetupRequired'; preAuthToken: string }
 
 export interface AuthContextResponse {
   memberships: MembershipInfo[]

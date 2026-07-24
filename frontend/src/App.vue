@@ -1,5 +1,6 @@
 <template>
   <EmailVerificationBanner />
+  <MfaGraceBanner />
   <RouterView />
   <ToastViewport />
   <ConfirmDialog />
@@ -9,6 +10,7 @@
 import ToastViewport from "./components/common/ToastViewport.vue";
 import ConfirmDialog from "./components/common/ConfirmDialog.vue";
 import EmailVerificationBanner from "./components/common/EmailVerificationBanner.vue";
+import MfaGraceBanner from "./components/common/MfaGraceBanner.vue";
 import { useAuthContextSync } from "./composables/useAuthContextSync";
 
 useAuthContextSync();
