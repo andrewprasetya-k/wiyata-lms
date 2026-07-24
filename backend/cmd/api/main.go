@@ -182,6 +182,10 @@ func main() {
 	dashboardService := service.NewDashboardService(dashboardRepo)
 	dashboardHandler := handler.NewDashboardHandler(dashboardService)
 
+	securityRepo := repository.NewSecurityRepository(db)
+	securityDashboardService := service.NewSecurityDashboardService(securityRepo)
+	securityDashboardHandler := handler.NewSecurityDashboardHandler(securityDashboardService)
+
 	activityRepo := repository.NewActivityRepository(db)
 	activityService := service.NewActivityService(activityRepo)
 	activityHandler := handler.NewActivityHandler(activityService)
@@ -530,6 +534,8 @@ func main() {
 			dashboardAPI.GET("/teacher/:schoolUserId", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "teacher"), dashboardHandler.GetTeacherDashboard)
 			dashboardAPI.GET("/admin/:schoolId", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin"), dashboardHandler.GetAdminDashboard)
 			dashboardAPI.GET("/super-admin", middleware.RequireSystemSuperAdmin(schoolService), dashboardHandler.GetSuperAdminDashboard)
+			dashboardAPI.GET("/admin/:schoolId/security", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin"), securityDashboardHandler.GetAdminSecurityDashboard)
+			dashboardAPI.GET("/super-admin/security", middleware.RequireSystemSuperAdmin(schoolService), securityDashboardHandler.GetSuperAdminSecurityDashboard)
 		}
 
 		activityAPI := api.Group("/academic-activity")

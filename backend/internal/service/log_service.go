@@ -168,6 +168,7 @@ func buildLogEntry(actor domain.ActorContext, action string, entityType string, 
 		EntityID:          entityID,
 		Scope:             &scope,
 		Severity:          &severity,
+		IPAddress:         actor.IPAddress,
 		CorrelationID:     correlationID,
 	}, nil
 }

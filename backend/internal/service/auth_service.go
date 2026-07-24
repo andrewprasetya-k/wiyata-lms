@@ -138,8 +138,8 @@ func NewAuthService(
 	}
 }
 
-func (s *authService) logLoginFailed(email string, reason string) {
-	_ = s.logService.Log(domain.ActorContext{Scope: domain.LogScopePlatform}, "auth.login.failed", "user", nil, domain.LogSeverityMedium, map[string]any{
+func (s *authService) logLoginFailed(email string, reason string, ipAddress string) {
+	_ = s.logService.Log(domain.ActorContext{Scope: domain.LogScopePlatform, IPAddress: nilIfEmpty(ipAddress)}, "auth.login.failed", "user", nil, domain.LogSeverityMedium, map[string]any{
 		"email":  email,
 		"reason": reason,
 	})
@@ -149,14 +149,14 @@ func (s *authService) Login(email string, password string, meta RefreshTokenMeta
 	userEmail, err := s.userRepo.GetByEmail(email)
 	if err != nil {
 		// Return generic error to prevent user enumeration
-		s.logLoginFailed(email, "user_not_found")
+		s.logLoginFailed(email, "user_not_found", meta.IPAddress)
 		return nil, errors.New("invalid email or password")
 	}
 
 	err = verifyPassword(userEmail.Password, password)
 	if err != nil {
 		// Return same generic error for password mismatch
-		s.logLoginFailed(email, "invalid_password")
+		s.logLoginFailed(email, "invalid_password", meta.IPAddress)
 		return nil, errors.New("invalid email or password")
 	}
 
@@ -359,7 +359,7 @@ func (s *authService) Refresh(rawRefreshToken string, meta RefreshTokenMetadata)
 		var reused *repository.ReusedRefreshTokenError
 		if errors.As(err, &reused) {
 			_ = s.refreshTokenRepo.RevokeFamily(reused.FamilyID)
-			_ = s.logService.Log(domain.ActorContext{UserID: reused.UserID, Scope: domain.LogScopePlatform}, "auth.token.reuse_detected", "user", strPtr(reused.UserID), domain.LogSeverityHigh, map[string]any{
+			_ = s.logService.Log(domain.ActorContext{UserID: reused.UserID, Scope: domain.LogScopePlatform, IPAddress: nilIfEmpty(meta.IPAddress)}, "auth.token.reuse_detected", "user", strPtr(reused.UserID), domain.LogSeverityHigh, map[string]any{
 				"user_id":   reused.UserID,
 				"family_id": reused.FamilyID,
 			})
@@ -378,7 +378,7 @@ func (s *authService) Refresh(rawRefreshToken string, meta RefreshTokenMetadata)
 		return "", "", err
 	}
 
-	_ = s.logService.Log(domain.ActorContext{UserID: user.ID, Scope: domain.LogScopePlatform}, "auth.token.refreshed", "user", strPtr(user.ID), domain.LogSeverityLow, map[string]any{
+	_ = s.logService.Log(domain.ActorContext{UserID: user.ID, Scope: domain.LogScopePlatform, IPAddress: nilIfEmpty(meta.IPAddress)}, "auth.token.refreshed", "user", strPtr(user.ID), domain.LogSeverityLow, map[string]any{
 		"user_id": user.ID,
 	})
 
@@ -479,7 +479,7 @@ func (s *authService) VerifyMFA(rawPreAuthToken string, code string, recoveryCod
 		if s.mfaVerifyAttemptLimit != nil && !s.mfaVerifyAttemptLimit.Allow(lockKey) {
 			failErr = ErrMFATooManyAttempts
 		}
-		_ = s.logService.Log(domain.ActorContext{UserID: user.ID, Scope: domain.LogScopePlatform}, "auth.mfa.verify.failed", "user", strPtr(user.ID), domain.LogSeverityMedium, map[string]any{
+		_ = s.logService.Log(domain.ActorContext{UserID: user.ID, Scope: domain.LogScopePlatform, IPAddress: nilIfEmpty(meta.IPAddress)}, "auth.mfa.verify.failed", "user", strPtr(user.ID), domain.LogSeverityMedium, map[string]any{
 			"user_id":       user.ID,
 			"used_recovery": usedRecovery,
 		})
@@ -495,11 +495,11 @@ func (s *authService) VerifyMFA(rawPreAuthToken string, code string, recoveryCod
 	}
 
 	if usedRecovery {
-		_ = s.logService.Log(domain.ActorContext{UserID: user.ID, Scope: domain.LogScopePlatform}, "auth.mfa.recovery_code.used", "user", strPtr(user.ID), domain.LogSeverityHigh, map[string]any{
+		_ = s.logService.Log(domain.ActorContext{UserID: user.ID, Scope: domain.LogScopePlatform, IPAddress: nilIfEmpty(meta.IPAddress)}, "auth.mfa.recovery_code.used", "user", strPtr(user.ID), domain.LogSeverityHigh, map[string]any{
 			"user_id": user.ID,
 		})
 	} else {
-		_ = s.logService.Log(domain.ActorContext{UserID: user.ID, Scope: domain.LogScopePlatform}, "auth.mfa.verified", "user", strPtr(user.ID), domain.LogSeverityLow, map[string]any{
+		_ = s.logService.Log(domain.ActorContext{UserID: user.ID, Scope: domain.LogScopePlatform, IPAddress: nilIfEmpty(meta.IPAddress)}, "auth.mfa.verified", "user", strPtr(user.ID), domain.LogSeverityLow, map[string]any{
 			"user_id": user.ID,
 		})
 	}
@@ -564,7 +564,7 @@ func (s *authService) CompleteMFASetup(rawPreAuthToken string, code string, meta
 		if s.mfaVerifyAttemptLimit != nil && !s.mfaVerifyAttemptLimit.Allow(lockKey) {
 			failErr = ErrMFATooManyAttempts
 		}
-		_ = s.logService.Log(domain.ActorContext{UserID: user.ID, Scope: domain.LogScopePlatform}, "auth.mfa.verify.failed", "user", strPtr(user.ID), domain.LogSeverityMedium, map[string]any{
+		_ = s.logService.Log(domain.ActorContext{UserID: user.ID, Scope: domain.LogScopePlatform, IPAddress: nilIfEmpty(meta.IPAddress)}, "auth.mfa.verify.failed", "user", strPtr(user.ID), domain.LogSeverityMedium, map[string]any{
 			"user_id": user.ID,
 			"context": "forced_setup",
 		})
@@ -613,7 +613,7 @@ func (s *authService) completeLogin(user *domain.User, meta RefreshTokenMetadata
 	}
 	response.MFAGraceDaysRemaining = graceDaysRemaining
 
-	_ = s.logService.Log(domain.ActorContext{UserID: user.ID, Scope: domain.LogScopePlatform}, "auth.login.success", "user", strPtr(user.ID), domain.LogSeverityLow, map[string]any{
+	_ = s.logService.Log(domain.ActorContext{UserID: user.ID, Scope: domain.LogScopePlatform, IPAddress: nilIfEmpty(meta.IPAddress)}, "auth.login.success", "user", strPtr(user.ID), domain.LogSeverityLow, map[string]any{
 		"user_id":      user.ID,
 		"login_method": "password",
 	})
@@ -626,6 +626,7 @@ func (s *authService) completeLogin(user *domain.User, meta RefreshTokenMetadata
 			SchoolID:     &schoolID,
 			SchoolUserID: &schoolUserID,
 			Scope:        domain.LogScopeSchool,
+			IPAddress:    nilIfEmpty(meta.IPAddress),
 		}, "member.login", "school_user", strPtr(schoolUserID), domain.LogSeverityLow, map[string]any{
 			"login_method": "password",
 			"user_id":      user.ID,

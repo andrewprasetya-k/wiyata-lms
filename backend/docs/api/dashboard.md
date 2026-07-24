@@ -188,6 +188,133 @@ Get platform-wide dashboard data for the super admin.
 
 ---
 
+## 5. Security Dashboard (Phase 11.5)
+
+Summary widgets for the audit-logging system's authentication/security
+signals — failed logins, brute-force detection, password reset activity,
+and suspicious activity (token reuse, recovery code use, repeated MFA
+failures). Two endpoints, one per permission tier, both returning the same
+`SecurityDashboardDTO` shape — mirrors the split already used by
+`/logs/school/:schoolId/search` (school-pinned) vs `/logs` (unrestricted),
+not the single-bundled-response-per-role convention used elsewhere in this
+document, since a security-specific view has no natural single "role" the
+way student/teacher/admin dashboards do.
+
+- **URL:** `/admin/:schoolId/security`
+- **Method:** `GET`
+- **Auth:** `RequireSchoolMember + RequireRole("admin")`
+- **Ownership:** Same as `/admin/:schoolId` — handler verifies `:schoolId` equals the active `school_id` from context.
+
+- **URL:** `/super-admin/security`
+- **Method:** `GET`
+- **Auth:** `RequireRole("super_admin")` — unrestricted, platform-wide, no school scoping.
+
+**Response (both endpoints, same shape):**
+```json
+{
+  "windowHours": 24,
+  "generatedAt": "2026-07-24T10:00:00Z",
+  "failedLoginCount": 12,
+  "bruteForceIncidents": [
+    { "targetType": "email", "target": "target@example.com", "failureCount": 7, "lastAttemptAt": "2026-07-24T09:45:00Z" },
+    { "targetType": "ip", "target": "203.0.113.9", "failureCount": 9, "lastAttemptAt": "2026-07-24T09:50:00Z" }
+  ],
+  "passwordResetRequestedCount": 4,
+  "passwordResetCompletedCount": 3,
+  "suspiciousActivities": [
+    {
+      "logId": "uuid",
+      "action": "auth.token.reuse_detected",
+      "severity": "HIGH",
+      "userId": "uuid",
+      "userName": "Budi Santoso",
+      "userEmail": "budi@example.com",
+      "createdAt": "2026-07-24T08:12:00Z"
+    }
+  ]
+}
+```
+
+**Important data-availability note:** every `auth.*` audit action is
+`scope=platform` with no `log_sch_id` (see `log.md` §4 — none of these
+events ever carry a school ID; login/password-reset are pre-authentication,
+and MFA/token events are user-scoped, not school-scoped). The school-pinned
+endpoint therefore cannot filter by `log_sch_id` like the rest of the audit
+log surface — it resolves school membership indirectly instead, via
+`SecurityRepository.scopeToSchool`: for rows with a `user_id` (MFA/token
+events), it joins `edv.school_users` on that ID; for rows with no `user_id`
+(`auth.login.failed`, `auth.password.reset.requested` — identity is
+intentionally unknown at that point), it resolves the target account by
+matching `log_metadata->>'email'` against `edv.users.usr_email`, then checks
+that user's school membership. Both paths exclude soft-deleted
+`school_users` rows.
+
+**Brute-force definition:** a target (an email address OR a source IP) is
+flagged as an incident when its `auth.login.failed` attempts include **at
+least 5 failures within any 15-minute span** in the lookback window — not
+merely 5 failures spread across the whole window, which would misclassify
+an ordinary "forgot my password, a few tries over the day" pattern as an
+attack. This threshold matches the rate-limit tiers already used elsewhere
+in this codebase (`mfa_verify` and change-password both use 5 attempts / 15
+minutes), rather than inventing a new one.
+
+**IP capture (Phase 11.5.1):** `AuthService.logLoginFailed` — and every
+other `auth.*` action where the request's IP was already available in
+scope via `RefreshTokenMetadata` (`auth.login.success`, `member.login`,
+`auth.token.refreshed`, `auth.token.reuse_detected`, `auth.mfa.verified`,
+`auth.mfa.verify.failed` both call sites, `auth.mfa.recovery_code.used`) —
+now populates `domain.ActorContext.IPAddress`, which `LogService.buildLogEntry`
+writes into `domain.Log.IPAddress`. Two `auth.*` actions were **deliberately
+left out** because doing so would require new handler→service plumbing (a
+signature change), not just using a value that was already being passed
+through and ignored: `auth.password.reset.requested`/`auth.password.reset.completed`
+(`PasswordResetService.Request`/`Reset` take no request-metadata parameter
+today) and `auth.logout`/`auth.session.revoked` (`AuthService.Logout`/`RevokeSession`
+likewise take none — `auth.session.revoked`'s metadata already carries the
+*revoked session's own* stored IP/user-agent, a different concept from the
+current request's IP). Recommended as a follow-up if IP-based analysis is
+wanted for those too, but out of scope here.
+
+Both groupings run and are reported together — an account can be attacked
+from many sources, and one source can attack many accounts, and neither
+pattern subsumes the other. Every pre-existing log row (written before this
+phase) has `ip_address = NULL` and is correctly excluded from **all**
+IP-based queries by an explicit `WHERE ip_address IS NOT NULL` — it's
+treated as "IP unknown," never grouped together with other NULLs as if they
+shared an IP, and it still counts normally in the email-based grouping
+(which never depended on IP).
+
+**Suspicious activity definition:** the union of `auth.token.reuse_detected`
+(HIGH — a refresh token was replayed after being rotated, i.e. likely
+stolen), `auth.mfa.recovery_code.used` (HIGH — the user's authenticator app
+access was lost or bypassed), and `auth.mfa.verify.failed` (MEDIUM — a wrong
+TOTP/recovery code) — the only actions in the taxonomy representing a
+credential/session integrity concern rather than routine account activity.
+Returned newest-first, capped at 50 rows.
+
+**Index added (migration `0010`):** `idx_logs_action_created_at` on
+`(log_action, created_at DESC)`. None of the existing composite indexes
+(`idx_logs_school_created_at`, `idx_logs_user_created_at`,
+`idx_logs_severity`) serve this dashboard's query shape well — every widget
+here filters by a fixed `log_action IN (...)` list plus a `created_at`
+range, and these auth events carry neither a school ID nor (for
+pre-authentication events) a user ID, and don't share one severity tier.
+
+**Index added (migration `0011`, Phase 11.5.1):**
+`idx_logs_action_ip_created_at` on `(log_action, ip_address, created_at DESC)
+WHERE ip_address IS NOT NULL` — serves the new per-IP grouping/lookup
+queries (`SecurityRepository.GroupFailedLoginsByIP`/
+`GetFailedLoginAttemptTimesByIP`) directly, and the partial-index condition
+means every pre-existing (necessarily NULL-IP) log row is permanently
+excluded from this index rather than dead weight in it.
+
+**No new audit action added.** Viewing this dashboard is a read, gated by
+the same `RequireSchoolMember + RequireRole`/`RequireSystemSuperAdmin`
+checks as every other sensitive read surface in this codebase — consistent
+with how viewing `/logs` itself is not separately audited either.
+
+---
+
 ## Key Features
 
 ### Real-time Calculations
