@@ -1,16 +1,12 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 import {
   PhCheckCircle,
   PhKey,
   PhShieldWarning,
   PhWarningCircle,
 } from "@phosphor-icons/vue";
-import { useAuthStore } from "../../stores/auth";
-import {
-  getAdminSecurityDashboard,
-  getSuperAdminSecurityDashboard,
-} from "../../services/securityDashboard";
+import { getSuperAdminSecurityDashboard } from "../../services/securityDashboard";
 import {
   connectAuditSocket,
   type AuditSocketStatus,
@@ -19,31 +15,20 @@ import type { AuditLogEvent } from "../../types/auditLog";
 import type { SecurityDashboardSummary } from "../../types/securityDashboard";
 import { formatDateTime } from "../../utils/date";
 
-const props = defineProps<{
-  mode: "admin" | "superadmin";
-}>();
-
-const auth = useAuthStore();
-const isSuperAdmin = computed(() => props.mode === "superadmin");
-const schoolId = computed(() => auth.activeSchoolId ?? "");
+// super_admin only (Phase 11.5.2) — the school-admin variant of this page
+// and its endpoint were removed entirely, not just hidden, so there is no
+// mode prop here to branch on anymore. Live updates use the "platform"
+// channel, same one the existing audit log live feed already uses — every
+// action this page reads is scope=platform (see docs/api/dashboard.md §5),
+// which is also why a school-admin variant could never get a true live
+// push in the first place (school admins are forbidden from that channel).
 
 const loading = ref(true);
 const errorMessage = ref("");
 const dashboard = ref<SecurityDashboardSummary | null>(null);
 
-// Every action this page reads is scope=platform with no school_id at all
-// (see docs/api/dashboard.md §5 / log.md — login/password-reset are
-// pre-authentication, MFA/token events are user-scoped, not
-// school-scoped) — so the audit hub only ever broadcasts them to the
-// "platform" channel, and a school admin is explicitly forbidden from
-// joining that channel (see internal/realtime/audit_stream_handler.go).
-// A school admin therefore cannot get a true live push here; this page
-// polls the REST snapshot instead for that role. Super admin gets a real
-// WebSocket subscription, same "platform" channel already used by the
-// existing audit log live feed.
 const liveStatus = ref<AuditSocketStatus>("disconnected");
 let socket: ReturnType<typeof connectAuditSocket> | null = null;
-let pollTimer: number | undefined;
 let refreshDebounceTimer: number | undefined;
 
 const relevantActions = new Set([
@@ -75,9 +60,7 @@ function severityBadgeClass(value?: string) {
 async function loadDashboard() {
   errorMessage.value = "";
   try {
-    dashboard.value = isSuperAdmin.value
-      ? await getSuperAdminSecurityDashboard()
-      : await getAdminSecurityDashboard(schoolId.value);
+    dashboard.value = await getSuperAdminSecurityDashboard();
   } catch {
     errorMessage.value =
       "Dashboard keamanan belum bisa dimuat. Periksa koneksi atau coba lagi nanti.";
@@ -104,23 +87,16 @@ function handleAuditEvent(event: AuditLogEvent) {
 }
 
 function connectLiveFeed() {
-  if (isSuperAdmin.value) {
-    socket = connectAuditSocket({
-      channel: "platform",
-      onEvent: handleAuditEvent,
-      onStatusChange: (status) => (liveStatus.value = status),
-    });
-    return;
-  }
-  // No WebSocket for school admins here (see the comment on liveStatus
-  // above) — periodic REST refresh instead.
-  pollTimer = window.setInterval(loadDashboard, 30000);
+  socket = connectAuditSocket({
+    channel: "platform",
+    onEvent: handleAuditEvent,
+    onStatusChange: (status) => (liveStatus.value = status),
+  });
 }
 
 function disconnectLiveFeed() {
   socket?.close();
   socket = null;
-  if (pollTimer) window.clearInterval(pollTimer);
   if (refreshDebounceTimer) window.clearTimeout(refreshDebounceTimer);
 }
 
@@ -148,17 +124,12 @@ onUnmounted(disconnectLiveFeed);
                 Keamanan
               </h1>
               <p class="mt-1 text-sm leading-6 text-muted">
-                {{
-                  isSuperAdmin
-                    ? "Aktivitas keamanan di seluruh platform, 24 jam terakhir."
-                    : "Aktivitas keamanan sekolah aktif, 24 jam terakhir."
-                }}
+                Aktivitas keamanan di seluruh platform, 24 jam terakhir.
               </p>
             </div>
           </div>
 
           <span
-            v-if="isSuperAdmin"
             class="inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium"
             :class="
               liveStatus === 'connected'
@@ -185,12 +156,6 @@ onUnmounted(disconnectLiveFeed);
                   ? "Terputus"
                   : "Menghubungkan..."
             }}
-          </span>
-          <span
-            v-else
-            class="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-surface-subtle px-2.5 py-1 text-[11px] font-medium text-muted"
-          >
-            Diperbarui otomatis tiap 30 detik
           </span>
         </div>
       </div>

@@ -534,7 +534,6 @@ func main() {
 			dashboardAPI.GET("/teacher/:schoolUserId", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "teacher"), dashboardHandler.GetTeacherDashboard)
 			dashboardAPI.GET("/admin/:schoolId", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin"), dashboardHandler.GetAdminDashboard)
 			dashboardAPI.GET("/super-admin", middleware.RequireSystemSuperAdmin(schoolService), dashboardHandler.GetSuperAdminDashboard)
-			dashboardAPI.GET("/admin/:schoolId/security", middleware.RequireSchoolMember(schoolService), middleware.RequireRole(schoolService, "admin"), securityDashboardHandler.GetAdminSecurityDashboard)
 			dashboardAPI.GET("/super-admin/security", middleware.RequireSystemSuperAdmin(schoolService), securityDashboardHandler.GetSuperAdminSecurityDashboard)
 		}
 

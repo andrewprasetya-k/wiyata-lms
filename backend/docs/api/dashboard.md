@@ -193,21 +193,41 @@ Get platform-wide dashboard data for the super admin.
 Summary widgets for the audit-logging system's authentication/security
 signals — failed logins, brute-force detection, password reset activity,
 and suspicious activity (token reuse, recovery code use, repeated MFA
-failures). Two endpoints, one per permission tier, both returning the same
-`SecurityDashboardDTO` shape — mirrors the split already used by
-`/logs/school/:schoolId/search` (school-pinned) vs `/logs` (unrestricted),
-not the single-bundled-response-per-role convention used elsewhere in this
-document, since a security-specific view has no natural single "role" the
-way student/teacher/admin dashboards do.
+failures).
 
-- **URL:** `/admin/:schoolId/security`
-- **Method:** `GET`
-- **Auth:** `RequireSchoolMember + RequireRole("admin")`
-- **Ownership:** Same as `/admin/:schoolId` — handler verifies `:schoolId` equals the active `school_id` from context.
+**Phase 11.5.2 — super_admin only.** The school-pinned endpoint
+(`GET /admin/:schoolId/security`, `admin` role) shipped in Phase 11.5 was
+**removed entirely** — both the route and the handler method
+(`SecurityDashboardHandler.GetAdminSecurityDashboard`) — rather than left
+in the codebase unregistered. A handler method is a thin routing adapter
+with no reuse value once its route is gone: it hard-codes the
+`admin`-scoped-to-own-school shape, which isn't what a future super_admin
+drill-down (a different auth shape — super_admin viewing an *arbitrary*
+school, not an admin viewing *their own*) would reuse anyway. Deleting it
+avoids unreachable code sitting in the handler package that looks live but
+isn't route-tested by anything.
 
 - **URL:** `/super-admin/security`
 - **Method:** `GET`
-- **Auth:** `RequireRole("super_admin")` — unrestricted, platform-wide, no school scoping.
+- **Auth:** `RequireRole("super_admin")` — unrestricted, platform-wide, no school scoping. This is now the **only** way to reach this dashboard.
+
+**What was deliberately kept, and why it's a dead-code candidate today:**
+`SecurityDashboardService.GetDashboard(schoolID *string)` and every
+`SecurityRepository` method it calls (`CountByActions`,
+`GroupFailedLoginsByEmail`/`ByIP`, `GetFailedLoginAttemptTimes`/`ByIP`,
+`GetRecentByActions`, and the `scopeToSchool` join helper) still accept and
+correctly handle a non-nil `schoolID`. None of that was touched — it's
+exactly the reusable piece a future super_admin drill-down endpoint
+(e.g. `GET /dashboard/super-admin/security/:schoolId`, still
+`RequireSystemSuperAdmin`, just narrowing the same query) would call
+directly with no service/repo changes. **However**, as of this phase, the
+only live call site (`GetSuperAdminSecurityDashboard`) always passes `nil`
+— so the `schoolID != nil` branch in every one of those methods is today
+only exercised by `security_dashboard_service_test.go`
+(`TestGetDashboard_PassesSchoolIDThroughToRepo` and friends), never by an
+actual HTTP request. Flagging this explicitly rather than deleting it
+per-instruction — if no super_admin drill-down feature materializes, this
+is the dead code to revisit later.
 
 **Response (both endpoints, same shape):**
 ```json

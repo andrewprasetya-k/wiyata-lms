@@ -451,13 +451,6 @@ const router = createRouter({
           props: { mode: "admin" },
         },
         {
-          path: "security",
-          name: "admin-security",
-          component: SecurityDashboardPage,
-          meta: { title: "Keamanan" },
-          props: { mode: "admin" },
-        },
-        {
           path: "profile",
           name: "admin-profile",
           component: ReadProfile,
@@ -506,7 +499,6 @@ const router = createRouter({
           name: "superadmin-security",
           component: SecurityDashboardPage,
           meta: { title: "Keamanan" },
-          props: { mode: "superadmin" },
         },
         {
           path: "profile",
