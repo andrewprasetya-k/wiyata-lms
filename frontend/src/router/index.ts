@@ -61,6 +61,7 @@ import AcceptInvitation from "../pages/public/AcceptInvitation.vue";
 import VerifyEmail from "../pages/public/VerifyEmail.vue";
 import NotFoundPage from "../pages/common/NotFoundPage.vue";
 import AuditLogsPage from "../pages/common/AuditLogsPage.vue";
+import SecurityDashboardPage from "../pages/common/SecurityDashboardPage.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -450,6 +451,13 @@ const router = createRouter({
           props: { mode: "admin" },
         },
         {
+          path: "security",
+          name: "admin-security",
+          component: SecurityDashboardPage,
+          meta: { title: "Keamanan" },
+          props: { mode: "admin" },
+        },
+        {
           path: "profile",
           name: "admin-profile",
           component: ReadProfile,
@@ -491,6 +499,13 @@ const router = createRouter({
           name: "superadmin-audit-logs",
           component: AuditLogsPage,
           meta: { title: "Log Audit" },
+          props: { mode: "superadmin" },
+        },
+        {
+          path: "security",
+          name: "superadmin-security",
+          component: SecurityDashboardPage,
+          meta: { title: "Keamanan" },
           props: { mode: "superadmin" },
         },
         {

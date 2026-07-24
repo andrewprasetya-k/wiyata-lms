@@ -3,6 +3,7 @@ import {
   PhBuildings,
   PhClockCounterClockwise,
   PhHouse,
+  PhShieldWarning,
   PhUsers,
 } from "@phosphor-icons/vue";
 import SlimSidebar from "../components/layout/Sidebar.vue";
@@ -17,6 +18,11 @@ const items = [
     label: "Log Audit",
     icon: PhClockCounterClockwise,
     to: "/superadmin/audit-logs",
+  },
+  {
+    label: "Keamanan",
+    icon: PhShieldWarning,
+    to: "/superadmin/security",
   },
 ];
 </script>

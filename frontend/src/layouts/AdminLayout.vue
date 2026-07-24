@@ -7,6 +7,7 @@ import {
   PhChatCircle,
   PhClockCounterClockwise,
   PhHouse,
+  PhShieldWarning,
   PhStudent,
   PhUsers,
 } from "@phosphor-icons/vue";
@@ -47,6 +48,11 @@ const items = computed(() => [
     label: "Log Audit",
     icon: PhClockCounterClockwise,
     to: "/admin/audit-logs",
+  },
+  {
+    label: "Keamanan",
+    icon: PhShieldWarning,
+    to: "/admin/security",
   },
 ]);
 </script>
