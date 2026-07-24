@@ -131,6 +131,7 @@ usr_email varchar(150) [not null]
 usr_password varchar(255)
 is_active boolean [default: true]
 usr_email_verified_at timestamptz [note: 'Phase 0 (email verification). NULL = not verified. See scripts/migrations/0002_add_email_verification.sql']
+usr_mfa_grace_started_at timestamptz [note: 'Phase 11.4 (MFA), migration 0009_add_mfa.sql. When the 7-day MFA grace period began for this user — set automatically on first login after the MFA feature existed (never backdated to created_at or a migration date, so every user gets a full, fair 7-day window regardless of account age). NULL = clock not started yet, including every brand-new account (which starts its window at its very first login).']
 created_at timestamptz [default: `now()`]
 updated_at timestamptz [default: `now()`]
 deleted_at timestamptz
@@ -189,6 +190,52 @@ indexes {
 (rft_token_hash) [unique, name: 'idx_refresh_tokens_token_hash']
 (rft_family_id) [name: 'idx_refresh_tokens_family_id']
 (rft_usr_id) [name: 'idx_refresh_tokens_user']
+}
+}
+
+// TOTP-based MFA, added Phase 11.4 (scripts/migrations/0009_add_mfa.sql).
+// Three tables below (user_mfa, mfa_recovery_codes, mfa_preauth_tokens),
+// plus users.usr_mfa_grace_started_at above. See backend/docs/api/log.md
+// (auth.mfa.* actions) and docs/api/dashboard.md §5 (Security Dashboard)
+// for how this data is consumed elsewhere.
+Table user_mfa {
+umf_id uuid [pk, default: `gen_random_uuid()`]
+umf_usr_id uuid [not null, ref: > users.usr_id]
+umf_secret_encrypted text [not null, note: 'AES-GCM ciphertext, not a hash — unlike every other token/secret table in this schema, a TOTP secret must be decryptable again to validate a submitted code, so one-way hashing would make verification impossible.']
+umf_enabled_at timestamptz [note: 'NULL doubles as "enrollment started but not confirmed yet" — no separate boolean column needed. Set only once MFAService.ConfirmEnrollment validates the first submitted code.']
+created_at timestamptz [default: `now()`]
+updated_at timestamptz [default: `now()`]
+
+indexes {
+(umf_usr_id) [unique, name: 'idx_user_mfa_user']
+}
+}
+
+Table mfa_recovery_codes {
+mrc_id uuid [pk, default: `gen_random_uuid()`]
+mrc_usr_id uuid [not null, ref: > users.usr_id]
+mrc_code_hash text [not null, note: 'SHA-256 hex hash — single-use like an invitation/verification token, never encrypted, since only checking a presented code against an unconsumed hash is needed, not recovering the plaintext.']
+mrc_consumed_at timestamptz
+created_at timestamptz [default: `now()`]
+
+indexes {
+(mrc_usr_id) [name: 'idx_mfa_recovery_codes_user']
+(mrc_code_hash) [unique, name: 'idx_mfa_recovery_codes_hash']
+}
+}
+
+Table mfa_preauth_tokens {
+mpt_id uuid [pk, default: `gen_random_uuid()`]
+mpt_usr_id uuid [not null, ref: > users.usr_id]
+mpt_token_hash text [not null, note: 'SHA-256 hex hash of the raw token; raw token is never stored, mirrors email_verifications.evf_token_hash / password_reset_tokens.prt_token_hash / refresh_tokens.rft_token_hash']
+mpt_purpose text [not null, note: 'application-validated, not a DB constraint — "mfa_verify" (MFA already enabled; a code is required before real tokens are issued) or "mfa_enroll_required" (grace period expired with no MFA enrolled; enrollment is required before real tokens are issued). Kept distinct so the forced-setup endpoints (POST /login/mfa-setup/enroll, /confirm) reject a token issued for the wrong purpose. See domain.MFAPreAuthPurposeVerify / MFAPreAuthPurposeEnrollRequired.']
+mpt_expires_at timestamptz [not null, note: '~10 minutes (mfaPreAuthTokenTTL) — long enough to open an authenticator app and type a code, short enough not to leave a "password verified, MFA pending" window open for long.']
+mpt_consumed_at timestamptz
+created_at timestamptz [default: `now()`]
+
+indexes {
+(mpt_token_hash) [unique, name: 'idx_mfa_preauth_tokens_hash']
+(mpt_usr_id) [name: 'idx_mfa_preauth_tokens_user']
 }
 }
 
@@ -471,7 +518,7 @@ entity_type text [note: 'polymorphic — no FK, target table varies by action (e
 entity_id uuid [note: 'polymorphic — no FK, paired with entity_type']
 scope text [note: 'application-validated, not a DB constraint — "platform" or "school"']
 severity text [note: 'application-validated, not a DB constraint — LOW, MEDIUM, HIGH, or CRITICAL (CRITICAL added Phase 10.12, used only by user.deleted)']
-ip_address text
+ip_address text [note: 'Column existed since Phase 10.4 but nothing wrote to it until Phase 11.5.1 (auth_service.go), which populates it for auth.login.failed/success, member.login, auth.token.refreshed/reuse_detected, and auth.mfa.verified/verify.failed/recovery_code.used — sourced from the request\'s ClientIP() via RefreshTokenMetadata. Every row logged before Phase 11.5.1 has NULL here permanently. See docs/api/dashboard.md §5 (Security Dashboard) for the per-IP brute-force detection this enables.']
 user_agent text
 correlation_id uuid [note: 'links a bulk-import parent row to its child rows (Phase 10.2 §5, Option B) — written via LogService.LogBatch']
 log_metadata jsonb
@@ -482,6 +529,8 @@ indexes {
 (log_usr_id, created_at) [name: 'idx_logs_user_created_at', note: 'DESC on created_at. Same history as above — formalized by migration 0004 (Phase 10.15).']
 (correlation_id) [name: 'idx_logs_correlation_id', note: 'Added Phase 10.15 for GetByCorrelationID, which queries this column alone with no other filter to narrow the row set — see docs/PERFORMANCE_AUDIT.md']
 (severity, created_at) [name: 'idx_logs_severity', note: 'DESC on created_at. Added Phase 10.15 (single-column) for the unrestricted platform-wide GET /logs search; upgraded to this composite shape in Phase 10.16 (migration 0005) so the same index also satisfies the ORDER BY created_at DESC pagination that path always applies, instead of needing a separate sort step. scope/entity_type deliberately not indexed — see docs/PERFORMANCE_AUDIT.md']
+(log_action, created_at) [name: 'idx_logs_action_created_at', note: 'DESC on created_at. Added Phase 11.5 (migration 0010) for the Security Dashboard — every widget there filters WHERE log_action IN (...) AND created_at >= ?, a shape none of the other composite indexes serve well (these auth.* actions carry neither a school_id nor, for pre-authentication events, a user_id, and do not share one severity tier). See docs/api/dashboard.md §5.']
+(log_action, ip_address, created_at) [name: 'idx_logs_action_ip_created_at', note: 'DESC on created_at. Partial index — only WHERE ip_address IS NOT NULL. Added Phase 11.5.1 (migration 0011) for the Security Dashboard\'s per-IP brute-force grouping/lookup queries; the partial condition means every log row written before IP capture began (Phase 11.5.1, see the ip_address column note above) is permanently excluded from this index rather than dead weight in it. See docs/api/dashboard.md §5.']
 }
 }
 
